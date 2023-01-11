@@ -1,0 +1,161 @@
+@keyframes pulse_gradient_green { 0% { background:$button-green-gradient-top; } 50% { background:$button-green-gradient-bottom; } 100% { background: $button-green-gradient-top; } }
+@keyframes pulse_gradient_red   { 0% { background:$button-red-gradient-top;   } 50% { background:$button-red-gradient-bottom;   } 100% { background: $button-red-gradient-top;   } }
+@keyframes pulse_gradient_blue  { 0% { background:$button-blue-gradient-top;  } 50% { background:$button-blue-gradient-bottom;  } 100% { background: $button-blue-gradient-top;  } }
+@keyframes pulse_gradient_grey  { 0% { background:$button-grey-gradient-top;  } 50% { background:$button-grey-gradient-bottom;  } 100% { background: $button-grey-gradient-top;  } }
+
+.menu-button {
+  font-size: $font-size-medium;
+  opacity: 0.6;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  padding: 0 0.2rem;
+  margin: 0 0.3rem;
+  background: none;
+  display: inline-block;
+  border: none;
+}
+
+.header .menu-button {
+  color: $dark !important;
+}
+
+.simple-button {
+  font-size: $font-size-large;
+  opacity: 1.0;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  padding: 0 0.2rem;
+  margin: 0 0.3rem;
+  background: none;
+  display: inline-block;
+  border: none;
+}
+
+.button, .button.green {
+  background: $button-green;
+  background: linear-gradient(to bottom, $button-green-gradient-top, $button-green-gradient-bottom);
+  border: 0.5rem solid rgba(255,255,255,1.0);
+  border-radius: 2.2rem;
+  color: #ffffff;
+  text-shadow: 0 0.1rem 0.4rem rgba(0,0,0,0.4),0 0.1rem 0 rgba(255,255,255,0);
+  box-shadow: 0 0.1rem 0.4rem rgba(255,255,255,0),inset 0 0 0.3rem rgba(0,0,0,0.4);
+  display: inline-block;
+  font-size: $font-size-medium;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0.8rem 1.5rem;
+  margin: 0.5rem 0;
+  text-decoration: none;
+  &.small {
+    font-size: $font-size-small;
+    padding: 0.4rem 1.0rem;
+    border-radius: 2.2rem;
+    border-width: 0.3rem;
+  }
+  &:hover, &:active {
+    animation: pulse_gradient_green 1s linear infinite;
+  }
+  &.red {
+    background: $button-red;
+    background: linear-gradient(to bottom, $button-red-gradient-top, $button-red-gradient-bottom);
+    //border-color: $button-red-border;
+  }
+  &.red:hover, &.red:active {
+    animation: pulse_gradient_red 1s linear infinite;
+  }
+  &.blue {
+    background: $button-blue;// url(/dist/images/interface_icons/empty.svg) no-repeat;
+    background: linear-gradient(to bottom, $button-blue-gradient-top, $button-blue-gradient-bottom);
+    //border-color: $button-blue-border;
+  }
+  &.blue:hover, &.blue:active {
+    animation: pulse_gradient_blue 1s linear infinite;
+  }
+  &.grey {
+    background: $button-grey;
+    background: linear-gradient(to bottom, $button-grey-gradient-top, $button-grey-gradient-bottom);
+    //border-color: $button-grey-border;
+  }
+  &.grey:hover, &.grey:active {
+    animation: pulse_gradient_grey 1s linear infinite;
+  }
+}
+
+.shortcut-button {
+  padding: 0.5rem 0.7rem;
+  margin-right: 0.5rem;
+  border-radius: 0.7rem;
+  border-width: 0.25rem;
+}
+
+.button--link {
+  background: none;
+}
+
+.button--secondary {
+  background: #888;
+}
+
+.google-oauth-button-container {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.google-oauth-button {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 1.5rem;
+  color: #757575 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 1.1rem 1.1rem 1.1rem 5.1rem;
+  background: url("/dist/images/google/btn_google_light_normal_ios.svg") #ffffff;
+  background-size: 1.7rem 1.7rem;
+  background-position: 1.1rem center;
+  background-repeat: no-repeat;
+  box-shadow: 0 0.1rem 0.25rem 0 rgba(0,0,0,0.3);
+  border-radius: 0.2rem;
+  &:hover {
+    color: #555555 !important;
+  }
+  &:active {
+    background-color: rgba(0,0,0,0.0005);
+  }
+}
+
+.facebook-oauth-button-container {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.facebook-oauth-button {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 1.5rem;
+  color: #ffffff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 1.1rem 1.1rem 1.1rem 5.1rem;
+  background: url("/dist/images/facebook/btn_facebook.svg") #4267b2;
+  background-size: 2.6rem 2.6rem;
+  background-position: 1.1rem center;
+  background-repeat: no-repeat;
+  box-shadow: 0 0.1rem 0.25rem 0 rgba(0,0,0,0.3);
+  border-radius: 0.2rem;
+  &:hover {
+    color: #ffffff !important;
+  }
+  &:active {
+    background-color: #26488C;
+  }
+}

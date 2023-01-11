@@ -1,0 +1,34 @@
+{
+  "presets": [
+    ["@babel/preset-react",
+      {
+        "useBuiltIns": "entry",
+        "corejs": "3"
+      }
+    ],
+    [
+      "@babel/preset-env",
+      {
+        "targets": "> 0.25%, not dead",
+        "useBuiltIns": "entry",
+        "corejs": "3"
+      }
+    ],
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    "@babel/plugin-syntax-dynamic-import",
+    "@babel/plugin-syntax-object-rest-spread",
+    "@babel/plugin-proposal-object-rest-spread",
+    "@babel/plugin-transform-spread",
+    "@babel/plugin-proposal-class-properties",
+    "@babel/plugin-transform-react-jsx",
+    "@babel/plugin-syntax-jsx",
+    "emotion",
+    ["@babel/plugin-transform-runtime",
+      {
+        "regenerator": true
+      }
+    ]
+  ]
+}
