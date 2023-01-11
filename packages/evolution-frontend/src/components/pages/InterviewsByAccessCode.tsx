@@ -1,0 +1,67 @@
+/*
+ * Copyright 2022, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+import React from 'react';
+import { withTranslation, WithTranslation } from 'react-i18next';
+import { RouteComponentProps } from 'react-router';
+import { History } from 'history';
+import Loadable from 'react-loadable';
+import Loader from 'react-spinners/HashLoader';
+import { InterviewContext, interviewReducer, initialState } from '../../contexts/InterviewContext';
+import InputString from 'chaire-lib-frontend/lib/components/input/InputString';
+import { Link } from 'react-router-dom';
+
+interface MatchParams {
+    accessCode: string;
+}
+
+export interface InterviewsByCodePageProps extends WithTranslation, RouteComponentProps<MatchParams> {
+    isAuthenticated: boolean;
+    history: History;
+    // TODO Type the user
+    user: { [key: string]: any };
+}
+
+const loader = function Loading() {
+    return <Loader size={30} color={'#aaaaaa'} loading={true} />;
+};
+
+const InterviewsComponent = Loadable({
+    loader: () => import('../pageParts/interviews/InterviewSearchList'),
+    loading: loader
+});
+
+const InterviewsByAccessCode: React.FunctionComponent<InterviewsByCodePageProps> = (
+    props: InterviewsByCodePageProps
+) => {
+    const [currentCode, setCurrentCode] = React.useState(props.match.params.accessCode);
+    const { state, dispatch } = React.useContext(InterviewContext);
+    React.useEffect(() => {
+        if (props.match.params.accessCode !== state.responses.accessCode) {
+            dispatch({ type: 'update_responses', responses: { accessCode: props.match.params.accessCode } });
+        }
+    }, [state.responses]);
+
+    return (
+        <div className="admin">
+            <div className="survey-section__content apptr__form-container">
+                <InputString
+                    id="accessCodeSearchInput"
+                    value={currentCode}
+                    onValueUpdated={(newValue) => setCurrentCode(newValue.value)}
+                ></InputString>
+                <Link to={`/interviews/byCode/${currentCode}`}>
+                    <button type="button" className={'survey-section__button button blue small'}>
+                        {props.t('admin:interviewSearch:SearchByCode')}
+                    </button>
+                </Link>
+            </div>
+            <InterviewsComponent />
+        </div>
+    );
+};
+
+export default withTranslation()(InterviewsByAccessCode);

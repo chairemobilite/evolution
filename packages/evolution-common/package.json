@@ -1,0 +1,37 @@
+{
+  "engines": {
+    "node": ">=12.9.0"
+  },
+  "name": "evolution-common",
+  "version": "0.2.2",
+  "description": "Common type library for evolution",
+  "repository": "github.com/chairemobilite/evolution",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc",
+    "compile:dev": "tsc -w",
+    "test": "cross-env NODE_ENV=test jest --config=jest.config.js",
+    "test:unit": "cross-env NODE_ENV=test jest --config=jest.config.js",
+    "test:sequential": "echo 'no tests to run for this workspace'",
+    "test:ui": "echo 'no tests to run for this workspace'",
+    "lint": "eslint .",
+    "format": "prettier-eslint $PWD/'src/**/*.{ts,tsx}' --write"
+  },
+  "dependencies": {
+    "chaire-lib-common": "^0.2.2",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.get": "^4.4.2",
+    "lodash.isequal": "^4.5.0",
+    "lodash.set": "^4.3.2",
+    "typescript": "^4.4.4"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.38",
+    "@typescript-eslint/eslint-plugin": "^5.45.1",
+    "@typescript-eslint/parser": "^5.45.1",
+    "eslint": "^8.29.0",
+    "eslint-plugin-node": "^11.1.0",
+    "jest-each": "^27.3.1",
+    "prettier-eslint-cli": "^7.1.0"
+  }
+}

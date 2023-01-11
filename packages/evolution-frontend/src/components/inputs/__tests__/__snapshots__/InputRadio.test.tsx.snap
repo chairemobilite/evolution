@@ -1,0 +1,594 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Render InputRadio with minimum parameters Minimum parameters 1`] = `
+<div
+  className="survey-question__input-radio-group-container"
+>
+  <div
+    className="survey-question__input-radio-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-radio"
+        id="test_val1__input-radio__val1"
+        name="test_val1"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="radio"
+        value="val1"
+      />
+      <label
+        htmlFor="test_val1__input-radio__val1"
+        onClick={[Function]}
+      >
+        <span>
+          english value
+        </span>
+      </label>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-radio"
+        id="test_val2__input-radio__val2"
+        name="test_val2"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="radio"
+        value="val2"
+      />
+      <label
+        htmlFor="test_val2__input-radio__val2"
+        onClick={[Function]}
+      >
+        <span>
+          Unilingual label
+        </span>
+      </label>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputRadio with various parameter combinations, all parameters Conditional value hidden, same line 1`] = `
+<div
+  className="survey-question__input-radio-group-container"
+>
+  <div
+    className="survey-question__input-radio-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-radio"
+        id="test_val1__input-radio__val1"
+        name="test_val1"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="radio"
+        value="val1"
+      />
+      <label
+        htmlFor="test_val1__input-radio__val1"
+        onClick={[Function]}
+      >
+        <span>
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-crow fa-w-20 faIconLeft"
+            data-icon="crow"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={
+              Object {
+                "margin": "auto 0",
+              }
+            }
+            viewBox="0 0 640 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M544 32h-16.36C513.04 12.68 490.09 0 464 0c-44.18 0-80 35.82-80 80v20.98L12.09 393.57A30.216 30.216 0 0 0 0 417.74c0 22.46 23.64 37.07 43.73 27.03L165.27 384h96.49l44.41 120.1c2.27 6.23 9.15 9.44 15.38 7.17l22.55-8.21c6.23-2.27 9.44-9.15 7.17-15.38L312.94 384H352c1.91 0 3.76-.23 5.66-.29l44.51 120.38c2.27 6.23 9.15 9.44 15.38 7.17l22.55-8.21c6.23-2.27 9.44-9.15 7.17-15.38l-41.24-111.53C485.74 352.8 544 279.26 544 192v-80l96-16c0-35.35-42.98-64-96-64zm-80 72c-13.25 0-24-10.75-24-24 0-13.26 10.75-24 24-24s24 10.74 24 24c0 13.25-10.75 24-24 24z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+        </span>
+        <span>
+          english value
+        </span>
+      </label>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-radio"
+        id="test_val2__input-radio__val2"
+        name="test_val2"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="radio"
+        value="val2"
+      />
+      <label
+        htmlFor="test_val2__input-radio__val2"
+        onClick={[Function]}
+      >
+        <span>
+          <img
+            alt="Unilingual label"
+            className="faIconLeft"
+            src="img/test.png"
+            style={
+              Object {
+                "height": "3em",
+                "margin": "0 0.25em 0 0",
+              }
+            }
+          />
+        </span>
+        <span>
+          Unilingual label
+        </span>
+      </label>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputRadio with various parameter combinations, all parameters Includes hidden values, conditional displayed, no custom, 2 columns 1`] = `
+<div
+  className="survey-question__input-radio-group-container no-wrap"
+>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_val1__input-radio__val1"
+          name="test_val1"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="val1"
+        />
+        <label
+          htmlFor="test_val1__input-radio__val1"
+          onClick={[Function]}
+        >
+          <span>
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-crow fa-w-20 faIconLeft"
+              data-icon="crow"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={
+                Object {
+                  "margin": "auto 0",
+                }
+              }
+              viewBox="0 0 640 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M544 32h-16.36C513.04 12.68 490.09 0 464 0c-44.18 0-80 35.82-80 80v20.98L12.09 393.57A30.216 30.216 0 0 0 0 417.74c0 22.46 23.64 37.07 43.73 27.03L165.27 384h96.49l44.41 120.1c2.27 6.23 9.15 9.44 15.38 7.17l22.55-8.21c6.23-2.27 9.44-9.15 7.17-15.38L312.94 384H352c1.91 0 3.76-.23 5.66-.29l44.51 120.38c2.27 6.23 9.15 9.44 15.38 7.17l22.55-8.21c6.23-2.27 9.44-9.15 7.17-15.38l-41.24-111.53C485.74 352.8 544 279.26 544 192v-80l96-16c0-35.35-42.98-64-96-64zm-80 72c-13.25 0-24-10.75-24-24 0-13.26 10.75-24 24-24s24 10.74 24 24c0 13.25-10.75 24-24 24z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span>
+            english value
+          </span>
+        </label>
+      </div>
+    </div>
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_val2__input-radio__val2"
+          name="test_val2"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="val2"
+        />
+        <label
+          htmlFor="test_val2__input-radio__val2"
+          onClick={[Function]}
+        >
+          <span>
+            <img
+              alt="Unilingual label"
+              className="faIconLeft"
+              src="img/test.png"
+              style={
+                Object {
+                  "height": "3em",
+                  "margin": "0 0.25em 0 0",
+                }
+              }
+            />
+          </span>
+          <span>
+            Unilingual label
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_conditionalVal__input-radio__conditionalVal"
+          name="test_conditionalVal"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="conditionalVal"
+        />
+        <label
+          htmlFor="test_conditionalVal__input-radio__conditionalVal"
+          onClick={[Function]}
+        >
+          <span>
+            english conditional
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputRadio with various parameter combinations, all parameters Shuffle choices 1`] = `
+<div
+  className="survey-question__input-radio-group-container no-wrap"
+>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_val2__input-radio__val2"
+          name="test_val2"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="val2"
+        />
+        <label
+          htmlFor="test_val2__input-radio__val2"
+          onClick={[Function]}
+        >
+          <span>
+            <img
+              alt="Unilingual label"
+              className="faIconLeft"
+              src="img/test.png"
+              style={
+                Object {
+                  "height": "3em",
+                  "margin": "0 0.25em 0 0",
+                }
+              }
+            />
+          </span>
+          <span>
+            Unilingual label
+          </span>
+        </label>
+      </div>
+    </div>
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_conditionalVal__input-radio__conditionalVal"
+          name="test_conditionalVal"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="conditionalVal"
+        />
+        <label
+          htmlFor="test_conditionalVal__input-radio__conditionalVal"
+          onClick={[Function]}
+        >
+          <span>
+            english conditional
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_val1__input-radio__val1"
+          name="test_val1"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="val1"
+        />
+        <label
+          htmlFor="test_val1__input-radio__val1"
+          onClick={[Function]}
+        >
+          <span>
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-crow fa-w-20 faIconLeft"
+              data-icon="crow"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={
+                Object {
+                  "margin": "auto 0",
+                }
+              }
+              viewBox="0 0 640 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M544 32h-16.36C513.04 12.68 490.09 0 464 0c-44.18 0-80 35.82-80 80v20.98L12.09 393.57A30.216 30.216 0 0 0 0 417.74c0 22.46 23.64 37.07 43.73 27.03L165.27 384h96.49l44.41 120.1c2.27 6.23 9.15 9.44 15.38 7.17l22.55-8.21c6.23-2.27 9.44-9.15 7.17-15.38L312.94 384H352c1.91 0 3.76-.23 5.66-.29l44.51 120.38c2.27 6.23 9.15 9.44 15.38 7.17l22.55-8.21c6.23-2.27 9.44-9.15 7.17-15.38l-41.24-111.53C485.74 352.8 544 279.26 544 192v-80l96-16c0-35.35-42.98-64-96-64zm-80 72c-13.25 0-24-10.75-24-24 0-13.26 10.75-24 24-24s24 10.74 24 24c0 13.25-10.75 24-24 24z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span>
+            english value
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputRadio with various parameter combinations, all parameters With custom choice 1`] = `
+<div
+  className="survey-question__input-radio-group-container no-wrap"
+>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_val1__input-radio__val1"
+          name="test_val1"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="val1"
+        />
+        <label
+          htmlFor="test_val1__input-radio__val1"
+          onClick={[Function]}
+        >
+          <span>
+            <svg
+              aria-hidden="true"
+              className="svg-inline--fa fa-crow fa-w-20 faIconLeft"
+              data-icon="crow"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              style={
+                Object {
+                  "margin": "auto 0",
+                }
+              }
+              viewBox="0 0 640 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M544 32h-16.36C513.04 12.68 490.09 0 464 0c-44.18 0-80 35.82-80 80v20.98L12.09 393.57A30.216 30.216 0 0 0 0 417.74c0 22.46 23.64 37.07 43.73 27.03L165.27 384h96.49l44.41 120.1c2.27 6.23 9.15 9.44 15.38 7.17l22.55-8.21c6.23-2.27 9.44-9.15 7.17-15.38L312.94 384H352c1.91 0 3.76-.23 5.66-.29l44.51 120.38c2.27 6.23 9.15 9.44 15.38 7.17l22.55-8.21c6.23-2.27 9.44-9.15 7.17-15.38l-41.24-111.53C485.74 352.8 544 279.26 544 192v-80l96-16c0-35.35-42.98-64-96-64zm-80 72c-13.25 0-24-10.75-24-24 0-13.26 10.75-24 24-24s24 10.74 24 24c0 13.25-10.75 24-24 24z"
+                fill="currentColor"
+                style={Object {}}
+              />
+            </svg>
+          </span>
+          <span>
+            english value
+          </span>
+        </label>
+      </div>
+    </div>
+    <div
+      className="survey-question__input-radio-input-container checked"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={true}
+          className="input-radio"
+          id="test_val2__input-radio__val2"
+          name="test_val2"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="val2"
+        />
+        <label
+          htmlFor="test_val2__input-radio__val2"
+          onClick={[Function]}
+        >
+          <span>
+            <img
+              alt="Unilingual label"
+              className="faIconLeft"
+              src="img/test.png"
+              style={
+                Object {
+                  "height": "3em",
+                  "margin": "0 0.25em 0 0",
+                }
+              }
+            />
+          </span>
+          <span>
+            Unilingual label
+          </span>
+        </label>
+      </div>
+      <input
+        autoComplete="none"
+        className="apptr__form-input input-custom apptr__input-string"
+        id="foo.test.custom"
+        name="foo.test.custom"
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        tabIndex={-1}
+        type="text"
+        value=""
+      />
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_conditionalVal__input-radio__conditionalVal"
+          name="test_conditionalVal"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="conditionalVal"
+        />
+        <label
+          htmlFor="test_conditionalVal__input-radio__conditionalVal"
+          onClick={[Function]}
+        >
+          <span>
+            english conditional
+          </span>
+        </label>
+      </div>
+    </div>
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_custom__input-radio__custom"
+          name="test_custom"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="custom"
+        />
+        <label
+          htmlFor="test_custom__input-radio__custom"
+          onClick={[Function]}
+        >
+          <span>
+            Other
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
