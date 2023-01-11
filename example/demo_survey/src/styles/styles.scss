@@ -1,0 +1,195 @@
+$desktop-breakpoint: 50rem;
+
+.survey-half-or-full-width-no-margin-before-desktop-breakpoint {
+  margin-right: 2rem;
+  box-sizing: border-box;
+  @media only screen and (max-width: $desktop-breakpoint) {
+    width: 100%;
+    margin-right: 0;
+  }
+}
+
+.survey-visited-places-list-and-map-container, .survey-trips-list-and-map-container {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+
+  @media only screen and (max-width: $desktop-breakpoint) {
+    display: block;
+  }
+
+  .survey-visited-places-list, .survey-trips-list {
+    margin-right: 1rem;
+    @media only screen and (max-width: $desktop-breakpoint) {
+      margin-right: 0;
+    }
+  }
+
+  .survey-visited-places-list, .survey-trips-list {
+    width: 50%;
+    margin-right: 2rem;
+    &.full-width {
+      width: 100%;
+      margin-right: 0;
+    }
+    @media only screen and (max-width: $desktop-breakpoint) {
+      width: 100%;
+    }
+  }
+
+  .survey-visited-places-map, .survey-trips-map {
+    width: 50%;
+    &.full-width {
+      width: 100%;
+    }
+    @media only screen and (max-width: $desktop-breakpoint) {
+      width: 100%;
+    }
+  }
+  
+  .survey-visited-place-item-description {
+    @media only screen and (max-width: $desktop-breakpoint) {
+      max-width: 80%;
+    }
+  }
+
+  .survey-visited-places-map {
+    //width: 50%;
+  }
+
+  .survey-trips-map {
+    //width: 40%;
+  }
+
+}
+
+.survey-visited-place-item-buttons, .survey-trip-item-buttons {
+  margin-left: auto;
+  text-align: right;
+}
+
+
+
+.survey-visited-place-item, .survey-trip-item {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 1.45rem;
+  width: 100%;
+  margin: 0;
+  @media only screen and (max-width: $desktop-breakpoint) {
+    flex-flow: row wrap;
+  }
+  
+  .survey-visited-place-item-element, .survey-trip-item-element {
+    display: flex;
+    align-items: center;
+  }
+
+  .survey-trip-item-origin-description {
+    width: 45%; overflow: hidden;
+    max-height: 8rem;
+  }
+
+  .survey-trip-item-destination-description {
+    width: 45%; overflow: hidden;
+    max-height: 8rem;
+  }
+
+  &.survey-visited-place-item-selected {
+    background-color: rgba(31, 59, 107, 0.1);
+    border-color: rgba(28, 58, 109, 0.20);
+  }
+
+  &.survey-trip-item-name {
+    padding: 0.2rem 0.4rem 0 0.4rem;
+    border-top: 1px solid rgba(0,0,0,0.15);
+    background: rgba(0,0,0,0.04);
+  }
+
+  &.survey-trip-item-description {
+    //margin-bottom: 0.4rem;
+    padding: 0 0.4rem 0.2rem 0.4rem;
+    //border-bottom: 1px solid rgba(0,0,0,0.15);
+    background: rgba(0,0,0,0.04);
+  }
+
+  &.survey-trip-item-mode-icons {
+    padding: 0.4em 0.4rem 0.4rem 0.4rem;
+    background: rgba(0,0,0,0.04);
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+    margin-bottom: 0.4rem;
+  }
+}
+
+.survey-visited-place-item {
+  padding: 0.2rem 0.4rem 0.2rem 0.4rem;
+  border-top: 1px solid rgba(0,0,0,0.15);
+  border-bottom: 1px solid rgba(0,0,0,0.15);
+  margin-bottom: 0.4rem;
+  background: rgba(0,0,0,0.04);
+}
+
+.survey-visited-places-schedules {
+  width: 100%;
+  //overflow-x: hidden;
+  //height: 2em;
+  .survey-visited-places-schedule-person-container {
+    width: 100%;
+    //overflow-x: hidden;
+    //height: 2em;
+    
+    p {
+      margin-top: 0.3em;
+      margin-bottom: 0;
+      font-style: oblique;
+    }
+
+    .survey-visited-places-schedule-person {
+      width: 100%;
+      position: relative;
+      //overflow-x: hidden;
+      height: 2em;
+      background: rgba(115, 147, 184, 0.5) url(/dist/images/interface_icons/carret-right-white.svg);
+      background-size: 1.2em 1.2em;
+      background-repeat: repeat-x;
+      background-position: center left;
+      //border: 1px solid rgba(0,0,0,0.05);
+      
+      .survey-visited-places-schedule-visited-place {
+        position: absolute;
+        //border-left: 1px solid rgba(0,0,0,0.3);
+        //border-right: 1px solid rgba(0,0,0,0.3);
+        border: 1px solid rgba(0,0,0,0.3);
+        background: rgba(255,255,255,1.0);
+        height: 2em;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        z-index: 1;
+
+        //box-shadow: -1em 0 1em rgba(0,0,0,0.5);
+        
+        p {margin-bottom: 0; margin-top: 0;}
+
+        .survey-visited-places-schedule-visited-place-icon {
+          text-align: center;
+        }
+        
+        &:hover, &:active, &:focus {
+          min-width: 10em;
+          height: 4em;
+          z-index: 2;
+        }
+  
+      }
+
+      .survey-visited-places-schedule-visited-place.hand-cursor-on-hover:hover {
+        cursor: pointer;
+      }
+    }
+  }
+
+  
+
+}
