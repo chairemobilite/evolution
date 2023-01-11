@@ -4,6 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+// FIXME With this javascript only workspace and webpack, this file needs to be
+// outside the src/ directory, otherwise there is no loader for React syntax...
 import React                    from 'react';
 import ReactDOM                 from 'react-dom';
 import { Provider }             from 'react-redux';
@@ -12,11 +14,11 @@ import { createBrowserHistory } from 'history';
 import { Router }               from 'react-router-dom';
 
 import config from 'chaire-lib-frontend/lib/config/project.config';
-import i18n              from './config/survey/i18n.config';
-import SurveyRouter      from './routers/survey/SurveyRouter';
-import configureStore    from './store/survey/configureStore';
-import { login, logout } from './actions/shared/auth';
-import LoadingPage       from './components/shared/LoadingPage';
+import i18n              from './src/config/survey/i18n.config';
+import SurveyRouter      from './src/routers/survey/SurveyRouter';
+import configureStore    from './src/store/survey/configureStore';
+import { login, logout } from './src/actions/shared/auth';
+import LoadingPage       from './src/components/shared/LoadingPage';
 import { InterviewContext, interviewReducer, initialState } from 'evolution-frontend/lib/contexts/InterviewContext';
 // TODO When the project is the root of the application (instead of evolution directly importing project files), this should go in the project
 import { SurveyContext, surveyReducer } from 'evolution-frontend/lib/contexts/SurveyContext';
@@ -24,7 +26,7 @@ import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/
 
 // TODO Project configuration should be done in the project itself when it is the entry point, but for now, here should be the only place it is imported this way
 try {
-    require(`./../projects/${process.env.PROJECT_SHORTNAME}/src/project.config.js`);
+    require(`./../../example/${process.env.PROJECT_SHORTNAME}/src/project.config.js`);
 }
 catch (error)
 {
@@ -32,7 +34,7 @@ catch (error)
 }
   
 
-import './styles/survey/styles-survey.scss';
+import './src/styles/survey/styles-survey.scss';
 
 // TODO This is a workaround to get the links to the user, until some more complete solution is implemented (see https://github.com/chairemobilite/transition/issues/1516)
 const pages = [

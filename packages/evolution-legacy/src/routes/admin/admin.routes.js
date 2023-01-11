@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const knex           = require('knex')(require('../../../knexfile'));
+const knex           = require('chaire-lib-backend/lib/config/shared/db.config').default;
 const moment         = require('moment-timezone');
 const fs             = require('fs');
 const chalk          = require('chalk');
@@ -12,6 +12,7 @@ const isObject       = require('lodash.isobject');
 const isEmpty        = require('lodash.isempty');
 const _mean          = require('lodash.mean');
 const _get           = require('lodash.get');
+const { directoryManager } = require('chaire-lib-backend/lib/utils/filesystem/directoryManager');
 
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 
@@ -186,8 +187,7 @@ const createDirectoryIfNotExists = function(relativeDirectoryPath) {
 
 const getInterviewsCache = function(cacheName) {
 
-  const cacheFilePath = __dirname + `/../../../cache/${cacheName}.json`;
-  createDirectoryIfNotExists(`/../../../cache/`);
+  const cacheFilePath = `${directoryManager.cacheDirectory}/${cacheName}.json`;
   let interviewsCache = null;
   // disable cache for now since it will count twice when an interview is updated after being added to cache
   //if (fs.existsSync(cacheFilePath))
