@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Should correctly render InputString with a value of 0 1`] = `
+<input
+  autoComplete="none"
+  className="apptr__form-input apptr__input-string input-large"
+  id="test"
+  maxLength={255}
+  name="test"
+  onChange={[Function]}
+  type="text"
+  value={0}
+/>
+`;
+
+exports[`Should correctly render InputString with all parameters 1`] = `
+<input
+  autoComplete="none"
+  className="apptr__form-input apptr__input-string input-medium"
+  id="test"
+  maxLength={20}
+  name="test"
+  onBlur={[Function]}
+  onChange={[Function]}
+  type="text"
+  value="test"
+/>
+`;
+
+exports[`Should correctly render InputString with base parameters 1`] = `
+<input
+  autoComplete="none"
+  className="apptr__form-input apptr__input-string input-large"
+  id="test"
+  maxLength={255}
+  name="test"
+  onChange={[Function]}
+  type="text"
+  value="value"
+/>
+`;
+
+exports[`Should correctly render InputString with default value as function 1`] = `
+<input
+  autoComplete="none"
+  className="apptr__form-input apptr__input-string input-medium"
+  id="test"
+  maxLength={20}
+  name="test"
+  onBlur={[Function]}
+  onChange={[Function]}
+  type="text"
+  value="fctDefault"
+/>
+`;

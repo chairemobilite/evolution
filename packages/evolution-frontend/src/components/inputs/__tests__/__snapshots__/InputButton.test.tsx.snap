@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`InputButton with normal options Render InputButton with normal option type 1`] = `
+<div
+  className="survey-question__input-button-group-container"
+>
+  <div
+    className="survey-question__input-button-input-container"
+  >
+    <button
+      className="survey-section__button button green large"
+      id="test__input-button__val1"
+      onClick={[Function]}
+      type="button"
+    >
+      english value
+    </button>
+  </div>
+  <div
+    className="survey-question__input-button-input-container"
+  >
+    <button
+      className="survey-section__button button red small"
+      id="test__input-button__val2"
+      onClick={[Function]}
+      type="button"
+    >
+      Unilingual label
+    </button>
+  </div>
+  <div
+    className="survey-question__input-button-input-container"
+  >
+    <button
+      className="survey-section__button button green large"
+      id="test__input-button__conditionalVal"
+      onClick={[Function]}
+      type="button"
+    >
+      english conditional
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Render InputButton with choice function 1`] = `
+<div
+  className="survey-question__input-button-group-container no-wrap align-center"
+>
+  <div
+    className="survey-question__input-button-input-container"
+  >
+    <button
+      className="survey-section__button button green large"
+      id="test__input-button__val1"
+      onClick={[Function]}
+      type="button"
+    >
+      english value
+    </button>
+  </div>
+  <div
+    className="survey-question__input-button-input-container"
+  >
+    <button
+      className="survey-section__button button red small"
+      id="test__input-button__val2"
+      onClick={[Function]}
+      type="button"
+    >
+      Unilingual label
+    </button>
+  </div>
+</div>
+`;

@@ -1,0 +1,104 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Render InputSelect with choice function and grouped choice type 1`] = `
+<div
+  className="survey-question__input-select-container"
+>
+  <select
+    id="test"
+    onChange={[Function]}
+    style={
+      Object {
+        "maxWidth": "100%",
+        "overflow": "hidden",
+        "textOverflow": "ellipsis",
+        "whiteSpace": "nowrap",
+      }
+    }
+    value="value"
+  >
+    <option
+      className="input-select-option"
+      value=""
+    />
+    <option
+      className="input-select-option"
+      value="val1"
+    >
+      english value
+    </option>
+    <optgroup
+      label="english select label"
+    >
+      <option
+        className="input-select-option"
+        value="val2"
+      >
+        Unilingual label
+      </option>
+    </optgroup>
+    <optgroup
+      label="Unilingual group label"
+    >
+      <option
+        className="input-select-option"
+        value="val2"
+      >
+        Unilingual label
+      </option>
+      <option
+        className="input-select-option"
+        value="val3"
+      >
+        english val3
+      </option>
+    </optgroup>
+  </select>
+</div>
+`;
+
+exports[`Render InputSelect with normal option type 1`] = `
+<div
+  className="survey-question__input-select-container"
+>
+  <select
+    id="test"
+    onChange={[Function]}
+    style={
+      Object {
+        "maxWidth": "100%",
+        "overflow": "hidden",
+        "textOverflow": "ellipsis",
+        "whiteSpace": "nowrap",
+      }
+    }
+    value="value"
+  >
+    <option
+      className="input-select-option"
+      value=""
+    />
+    <option
+      className="input-select-option"
+      value="val1"
+    >
+      english value
+    </option>
+    <option
+      className="input-select-option"
+      value="val2"
+    >
+      Unilingual label
+    </option>
+    <option
+      className="input-select-option"
+      value="conditionalVal"
+    >
+      english conditional
+    </option>
+    <optgroup
+      label=""
+    />
+  </select>
+</div>
+`;
