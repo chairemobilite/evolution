@@ -9,7 +9,6 @@ require('@babel/register');
 import './config/shared/dotenv.config';
 import config from 'chaire-lib-backend/lib/config/server.config';
 import { join } from 'path';
-import createServerApp from './socketServerApp';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
@@ -32,7 +31,6 @@ if (!useSSL) {
     const http             = require('http');
     const server           = http.createServer(app);
     server.listen(port);
-    createServerApp(server, session);
 } else {
     // Create the https server
     const pk = process.env.SSL_PRIVATE_KEY;
@@ -49,7 +47,6 @@ if (!useSSL) {
         const credentials = {key: privateKey, cert: certificate};
         const httpsServer = https.createServer(credentials, app);
         httpsServer.listen(port);
-        createServerApp(httpsServer, session);
     } catch (err) {
         console.error("Error starting the https server: ", err);
         process.exit();
@@ -57,7 +54,7 @@ if (!useSSL) {
 }
 
 // Register server translations
-registerTranslationDir(join(__dirname, `../locales/${process.env.APP_NAME === 'survey' ? 'survey' : 'transition'}/`));
+registerTranslationDir(join(__dirname, `../../../locales/`));
 // FIXME Project directory is for runtime, locales should be in the config file (See #420)
-registerTranslationDir(`${config.projectDirectory}/locales/`);
+registerTranslationDir(join(__dirname, `../../../example/${config.projectShortname}/locales/`));
 addTranslationNamespace('customServer');

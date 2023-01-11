@@ -8,7 +8,6 @@ require('../../config/shared/dotenv.config');
 const bcrypt      = require('bcryptjs');
 
 // TODO Use same UserModel as chaire lib, not doing it now as the chaire-lib columns may leak user data
-const knex        = require('knex')(require('../../../knexfile'));
 const bookshelf   = require('../../config/shared/bookshelf.config.js');
 
 const UserModel   = bookshelf.Model.extend({

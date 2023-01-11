@@ -8,7 +8,7 @@ const config           = require('chaire-lib-backend/lib/config/server.config').
 import passport from 'chaire-lib-backend/lib/config/auth';
 // TODO This is evolution specific
 import defineDefaultRoles from 'evolution-backend/lib/services/auth/roleDefinition';
-const knex             = require('knex')(require('../knexfile'));
+const knex             = require('chaire-lib-backend/lib/config/shared/db.config').default;
 const path             = require('path');
 const _camelCase        = require('lodash.camelcase');
 const express          = require('express');
@@ -31,7 +31,7 @@ import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
 // TODO As routes migrate to typescript, these won't be required
 import legacyAuthRoutes from './routes/shared/auth.routes';
 
-directoryManager.createDirectoryIfNotExistsAbsolute(path.join(__dirname, '..', 'public', 'dist', config.projectShortname));
+directoryManager.createDirectoryIfNotExistsAbsolute(path.join(__dirname, '..', '..', '..', 'public', 'dist', config.projectShortname));
 directoryManager.createDirectoryIfNotExists('logs');
 directoryManager.createDirectoryIfNotExists('imports');
 directoryManager.createDirectoryIfNotExists('cache');
@@ -42,9 +42,9 @@ directoryManager.createDirectoryIfNotExists('tasks');
 directoryManager.createDirectoryIfNotExists('osrm');
 directoryManager.createDirectoryIfNotExists('valhalla');
 
-const indexPath        = path.join(__dirname, '..', 'public', 'dist', config.projectShortname, `index-${process.env.APP_NAME}-${config.projectShortname}${process.env.NODE_ENV === 'test' ? '_test' : ''}.html`);
-const publicPath       = express.static(path.join(__dirname, '..', 'public', 'dist', config.projectShortname));
-const localePath       = express.static(path.join(__dirname, '..', 'locales', config.projectShortname !== 'demo_survey' ? 'transition' : 'survey'));
+const indexPath        = path.join(__dirname, '..', '..', '..', 'public', 'dist', config.projectShortname, `index-${process.env.APP_NAME}-${config.projectShortname}${process.env.NODE_ENV === 'test' ? '_test' : ''}.html`);
+const publicPath       = express.static(path.join(__dirname, '..', '..', '..', 'public', 'dist', config.projectShortname));
+const localePath       = express.static(path.join(__dirname, '..', '..', '..', 'locales'));
 
 process.on('unhandledRejection', function(err){
   console.error(err.stack);
@@ -73,7 +73,7 @@ app.use(session);
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(requestIp.mw()); // to get users ip addresses
-app.use(favicon(path.join(__dirname, '..', 'public', 'favicon.ico')));
+app.use(favicon(path.join(__dirname, '..', '..', '..', 'public', 'favicon.ico')));
 
 app.set('trust proxy',true); // allow nginx or other proxy server to send request ip address
 
@@ -116,7 +116,7 @@ if (process.env.APP_NAME === 'survey')
 {
   // TODO Let the survey project's server.js file do this
   try {
-    require(`./../projects/${config.projectShortname}/src/server.config.js`);
+    require(`./../../../example/${config.projectShortname}/src/server.config.js`);
   } catch(error) {
     console.log('No project specific server side configuration. To specify configuration, add a `server.config.js` file in the project\'s `src/` directory', error);
   }
