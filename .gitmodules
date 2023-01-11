@@ -1,0 +1,3 @@
+[submodule "transition"]
+	path = transition
+	url = https://github.com/chairemobilite/transition.git
