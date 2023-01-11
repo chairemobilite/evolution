@@ -1,0 +1,40 @@
+{
+    "private": true,
+    "name": "evolution",
+    "workspaces": [
+        "transition/packages/chaire-lib-common",
+        "transition/packages/chaire-lib-backend",
+        "transition/packages/chaire-lib-frontend",
+        "packages/evolution-common",
+        "packages/evolution-backend",
+        "packages/evolution-frontend"
+    ],
+    "scripts": {
+        "setup": "yarn workspace chaire-lib-backend run setup",
+        "setup-test": "yarn workspace chaire-lib-backend run setup-test",
+        "migrate": "yarn workspace chaire-lib-backend run migrate && yarn workspace transition-backend run migrate",
+        "migrate-test": "yarn workspace chaire-lib-backend run migrate-test && yarn workspace transition-backend run migrate-test",
+        "clean": "yarn workspaces run clean",
+        "compile": "yarn workspaces run compile",
+        "compile:dev": "yarn wsrun compile:dev",
+        "create-user": "yarn workspace chaire-lib-backend run create-user",
+        "build:dev": "echo 'not implemented yet'",
+        "build:prod": "echo 'not implemented yet'",
+        "start": "echo 'not implemented yet'",
+        "start:demo": "echo 'not implemented yet'",
+        "start:debug": "echo 'not implemented yet'",
+        "start:tracing": "echo 'not implemented yet'",
+        "test": "yarn workspace evolution-common run test && yarn workspace evolution-backend run test && yarn workspace evolution-frontend run test",
+        "test:unit": "yarn workspace evolution-common run test:unit && yarn workspace evolution-backend run test:unit && yarn workspace evolution-frontend run test:unit",
+        "test:sequential": "yarn workspace evolution-common run test:sequential && yarn workspace evolution-backend run test:sequential && yarn workspace evolution-frontend run test:sequential",
+        "lint": "yarn workspace evolution-common run lint && yarn workspace evolution-backend run lint && yarn workspace evolution-frontend run lint",
+        "format": "yarn workspace evolution-common run format && yarn workspace evolution-backend run format && yarn workspace evolution-frontend run format",
+        "list-tasks": "yarn workspace transition-backend run list-tasks",
+        "generate-migration": "knex migrate:make"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "wsrun": "^5.2.4"
+    }
+}
+  
