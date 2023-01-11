@@ -7,7 +7,8 @@
         "transition/packages/chaire-lib-frontend",
         "packages/evolution-common",
         "packages/evolution-backend",
-        "packages/evolution-frontend"
+        "packages/evolution-frontend",
+        "packages/evolution-legacy"
     ],
     "scripts": {
         "setup": "yarn workspace chaire-lib-backend run setup",
@@ -24,8 +25,8 @@
         "start:demo": "echo 'not implemented yet'",
         "start:debug": "echo 'not implemented yet'",
         "start:tracing": "echo 'not implemented yet'",
-        "test": "yarn workspace evolution-common run test && yarn workspace evolution-backend run test && yarn workspace evolution-frontend run test",
-        "test:unit": "yarn workspace evolution-common run test:unit && yarn workspace evolution-backend run test:unit && yarn workspace evolution-frontend run test:unit",
+        "test": "yarn workspace evolution-common run test && yarn workspace evolution-backend run test && yarn workspace evolution-frontend run test && yarn workspace evolution-legacy run test",
+        "test:unit": "yarn workspace evolution-common run test:unit && yarn workspace evolution-backend run test:unit && yarn workspace evolution-frontend run test:unit && yarn workspace evolution-legacy run test:unit",
         "test:sequential": "yarn workspace evolution-common run test:sequential && yarn workspace evolution-backend run test:sequential && yarn workspace evolution-frontend run test:sequential",
         "lint": "yarn workspace evolution-common run lint && yarn workspace evolution-backend run lint && yarn workspace evolution-frontend run lint",
         "format": "yarn workspace evolution-common run format && yarn workspace evolution-backend run format && yarn workspace evolution-frontend run format",

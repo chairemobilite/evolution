@@ -1,0 +1,76 @@
+// Colors
+$black-pale: rgba(0,0,0,0.15);
+$black-medium-pale: rgba(0,0,0,0.35);
+$black-very-pale: rgba(0,0,0,0.05);
+$dark-grey: rgba(51, 51, 51, 1);
+$grey: rgba(102, 102, 102, 1);
+$blue: rgba(28, 136, 191, 0.9);
+$blue-background-pale: rgba(28, 136, 191, 0.2);
+$dark-blue: rgba(54, 64, 81, 1);
+$dark-pale: rgba(51, 47, 39, 0.5);
+$dark: rgba(44, 42, 38, 0.8);
+$dark-pale: rgba(44, 42, 38, 0.5);
+$off-white: rgb(245, 243, 239);
+$dark-off-white: rgb(238, 236, 231);
+$dark-off-white-pale: rgba(238, 236, 231, 0.4);
+$overlay-black: rgba(0,0,0,0.05);
+$input: rgba(51, 90, 124, 0.9);
+$dark-blue: rgb(33, 74, 109);
+$radio: rgba(73, 64, 44, 0.7);
+$label: rgba(63, 57, 49, 0.9);
+$error: rgba(206, 93, 93, 0.9);
+$red: rgba(187, 51, 51, 0.9);
+$red-background-pale: rgba(206, 93, 93, 0.4);
+$dark-red: rgba(130, 43, 43, 0.9);
+$orange: rgba(218, 98, 0, 0.9);
+$orange-background-pale: rgba(240, 122, 26, 0.4);
+$green: rgba(76, 123, 0, 0.9);
+$green-background-pale: rgba(131, 170, 39, 0.4);
+$dark-green: rgba(70, 100, 9, 0.9);
+
+// Button colors
+$button-green: #468024;
+$button-green-gradient-top: #9bc95f;
+$button-green-gradient-bottom: #5f8f38;
+$button-green-border: #e2f0cc;
+$button-red: #921617;
+$button-red-gradient-top: #d97a5f;
+$button-red-gradient-bottom: #b9312e;
+$button-red-border: #ecdcd8;
+$button-blue: #264d9b;
+$button-blue-gradient-top: #6486bd;
+$button-blue-gradient-bottom: #42578d;
+$button-blue-border: #d1dbe5;
+$button-grey: #5c5c5c;
+$button-grey-gradient-top: #8b8b8b;
+$button-grey-gradient-bottom: #595959;
+$button-grey-border: #dfdfdf;
+
+// Survey colors
+$empty-input-background: rgb(248, 246, 242);
+$valid-background: rgba(242, 245, 234, 1);
+$valid-input-background: rgb(247, 248, 244);
+$invalid-background: rgba(241, 224, 223, 1);
+$invalid-input-background: rgb(252, 243, 243);
+$valid-border: rgba(255,255,255,1.0);/*rgba(179, 204, 69, 0.7);*/
+$invalid-border: rgba(214, 77, 77, 0.9);
+
+// Font and Size
+$font-family:  "Lato", Helvetica, Arial, sans-serif;
+$font-size-xlarge:  2rem;
+$font-size-large:  1.8rem;
+$font-size-medium-large: 1.6rem;
+$font-size-medium: 1.45rem;
+$font-size-small:  1.3rem;
+
+// Spacing
+$xxxs-size: 0.2em;
+$xxs-size: 0.4em;
+$xs-size: 0.8rem;
+$s-size: 1.2rem;
+$sm-size: 1.4rem;
+$m-size: 1.6rem;
+$l-size: 3.2rem;
+$xl-size: 4.8rem;
+$desktop-breakpoint: 50rem;
+$modal-breakpoint: 25rem;

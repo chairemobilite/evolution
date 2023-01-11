@@ -1,0 +1,70 @@
+{
+    "env": {
+        "browser": true,
+        "es2020": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true,
+            "arrowFunctions": true
+        },
+        "ecmaVersion": 11,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react"
+    ],
+    "rules": {
+        "no-unused-vars": ["off", { "vars": "all", "args": "after-used", "argsIgnorePattern": "^_", "ignoreRestSiblings": false }],
+        "no-dupe-keys": "off",
+        "no-empty": "off",
+        "no-unexpected-multiline": "off",
+        "no-constant-condition": "off",
+        "no-this-before-super": "off",
+        "no-import-assign": "off",
+        "no-irregular-whitespace": "off",
+        "no-const-assign": "off",
+        "no-mixed-spaces-and-tabs": "off",
+        "no-useless-escape": "off",
+        "no-cond-assign": "off",
+        "no-dupe-else-if": "off",
+        "constructor-super": "off",
+        "react/prop-types": "off",
+        "react/no-string-refs": "off",
+        "react/no-unescaped-entities": "off",
+        "react/display-name": "off"
+    },
+    "ignorePatterns": [
+        "node_modules",
+        "tests"
+    ],
+    "settings": {
+        "react": {
+          "createClass": "createReactClass", // Regex for Component Factory to use,
+                                             // default to "createReactClass"
+          "pragma": "React",  // Pragma to use, default to "React"
+          "version": "detect" // React version. "detect" automatically picks the version you have installed.
+                               // You can also use `16.0`, `16.3`, etc, if you want to override the detected value.
+                               // default to latest and warns if missing
+                               // It will default to "detect" in the future
+        },
+        "propWrapperFunctions": [
+            // The names of any function used to wrap propTypes, e.g. `forbidExtraProps`. If this isn't set, any propTypes wrapped in a function will be skipped.
+            "forbidExtraProps",
+            {"property": "freeze", "object": "Object"},
+            {"property": "myFavoriteWrapper"}
+        ],
+        "linkComponents": [
+          // Components used as alternatives to <a> for linking, eg. <Link to={ url } />
+          "Hyperlink",
+          {"name": "Link", "linkAttribute": "to"}
+        ]
+    }
+    
+}
