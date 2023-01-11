@@ -1,0 +1,997 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintJerome",
+                "code": "11430",
+                "name": "Saint-Jérôme",
+                "internalId": 140
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.999116574088,
+                    45.7731786028551
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "blainville",
+                "code": "11410",
+                "name": "Blainville",
+                "internalId": 138
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8661597194296,
+                    45.672417585119
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sainteTherese",
+                "code": "11400",
+                "name": "Sainte-Thérèse",
+                "internalId": 139
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8335478331048,
+                    45.6360297746069
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "rosemere",
+                "code": "11390",
+                "name": "Rosemère",
+                "internalId": 137
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7957392105248,
+                    45.6344962296449
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sainteRose",
+                "code": "11380",
+                "name": "Sainte-Rose",
+                "internalId": 136
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7647463211559,
+                    45.6254300538811
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "vimont",
+                "code": "11375",
+                "name": "Vimont",
+                "internalId": 143
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.742659032281,
+                    45.6037573160032
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "deLaConcorde",
+                "code": "11365",
+                "name": "De la Concorde",
+                "internalId": 141
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7101020898893,
+                    45.5602790272218
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "montSaintHilaire",
+                "code": "11490",
+                "name": "Mont-Saint-Hilaire",
+                "internalId": 153
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.1784993373486,
+                    45.5771886379972
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "mcMasterville",
+                "code": "11480",
+                "name": "McMasterville",
+                "internalId": 152
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.229774103894,
+                    45.5460432080354
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintBasileLeGrand",
+                "code": "11470",
+                "name": "Saint-Basile-le-Grand",
+                "internalId": 159
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.3059218339024,
+                    45.5232970794913
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintBruno",
+                "code": "11460",
+                "name": "Saint-Bruno",
+                "internalId": 151
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.3744074541639,
+                    45.512018918375
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "longueuilSaintHubert",
+                "code": "11450",
+                "name": "Longueuil–Saint-Hubert",
+                "internalId": 158
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.4338230510271,
+                    45.5081364819483
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintLambert",
+                "code": "11440",
+                "name": "Saint-Lambert",
+                "internalId": 150
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.505822079799,
+                    45.4996249918934
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "centrale",
+                "code": "11010",
+                "name": "Centrale",
+                "internalId": 120
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5666664467233,
+                    45.4999926193153
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "parc",
+                "code": "11350",
+                "name": "Parc",
+                "internalId": 133
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6237794274432,
+                    45.5314844387945
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "chabanel",
+                "code": "11355",
+                "name": "Chabanel",
+                "internalId": 142
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6580302394954,
+                    45.5370481826374
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "boisDeBoulogne",
+                "code": "11360",
+                "name": "Bois-de-Boulogne",
+                "internalId": 134
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6769009374472,
+                    45.5402419364859
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "roxboroPierrefonds",
+                "code": "11090",
+                "name": "Roxboro–Pierrefonds",
+                "internalId": 127
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8091338677806,
+                    45.5090871224706
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sunnybrooke",
+                "code": "11080",
+                "name": "Sunnybrooke",
+                "internalId": 126
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7839319029124,
+                    45.5034295451525
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "boisFranc",
+                "code": "11060",
+                "name": "Bois-Franc",
+                "internalId": 125
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7097712986331,
+                    45.5230083856647
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "duRuisseau",
+                "code": "11050",
+                "name": "Du Ruisseau",
+                "internalId": 124
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6911657075008,
+                    45.528907990404
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "montpellier",
+                "code": "11040",
+                "name": "Montpellier",
+                "internalId": 123
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6728077522494,
+                    45.5249599470795
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "montRoyal",
+                "code": "11030",
+                "name": "Mont-Royal",
+                "internalId": 122
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6448157466987,
+                    45.5169003007672
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "canora",
+                "code": "11020",
+                "name": "Canora",
+                "internalId": 121
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6343512314225,
+                    45.5138896215388
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "ileBigras",
+                "code": "11100",
+                "name": "Île-Bigras",
+                "internalId": 128
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8520708934612,
+                    45.5193470266457
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sainteDorothee",
+                "code": "11110",
+                "name": "Sainte-Dorothée",
+                "internalId": 129
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8628881880326,
+                    45.5234974324605
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "grandMoulin",
+                "code": "11120",
+                "name": "Grand-Moulin",
+                "internalId": 131
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8886389812954,
+                    45.5376121850531
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "deuxMontagnes",
+                "code": "11130",
+                "name": "Deux-Montagnes",
+                "internalId": 132
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.9132333393944,
+                    45.5459573384475
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "montrealOuest",
+                "code": "11170",
+                "name": "Montréal-Ouest",
+                "internalId": 103
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6417387653488,
+                    45.4536719903492
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "vendome",
+                "code": "11160",
+                "name": "Vendôme",
+                "internalId": 102
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6030995911778,
+                    45.4737620423281
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "lucienLAllier",
+                "code": "11150",
+                "name": "Lucien-L'Allier",
+                "internalId": 101
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.570805750666,
+                    45.4947620353203
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "hudson",
+                "code": "11320",
+                "name": "Hudson",
+                "internalId": 117
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.1409350240092,
+                    45.4596284611522
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "vaudreuil",
+                "code": "11310",
+                "name": "Vaudreuil",
+                "internalId": 119
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.0505567791293,
+                    45.3989996709264
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "dorion",
+                "code": "11300",
+                "name": "Dorion",
+                "internalId": 116
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -74.0082543463005,
+                    45.3863907208218
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "pincourtTerrasseVaudreuil",
+                "code": "11290",
+                "name": "Pincourt–Terrasse-Vaudreuil",
+                "internalId": 115
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.9922728170067,
+                    45.3871716083424
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "ilePerrot",
+                "code": "11280",
+                "name": "Île-Perrot",
+                "internalId": 114
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.9654246607855,
+                    45.3959228309534
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sainteAnneDeBellevue",
+                "code": "11270",
+                "name": "Sainte-Anne-de-Bellevue",
+                "internalId": 113
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.9512126079595,
+                    45.4076060412765
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "baieDUrfe",
+                "code": "11260",
+                "name": "Baie-D'Urfé",
+                "internalId": 112
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.9155583909618,
+                    45.4199073950824
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "beaurepaire",
+                "code": "11250",
+                "name": "Beaurepaire",
+                "internalId": 111
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8872557173005,
+                    45.4273946742413
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "beaconsfield",
+                "code": "11240",
+                "name": "Beaconsfield",
+                "internalId": 110
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.847391976023,
+                    45.4349736654937
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "cedarPark",
+                "code": "11230",
+                "name": "Cedar Park",
+                "internalId": 109
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8198778299671,
+                    45.442414831553
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "pointeClaire",
+                "code": "11220",
+                "name": "Pointe-Claire",
+                "internalId": 108
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.8034394320935,
+                    45.4472468978668
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "valois",
+                "code": "11210",
+                "name": "Valois",
+                "internalId": 107
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7908728809287,
+                    45.4497451835371
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "pineBeach",
+                "code": "11200",
+                "name": "Pine Beach",
+                "internalId": 106
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7642548484703,
+                    45.4495938997837
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "dorval",
+                "code": "11190",
+                "name": "Dorval",
+                "internalId": 105
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7431076525197,
+                    45.4491999376701
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "lachine",
+                "code": "11180",
+                "name": "Lachine",
+                "internalId": 104
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.7113237489741,
+                    45.4486782577965
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "mascouche",
+                "code": "11650",
+                "name": "Mascouche",
+                "internalId": 179
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5984941743556,
+                    45.7295780511182
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "terrebonne",
+                "code": "11640",
+                "name": "Terrebonne",
+                "internalId": 178
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5211862409531,
+                    45.7284847839545
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "repentigny",
+                "code": "11630",
+                "name": "Repentigny",
+                "internalId": 177
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.4861098745643,
+                    45.73457759649
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "pointeAuxTrembles",
+                "code": "11610",
+                "name": "Pointe-aux-Trembles",
+                "internalId": 176
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5053396335276,
+                    45.6748668502272
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "riviereDesPrairies",
+                "code": "11600",
+                "name": "Rivière-des-Prairies",
+                "internalId": 175
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5391645125645,
+                    45.6606521521568
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "anjou",
+                "code": "11590",
+                "name": "Anjou",
+                "internalId": 174
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5966570934621,
+                    45.6178584591404
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintLeonardMontrealNord",
+                "code": "11580",
+                "name": "Saint-Léonard - Montréal-Nord",
+                "internalId": 173
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.615778056965,
+                    45.6003300616619
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintMichelMontrealNord",
+                "code": "11570",
+                "name": "Saint-Michel - Montréal-Nord",
+                "internalId": 172
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6302614556486,
+                    45.5829837575918
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sauve",
+                "code": "11560",
+                "name": "Sauvé",
+                "internalId": 171
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6543379892286,
+                    45.5493989906651
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "ahuntsic",
+                "code": "11550",
+                "name": "Ahuntsic",
+                "internalId": 170
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6626595277141,
+                    45.535017049501
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "candiac",
+                "code": "11540",
+                "name": "Candiac",
+                "internalId": 160
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5147939581491,
+                    45.3606506438308
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "delson",
+                "code": "11530",
+                "name": "Delson",
+                "internalId": 157
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5407995188962,
+                    45.3668353867916
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintConstant",
+                "code": "11520",
+                "name": "Saint-Constant",
+                "internalId": 156
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.5702973321214,
+                    45.3739389657168
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sainteCatherine",
+                "code": "11510",
+                "name": "Sainte-Catherine",
+                "internalId": 155
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6000979691623,
+                    45.3820335001678
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "laSalle",
+                "code": "11500",
+                "name": "LaSalle",
+                "internalId": 154
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6569767067354,
+                    45.4252077082655
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "duCanal",
+                "code": "11495",
+                "name": "du Canal",
+                "internalId": 211
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6558863689166,
+                    45.4376361907861
+                ]
+            }
+        }
+    ]
+}

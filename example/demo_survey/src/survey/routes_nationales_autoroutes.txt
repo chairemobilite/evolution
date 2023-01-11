@@ -1,0 +1,482 @@
+[
+{
+  value: "501",
+  internalId: "501",
+  label: {
+    fr: "Autoroute 10",
+    en: "Autoroute 10"
+  }
+},
+{
+  value: "502",
+  internalId: "502",
+  label: {
+    fr: "Autoroute 13",
+    en: "Autoroute 13"
+  }
+},
+{
+  value: "503",
+  internalId: "503",
+  label: {
+    fr: "Autoroute 15",
+    en: "Autoroute 15"
+  }
+},
+{
+  value: "506",
+  internalId: "506",
+  label: {
+    fr: "Autoroute 19",
+    en: "Autoroute 19"
+  }
+},
+{
+  value: "507",
+  internalId: "507",
+  label: {
+    fr: "Autoroute 20",
+    en: "Autoroute 20"
+  }
+},
+{
+  value: "508",
+  internalId: "508",
+  label: {
+    fr: "Autoroute 25",
+    en: "Autoroute 25"
+  }
+},
+{
+  value: "510",
+  internalId: "510",
+  label: {
+    fr: "Autoroute 30",
+    en: "Autoroute 30"
+  }
+},
+{
+  value: "520",
+  internalId: "520",
+  label: {
+    fr: "Autoroute 31",
+    en: "Autoroute 31"
+  }
+},
+{
+  value: "511",
+  internalId: "511",
+  label: {
+    fr: "Autoroute 35",
+    en: "Autoroute 35"
+  }
+},
+{
+  value: "512",
+  internalId: "512",
+  label: {
+    fr: "Autoroute 40",
+    en: "Autoroute 40"
+  }
+},
+{
+  value: "513",
+  internalId: "513",
+  label: {
+    fr: "Autoroute 50",
+    en: "Autoroute 50"
+  }
+},
+{
+  value: "514",
+  internalId: "514",
+  label: {
+    fr: "Autoroute 440",
+    en: "Autoroute 440"
+  }
+},
+{
+  value: "515",
+  internalId: "515",
+  label: {
+    fr: "Autoroute 520",
+    en: "Autoroute 520"
+  }
+},
+{
+  value: "518",
+  internalId: "518",
+  label: {
+    fr: "Autoroute 530",
+    en: "Autoroute 530"
+  }
+},
+{
+  value: "522",
+  internalId: "522",
+  label: {
+    fr: "Autoroute 540",
+    en: "Autoroute 540"
+  }
+},
+{
+  value: "516",
+  internalId: "516",
+  label: {
+    fr: "Autoroute 640",
+    en: "Autoroute 640"
+  }
+},
+{
+  value: "517",
+  internalId: "517",
+  label: {
+    fr: "Autoroute 720",
+    en: "Autoroute 720"
+  }
+},
+{
+  value: "519",
+  internalId: "519",
+  label: {
+    fr: "Autoroute 730",
+    en: "Autoroute 730"
+  }
+},
+{
+  value: "521",
+  internalId: "521",
+  label: {
+    fr: "Autoroute 930",
+    en: "Autoroute 930"
+  }
+},
+{
+  value: "551",
+  internalId: "551",
+  label: {
+    fr: "Route 104",
+    en: "Route 104"
+  }
+},
+{
+  value: "552",
+  internalId: "552",
+  label: {
+    fr: "Route 112",
+    en: "Route 112"
+  }
+},
+{
+  value: "553",
+  internalId: "553",
+  label: {
+    fr: "Route 116",
+    en: "Route 116"
+  }
+},
+{
+  value: "554",
+  internalId: "554",
+  label: {
+    fr: "Route 117 (incluant Curé-Labelle, Marcel-Laurin)",
+    en: "Route 117 (incluant Curé-Labelle, Marcel-Laurin)"
+  }
+},
+{
+  value: "555",
+  internalId: "555",
+  label: {
+    fr: "Route 125 (inclant Boul. Pie-IX)",
+    en: "Route 125 (inclant Boul. Pie-IX)"
+  }
+},
+{
+  value: "556",
+  internalId: "556",
+  label: {
+    fr: "Route 131",
+    en: "Route 131"
+  }
+},
+{
+  value: "557",
+  internalId: "557",
+  label: {
+    fr: "Route 132",
+    en: "Route 132"
+  }
+},
+{
+  value: "558",
+  internalId: "558",
+  label: {
+    fr: "Route 133",
+    en: "Route 133"
+  }
+},
+{
+  value: "559",
+  internalId: "559",
+  label: {
+    fr: "Route 134 (incluant boulevard Taschereau)",
+    en: "Route 134 (incluant boulevard Taschereau)"
+  }
+},
+{
+  value: "560",
+  internalId: "560",
+  label: {
+    fr: "Route 137",
+    en: "Route 137"
+  }
+},
+{
+  value: "561",
+  internalId: "561",
+  label: {
+    fr: "Route 138 (incluant rue Sherbrooke)",
+    en: "Route 138 (incluant rue Sherbrooke)"
+  }
+},
+{
+  value: "562",
+  internalId: "562",
+  label: {
+    fr: "Route 148 (incluant Arthure-Sauvé)",
+    en: "Route 148 (incluant Arthure-Sauvé)"
+  }
+},
+{
+  value: "563",
+  internalId: "563",
+  label: {
+    fr: "Route 158",
+    en: "Route 158"
+  }
+},
+{
+  value: "564",
+  internalId: "564",
+  label: {
+    fr: "Route 201",
+    en: "Route 201"
+  }
+},
+{
+  value: "565",
+  internalId: "565",
+  label: {
+    fr: "Route 205",
+    en: "Route 205"
+  }
+},
+{
+  value: "566",
+  internalId: "566",
+  label: {
+    fr: "Route 207",
+    en: "Route 207"
+  }
+},
+{
+  value: "567",
+  internalId: "567",
+  label: {
+    fr: "Route 209",
+    en: "Route 209"
+  }
+},
+{
+  value: "568",
+  internalId: "568",
+  label: {
+    fr: "Route 217",
+    en: "Route 217"
+  }
+},
+{
+  value: "569",
+  internalId: "569",
+  label: {
+    fr: "Route 219",
+    en: "Route 219"
+  }
+},
+{
+  value: "570",
+  internalId: "570",
+  label: {
+    fr: "Route 221",
+    en: "Route 221"
+  }
+},
+{
+  value: "571",
+  internalId: "571",
+  label: {
+    fr: "Route 227",
+    en: "Route 227"
+  }
+},
+{
+  value: "572",
+  internalId: "572",
+  label: {
+    fr: "Route 229",
+    en: "Route 229"
+  }
+},
+{
+  value: "573",
+  internalId: "573",
+  label: {
+    fr: "Route 233",
+    en: "Route 233"
+  }
+},
+{
+  value: "574",
+  internalId: "574",
+  label: {
+    fr: "Route 236",
+    en: "Route 236"
+  }
+},
+{
+  value: "575",
+  internalId: "575",
+  label: {
+    fr: "Route 329",
+    en: "Route 329"
+  }
+},
+{
+  value: "576",
+  internalId: "576",
+  label: {
+    fr: "Route 333",
+    en: "Route 333"
+  }
+},
+{
+  value: "577",
+  internalId: "577",
+  label: {
+    fr: "Route 335",
+    en: "Route 335"
+  }
+},
+{
+  value: "578",
+  internalId: "578",
+  label: {
+    fr: "Route 337 (incluant Chemin Gascon)",
+    en: "Route 337 (incluant Chemin Gascon)"
+  }
+},
+{
+  value: "579",
+  internalId: "579",
+  label: {
+    fr: "Route 338",
+    en: "Route 338"
+  }
+},
+{
+  value: "580",
+  internalId: "580",
+  label: {
+    fr: "Route 339",
+    en: "Route 339"
+  }
+},
+{
+  value: "581",
+  internalId: "581",
+  label: {
+    fr: "Route 340 (incluant Cité des Jeunes)",
+    en: "Route 340 (incluant Cité des Jeunes)"
+  }
+},
+{
+  value: "582",
+  internalId: "582",
+  label: {
+    fr: "Route 341",
+    en: "Route 341"
+  }
+},
+{
+  value: "583",
+  internalId: "583",
+  label: {
+    fr: "Route 342",
+    en: "Route 342"
+  }
+},
+{
+  value: "584",
+  internalId: "584",
+  label: {
+    fr: "Route 343",
+    en: "Route 343"
+  }
+},
+{
+  value: "585",
+  internalId: "585",
+  label: {
+    fr: "Route 344",
+    en: "Route 344"
+  }
+},
+{
+  value: "588",
+  internalId: "588",
+  label: {
+    fr: "Route 370",
+    en: "Route 370"
+  }
+},
+{
+  value: "589",
+  internalId: "589",
+  label: {
+    fr: "Route 223",
+    en: "Route 223"
+  }
+},
+{
+  value: "590",
+  internalId: "590",
+  label: {
+    fr: "Route 348",
+    en: "Route 348"
+  }
+},
+{
+  value: "591",
+  internalId: "591",
+  label: {
+    fr: "Route 364",
+    en: "Route 364"
+  }
+},
+{
+  value: "597",
+  internalId: "597",
+  label: {
+    fr: "Aucune autoroute ou route nationale déclarée",
+    en: "Aucune autoroute ou route nationale déclarée"
+  }
+},
+{
+  value: "598",
+  internalId: "598",
+  label: {
+    fr: "Je ne sais pas",
+    en: "Je ne sais pas"
+  }
+}
+]

@@ -1,0 +1,21 @@
+701	Pont Champlain
+702	Pont Victoria
+703	Pont Jacques-Cartier
+704	Pont Honoré-Mercier
+705	Tunnel Louis-H. Lafontaine
+706	Pont de la Concorde (île Saint-Hélène/île Notre-Dame)
+707	Estacade du Pont Champlain
+711	Pont Lachapelle (Route 117)
+708	Pont Viau (Ahuntsic/laval)
+709	Pont Papineau-Leblanc (A19)
+710	Pont Pie-IX (Route 125)
+721 Pont Oliver-Charbonneau (A25 Laval payant)
+712	Pont Médéric-Martin (A15 Rivière-des-prairies)
+713	Pont Louis-Bisson (A13 Rivière-des-prairies)
+715	Pont Legardeur (Route 138 Repentigny)
+716	Pont Charles-de-Gaulle (A40 Repentigny)
+717	Pont Galipeault (A20 île Montréal/île Perrot) 
+718 Pont de l'Île aux tourtes (A40 Vaudreuil)
+719 Autre pont ou tunnel
+720 Aucun pont ou tunnel
+720 Je ne sais pas

@@ -1,0 +1,60 @@
+first: 
+  arrivalTime: null
+  departureTime: required
+  activity: [any] (home if departurePlace is home)
+    home:
+      nextPlaceCategory: forced: visitedAnotherPlace
+    !home:
+      nextPlaceCategory: required: visitedAnotherPlace || wentBackHome
+  name: required if !shortcut && !home && !workUsual && !schoolUsual
+  geography: required if !shortcut && !home && !workUsual && !schoolUsual
+middle:
+  arrivalTime: required
+  departureTime: required
+  activity: if previous is home/usualWork/usualSchool: [any except home/usualWork/usualSchool]
+    home:
+      nextPlaceCategory: required: visitedAnotherPlace || stayedThereUntilTheNextDay
+    !home:
+      nextPlaceCategory: required: [any]
+  name: required if !shortcut && !home && !workUsual && !schoolUsual
+  geography: required if !shortcut && !home && !workUsual && !schoolUsual
+  nextPlaceCategory: force wentBackHome if next is home
+new (added at the end):
+  arrivalTime: required
+  departureTime: show if nextPlaceCategory not null && !== stayedThereUntilTheNextDay
+  activity: if previous is home/usualWork/usualSchool: [any except home/usualWork/usualSchool]
+  name: required if !shortcut && !home && !workUsual && !schoolUsual
+  geography: required if !shortcut && !home && !workUsual && !schoolUsual
+  previous: 
+    if activity is home: force nextPlaceCategory to wentBackHome
+    if activity is not home: force nextPlaceCategory = visitedAnotherPlace
+new (inserted at the end):
+  arrivalTime: required
+  departureTime: show if nextPlaceCategory not null && !== stayedThereUntilTheNextDay
+  activity: if previous is home/usualWork/usualSchool: [any except home/usualWork/usualSchool]
+  name: required if !shortcut && !home && !workUsual && !schoolUsual
+  geography: required if !shortcut && !home && !workUsual && !schoolUsual
+  nextPlaceCategory: [any] except wentBackHome if activity is home
+  previous: 
+    if activity is home: force nextPlaceCategory to wentBackHome
+    if activity is not home: force nextPlaceCategory to visitedAnotherPlace
+    departureTime: required
+new (inserted in the middle):
+  arrivalTime: required
+  departureTime: required
+  activity: if previous is home/usualWork/usualSchool: [any except home/usualWork/usualSchool]
+  name: required if !shortcut && !home && !workUsual && !schoolUsual
+  geography: required if !shortcut && !home && !workUsual && !schoolUsual
+  previous: 
+    if activity is home: force nextPlaceCategory to wentBackHome
+    if activity is not home: force nextPlaceCategory to visitedAnotherPlace
+last:
+  arrivalTime: required
+  departureTime: null
+  nextPlaceCategory: forced: stayedThereUntilTheNextDay
+  activity: if previous is home/usualWork/usualSchool: [any except home/usualWork/usualSchool]
+  name: required if !shortcut && !home && !workUsual && !schoolUsual
+  geography: required if !shortcut && !home && !workUsual && !schoolUsual
+edit:
+  activity: if previous or next is home/usualWork/usualSchool: [any except home/usualWork/usualSchool]
+  nextPlaceCategory: cannot change except if last

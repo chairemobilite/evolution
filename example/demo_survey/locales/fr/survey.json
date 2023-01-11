@@ -1,0 +1,80 @@
+{
+  "homepage": {
+    "introduction": "<p class=\"center _strong\" style=\"color: #2B7F79;\">Nous sollicitons votre participation à une étude sur la mobilité des personnes de la région de Montréal. Cette étude vise à mieux connaître les déplacements des personnes habitant sur le territoire de la grande région de Montréal.</p><p class=\"center _oblique\"><a href=\"http://www.artm.quebec/eod/\">En savoir davantage sur cette étude</a></p>",
+    "pageTwoIntroduction": "<p class=\"center _strong\" style=\"color: #2B7F79;\">Vous avez déjà complété la première partie. La deuxième partie concerne les déplacements des membres de votre ménage.</p><p class=\"center _oblique\">Pour vous connecter, utilisez l'adresse courriel et le mot de passe que vous avez indiqués pour accéder à la première partie ou utilisez le même compte Google ou Facebook.</p>",
+    "start":"Débuter"
+  },
+  "postregistration": {
+    "introduction":"Merci pour votre participation!",
+    "login": "Votre code d'acces",
+    "password": "Votre mot de passe",
+    "start":"Débuter",
+    "info": "Vous aurez besoin de ces informations si vous désirez vous reconnecter à votre entrevue ou si vous désirez y accéder à partir d’un autre ordinateur."
+  },
+  "person": {
+    "deleteThisGroupedObject": "Supprimer cette personne",
+    "addGroupedObject": "Ajouter une personne",
+    "dayScheduleFor": "Horaire de la journée de",
+    "yourDaySchedule": "Votre horaire de la journée"
+  },
+  "auth": {
+    "UsernameOrEmail": "Courriel",
+    "missingUsernameOrEmail": "Veuillez indiquer votre courriel",
+    "authenticationFailed": "Votre courriel ou votre mot de passe est introuvable ou invalide",
+    "pleaseChooseAUsernameOrEnterYourEmail": "Pour participer, veuillez entrer votre courriel",
+    "pleaseChooseAUsernameOrEnterYourEmailAndAPassword": "Pour vous enregistrer, entrez votre courriel, puis choisissez un mot de passe et confirmez-le, ou utilisez votre compte Google ou Facebook.",
+    "usernameOrEmailAlreadyExists": "Votre courriel est déjà enregistré, veuillez utiliser votre compte déjà créé.",
+    "WhyLoginInfo": "En raison de la durée de l'enquête, nous vous proposons de vous connecter avec une adresse courriel, ou un compte Facebook ou Google, pour pouvoir la poursuivre plus tard. Enfin, il est tout à fait possible de continuer sans compte, mais vous ne pourrez revenir dans votre questionnaire si votre session expire.",
+    "PasswordlessHeader": "",
+    "UseAnonymousLogin": "Continuer sans se connecter"
+  },
+  "visitedPlace": {
+    "deleteThisGroupedObject": "Supprimer ce lieu",
+    "addGroupedObject": "Ajouter le prochain lieu",
+    "activities": {
+      "home": "Domicile",
+      "workUsual": "Travail au lieu habituel",
+      "workNotUsual": "Travail",
+      "schoolUsual": "École, études au lieu habituel",
+      "schoolNotUsual": "École, études",
+      "schoolNotStudent": "École, études",
+      "service": "Service",
+      "medical": "Santé",
+      "shopping": "Magasinage",
+      "workOnTheRoad": "Sur la route",
+      "workOnTheRoadFromHome": "Sur la route",
+      "workOnTheRoadFromUsualWork": "Sur la route",
+      "worship": "Lieu de culte",
+      "leisure": "Loisirs",
+      "restaurant": "Restaurant, bar, café",
+      "dropSomeone": "Reconduire ou accompagner quelqu'un",
+      "fetchSomeone": "Aller chercher quelqu'un",
+      "visiting": "Visite d'amis ou famille",
+      "secondaryHome": "Résidence secondaire ou chalet",
+      "other": "Autre"
+    },
+    "editVisitedPlace": "Modifier",
+    "deleteVisitedPlace": "Supprimer",
+    "saveVisitedPlace": "Sauvegarder ce lieu",
+    "insertVisitedPlace": "Insérer un lieu ici",
+    "editVisitedPlaces": "Modifier, insérer ou supprimer un lieu",
+    "addVisitedPlace": "Ajouter le prochain lieu",
+    "cancelEditVisitedPlaces": "Annuler",
+    "resetVisitedPlaces": "Réinitialiser les lieux visités et les déplacements de cette personne"
+  },
+  "trip": {
+    "trip": "Déplacement",
+    "editTrip": "Modifier",
+    "saveTrip": "Sauvegarder ce déplacement",
+    "editTrips": "Modifier un déplacement",
+    "cancelEditTrips": "Annuler",
+    "modes": {
+      "carDriver": "Auto conducteur",
+      "carPassenger": "Auto passager"
+    }
+  },
+  "mode": {
+    "deleteThisGroupedObject": "Supprimer ce mode de transport",
+    "addGroupedObject": "Ajouter un mode de transport"
+  }
+}

@@ -1,0 +1,1093 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "henriBourassa",
+                "code": "10280",
+                "name": "Henri-Bourassa",
+                "internalId": 1
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.668172,
+                    45.555277
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sherbrooke",
+                "code": "10262",
+                "name": "Sherbrooke",
+                "internalId": 10
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.569217,
+                    45.51906
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "berriUqam",
+                "code": "10146",
+                "name": "Berri-UQAM",
+                "internalId": 11
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.560726,
+                    45.515116
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "champDeMars",
+                "code": "10258",
+                "name": "Champ-de-Mars",
+                "internalId": 12
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.556596,
+                    45.510047
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "placeDArmes",
+                "code": "10256",
+                "name": "Place-d'Armes",
+                "internalId": 13
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.559548,
+                    45.506348
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "squareVictoriaOaci",
+                "code": "10254",
+                "name": "Square-Victoria–OACI",
+                "internalId": 14
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.563118,
+                    45.501937
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "bonaventure",
+                "code": "10252",
+                "name": "Bonaventure",
+                "internalId": 15
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.567235,
+                    45.498086
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "lucienLAllier",
+                "code": "10250",
+                "name": "Lucien-L'Allier",
+                "internalId": 16
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.571074,
+                    45.494745
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "georgesVanier",
+                "code": "10248",
+                "name": "Georges-Vanier",
+                "internalId": 17
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.576852,
+                    45.488897
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "honoreBeaugrand",
+                "code": "10170",
+                "name": "Honoré-Beaugrand",
+                "internalId": 18
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.535376,
+                    45.596572
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "radisson",
+                "code": "10168",
+                "name": "Radisson",
+                "internalId": 19
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.539269,
+                    45.589431
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "sauve",
+                "code": "10278",
+                "name": "Sauvé",
+                "internalId": 2
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.656017,
+                    45.550757
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "langelier",
+                "code": "10166",
+                "name": "Langelier",
+                "internalId": 20
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.543133,
+                    45.582736
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "cadillac",
+                "code": "10164",
+                "name": "Cadillac",
+                "internalId": 21
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.54671,
+                    45.576843
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "assomption",
+                "code": "10162",
+                "name": "Assomption",
+                "internalId": 22
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.547336,
+                    45.569285
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "viau",
+                "code": "10160",
+                "name": "Viau",
+                "internalId": 23
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.54753,
+                    45.560687
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "pieIx",
+                "code": "10158",
+                "name": "Pie-IX",
+                "internalId": 24
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.551757,
+                    45.553688
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "joliette",
+                "code": "10156",
+                "name": "Joliette",
+                "internalId": 25
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.551391,
+                    45.546832
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "prefontaine",
+                "code": "10154",
+                "name": "Préfontaine",
+                "internalId": 26
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.554192,
+                    45.541717
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "frontenac",
+                "code": "10152",
+                "name": "Frontenac",
+                "internalId": 27
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.552196,
+                    45.533504
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "papineau",
+                "code": "10150",
+                "name": "Papineau",
+                "internalId": 28
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.552703,
+                    45.523988
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "beaudry",
+                "code": "10148",
+                "name": "Beaudry",
+                "internalId": 29
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.555837,
+                    45.518831
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "cremazie",
+                "code": "10276",
+                "name": "Crémazie",
+                "internalId": 3
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.639052,
+                    45.546082
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintLaurent",
+                "code": "10144",
+                "name": "Saint-Laurent",
+                "internalId": 30
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.564899,
+                    45.511033
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "placeDesArts",
+                "code": "10142",
+                "name": "Place-des-Arts",
+                "internalId": 31
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.568433,
+                    45.50822
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "mcGill",
+                "code": "10140",
+                "name": "McGill",
+                "internalId": 32
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.571586,
+                    45.504064
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "peel",
+                "code": "10138",
+                "name": "Peel",
+                "internalId": 33
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.574715,
+                    45.500879
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "guyConcordia",
+                "code": "10136",
+                "name": "Guy-Concordia",
+                "internalId": 34
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.57931,
+                    45.49557
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "atwater",
+                "code": "10134",
+                "name": "Atwater",
+                "internalId": 35
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.585812,
+                    45.490068
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "lionelGroulx",
+                "code": "10132",
+                "name": "Lionel-Groulx",
+                "internalId": 36
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.58018,
+                    45.482509
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "charlevoix",
+                "code": "10130",
+                "name": "Charlevoix",
+                "internalId": 37
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.569336,
+                    45.478465
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "laSalle",
+                "code": "10128",
+                "name": "LaSalle",
+                "internalId": 38
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.566267,
+                    45.471063
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "deLEglise",
+                "code": "10126",
+                "name": "De l'Église",
+                "internalId": 39
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.567074,
+                    45.461894
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "jarry",
+                "code": "10274",
+                "name": "Jarry",
+                "internalId": 4
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.628765,
+                    45.543191
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "verdun",
+                "code": "10124",
+                "name": "Verdun",
+                "internalId": 40
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.572021,
+                    45.459441
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "jolicoeur",
+                "code": "10122",
+                "name": "Jolicoeur",
+                "internalId": 41
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.581691,
+                    45.45701
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "monk",
+                "code": "10120",
+                "name": "Monk",
+                "internalId": 42
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.593242,
+                    45.451158
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "angrignon",
+                "code": "10118",
+                "name": "Angrignon",
+                "internalId": 43
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.603118,
+                    45.446466
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "longueuilUniversiteDeSherbrooke",
+                "code": "10454",
+                "name": "Longueuil–Université-de-Sherbrooke",
+                "internalId": 44
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.522098,
+                    45.52489
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "jeanDrapeau",
+                "code": "10452",
+                "name": "Jean-Drapeau",
+                "internalId": 45
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.533127,
+                    45.512429
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "placeSaintHenri",
+                "code": "10244",
+                "name": "Place-Saint-Henri",
+                "internalId": 46
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.586629,
+                    45.47732
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "vendome",
+                "code": "10242",
+                "name": "Vendôme",
+                "internalId": 47
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.603706,
+                    45.474101
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "villaMaria",
+                "code": "10238",
+                "name": "Villa-Maria",
+                "internalId": 48
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.619821,
+                    45.479709
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "snowdon",
+                "code": "10236",
+                "name": "Snowdon",
+                "internalId": 49
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.627547,
+                    45.485562
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "jeanTalon",
+                "code": "10272",
+                "name": "Jean-Talon",
+                "internalId": 5
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.613885,
+                    45.539097
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "coteSainteCatherine",
+                "code": "10234",
+                "name": "Côte-Sainte-Catherine",
+                "internalId": 50
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.6331,
+                    45.492356
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "plamondon",
+                "code": "10232",
+                "name": "Plamondon",
+                "internalId": 51
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.63826,
+                    45.494644
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "namur",
+                "code": "10230",
+                "name": "Namur",
+                "internalId": 52
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.652828,
+                    45.494643
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "deLaSavane",
+                "code": "10228",
+                "name": "De la Savane",
+                "internalId": 53
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.661538,
+                    45.500051
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "duCollege",
+                "code": "10224",
+                "name": "Du Collège",
+                "internalId": 54
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.674796,
+                    45.509258
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "coteDesNeiges",
+                "code": "10534",
+                "name": "Côte-des-Neiges",
+                "internalId": 55
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.623386,
+                    45.496846
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "universiteDeMontreal",
+                "code": "10536",
+                "name": "Université-de-Montréal",
+                "internalId": 56
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.617699,
+                    45.503188
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "edouardMontpetit",
+                "code": "10538",
+                "name": "Édouard-Montpetit",
+                "internalId": 57
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.612858,
+                    45.50992
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "outremont",
+                "code": "10540",
+                "name": "Outremont",
+                "internalId": 58
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.614976,
+                    45.52037
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "acadie",
+                "code": "10542",
+                "name": "Acadie",
+                "internalId": 59
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.623257,
+                    45.523458
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "beaubien",
+                "code": "10270",
+                "name": "Beaubien",
+                "internalId": 6
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.604688,
+                    45.535354
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "parc",
+                "code": "10544",
+                "name": "Parc",
+                "internalId": 60
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.624559,
+                    45.530177
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "deCastelnau",
+                "code": "10546",
+                "name": "De Castelnau",
+                "internalId": 61
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.619873,
+                    45.535437
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "fabre",
+                "code": "10552",
+                "name": "Fabre",
+                "internalId": 62
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.608106,
+                    45.546753
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "dIberville",
+                "code": "10554",
+                "name": "D'Iberville",
+                "internalId": 63
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.601988,
+                    45.553618
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "saintMichel",
+                "code": "10556",
+                "name": "Saint-Michel",
+                "internalId": 64
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.600002,
+                    45.55956
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "coteVertu",
+                "code": "10222",
+                "name": "Côte-Vertu",
+                "internalId": 65
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.682757,
+                    45.514237
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "cartier",
+                "code": "10282",
+                "name": "Cartier",
+                "internalId": 66
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.68231,
+                    45.559997
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "deLaConcorde",
+                "code": "10286",
+                "name": "De la Concorde",
+                "internalId": 67
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.709389,
+                    45.560698
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "montmorency",
+                "code": "10288",
+                "name": "Montmorency",
+                "internalId": 68
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.722459,
+                    45.558436
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "rosemont",
+                "code": "10268",
+                "name": "Rosemont",
+                "internalId": 7
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.59778,
+                    45.531733
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "laurier",
+                "code": "10266",
+                "name": "Laurier",
+                "internalId": 8
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.586907,
+                    45.527399
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "shortname": "montRoyal",
+                "code": "10264",
+                "name": "Mont-Royal",
+                "internalId": 9
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -73.581959,
+                    45.524931
+                ]
+            }
+        }
+    ]
+}
