@@ -19,18 +19,18 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
       className="css-1f43avz-a11yText-A11yText"
     />
     <div
-      className="react-select__control css-1s2u09g-control"
+      className="react-select__control css-13cymwt-control"
       onMouseDown={[Function]}
       onTouchEnd={[Function]}
     >
       <div
-        className="react-select__value-container react-select__value-container--is-multi react-select__value-container--has-value css-g1d714-ValueContainer"
+        className="react-select__value-container react-select__value-container--is-multi react-select__value-container--has-value css-3w2yfm-ValueContainer"
       >
         <div
-          className="css-1rhbuit-multiValue react-select__multi-value"
+          className="react-select__multi-value css-1p3m7a8-multiValue"
         >
           <div
-            className="css-12jo7m5 react-select__multi-value__label"
+            className="react-select__multi-value__label css-wsp0cs-MultiValueGeneric"
           >
             <div
               style={
@@ -56,7 +56,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
           </div>
           <div
             aria-label="Remove [object Object]"
-            className="css-xb97g8 react-select__multi-value__remove"
+            className="react-select__multi-value__remove css-12a83d4-MultiValueRemove"
             onClick={[Function]}
             onMouseDown={[Function]}
             onTouchEnd={[Function]}
@@ -77,10 +77,10 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
           </div>
         </div>
         <div
-          className="css-1rhbuit-multiValue react-select__multi-value"
+          className="react-select__multi-value css-1p3m7a8-multiValue"
         >
           <div
-            className="css-12jo7m5 react-select__multi-value__label"
+            className="react-select__multi-value__label css-wsp0cs-MultiValueGeneric"
           >
             <div
               style={
@@ -106,7 +106,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
           </div>
           <div
             aria-label="Remove [object Object]"
-            className="css-xb97g8 react-select__multi-value__remove"
+            className="react-select__multi-value__remove css-12a83d4-MultiValueRemove"
             onClick={[Function]}
             onMouseDown={[Function]}
             onTouchEnd={[Function]}
@@ -127,7 +127,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
           </div>
         </div>
         <div
-          className="react-select__input-container css-6j8wv5-Input"
+          className="react-select__input-container css-qbdosj-Input"
           data-value=""
         >
           <input
@@ -171,11 +171,11 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
         className="react-select__indicators css-1hb7zxy-IndicatorsContainer"
       >
         <span
-          className="react-select__indicator-separator css-1okebmr-indicatorSeparator"
+          className="react-select__indicator-separator css-1u9des2-indicatorSeparator"
         />
         <div
           aria-hidden="true"
-          className="react-select__indicator react-select__dropdown-indicator css-tlfecz-indicatorContainer"
+          className="react-select__indicator react-select__dropdown-indicator css-1xc3v61-indicatorContainer"
           onMouseDown={[Function]}
           onTouchEnd={[Function]}
         >
@@ -229,18 +229,18 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
       className="css-1f43avz-a11yText-A11yText"
     />
     <div
-      className="react-select__control css-1s2u09g-control"
+      className="react-select__control css-13cymwt-control"
       onMouseDown={[Function]}
       onTouchEnd={[Function]}
     >
       <div
-        className="react-select__value-container react-select__value-container--is-multi react-select__value-container--has-value css-g1d714-ValueContainer"
+        className="react-select__value-container react-select__value-container--is-multi react-select__value-container--has-value css-3w2yfm-ValueContainer"
       >
         <div
-          className="css-1rhbuit-multiValue react-select__multi-value"
+          className="react-select__multi-value css-1p3m7a8-multiValue"
         >
           <div
-            className="css-12jo7m5 react-select__multi-value__label"
+            className="react-select__multi-value__label css-wsp0cs-MultiValueGeneric"
           >
             <div
               style={
@@ -266,7 +266,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
           </div>
           <div
             aria-label="Remove [object Object]"
-            className="css-xb97g8 react-select__multi-value__remove"
+            className="react-select__multi-value__remove css-12a83d4-MultiValueRemove"
             onClick={[Function]}
             onMouseDown={[Function]}
             onTouchEnd={[Function]}
@@ -287,10 +287,10 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
           </div>
         </div>
         <div
-          className="css-1rhbuit-multiValue react-select__multi-value"
+          className="react-select__multi-value css-1p3m7a8-multiValue"
         >
           <div
-            className="css-12jo7m5 react-select__multi-value__label"
+            className="react-select__multi-value__label css-wsp0cs-MultiValueGeneric"
           >
             <div
               style={
@@ -316,7 +316,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
           </div>
           <div
             aria-label="Remove [object Object]"
-            className="css-xb97g8 react-select__multi-value__remove"
+            className="react-select__multi-value__remove css-12a83d4-MultiValueRemove"
             onClick={[Function]}
             onMouseDown={[Function]}
             onTouchEnd={[Function]}
@@ -337,7 +337,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
           </div>
         </div>
         <div
-          className="react-select__input-container css-6j8wv5-Input"
+          className="react-select__input-container css-qbdosj-Input"
           data-value=""
         >
           <input
@@ -382,7 +382,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
       >
         <div
           aria-hidden="true"
-          className="react-select__indicator react-select__clear-indicator css-tlfecz-indicatorContainer"
+          className="react-select__indicator react-select__clear-indicator css-1xc3v61-indicatorContainer"
           onMouseDown={[Function]}
           onTouchEnd={[Function]}
         >
@@ -400,11 +400,11 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
           </svg>
         </div>
         <span
-          className="react-select__indicator-separator css-1okebmr-indicatorSeparator"
+          className="react-select__indicator-separator css-1u9des2-indicatorSeparator"
         />
         <div
           aria-hidden="true"
-          className="react-select__indicator react-select__dropdown-indicator css-tlfecz-indicatorContainer"
+          className="react-select__indicator react-select__dropdown-indicator css-1xc3v61-indicatorContainer"
           onMouseDown={[Function]}
           onTouchEnd={[Function]}
         >
@@ -474,18 +474,18 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
       className="css-1f43avz-a11yText-A11yText"
     />
     <div
-      className="react-select__control css-1s2u09g-control"
+      className="react-select__control css-13cymwt-control"
       onMouseDown={[Function]}
       onTouchEnd={[Function]}
     >
       <div
-        className="react-select__value-container react-select__value-container--is-multi react-select__value-container--has-value css-g1d714-ValueContainer"
+        className="react-select__value-container react-select__value-container--is-multi react-select__value-container--has-value css-3w2yfm-ValueContainer"
       >
         <div
-          className="css-1rhbuit-multiValue react-select__multi-value"
+          className="react-select__multi-value css-1p3m7a8-multiValue"
         >
           <div
-            className="css-12jo7m5 react-select__multi-value__label"
+            className="react-select__multi-value__label css-wsp0cs-MultiValueGeneric"
           >
             <div
               style={
@@ -511,7 +511,7 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
           </div>
           <div
             aria-label="Remove [object Object]"
-            className="css-xb97g8 react-select__multi-value__remove"
+            className="react-select__multi-value__remove css-12a83d4-MultiValueRemove"
             onClick={[Function]}
             onMouseDown={[Function]}
             onTouchEnd={[Function]}
@@ -532,7 +532,7 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
           </div>
         </div>
         <div
-          className="react-select__input-container css-6j8wv5-Input"
+          className="react-select__input-container css-qbdosj-Input"
           data-value=""
         >
           <input
@@ -576,11 +576,11 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
         className="react-select__indicators css-1hb7zxy-IndicatorsContainer"
       >
         <span
-          className="react-select__indicator-separator css-1okebmr-indicatorSeparator"
+          className="react-select__indicator-separator css-1u9des2-indicatorSeparator"
         />
         <div
           aria-hidden="true"
-          className="react-select__indicator react-select__dropdown-indicator css-tlfecz-indicatorContainer"
+          className="react-select__indicator react-select__dropdown-indicator css-1xc3v61-indicatorContainer"
           onMouseDown={[Function]}
           onTouchEnd={[Function]}
         >

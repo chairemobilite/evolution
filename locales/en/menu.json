@@ -1,0 +1,12 @@
+{
+    "home":"Home",
+    "login":"Login",
+    "logout":"Logout",
+    "resetInterview":"Reset interview",
+    "setDevModeOn": "Survey development mode",
+    "setDevModeOff": "Normal mode",
+    "User":"Connected",
+    "Reset": "Reset session",
+    "ResetUserPrefsTitle": "Reset all user preferences and configuration to their default values?",
+    "ResetUserPrefsConfirm": "Reset preferences"
+}
