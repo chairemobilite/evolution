@@ -27,8 +27,9 @@
     "list-tasks": "yarn babel-node src/tasks/listTasks.task.js",
     "lint": "cross-env NODE_OPTIONS=--max_old_space_size=4096 eslint .",
     "format": "echo 'no formatting on this workspace'",
-    "clean": "echo 'nothing to clean'",
-    "compile": "echo 'nothing to compile'",
+    "clean": "rimraf lib/",
+    "copy-files": "copyfiles -u 1 ./src/assets/survey/images/**/* src/styles/survey/*.scss ./lib/",
+    "compile": "yarn babel src --out-dir=lib && yarn copy-files",
     "compile:dev": "echo 'nothing to compile'"
   },
   "dependencies": {
