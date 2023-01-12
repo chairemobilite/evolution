@@ -4,20 +4,18 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const fs        = require('fs');
-const chalk     = require('chalk');
-const slugify   = require('slugify');
-const _camelCase = require('lodash.camelcase');
+import fs from 'fs';
+import chalk from 'chalk';
 
-const outputGeojsonFilePath         = __dirname + '/../survey/busRoutes.geojson';
+const outputGeojsonFilePath: string = __dirname + '/../survey/busRoutes.geojson';
 
 let busRoutesGeojson;
 
-const allSortableNames = [];
-const allSlugs         = [];
+const allSortableNames: string[] = [];
+const allSlugs: string[] = [];
 
 try {
-  busRoutesGeojson = JSON.parse(fs.readFileSync(outputGeojsonFilePath));
+  busRoutesGeojson = JSON.parse(fs.readFileSync(outputGeojsonFilePath).toString());
 } catch (err) {
   busRoutesGeojson = {
     type    : 'FeatureCollection',
@@ -41,7 +39,7 @@ for (let i = 0, count = busRoutesGeojson.features.length; i < count; i++)
     modifiedAgencyId = 'a' + route.properties.agencyId;
   }
   modifiedAgencyId = modifiedAgencyId.toLowerCase();
-  const sortableName            = (route.properties.shortname.length <= 5 ? route.properties.shortname.padStart(6,'0') : route.properties.shortname) + modifiedAgencyId;
+  const sortableName = (route.properties.shortname.length <= 5 ? route.properties.shortname.padStart(6,'0') : route.properties.shortname) + modifiedAgencyId;
   route.properties.sortableName = allSortableNames.indexOf(sortableName) > -1 ? sortableName + "_" : sortableName;
   if (allSlugs.indexOf(route.properties.slug) > -1)
   {

@@ -33,7 +33,9 @@ import helper          from '../helper';
 
 //const ResponsiveEllipsis = responsiveHOC()(HTMLEllipsis);
 
-export class SegmentsSection extends React.Component {
+export class SegmentsSection extends React.Component<any, any> {
+
+  private iconPathsByMode: any;
 
   constructor(props) {
     super(props);

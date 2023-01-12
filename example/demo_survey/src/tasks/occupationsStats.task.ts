@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const knex = require('knex')(require('../../../knexfile'));
+import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 
 const fetchOccupationsFromDb = function() { return knex.select('sv_interviews.id', 'sv_interviews.updated_at', 'responses', 'validations', 'user_id')
   .from('sv_interviews')
@@ -20,7 +20,7 @@ const fetchOccupationsFromDb = function() { return knex.select('sv_interviews.id
       if (responses._completedAt > 0)
       {
         const persons     = responses && responses.household ? responses.household.persons : {};
-        const occupations = Object.values(persons).map(function(person) { return person.occupation; });
+        const occupations = Object.values(persons).map(function(person: any) { return person.occupation; });
         countHouseholdsWithOthers['total']++;
         if (occupations.includes('retired') || occupations.includes('other') || occupations.includes('atHome'))
         {

@@ -8,9 +8,8 @@ import React from 'react';
 import { withTranslation } from 'react-i18next';
 import ReactHighcharts from 'react-highcharts';
 import _max from 'lodash.max';
-import zonesGeojson from './zones.geojson';
 
-class StartedAndCompletedInterviewsByZone extends React.Component { 
+class StartedAndCompletedInterviewsByZone extends React.Component<any, any> { 
   constructor(props) {
     super(props);
     this.state = {
@@ -55,11 +54,11 @@ class StartedAndCompletedInterviewsByZone extends React.Component {
     }
 
     // generate cumulative counts arrays:
-    const cumulativeStartedData = [];
+    const cumulativeStartedData: any[] = [];
     this.state.data.started.reduce(function(cumulativeCount, value, i) {
       return cumulativeStartedData[i] = cumulativeCount + value;
     },0);
-    const cumulativeCompletedData = [];
+    const cumulativeCompletedData: any[] = [];
     this.state.data.completed.reduce(function(cumulativeCount, value, i) {
       return cumulativeCompletedData[i] = cumulativeCount + value;
     },0);
@@ -186,4 +185,4 @@ class StartedAndCompletedInterviewsByZone extends React.Component {
   }
 }
 
-export default withTranslation()(StartedAndCompletedInterviewsByDay)
+export default withTranslation()(StartedAndCompletedInterviewsByZone)

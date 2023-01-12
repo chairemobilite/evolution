@@ -22,10 +22,11 @@ import {
     bezierSpline as turfBezierSpline,
     booleanPointInPolygon as turfBooleanPointInPolygon
 } from '@turf/turf';
+import '@react-google-maps/api';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 // import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import waterBoundaries  from '../waterBoundaries.geojson';
+import waterBoundaries  from '../waterBoundaries.json';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
@@ -176,13 +177,13 @@ export const personVisitedPlacesTitle = {
     fr: function(interview, path) {
       const person             = helper.getPerson(interview);
       const genderString2      = helper.getGenderString(person, 'e', '', '(e)', '(e)');
-      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate')).format('LL');
+      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate') as any).format('LL');
       const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
       return `<p>Lieux où ${householdSize === 1 ? `vous êtes allé` : `<strong>${person.nickname}</strong> est allé`}${genderString2} le <strong>${formattedTripsDate}</strong>&nbsp;: <br /><em>L’ordre chronologique doit être respecté</em></p>`;
     },
     en: function(interview, path) {
       const person             = helper.getPerson(interview);
-      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate')).format('LL');
+      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate') as any).format('LL');
       const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
       return `<p>Places where ${householdSize === 1 ? 'you' : `<strong>${person.nickname}</strong>`} went on <strong>${formattedTripsDate}</strong>&nbsp;: <br /><em>Chronological order must be preserved</em></p>`;
     }
@@ -195,7 +196,7 @@ export const personVisitedPlacesMap = {
   defaultCenter: config.mapDefaultCenter,
   title: {
     fr: function(interview, path) {
-      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate')).format('LL');
+      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate') as any).format('LL');
       const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -205,7 +206,7 @@ export const personVisitedPlacesMap = {
       return `Carte des déplacements de **${person.nickname}** le ${formattedTripsDate}`;
     },
     en: function(interview, path) {
-      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate')).format('LL');
+      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate') as any).format('LL');
       const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -219,8 +220,8 @@ export const personVisitedPlacesMap = {
   geojsons: function(interview, path, activeUuid = null) {
     const person             = helper.getPerson(interview);
     const visitedPlaces      = helper.getVisitedPlaces(person);
-    const tripsGeojsonFeatures         = [];
-    const visitedPlacesGeojsonFeatures = [];
+    const tripsGeojsonFeatures: any[]         = [];
+    const visitedPlacesGeojsonFeatures: any[] = [];
     
     for (let i = 0, count = visitedPlaces.length; i < count; i++)
     {
@@ -330,16 +331,16 @@ export const visitedPlaceName = {
     en: "Location name or description"
   },
   conditional: function(interview, path) {
-    const visitedPlace = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const activity     = visitedPlace.activity;
     return [!_isBlank(activity) && ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(activity) <= -1, null];
   },
   defaultValue: function(interview, path) {
-    const visitedPlace = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     if (visitedPlace.shortcut)
     {
       const shortcut             = visitedPlace.shortcut;
-      const shortcutVisitedPlace = surveyHelperNew.getResponse(interview, shortcut, null);
+      const shortcutVisitedPlace: any = surveyHelperNew.getResponse(interview, shortcut, null);
       if (shortcutVisitedPlace && !_isBlank(shortcutVisitedPlace.name))
       {
         return shortcutVisitedPlace.name;
@@ -417,7 +418,7 @@ export const visitedPlaceActivity = {
       conditional: function(interview, path) {
         // hide if previous visited place is home:
         const person               = helper.getPerson(interview);
-        const visitedPlace         = surveyHelperNew.getResponse(interview, path, null, "../");
+        const visitedPlace: any         = surveyHelperNew.getResponse(interview, path, null, "../");
         const visitedPlaces        = helper.getVisitedPlaces(person);
         const previousVisitedPlace = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);
         const nextVisitedPlace     = helper.getNextVisitedPlace(visitedPlace._uuid, visitedPlaces);
@@ -438,7 +439,7 @@ export const visitedPlaceActivity = {
         const usualWorkPlace = person.usualWorkPlace;
         if (person.age >= 15 && person.workOnTheRoad !== true && usualWorkPlace && usualWorkPlace.geometry)
         {
-          const visitedPlace         = surveyHelperNew.getResponse(interview, path, null, "../");
+          const visitedPlace: any         = surveyHelperNew.getResponse(interview, path, null, "../");
           const visitedPlaces        = helper.getVisitedPlaces(person);
           const previousVisitedPlace = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);
           const nextVisitedPlace     = helper.getNextVisitedPlace(visitedPlace._uuid, visitedPlaces);
@@ -527,7 +528,7 @@ export const visitedPlaceActivity = {
         const usualSchoolPlace = person.usualSchoolPlace;
         if (person.age >= 5 && usualSchoolPlace && usualSchoolPlace.geometry)
         {
-          const visitedPlace         = surveyHelperNew.getResponse(interview, path, null, "../");
+          const visitedPlace: any    = surveyHelperNew.getResponse(interview, path, null, "../");
           const visitedPlaces        = helper.getVisitedPlaces(person);
           const previousVisitedPlace = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);
           const nextVisitedPlace     = helper.getNextVisitedPlace(visitedPlace._uuid, visitedPlaces);
@@ -683,7 +684,7 @@ export const visitedPlaceActivity = {
     ];
   },
   conditional: function(interview, path) {
-    const visitedPlace  = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const activity      = visitedPlace.activity;
     const departureTime = visitedPlace.departureTime;
     if (visitedPlace && activity === 'home' && (_isBlank(visitedPlace._isNew) || visitedPlace._isNew === true))
@@ -736,7 +737,7 @@ export const visitedPlaceAlreadyVisited = {
     }
   ],
   conditional: function(interview, path) {
-    const activity             = surveyHelperNew.getResponse(interview, path, null, '../activity');
+    const activity: any        = surveyHelperNew.getResponse(interview, path, null, '../activity');
     const incompatibleActivity = ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(activity) > -1;
     if (_isBlank(activity))
     {
@@ -770,7 +771,7 @@ export const visitedPlaceShortcut = {
   hasGroups: true,
   choices: function(interview, path) {
     const shortcuts = helper.getShortcutVisitedPlaces(interview);
-    const choices   = [];
+    const choices: any[]  = [];
     for (let i = 0, count = shortcuts.length; i < count; i++)
     {
       const shortcut    = shortcuts[i];
@@ -855,7 +856,7 @@ export const visitedPlaceGeography = {
     } : config.mapDefaultCenter;
   },
   defaultValue: function (interview, path) {
-    const visitedPlace = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     if (visitedPlace.shortcut) {
       const shortcut = visitedPlace.shortcut;
       const shortcutVisitedPlace = surveyHelperNew.getResponse(interview, shortcut, null);
@@ -873,8 +874,8 @@ export const visitedPlaceGeography = {
   },
   updateDefaultValueWhenResponded: true,
   validations: function(value, customValue, interview, path, customPath) {
-    const activity = surveyHelperNew.getResponse(interview, path, null, '../activity');
-    const geography = surveyHelperNew.getResponse(interview, path, null, '../geography');
+    const activity: any = surveyHelperNew.getResponse(interview, path, null, '../activity');
+    const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
     return [{
       validation: ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(activity) <= -1 && surveyHelper.isBlank(value),
       errorMessage: {
@@ -890,7 +891,7 @@ export const visitedPlaceGeography = {
       }
     },
     {
-      validation: geography && turfBooleanPointInPolygon(geography, waterBoundaries.features[0]),
+      validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
       errorMessage: {
         fr: `Le lieu est dans une étendue d'eau ou est inaccessible. Veuillez vérifier la localisation.`,
         en: `Location is in water or is inaccessible. Please verify.`
@@ -898,7 +899,7 @@ export const visitedPlaceGeography = {
     }];
   },
   conditional: function(interview, path) {
-    const activity  = surveyHelperNew.getResponse(interview, path, null, '../activity');
+    const activity: any  = surveyHelperNew.getResponse(interview, path, null, '../activity');
     return [!_isBlank(activity) && ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(activity) <= -1, null];
   }
 };
@@ -922,20 +923,20 @@ export const visitedPlaceArrivalTime = {
     ];
   },
   conditional: function(interview, path) {
-    const visitedPlace = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     return visitedPlace['_sequence'] > 1;
   },
   minTimeSecondsSinceMidnight: function(interview, path) {
-    const visitedPlaces      = surveyHelperNew.getResponse(interview, path, null, '../../../visitedPlaces');
-    const activeVisitedPlace = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlaces: any      = surveyHelperNew.getResponse(interview, path, null, '../../../visitedPlaces');
+    const activeVisitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     let lastTimeSecondsSinceMidnight = 0;
     if (!isEmpty(visitedPlaces))
     {
-      const visitedPlacesArray = Object.values(visitedPlaces).filter((visitedPlace) => {
+      const visitedPlacesArray = Object.values(visitedPlaces).filter((visitedPlace: any) => {
         return visitedPlace['_sequence'] < activeVisitedPlace['_sequence'];
       });
 
-      const previousTimes = visitedPlacesArray.map((visitedPlace) => {
+      const previousTimes = visitedPlacesArray.map((visitedPlace: any) => {
         if (!_isBlank(visitedPlace.departureTime))
         {
           return visitedPlace.departureTime;
@@ -953,16 +954,16 @@ export const visitedPlaceArrivalTime = {
     return lastTimeSecondsSinceMidnight;
   },
   maxTimeSecondsSinceMidnight: function(interview, path) {
-    const visitedPlaces      = surveyHelperNew.getResponse(interview, path, null, '../../../visitedPlaces');
-    const activeVisitedPlace = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlaces: any      = surveyHelperNew.getResponse(interview, path, null, '../../../visitedPlaces');
+    const activeVisitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     let lastTimeSecondsSinceMidnight = 27 * 3600 + 59 * 60 + 59;    
     if (!isEmpty(visitedPlaces))
     {
-      const visitedPlacesArray = Object.values(visitedPlaces).filter((visitedPlace) => {
+      const visitedPlacesArray = Object.values(visitedPlaces).filter((visitedPlace: any) => {
         return visitedPlace['_sequence'] > activeVisitedPlace['_sequence'];
       });
 
-      const nextTimes = visitedPlacesArray.map((visitedPlace) => {
+      const nextTimes = visitedPlacesArray.map((visitedPlace: any) => {
         if (!_isBlank(visitedPlace.arrivalTime))
         {
           return visitedPlace.arrivalTime;
@@ -987,7 +988,7 @@ export const visitedPlaceArrivalTime = {
   },
   label: {
     fr: function(interview, path) {
-      const visitedPlace  = surveyHelperNew.getResponse(interview, path, null, '../');
+      const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
       const person        = helper.getPerson(interview);
       const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
       const nickname      = surveyHelperNew.getResponse(interview, path, null, "../../../nickname");
@@ -1013,7 +1014,7 @@ export const visitedPlaceArrivalTime = {
       return `${isAlone ? 'Vous êtes arrivé' : `${nickname} est arrivé`}${genderString2} ${placeStr} à:`;
     },
     en: function(interview, path) {
-      const visitedPlace  = surveyHelperNew.getResponse(interview, path, null, '../');
+      const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
       const person        = helper.getPerson(interview);
       const nickname      = person.nickname;
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
@@ -1060,20 +1061,20 @@ export const visitedPlaceDepartureTime = {
     ];
   },
   conditional: function(interview, path) {
-    const visitedPlace = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     return [(visitedPlace['_sequence'] === 1 || (!_isBlank(visitedPlace.nextPlaceCategory) && visitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay')), null];
   },
   minTimeSecondsSinceMidnight: function(interview, path) {
-    const visitedPlaces                = surveyHelperNew.getResponse(interview, path, null, '../../');
-    const activeVisitedPlace           = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlaces: any                = surveyHelperNew.getResponse(interview, path, null, '../../');
+    const activeVisitedPlace: any           = surveyHelperNew.getResponse(interview, path, null, '../');
     let   lastTimeSecondsSinceMidnight = 0;
     if (!isEmpty(visitedPlaces))
     {
-      const visitedPlacesArray = Object.values(visitedPlaces).filter((visitedPlace) => {
+      const visitedPlacesArray = Object.values(visitedPlaces).filter((visitedPlace: any) => {
         return visitedPlace['_sequence'] < activeVisitedPlace['_sequence'];
       });
 
-      const previousTimes = visitedPlacesArray.map((visitedPlace) => {
+      const previousTimes = visitedPlacesArray.map((visitedPlace: any) => {
         if (!_isBlank(visitedPlace.departureTime))
         {
           return visitedPlace.departureTime;
@@ -1095,16 +1096,16 @@ export const visitedPlaceDepartureTime = {
     return lastTimeSecondsSinceMidnight;
   },
   maxTimeSecondsSinceMidnight: function(interview, path) {
-    const visitedPlaces      = surveyHelperNew.getResponse(interview, path, null, '../../');
-    const activeVisitedPlace = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlaces: any      = surveyHelperNew.getResponse(interview, path, null, '../../');
+    const activeVisitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
     let lastTimeSecondsSinceMidnight = 27 * 3600 + 59 * 60 + 59;
     if (!isEmpty(visitedPlaces))
     {
-      const visitedPlacesArray = Object.values(visitedPlaces).filter((visitedPlace) => {
+      const visitedPlacesArray = Object.values(visitedPlaces).filter((visitedPlace: any) => {
         return visitedPlace['_sequence'] > activeVisitedPlace['_sequence'];
       });
 
-      const nextTimes = visitedPlacesArray.map((visitedPlace) => {
+      const nextTimes = visitedPlacesArray.map((visitedPlace: any) => {
         if (!_isBlank(visitedPlace.arrivalTime))
         {
           return visitedPlace.arrivalTime;
@@ -1122,7 +1123,7 @@ export const visitedPlaceDepartureTime = {
   },
   label: {
     fr: function(interview, path) {
-      const visitedPlace  = surveyHelperNew.getResponse(interview, path, null, '../');
+      const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
       const nickname      = surveyHelperNew.getResponse(interview, path, null, "../../../nickname");
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       const isAlone       = householdSize === 1;
@@ -1146,7 +1147,7 @@ export const visitedPlaceDepartureTime = {
       return `${isAlone ? 'Vous avez quitté' : `${nickname} a quitté`} ${placeStr} à:`;
     },
     en: function(interview, path) {
-      const visitedPlace  = surveyHelperNew.getResponse(interview, path, null, '../');
+      const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
       const person        = helper.getPerson(interview);
       const nickname      = person.nickname;
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
@@ -1183,7 +1184,7 @@ export const visitedPlaceNextPlaceCategory = {
   sameLine: false,
   label: {
     fr: function(interview, path) {
-      const visitedPlace     = surveyHelperNew.getResponse(interview, path, null, '../');
+      const visitedPlace: any     = surveyHelperNew.getResponse(interview, path, null, '../');
       const visitedPlaceName = visitedPlace ? visitedPlace.name : null;
       if (visitedPlace.activity === 'home')
       {
@@ -1204,7 +1205,7 @@ export const visitedPlaceNextPlaceCategory = {
       return `Après avoir visité ce lieu${visitedPlaceName ? ` (${visitedPlaceName})` : ''}:`;
     },
     en: function(interview, path) {
-      const visitedPlace  = surveyHelperNew.getResponse(interview, path, null, '../');
+      const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
       const visitedPlaceName = visitedPlace ? visitedPlace.name : null;
       if (visitedPlace.activity === 'home')
       {
@@ -1258,7 +1259,7 @@ export const visitedPlaceNextPlaceCategory = {
       conditional: function(interview) {
         const person         = helper.getPerson(interview);
         const visitedPlaceId = helper.getActiveVisitedPlaceId(interview);
-        const visitedPlace   = surveyHelperNew.getResponse(interview, `household.persons.${person._uuid}.visitedPlaces.${visitedPlaceId}`, null);
+        const visitedPlace: any  = surveyHelperNew.getResponse(interview, `household.persons.${person._uuid}.visitedPlaces.${visitedPlaceId}`, null);
         return visitedPlace.activity !== 'home';
       }
     },
@@ -1464,7 +1465,7 @@ export const buttonCancelVisitedPlace = {
   conditional: function(interview, path) {
     const person        = helper.getPerson(interview);
     const visitedPlaces = helper.getVisitedPlaces(person, true);
-    const visitedPlace  = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
     return [visitedPlaces.length > 1 && _isBlank(visitedPlace.activity), undefined];
   },
   //icon: faCheckCircle,
@@ -1489,7 +1490,7 @@ export const buttonDeleteVisitedPlace = {
   conditional: function(interview, path) {
     const person        = helper.getPerson(interview);
     const visitedPlaces = helper.getVisitedPlaces(person);
-    const visitedPlace  = surveyHelperNew.getResponse(interview, path, null, '../');
+    const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
     return [visitedPlaces.length > 1 && !_isBlank(visitedPlace.activity), undefined];
   },
   align: 'center',
@@ -1526,7 +1527,7 @@ export const buttonSaveVisitedPlace = {
   saveCallback: function() {
     const person                   = helper.getPerson(this.props.interview);
     const visitedPlaces            = helper.getVisitedPlaces(person);
-    const visitedPlace             = surveyHelperNew.getResponse(this.props.interview, this.props.path, null, '../');
+    const visitedPlace: any        = surveyHelperNew.getResponse(this.props.interview, this.props.path, null, '../');
     const visitedPlacePath         = `household.persons.${person._uuid}.visitedPlaces.${visitedPlace._uuid}`;
     const previousVisitedPlace     = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);
     const previousVisitedPlacePath = previousVisitedPlace ? `household.persons.${person._uuid}.visitedPlaces.${previousVisitedPlace._uuid}` : null;

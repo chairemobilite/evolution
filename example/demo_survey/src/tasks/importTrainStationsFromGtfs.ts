@@ -4,11 +4,11 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const parse     = require('csv-parse/lib/sync');
-const fs        = require('fs');
-const chalk     = require('chalk');
-const slugify   = require('slugify');
-const _camelCase = require('lodash.camelcase');
+import parse from 'csv-parse/lib/sync';
+import fs from 'fs';
+import chalk from 'chalk';
+import slugify from 'slugify';
+import _camelCase from 'lodash.camelcase';
 
 const outputGeojsonFilePath = __dirname + '/../survey/trainStations.geojson';
 
@@ -18,14 +18,14 @@ const stopsGtfsCsv         = fs.readFileSync(stopsGtfsCsvFilePath);
 const stops                = parse(stopsGtfsCsv, {columns: true});
 
 // initializing geojson feature collection:
-trainStations = {
+const trainStations: GeoJSON.FeatureCollection = {
   type    : 'FeatureCollection',
   features: []
 };
 
 // add train stations and convert to geojson features (train stations have stop code between 10000 and 10999 and empty parent_station)
 let i = 1;
-const alreadyFoundStopCodes = [];
+const alreadyFoundStopCodes: number[] = [];
 stops.forEach(function(stop) {
   const stopCode = parseInt(stop.stop_code);
   if (!alreadyFoundStopCodes.includes(stopCode))

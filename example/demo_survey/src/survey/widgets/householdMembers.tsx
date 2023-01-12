@@ -18,7 +18,7 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from '../helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import waterBoundaries  from '../waterBoundaries.geojson';
+import waterBoundaries  from '../waterBoundaries.json';
 
 export const householdMembers = {
   type: "group",
@@ -296,7 +296,7 @@ export const personOccupation = {
     }
   ],
   conditional: function(interview, path) {
-    const person = surveyHelperNew.getResponse(interview, path, null, '../');
+    const person: any = surveyHelperNew.getResponse(interview, path, null, '../');
     if (person && _isBlank(person.age) || !(person.age >= 0)) { return [false, null]; }
     else if (person && person.age < 5) { return [false, 'nonApplicable']; }
     return [true, null];
@@ -363,7 +363,7 @@ export const personTransitPassOwner = {
     }
   },
   conditional: function(interview, path) {
-    const person = surveyHelperNew.getResponse(interview, path, null, '../');
+    const person: any = surveyHelperNew.getResponse(interview, path, null, '../');
     if (person && _isBlank(person.age) || !(person.age > 0)) { return [false, null]; }
     else if (person && person.age < 5) { return [false, 'nonApplicable']; }
     return [true, null];
@@ -559,7 +559,7 @@ export const personCellphoneOwner = {
     }
   },
   conditional: function(interview, path) {
-    const person = surveyHelperNew.getResponse(interview, path, null, '../');
+    const person: any = surveyHelperNew.getResponse(interview, path, null, '../');
     if (person && _isBlank(person.age) || !(person.age > 0)) { return [false, null]; }
     else if (person && person.age < 12) { return [false, 'nonApplicable']; }
     return [true, null];
@@ -629,7 +629,7 @@ export const personDrivingLicenseOwner = {
     }
   },
   conditional: function(interview, path) {
-    const person = surveyHelperNew.getResponse(interview, path, null, '../');
+    const person: any = surveyHelperNew.getResponse(interview, path, null, '../');
     if (person && _isBlank(person.age) || !(person.age > 0)) { return [false, null]; }
     else if (person && person.age < 16) { return [false, 'nonApplicable']; }
     return [true, null];
@@ -779,7 +779,7 @@ export const personBikesharingMember = {
     }
   },
   conditional: function(interview, path) {
-    const person = surveyHelperNew.getResponse(interview, path, null, '../');
+    const person: any = surveyHelperNew.getResponse(interview, path, null, '../');
     if (person && _isBlank(person.age) || !(person.age > 0)) { return [false, null]; }
     else if (person && person.age < 14) { return [false, 'nonApplicable']; }
     return [true, null];
@@ -1396,7 +1396,7 @@ export const groupedPersonUsualWorkPlaceGeography = {
   },
   validations: function(value, customValue, interview, path, customPath) {
     const occupation = surveyHelperNew.getResponse(interview, path, null, '../occupation');
-    const geography  = surveyHelperNew.getResponse(interview, path, null);
+    const geography: any  = surveyHelperNew.getResponse(interview, path, null);
     return [
       {
         validation: _isBlank(value) && helper.isWorker(occupation),
@@ -1413,7 +1413,7 @@ export const groupedPersonUsualWorkPlaceGeography = {
         }
       },
       {
-        validation: geography && turfBooleanPointInPolygon(geography, waterBoundaries.features[0]),
+        validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
         errorMessage: {
           fr: `Le lieu est dans une étendue d'eau ou est inaccessible. Veuillez vérifier la localisation.`,
           en: `Location is in water or is inaccessible. Please verify.`
@@ -1491,7 +1491,7 @@ export const groupedPersonUsualSchoolPlaceGeography = {
   },
   validations: function(value, customValue, interview, path, customPath) {
     const occupation = surveyHelperNew.getResponse(interview, path, null, '../occupation');
-    const geography  = surveyHelperNew.getResponse(interview, path, null);
+    const geography: any  = surveyHelperNew.getResponse(interview, path, null);
     return [
       {
         validation: _isBlank(value) && helper.isStudent(occupation),
@@ -1508,7 +1508,7 @@ export const groupedPersonUsualSchoolPlaceGeography = {
         }
       },
       {
-        validation: geography && turfBooleanPointInPolygon(geography, waterBoundaries.features[0]),
+        validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
         errorMessage: {
           fr: `Le lieu est dans une étendue d'eau ou est inaccessible. Veuillez vérifier la localisation.`,
           en: `Location is in water or is inaccessible. Please verify.`
@@ -1530,14 +1530,14 @@ export const groupedPersonNoWorkTripReason = {
       internalId: 1,
       label: {
         fr: function(interview, path) {
-          const person = surveyHelperNew.getResponse(interview, path, null, '../');
+          const person: any = surveyHelperNew.getResponse(interview, path, null, '../');
           if (helper.isWorker(person.occupation))
           {
             return "Congé, ne travaillait pas";
           }
         },
         en: function(interview, path) {
-          const person = surveyHelperNew.getResponse(interview, path, null, '../');
+          const person: any = surveyHelperNew.getResponse(interview, path, null, '../');
           if (helper.isWorker(person.occupation))
           {
             return "Leave, did not work";
@@ -1770,7 +1770,7 @@ export const groupedPersonWhoAnsweredForThisPerson = {
   datatype: "string",
   twoColumns: true,
   choices: function(interview) {
-    const persons = surveyHelperNew.getResponse(interview, "household.persons", {});
+    const persons: any = surveyHelperNew.getResponse(interview, "household.persons", {});
     const choices = [];
     for (let personId in persons)
     {

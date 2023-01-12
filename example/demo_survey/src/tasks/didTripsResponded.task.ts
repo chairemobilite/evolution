@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const knex = require('knex')(require('../../../knexfile'));
+import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 
 const fetchDidTripsFromDb = function() { return knex.select('sv_interviews.id', 'sv_interviews.updated_at', 'responses', 'validations', 'user_id')
   .from('sv_interviews')

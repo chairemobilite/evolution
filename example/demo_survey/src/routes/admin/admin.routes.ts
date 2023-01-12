@@ -4,14 +4,14 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const knex                     = require('chaire-lib-backend/lib/config/shared/db.config');
-const moment                   = require('moment-timezone');
-const _get                     = require('lodash.get');
+import knex from 'chaire-lib-backend/lib/config/shared/db.config';
+import moment from 'moment-timezone';
+import _get from 'lodash.get';
 import { featureEach as turfFeatureEach, booleanPointInPolygon as turfPointInPolygon } from '@turf/turf';
-const config                   = require('chaire-lib-common/lib/config/shared/project.config');
-const helper                   = require('evolution-legacy/lib/helpers/server');
-const zonesGeojson             = require('../../survey/zones.json');
-const getTripMultimodeCategory = require('evolution-legacy/lib/helpers/survey/helperFunctions/getTripMultimodeCategory');
+import config from 'chaire-lib-common/lib/config/shared/project.config';
+import helper from 'evolution-legacy/lib/helpers/server';
+import zonesGeojson from '../../survey/zones.json';
+import getTripMultimodeCategory from 'evolution-legacy/lib/helpers/survey/helperFunctions/getTripMultimodeCategory';
 
 const getInvalidInterviewIds = function(lastUpdatedAt) {
   return knex.select('i.id')
@@ -27,7 +27,7 @@ const getValidInterviews = function(lastUpdatedAt) {
   .whereRaw(`i.is_active IS TRUE AND users.is_valid IS TRUE AND users.is_test IS NOT TRUE AND extract(epoch from i.updated_at) > ${lastUpdatedAt}`);
 };
 
-module.exports = function(router) {
+export default function(router) {
 
   router.get('/monitoring/update_interviews_cache', function(req, res) {
     const forceUpdatedAt         = req.params.truncate == true;
@@ -84,7 +84,7 @@ module.exports = function(router) {
     });
 
     // get the list of invalid interviews ids (to make sure we don't keep an interview that was valid before)
-    const invalidInterviewIds = [];
+    const invalidInterviewIds: any[] = [];
     getInvalidInterviewIds(forceUpdatedAt ? 0 : interviewsCacheContent.updatedAt).then(function(rows) {
       for (let i = 0, count = rows.length; i < count; i++)
       {
@@ -95,7 +95,7 @@ module.exports = function(router) {
           // delete interview data for this invalid interview (it was valid before)
           delete interviewsCacheContent.interviews[interviewId];
           delete interviewsCacheContent.households[interviewId];
-          for (personId in interviewsCacheContent.persons)
+          for (const personId in interviewsCacheContent.persons)
           {
             const person = interviewsCacheContent.persons[personId];
             if (person.interviewId === interviewId)
@@ -103,7 +103,7 @@ module.exports = function(router) {
               delete interviewsCacheContent.persons[personId];
             }
           }
-          for (tripId in interviewsCacheContent.trips)
+          for (const tripId in interviewsCacheContent.trips)
           {
             const trip = interviewsCacheContent.trips[tripId];
             if (trip.interviewId === interviewId)
@@ -150,7 +150,7 @@ module.exports = function(router) {
             // add persons:
           const persons   = _get(responses, 'household.persons', {});
           const personIds = Object.keys(persons);
-          let   tripIds   = [];
+          let   tripIds: string[]   = [];
           for (const personId in persons)
           {
             const person = persons[personId];
@@ -192,7 +192,7 @@ module.exports = function(router) {
           let   parentZone      = null;
           if (homeGeography && homeCoordinates)
           {
-            turfFeatureEach(zonesGeojson, function (zoneGeojson) {
+            turfFeatureEach<GeoJSON.Polygon | GeoJSON.MultiPolygon>(zonesGeojson as GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>, function (zoneGeojson) {
               if (turfPointInPolygon(homeGeography, zoneGeojson))
               {
                 zone       = zoneGeojson.properties.name;

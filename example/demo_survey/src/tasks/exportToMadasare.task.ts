@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const knex     = require('knex')(require('../../../knexfile'));
+import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 const json2csv = require('json2csv').parse;
 const moment   = require('moment');
 const fs       = require('fs');
@@ -60,13 +60,13 @@ const exportValidAndCompletedInterviews = function() { return knex.select('id', 
         glo_localCsv      += json2csv(glo_local, {header: headers.glo_local}) + "\n";
         headers.glo_local  = false;
 
-        const personsArray = Object.values(validatedData.household.persons).sort((personA, personB) => {
+        const personsArray = Object.values(validatedData.household.persons).sort((personA: any, personB: any) => {
           return personA['_sequence'] - personB['_sequence'];
         });
 
         for (let personI = 0, personsCount = personsArray.length; personI < personsCount; personI++)
         {
-          const person     = personsArray[personI];
+          const person: any     = personsArray[personI];
           const glo_pers   = person[prefix + "glo_pers"];
           glo_pers.uuid    = person._uuid;
           glo_persCsv     += json2csv(glo_pers, {header: headers.glo_pers}) + "\n";
@@ -82,13 +82,13 @@ const exportValidAndCompletedInterviews = function() { return knex.select('id', 
 
           if (person.visitedPlaces)
           {
-            const visitedPlacesArray = Object.values(person.visitedPlaces).sort((visitedPlaceA, visitedPlaceB) => {
+            const visitedPlacesArray = Object.values(person.visitedPlaces).sort((visitedPlaceA: any, visitedPlaceB:any) => {
               return visitedPlaceA['_sequence'] - visitedPlaceB['_sequence'];
             });
 
             for (let visitedPlaceI = 0, visitedPlacesCount = visitedPlacesArray.length; visitedPlaceI < visitedPlacesCount; visitedPlaceI++)
             {
-              const visitedPlace = visitedPlacesArray[visitedPlaceI];
+              const visitedPlace: any = visitedPlacesArray[visitedPlaceI];
               const glo_local    = visitedPlace[prefix + "glo_local"];
               if (glo_local)
               {
@@ -101,13 +101,13 @@ const exportValidAndCompletedInterviews = function() { return knex.select('id', 
 
           if (person.trips)
           {
-            const tripsArray = Object.values(person.trips).sort((tripA, tripB) => {
+            const tripsArray = Object.values(person.trips).sort((tripA: any, tripB: any) => {
               return tripA['_sequence'] - tripB['_sequence'];
             });
 
             for (let tripI = 0, tripsCount = tripsArray.length; tripI < tripsCount; tripI++)
             {
-              const trip           = tripsArray[tripI];
+              const trip: any      = tripsArray[tripI];
               const glo_deplac_som = trip[prefix + "glo_deplac_som"];
               if (glo_deplac_som)
               {

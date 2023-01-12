@@ -5,12 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment-business-days';
-import { booleanPoinInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
+import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import waterBoundaries  from '../waterBoundaries.geojson';
+import waterBoundaries  from '../waterBoundaries.json';
 
 export const homeIntro = {
   type: "text",
@@ -172,7 +172,7 @@ export const householdCarNumber = {
     }
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const householdSize = surveyHelperNew.getResponse(interview, path, null, '../size');
+    const householdSize: any = surveyHelperNew.getResponse(interview, path, null, '../size');
     return [
       {
         validation: (isNaN(Number(value)) || !Number.isInteger(Number(value))),
@@ -509,7 +509,7 @@ export const homeGeography = {
     return surveyHelperNew.formatGeocodingQueryStringFromMultipleFields([address, city, region, postalCode, country]);
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const geography  = surveyHelperNew.getResponse(interview, path, null);
+    const geography: any  = surveyHelperNew.getResponse(interview, path, null);
     return [
       {
         validation: _isBlank(value),
@@ -526,7 +526,7 @@ export const homeGeography = {
         }
       },
       {
-        validation: geography && turfBooleanPointInPolygon(geography, waterBoundaries.features[0]),
+        validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
         errorMessage: {
           fr: `Le lieu est dans une étendue d'eau ou est inaccessible. Veuillez vérifier la localisation.`,
           en: `Location is in water or is inaccessible. Please verify.`

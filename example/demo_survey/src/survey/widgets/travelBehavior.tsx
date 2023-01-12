@@ -335,7 +335,7 @@ export const personWhoAnsweredForThisPerson = {
   datatype: "string",
   twoColumns: true,
   choices: function(interview, path) {
-    const persons = surveyHelperNew.getResponse(interview, "household.persons", {});
+    const persons: any = surveyHelperNew.getResponse(interview, "household.persons", {});
     const choices = [];
     for (let personId in persons)
     {
