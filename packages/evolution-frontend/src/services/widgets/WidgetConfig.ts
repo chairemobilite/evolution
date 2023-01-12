@@ -192,9 +192,23 @@ export type WidgetConfig =
           | InputMapFindPlaceType
           | InputRangeType
           | InputDatePickerType
+          | InputSelectType
       ))
     | {
           type: 'text';
           align: 'center';
           text: LangData;
+      }
+    | {
+          type: 'group';
+          path: string;
+          // TODO Further type this
+      }
+    | {
+          type: 'button';
+          // TODO Further type this
+      }
+    | {
+          type: 'infoMap';
+          // TODO Further type this
       };

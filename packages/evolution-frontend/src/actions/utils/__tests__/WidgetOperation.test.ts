@@ -1,7 +1,7 @@
 import _cloneDeep from 'lodash.clonedeep';
 import { prepareWidgets } from '../WidgetOperation';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
-import { UserFrontendInterviewAttributes } from '../../../services/interviews/interview';
+import { SurveyWidgets, UserFrontendInterviewAttributes } from '../../../services/interviews/interview';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { checkConditional, checkChoicesConditional } from '../Conditional';
 import { checkValidations } from '../Validation';
@@ -52,26 +52,34 @@ const sections = {
 
 const widgets = {
     widget1: {
-        type: 'string',
+        type: 'question',
+        inputType: 'string',
+        label: { en: 'q1 label' },
         path: 'section1.q1',
     },
     widget2: {
-        type: 'string',
+        type: 'question',
+        inputType: 'string',
         path: 'section1.q2',
+        label: { en: 'q2 label' },
         validations: jest.fn()
     },
     widget3: {
-        type: 'string',
+        type: 'question',
+        inputType: 'string',
         path: 'gq1',
+        label: { en: 'q3 label' },
         defaultValue: jest.fn().mockReturnValue('default')
     },
     widget4: {
-        type: 'select',
+        type: 'question',
+        inputType: 'select',
         path: 'section1.q4',
+        label: { en: 'q4 label' },
         validations: jest.fn(),
         choices: [
-            { value: 'a', conditional: true },
-            { value: 'b', conditional: false }
+            { value: 'a', label: {}, conditional: () => true },
+            { value: 'b', label: {}, conditional: () => false }
         ]
     },
     [group1Name]: {

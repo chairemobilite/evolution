@@ -1,4 +1,5 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { WidgetConfig } from '../widgets';
 
 export type WidgetStatus = {
     path: string;
@@ -65,5 +66,4 @@ export type SurveySection = {
     [key: string]: unknown;
 };
 export type SurveySections = { [sectionName: string]: SurveySection };
-// TODO This type is probably WidgetConfig from '../widgets'. But it is not complete yet and it's to be confirmed
-export type SurveyWidgets = { [key: string]: any };
+export type SurveyWidgets = { [widgetName: string]: WidgetConfig };
