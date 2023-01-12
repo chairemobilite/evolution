@@ -253,7 +253,8 @@ const prepareSimpleWidget = (
             isValid = true;
             errorMessage = undefined;
         }
-        if (oldIsValid !== isValid) {
+        // FIXME Path can be empty if the widget is not a question or group. But in those cases, this function should probably not be called. Confirm this as we type more evolution stuff.
+        if (oldIsValid !== isValid && path !== '') {
             surveyHelper.setValidation(data.interview, path, isValid);
             data.valuesByPath['validations.' + path] = isValid;
         }
@@ -320,9 +321,13 @@ const prepareWidget = function (data: CurrentPreparationData, widgetPrepData: Wi
         }
         const componentType = widgetConfig.type;
         const path =
-            widgetPrepData.parentPath && widgetPrepData.parentPath.length > 0
-                ? [widgetPrepData.parentPath, surveyHelper.interpolatePath(data.interview, widgetConfig.path)].join('.')
-                : surveyHelper.interpolatePath(data.interview, widgetConfig.path);
+            componentType === 'group' || componentType === 'question'
+                ? widgetPrepData.parentPath && widgetPrepData.parentPath.length > 0
+                    ? [widgetPrepData.parentPath, surveyHelper.interpolatePath(data.interview, widgetConfig.path)].join(
+                        '.'
+                    )
+                    : surveyHelper.interpolatePath(data.interview, widgetConfig.path)
+                : '';
 
         if (componentType === 'group') {
             prepareGroupedWidgets(
