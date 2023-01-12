@@ -12,6 +12,9 @@
         "copy-files": "copyfiles -u 1 src/survey/*.json src/survey/*.geojson src/styles/*.scss ./lib/",
         "compile": "yarn babel src --out-dir=lib && yarn copy-files",
         "compile:dev": "yarn copy-files && yarn babel src --out-dir=lib --watch",
+        "start": "yarn babel-node lib/server.js --max-old-space-size=4096",
+        "start:tracing": "yarn babel-node -r ../../tracing.js lib/server.js --max-old-space-size=4096",
+        "start:debug": "cross-env DEBUG=express:* yarn babel-node --trace-warnings lib/server.js --max-old-space-size=4096",
         "test": "cross-env NODE_ENV=test jest --config=jest.config.js"
     },
     "dependencies": {
