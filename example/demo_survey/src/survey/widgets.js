@@ -7,7 +7,7 @@
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
-import surveyHelper from '../../../../packages/evolution-legacy/src/helpers/survey/survey';
+import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 
 const registrationCompletedWidgets = require('./widgets/registrationCompleted.js');
 

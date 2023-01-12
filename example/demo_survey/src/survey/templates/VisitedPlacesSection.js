@@ -28,17 +28,17 @@ import { createBrowserHistory } from 'history';
 
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import sectionTemplate from '../../../../../packages/evolution-legacy/src/components/survey/SectionTemplateHOC';
-import Text            from '../../../../../packages/evolution-legacy/src/components/survey/Text';
-import InfoMap         from '../../../../../packages/evolution-legacy/src/components/survey/InfoMap';
-import Button          from '../../../../../packages/evolution-legacy/src/components/survey/Button';
-import Question        from '../../../../../packages/evolution-legacy/src/components/survey/Question';
-import Group           from '../../../../../packages/evolution-legacy/src/components/survey/Group';
-import GroupedObject   from '../../../../../packages/evolution-legacy/src/components/survey/GroupedObject';
+import sectionTemplate from 'evolution-legacy/lib/components/survey/SectionTemplateHOC';
+import Text            from 'evolution-legacy/lib/components/survey/Text';
+import InfoMap         from 'evolution-legacy/lib/components/survey/InfoMap';
+import Button          from 'evolution-legacy/lib/components/survey/Button';
+import Question        from 'evolution-legacy/lib/components/survey/Question';
+import Group           from 'evolution-legacy/lib/components/survey/Group';
+import GroupedObject   from 'evolution-legacy/lib/components/survey/GroupedObject';
 import * as surveyHelper from 'evolution-frontend/lib/utils/helpers';
 import helper          from '../helper';
-import ConfirmModal    from '../../../../../packages/evolution-legacy/src/components/survey/modal/ConfirmModal';
-import LoadingPage     from '../../../../../packages/evolution-legacy/src/components/shared/LoadingPage';
+import ConfirmModal    from 'evolution-legacy/lib/components/survey/modal/ConfirmModal';
+import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
 
 export class VisitedPlacesSection extends React.Component {
 

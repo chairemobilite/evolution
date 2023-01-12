@@ -1,9 +1,4 @@
-/*
- * Copyright 2023, Polytechnique Montreal and contributors
- *
- * This file is licensed under the MIT License.
- * License text available at https://opensource.org/licenses/MIT
- */
+import runClientApp from 'evolution-legacy/lib/app-survey';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 
 import surveySections from './survey/sections';
@@ -31,3 +26,5 @@ setApplicationConfiguration({
         return parsers;
     }
 });
+
+runClientApp();

@@ -11,8 +11,8 @@ import turfDistance from '@turf/distance';
 import _uniq from 'lodash.uniq';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import sharedHelper from '../../../../../packages/evolution-legacy/src/helpers/shared/shared';
-import surveyHelper from '../../../../../packages/evolution-legacy/src/helpers/survey/survey';
+import sharedHelper from 'evolution-legacy/lib/helpers/shared/shared';
+import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from '../../survey/helper';
 import applicationConfiguration from 'evolution-frontend/lib/config/application.config';
 import busRoutesGeojson from '../../survey/busRoutes.geojson'

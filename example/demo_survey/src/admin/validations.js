@@ -10,7 +10,7 @@ import {validate as uuidValidate} from 'uuid';
 import turfDistance from '@turf/distance';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import sharedHelper from '../../../../packages/evolution-legacy/src/helpers/shared/shared';
+import sharedHelper from 'evolution-legacy/lib/helpers/shared/shared';
 import helper from '../survey/helper';
 
 const birdSpeedKmhValidRangeByModeAndDistance = {
