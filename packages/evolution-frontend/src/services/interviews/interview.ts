@@ -1,5 +1,5 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { WidgetConfig } from '../widgets';
+import { WidgetConfig, LangData } from '../widgets';
 
 export type WidgetStatus = {
     path: string;
@@ -13,7 +13,7 @@ export type WidgetStatus = {
     isValid: boolean;
     isResponded: boolean;
     isCustomResponded: boolean;
-    errorMessage?: string;
+    errorMessage?: LangData;
     groupedObjectId?: string;
     value: unknown;
     customValue?: unknown;
