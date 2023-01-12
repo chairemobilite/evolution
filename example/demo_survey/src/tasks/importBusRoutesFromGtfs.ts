@@ -4,11 +4,11 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const parse     = require('csv-parse/lib/sync');
-const fs        = require('fs');
-const chalk     = require('chalk');
-const slugify   = require('slugify');
-const _camelCase = require('lodash.camelcase');
+import parse from 'csv-parse/lib/sync';
+import fs from 'fs';
+import chalk from 'chalk';
+import slugify from 'slugify';
+import _camelCase from 'lodash.camelcase';
 
 const agenciesOutputGeojsonFilePath = __dirname + '/../survey/agencies.json';
 const outputGeojsonFilePath         = __dirname + '/../survey/busRoutes.geojson';
@@ -17,13 +17,13 @@ let agenciesById;
 let busRoutesGeojson;
 
 try {
-  agenciesById = JSON.parse(fs.readFileSync(agenciesOutputGeojsonFilePath));
+  agenciesById = JSON.parse(fs.readFileSync(agenciesOutputGeojsonFilePath).toString());
 } catch (err) {
   agenciesById = {};
 }
 
 try {
-  busRoutesGeojson = JSON.parse(fs.readFileSync(outputGeojsonFilePath));
+  busRoutesGeojson = JSON.parse(fs.readFileSync(outputGeojsonFilePath).toString());
 } catch (err) {
   busRoutesGeojson = {
     type    : 'FeatureCollection',
@@ -73,10 +73,10 @@ const routesGtfsCsv         = fs.readFileSync(routesGtfsCsvFilePath);
 const routes                = parse(routesGtfsCsv, {columns: true});
 
 // initializing geojson feature collection:
-busRoutes = {
+const busRoutes = {
   type    : 'FeatureCollection',
   features: []
-};
+} as GeoJSON.FeatureCollection;
 
 // add bus routes and convert to geojson features
 let i = 1;
@@ -123,7 +123,7 @@ for (const slug in busRoutesBySlug)
   busRoutes.features.push(busRoute);
 }
 
-busRoutes.features.sort(function(busRoute1, busRoute2){
+busRoutes.features.sort(function(busRoute1: any, busRoute2: any){
   return busRoute1.properties.sortableName - busRoute2.properties.sortableName;
 });
 

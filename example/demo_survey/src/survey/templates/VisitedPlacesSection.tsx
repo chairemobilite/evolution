@@ -40,7 +40,7 @@ import helper          from '../helper';
 import ConfirmModal    from 'evolution-legacy/lib/components/survey/modal/ConfirmModal';
 import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
 
-export class VisitedPlacesSection extends React.Component {
+export class VisitedPlacesSection extends React.Component<any, any> {
 
   constructor(props) {
     super(props);
@@ -84,7 +84,7 @@ export class VisitedPlacesSection extends React.Component {
     });
   }
   
-  deleteVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces, e) {
+  deleteVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces, e = undefined) {
     if (e)
     {
       e.preventDefault();
@@ -92,7 +92,7 @@ export class VisitedPlacesSection extends React.Component {
     helper.deleteVisitedPlace(visitedPlacePath, this.props.interview, this.props.startRemoveGroupedObjects, this.props.startUpdateInterview);
   }
 
-  mergeVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces, e) {
+  mergeVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces, e = undefined) {
     if (e)
     {
       e.preventDefault();
@@ -147,6 +147,7 @@ export class VisitedPlacesSection extends React.Component {
     const percentLengthOfOneSecond = 100.0 / (28 * 3600);
     const persons                  = helper.getPersons(this.props.interview);
     let   activePersonSchedule     = null;
+    const selectedVisitedPlaceId = helper.getActiveVisitedPlaceId(this.props.interview);
     for (let _personId in persons)
     {
       const _person                         = persons[_personId];
@@ -175,8 +176,8 @@ export class VisitedPlacesSection extends React.Component {
         {
           continue;
         }
-        const startAtPercent       = Math.round(arrivalTime   * percentLengthOfOneSecond, 4);
-        const width                = Math.round(departureTime * percentLengthOfOneSecond - startAtPercent, 4);
+        const startAtPercent       = Math.round(arrivalTime   * percentLengthOfOneSecond);
+        const width                = Math.round(departureTime * percentLengthOfOneSecond - startAtPercent);
         const visitedPlaceSchedule = (
           <div 
             className = {`survey-visited-places-schedule-visited-place${person._uuid === _personId && !selectedVisitedPlaceId ? ' hand-cursor-on-hover' : ''}`}
@@ -275,7 +276,6 @@ export class VisitedPlacesSection extends React.Component {
     const visitedPlaces          = helper.getVisitedPlaces(person);
     const lastVisitedPlace       = helper.getLastVisitedPlace(visitedPlaces);
     const visitedPlacesList      = [];
-    const selectedVisitedPlaceId = helper.getActiveVisitedPlaceId(this.props.interview);
 
     for (let i = 0, count = visitedPlaces.length; i < count; i++)
     {

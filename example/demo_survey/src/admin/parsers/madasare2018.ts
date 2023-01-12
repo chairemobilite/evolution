@@ -15,9 +15,9 @@ import sharedHelper from 'evolution-legacy/lib/helpers/shared/shared';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from '../../survey/helper';
 import applicationConfiguration from 'evolution-frontend/lib/config/application.config';
-import busRoutesGeojson from '../../survey/busRoutes.geojson'
-import subwayStationsGeojson from '../../survey/subwayStations.geojson';
-import trainStationsGeojson from '../../survey/trainStations.geojson';
+import busRoutesGeojson from '../../survey/busRoutes.json';
+import subwayStationsGeojson from '../../survey/subwayStations.json';
+import trainStationsGeojson from '../../survey/trainStations.json';
 
 const shortname = 'madasare2018';
 const prefix    = '__madasare2018__';
@@ -83,10 +83,10 @@ const getIdLocalSequenceAndGeography = function(home, interview, personsArray, p
   let   idLocal       = 3; // début à 3 (1 et 2 utilisés pour l'adresse du domicile)
   for (let i = 0; i < personsArray.length; i++)
   {
-    let   personUsualPlaceIdLocal = null;
+    let   personUsualPlaceIdLocal: number | null = null;
     const person                  = personsArray[i];
     const proxyOccupation         = getProxyOccupation(person);
-    let   personUsualTypePlace    = null;
+    let   personUsualTypePlace: string | null    = null;
     if (helper.isWorker(proxyOccupation) && person.usualWorkPlace)
     {
       if (personUuid && personUuid === person._uuid)
@@ -229,7 +229,7 @@ const getProxyOccupation = function(person) {
   return person.occupation;
 };
 
-const getInternalId = function(widgetName, interview, value, defaultValue = null)
+const getInternalId = function(widgetName, interview, value, defaultValue: number | null = null)
 {
   const widget = applicationConfiguration.widgets[widgetName];
   const choice = surveyHelper.getWidgetChoiceFromValue(widget, value, interview);
@@ -314,7 +314,7 @@ export default {
         const internalId = getInternalId('householdIncome', interview, household.income, 0);
         if (internalId)
         {
-          return parseInt(internalId);
+          return internalId;
         }
         else if (responses._isCompleted || responses._completedAt)
         {
@@ -502,7 +502,7 @@ export default {
         const internalId = getInternalId('personDrivingLicenseOwner', interview, person.drivingLicenseOwner, 0);
         if (internalId)
         {
-          return parseInt(internalId);
+          return internalId;
         }
         else if (person.age < 16)
         {
@@ -531,7 +531,7 @@ export default {
         const internalId = getInternalId('personGender', interview, person.gender, 0);
         if (internalId)
         {
-          return parseInt(internalId);
+          return internalId;
         }
         return 0;
       },
@@ -546,7 +546,7 @@ export default {
           const internalId = getInternalId('personOccupation', interview, proxyOccupation, 0);
           if (internalId)
           {
-            return parseInt(internalId);
+            return internalId;
           }
         }
         return 0;
@@ -604,7 +604,7 @@ export default {
           const internalId = getInternalId('personTransitPasses', interview, transitPass, 10);
           if (internalId)
           {
-            return parseInt(internalId);
+            return internalId;
           }
         }
         else if (person.transitPassOwner === 'no')

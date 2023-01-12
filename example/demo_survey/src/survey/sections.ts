@@ -183,7 +183,7 @@ export default {
       const groupedObjects       = surveyHelperNew.getResponse(interview, 'household.persons');
       const groupedObjectIds     = groupedObjects ? Object.keys(groupedObjects) : [];
       const countGroupedObjects  = groupedObjectIds.length;
-      const householdSize        = surveyHelperNew.getResponse(interview, 'household.size');
+      const householdSize: any   = surveyHelperNew.getResponse(interview, 'household.size');
       const householdSizeIsValid = surveyHelperNew.getValidation(interview, 'household.size');
       const emptyGroupedObjects  = groupedObjectIds.filter((groupedObjectId) => isEmpty(groupedObjects[groupedObjectId]));
       if (householdSizeIsValid && householdSize) {
@@ -806,7 +806,7 @@ export default {
     },
     completionConditional: function(interview) {
       if (!helper.householdMembersSectionComplete(interview) || !helper.allPersonsTripsAndTravelBehaviorComplete(interview)) { return false; }
-      const household = surveyHelperNew.getResponse(interview, 'household');
+      const household: any = surveyHelperNew.getResponse(interview, 'household');
       if (
            _isBlank(household.residentialPhoneType)
         || _isBlank(household.didAlsoRespondByPhone)
@@ -937,7 +937,7 @@ export default {
       const groupedObjects       = surveyHelperNew.getResponse(interview, 'household.persons');
       const groupedObjectIds     = groupedObjects ? Object.keys(groupedObjects) : [];
       const countGroupedObjects  = groupedObjectIds.length;
-      const householdSize        = surveyHelperNew.getResponse(interview, 'household.size');
+      const householdSize: any   = surveyHelperNew.getResponse(interview, 'household.size');
       const householdSizeIsValid = surveyHelperNew.getValidation(interview, 'household.size');
       const emptyGroupedObjects  = groupedObjectIds.filter((groupedObjectId) => isEmpty(groupedObjects[groupedObjectId]));
       if (householdSizeIsValid && householdSize) {

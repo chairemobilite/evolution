@@ -10,7 +10,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import helper from '../helper';
-import waterBoundaries  from '../waterBoundaries.geojson';
+import waterBoundaries  from '../waterBoundaries.json';
 
 export const personWorkOnTheRoad = {
   type: "question",
@@ -419,8 +419,8 @@ export const personUsualWorkPlaceGeography = {
     return [workAtHome === false, null];
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const occupation = surveyHelperNew.getResponse(interview, path, null, '../occupation');
-    const geography  = surveyHelperNew.getResponse(interview, path, null);
+    const occupation: any = surveyHelperNew.getResponse(interview, path, null, '../occupation');
+    const geography: any  = surveyHelperNew.getResponse(interview, path, null);
     return [
       {
         validation: _isBlank(value) && helper.isWorker(occupation),
@@ -437,7 +437,7 @@ export const personUsualWorkPlaceGeography = {
         }
       },
       {
-        validation: geography && turfBooleanPointInPolygon(geography, waterBoundaries.features[0]),
+        validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
         errorMessage: {
           fr: `Le lieu est dans une étendue d'eau ou est inaccessible. Veuillez vérifier la localisation.`,
           en: `Location is in water or is inaccessible. Please verify.`
@@ -544,8 +544,8 @@ export const personUsualSchoolPlaceGeography = {
     return (!_isBlank(occupation) && helper.isStudent(occupation));
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const occupation = surveyHelperNew.getResponse(interview, path, null, '../occupation');
-    const geography  = surveyHelperNew.getResponse(interview, path, null);
+    const occupation: any = surveyHelperNew.getResponse(interview, path, null, '../occupation');
+    const geography: any  = surveyHelperNew.getResponse(interview, path, null);
     return [
       {
         validation: _isBlank(value) && helper.isStudent(occupation),
@@ -562,7 +562,7 @@ export const personUsualSchoolPlaceGeography = {
         }
       },
       {
-        validation: geography && turfBooleanPointInPolygon(geography, waterBoundaries.features[0]),
+        validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
         errorMessage: {
           fr: `Le lieu est dans une étendue d'eau ou est inaccessible. Veuillez vérifier la localisation.`,
           en: `Location is in water or is inaccessible. Please verify.`

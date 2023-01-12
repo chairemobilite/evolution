@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const knex     = require('knex')(require('../../../knexfile'));
+import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 const json2csv = require('json2csv').parse;
 const moment   = require('moment');
 const fs       = require('fs');

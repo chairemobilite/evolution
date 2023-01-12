@@ -15,10 +15,9 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from '../helper';
-import subwayStations from '../subwayStations.geojson';
-import trainStations  from '../trainStations.geojson';
-import agencies  from '../agencies.json';
-import busRoutes  from '../busRoutes.geojson';
+import subwayStations from '../subwayStations.json';
+import trainStations  from '../trainStations.json';
+import busRoutes  from '../busRoutes.json';
 
 export const personTrips = {
   type: "group",
@@ -355,10 +354,10 @@ export const segmentIsNotLast = {
     }
   ],
   conditional: function(interview, path) {
-    const segment       = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any  = surveyHelperNew.getResponse(interview, path, null, '../');
     const trip          = helper.getActiveTrip(interview);
     const segments      = trip ? trip.segments : {};
-    const segmentsArray = Object.values(segments).sort((segmentA, segmentB) => {
+    const segmentsArray: any[] = Object.values(segments).sort((segmentA, segmentB) => {
       return segmentA['_sequence'] - segmentB['_sequence'];
     });
     const lastSegment   = segmentsArray[segmentsArray.length - 1];
@@ -393,7 +392,7 @@ export const segmentVehicleOccupancy = {
     en: "How many persons were in the vehicle, including the driver?"
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'carDriver', null];
   },
@@ -528,7 +527,7 @@ export const segmentVehicleType = {
     }
   ],
   conditional: function(interview, path) {
-    const segment            = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any       = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode               = segment ? segment.mode : null;
     const person             = helper.getPerson(interview);
     const isCarsharingMember = person.carsharingMember === 'yes';
@@ -610,7 +609,7 @@ export const segmentUsedBikesharing = {
     }
   ],
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     if (mode !== 'bicycle')
     {
@@ -753,20 +752,20 @@ export const segmentSubwayStationStart = {
     }
   ],
   choices: function(interview, path) {
-    const trip                   = surveyHelperNew.getResponse(interview, path, null, '../../../');
+    const trip: any                   = surveyHelperNew.getResponse(interview, path, null, '../../../');
     const subwayStationsFeatures = subwayStations.features;
     let   choices                = [];
     if (trip)
     {
       const person         = helper.getPerson(interview);
-      const visitedPlaces  = helper.getVisitedPlaces(person, false);
+      const visitedPlaces: any  = helper.getVisitedPlaces(person, false);
       const origin         = visitedPlaces[trip._originVisitedPlaceUuid];
       const originGeometry = origin ? helper.getGeography(origin, person, interview) : null;
       if (originGeometry)
       {
         const originPoint = originGeometry;
         const _choices    = subwayStationsFeatures.map((subwayStation) => {
-          const stationPoint = subwayStation.geometry;
+          const stationPoint: any = subwayStation.geometry;
           return {
             value: subwayStation.properties.shortname,
             internalId: subwayStation.properties.internalId,
@@ -784,7 +783,7 @@ export const segmentSubwayStationStart = {
     }
     else
     {
-      choices = subwayStationsFeatures.map((subwayStation) => {
+      choices = subwayStationsFeatures.map((subwayStation: any) => {
         return {
           value: subwayStation.properties.shortname,
           internalId: subwayStation.internalId,
@@ -836,7 +835,7 @@ export const segmentSubwayStationStart = {
     }
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'transitSubway', null];
   },
@@ -881,7 +880,7 @@ export const segmentSubwayStationEnd = {
     }
   ],
   choices: function(interview, path) {
-    const trip                   = surveyHelperNew.getResponse(interview, path, null, '../../../');
+    const trip: any              = surveyHelperNew.getResponse(interview, path, null, '../../../');
     const subwayStationsFeatures = subwayStations.features;
     let   choices                = [];
     if (trip)
@@ -894,7 +893,7 @@ export const segmentSubwayStationEnd = {
       {
         const destinationPoint = destinationGeometry;
         const _choices         = subwayStationsFeatures.map((subwayStation) => {
-          const stationPoint = subwayStation.geometry;
+          const stationPoint: any = subwayStation.geometry;
           return {
             value: subwayStation.properties.shortname,
             internalId: subwayStation.properties.internalId,
@@ -912,7 +911,7 @@ export const segmentSubwayStationEnd = {
     }
     else
     {
-      choices = subwayStationsFeatures.map((subwayStation) => {
+      choices = subwayStationsFeatures.map((subwayStation: any) => {
         return {
           value: subwayStation.properties.shortname,
           internalId: subwayStation.internalId,
@@ -964,7 +963,7 @@ export const segmentSubwayStationEnd = {
     }
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'transitSubway', null];
   },
@@ -1089,7 +1088,7 @@ export const segmentSubwayTransferStations = {
     }
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'transitSubway', null];
   },
@@ -1309,7 +1308,7 @@ export const segmentBridgesAndTunnels = {
     en: `Please select each bridge and/or tunnels that were used for this trip: <br /><span class="_pale _oblique">Choose \"None\" if none was used</span>`
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'carDriver' || mode === 'motorcycle', null];
   }/*,
@@ -1841,7 +1840,7 @@ export const segmentHighways = {
     en: `Please select each highway that were used for this trip: <br /><span class="_pale _oblique">Choose \"None\" if none was used</span>`
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'carDriver' || mode === 'motorcycle', null];
   }/*,
@@ -1886,7 +1885,7 @@ export const segmentTrainStationStart = {
     }
   ],
   choices: function(interview, path) {
-    const trip                  = surveyHelperNew.getResponse(interview, path, null, '../../../');
+    const trip: any                  = surveyHelperNew.getResponse(interview, path, null, '../../../');
     const trainStationsFeatures = trainStations.features;
     let   choices               = [];
     if (trip)
@@ -1899,7 +1898,7 @@ export const segmentTrainStationStart = {
       {
         const originPoint = originGeometry;
         const _choices    = trainStationsFeatures.map((trainStation) => {
-          const stationPoint = trainStation.geometry;
+          const stationPoint: any = trainStation.geometry;
           return {
             value: trainStation.properties.shortname,
             internalId: trainStation.properties.internalId,
@@ -1917,7 +1916,7 @@ export const segmentTrainStationStart = {
     }
     else
     {
-      choices = trainStationsFeatures.map((trainStation) => {
+      choices = trainStationsFeatures.map((trainStation: any) => {
         return {
           value: trainStation.properties.shortname,
           internalId: trainStation.internalId,
@@ -1969,7 +1968,7 @@ export const segmentTrainStationStart = {
     }
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'transitRail', null];
   },
@@ -2014,7 +2013,7 @@ export const segmentTrainStationEnd = {
     }
   ],
   choices: function(interview, path) {
-    const trip                  = surveyHelperNew.getResponse(interview, path, null, '../../../');
+    const trip: any             = surveyHelperNew.getResponse(interview, path, null, '../../../');
     const trainStationsFeatures = trainStations.features;
     let   choices               = [];
     if (trip)
@@ -2026,7 +2025,7 @@ export const segmentTrainStationEnd = {
       if (destinationGeometry)
       {
         const destinationPoint = destinationGeometry;
-        const _choices         = trainStationsFeatures.map((trainStation) => {
+        const _choices         = trainStationsFeatures.map((trainStation: any) => {
           const stationPoint = trainStation.geometry;
           return {
             value: trainStation.properties.shortname,
@@ -2045,7 +2044,7 @@ export const segmentTrainStationEnd = {
     }
     else
     {
-      choices = trainStationsFeatures.map((trainStation) => {
+      choices = trainStationsFeatures.map((trainStation: any) => {
         return {
           value: trainStation.properties.shortname,
           internalId: trainStation.internalId,
@@ -2097,7 +2096,7 @@ export const segmentTrainStationEnd = {
     }
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'transitRail', null];
   },
@@ -2153,7 +2152,7 @@ export const segmentBusLines = {
   choices: function(interview, path) {
     
     const busRoutesFeatures = busRoutes.features;
-    const choices           = busRoutesFeatures.map((busRoute) => {
+    const choices: any[]    = busRoutesFeatures.map((busRoute: any) => {
       const busRouteName = busRoute.properties.name;
       return {
         value: busRoute.properties.slug,
@@ -2213,7 +2212,7 @@ export const segmentBusLines = {
     }
   },
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'transitBus', null];
   },
@@ -2612,7 +2611,7 @@ export const segmentParkingType = {
     }
   ],
   conditional: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'carDriver', null];
   },
@@ -2697,7 +2696,7 @@ export const segmentParkingPaymentType = {
       },
       conditional: function(interview, path) {
         const person = helper.getPerson(interview);
-        const trip = surveyHelperNew.getResponse(interview, path, null, '../../');
+        const trip: any = surveyHelperNew.getResponse(interview, path, null, '../../');
         const visitedPlaces = person.visitedPlaces;
         const destination = trip && trip._destinationVisitedPlaceUuid && visitedPlaces[trip._destinationVisitedPlaceUuid] ? visitedPlaces[trip._destinationVisitedPlaceUuid] : null;
         const destinationActivity = destination ? destination.activity : null;
@@ -2734,7 +2733,7 @@ export const segmentParkingPaymentType = {
     //const segment = surveyHelperNew.getResponse(interview, path, null, '../');
     //const parkingType    = segment ? segment.parkingType : null;
     //return [!_isBlank(parkingType), 'nonApplicable'];
-    const segment = surveyHelperNew.getResponse(interview, path, null, '../');
+    const segment: any = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode    = segment ? segment.mode : null;
     return [mode === 'carDriver', null];
   },
@@ -2763,7 +2762,7 @@ export const personTripsTitle = {
         return `Vos déplacements du ${formattedTripsDate}&nbsp;:`;
       }
       const personId           = surveyHelperNew.getResponse(interview, '_activePersonId');
-      const person             = surveyHelperNew.getResponse(interview, `household.persons.${personId}`);
+      const person : any            = surveyHelperNew.getResponse(interview, `household.persons.${personId}`);
       return `Déplacements de **${person.nickname}** le ${formattedTripsDate}&nbsp;:`;
     },
     en: function(interview, path) {
@@ -2774,7 +2773,7 @@ export const personTripsTitle = {
         return `Trips you made on${formattedTripsDate}&nbsp;:`;
       }
       const personId           = surveyHelperNew.getResponse(interview, '_activePersonId');
-      const person             = surveyHelperNew.getResponse(interview, `household.persons.${personId}`);
+      const person: any             = surveyHelperNew.getResponse(interview, `household.persons.${personId}`);
       return `Trips made by **${person.nickname}** on ${formattedTripsDate}&nbsp;:`;
     }
   }
