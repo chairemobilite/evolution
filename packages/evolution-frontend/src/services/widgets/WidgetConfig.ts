@@ -9,8 +9,29 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { ParsingFunction } from '../../utils/helpers';
+import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
-type LangData = {
+/**
+ * Validation function, which validates the value with potentially multiple
+ * validation functions and return whether the specified error message should be
+ * displayed.
+ *
+ * A validation function will return an array of validation function results and
+ * the translated error message to display if true.
+ *
+ * TODO: Rename `validation` to something that makes it obvious that `true`
+ * means there's an error.
+ */
+export type ValidationFunction = (
+    value: unknown | undefined,
+    customValue: unknown | undefined,
+    interview: UserInterviewAttributes,
+    path: string,
+    customPath?: string,
+    user?: FrontendUser
+) => { validation: boolean; errorMessage: LangData }[];
+
+export type LangData = {
     [lang: string]: string | ((interview: UserInterviewAttributes) => string);
 };
 
@@ -177,8 +198,7 @@ export type WidgetConfig =
               title: LangData;
               content: LangData;
           };
-          // FIXME Type when used in typescript (this is complicated)
-          validations?: any;
+          validations?: ValidationFunction;
           conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
       } & (
           | InputStringType

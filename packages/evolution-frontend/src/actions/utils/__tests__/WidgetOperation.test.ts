@@ -648,7 +648,7 @@ describe('Test with choice conditional', () => {
         interviewExpected.responses.section1.q4 = updatedValue2;
         interviewExpected.validations.section1.q4 = true;
         // validation and choice conditional response for widget4
-        mockedCheckValidations.mockReturnValueOnce([false, 'value must be set']);
+        mockedCheckValidations.mockReturnValueOnce([false, { en: 'value must be set' }]);
         mockedCheckChoicesConditional.mockReturnValueOnce([false, updatedValue2]);
         const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareWidgets(choiceSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
         expect(interview2).toEqual(expect.objectContaining(interviewExpected));

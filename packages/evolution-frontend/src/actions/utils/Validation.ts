@@ -1,25 +1,5 @@
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-
-/**
- * Validation function, which validates the value with potentially multiple
- * validation functions and return whether the specified error message should be
- * displayed.
- *
- * A validation function will return an array of validation function results and
- * the translated error message to display if true.
- *
- * TODO: Rename `validation` to something that makes it obvious that `true`
- * means there's an error.
- */
-export type ValidationFunction = (
-    value: unknown | undefined,
-    customValue: unknown | undefined,
-    interview: UserInterviewAttributes,
-    path: string,
-    customPath?: string,
-    user?: FrontendUser
-) => { validation: boolean; errorMessage: string }[];
+import { ValidationFunction, LangData } from '../../services/widgets';
 
 /**
  * Check the validations for a specific value
@@ -39,7 +19,7 @@ export const checkValidations = (
     interview: UserInterviewAttributes,
     path: string,
     customPath?: string
-): [boolean, string | undefined] => {
+): [boolean, LangData | undefined] => {
     if (typeof validations === 'function') {
         try {
             const validationsGroup = validations(value, customValue, interview, path, customPath);
