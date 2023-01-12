@@ -108,6 +108,7 @@ packages/**/node_modules
 packages/transition/backend/file/
 tests/runtime
 example/**/runtime
+example/*/lib
 tests/test
 
 # node profiling data

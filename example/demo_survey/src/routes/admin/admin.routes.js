@@ -10,9 +10,9 @@ const _get                     = require('lodash.get');
 const turfFeatureEach          = require('@turf/meta').featureEach;
 const turfPointInPolygon       = require('@turf/boolean-point-in-polygon').default;
 const config                   = require('chaire-lib-common/lib/config/shared/project.config');
-const helper                   = require('../../../../../packages/evolution-legacy/src/helpers/server');
+const helper                   = require('evolution-legacy/lib/helpers/server');
 const zonesGeojson             = require('../../survey/zones.json');
-const getTripMultimodeCategory = require('../../../../../packages/evolution-legacy/src/helpers/survey/helperFunctions/getTripMultimodeCategory');
+const getTripMultimodeCategory = require('evolution-legacy/lib/helpers/survey/helperFunctions/getTripMultimodeCategory');
 
 const getInvalidInterviewIds = function(lastUpdatedAt) {
   return knex.select('i.id')

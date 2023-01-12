@@ -1,0 +1,50 @@
+{
+    "name": "demo_survey",
+    "version": "1.0.0",
+    "main": "index.js",
+    "author": "Chaire Mobilité",
+    "private": true,
+    "repository": "github.com/chairemobilite/evolution",
+    "scripts": {
+        "build:dev": "cross-env NODE_OPTIONS=--max_old_space_size=4096 webpack --watch --progress --colors --env development --mode development",
+        "build:prod": "cross-env NODE_OPTIONS=--max_old_space_size=4096 webpack -p --progress --colors --env production --mode production",
+        "build:test": "cross-env NODE_ENV=test webpack -p --env test --mode development --watch --progress --colors",
+        "copy-files": "copyfiles -u 1 src/survey/*.json src/survey/*.geojson src/styles/*.scss ./lib/",
+        "compile": "yarn babel src --out-dir=lib && yarn copy-files",
+        "compile:dev": "yarn copy-files && yarn babel src --out-dir=lib --watch",
+        "test": "cross-env NODE_ENV=test jest --config=jest.config.js"
+    },
+    "dependencies": {
+        "@babel/cli": "^7.10.5",
+        "@babel/core": "^7.10.5",
+        "@babel/node": "^7.10.5",
+        "@babel/plugin-proposal-class-properties": "^7.10.4",
+        "@babel/plugin-proposal-object-rest-spread": "^7.10.4",
+        "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+        "@babel/plugin-syntax-jsx": "^7.12.1",
+        "@babel/plugin-syntax-object-rest-spread": "^7.8.3",
+        "@babel/plugin-transform-object-assign": "^7.10.4",
+        "@babel/plugin-transform-react-jsx": "^7.12.7",
+        "@babel/plugin-transform-spread": "^7.10.4",
+        "@babel/polyfill": "^7.10.4",
+        "@babel/preset-env": "^7.10.4",
+        "@babel/preset-react": "^7.10.4",
+        "@babel/register": "^7.10.5",
+        "clean-webpack-plugin": "^3.0.0",
+        "compression-webpack-plugin": "^4.0.0",
+        "copy-webpack-plugin": "^6.0.3",
+        "cross-env": "^7.0.2",
+        "css-loader": "^3.6.0",
+        "moment": "^2.29.4",
+        "moment-business-days": "^1.2.0",
+        "evolution-legacy": "0.2.2",
+        "webpack": "^4.43.0",
+        "webpack-cdn-plugin": "^3.3.1",
+        "webpack-cli": "^3.3.12",
+        "webpack-glsl-loader": "^1.0.1"
+    },
+    "devDependencies": {
+        "jest": "^27.3.1",
+        "jest-each": "^27.3.1"
+    }
+}

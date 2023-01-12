@@ -8,7 +8,8 @@
         "packages/evolution-common",
         "packages/evolution-backend",
         "packages/evolution-frontend",
-        "packages/evolution-legacy"
+        "packages/evolution-legacy",
+        "example/demo_survey"
     ],
     "scripts": {
         "setup": "yarn workspace chaire-lib-backend run setup",
@@ -19,8 +20,8 @@
         "compile": "yarn workspaces run compile",
         "compile:dev": "yarn wsrun compile:dev",
         "create-user": "yarn workspace chaire-lib-backend run create-user",
-        "build:dev": "yarn workspace evolution-legacy run build:dev",
-        "build:prod": "yarn workspace evolution-legacy run build:prod",
+        "build:dev": "yarn workspace demo_survey run build:dev",
+        "build:prod": "yarn workspace demo_survey run build:prod",
         "start": "yarn workspace evolution-legacy run start",
         "start:demo": "echo 'not implemented yet'",
         "start:debug": "yarn workspace evolution-legacy run start:debug",

@@ -13,7 +13,7 @@ import turfDistance from '@turf/distance';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import surveyHelper from '../../../../../packages/evolution-legacy/src/helpers/survey/survey';
+import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from '../helper';
 import subwayStations from '../subwayStations.geojson';
 import trainStations  from '../trainStations.geojson';

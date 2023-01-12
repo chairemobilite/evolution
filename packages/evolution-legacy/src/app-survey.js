@@ -4,8 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-// FIXME With this javascript only workspace and webpack, this file needs to be
-// outside the src/ directory, otherwise there is no loader for React syntax...
 import React                    from 'react';
 import ReactDOM                 from 'react-dom';
 import { Provider }             from 'react-redux';
@@ -14,28 +12,17 @@ import { createBrowserHistory } from 'history';
 import { Router }               from 'react-router-dom';
 
 import config from 'chaire-lib-frontend/lib/config/project.config';
-import i18n              from './src/config/survey/i18n.config';
-import SurveyRouter      from './src/routers/survey/SurveyRouter';
-import configureStore    from './src/store/survey/configureStore';
-import { login, logout } from './src/actions/shared/auth';
-import LoadingPage       from './src/components/shared/LoadingPage';
+import i18n              from './config/survey/i18n.config';
+import SurveyRouter      from './routers/survey/SurveyRouter';
+import configureStore    from './store/survey/configureStore';
+import { login, logout } from './actions/shared/auth';
+import LoadingPage       from './components/shared/LoadingPage';
 import { InterviewContext, interviewReducer, initialState } from 'evolution-frontend/lib/contexts/InterviewContext';
 // TODO When the project is the root of the application (instead of evolution directly importing project files), this should go in the project
 import { SurveyContext, surveyReducer } from 'evolution-frontend/lib/contexts/SurveyContext';
 import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
-
-// TODO Project configuration should be done in the project itself when it is the entry point, but for now, here should be the only place it is imported this way
-try {
-    require(`./../../example/${process.env.PROJECT_SHORTNAME}/src/project.config.js`);
-}
-catch (error)
-{
-    console.log('No project specific configuration to call');
-}
+import './styles/survey/styles-survey.scss';
   
-
-import './src/styles/survey/styles-survey.scss';
-
 // TODO This is a workaround to get the links to the user, until some more complete solution is implemented (see https://github.com/chairemobilite/transition/issues/1516)
 const pages = [
     { path: '/admin/validation', permissions: { Interviews: ['validate'] }, title: 'admin:validationPageTitle' },
@@ -44,61 +31,63 @@ const pages = [
 ];
 setApplicationConfiguration({ homePage: '/survey', pages });
 
-document.title = config.title[i18n.language];
+export default () => {
+    document.title = config.title[i18n.language];
 
-const history = createBrowserHistory();
-
-const store = configureStore();
-const Jsx = () => {
-  const [state, dispatch] = React.useReducer(interviewReducer, initialState);
-  const [devMode, dispatchSurvey] = React.useReducer(surveyReducer, { devMode: false });
-  return(
-    <SurveyContext.Provider value={{ sections: appConfig.sections, widgets: appConfig.widgets, ...devMode, dispatch: dispatchSurvey }}>
-    <InterviewContext.Provider value={{ state, dispatch }}>
-      <Provider store={store}>
-        <I18nextProvider i18n={ i18n }>
-          <Router history={history}>
-            <SurveyRouter/>
-          </Router>
-        </I18nextProvider>
-      </Provider>
-    </InterviewContext.Provider>
-    </SurveyContext.Provider>
-  )
-};
-let hasRendered = false;
-const renderApp = () => {
-  if (!hasRendered) {
-    ReactDOM.render(<Jsx/>, document.getElementById('app'));
-    hasRendered = true;
-  }
-};
-
-ReactDOM.render(<LoadingPage />, document.getElementById('app'));
-
-fetch('/verifyAuthentication', { credentials: 'include' }).then((response) => {
-  //console.log('verifying authentication');
-  if (response.status === 200) {
-    // authorized (user authentication succeeded)
-    response.json().then((body) => {
-      if (body.user)
-      {
-        store.dispatch(login(body.user, true));
-        renderApp();
+    const history = createBrowserHistory();
+    
+    const store = configureStore();
+    const Jsx = () => {
+      const [state, dispatch] = React.useReducer(interviewReducer, initialState);
+      const [devMode, dispatchSurvey] = React.useReducer(surveyReducer, { devMode: false });
+      return(
+        <SurveyContext.Provider value={{ sections: appConfig.sections, widgets: appConfig.widgets, ...devMode, dispatch: dispatchSurvey }}>
+        <InterviewContext.Provider value={{ state, dispatch }}>
+          <Provider store={store}>
+            <I18nextProvider i18n={ i18n }>
+              <Router history={history}>
+                <SurveyRouter/>
+              </Router>
+            </I18nextProvider>
+          </Provider>
+        </InterviewContext.Provider>
+        </SurveyContext.Provider>
+      )
+    };
+    let hasRendered = false;
+    const renderApp = () => {
+      if (!hasRendered) {
+        ReactDOM.render(<Jsx/>, document.getElementById('app'));
+        hasRendered = true;
       }
-      else
-      {
+    };
+    
+    ReactDOM.render(<LoadingPage />, document.getElementById('app'));
+    
+    fetch('/verifyAuthentication', { credentials: 'include' }).then((response) => {
+      //console.log('verifying authentication');
+      if (response.status === 200) {
+        // authorized (user authentication succeeded)
+        response.json().then((body) => {
+          if (body.user)
+          {
+            store.dispatch(login(body.user, true));
+            renderApp();
+          }
+          else
+          {
+            store.dispatch(logout());
+            renderApp();
+          }
+        });
+      }
+      else if (response.status === 401) {
         store.dispatch(logout());
         renderApp();
+        //history.push('/home');
       }
+    })
+    .catch((err) => {
+      console.log('Error logging in.', err);
     });
-  }
-  else if (response.status === 401) {
-    store.dispatch(logout());
-    renderApp();
-    //history.push('/home');
-  }
-})
-.catch((err) => {
-  console.log('Error logging in.', err);
-});
+}

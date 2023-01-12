@@ -26,7 +26,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import waterBoundaries  from '../waterBoundaries.geojson';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import surveyHelper from '../../../../../packages/evolution-legacy/src/helpers/survey/survey';
+import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import i18n              from 'chaire-lib-frontend/lib/config/i18n.config';
 import helper from '../helper';
 
