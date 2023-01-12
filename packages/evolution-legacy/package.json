@@ -12,9 +12,6 @@
     "test": "cross-env NODE_ENV=test jest --config=jest.config.js",
     "test:unit": "cross-env NODE_ENV=test jest --config=jest.config.js",
     "test:sequential": "cross-env NODE_ENV=test jest --config=jest.sequential.config.js --runInBand",
-    "start": "yarn babel-node src/server.js --max-old-space-size=4096",
-    "start:tracing": "yarn babel-node -r ../../tracing.js src/server.js --max-old-space-size=4096",
-    "start:debug": "cross-env DEBUG=express:* yarn babel-node --trace-warnings src/server.js --max-old-space-size=4096",
     "rollback": "knex migrate:rollback",
     "rollback-test": "cross-env NODE_ENV=test knex migrate:rollback",
     "seed": "cross-env NODE_ENV=test knex seed:run",
@@ -27,7 +24,7 @@
     "clean": "rimraf lib/",
     "copy-files": "copyfiles -u 1 ./src/assets/survey/images/**/* src/styles/survey/*.scss ./lib/",
     "compile": "yarn babel src --out-dir=lib && yarn copy-files",
-    "compile:dev": "echo 'nothing to compile'"
+    "compile:dev": "yarn copy-files && yarn babel src --out-dir=lib --watch"
   },
   "dependencies": {
     "@alienfast/i18next-loader": "^1.1.4",
@@ -67,7 +64,6 @@
     "babel-jest": "^26.1.0",
     "babel-loader": "^8.1.0",
     "bcryptjs": "^2.4.3",
-    "body-parser": "^1.19.0",
     "bookshelf": "^1.2.0",
     "bookshelf-json-columns": "^3.0.0",
     "bottleneck": "^2.19.5",

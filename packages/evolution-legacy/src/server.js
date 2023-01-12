@@ -6,12 +6,14 @@
  */
 require('@babel/register');
 
-import './config/shared/dotenv.config';
+import 'chaire-lib-backend/lib/config/dotenv.config';
 import config from 'chaire-lib-backend/lib/config/server.config';
 import { join } from 'path';
 import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
-import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
+import { registerTranslationDir } from 'chaire-lib-backend/lib/config/i18next';
+import express from 'express';
+import { setupServerApp } from './serverApp';
 
 const argv = yargs(hideBin(process.argv)).argv;
 
@@ -25,36 +27,38 @@ process.on('uncaughtException', function(err) {
     console.error("Just caught an uncaught exception!", err);
 });
 
-const { app, session } = require('./serverApp');
-if (!useSSL) {
-    // Create http server
-    const http             = require('http');
-    const server           = http.createServer(app);
-    server.listen(port);
-} else {
-    // Create the https server
-    const pk = process.env.SSL_PRIVATE_KEY;
-    const crt = process.env.SSL_CERT;
-    if (!pk || !crt) {
-        console.error('Configuration error: you need to specify the SSL_PRIVATE_KEY and SSL_CERT keys in the .env file');
-        process.exit();
+export const setupServer = (serverSetupFct = undefined) => {
+    const app = express();
+    const { session } = setupServerApp(app, serverSetupFct);
+    if (!useSSL) {
+        // Create http server
+        const http             = require('http');
+        const server           = http.createServer(app);
+        server.listen(port);
+    } else {
+        // Create the https server
+        const pk = process.env.SSL_PRIVATE_KEY;
+        const crt = process.env.SSL_CERT;
+        if (!pk || !crt) {
+            console.error('Configuration error: you need to specify the SSL_PRIVATE_KEY and SSL_CERT keys in the .env file');
+            process.exit();
+        }
+        const fs = require('fs');
+        try {
+            const privateKey  = fs.readFileSync(pk, 'utf8');
+            const certificate = fs.readFileSync(crt, 'utf8');
+            const https = require('https');
+            const credentials = {key: privateKey, cert: certificate};
+            const httpsServer = https.createServer(credentials, app);
+            httpsServer.listen(port);
+        } catch (err) {
+            console.error("Error starting the https server: ", err);
+            process.exit();
+        }
     }
-    const fs = require('fs');
-    try {
-        const privateKey  = fs.readFileSync(pk, 'utf8');
-        const certificate = fs.readFileSync(crt, 'utf8');
-        const https = require('https');
-        const credentials = {key: privateKey, cert: certificate};
-        const httpsServer = https.createServer(credentials, app);
-        httpsServer.listen(port);
-    } catch (err) {
-        console.error("Error starting the https server: ", err);
-        process.exit();
-    }
+
+    // Register server translations
+    registerTranslationDir(join(__dirname, `../../../locales/`));
 }
 
-// Register server translations
-registerTranslationDir(join(__dirname, `../../../locales/`));
-// FIXME Project directory is for runtime, locales should be in the config file (See #420)
-registerTranslationDir(join(__dirname, `../../../example/${config.projectShortname}/locales/`));
-addTranslationNamespace('customServer');
+export default setupServer;
