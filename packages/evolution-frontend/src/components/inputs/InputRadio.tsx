@@ -11,14 +11,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { _chunkify } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from '../../utils/helpers';
-import { InputRadioType, ChoiceType } from '../../services/widgets';
+import { InputRadioType, RadioChoiceType } from '../../services/widgets';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
 export interface InputRadioProps {
     id: string;
     onValueChange: (e: any, customValue?: string) => void;
-    value: string;
+    value: string | boolean;
     /** Value of the custom field if 'other' is selected */
     customValue?: string;
     // FIXME: customPath and customChoice are not part of checkbox, otherwise very similar to this one. Can they be treated the same? How does checkbox handle customPath?
@@ -41,7 +41,7 @@ interface InputRadioState {
 
 interface InputRadioChoiceProps {
     id: string;
-    choice: ChoiceType;
+    choice: RadioChoiceType;
     interview: UserInterviewAttributes;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
@@ -53,7 +53,7 @@ interface InputRadioChoiceProps {
     onRadioClick: React.MouseEventHandler;
     onContainerClick: (
         inputRadioRef: React.RefObject<HTMLInputElement>,
-        value: string,
+        value: string | boolean,
         e: React.MouseEvent<HTMLDivElement>
     ) => void;
 }
@@ -140,7 +140,7 @@ export class InputRadio extends React.Component<InputRadioProps & WithTranslatio
 
     onContainerClick = (
         inputRadioRef: React.RefObject<HTMLInputElement>,
-        value: string,
+        value: string | boolean,
         e: React.MouseEvent<HTMLDivElement>
     ) => {
         e.stopPropagation();
