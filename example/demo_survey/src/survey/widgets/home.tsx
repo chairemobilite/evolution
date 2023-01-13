@@ -11,6 +11,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import waterBoundaries  from '../waterBoundaries.json';
+import { WidgetConfig } from 'evolution-frontend/lib/services/widgets';
 
 export const homeIntro = {
   type: "text",
@@ -49,8 +50,8 @@ export const interviewLanguage = {
   }
 };
 
-export const accessCode = {
-  type: "question",
+export const accessCode: WidgetConfig = {
+  type: 'question',
   twoColumns: true,
   path: 'accessCode',
   inputType: "string",
@@ -62,13 +63,12 @@ export const accessCode = {
   }
 }
 
-export const householdSize = {
-  type: "question",
+export const householdSize: WidgetConfig = {
+  type: 'question',
   twoColumns: true,
   path: 'household.size',
-  inputType: "string",
-  datatype: "integer",
-  size: "small",
+  inputType: 'string',
+  datatype: 'integer',
   label: {
     fr: "Combien de personnes habitent votre domicile de façon permanente, **y compris vous-même**, pendant la semaine?",
     en: "Including yourself, how many people live permanently in your household during the week?"
@@ -97,7 +97,7 @@ export const householdSize = {
       }
     }
   },
-  validations: function(value, customValue, interview, path, customPath) {
+  validations: (value: unknown | undefined) => {
     return [
       {
         validation: (isNaN(Number(value)) || !Number.isInteger(Number(value))),
@@ -131,7 +131,7 @@ export const householdSize = {
   }
 };
 
-export const householdCarNumber = {
+export const householdCarNumber: WidgetConfig = {
   type: "question",
   path: 'household.carNumber',
   twoColumns: true,
@@ -148,7 +148,7 @@ export const householdCarNumber = {
       en: "Which vehicles to include?"
     },
     content: {
-      fr: function(interview, path) {
+      fr: function(interview) {
         return `
 * **Inclure les automobiles, camions légers, camions, fourgonnettes, mobylettes, scooters et motos**
 * **Inclure tous les véhicules fournis ou loués par un employeur que les membres de votre ménage utilisent pour aller au travail ou pour des raisons personnelles**
@@ -158,7 +158,7 @@ export const householdCarNumber = {
 * ~~Ne pas inclure les véhicules remisés ou de collection utilisés rarement~~
 `;
       },
-      en: function(interview, path) {
+      en: function(interview) {
         return `
 * **Include cars, light trucks, trucks, vans, scooters and motorcycles**
 * **Include all vehicles made available or leased by an employer that members of your household use to go to work or for personal reasons**
@@ -203,7 +203,7 @@ export const householdCarNumber = {
         }
       },
       {
-        validation: (!_isBlank(householdSize) && !isNaN(Number(householdSize)) && parseFloat(value)/householdSize > 3),
+        validation: (!_isBlank(householdSize) && !isNaN(Number(householdSize)) && (Number.isInteger(Number(value)) && (Number(value))/householdSize > 3)),
         errorMessage: {
           fr: `Le nombre de véhicules est trop élevé. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.`,
           en: `The number of vehicles is too high. Do not include collection vehicles or vehicles that are not used on a regular basis.`
