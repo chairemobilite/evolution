@@ -15,13 +15,13 @@ import { InputCheckboxType, ChoiceType } from '../../services/widgets';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
-export interface InputCheckboxProps {
+export interface InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange: (e: any, customValue?: string) => void;
     value: string;
     /** Value of the custom field if 'other' is selected */
     customValue?: string;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -36,10 +36,10 @@ interface InputCheckboxState {
     customValue: string;
 }
 
-interface InputCheckboxChoiceProps {
+interface InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     choice: ChoiceType;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     checked: boolean;
@@ -54,8 +54,8 @@ interface InputCheckboxChoiceProps {
     ) => void;
 }
 
-const InputCheckboxChoice: React.FunctionComponent<InputCheckboxChoiceProps & WithTranslation> = (
-    props: InputCheckboxChoiceProps & WithTranslation
+const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
 ) => {
     const id = `${props.id}__input-checkbox__${props.choice.value}`;
     const strValue =
@@ -119,10 +119,13 @@ const InputCheckboxChoice: React.FunctionComponent<InputCheckboxChoiceProps & Wi
 
 const InputCheckboxChoiceT = withTranslation()(InputCheckboxChoice);
 
-export class InputCheckbox extends React.Component<InputCheckboxProps & WithTranslation, InputCheckboxState> {
+export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
+    InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
+    InputCheckboxState
+> {
     private customInputRef: React.RefObject<HTMLInputElement> = React.createRef();
 
-    constructor(props: InputCheckboxProps & WithTranslation) {
+    constructor(props: InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
         super(props);
 
         this.state = {

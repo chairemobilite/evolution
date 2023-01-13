@@ -9,22 +9,22 @@ import prefilledDbQueries from '../../models/interviewsPreFill.db.queries';
  */
 export type ServerFieldUpdateCallback = {
     field: string | { regex: string };
-    callback: (
-        interview: InterviewAttributes,
+    callback: <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+        interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
         newValue: unknown | undefined,
         path: string
     ) => Promise<{ [affectedResponseFieldPath: string]: unknown }>;
 };
 
-const waitExecuteCallback = async (
-    interview: InterviewAttributes,
+const waitExecuteCallback = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     callbackPromise: Promise<{ [affectedResponseFieldPath: string]: unknown }>
 ): Promise<{ [affectedResponseFieldPath: string]: unknown }> => {
     try {
         const serverValuesByPath = {};
         const updatedValuesByPath = await callbackPromise;
         Object.keys(updatedValuesByPath).forEach((key) => {
-            if (getResponse(interview, key, undefined) !== updatedValuesByPath[key]) {
+            if (getResponse(interview, key as any, undefined) !== updatedValuesByPath[key]) {
                 serverValuesByPath[`responses.${key}`] = updatedValuesByPath[key];
             }
         });
@@ -66,8 +66,8 @@ const getUpdateCallbackForPath = (
  * @param {string[]} unsetValues The valuesbyPath to set to undefined
  * @return {*}  {Promise<{ [key: string]: any }>}
  */
-const updateFields = async (
-    interview: InterviewAttributes,
+const updateFields = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     serverUpdateCallbacks: ServerFieldUpdateCallback[],
     valuesByPath: { [key: string]: unknown },
     unsetValues?: string[]
@@ -125,9 +125,9 @@ export type PreFillResponses = {
  * @param interview The interview to update
  * @returns The responses to update
  */
-export const getPreFilledResponsesByPath = async (
+export const getPreFilledResponsesByPath = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     referenceValue: string,
-    interview: InterviewAttributes
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 ): Promise<{ [key: string]: unknown }> => {
     try {
         const prefilledResponses = await prefilledDbQueries.getByReferenceValue(referenceValue);
@@ -137,7 +137,7 @@ export const getPreFilledResponsesByPath = async (
         const prefilledValuesByPath = {};
         Object.keys(prefilledResponses).forEach((path) => {
             const { value, actionIfPresent } = prefilledResponses[path];
-            const currentResponse = getResponse(interview, path);
+            const currentResponse = getResponse(interview, path as any);
             if ((currentResponse !== undefined && actionIfPresent !== 'force') || value === currentResponse) {
                 return;
             }

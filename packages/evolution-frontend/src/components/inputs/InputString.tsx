@@ -12,11 +12,11 @@ import { parseString } from '../../utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
-export interface InputStringProps {
+export interface InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange?: (e: any) => void;
     value?: string;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -26,14 +26,18 @@ export interface InputStringProps {
     updateKey: number;
 }
 
-const getStateValue = (props: InputStringProps) => {
+const getStateValue = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => {
     const value = _isBlank(props.value)
         ? parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
         : props.value;
     return _isBlank(value) ? '' : value;
 };
 
-export const InputString: React.FunctionComponent<InputStringProps> = (props: InputStringProps) => {
+export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => {
     const [value, setValue] = React.useState(getStateValue(props));
     // Update the value with props when updateKey prop is updated. Not using the
     // `key` to avoid loosing the identity of the component (which causes the

@@ -11,7 +11,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import waterBoundaries  from '../waterBoundaries.json';
-import { WidgetConfig } from 'evolution-frontend/lib/services/widgets';
+import { SurveyWidgetConfig } from '../../config/widgets.config';
 
 export const homeIntro = {
   type: "text",
@@ -50,7 +50,7 @@ export const interviewLanguage = {
   }
 };
 
-export const accessCode: WidgetConfig = {
+export const accessCode: SurveyWidgetConfig = {
   type: 'question',
   twoColumns: true,
   path: 'accessCode',
@@ -63,7 +63,7 @@ export const accessCode: WidgetConfig = {
   }
 }
 
-export const householdSize: WidgetConfig = {
+export const householdSize: SurveyWidgetConfig = {
   type: 'question',
   twoColumns: true,
   path: 'household.size',
@@ -131,7 +131,7 @@ export const householdSize: WidgetConfig = {
   }
 };
 
-export const householdCarNumber: WidgetConfig = {
+export const householdCarNumber: SurveyWidgetConfig = {
   type: "question",
   path: 'household.carNumber',
   twoColumns: true,

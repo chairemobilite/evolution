@@ -51,7 +51,8 @@ export type FrontendInterviewAttributes = {
     sectionLoaded?: string;
 };
 
-export type UserFrontendInterviewAttributes = FrontendInterviewAttributes & UserInterviewAttributes;
+export type UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
+    FrontendInterviewAttributes & UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 
 export type SurveySectionGroup = {
     widgets: string[];
@@ -66,4 +67,6 @@ export type SurveySection = {
     [key: string]: unknown;
 };
 export type SurveySections = { [sectionName: string]: SurveySection };
-export type SurveyWidgets = { [widgetName: string]: WidgetConfig };
+export type SurveyWidgets<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+    [widgetName: string]: WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+};

@@ -15,7 +15,19 @@ const userAttributes = {
     showUserInfo: true
 }
 
-const interviewAttributes: UserInterviewAttributes = {
+type CustomSurvey = {
+    section1?: {
+        q1?: string;
+        q2?: number;
+        q4?: string;
+    };
+    section2?: {
+        q1?: string;
+    };
+    choicePath?: undefined | null | string | string[];
+}
+
+const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
     user_id: 1,

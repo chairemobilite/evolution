@@ -22,11 +22,11 @@ import { FeatureGeocodedProperties, MarkerData } from './maps/InputMapTypes';
 import InputMapGoogle from './maps/google/InputMapGoogle';
 import { geocodeSinglePoint } from './maps/google/GoogleGeocoder';
 
-export interface InputMapPointProps {
+export interface InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange: (e: any) => void;
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -48,11 +48,14 @@ interface InputMapPointState {
  * TODO For now, it only uses google map, but this class should remain map
  * agnostic and support more map types
  */
-export class InputMapPoint extends React.Component<InputMapPointProps & WithTranslation, InputMapPointState> {
+export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
+    InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
+    InputMapPointState
+> {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
     private iconUrl: string;
 
-    constructor(props: InputMapPointProps & WithTranslation) {
+    constructor(props: InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
         super(props);
 
         // get initial map center from current value or widget config (can be a function)

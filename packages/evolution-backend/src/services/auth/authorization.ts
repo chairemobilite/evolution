@@ -64,9 +64,9 @@ const interviewUserIsAuthorized = (permissions: permissionType[]) => {
     };
 };
 
-export const isUserAllowed = (
+export const isUserAllowed = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     user: UserAttributes,
-    interview: InterviewAttributes,
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     permissions: permissionType[]
 ): boolean => {
     // TODO Have the permissions follow the user object instead of calculating it again

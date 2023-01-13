@@ -13,11 +13,11 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import * as surveyHelper from '../../utils/helpers';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
-export interface InputSelectProps {
+export interface InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange?: (e: any) => void;
     value?: string;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -26,16 +26,16 @@ export interface InputSelectProps {
     widgetConfig: InputSelectType;
 }
 
-export interface InputSelectOptionProps {
+export interface InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     choice: ChoiceType;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
 }
 
-const InputSelectOption: React.FunctionComponent<InputSelectOptionProps & WithTranslation> = (
-    props: InputSelectOptionProps & WithTranslation
+const InputSelectOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
 ) => {
     if (
         props.choice.hidden === true ||
@@ -61,8 +61,8 @@ const InputSelectOption: React.FunctionComponent<InputSelectOptionProps & WithTr
 
 const InputSelectOptionT = withTranslation()(InputSelectOption);
 
-export const InputSelect: React.FunctionComponent<InputSelectProps & WithTranslation> = (
-    props: InputSelectProps & WithTranslation
+export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
 ) => {
     const widgetChoices = props.widgetConfig.choices;
     const choices =

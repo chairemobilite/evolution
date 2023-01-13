@@ -1,5 +1,5 @@
 import runClientApp from 'evolution-legacy/lib/app-survey';
-import { EvolutionApplicationConfiguration } from 'evolution-frontend/lib/config/application.config';
+import { SurveyAppConfig } from './config/application.config';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 
 import surveySections from './survey/sections';
@@ -10,7 +10,7 @@ let validations = undefined;
 let parsers = undefined;
 
 // TODO Let there be an admin config that can be loaded only for the admin application, to avoid using require for the admin settings.
-setApplicationConfiguration<EvolutionApplicationConfiguration>({
+setApplicationConfiguration<SurveyAppConfig>({
     sections: surveySections,
     widgets: widgetsConfig,
     getAdminValidations: () => {

@@ -26,14 +26,17 @@ import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
 // called whenever an update occurs in interview responses or when section is switched to
-export const updateSection = (
+export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     sectionShortname: string,
-    _interview: UserFrontendInterviewAttributes,
+    _interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
     user?: FrontendUser
-): [UserFrontendInterviewAttributes, { [path: string]: unknown }] => {
+): [
+    UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    { [path: string]: unknown }
+] => {
     let interview = _cloneDeep(_interview);
     let needToUpdate = true; // will stay true if an assigned value changed the initial value after a conditional failed
     let updateCount = 0;
@@ -54,15 +57,17 @@ export const updateSection = (
     return [interview, valuesByPath];
 };
 
-const startUpdateInterviewCallback = async (
+const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     next,
     dispatch,
     getState,
     requestedSectionShortname: string | null,
     valuesByPath: { [path: string]: unknown } = {},
     unsetPaths?: string[],
-    initialInterview?: UserFrontendInterviewAttributes,
-    callback?: (interview: UserFrontendInterviewAttributes) => void,
+    initialInterview?: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    callback?: (
+        interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    ) => void,
     history?: History
 ) => {
     try {
@@ -115,14 +120,12 @@ const startUpdateInterviewCallback = async (
             requestedSectionShortname
         ) as string;
 
-        const [updatedInterview, updatedValuesByPath] = updateSection(
-            sectionShortname,
-            interview,
-            affectedPaths,
-            valuesByPath,
-            false,
-            user
-        );
+        const [updatedInterview, updatedValuesByPath] = updateSection<
+            CustomSurvey,
+            CustomHousehold,
+            CustomHome,
+            CustomPerson
+        >(sectionShortname, interview, affectedPaths, valuesByPath, false, user);
 
         if (!updatedInterview.sectionLoaded || updatedInterview.sectionLoaded !== sectionShortname) {
             updatedValuesByPath['sectionLoaded'] = sectionShortname;
@@ -232,8 +235,8 @@ const startUpdateInterviewCallback = async (
     }
 };
 
-export const updateInterview = (
-    interview: UserFrontendInterviewAttributes,
+export const updateInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     errors: {
         [path: string]: {
             [lang: string]: string;
@@ -241,33 +244,33 @@ export const updateInterview = (
     } = {},
     submitted = false
 ) => ({
-    type: 'UPDATE_INTERVIEW',
-    interviewLoaded: true,
-    interview,
-    errors,
-    submitted
-});
+        type: 'UPDATE_INTERVIEW',
+        interviewLoaded: true,
+        interview,
+        errors,
+        submitted
+    });
 
-export const startUpdateInterview = (
+export const startUpdateInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     sectionShortname: string | null,
     valuesByPath?: { [path: string]: unknown },
     unsetPaths?: string[],
-    interview?: UserFrontendInterviewAttributes,
+    interview?: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     callback?: () => void,
     history?: History
 ) => ({
-    queue: 'UPDATE_INTERVIEW',
-    callback: async (next, dispatch, getState) => {
-        await startUpdateInterviewCallback(
-            next,
-            dispatch,
-            getState,
-            sectionShortname,
-            valuesByPath,
-            unsetPaths,
-            interview,
-            callback,
-            history
-        );
-    }
-});
+        queue: 'UPDATE_INTERVIEW',
+        callback: async (next, dispatch, getState) => {
+            await startUpdateInterviewCallback(
+                next,
+                dispatch,
+                getState,
+                sectionShortname,
+                valuesByPath,
+                unsetPaths,
+                interview,
+                callback,
+                history
+            );
+        }
+    });

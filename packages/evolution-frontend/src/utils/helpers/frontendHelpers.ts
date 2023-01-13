@@ -8,7 +8,11 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 import { getResponse, devLog } from 'evolution-common/lib/utils/helpers';
 
-export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: FrontendUser) => T;
+export type ParsingFunction<T> = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    path: string,
+    user?: FrontendUser
+) => T;
 
 /**
  * Verify if the value is a function. If so, call it with the other parameters,
@@ -20,9 +24,9 @@ export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: stri
  * @param user The current user's information
  * @returns The parsed string value, or the value itself if it is a string
  */
-export const parseString = (
+export const parseString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     value: string | ParsingFunction<string> | undefined,
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
 ): string | undefined => {
@@ -41,9 +45,9 @@ export const parseString = (
  * really want a default value of true?
  * @returns The parsed string value, or the value itself if it is a string
  */
-export const parseBoolean = (
+export const parseBoolean = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     value: boolean | ParsingFunction<boolean | [boolean] | [boolean, unknown]> | undefined | null,
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser,
     defaultBoolean = true
@@ -73,9 +77,9 @@ export const parseBoolean = (
  * @param user The current user's information
  * @returns The parsed value of type T, or the value itself if it is a string
  */
-export const parse = <T>(
+export const parse = <T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     value: T | ParsingFunction<T> | undefined | null,
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
 ): T | undefined | null => {
@@ -92,9 +96,9 @@ export const parse = <T>(
  * @param user The current user's information
  * @returns The parsed number value, or the value itself
  */
-export const parseInteger = (
+export const parseInteger = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     value: number | ParsingFunction<number> | undefined,
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
 ): number | undefined => {
@@ -116,7 +120,10 @@ export const parseInteger = (
  * @param path The path, with possibly response placeholders between brackets
  * @returns The path with interpolated responses
  */
-export const interpolatePath = (interview: UserInterviewAttributes, path: string): string => {
+export const interpolatePath = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    path: string
+): string => {
     const splittedInterpolationPath = path ? path.match(/\{(.+?)\}/g) : null;
     let interpolatedPath = path;
     if (splittedInterpolationPath) {

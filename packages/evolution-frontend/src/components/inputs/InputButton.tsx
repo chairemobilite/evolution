@@ -14,11 +14,11 @@ import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-export interface InputButtonProps {
+export interface InputButtonProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange: (e: any) => void;
     value: string;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -29,18 +29,18 @@ export interface InputButtonProps {
     questionModalPath?: string;
 }
 
-export interface InputButtonOptionProps {
+export interface InputButtonOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     choice: ChoiceType;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
     onButtonClick: (e: React.MouseEvent, value: string) => void;
 }
 
-const InputButtonOption: React.FunctionComponent<InputButtonOptionProps & WithTranslation> = (
-    props: InputButtonOptionProps & WithTranslation
+const InputButtonOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputButtonOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
 ) => {
     if (
         props.choice.hidden === true ||
@@ -73,8 +73,8 @@ const InputButtonOptionT = withTranslation()(InputButtonOption);
 
 /** Display a list of choices as buttons */
 
-const InputButton: React.FunctionComponent<InputButtonProps & WithTranslation> = (
-    props: InputButtonProps & WithTranslation
+const InputButton = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputButtonProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
 ) => {
     const widgetChoices = props.widgetConfig.choices;
     const choices =

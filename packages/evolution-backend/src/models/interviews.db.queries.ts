@@ -82,7 +82,9 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
     }
 };
 
-const getInterviewByUuid = async (interviewUuid: string): Promise<InterviewAttributes | undefined> => {
+const getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interviewUuid: string
+): Promise<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
     try {
         // TODO We probably shouldn't just return all fields. Figure out how to
         // specify which fields, it will depend on the calling context. Maybe an
@@ -92,7 +94,12 @@ const getInterviewByUuid = async (interviewUuid: string): Promise<InterviewAttri
         if (interviews.length !== 1) {
             return undefined;
         }
-        return _removeBlankFields(interviews[0]) as InterviewAttributes;
+        return _removeBlankFields(interviews[0]) as InterviewAttributes<
+            CustomSurvey,
+            CustomHousehold,
+            CustomHome,
+            CustomPerson
+        >;
     } catch (error) {
         console.error(error);
         throw new TrError(
@@ -102,7 +109,9 @@ const getInterviewByUuid = async (interviewUuid: string): Promise<InterviewAttri
     }
 };
 
-const getUserInterview = async (userId: number): Promise<UserInterviewAttributes | undefined> => {
+const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    userId: number
+): Promise<UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
     try {
         const interviews = await knex
             .select(
@@ -122,7 +131,12 @@ const getUserInterview = async (userId: number): Promise<UserInterviewAttributes
         } else if (interviews.length > 1) {
             console.warn(`There are more than one active interview for user ${userId}`);
         }
-        return _removeBlankFields(interviews[0]) as UserInterviewAttributes;
+        return _removeBlankFields(interviews[0]) as UserInterviewAttributes<
+            CustomSurvey,
+            CustomHousehold,
+            CustomHome,
+            CustomPerson
+        >;
     } catch (error) {
         console.error(error);
         throw new TrError(
@@ -133,7 +147,9 @@ const getUserInterview = async (userId: number): Promise<UserInterviewAttributes
 };
 
 // Arrays cannot be inserted as is, otherwise they throw an error, so logs need to be converted to string
-const stringifyJsonArray = (object: Partial<InterviewAttributes>) => {
+const stringifyJsonArray = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    object: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+) => {
     if (object.logs) {
         const { logs, ...rest } = object;
         return {
@@ -144,10 +160,10 @@ const stringifyJsonArray = (object: Partial<InterviewAttributes>) => {
     return object;
 };
 
-const create = async (
-    newObject: Partial<InterviewAttributes>,
+const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    newObject: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>,
     returning: string | string[] = 'id'
-): Promise<Partial<InterviewAttributes>> => {
+): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
     try {
         const returningArray = await knex(tableName).insert(stringifyJsonArray(newObject)).returning(returning);
         if (returningArray.length === 1) {
@@ -163,11 +179,11 @@ const create = async (
     }
 };
 
-const update = async (
+const update = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     uuid: string,
-    updatedInterview: Partial<InterviewAttributes>,
+    updatedInterview: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>,
     returning: string | string[] = 'uuid'
-): Promise<Partial<InterviewAttributes>> => {
+): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
     try {
         const returningArray = await knex(tableName)
             .update(stringifyJsonArray(updatedInterview))
@@ -377,12 +393,15 @@ const updateRawWhereClause = (
  * }>} Return the page of interviews and the total number of interviews
  * corresponding to the query
  */
-const getList = async (params: {
+const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
     pageIndex: number;
     pageSize: number;
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
-}): Promise<{ interviews: InterviewListAttributes[]; totalCount: number }> => {
+}): Promise<{
+    interviews: InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
+    totalCount: number;
+}> => {
     try {
         const baseRawFilter = 'i.is_active IS TRUE AND users.is_valid IS TRUE AND users.is_test IS NOT TRUE';
         const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);

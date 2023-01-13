@@ -9,13 +9,44 @@ import _set from 'lodash.set';
 import _isEqual from 'lodash.isequal';
 import _cloneDeep from 'lodash.clonedeep';
 
+type Required<T> = { [P in keyof T]-?: T[P] };
+// This recursive generic type is taken from this stack overflow question:
+// https://stackoverflow.com/questions/65332597/typescript-is-there-a-recursive-keyof
+// But in order to be able to type-check strings for objects with uuid keys, we
+// only allow simple fields in this type, not fields reaching object types (like
+// `household` directly)
+// TODO This is not evolution-specific, it can go somewhere else once the types are fixed
+type RecursiveFinalKeyOf<TObj extends object> = {
+    [TKey in keyof TObj & (string | number)]: TObj[TKey] extends any[]
+        ? `${TKey}`
+        : TObj[TKey] extends object | undefined
+        ? `${TKey}.${RecursiveFinalKeyOf<Required<TObj[TKey]>>}`
+        : `${TKey}`;
+}[keyof TObj & (string | number)];
+
+export type InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = RecursiveFinalKeyOf<
+    Required<InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+>;
+
+type RecursivePartial<T> = {
+    [P in keyof T]?: T[P] extends (infer U)[]
+        ? RecursivePartial<U>[]
+        : T[P] extends object | undefined
+        ? RecursivePartial<T[P]>
+        : T[P];
+};
+
+export type PartialInterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = RecursivePartial<
+    InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+>;
+
 /**
  * Type the common response fields for any survey
  *
  * @export
  * @interface InterviewResponses
  */
-export interface InterviewResponses {
+export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     _activeSection?: string;
     _browser?: { [key: string]: unknown };
     _ip?: string;
@@ -46,15 +77,27 @@ export interface InterviewResponses {
         }[];
     };
     household?: {
-        size?: number;
-        [key: string]: unknown;
-    };
-    [key: string]: unknown;
-}
+        // TODO Are there any fields that will be common to ALL households?
+        size: number;
+        persons: {
+            // TODO Are there any fields valid for all persons?
+            [personId: string]: CustomPerson;
+        };
+    } & CustomHousehold;
+    home?: {
+        region: string;
+        country: string;
+    } & CustomHome;
+} & CustomSurvey;
 
-interface ValidatedResponses extends InterviewResponses {
+type ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = InterviewResponses<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     _validationComment?: string;
-}
+};
 
 export interface InterviewAudits {
     [validationId: string]: number;
@@ -67,12 +110,12 @@ export interface InterviewAudits {
  * @export
  * @interface UserInterviewAttributes
  */
-export interface UserInterviewAttributes {
+export interface UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: number;
     uuid: string;
     user_id: number;
     is_completed: boolean;
-    responses: InterviewResponses;
+    responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     validations: { [key: string]: unknown };
     is_valid: boolean;
     userRoles?: string[];
@@ -85,11 +128,12 @@ export interface UserInterviewAttributes {
  * @export
  * @interface InterviewAttributes
  */
-export interface InterviewAttributes extends UserInterviewAttributes {
+export interface InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    extends UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     is_active?: boolean;
     is_started?: boolean;
     logs: { timestamp: number; valuesByPath: { [key: string]: unknown }; unsetPaths?: string[] }[];
-    validated_data?: ValidatedResponses;
+    validated_data?: ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     audits?: InterviewAudits;
     is_validated?: boolean;
     is_frozen?: boolean;
@@ -100,12 +144,12 @@ export interface InterviewAttributes extends UserInterviewAttributes {
     updated_at?: string;
 }
 
-export interface InterviewListAttributes {
+export interface InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: number;
     uuid: string;
     user_id: number;
-    responses: InterviewResponses;
-    validated_data: ValidatedResponses;
+    responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    validated_data: ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     is_valid?: boolean;
     is_completed?: boolean;
     is_validated?: boolean;
@@ -123,10 +167,10 @@ export interface InterviewListAttributes {
  * TODO: See if the consumers of this type can template it so it can be fully
  * typed per project
  */
-export interface InterviewStatusAttributesBase {
+export interface InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: number;
     uuid: string;
-    responses: Partial<InterviewResponses>;
+    responses: PartialInterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     is_valid?: boolean;
     is_completed?: boolean;
     is_validated?: boolean;
@@ -144,10 +188,10 @@ export interface InterviewStatusAttributesBase {
  * @returns The audit result, where the key is the ID of the validation to run
  * and the value is the number of times this validation fails on the responses.
  */
-export const auditInterview = function (
-    validatedData: InterviewResponses,
-    originalResponses: InterviewResponses,
-    interview: InterviewAttributes,
+export const auditInterview = function <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    validatedData: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    originalResponses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     validations: any,
     surveyProjectHelper: any
 ): { [validationId: string]: number } {

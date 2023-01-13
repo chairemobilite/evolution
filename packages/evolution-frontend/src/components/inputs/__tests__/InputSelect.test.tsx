@@ -7,7 +7,7 @@
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { interviewAttributes } from './interviewData.test';
 import InputSelect from '../InputSelect';
 
 const userAttributes = {
@@ -20,32 +20,6 @@ const userAttributes = {
     pages: [],
     showUserInfo: true
 }
-
-const interviewAttributes: UserInterviewAttributes = {
-    id: 1,
-    uuid: 'arbitrary uuid',
-    user_id: 1,
-    is_completed: false,
-    responses: {
-        section1: {
-            q1: 'abc',
-            q2: 3
-        },
-        section2: {
-            q1: 'test'
-        }
-    },
-    validations: {
-        section1: {
-            q1: true,
-            q2: false
-        },
-        section2: {
-            q1: true
-        }
-    },
-    is_valid: true
-};
 
 test('Render InputSelect with normal option type', () => {
 

@@ -12,11 +12,11 @@ import { ValidationFunction, LangData } from '../../services/widgets';
  * @returns An array where the first value is a boolean indicating if the value
  * is valid and the second value is the error message if the value is invalid
  */
-export const checkValidations = (
-    validations: ValidationFunction | undefined,
+export const checkValidations = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    validations: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
     value: unknown | undefined,
     customValue: unknown | undefined,
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string
 ): [boolean, LangData | undefined] => {
@@ -38,7 +38,9 @@ export const checkValidations = (
     return [true, undefined];
 };
 
-export const validateAllWidgets = function (interview: UserInterviewAttributes) {
+export const validateAllWidgets = function <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) {
     // TODO Move the allWidgetsValid out of the interview type
     return (interview as any).allWidgetsValid;
 };

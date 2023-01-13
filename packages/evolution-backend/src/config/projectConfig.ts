@@ -11,19 +11,21 @@ import {
 import { ServerFieldUpdateCallback } from '../services/interviews/serverFieldUpdate';
 import { ServerValidation } from '../services/validations/serverValidation';
 
-interface ProjectServerConfig {
+interface ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     /**
      * Filters the interview object to return minimal data. Used server side
      * before sending validation list to server
      */
-    validationListFilter: (interview: InterviewListAttributes) => InterviewStatusAttributesBase;
+    validationListFilter: (
+        interview: InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    ) => InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     serverUpdateCallbacks: ServerFieldUpdateCallback[];
     serverValidations: ServerValidation;
     roleDefinitions: (() => void) | undefined;
 }
 
-export const defaultConfig: ProjectServerConfig = {
-    validationListFilter: (interview: InterviewListAttributes) => {
+export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unknown> = {
+    validationListFilter: (interview: InterviewListAttributes<unknown, unknown, unknown, unknown>) => {
         const {
             id,
             uuid,
@@ -66,7 +68,9 @@ const projectConfig = Object.assign({}, defaultConfig);
  *
  * @param config The project specific configuration elements
  */
-export const setProjectConfig = (config: Partial<ProjectServerConfig>) => {
+export const setProjectConfig = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    config: Partial<ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+) => {
     Object.assign(projectConfig, config);
 };
 

@@ -14,11 +14,11 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
-export interface InputTimeProps {
+export interface InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange: (e: any) => void;
     value?: number;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -33,8 +33,10 @@ const midnight = 24 * 60 * 60;
 const noon = 12 * 60 * 60;
 const onehour = 60 * 60;
 
-export class InputTime extends React.Component<InputTimeProps & WithTranslation> {
-    constructor(props: InputTimeProps & WithTranslation) {
+export class InputTime<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
+    InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+> {
+    constructor(props: InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
         super(props);
     }
 

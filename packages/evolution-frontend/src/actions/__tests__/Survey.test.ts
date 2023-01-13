@@ -4,8 +4,18 @@ import { UserFrontendInterviewAttributes } from '../../services/interviews/inter
 import { startUpdateInterview } from '../Survey';
 import { prepareWidgets } from '../utils';
 
+type CustomSurvey = {
+    section1?: {
+        q1?: string;
+        q2?: number;
+    };
+    section2?: {
+        q1?: string;
+    }
+}
+
 // Default interview data
-const interviewAttributes: UserFrontendInterviewAttributes = {
+const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
     user_id: 1,

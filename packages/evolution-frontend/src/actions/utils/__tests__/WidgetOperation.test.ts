@@ -92,7 +92,20 @@ const mockedDefaultValue = widgets.widget3.defaultValue as jest.MockedFunction<a
 // Prepare test interview attributes
 const group1Id = 'group1Id';
 const group2Id = 'group2Id';
-const userInterviewAttributes: UserInterviewAttributes = {
+type CustomSurvey = {
+    section1?: {
+        q1?: string;
+        q2?: number;
+    };
+    groupResponses?: {
+        [groupId: string]: {
+            _uuid?: string;
+            gq1?: string;
+        }
+    }
+}
+
+const userInterviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
     user_id: 1,
@@ -128,7 +141,7 @@ const userInterviewAttributes: UserInterviewAttributes = {
     },
     is_valid: true,
 }
-const interviewAttributes: UserFrontendInterviewAttributes = {
+const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     ...userInterviewAttributes,
     widgets: {},
     groups: {},

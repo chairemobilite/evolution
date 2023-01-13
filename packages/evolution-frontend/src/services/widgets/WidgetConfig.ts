@@ -7,7 +7,11 @@
 // TODO As code migrates to typescript, those types will evolve
 
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import {
+    UserInterviewAttributes,
+    InterviewResponsePath,
+    InterviewResponses
+} from 'evolution-common/lib/services/interviews/interview';
 import { ParsingFunction } from '../../utils/helpers';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
@@ -22,10 +26,10 @@ import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
  * TODO: Rename `validation` to something that makes it obvious that `true`
  * means there's an error.
  */
-export type ValidationFunction = (
+export type ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
     value: unknown | undefined,
     customValue: unknown | undefined,
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string,
     user?: FrontendUser
@@ -193,18 +197,18 @@ export type InputMapFindPlaceType = InputMapType & {
     updateDefaultValueWhenResponded?: boolean;
 };
 
-export type WidgetConfig =
+export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
     | ({
           type: 'question';
           twoColumns?: boolean;
-          path: string;
+          path: InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           containsHtml?: boolean;
           label: LangData;
           helpPopup?: {
               title: LangData;
               content: LangData;
           };
-          validations?: ValidationFunction;
+          validations?: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
       } & (
           | InputStringType
