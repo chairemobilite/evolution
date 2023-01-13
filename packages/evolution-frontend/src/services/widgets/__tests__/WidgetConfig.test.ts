@@ -6,9 +6,19 @@
  */
 import { WidgetConfig } from '../WidgetConfig';
 
+type CustomSurvey = {
+    test?: {
+        foo?: string;
+    };
+    comments: string;
+}
+type CustomHousehold = {
+    foo: string;
+}
+
 // Simply make sure various objects are recognize as WidgetConfig object. Any fault should result in compilation error.
 test('Test text assignation', () => {
-    let widgetConfig: WidgetConfig = {
+    let widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown> = {
         type: 'text',
         align: 'center',
         text: {
@@ -21,7 +31,7 @@ test('Test text assignation', () => {
 });
 
 test('Test input string assignation', () => {
-    let widgetConfig: WidgetConfig = {
+    let widgetConfig: WidgetConfig<CustomSurvey, CustomHousehold, unknown, unknown> = {
         type: 'question',
         twoColumns: true,
         path: 'test.foo',
@@ -50,7 +60,7 @@ test('Test input string assignation', () => {
 });
 
 test('Test input text assignation', () => {
-    let widgetConfig: WidgetConfig = {
+    let widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown> = {
         type: 'question',
         twoColumns: true,
         path: 'comments',

@@ -15,11 +15,11 @@ import { ChoiceType, InputMultiselectType } from '../../services/widgets';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
-interface InputMultiselectProps {
+interface InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange?: (e: any) => void;
     value: string[];
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -45,7 +45,9 @@ const formatOptionLabel = (data: { color?: string; label: string }) => (
 
 type OptionType = { label: string; color?: string; value: string };
 
-export class InputMultiselect extends React.Component<InputMultiselectProps & WithTranslation> {
+export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
+    InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+> {
     constructor(props) {
         super(props);
         this.onValueChange = this.onValueChange.bind(this);

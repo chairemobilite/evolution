@@ -17,9 +17,10 @@ import { InterviewListAttributes } from 'evolution-common/lib/services/interview
  * @param param0 description of the filtered column
  * @returns
  */
-export const InterviewCompletedFilter: React.FunctionComponent<
-    FilterProps<InterviewListAttributes> & WithTranslation
-> = ({ t, column: { filterValue, setFilter } }) => {
+export const InterviewCompletedFilter = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>({
+    t,
+    column: { filterValue, setFilter }
+}: FilterProps<InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & WithTranslation) => {
     const options = React.useMemo(() => ({ all: undefined, true: 'true', false: { value: null } }), []);
     const currentSelection = Object.keys(options).find((key) => _isEqual(filterValue, options[key]));
 

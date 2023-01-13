@@ -8,8 +8,8 @@ import * as surveyHelper from '../../utils/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 // FIXME: This type is very close to the ParsingFunction type in the frontendHelpers, but it has also a customPath. Is it required? Ideally, we could use the ParsingFunction type
-export type ConditionalFunction = (
-    interview: UserInterviewAttributes,
+export type ConditionalFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string,
     user?: FrontendUser
@@ -26,9 +26,14 @@ export type ConditionalFunction = (
  * second and third elements are the values to set to this field (2nd: value and 3rd: customValue for customChoice) if the
  * condition fails.
  */
-export const checkConditional = (
-    conditional: undefined | boolean | [boolean, unknown] | [boolean, unknown, unknown] | ConditionalFunction,
-    interview: UserInterviewAttributes,
+export const checkConditional = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    conditional:
+        | undefined
+        | boolean
+        | [boolean, unknown]
+        | [boolean, unknown, unknown]
+        | ConditionalFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string,
     user?: FrontendUser
@@ -82,9 +87,9 @@ export const checkConditional = (
  * second are the values to set to this field if the
  * condition fails.
  */
-export const checkChoiceConditional = (
+export const checkChoiceConditional = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     conditional: undefined | boolean | [boolean, unknown] | ParsingFunction<boolean | [boolean] | [boolean, unknown]>,
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
 ): [boolean, unknown] => {
@@ -127,10 +132,10 @@ export const checkChoiceConditional = (
  * still visible. The second element is the value to set to this field if the
  * condition fails.
  */
-export const checkChoicesConditional = (
+export const checkChoicesConditional = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     value: unknown,
     choices: (GroupedChoiceType | ChoiceType)[] | ParsingFunction<(GroupedChoiceType | ChoiceType)[]>,
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
 ): [boolean, unknown] => {

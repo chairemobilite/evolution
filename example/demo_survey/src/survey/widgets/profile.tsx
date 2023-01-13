@@ -11,9 +11,9 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import helper from '../helper';
 import waterBoundaries  from '../waterBoundaries.json';
-import { WidgetConfig } from 'evolution-frontend/lib/services/widgets';
+import { SurveyWidgetConfig } from '../../config/widgets.config';
 
-export const personWorkOnTheRoad: WidgetConfig = {
+export const personWorkOnTheRoad: SurveyWidgetConfig = {
   type: "question",
   path: "household.persons.{_activePersonId}.workOnTheRoad",
   inputType: "radio",

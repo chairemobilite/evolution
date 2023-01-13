@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash.clonedeep';
 import { v4 as uuidV4 } from 'uuid';
 import { updateInterview, setInterviewFields } from '../interview';
-import { InterviewResponses, InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import interviewsQueries from '../../../models/interviews.db.queries';
 import serverValidate from '../../validations/serverValidation';
 import serverUpdate from '../serverFieldUpdate';
@@ -27,7 +27,15 @@ jest.mock('../../../models/interviews.db.queries', () => ({
     update: jest.fn()
 }));
 
-const interviewAttributes = {
+type CustomSurvey = {
+    accessCode: string;
+    testFields: {
+        fieldA: string;
+        fieldB: string;
+    }
+}
+
+const interviewAttributes: InterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     uuid: uuidV4(),
     id: 4,
     user_id: 4,
@@ -299,9 +307,9 @@ describe('Update Interview', () => {
         config.logDatabaseUpdates = true;
         try {
             const updatedAt = 1234; // Update timestamp
-            const testAttributes = _cloneDeep(interviewAttributes) as InterviewAttributes;
+            const testAttributes = _cloneDeep(interviewAttributes);
             const valuesByPath = { 'responses.foo': 'abc' };
-            (testAttributes.responses as InterviewResponses)._updatedAt = updatedAt;
+            testAttributes.responses._updatedAt = updatedAt;
             testAttributes.logs = [{
                 timestamp: 12,
                 valuesByPath: {}
@@ -324,7 +332,7 @@ describe('Update Interview', () => {
                 }]
             }
             expectedUpdatedValues.responses.foo = 'abc';
-            (expectedUpdatedValues.responses as InterviewResponses)._updatedAt = updatedAt;
+            expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
         } finally {
             config.logDatabaseUpdates = false;
@@ -335,9 +343,9 @@ describe('Update Interview', () => {
         config.logDatabaseUpdates = true;
         try {
             const updatedAt = 1234; // Update timestamp
-            const testAttributes = _cloneDeep(interviewAttributes) as InterviewAttributes;
+            const testAttributes = _cloneDeep(interviewAttributes);
             const valuesByPath = { 'responses.foo': 'abc' };
-            (testAttributes.responses as InterviewResponses)._updatedAt = updatedAt;
+            testAttributes.responses._updatedAt = updatedAt;
             testAttributes.logs = [{
                 timestamp: 12,
                 valuesByPath: {}
@@ -361,7 +369,7 @@ describe('Update Interview', () => {
                 }]
             }
             expectedUpdatedValues.responses.foo = 'abc';
-            (expectedUpdatedValues.responses as InterviewResponses)._updatedAt = updatedAt;
+            expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
         } finally {
             config.logDatabaseUpdates = false;

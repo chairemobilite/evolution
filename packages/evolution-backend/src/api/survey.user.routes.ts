@@ -45,7 +45,7 @@ router.get('/survey/createInterview', async (req: Request, res: Response) => {
 const activateInterview = async (
     req: Request,
     res: Response,
-    getInterview: (req: Request) => Promise<UserInterviewAttributes | undefined>
+    getInterview: (req: Request) => Promise<UserInterviewAttributes<unknown, unknown, unknown, unknown> | undefined>
 ): Promise<Response> => {
     if (!req.user) {
         throw 'Request user is not defined, an interview cannot be created for the user';

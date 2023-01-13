@@ -4,10 +4,15 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewListAttributes, InterviewStatusAttributesBase } from 'evolution-common/lib/services/interviews/interview';
 import projectConfig, { defaultConfig, setProjectConfig } from '../projectConfig';
 
-const interview: InterviewListAttributes = {
+type CustomSurvey = {
+    accessCode?: string;
+    foo?: string;
+}
+
+const interview: InterviewListAttributes<CustomSurvey, any, any, any> = {
     id: 1,
     uuid: 'arbitrary',
     user_id: 4,
@@ -67,12 +72,11 @@ describe('Validation List Filter', () => {
     });
 
     test('Add project specific filter', () => {
-        const validationListFilter = (interview: InterviewListAttributes) => {
-            const status = defaultConfig.validationListFilter(interview);
-            status.responses = { ...status.responses, accessCode: interview.responses.accessCode };
+        setProjectConfig<CustomSurvey, any, any, any>({ validationListFilter: (interview: InterviewListAttributes<CustomSurvey, any, any, any>) => {
+            const status = defaultConfig.validationListFilter(interview) as InterviewStatusAttributesBase<CustomSurvey, any, any, any>;
+            status.responses.accessCode = interview.responses.accessCode;
             return status;
-        }
-        setProjectConfig({ validationListFilter });
+        } });
 
         const interviewStatus = projectConfig.validationListFilter(interview);
         expect(interviewStatus).toEqual({

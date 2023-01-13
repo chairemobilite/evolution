@@ -10,7 +10,7 @@ import { UserInterviewAttributes } from '../../services/interviews/interview';
 
 import * as Helpers from '../helpers';
 
-const interviewAttributes: UserInterviewAttributes = {
+const interviewAttributes: UserInterviewAttributes<any, any, any, any> = {
     id: 1,
     uuid: 'arbitrary uuid',
     user_id: 1,

@@ -15,7 +15,7 @@ import { InputRadioType, RadioChoiceType } from '../../services/widgets';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
-export interface InputRadioProps {
+export interface InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange: (e: any, customValue?: string) => void;
     value: string | boolean;
@@ -24,7 +24,7 @@ export interface InputRadioProps {
     // FIXME: customPath and customChoice are not part of checkbox, otherwise very similar to this one. Can they be treated the same? How does checkbox handle customPath?
     customPath?: string;
     customChoice?: string;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -39,10 +39,10 @@ interface InputRadioState {
     customValue: string;
 }
 
-interface InputRadioChoiceProps {
+interface InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     choice: RadioChoiceType;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     checked: boolean;
@@ -58,8 +58,8 @@ interface InputRadioChoiceProps {
     ) => void;
 }
 
-const InputRadioChoice: React.FunctionComponent<InputRadioChoiceProps & WithTranslation> = (
-    props: InputRadioChoiceProps & WithTranslation
+const InputRadioChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
 ) => {
     const id = `${props.id}__input-radio__${props.choice.value}`;
     const strValue =
@@ -124,11 +124,14 @@ const InputRadioChoice: React.FunctionComponent<InputRadioChoiceProps & WithTran
 
 const InputRadioChoiceT = withTranslation()(InputRadioChoice);
 
-export class InputRadio extends React.Component<InputRadioProps & WithTranslation, InputRadioState> {
+export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
+    InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
+    InputRadioState
+> {
     private customInputRef: React.RefObject<HTMLInputElement> = React.createRef();
     private customInputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
 
-    constructor(props: InputRadioProps & WithTranslation) {
+    constructor(props: InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
         super(props);
 
         this.state = {

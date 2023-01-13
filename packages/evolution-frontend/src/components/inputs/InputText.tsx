@@ -12,11 +12,11 @@ import { parseString } from '../../utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
-export interface InputTextProps {
+export interface InputTextProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange?: (e: any) => void;
     value?: string;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
@@ -25,22 +25,24 @@ export interface InputTextProps {
     widgetConfig: InputTextType;
 }
 
-export const InputText: React.FunctionComponent<InputTextProps> = (props: InputTextProps) => (
-    <textarea
-        autoComplete="off"
-        rows={props.widgetConfig.rows || 5}
-        className={'apptr__form-input input-text'}
-        name={props.widgetConfig.shortname}
-        id={props.id}
-        defaultValue={
-            _isBlank(props.value)
-                ? parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
-                : props.value
-        }
-        onBlur={props.onValueChange}
-        ref={props.inputRef}
-        maxLength={props.widgetConfig.maxLength || 2000}
-    />
-);
+export const InputText = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputTextProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => (
+        <textarea
+            autoComplete="off"
+            rows={props.widgetConfig.rows || 5}
+            className={'apptr__form-input input-text'}
+            name={props.widgetConfig.shortname}
+            id={props.id}
+            defaultValue={
+                _isBlank(props.value)
+                    ? parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
+                    : props.value
+            }
+            onBlur={props.onValueChange}
+            ref={props.inputRef}
+            maxLength={props.widgetConfig.maxLength || 2000}
+        />
+    );
 
 export default InputText;

@@ -17,11 +17,11 @@ import { InterviewListAttributes } from 'evolution-common/lib/services/interview
  * @param param0 description of the filtered column
  * @returns
  */
-export const ValidationAuditFilter: React.FunctionComponent<FilterProps<InterviewListAttributes> & WithTranslation> = ({
+export const ValidationAuditFilter = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>({
     t,
     column: { filterValue, setFilter },
     state: { filters }
-}) => {
+}: FilterProps<InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & WithTranslation) => {
     const [options, setOptions] = React.useState<string[]>([]);
     const fetchIdRef = React.useRef(0);
 

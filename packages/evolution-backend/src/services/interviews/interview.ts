@@ -15,14 +15,17 @@ import interviewsDbQueries from '../../models/interviews.db.queries';
 import { UserInterviewAttributes, InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import projectConfig from '../../config/projectConfig';
 
-export const addRolesToInterview = (interview: UserInterviewAttributes, user: UserAttributes) => {
+export const addRolesToInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    user: UserAttributes
+) => {
     // Add the userRoles in the interview object
     const permissions = user.permissions;
     interview.userRoles = permissions ? Object.keys(permissions).filter((perm) => permissions[perm] === true) : [];
 };
 
-export const setInterviewFields = (
-    interview: InterviewAttributes,
+export const setInterviewFields = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     options: {
         valuesByPath: { [key: string]: unknown };
         unsetPaths?: string[];
@@ -66,14 +69,14 @@ export const setInterviewFields = (
  * data that should be added to the log object of the current update, if log is
  * enabled.
  **/
-export const updateInterview = async (
-    interview: InterviewAttributes,
+export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     options: {
         logDatabaseUpdates?: boolean;
         valuesByPath: { [key: string]: unknown };
         unsetPaths?: string[];
         serverValidations?: ServerValidation;
-        fieldsToUpdate?: (keyof InterviewAttributes)[];
+        fieldsToUpdate?: (keyof InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)[];
         logData?: { [key: string]: unknown };
     }
 ): Promise<{
@@ -113,14 +116,14 @@ export const updateInterview = async (
         }
     }
     interview.responses = interview.responses || {};
-    interview.validated_data = interview.validated_data || {};
     interview.validations = interview.validations || {};
     if (!interview.logs || !Array.isArray(interview.logs)) {
         interview.logs = [];
         //console.log(interview.logs);
     }
 
-    const databaseUpdateJson: Partial<InterviewAttributes> = {};
+    const databaseUpdateJson: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> =
+        {};
     fieldsToUpdate.forEach((field) => {
         // FIXME: For some reason, the following line gives type error, not sure why, so casting to any and disabling the warning.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

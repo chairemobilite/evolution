@@ -15,9 +15,9 @@ import { LoadingPage } from 'chaire-lib-frontend/lib/components/pages';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-interface UsersTableProps extends WithTranslation {
+interface UsersTableProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends WithTranslation {
     columns: any[];
-    data: InterviewStatusAttributesBase[];
+    data: InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
     fetchData: ({ pageSize, pageIndex, filters }: any) => void;
     loading: boolean;
     pageCount: number;
@@ -26,7 +26,9 @@ interface UsersTableProps extends WithTranslation {
 }
 
 // User react-table to handle a few table functionalities like paging and filtering
-const InterviewList: React.FunctionComponent<UsersTableProps> = (props: UsersTableProps) => {
+const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: UsersTableProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => {
     const {
         getTableProps,
         prepareRow,

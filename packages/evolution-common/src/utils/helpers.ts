@@ -101,9 +101,9 @@ export const parseValue = function (value: any, datatype: 'integer' | 'float' | 
  * to go back in the path)
  * @returns The value of this path
  */
-export const getResponse = (
+export const getResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     // TODO Can this really be undefined? it was previously in the if clause, but try to make it not be undefined
-    interview: UserInterviewAttributes,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     defaultValue: unknown = undefined,
     relativePath?: string
@@ -130,13 +130,13 @@ export const getResponse = (
  * to go back in the path)
  * @returns The interview responses with the field set
  */
-export const setResponse = (
+export const setResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     // TODO Can this really be undefined? it was previously in the if clause, but try to make it not be undefined
-    interview: UserInterviewAttributes | undefined,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
     path: string,
     value: unknown = undefined,
     relativePath?: string
-): InterviewResponses | null => {
+): InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | null => {
     const newPath = getPath(path, relativePath);
     if (newPath && interview) {
         return _set(interview.responses, newPath, value);
@@ -157,8 +157,8 @@ export const setResponse = (
  * undefined
  * @returns The validation value of this path, or `null` if the path does not have a validation value
  */
-export const getValidation = (
-    interview: UserInterviewAttributes,
+export const getValidation = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     defaultValue?: boolean
 ): boolean | null => {
@@ -176,12 +176,12 @@ export const getValidation = (
  * to go back in the path)
  * @returns The interview responses with the field set
  */
-export const setValidation = (
-    interview: UserInterviewAttributes,
+export const setValidation = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     value: boolean,
     relativePath?: string
-): UserInterviewAttributes => {
+): UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> => {
     const newPath = getPath(path, relativePath);
     if (newPath) {
         _set(interview.validations, newPath, value);

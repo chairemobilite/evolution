@@ -26,11 +26,11 @@ import InputSelect from './InputSelect';
 import InputMapGoogle from './maps/google/InputMapGoogle';
 import { geocodeMultiplePlaces } from './maps/google/GoogleGeocoder';
 
-export interface InputMapFindPlaceProps {
+export interface InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange: (e: any) => void;
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     loadingState?: number;
@@ -65,14 +65,19 @@ interface InputMapFindPlaceState {
  * as possible. Main difference is that there can be multiple markers here and
  * it needs confirmation.
  */
-export class InputMapPoint extends React.Component<InputMapFindPlaceProps & WithTranslation, InputMapFindPlaceState> {
+export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
+    InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
+    InputMapFindPlaceState
+> {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
     private autoConfirmIfSingleResult: boolean;
     private selectedIconUrl: string;
     private shouldFitBoundsIdx = 0;
     private currentBounds: [number, number, number, number] | undefined = undefined;
 
-    constructor(props: InputMapFindPlaceProps & WithTranslation) {
+    constructor(
+        props: InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+    ) {
         super(props);
 
         this.onSearchPlaceButtonMouseDown = this.onSearchPlaceButtonMouseDown.bind(this);

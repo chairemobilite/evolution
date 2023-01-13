@@ -17,21 +17,21 @@ import * as surveyHelper from '../../utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 
-export interface InputRangeProps {
+export interface InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
     onValueChange: (e: any) => void;
     value?: number;
     inputRef?: React.LegacyRef<ReactInputRange>;
     size?: 'small' | 'medium' | 'large';
     widgetConfig: InputRangeType;
-    interview: UserInterviewAttributes;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: FrontendUser;
 }
 
-export const InputRange: React.FunctionComponent<InputRangeProps & WithTranslation> = (
-    props: InputRangeProps & WithTranslation
+export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
 ) => {
     const [value, setValue] = React.useState<number | Range | undefined>(props.value);
 
