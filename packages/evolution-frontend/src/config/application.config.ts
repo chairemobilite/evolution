@@ -5,7 +5,7 @@ import appConfig, {
 import React from 'react';
 import { SurveySections, SurveyWidgets } from '../services/interviews/interview';
 
-type EvolutionApplicationConfiguration = {
+export type EvolutionApplicationConfiguration = {
     /**
      * Survey sections
      */
