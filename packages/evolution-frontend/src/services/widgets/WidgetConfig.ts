@@ -32,7 +32,7 @@ export type ValidationFunction = (
 ) => { validation: boolean; errorMessage: LangData }[];
 
 export type LangData = {
-    [lang: string]: string | ((interview: UserInterviewAttributes) => string);
+    [lang: string]: string | ParsingFunction<string>;
 };
 
 export type InputStringType = {
@@ -52,8 +52,7 @@ export type InputTextType = {
 };
 
 // TODO This type is used by select, checkbox, radio, buttons etc. See if we can leverage functionality. Now every widget uses a subset of the properties (some may not need some of them, some could use them)
-export type ChoiceType = {
-    value: string;
+type BaseChoiceType = {
     label: string | { [lang: string]: string };
     hidden?: boolean;
     icon?: IconProp;
@@ -61,6 +60,13 @@ export type ChoiceType = {
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
     color?: string;
     size?: 'large' | 'small' | 'medium';
+};
+export type ChoiceType = BaseChoiceType & {
+    value: string;
+};
+
+export type RadioChoiceType = BaseChoiceType & {
+    value: string | boolean;
 };
 
 export type GroupedChoiceType = {
@@ -90,7 +96,7 @@ export type InputCheckboxType = {
 
 export type InputRadioType = {
     inputType: 'radio';
-    choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
+    choices: RadioChoiceType[] | ParsingFunction<RadioChoiceType[]>;
     // string css style for the icon size, for example '2em'
     iconSize?: string;
     seed?: number;
@@ -100,7 +106,7 @@ export type InputRadioType = {
     sameLine?: boolean;
     customLabel?: string | LangData;
     customChoice?: string;
-    datatype?: 'string' | 'integer' | 'float' | 'text';
+    datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
 };
 
 // TODO Could select widget have a custom 'other' field? Like checkbox and radios
