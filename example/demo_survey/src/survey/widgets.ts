@@ -11,146 +11,144 @@ import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 
 const registrationCompletedWidgets = require('./widgets/registrationCompleted.js');
 
-export const registrationCompletedBeforeStartButton = registrationCompletedWidgets.registrationCompletedBeforeStartButton;
-export const registrationCompletedStartButton       = registrationCompletedWidgets.registrationCompletedStartButton;
-export const registrationCompletedAfterStartButton  = registrationCompletedWidgets.registrationCompletedAfterStartButton;
+export const registrationCompletedBeforeStartButton: any = registrationCompletedWidgets.registrationCompletedBeforeStartButton;
+export const registrationCompletedStartButton: any       = registrationCompletedWidgets.registrationCompletedStartButton;
+export const registrationCompletedAfterStartButton: any  = registrationCompletedWidgets.registrationCompletedAfterStartButton;
 
-const homeWidgets = require('./widgets/home.js');
+import * as homeWidgets from './widgets/home';
 
 export const accessCode          = homeWidgets.accessCode;
-export const interviewLanguage   = homeWidgets.interviewLanguage;
-export const homeIntro           = homeWidgets.homeIntro;
-export const householdSize       = homeWidgets.householdSize;
-export const householdCarNumber  = homeWidgets.householdCarNumber;
-export const homeDwellingType    = homeWidgets.homeDwellingType;
-export const homeAddress         = homeWidgets.homeAddress;
-export const homeApartmentNumber = homeWidgets.homeApartmentNumber
-export const homeCity            = homeWidgets.homeCity;
-export const homeRegion          = homeWidgets.homeRegion;
-export const homeCountry         = homeWidgets.homeCountry;
-export const homePostalCode      = homeWidgets.homePostalCode;
-export const homeGeography       = homeWidgets.homeGeography;
+export const interviewLanguage: any   = homeWidgets.interviewLanguage;
+export const homeIntro: any           = homeWidgets.homeIntro;
+export const householdSize: any       = homeWidgets.householdSize;
+export const householdCarNumber: any  = homeWidgets.householdCarNumber;
+export const homeDwellingType: any    = homeWidgets.homeDwellingType;
+export const homeAddress: any         = homeWidgets.homeAddress;
+export const homeApartmentNumber: any = homeWidgets.homeApartmentNumber
+export const homeCity: any            = homeWidgets.homeCity;
+export const homeRegion: any          = homeWidgets.homeRegion;
+export const homeCountry: any         = homeWidgets.homeCountry;
+export const homePostalCode: any     = homeWidgets.homePostalCode;
+export const homeGeography: any       = homeWidgets.homeGeography;
 
-const householdMembersWidgets = require('./widgets/householdMembers.js');
+import * as householdMembersWidgets from './widgets/householdMembers';
 
-export const householdMembers                      = householdMembersWidgets.householdMembers;
-export const personAge                             = householdMembersWidgets.personAge;
-export const personNickname                        = householdMembersWidgets.personNickname;
-export const personGender                          = householdMembersWidgets.personGender;
-export const personOccupation                      = householdMembersWidgets.personOccupation;
-export const personDrivingLicenseOwner             = householdMembersWidgets.personDrivingLicenseOwner;
-export const personTransitPassOwner                = householdMembersWidgets.personTransitPassOwner;
-export const personTransitPasses                   = householdMembersWidgets.personTransitPasses;
-export const personCarsharingMember                = householdMembersWidgets.personCarsharingMember;
-export const personBikesharingMember               = householdMembersWidgets.personBikesharingMember;
-export const personHasDisability                   = householdMembersWidgets.personHasDisability;
-export const personCellphoneOwner                  = householdMembersWidgets.personCellphoneOwner;
-export const personDidTrips                        = householdMembersWidgets.personDidTrips;
-export const buttonSaveNextSectionHouseholdMembers = householdMembersWidgets.buttonSaveNextSectionHouseholdMembers;
-export const selectPerson                          = householdMembersWidgets.selectPerson;
-export const buttonSelectPersonConfirm             = householdMembersWidgets.buttonSelectPersonConfirm;
-export const activePersonTitle                     = householdMembersWidgets.activePersonTitle;
-export const buttonSwitchPerson                    = householdMembersWidgets.buttonSwitchPerson;
+export const householdMembers: any                      = householdMembersWidgets.householdMembers;
+export const personAge: any                             = householdMembersWidgets.personAge;
+export const personNickname: any                        = householdMembersWidgets.personNickname;
+export const personGender: any                          = householdMembersWidgets.personGender;
+export const personOccupation: any                      = householdMembersWidgets.personOccupation;
+export const personDrivingLicenseOwner: any             = householdMembersWidgets.personDrivingLicenseOwner;
+export const personTransitPassOwner: any                = householdMembersWidgets.personTransitPassOwner;
+export const personTransitPasses: any                   = householdMembersWidgets.personTransitPasses;
+export const personCarsharingMember: any                = householdMembersWidgets.personCarsharingMember;
+export const personBikesharingMember: any               = householdMembersWidgets.personBikesharingMember;
+export const personHasDisability: any                   = householdMembersWidgets.personHasDisability;
+export const personCellphoneOwner: any                  = householdMembersWidgets.personCellphoneOwner;
+export const personDidTrips: any                        = householdMembersWidgets.personDidTrips;
+export const buttonSaveNextSectionHouseholdMembers: any = householdMembersWidgets.buttonSaveNextSectionHouseholdMembers;
+export const selectPerson: any                          = householdMembersWidgets.selectPerson;
+export const buttonSelectPersonConfirm: any             = householdMembersWidgets.buttonSelectPersonConfirm;
+export const activePersonTitle: any                     = householdMembersWidgets.activePersonTitle;
+export const buttonSwitchPerson: any                    = householdMembersWidgets.buttonSwitchPerson;
 
-const profileWidgets = require('./widgets/profile.js');
+import * as profileWidgets from './widgets/profile';
 
-export const personWorkOnTheRoad                 = profileWidgets.personWorkOnTheRoad;
-export const personUsualWorkPlaceIsHome          = profileWidgets.personUsualWorkPlaceIsHome;
-export const personWorkAtHomeAtLeastOnceAWeek    = profileWidgets.personWorkAtHomeAtLeastOnceAWeek;
-export const personWorkAtHomeNumberOfDaysPerWeek = profileWidgets.personWorkAtHomeNumberOfDaysPerWeek;
-export const personUsualWorkPlaceName            = profileWidgets.personUsualWorkPlaceName;
-export const personUsualWorkPlaceGeography       = profileWidgets.personUsualWorkPlaceGeography;
-export const personUsualSchoolPlaceName          = profileWidgets.personUsualSchoolPlaceName;
-export const personUsualSchoolPlaceGeography     = profileWidgets.personUsualSchoolPlaceGeography;
-export const personNewPerson                     = profileWidgets.personNewPerson;
-export const partTwoIntroText                    = profileWidgets.partTwoIntroText;
-export const partOneConfirmed                    = profileWidgets.partOneConfirmed;
-export const personDidTripsProfile               = profileWidgets.personDidTripsProfile;
-export const personDidTripsKnowTrips             = profileWidgets.personDidTripsKnowTrips;
+export const personWorkOnTheRoad: any                 = profileWidgets.personWorkOnTheRoad;
+export const personUsualWorkPlaceIsHome: any          = profileWidgets.personUsualWorkPlaceIsHome;
+export const personWorkAtHomeAtLeastOnceAWeek: any    = profileWidgets.personWorkAtHomeAtLeastOnceAWeek;
+export const personWorkAtHomeNumberOfDaysPerWeek: any = profileWidgets.personWorkAtHomeNumberOfDaysPerWeek;
+export const personUsualWorkPlaceName: any            = profileWidgets.personUsualWorkPlaceName;
+export const personUsualWorkPlaceGeography: any       = profileWidgets.personUsualWorkPlaceGeography;
+export const personUsualSchoolPlaceName: any          = profileWidgets.personUsualSchoolPlaceName;
+export const personUsualSchoolPlaceGeography: any     = profileWidgets.personUsualSchoolPlaceGeography;
+export const personNewPerson: any                     = profileWidgets.personNewPerson;
+export const partTwoIntroText: any                    = profileWidgets.partTwoIntroText;
+export const partOneConfirmed: any                    = profileWidgets.partOneConfirmed;
+export const personDidTripsProfile: any               = profileWidgets.personDidTripsProfile;
+export const personDidTripsKnowTrips: any             = profileWidgets.personDidTripsKnowTrips;
 
-export const groupedPersonWorkOnTheRoad                 = householdMembersWidgets.groupedPersonWorkOnTheRoad;
-export const groupedPersonUsualWorkPlaceIsHome          = householdMembersWidgets.groupedPersonUsualWorkPlaceIsHome;
-export const groupedPersonUsualWorkPlaceName            = householdMembersWidgets.groupedPersonUsualWorkPlaceName;
-export const groupedPersonUsualWorkPlaceGeography       = householdMembersWidgets.groupedPersonUsualWorkPlaceGeography;
-export const groupedPersonUsualSchoolPlaceName          = householdMembersWidgets.groupedPersonUsualSchoolPlaceName;
-export const groupedPersonUsualSchoolPlaceGeography     = householdMembersWidgets.groupedPersonUsualSchoolPlaceGeography;
-export const groupedPersonNoWorkTripReason              = householdMembersWidgets.groupedPersonNoWorkTripReason;
-export const groupedPersonNoSchoolTripReason            = householdMembersWidgets.groupedPersonNoSchoolTripReason;
-export const groupedPersonWhoAnsweredForThisPerson      = householdMembersWidgets.groupedPersonWhoAnsweredForThisPerson;
+export const groupedPersonWorkOnTheRoad: any                 = householdMembersWidgets.groupedPersonWorkOnTheRoad;
+export const groupedPersonUsualWorkPlaceIsHome: any          = householdMembersWidgets.groupedPersonUsualWorkPlaceIsHome;
+export const groupedPersonUsualWorkPlaceName: any            = householdMembersWidgets.groupedPersonUsualWorkPlaceName;
+export const groupedPersonUsualWorkPlaceGeography: any       = householdMembersWidgets.groupedPersonUsualWorkPlaceGeography;
+export const groupedPersonUsualSchoolPlaceName: any          = householdMembersWidgets.groupedPersonUsualSchoolPlaceName;
+export const groupedPersonUsualSchoolPlaceGeography: any     = householdMembersWidgets.groupedPersonUsualSchoolPlaceGeography;
+export const groupedPersonNoWorkTripReason: any              = householdMembersWidgets.groupedPersonNoWorkTripReason;
+export const groupedPersonNoSchoolTripReason: any            = householdMembersWidgets.groupedPersonNoSchoolTripReason;
+export const groupedPersonWhoAnsweredForThisPerson: any      = householdMembersWidgets.groupedPersonWhoAnsweredForThisPerson;
 
-const visitedPlacesWidgets = require('./widgets/visitedPlaces.js');
+import * as visitedPlacesWidgets from './widgets/visitedPlaces';
 
-export const visitedPlacesIntro                    = visitedPlacesWidgets.visitedPlacesIntro;
-export const personDeparturePlaceType              = visitedPlacesWidgets.personDeparturePlaceType;
-export const visitedPlacesOutro                    = visitedPlacesWidgets.visitedPlacesOutro;
-export const personVisitedPlacesTitle              = visitedPlacesWidgets.personVisitedPlacesTitle;
-export const personVisitedPlaces                   = visitedPlacesWidgets.personVisitedPlaces;
-export const personVisitedPlacesMap                = visitedPlacesWidgets.personVisitedPlacesMap;
-export const personLastVisitedPlaceNotHome         = visitedPlacesWidgets.personLastVisitedPlaceNotHome;
-export const visitedPlaceName                      = visitedPlacesWidgets.visitedPlaceName;
-export const visitedPlaceActivity                  = visitedPlacesWidgets.visitedPlaceActivity;
-export const visitedPlaceAlreadyVisited            = visitedPlacesWidgets.visitedPlaceAlreadyVisited;
-export const visitedPlaceShortcut                  = visitedPlacesWidgets.visitedPlaceShortcut;
-export const visitedPlaceGeography                 = visitedPlacesWidgets.visitedPlaceGeography;
-export const visitedPlaceArrivalAndDepartureTime   = visitedPlacesWidgets.visitedPlaceArrivalAndDepartureTime;
-export const visitedPlaceArrivalTime               = visitedPlacesWidgets.visitedPlaceArrivalTime;
+export const visitedPlacesIntro: any                    = visitedPlacesWidgets.visitedPlacesIntro;
+export const personDeparturePlaceType: any              = visitedPlacesWidgets.personDeparturePlaceType;
+export const visitedPlacesOutro: any                    = visitedPlacesWidgets.visitedPlacesOutro;
+export const personVisitedPlacesTitle: any              = visitedPlacesWidgets.personVisitedPlacesTitle;
+export const personVisitedPlaces: any                   = visitedPlacesWidgets.personVisitedPlaces;
+export const personVisitedPlacesMap: any                = visitedPlacesWidgets.personVisitedPlacesMap;
+export const personLastVisitedPlaceNotHome: any         = visitedPlacesWidgets.personLastVisitedPlaceNotHome;
+export const visitedPlaceName: any                      = visitedPlacesWidgets.visitedPlaceName;
+export const visitedPlaceActivity: any                  = visitedPlacesWidgets.visitedPlaceActivity;
+export const visitedPlaceAlreadyVisited: any            = visitedPlacesWidgets.visitedPlaceAlreadyVisited;
+export const visitedPlaceShortcut: any                  = visitedPlacesWidgets.visitedPlaceShortcut;
+export const visitedPlaceGeography: any                 = visitedPlacesWidgets.visitedPlaceGeography;
+export const visitedPlaceArrivalTime: any               = visitedPlacesWidgets.visitedPlaceArrivalTime;
 //export const visitedPlaceIsNotLast                 = visitedPlacesWidgets.visitedPlaceIsNotLast;
-export const visitedPlaceDepartureTime             = visitedPlacesWidgets.visitedPlaceDepartureTime;
+export const visitedPlaceDepartureTime: any             = visitedPlacesWidgets.visitedPlaceDepartureTime;
 //export const visitedPlaceWentBackHomeDirectlyAfter = visitedPlacesWidgets.visitedPlaceWentBackHomeDirectlyAfter;
-export const visitedPlaceNextPlaceCategory         = visitedPlacesWidgets.visitedPlaceNextPlaceCategory;
-export const buttonCancelVisitedPlace              = visitedPlacesWidgets.buttonCancelVisitedPlace;
-export const buttonDeleteVisitedPlace              = visitedPlacesWidgets.buttonDeleteVisitedPlace;
-export const buttonSaveVisitedPlace                = visitedPlacesWidgets.buttonSaveVisitedPlace;
-export const buttonVisitedPlacesConfirmNextSection = visitedPlacesWidgets.buttonVisitedPlacesConfirmNextSection;
+export const visitedPlaceNextPlaceCategory: any         = visitedPlacesWidgets.visitedPlaceNextPlaceCategory;
+export const buttonCancelVisitedPlace: any              = visitedPlacesWidgets.buttonCancelVisitedPlace;
+export const buttonDeleteVisitedPlace: any              = visitedPlacesWidgets.buttonDeleteVisitedPlace;
+export const buttonSaveVisitedPlace: any                = visitedPlacesWidgets.buttonSaveVisitedPlace;
+export const buttonVisitedPlacesConfirmNextSection: any = visitedPlacesWidgets.buttonVisitedPlacesConfirmNextSection;
 
-const segmentsWidgets = require('./widgets/segments.js');
+import * as segmentsWidgets from './widgets/segments';
 
-export const personTrips                   = segmentsWidgets.personTrips;
-export const personTripsTitle              = segmentsWidgets.personTripsTitle;
-export const personTripsMap                = segmentsWidgets.personTripsMap;
-export const segments                      = segmentsWidgets.segments;
-export const segmentIntro                  = segmentsWidgets.segmentIntro;
-export const segmentMode                   = segmentsWidgets.segmentMode;
-export const segmentIsNotLast              = segmentsWidgets.segmentIsNotLast;
-export const segmentParkingType            = segmentsWidgets.segmentParkingType;
-export const segmentParkingPaymentType     = segmentsWidgets.segmentParkingPaymentType;
-export const segmentVehicleOccupancy       = segmentsWidgets.segmentVehicleOccupancy;
-export const segmentVehicleType            = segmentsWidgets.segmentVehicleType;
-export const segmentDriver                 = segmentsWidgets.segmentDriver;
-export const segmentBridgesAndTunnels      = segmentsWidgets.segmentBridgesAndTunnels;
-export const segmentHighways               = segmentsWidgets.segmentHighways;
-export const segmentUsedBikesharing        = segmentsWidgets.segmentUsedBikesharing;
-export const segmentSubwayStationStart     = segmentsWidgets.segmentSubwayStationStart;
-export const segmentSubwayStationEnd       = segmentsWidgets.segmentSubwayStationEnd;
-export const segmentSubwayTransferStations = segmentsWidgets.segmentSubwayTransferStations;
-export const segmentTrainStationStart      = segmentsWidgets.segmentTrainStationStart;
-export const segmentTrainStationEnd        = segmentsWidgets.segmentTrainStationEnd;
-export const segmentBusLines               = segmentsWidgets.segmentBusLines;
-export const tripJunctionGeography         = segmentsWidgets.tripJunctionGeography;
-export const introButtonSaveTrip           = segmentsWidgets.introButtonSaveTrip;
-export const buttonSaveTrip                = segmentsWidgets.buttonSaveTrip;
+export const personTrips: any                   = segmentsWidgets.personTrips;
+export const personTripsTitle: any              = segmentsWidgets.personTripsTitle;
+export const segments: any                      = segmentsWidgets.segments;
+export const segmentIntro: any                  = segmentsWidgets.segmentIntro;
+export const segmentMode: any                   = segmentsWidgets.segmentMode;
+export const segmentIsNotLast: any              = segmentsWidgets.segmentIsNotLast;
+export const segmentParkingType: any            = segmentsWidgets.segmentParkingType;
+export const segmentParkingPaymentType: any     = segmentsWidgets.segmentParkingPaymentType;
+export const segmentVehicleOccupancy: any       = segmentsWidgets.segmentVehicleOccupancy;
+export const segmentVehicleType: any            = segmentsWidgets.segmentVehicleType;
+export const segmentDriver: any                 = segmentsWidgets.segmentDriver;
+export const segmentBridgesAndTunnels: any      = segmentsWidgets.segmentBridgesAndTunnels;
+export const segmentHighways: any               = segmentsWidgets.segmentHighways;
+export const segmentUsedBikesharing: any        = segmentsWidgets.segmentUsedBikesharing;
+export const segmentSubwayStationStart: any     = segmentsWidgets.segmentSubwayStationStart;
+export const segmentSubwayStationEnd: any       = segmentsWidgets.segmentSubwayStationEnd;
+export const segmentSubwayTransferStations: any = segmentsWidgets.segmentSubwayTransferStations;
+export const segmentTrainStationStart: any      = segmentsWidgets.segmentTrainStationStart;
+export const segmentTrainStationEnd: any        = segmentsWidgets.segmentTrainStationEnd;
+export const segmentBusLines: any               = segmentsWidgets.segmentBusLines;
+export const tripJunctionGeography: any         = segmentsWidgets.tripJunctionGeography;
+export const introButtonSaveTrip: any           = segmentsWidgets.introButtonSaveTrip;
+export const buttonSaveTrip: any                = segmentsWidgets.buttonSaveTrip;
 
-const travelBehaviorWidgets = require('./widgets/travelBehavior.js');
+import * as travelBehaviorWidgets from './widgets/travelBehavior';
 
-export const personNoWorkTripReason         = travelBehaviorWidgets.personNoWorkTripReason;
-export const personNoSchoolTripReason       = travelBehaviorWidgets.personNoSchoolTripReason;
-export const personWhoAnsweredForThisPerson = travelBehaviorWidgets.personWhoAnsweredForThisPerson;
+export const personNoWorkTripReason: any         = travelBehaviorWidgets.personNoWorkTripReason;
+export const personNoSchoolTripReason: any       = travelBehaviorWidgets.personNoSchoolTripReason;
+export const personWhoAnsweredForThisPerson: any = travelBehaviorWidgets.personWhoAnsweredForThisPerson;
 
-const endWidgets = require('./widgets/end.js');
+import * as endWidgets from './widgets/end';
 
-export const householdResidentialPhoneType                 = endWidgets.householdResidentialPhoneType;
-export const householdWouldLikeToParticipateInOtherSurveys = endWidgets.householdWouldLikeToParticipateInOtherSurveys;
-export const householdDidAlsoRespondByPhone                = endWidgets.householdDidAlsoRespondByPhone;
-export const householdContactEmail                         = endWidgets.householdContactEmail;
-export const householdIncome                               = endWidgets.householdIncome;
-export const householdSurveyAppreciation                   = endWidgets.householdSurveyAppreciation;
-export const householdDateNextContact                      = endWidgets.householdDateNextContact;
-export const householdCommentsOnSurvey                     = endWidgets.householdCommentsOnSurvey;
-export const completedText                                 = endWidgets.completedText;
+export const householdResidentialPhoneType: any                 = endWidgets.householdResidentialPhoneType;
+export const householdWouldLikeToParticipateInOtherSurveys: any = endWidgets.householdWouldLikeToParticipateInOtherSurveys;
+export const householdDidAlsoRespondByPhone: any                = endWidgets.householdDidAlsoRespondByPhone;
+export const householdContactEmail: any                         = endWidgets.householdContactEmail;
+export const householdIncome: any                               = endWidgets.householdIncome;
+export const householdSurveyAppreciation: any                   = endWidgets.householdSurveyAppreciation;
+export const householdDateNextContact: any                      = endWidgets.householdDateNextContact;
+export const householdCommentsOnSurvey: any                     = endWidgets.householdCommentsOnSurvey;
+export const completedText: any                                 = endWidgets.completedText;
 
 // multi-sections widgets:
 
-export const buttonSaveNextSection = {
+export const buttonSaveNextSection: any = {
   type: "button",
   path: "buttonSaveNextSection",
   color: "green",
@@ -164,7 +162,7 @@ export const buttonSaveNextSection = {
   action: surveyHelper.validateButtonAction
 };
 
-export const buttonSaveNextSection2 = {
+export const buttonSaveNextSection2: any = {
   type: "button",
   path: "buttonSaveNextSection2",
   color: "green",
@@ -178,7 +176,7 @@ export const buttonSaveNextSection2 = {
   action: surveyHelper.validateButtonAction
 };
 
-export const buttonStartNextSection = {
+export const buttonStartNextSection: any = {
   type: "button",
   path: "buttonStartNextSection",
   color: "green",
@@ -192,7 +190,7 @@ export const buttonStartNextSection = {
   action: surveyHelper.validateButtonAction
 }
 
-export const buttonContinueNextSection = {
+export const buttonContinueNextSection: any = {
   type: "button",
   path: "buttonContinueNextSection",
   color: "green",
@@ -206,7 +204,7 @@ export const buttonContinueNextSection = {
   action: surveyHelper.validateButtonAction
 };
 
-export const buttonConfirmNextSection = {
+export const buttonConfirmNextSection: any = {
   type: "button",
   path: "buttonConfirmNextSection",
   color: "green",
@@ -220,7 +218,7 @@ export const buttonConfirmNextSection = {
   action: surveyHelper.validateButtonAction
 };
 
-export const buttonCompleteInterview = {
+export const buttonCompleteInterview: any = {
   type: "button",
   path: "buttonCompleteInterview",
   color: "green",
