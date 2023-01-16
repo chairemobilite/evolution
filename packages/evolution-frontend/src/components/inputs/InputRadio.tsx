@@ -122,7 +122,9 @@ const InputRadioChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerso
     );
 };
 
-const InputRadioChoiceT = withTranslation()(InputRadioChoice);
+const InputRadioChoiceT = withTranslation()(InputRadioChoice) as React.FunctionComponent<
+    InputRadioChoiceProps<any, any, any, any>
+>;
 
 export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
     InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,

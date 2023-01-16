@@ -69,7 +69,9 @@ const InputButtonOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
     );
 };
 
-const InputButtonOptionT = withTranslation()(InputButtonOption);
+const InputButtonOptionT = withTranslation()(InputButtonOption) as React.FunctionComponent<
+    InputButtonOptionProps<any, any, any, any>
+>;
 
 /** Display a list of choices as buttons */
 
