@@ -117,7 +117,9 @@ const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
     );
 };
 
-const InputCheckboxChoiceT = withTranslation()(InputCheckboxChoice);
+const InputCheckboxChoiceT = withTranslation()(InputCheckboxChoice) as React.FunctionComponent<
+    InputCheckboxChoiceProps<any, any, any, any>
+>;
 
 export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
     InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,

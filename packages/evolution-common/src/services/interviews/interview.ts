@@ -40,6 +40,14 @@ export type PartialInterviewResponses<CustomSurvey, CustomHousehold, CustomHome,
     InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 >;
 
+// Type for the validations, which should have the same keys as the responses, but with boolean values
+type RecursiveBoolean<TObj extends object> = {
+    [TKey in keyof TObj]?: TObj[TKey] extends object ? RecursiveBoolean<Required<TObj[TKey]>> : boolean;
+};
+export type InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = RecursiveBoolean<
+    Required<InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+>;
+
 /**
  * Type the common response fields for any survey
  *
@@ -116,7 +124,7 @@ export interface UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHo
     user_id: number;
     is_completed: boolean;
     responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    validations: { [key: string]: unknown };
+    validations: InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     is_valid: boolean;
     userRoles?: string[];
 }

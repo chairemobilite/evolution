@@ -59,7 +59,9 @@ const InputSelectOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
     );
 };
 
-const InputSelectOptionT = withTranslation()(InputSelectOption);
+const InputSelectOptionT = withTranslation()(InputSelectOption) as React.FunctionComponent<
+    InputSelectOptionProps<any, any, any, any>
+>;
 
 export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     props: InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
@@ -129,4 +131,4 @@ export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
     );
 };
 
-export default withTranslation()(InputSelect);
+export default withTranslation()(InputSelect) as React.FunctionComponent<InputSelectProps<any, any, any, any>>;
