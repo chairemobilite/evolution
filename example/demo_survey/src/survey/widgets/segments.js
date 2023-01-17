@@ -8,7 +8,7 @@ import moment from 'moment-business-days';
 import React from 'react';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import _get from 'lodash.get';
-import turfDistance from '@turf/distance';
+import { distance as turfDistance } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';

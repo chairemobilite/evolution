@@ -7,7 +7,7 @@
 const fs        = require('fs');
 const chalk     = require('chalk');
 const slugify   = require('slugify');
-const _camelCase = require('lodash.camelcaseelcaseelcase');
+const _camelCase = require('lodash.camelcase');
 
 const outputGeojsonFilePath         = __dirname + '/../survey/busRoutes.geojson';
 

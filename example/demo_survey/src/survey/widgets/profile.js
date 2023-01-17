@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import turfBooleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';

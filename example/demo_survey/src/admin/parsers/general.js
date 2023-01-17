@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { isFeature } from 'geojson-validation';
-import turfDistance from '@turf/distance';
+import { distance as turfDistance } from '@turf/turf';
 import _get from 'lodash.get';
 import _set from 'lodash.set';
 import _cloneDeep from 'lodash.clonedeep';

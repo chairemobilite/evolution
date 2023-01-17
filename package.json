@@ -37,6 +37,8 @@
     },
     "dependencies": {},
     "devDependencies": {
+        "depcheck": "^1.4.3",
+        "rimraf": "^3.0.2",
         "wsrun": "^5.2.4"
     }
 }

@@ -13,13 +13,15 @@ import _get from 'lodash.get';
 import _min from 'lodash.min';
 import _max from 'lodash.max';
 import isEmpty from 'lodash.isempty';
-import {lineString as turfLineString} from '@turf/helpers';
-import turfDistance from '@turf/distance';
-import turfDestination from '@turf/destination';
-import turfMidpoint from '@turf/midpoint';
-import turfBearing from '@turf/bearing';
-import turfBezierSpline from '@turf/bezier-spline';
-import turfBooleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { 
+    lineString as turfLineString,
+    distance as turfDistance,
+    destination as turfDestination,
+    midpoint as turfMidpoint,
+    bearing as turfBearing,
+    bezierSpline as turfBezierSpline,
+    booleanPointInPolygon as turfBooleanPointInPolygon
+} from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 // import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';

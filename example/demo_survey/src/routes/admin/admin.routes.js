@@ -7,8 +7,7 @@
 const knex                     = require('chaire-lib-backend/lib/config/shared/db.config');
 const moment                   = require('moment-timezone');
 const _get                     = require('lodash.get');
-const turfFeatureEach          = require('@turf/meta').featureEach;
-const turfPointInPolygon       = require('@turf/boolean-point-in-polygon').default;
+import { featureEach as turfFeatureEach, booleanPointInPolygon as turfPointInPolygon } from '@turf/turf';
 const config                   = require('chaire-lib-common/lib/config/shared/project.config');
 const helper                   = require('evolution-legacy/lib/helpers/server');
 const zonesGeojson             = require('../../survey/zones.json');

@@ -12,7 +12,7 @@ import isEmpty      from 'lodash.isempty';
 import isEqual      from 'lodash.isequal';
 import _get         from 'lodash.get';
 import _cloneDeep   from 'lodash.clonedeep';
-import turfDistance from '@turf/distance';
+import { distance as turfDistance } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
