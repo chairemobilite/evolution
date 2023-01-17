@@ -23,11 +23,11 @@ export interface InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     user: FrontendUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputSelectType;
+    widgetConfig: InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 
 export interface InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    choice: ChoiceType;
+    choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
@@ -77,7 +77,7 @@ export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             const groupSelectOptions = choice.choices.map((groupedChoice, index) => (
                 <InputSelectOptionT
                     key={`${props.id}_opt_${index}`}
-                    choice={groupedChoice}
+                    choice={groupedChoice as any}
                     path={props.path}
                     interview={props.interview}
                     user={props.user}
@@ -96,7 +96,7 @@ export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             return (
                 <InputSelectOptionT
                     key={`${props.id}_opt_${choice.value}`}
-                    choice={choice}
+                    choice={choice as any}
                     path={props.path}
                     interview={props.interview}
                     user={props.user}

@@ -25,7 +25,7 @@ interface InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     user: FrontendUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputMultiselectType;
+    widgetConfig: InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 
 const formatOptionLabel = (data: { color?: string; label: string }) => (
@@ -73,7 +73,10 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
         }
     };
 
-    selectShortcut = (value: ChoiceType, e: React.MouseEvent) => {
+    selectShortcut = (
+        value: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+        e: React.MouseEvent
+    ) => {
         if (this.props.onValueChange === undefined) {
             return;
         }

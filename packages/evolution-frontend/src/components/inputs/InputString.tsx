@@ -22,7 +22,7 @@ export interface InputStringProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     user: FrontendUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputStringType;
+    widgetConfig: InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     updateKey: number;
 }
 

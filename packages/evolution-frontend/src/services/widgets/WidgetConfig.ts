@@ -33,22 +33,22 @@ export type ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, Custom
     path: string,
     customPath?: string,
     user?: FrontendUser
-) => { validation: boolean; errorMessage: LangData }[];
+) => { validation: boolean; errorMessage: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> }[];
 
-export type LangData = {
-    [lang: string]: string | ParsingFunction<string>;
+export type LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+    [lang: string]: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 };
 
-export type InputStringType = {
+export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'string';
-    defaultValue?: string | ParsingFunction<string>;
+    defaultValue?: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     maxLength?: number;
     datatype?: 'string' | 'integer' | 'float';
 };
 
-export type InputTextType = {
+export type InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'text';
-    defaultValue?: string | ParsingFunction<string>;
+    defaultValue?: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     maxLength?: number;
     shortname?: string;
     rows?: number;
@@ -56,37 +56,65 @@ export type InputTextType = {
 };
 
 // TODO This type is used by select, checkbox, radio, buttons etc. See if we can leverage functionality. Now every widget uses a subset of the properties (some may not need some of them, some could use them)
-type BaseChoiceType = {
+type BaseChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     label: string | { [lang: string]: string };
     hidden?: boolean;
     icon?: IconProp;
     iconPath?: string;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: ParsingFunction<
+        boolean | [boolean] | [boolean, unknown],
+        CustomSurvey,
+        CustomHousehold,
+        CustomHome,
+        CustomPerson
+    >;
     color?: string;
     size?: 'large' | 'small' | 'medium';
 };
-export type ChoiceType = BaseChoiceType & {
+export type ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = BaseChoiceType<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value: string;
 };
 
-export type RadioChoiceType = BaseChoiceType & {
+export type RadioChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = BaseChoiceType<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value: string | boolean;
 };
 
-export type GroupedChoiceType = {
+export type GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     groupShortname: string;
     groupLabel: string | { [lang: string]: string };
-    choices: ChoiceType[];
+    choices: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
 };
 
-export const isGroupedChoice = (choice: GroupedChoiceType | ChoiceType): choice is GroupedChoiceType => {
+export const isGroupedChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    choice:
+        | GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+        | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+): choice is GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return typeof (choice as any).groupShortname === 'string';
 };
 
-export type InputCheckboxType = {
+export type InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'checkbox';
-    choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
+    choices:
+        | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[]
+        | ParsingFunction<
+              ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
     // string css style for the icon size, for example '2em'
     iconSize?: string;
     seed?: number;
@@ -94,13 +122,21 @@ export type InputCheckboxType = {
     addCustom?: boolean;
     columns?: number;
     sameLine?: boolean;
-    customLabel?: string | LangData;
+    customLabel?: string | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     datatype?: 'string' | 'integer' | 'float' | 'text';
 };
 
-export type InputRadioType = {
+export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'radio';
-    choices: RadioChoiceType[] | ParsingFunction<RadioChoiceType[]>;
+    choices:
+        | RadioChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[]
+        | ParsingFunction<
+              RadioChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
     // string css style for the icon size, for example '2em'
     iconSize?: string;
     seed?: number;
@@ -108,89 +144,139 @@ export type InputRadioType = {
     addCustom?: boolean;
     columns?: number;
     sameLine?: boolean;
-    customLabel?: string | LangData;
+    customLabel?: string | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     customChoice?: string;
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
 };
 
 // TODO Could select widget have a custom 'other' field? Like checkbox and radios
-export type InputSelectType = {
+export type InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'select';
-    choices: (GroupedChoiceType | ChoiceType)[] | ParsingFunction<(GroupedChoiceType | ChoiceType)[]>;
+    choices:
+        | (
+              | GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+              | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          )[]
+        | ParsingFunction<
+              (
+                  | GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+                  | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+              )[],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
     // string css style for the icon size, for example '2em'
     datatype?: 'string' | 'integer' | 'float' | 'text';
 };
 
-export type InputMultiselectType = {
+export type InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'multiselect';
-    choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
+    choices:
+        | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[]
+        | ParsingFunction<
+              ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
     // string css style for the icon size, for example '2em'
     datatype?: 'string' | 'integer' | 'float' | 'text';
     multiple?: boolean;
     // TODO What is a shortcut? Is the name right? It looks like a subset of the choices
-    shortcuts?: ChoiceType[];
+    shortcuts?: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
     onlyLabelSearch?: boolean;
     isClearable?: boolean;
     closeMenuOnSelect?: boolean;
 };
 
-export type InputButtonType = {
+export type InputButtonType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'button';
-    choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
+    choices:
+        | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[]
+        | ParsingFunction<
+              ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
     hideWhenRefreshing?: boolean;
     align?: 'center' | 'left' | 'right';
     isModal?: boolean;
     sameLine?: boolean;
 };
 
-export type InputTimeType = {
+export type InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'time';
-    suffixTimes?: ParsingFunction<{ [timeStr: string]: string }>;
-    minTimeSecondsSinceMidnight?: number | ParsingFunction<number>;
-    maxTimeSecondsSinceMidnight?: number | ParsingFunction<number>;
-    minuteStep?: number | ParsingFunction<number>;
+    suffixTimes?: ParsingFunction<
+        { [timeStr: string]: string },
+        CustomSurvey,
+        CustomHousehold,
+        CustomHome,
+        CustomPerson
+    >;
+    minTimeSecondsSinceMidnight?:
+        | number
+        | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    maxTimeSecondsSinceMidnight?:
+        | number
+        | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    minuteStep?: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     addHourSeparators?: boolean;
 };
 
-export type InputRangeType = {
+export type InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'slider';
     maxValue?: number;
     minValue?: number;
     formatLabel?: (value: number, lang: string) => string;
-    labels?: (string | LangData)[];
+    labels?: (string | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)[];
     trackClassName?: string;
 };
 
-export type InputDatePickerType = {
+export type InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'datePicker';
     showTimeSelect?: boolean;
-    placeholderText?: string | LangData;
-    maxDate?: Date | ParsingFunction<Date>;
-    minDate?: Date | ParsingFunction<Date>;
+    placeholderText?: string | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    maxDate?: Date | ParsingFunction<Date, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    minDate?: Date | ParsingFunction<Date, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     locale?: { [languageCode: string]: string };
 };
 
-type InputMapType = {
+type InputMapType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     defaultCenter: { lat: number; lon: number };
-    geocodingQueryString?: ParsingFunction<string | undefined>;
-    refreshGeocodingLabel?: LangData;
-    afterRefreshButtonText?: LangData;
+    geocodingQueryString?: ParsingFunction<string | undefined, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    refreshGeocodingLabel?: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    afterRefreshButtonText?: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     icon?: {
-        url: string | ParsingFunction<string>;
+        url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     };
     containsHtml?: boolean;
     maxZoom?: number;
     defaultZoom?: number;
 };
 
-export type InputMapPointType = InputMapType & {
+export type InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = InputMapType<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     inputType: 'mapPoint';
 };
 
-export type InputMapFindPlaceType = InputMapType & {
+export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = InputMapType<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     inputType: 'mapFindPlace';
     placesIcon?: {
-        url: string | ParsingFunction<string>;
+        url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     };
     showPhoto?: boolean;
     autoConfirmIfSingleResult?: boolean;
@@ -203,31 +289,37 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
           twoColumns?: boolean;
           path: InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           containsHtml?: boolean;
-          label: LangData;
+          label: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           helpPopup?: {
-              title: LangData;
-              content: LangData;
+              title: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+              content: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           };
           validations?: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-          conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+          conditional?: ParsingFunction<
+              boolean | [boolean] | [boolean, unknown],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
       } & (
-          | InputStringType
-          | InputTextType
-          | InputCheckboxType
-          | InputMultiselectType
-          | InputRadioType
-          | InputButtonType
-          | InputTimeType
-          | InputMapPointType
-          | InputMapFindPlaceType
-          | InputRangeType
-          | InputDatePickerType
-          | InputSelectType
+          | InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputButtonType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          | InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
       ))
     | {
           type: 'text';
           align: 'center';
-          text: LangData;
+          text: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
       }
     | {
           type: 'group';

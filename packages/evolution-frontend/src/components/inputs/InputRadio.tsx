@@ -30,7 +30,7 @@ export interface InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, Cust
     user: FrontendUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputRadioType;
+    widgetConfig: InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
 }
@@ -41,7 +41,7 @@ interface InputRadioState {
 
 interface InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
-    choice: RadioChoiceType;
+    choice: RadioChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
@@ -249,7 +249,7 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
             .filter((choice) => choice.hidden !== true)
             .map((choice) => (
                 <InputRadioChoiceT
-                    choice={choice}
+                    choice={choice as any}
                     id={`${this.props.id}_${choice.value}`}
                     key={`${this.props.id}__${choice.value}__key`}
                     interview={this.props.interview}

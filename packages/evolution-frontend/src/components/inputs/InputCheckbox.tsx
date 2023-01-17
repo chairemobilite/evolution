@@ -27,7 +27,7 @@ export interface InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, C
     user: FrontendUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputCheckboxType;
+    widgetConfig: InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
 }
@@ -38,7 +38,7 @@ interface InputCheckboxState {
 
 interface InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
-    choice: ChoiceType;
+    choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
@@ -231,7 +231,7 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
             .filter((choice) => choice.hidden !== true)
             .map((choice) => (
                 <InputCheckboxChoiceT
-                    choice={choice}
+                    choice={choice as any}
                     id={`${this.props.id}_${choice.value}`}
                     key={`${this.props.id}__${choice.value}__key`}
                     interview={this.props.interview}

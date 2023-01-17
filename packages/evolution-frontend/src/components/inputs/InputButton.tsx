@@ -24,14 +24,14 @@ export interface InputButtonProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     user: FrontendUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputButtonType;
+    widgetConfig: InputButtonType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;
 }
 
 export interface InputButtonOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
-    choice: ChoiceType;
+    choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
@@ -96,7 +96,7 @@ const InputButton = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
         <InputButtonOptionT
             key={`${props.id}_btn_${index}`}
             id={`${props.id}__input-button__${choice.value}`}
-            choice={choice}
+            choice={choice as any}
             path={props.path}
             interview={props.interview}
             user={props.user}
