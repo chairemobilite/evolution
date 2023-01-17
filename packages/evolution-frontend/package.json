@@ -12,6 +12,7 @@
     "build:prod": "webpack -p --progress --colors --env production --mode production",
     "build:test": "cross-env NODE_ENV=test webpack -p --env test --mode development --watch --progress --colors",
     "clean": "rimraf lib/",
+    "cleanModules": "rimraf node_modules/",
     "compile": "tsc",
     "compile:dev": "tsc -w",
     "test": "cross-env NODE_ENV=test jest --config=jest.config.js",

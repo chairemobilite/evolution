@@ -9,6 +9,7 @@
     "license": "MIT",
     "scripts": {
         "clean": "rimraf lib/",
+        "cleanModules": "rimraf node_modules/",
         "compile": "tsc",
         "compile:dev": "tsc -w",
         "migrate": "knex migrate:latest --knexfile lib/config/knexfile.js",
