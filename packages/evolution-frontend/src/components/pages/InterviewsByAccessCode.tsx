@@ -6,13 +6,12 @@
  */
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { RouteComponentProps } from 'react-router';
 import { History } from 'history';
 import Loadable from 'react-loadable';
 import Loader from 'react-spinners/HashLoader';
 import { InterviewContext, interviewReducer, initialState } from '../../contexts/InterviewContext';
 import InputString from 'chaire-lib-frontend/lib/components/input/InputString';
-import { Link } from 'react-router-dom';
+import { Link, RouteComponentProps } from 'react-router-dom';
 
 interface MatchParams {
     accessCode: string;

@@ -11,7 +11,7 @@ import { faMale } from '@fortawesome/free-solid-svg-icons/faMale';
 import { faFemale } from '@fortawesome/free-solid-svg-icons/faFemale';
 import { faChild } from '@fortawesome/free-solid-svg-icons/faChild';
 import { faPortrait } from '@fortawesome/free-solid-svg-icons/faPortrait';
-import turfBooleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';

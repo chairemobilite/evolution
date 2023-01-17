@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment-business-days';
-import turfBooleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { booleanPoinInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';

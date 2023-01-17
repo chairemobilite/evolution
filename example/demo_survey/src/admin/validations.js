@@ -7,7 +7,7 @@
 import { isFeature } from 'geojson-validation';
 import _get from 'lodash.get';
 import {validate as uuidValidate} from 'uuid';
-import turfDistance from '@turf/distance';
+import { distance as turfDistance } from '@turf/turf';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import sharedHelper from 'evolution-legacy/lib/helpers/shared/shared';

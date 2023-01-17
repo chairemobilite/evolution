@@ -7,7 +7,7 @@
 import moment from 'moment-timezone';
 import truncate from 'lodash.truncate';
 import { isFeature } from 'geojson-validation';
-import turfDistance from '@turf/distance';
+import { distance as turfDistance } from '@turf/turf';
 import _uniq from 'lodash.uniq';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
