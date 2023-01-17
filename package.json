@@ -17,6 +17,7 @@
         "migrate": "yarn workspace chaire-lib-backend run migrate && yarn workspace evolution-backend run migrate",
         "migrate-test": "yarn workspace chaire-lib-backend run migrate-test && yarn workspace evolution-backend run migrate-test",
         "clean": "yarn workspaces run clean",
+        "cleanModules": "yarn workspace evolution-common run cleanModules && yarn workspace evolution-backend run cleanModules && yarn workspace evolution-frontend run cleanModules && yarn workspace evolution-legacy run cleanModules && yarn workspace demo_survey run cleanModules && rimraf node_modules",
         "compile": "yarn workspaces run compile",
         "compile:dev": "yarn wsrun compile:dev",
         "create-user": "yarn workspace chaire-lib-backend run create-user",
