@@ -8,7 +8,7 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
 import { getResponse, devLog } from 'evolution-common/lib/utils/helpers';
 
-export type ParsingFunction<T> = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export type ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
@@ -25,7 +25,7 @@ export type ParsingFunction<T> = <CustomSurvey, CustomHousehold, CustomHome, Cus
  * @returns The parsed string value, or the value itself if it is a string
  */
 export const parseString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: string | ParsingFunction<string> | undefined,
+    value: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
@@ -46,7 +46,17 @@ export const parseString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
  * @returns The parsed string value, or the value itself if it is a string
  */
 export const parseBoolean = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: boolean | ParsingFunction<boolean | [boolean] | [boolean, unknown]> | undefined | null,
+    value:
+        | boolean
+        | ParsingFunction<
+              boolean | [boolean] | [boolean, unknown],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >
+        | undefined
+        | null,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser,
@@ -78,12 +88,14 @@ export const parseBoolean = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
  * @returns The parsed value of type T, or the value itself if it is a string
  */
 export const parse = <T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: T | ParsingFunction<T> | undefined | null,
+    value: T | ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined | null,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
 ): T | undefined | null => {
-    return typeof value === 'function' ? (value as ParsingFunction<T>)(interview, path, user) : value;
+    return typeof value === 'function'
+        ? (value as ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)(interview, path, user)
+        : value;
 };
 
 /**
@@ -97,7 +109,7 @@ export const parse = <T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson
  * @returns The parsed number value, or the value itself
  */
 export const parseInteger = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: number | ParsingFunction<number> | undefined,
+    value: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser

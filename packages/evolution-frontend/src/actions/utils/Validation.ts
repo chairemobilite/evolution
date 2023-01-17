@@ -19,7 +19,7 @@ export const checkValidations = <CustomSurvey, CustomHousehold, CustomHome, Cust
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string
-): [boolean, LangData | undefined] => {
+): [boolean, LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined] => {
     if (typeof validations === 'function') {
         try {
             const validationsGroup = validations(value, customValue, interview, path, customPath);

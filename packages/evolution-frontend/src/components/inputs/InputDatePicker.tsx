@@ -24,7 +24,7 @@ export interface InputDatePickerProps<CustomSurvey, CustomHousehold, CustomHome,
     value?: string;
     inputRef?: React.LegacyRef<DatePicker>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputDatePickerType;
+    widgetConfig: InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;

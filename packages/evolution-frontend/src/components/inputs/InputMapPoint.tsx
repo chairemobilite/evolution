@@ -33,7 +33,7 @@ export interface InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, C
     shortname?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputMapPointType;
+    widgetConfig: InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 
 interface InputMapPointState {

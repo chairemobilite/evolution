@@ -88,7 +88,17 @@ export const checkConditional = <CustomSurvey, CustomHousehold, CustomHome, Cust
  * condition fails.
  */
 export const checkChoiceConditional = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    conditional: undefined | boolean | [boolean, unknown] | ParsingFunction<boolean | [boolean] | [boolean, unknown]>,
+    conditional:
+        | undefined
+        | boolean
+        | [boolean, unknown]
+        | ParsingFunction<
+              boolean | [boolean] | [boolean, unknown],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
@@ -134,7 +144,21 @@ export const checkChoiceConditional = <CustomSurvey, CustomHousehold, CustomHome
  */
 export const checkChoicesConditional = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     value: unknown,
-    choices: (GroupedChoiceType | ChoiceType)[] | ParsingFunction<(GroupedChoiceType | ChoiceType)[]>,
+    choices:
+        | (
+              | GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+              | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+          )[]
+        | ParsingFunction<
+              (
+                  | GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+                  | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+              )[],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     user?: FrontendUser
@@ -147,7 +171,9 @@ export const checkChoicesConditional = <CustomSurvey, CustomHousehold, CustomHom
     // Get the value along with its corresponding choice
     const parsedChoices = (typeof choices === 'function' ? choices(interview, path, user) : choices).flatMap(
         (choice) => {
-            return isGroupedChoice(choice) ? (choice as GroupedChoiceType).choices : [choice];
+            return isGroupedChoice(choice)
+                ? (choice as GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>).choices
+                : [choice];
         }
     );
     // Array of [value, [conditional Response, new value]]

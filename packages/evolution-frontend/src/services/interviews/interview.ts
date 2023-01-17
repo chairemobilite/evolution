@@ -1,7 +1,7 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { WidgetConfig, LangData } from '../widgets';
 
-export type WidgetStatus = {
+export type WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     path: string;
     customPath?: string;
     isVisible: boolean;
@@ -13,7 +13,7 @@ export type WidgetStatus = {
     isValid: boolean;
     isResponded: boolean;
     isCustomResponded: boolean;
-    errorMessage?: LangData;
+    errorMessage?: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     groupedObjectId?: string;
     value: unknown;
     customValue?: unknown;
@@ -25,22 +25,24 @@ export type WidgetStatus = {
  evolve throughout the application, they represent state of the local interview
  more than interview attributes. This all should be moved to some class, with
  methods to follow the state of the current interview. */
-export type FrontendInterviewAttributes = {
-    previousWidgets?: { [widgetShortname: string]: WidgetStatus };
+export type FrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+    previousWidgets?: {
+        [widgetShortname: string]: WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    };
     previousGroups?: {
         [groupName: string]: {
             [groupId: string]: {
-                [widgetShortname: string]: WidgetStatus;
+                [widgetShortname: string]: WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
             };
         };
     };
     // These are widgets statuses for the current section, if they are not grouped
-    widgets: { [widgetShortname: string]: WidgetStatus };
+    widgets: { [widgetShortname: string]: WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> };
     // These are the widget status for the groups in the current section
     groups: {
         [groupName: string]: {
             [groupId: string]: {
-                [widgetShortname: string]: WidgetStatus;
+                [widgetShortname: string]: WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
             };
         };
     };
@@ -52,7 +54,8 @@ export type FrontendInterviewAttributes = {
 };
 
 export type UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
-    FrontendInterviewAttributes & UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    FrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> &
+        UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 
 export type SurveySectionGroup = {
     widgets: string[];

@@ -38,7 +38,7 @@ export interface InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHom
     shortname?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputMapFindPlaceType;
+    widgetConfig: InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 
 interface InputMapFindPlaceState {

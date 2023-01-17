@@ -22,7 +22,7 @@ export interface InputTextProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     user: FrontendUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputTextType;
+    widgetConfig: InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 
 export const InputText = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
