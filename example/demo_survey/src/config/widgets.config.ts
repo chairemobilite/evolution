@@ -14,6 +14,8 @@ export type SurveyHousehold = {
 
 export type SurveyPerson = {
     workOnTheRoad?: boolean;
+    nickname: string;
+    occupation: string;
 };
 
 export type SurveyHome = {

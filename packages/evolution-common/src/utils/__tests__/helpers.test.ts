@@ -22,6 +22,17 @@ const interviewAttributes: UserInterviewAttributes<any, any, any, any> = {
         },
         section2: {
             q1: 'test'
+        },
+        household: {
+            size: 1,
+            persons: {
+                personId1: {
+                    _uuid: 'personId1'
+                },
+                personId2: {
+                    _uuid: 'personId2'
+                }
+            }
         }
     },
     validations: {
@@ -68,7 +79,8 @@ each([
     ['test', 'string', 'test'],
     // TODO What about other data types? These are obviously not strings, see in the usage
     [[3, 4], 'string', [3, 4]],
-    [{ test: 3 }, 'string', { test: 3 }]
+    [{ test: 3 }, 'string', { test: 3 }],
+    ['', 'object', null]
 ]).test('parseValue: %s %s', (value, type, expected) => {
     expect(Helpers.parseValue(value, type)).toEqual(expected);
 });
@@ -153,4 +165,27 @@ each([
     [['1234 test street', null], '1234 test street'],
 ]).test('formatGeocodingQueryStringFromMultipleFields: %s', (fields, expected) => {
     expect(Helpers.formatGeocodingQueryStringFromMultipleFields(fields)).toEqual(expected);
+});
+
+each([
+    ['Has Household', interviewAttributes.responses, interviewAttributes.responses.household],
+    ['Empty responses', {}, {}]
+]).test('getHousehold: %s', (_title, responses, expected) => {
+    const interview = _cloneDeep(interviewAttributes);
+    interview.responses = responses;
+    expect(Helpers.getHousehold(interview)).toEqual(expected);
+});
+
+each([
+    ['Person 1', interviewAttributes.responses, 'personId1', interviewAttributes.responses.household.persons.personId1],
+    ['Person 2', interviewAttributes.responses, 'personId2', interviewAttributes.responses.household.persons.personId2],
+    ['Undefined active person', interviewAttributes.responses, undefined, interviewAttributes.responses.household.persons.personId1],
+    ['Empty persons', { household: { ...interviewAttributes.responses.household, persons: {} } }, 'personId1', {}],
+    ['Empty household', { household: {} }, undefined, {}],
+    ['Empty responses', {}, 'personId', {}]
+]).test('getCurrentPerson: %s', (_title, responses, currentPersonId, expected) => {
+    const interview = _cloneDeep(interviewAttributes);
+    interview.responses = responses;
+    interview.responses._activePersonId = currentPersonId;
+    expect(Helpers.getCurrentPerson(interview)).toEqual(expected);
 });

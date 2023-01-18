@@ -8,7 +8,7 @@ import _get from 'lodash.get';
 import _set from 'lodash.set';
 
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InterviewResponses, UserInterviewAttributes } from '../services/interviews/interview';
+import { Household, InterviewResponses, Person, UserInterviewAttributes } from '../services/interviews/interview';
 
 /**
  * Log a list of arguments only if in development mode
@@ -143,6 +143,42 @@ export const setResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
     } else {
         // TODO Keep the null value for return for legacy purposes, but it should return the object
         return null;
+    }
+};
+
+/**
+ * Get the household object in the interview responses, or an empty object if
+ * the household has not been initialized
+ *
+ * @param interview The interview object
+ * @returns The household object
+ */
+export const getHousehold = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+): Partial<Household<CustomHousehold, CustomPerson>> => {
+    return interview.responses.household || {};
+};
+
+/**
+ * Get the currently active person, as defined in the interview responses. If
+ * the active person is not set but there are persons defined, the first one
+ * will be returned. If the person is not found, an empty object will be
+ * returned.
+ *
+ * @param interview The interview object
+ * @returns The current person object
+ */
+export const getCurrentPerson = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+): Partial<Person<CustomPerson>> => {
+    const currentPerson = interview.responses._activePersonId;
+    const hh = getHousehold(interview);
+    if (currentPerson !== undefined) {
+        return hh !== null ? (hh.persons || {})[currentPerson] || {} : {};
+    } else {
+        // Get first person
+        const persons = Object.values(hh.persons || {});
+        return persons.length !== 0 ? persons[0] : {};
     }
 };
 

@@ -48,6 +48,21 @@ export type InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, Cust
     Required<InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
 >;
 
+export type BasePerson = {
+    _uuid: string;
+};
+
+export type Person<CustomPerson> = BasePerson & CustomPerson;
+
+export type Household<CustomHousehold, CustomPerson> = {
+    // TODO Are there any fields that will be common to ALL households?
+    size: number;
+    persons: {
+        // TODO Are there any fields valid for all persons?
+        [personId: string]: Person<CustomPerson>;
+    };
+} & CustomHousehold;
+
 /**
  * Type the common response fields for any survey
  *
@@ -55,16 +70,23 @@ export type InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, Cust
  * @interface InterviewResponses
  */
 export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+    // Volatile survey workflow fields:
+    _activePersonId?: string;
     _activeSection?: string;
+
+    // Participant/web interview data
     _browser?: { [key: string]: unknown };
     _ip?: string;
+    _startedAt?: number;
     _updatedAt?: number;
     _language?: string;
-    _startedAt?: number;
     _isCompleted?: boolean;
+
     // Array of user_id of users who edited this interview, excluding the user himself
     // FIXME Remove from here (see https://github.com/chairemobilite/transition-legacy/issues/1987)
     _editingUsers?: number[];
+    // FIXME Typed from the data, but why is there imbrication of the sections?
+    // Fix as we improve survey workflow
     _sections?: {
         [key: string]:
             | {
@@ -84,14 +106,9 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
             ts: number;
         }[];
     };
-    household?: {
-        // TODO Are there any fields that will be common to ALL households?
-        size: number;
-        persons: {
-            // TODO Are there any fields valid for all persons?
-            [personId: string]: CustomPerson;
-        };
-    } & CustomHousehold;
+
+    // Actual responses
+    household?: Household<CustomHousehold, CustomPerson>;
     home?: {
         region: string;
         country: string;

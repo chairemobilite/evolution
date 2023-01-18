@@ -172,7 +172,7 @@ export const householdCarNumber: SurveyWidgetConfig = {
     }
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const householdSize: any = surveyHelperNew.getResponse(interview, path, null, '../size');
+    const householdSize: any = surveyHelperNew.getHousehold(interview).size;
     return [
       {
         validation: (isNaN(Number(value)) || !Number.isInteger(Number(value))),
