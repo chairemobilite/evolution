@@ -23,7 +23,7 @@
     "format": "echo 'no formatting on this workspace'",
     "clean": "rimraf lib/",
     "cleanModules": "rimraf node_modules/",
-    "copy-files": "copyfiles -u 1 ./src/assets/survey/images/**/* src/styles/survey/*.scss ./lib/",
+    "copy-files": "copyfiles -u 1 ./src/assets/images/**/* src/styles/survey/*.scss ./lib/",
     "compile": "yarn babel src --out-dir=lib && yarn copy-files",
     "compile:dev": "yarn copy-files && yarn babel src --out-dir=lib --watch"
   },

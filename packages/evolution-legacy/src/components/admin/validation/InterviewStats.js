@@ -26,9 +26,9 @@ import { faMobileAlt }                from '@fortawesome/free-solid-svg-icons/fa
 import { faDollarSign }               from '@fortawesome/free-solid-svg-icons/faDollarSign';
 
 import appConfig        from 'evolution-frontend/lib/config/application.config';
-import emptySetSvg      from '../../../assets/survey/images/admin/empty-set-solid.svg';
-import wiredPhoneSvg    from '../../../assets/survey/images/admin/phone-with-wire.svg';
-import steeringWheelSvg from '../../../assets/survey/images/admin/steering-wheel-solid.svg'
+import emptySetSvg      from '../../../assets/images/admin/empty-set-solid.svg';
+import wiredPhoneSvg    from '../../../assets/images/admin/phone-with-wire.svg';
+import steeringWheelSvg from '../../../assets/images/admin/steering-wheel-solid.svg'
 import { _isBlank }     from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import surveyHelper     from '../../../helpers/survey/survey';
