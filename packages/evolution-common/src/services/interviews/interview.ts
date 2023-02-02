@@ -110,8 +110,8 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
     // Actual responses
     household?: Household<CustomHousehold, CustomPerson>;
     home?: {
-        region: string;
-        country: string;
+        region?: string;
+        country?: string;
     } & CustomHome;
 } & CustomSurvey;
 

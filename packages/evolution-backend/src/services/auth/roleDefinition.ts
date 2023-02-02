@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { UserAttributes } from 'chaire-lib-backend/lib/services/auth/user';
+import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { addRole, DEFAULT_ROLE_NAME } from 'chaire-lib-backend/lib/services/auth/userPermissions';
 import serverConfig from '../../config/projectConfig';
 

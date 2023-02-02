@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": ">=12.9.0"
+    "node": ">=16.0.0"
   },
   "name": "evolution-legacy",
   "version": "0.2.2",
@@ -57,14 +57,12 @@
     "@turf/turf": "^6.3.0",
     "@zeit/fetch-retry": "^5.0.0",
     "bcryptjs": "^2.4.3",
-    "bookshelf": "^1.2.0",
-    "bookshelf-json-columns": "^3.0.0",
     "bowser": "^2.10.0",
     "chaire-lib-backend": "0.2.2",
     "chaire-lib-common": "0.2.2",
     "chaire-lib-frontend": "0.2.2",
     "chalk": "^4.1.0",
-    "connect-session-knex": "^1.7.3",
+    "connect-session-knex": "^3.0.1",
     "evolution-backend": "0.2.2",
     "evolution-common": "0.2.2",
     "evolution-frontend": "0.2.2",
@@ -77,7 +75,7 @@
     "i18next-browser-languagedetector": "^5.0.0",
     "inquirer": "^7.3.2",
     "inquirer-file-tree-selection-prompt": "^1.0.6",
-    "knex": "^0.21.1",
+    "knex": "^2.4.2",
     "lodash": "^4.17.21",
     "lodash.camelcase": "^4.3.0",
     "lodash.clonedeep": "^4.5.0",

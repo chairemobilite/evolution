@@ -6,14 +6,10 @@
  */
 import { v4 as uuidV4 } from 'uuid';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
-import {
-    create,
-    truncate
-} from 'chaire-lib-backend/lib/models/db/default.db.queries';
+import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.queries';
 import { _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
-
-import dbQueries           from '../interviews.db.queries';
+import dbQueries from '../interviews.db.queries';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import moment from 'moment';
 
@@ -299,7 +295,7 @@ describe('Get interview by user id', () => {
 describe('Update Interview', () => {
 
     test('Update responses and validations', async () => {
-        const addAttributes = { responses: { foo: 'test' }, validations: { bar: true, other: 'data' }};
+        const addAttributes = { responses: { foo: 'test' }, validations: { accessCode: true, other: 'data' }};
         const newAttributes = {
             responses: Object.assign({}, localUserInterviewAttributes.responses, addAttributes.responses),
             validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations) };
@@ -307,13 +303,13 @@ describe('Update Interview', () => {
         expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
 
         // Re-read the interview
-        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes;
+        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes<any, any, any, any>;
         expect(updateInterview.responses).toEqual(newAttributes.responses);
         expect(updateInterview.validations).toEqual(newAttributes.validations);
     });
 
     test('Update unexisting interview', async () => {
-        const addAttributes = { responses: { foo: 'test' }, validations: { bar: true, other: 'data' }};
+        const addAttributes = { responses: { foo: 'test' }, validations: { accessCode: true, other: 'data' }};
         const newAttributes = {
             responses: Object.assign({}, localUserInterviewAttributes.responses, addAttributes.responses),
             validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations) };
@@ -323,7 +319,7 @@ describe('Update Interview', () => {
     });
 
     test('Update responses, validations and logs', async () => {
-        const addAttributes = { responses: { foo: 'test' }, validations: { bar: true, other: 'data' }};
+        const addAttributes = { responses: { foo: 'test' }, validations: { accessCode: true, other: 'data' }};
         const newAttributes = {
             responses: Object.assign({}, localUserInterviewAttributes.responses, addAttributes.responses),
             validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations),
@@ -333,7 +329,7 @@ describe('Update Interview', () => {
         expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
 
         // Re-read the interview
-        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes;
+        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes<any, any, any, any>;
         expect(updateInterview.responses).toEqual(newAttributes.responses);
         expect(updateInterview.validations).toEqual(newAttributes.validations);
         expect(updateInterview.logs).toEqual(newAttributes.logs);
@@ -471,7 +467,7 @@ describe(`list interviews`, () => {
         expect(countAccessCodeNotNull).toEqual(2);
         expect(filterAccessCodeNotNull.length).toEqual(2);
         for (let i = 0; i < 2; i++) {
-            expect(filterAccessCodeNotNull[i].responses.accessCode).toBeDefined();
+            expect((filterAccessCodeNotNull[i].responses as any).accessCode).toBeDefined();
         }
 
         // Query by access code not null
@@ -480,7 +476,7 @@ describe(`list interviews`, () => {
         expect(countAccessCodeNull).toEqual(3);
         expect(filterAccessCodeNull.length).toEqual(3);
         for (let i = 0; i < 2; i++) {
-            expect(filterAccessCodeNull[i].responses.accessCode).toBeUndefined();
+            expect((filterAccessCodeNull[i].responses as any).accessCode).toBeUndefined();
         }
 
         // Query by access code not null
@@ -488,14 +484,14 @@ describe(`list interviews`, () => {
             await dbQueries.getList({ filters: { 'responses.accessCode': { value: googleUserInterviewAttributes.responses.accessCode, op: 'eq' } }, pageIndex: 0, pageSize: -1 });
         expect(countAccessCodeGTE).toEqual(1);
         expect(filterAccessCodeGTE.length).toEqual(1);
-        expect(filterAccessCodeGTE[0].responses.accessCode).toEqual(googleUserInterviewAttributes.responses.accessCode);
+        expect((filterAccessCodeGTE[0].responses as any).accessCode).toEqual(googleUserInterviewAttributes.responses.accessCode);
 
         // Query by responses boolean
         const { interviews: filterResponsesBoolean, totalCount: countResponsesBoolean } =
             await dbQueries.getList({ filters: { 'responses.booleanField': { value: 'true' } }, pageIndex: 0, pageSize: -1 });
         expect(countResponsesBoolean).toEqual(1);
         expect(filterResponsesBoolean.length).toEqual(1);
-        expect(filterResponsesBoolean[0].responses.booleanField).toBeTruthy();
+        expect((filterResponsesBoolean[0].responses as any).booleanField).toBeTruthy();
 
         // Query by audit
         const { interviews: filterAudit, totalCount: countAudit } =
@@ -611,7 +607,7 @@ describe(`list interviews`, () => {
         });
         expect(totalCount2).toEqual(1);
         expect(page2.length).toEqual(1);
-        expect(page2[0].responses.accessCode).toEqual(googleUserInterviewAttributes.responses.accessCode);
+        expect((page2[0].responses as any).accessCode).toEqual(googleUserInterviewAttributes.responses.accessCode);
 
         // Inject bad where field, should throw an error
         await expect(dbQueries.getList({

@@ -9,7 +9,7 @@ import { subject } from '@casl/ability';
 import Interviews from '../interviews/interviews';
 import definePermissionsFor from 'chaire-lib-backend/lib/services/auth/userPermissions';
 import { InterviewSubject } from './roleDefinition';
-import { UserAttributes } from 'chaire-lib-backend/lib/services/auth/user';
+import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 
 export type permissionType = 'read' | 'update' | 'validate' | 'confirm' | 'delete' | 'create';
