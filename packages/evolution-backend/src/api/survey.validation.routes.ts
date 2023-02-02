@@ -14,7 +14,7 @@ import { updateInterview } from '../services/interviews/interview';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/authorization';
 import projectConfig from '../config/projectConfig';
 import { mapResponsesToValidatedData } from '../services/interviews/interviewUtils';
-import { UserAttributes } from 'chaire-lib-backend/lib/services/auth/user';
+import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 
 const router = express.Router();

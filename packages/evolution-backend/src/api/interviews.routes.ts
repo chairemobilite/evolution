@@ -46,7 +46,7 @@ router.post('/createNew', async (req, res) => {
             initialResponses['_editingUsers'] = [(req.user as any).id];
         }
         const user = await UserModel.createAndSave({ username: userName });
-        const interview = await Interviews.createInterviewForUser(user.id, initialResponses);
+        const interview = await Interviews.createInterviewForUser(user.attributes.id, initialResponses);
 
         return res.status(200).json({
             status: 'success',

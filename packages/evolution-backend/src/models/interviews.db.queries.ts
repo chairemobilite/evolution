@@ -167,7 +167,7 @@ const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     try {
         const returningArray = await knex(tableName).insert(stringifyJsonArray(newObject)).returning(returning);
         if (returningArray.length === 1) {
-            return typeof returning === 'string' ? { [returning]: returningArray[0] } : returningArray[0];
+            return returningArray[0];
         }
         throw 'Error creating interview, not the expected returned size';
     } catch (error) {
@@ -190,7 +190,7 @@ const update = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
             .where('uuid', uuid)
             .returning(returning);
         if (returningArray.length === 1) {
-            return typeof returning === 'string' ? { [returning]: returningArray[0] } : returningArray[0];
+            return returningArray[0];
         }
         throw 'Error updating interview, not the expected returned size';
     } catch (error) {

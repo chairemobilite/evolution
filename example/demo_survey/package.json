@@ -1,4 +1,7 @@
 {
+    "engines": {
+        "node": ">=16.0.0"
+    },
     "name": "demo_survey",
     "version": "1.0.0",
     "main": "index.js",
@@ -55,7 +58,6 @@
         "geojson-validation": "^1.0.2",
         "history": "^4.9.0",
         "json2csv": "^5.0.7",
-        "knex": "^0.21.19",
         "lodash.camelcase": "^4.3.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.get": "^4.4.2",

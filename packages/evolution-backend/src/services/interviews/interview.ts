@@ -7,7 +7,7 @@
 import _set from 'lodash.set';
 import _unset from 'lodash.unset';
 import moment from 'moment';
-import { UserAttributes } from 'chaire-lib-backend/lib/services/auth/user';
+import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import serverValidate, { ServerValidation } from '../validations/serverValidation';
 import serverUpdateField, { ServerFieldUpdateCallback } from './serverFieldUpdate';
 import config from 'chaire-lib-backend/lib/config/server.config';

@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const knex      = require('knex')(require('../../../knexfile'));
 const fs        = require('fs');
 const chalk     = require('chalk');
 const moment    = require('moment');
@@ -13,29 +12,18 @@ const crypto    = require('crypto');
 const _get      = require('lodash.get');
 const sample    = require('lodash.sample');
 const mailchimp = new Mailchimp(process.env.MAILCHIMP_API_KEY);
-const bookshelf = require('../../config/shared/bookshelf.config.js');
 const config    = require('chaire-lib-common/lib/config/shared/project.config');
+import Users from 'chaire-lib-backend/lib/services/users/users';
+import Interviews from 'evolution-backend/lib/services/interviews/interviews';
 
 const apiTask         = process.argv[2];
 const batchesDates    = config.batchesDates;
 const mailchimpListId = process.env.MAILCHIMP_LIST_ID;
 
 console.log(mailchimpListId);
-
-const Interview = bookshelf.Model.extend({
-  tableName: 'sv_interviews'
-});
-const User = bookshelf.Model.extend({
-  tableName: 'users',
-  interview: function() {
-    return this.hasOne(Interview);
-  }
-});
-const Users = bookshelf.Collection.extend({
-  model: User
-});
-const usersToUpdate = new Users;
-
+// TODO To enable this task, there would need to be a filter on user fields for the interviews in the interviews.getList
+// Another option, less clean, is direct access to the tables using knex.
+/*
 const updateParticipants = function() {
   // fetch sending dates:
   const dates = getBatchesDatesFromRange(batchesDates);
@@ -135,3 +123,4 @@ switch (apiTask) {
     updateParticipants();
     break;
 }
+*/

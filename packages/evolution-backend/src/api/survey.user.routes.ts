@@ -11,7 +11,7 @@
 import express, { Request, Response } from 'express';
 import moment from 'moment';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
-import { UserAttributes } from 'chaire-lib-backend/lib/services/auth/user';
+import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import Interviews from '../services/interviews/interviews';
 import { addRolesToInterview, updateInterview } from '../services/interviews/interview';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
