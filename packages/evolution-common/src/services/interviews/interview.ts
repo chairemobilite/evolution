@@ -63,6 +63,11 @@ export type Household<CustomHousehold, CustomPerson> = {
     };
 } & CustomHousehold;
 
+type SectionStatus = {
+    _isCompleted?: boolean;
+    _startedAt: number;
+};
+
 /**
  * Type the common response fields for any survey
  *
@@ -85,20 +90,10 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
     // Array of user_id of users who edited this interview, excluding the user himself
     // FIXME Remove from here (see https://github.com/chairemobilite/transition-legacy/issues/1987)
     _editingUsers?: number[];
-    // FIXME Typed from the data, but why is there imbrication of the sections?
-    // Fix as we improve survey workflow
     _sections?: {
-        [key: string]:
-            | {
-                  _isCompleted?: boolean;
-                  _startedAt: number;
-              }
-            | {
-                  [key: string]: {
-                      _isCompleted?: boolean;
-                      _startedAt: number;
-                  };
-              };
+        [sectionName: string]: SectionStatus & {
+            [subSection: string]: SectionStatus;
+        };
     } & {
         _actions: {
             section: string;
