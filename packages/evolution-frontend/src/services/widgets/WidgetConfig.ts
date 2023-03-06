@@ -258,6 +258,7 @@ type InputMapType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     containsHtml?: boolean;
     maxZoom?: number;
     defaultZoom?: number;
+    canBeCollapsed?: boolean;
 };
 
 export type InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = InputMapType<
