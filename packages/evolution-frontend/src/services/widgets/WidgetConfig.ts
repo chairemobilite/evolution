@@ -320,17 +320,45 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
           type: 'text';
           align: 'center';
           text: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+          conditional?: ParsingFunction<
+              boolean | [boolean] | [boolean, unknown],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
       }
     | {
           type: 'group';
           path: string;
+          conditional?: ParsingFunction<
+              boolean | [boolean] | [boolean, unknown],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
           // TODO Further type this
       }
     | {
           type: 'button';
+          conditional?: ParsingFunction<
+              boolean | [boolean] | [boolean, unknown],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
           // TODO Further type this
       }
     | {
           type: 'infoMap';
+          conditional?: ParsingFunction<
+              boolean | [boolean] | [boolean, unknown],
+              CustomSurvey,
+              CustomHousehold,
+              CustomHome,
+              CustomPerson
+          >;
           // TODO Further type this
       };
