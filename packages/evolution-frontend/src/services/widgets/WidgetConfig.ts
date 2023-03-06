@@ -344,6 +344,21 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
       }
     | {
           type: 'button';
+          // FIXME What is this path used for? Document and/or type further
+          path: string;
+          color?: string;
+          label: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+          hideWhenRefreshing?: boolean;
+          icon?: IconProp;
+          iconPath?: string;
+          align?: 'center' | 'left' | 'right';
+          // FIXME: Type the section and sections parameters
+          action: (section: any, sections: any[], saveCallback?: () => void) => void;
+          // FIXME: Type the saveCallback. There is a `this` bound to the function, with props.interview. See if we can pass the interview as parameter instead, and/or anything else.
+          saveCallback?: () => void;
+          // FIXME Type the confirm popup
+          confirmPopup?: any;
+          size?: 'small' | 'medium' | 'large';
           conditional?: ParsingFunction<
               boolean | [boolean] | [boolean, unknown],
               CustomSurvey,
@@ -351,7 +366,6 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
               CustomHome,
               CustomPerson
           >;
-          // TODO Further type this
       }
     | {
           type: 'infoMap';
