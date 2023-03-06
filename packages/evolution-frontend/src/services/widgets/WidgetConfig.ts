@@ -44,6 +44,7 @@ export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPer
     defaultValue?: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     maxLength?: number;
     datatype?: 'string' | 'integer' | 'float';
+    size?: 'large' | 'small' | 'medium';
 };
 
 export type InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
