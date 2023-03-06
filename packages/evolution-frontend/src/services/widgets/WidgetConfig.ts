@@ -320,8 +320,10 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
       ))
     | {
           type: 'text';
-          align: 'center';
+          align?: 'center' | 'left' | 'right';
+          containsHtml?: boolean;
           text: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+          classes?: string;
           conditional?: ParsingFunction<
               boolean | [boolean] | [boolean, unknown],
               CustomSurvey,
