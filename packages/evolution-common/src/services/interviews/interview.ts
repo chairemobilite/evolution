@@ -8,6 +8,7 @@ import _get from 'lodash.get';
 import _set from 'lodash.set';
 import _isEqual from 'lodash.isequal';
 import _cloneDeep from 'lodash.clonedeep';
+import { SingleGeometry, SingleGeoFeature } from 'chaire-lib-common/lib/services/geodata/GeoJSONUtils';
 
 type Required<T> = { [P in keyof T]-?: T[P] };
 // This recursive generic type is taken from this stack overflow question:
@@ -48,15 +49,47 @@ export type InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, Cust
     Required<InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
 >;
 
-export type BasePerson = {
-    _uuid: string;
+export type ChoiceDontKnow = 'dontKnow';
+export type ChoiceNonApplicable = 'nonApplicable';
+export type ChoiceYes = 'yes';
+export type ChoiceNo = 'no';
+
+export type ChoicesYesNoDontKnow = ChoiceYes | ChoiceNo | ChoiceDontKnow;
+export type ChoicesYesNoDontKnowNonApplicable = ChoiceYes | ChoiceNo | ChoiceDontKnow | ChoiceNonApplicable;
+export type ChoicesYesNoNonApplicable = ChoiceYes | ChoiceNo | ChoiceNonApplicable;
+
+export type Metadata = {
+    [metadataAttribute: string]: ResponseValue;
 };
 
-export type Person<CustomPerson> = BasePerson & CustomPerson;
+export type ResponseObject = {
+    _uuid: string;
+    metadata: Metadata;
+};
 
-export type Household<CustomHousehold, CustomPerson> = {
+export type ResponseValue =
+    | number
+    | string
+    | boolean
+    | number[]
+    | string[]
+    | boolean[]
+    | SingleGeoFeature
+    | GeoJSON.FeatureCollection<SingleGeometry>
+    | { [attribute: string]: ResponseObject };
+
+export type Person<CustomPerson> = ResponseObject & {
+    age?: number;
+    nickname?: string;
+    driversLicenseOwner?: ChoicesYesNoDontKnowNonApplicable;
+    transitPassOwner?: ChoicesYesNoDontKnowNonApplicable;
+} & CustomPerson;
+
+export type Household<CustomHousehold, CustomPerson> = ResponseObject & {
     // TODO Are there any fields that will be common to ALL households?
     size: number;
+    carNumber?: number;
+    twoWheelNumber?: number;
     persons: {
         // TODO Are there any fields valid for all persons?
         [personId: string]: Person<CustomPerson>;
@@ -64,8 +97,10 @@ export type Household<CustomHousehold, CustomPerson> = {
 } & CustomHousehold;
 
 type SectionStatus = {
+    _isStarted?: boolean;
     _isCompleted?: boolean;
     _startedAt: number;
+    _completedAt?: number;
 };
 
 /**
@@ -76,7 +111,7 @@ type SectionStatus = {
  */
 export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     // Volatile survey workflow fields:
-    _activePersonId?: string;
+    _activePersonId?: string; // TODO: move these to metadata (one metadata dictionary by object: interview, household, place, person...) Only the interview metadata could countain nested metadat (for the sections dictionary)
     _activeSection?: string;
 
     // Participant/web interview data
@@ -105,8 +140,15 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
     // Actual responses
     household?: Household<CustomHousehold, CustomPerson>;
     home?: {
+        civicNumber?: string;
+        unit?: string;
+        streetName?: string;
+        address?: string;
+        city?: string;
         region?: string;
         country?: string;
+        postalCode?: string;
+        geography?: SingleGeoFeature;
     } & CustomHome;
 } & CustomSurvey;
 
