@@ -30,7 +30,7 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import InputMultiSelect from 'evolution-frontend/lib/components/inputs/InputMultiselect';
 import googleConfig from 'evolution-frontend/lib/config/googleMaps.config';
-import * as surveyHelper from 'evolution-frontend/lib/utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import InputLoading from 'evolution-frontend/lib/components/inputs/InputLoading';
 
 const photonOsmSearchApiUrl = process.env.PHOTON_OSM_SEARCH_API_URL;

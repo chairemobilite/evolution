@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ConfirmModal         from './modal/ConfirmModal';
-import * as surveyHelper    from 'evolution-frontend/lib/utils/helpers';
+import * as surveyHelper    from 'evolution-common/lib/utils/helpers';
 import InputLoading         from 'evolution-frontend/lib/components/inputs/InputLoading';
 
 export class Button extends React.Component {

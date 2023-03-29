@@ -7,10 +7,10 @@
 import React from 'react';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { ChoiceType, InputButtonType } from '../../services/widgets';
-import * as surveyHelper from '../../utils/helpers';
+import { ChoiceType, InputButtonType } from 'evolution-common/lib/services/widgets';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -21,7 +21,7 @@ export interface InputButtonProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
-    user: FrontendUser;
+    user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
     widgetConfig: InputButtonType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
@@ -35,7 +35,7 @@ export interface InputButtonOptionProps<CustomSurvey, CustomHousehold, CustomHom
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
-    user: FrontendUser;
+    user: CliUser;
     onButtonClick: (e: React.MouseEvent, value: string) => void;
 }
 

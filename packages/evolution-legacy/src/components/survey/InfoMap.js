@@ -12,7 +12,7 @@ import Markdown                                             from 'react-markdown
 import _get                                                 from 'lodash.get';
 
 import googleConfig from 'evolution-frontend/lib/config/googleMaps.config';
-import * as surveyHelper from 'evolution-frontend/lib/utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import InputLoading from 'evolution-frontend/lib/components/inputs/InputLoading';
 
 export class InfoMap extends React.Component {

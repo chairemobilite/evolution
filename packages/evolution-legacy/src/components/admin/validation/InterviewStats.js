@@ -33,7 +33,7 @@ import { _isBlank }     from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import surveyHelper     from '../../../helpers/survey/survey';
 import demoSurveyHelper from '../../../helpers/survey/helper';
-import * as surveyHelperNew from 'evolution-frontend/lib/utils/helpers';
+import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationErrors from './ValidationErrors';
 

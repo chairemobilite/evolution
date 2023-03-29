@@ -12,7 +12,7 @@ import _get                from 'lodash.get';
 import sortBy              from 'lodash.sortby';
 import _cloneDeep          from 'lodash.clonedeep';
 
-import * as surveyHelper from 'evolution-frontend/lib/utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import GroupedObject from './GroupedObject';
 import { checkConditional } from 'evolution-frontend/lib/actions/utils/Conditional';

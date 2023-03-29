@@ -20,6 +20,7 @@
     "format": "prettier-eslint $PWD/'src/**/*.{ts,tsx}' --write"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "chaire-lib-common": "^0.2.2",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",

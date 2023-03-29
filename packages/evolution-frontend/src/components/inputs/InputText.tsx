@@ -7,10 +7,10 @@
 import React from 'react';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputTextType } from '../../services/widgets';
-import { parseString } from '../../utils/helpers';
+import { InputTextType } from 'evolution-common/lib/services/widgets';
+import { parseString } from 'evolution-common/lib/utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 export interface InputTextProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
@@ -19,7 +19,7 @@ export interface InputTextProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
-    user: FrontendUser;
+    user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
     widgetConfig: InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;

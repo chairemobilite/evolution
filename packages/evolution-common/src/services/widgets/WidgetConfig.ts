@@ -7,13 +7,9 @@
 // TODO As code migrates to typescript, those types will evolve
 
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import {
-    UserInterviewAttributes,
-    InterviewResponsePath,
-    InterviewResponses
-} from 'evolution-common/lib/services/interviews/interview';
+import { UserInterviewAttributes, InterviewResponsePath, InterviewResponses } from '../interviews/interview';
 import { ParsingFunction } from '../../utils/helpers';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 /**
  * Validation function, which validates the value with potentially multiple
@@ -32,7 +28,7 @@ export type ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, Custom
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string,
-    user?: FrontendUser
+    user?: CliUser
 ) => { validation: boolean; errorMessage: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> }[];
 
 export type LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {

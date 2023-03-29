@@ -18,7 +18,7 @@ type CustomHousehold = {
 
 // Simply make sure various objects are recognize as WidgetConfig object. Any fault should result in compilation error.
 test('Test text assignation', () => {
-    let widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown> = {
+    const widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown> = {
         type: 'text',
         align: 'center',
         text: {
@@ -41,20 +41,20 @@ test('Test input string assignation', () => {
         defaultValue: 'test',
         containsHtml: true,
         label: {
-            fr: `Texte en français`,
-            en: `English text`
+            fr: 'Texte en français',
+            en: 'English text'
         }
-    }
+    };
 
     widgetConfig = {
         type: 'question',
         path: 'test.foo',
         inputType: 'string',
         label: {
-            fr: `Texte en français`,
-            en: `English text`
+            fr: 'Texte en français',
+            en: 'English text'
         }
-    }
+    };
 
     expect(widgetConfig).toBeDefined();
 });
@@ -72,10 +72,10 @@ test('Test input text assignation', () => {
         defaultValue: 'test',
         containsHtml: true,
         label: {
-            fr: `Texte en français`,
-            en: `English text`
+            fr: 'Texte en français',
+            en: 'English text'
         }
-    }
+    };
 
     widgetConfig = {
         type: 'question',
@@ -83,10 +83,10 @@ test('Test input text assignation', () => {
         inputType: 'text',
         datatype: 'text',
         label: {
-            fr: `Texte en français`,
-            en: `English text`
+            fr: 'Texte en français',
+            en: 'English text'
         }
-    }
+    };
 
     expect(widgetConfig).toBeDefined();
 });

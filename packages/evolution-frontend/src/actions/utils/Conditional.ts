@@ -1,10 +1,10 @@
 import _cloneDeep from 'lodash.clonedeep';
 
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
-import { GroupedChoiceType, ChoiceType, isGroupedChoice } from '../../services/widgets/WidgetConfig';
-import { ParsingFunction } from '../../utils/helpers';
-import * as surveyHelper from '../../utils/helpers';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { GroupedChoiceType, ChoiceType, isGroupedChoice } from 'evolution-common/lib/services/widgets/WidgetConfig';
+import { ParsingFunction } from 'evolution-common/lib/utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 // FIXME: This type is very close to the ParsingFunction type in the frontendHelpers, but it has also a customPath. Is it required? Ideally, we could use the ParsingFunction type
@@ -12,7 +12,7 @@ export type ConditionalFunction<CustomSurvey, CustomHousehold, CustomHome, Custo
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string,
-    user?: FrontendUser
+    user?: CliUser
 ) => boolean | [boolean] | [boolean, unknown] | [boolean, unknown, unknown];
 
 /**
@@ -36,7 +36,7 @@ export const checkConditional = <CustomSurvey, CustomHousehold, CustomHome, Cust
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string,
-    user?: FrontendUser
+    user?: CliUser
 ): [boolean, unknown, unknown] => {
     if (conditional === undefined) {
         return [true, undefined, undefined];
@@ -101,7 +101,7 @@ export const checkChoiceConditional = <CustomSurvey, CustomHousehold, CustomHome
           >,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
-    user?: FrontendUser
+    user?: CliUser
 ): [boolean, unknown] => {
     if (conditional === undefined) {
         return [true, undefined];
@@ -161,7 +161,7 @@ export const checkChoicesConditional = <CustomSurvey, CustomHousehold, CustomHom
           >,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
-    user?: FrontendUser
+    user?: CliUser
 ): [boolean, unknown] => {
     if (_isBlank(value)) {
         return [true, undefined];

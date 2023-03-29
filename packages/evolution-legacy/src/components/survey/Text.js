@@ -9,7 +9,7 @@ import { withTranslation } from 'react-i18next';
 import Markdown            from 'react-markdown';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import * as surveyHelper from 'evolution-frontend/lib/utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 
 export const Text = ({widgetConfig, widgetStatus, i18n, interview, path, user}) => {
 

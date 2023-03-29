@@ -1,5 +1,5 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { ValidationFunction, LangData } from '../../services/widgets';
+import { ValidationFunction, LangData } from 'evolution-common/lib/services/widgets';
 
 /**
  * Check the validations for a specific value
