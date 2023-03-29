@@ -12,10 +12,10 @@ import defaultClassNames from 'react-input-range/src/js/input-range/default-clas
 import 'react-input-range/lib/css/index.css';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputRangeType } from '../../services/widgets';
-import * as surveyHelper from '../../utils/helpers';
+import { InputRangeType } from 'evolution-common/lib/services/widgets';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 export interface InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
@@ -27,7 +27,7 @@ export interface InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, Cust
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
-    user: FrontendUser;
+    user: CliUser;
 }
 
 export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(

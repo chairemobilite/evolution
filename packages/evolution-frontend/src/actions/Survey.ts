@@ -23,7 +23,7 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { prepareWidgets } from './utils';
 import { UserFrontendInterviewAttributes } from '../services/interviews/interview';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 // called whenever an update occurs in interview responses or when section is switched to
 export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
@@ -32,7 +32,7 @@ export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomP
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
-    user?: FrontendUser
+    user?: CliUser
 ): [
     UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     { [path: string]: unknown }

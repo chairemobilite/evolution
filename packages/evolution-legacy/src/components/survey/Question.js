@@ -14,7 +14,7 @@ import { faMinusSquare }    from '@fortawesome/free-solid-svg-icons/faMinusSquar
 import { faMap }            from '@fortawesome/free-solid-svg-icons/faMap';
 import isEqual              from 'lodash.isequal';
 
-import * as surveyHelper    from 'evolution-frontend/lib/utils/helpers';
+import * as surveyHelper    from 'evolution-common/lib/utils/helpers';
 import InputLoading         from 'evolution-frontend/lib/components/inputs/InputLoading';
 import InputString          from 'evolution-frontend/lib/components/inputs/InputString';
 import InputMapPoint        from 'evolution-frontend/lib/components/inputs/InputMapPoint';

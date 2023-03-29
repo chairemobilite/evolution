@@ -4,13 +4,13 @@ import isEqual from 'lodash.isequal';
 import _cloneDeep from 'lodash.clonedeep';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import * as surveyHelper from '../../utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import applicationConfiguration from '../../config/application.config';
 import { checkConditional, checkChoicesConditional } from './Conditional';
 import { checkValidations } from './Validation';
 import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
 import { SurveySectionGroup } from '../../services/interviews/interview';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 // Data for the survey, with values to update
 type CurrentPreparationData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
@@ -20,7 +20,7 @@ type CurrentPreparationData<CustomSurvey, CustomHousehold, CustomHome, CustomPer
     foundOneOpenedModal: boolean;
     needToUpdate: boolean;
     updateKey: boolean;
-    user?: FrontendUser;
+    user?: CliUser;
 };
 
 // Data for a specific widget
@@ -353,7 +353,7 @@ export const prepareWidgets = function <CustomSurvey, CustomHousehold, CustomHom
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
-    user?: FrontendUser
+    user?: CliUser
 ): [
     UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     { [path: string]: unknown },

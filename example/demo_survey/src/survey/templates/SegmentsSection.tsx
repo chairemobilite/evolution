@@ -27,7 +27,7 @@ import Button          from 'evolution-legacy/lib/components/survey/Button';
 import Question        from 'evolution-legacy/lib/components/survey/Question';
 import Group           from 'evolution-legacy/lib/components/survey/Group';
 import GroupedObject   from 'evolution-legacy/lib/components/survey/GroupedObject';
-import * as surveyHelper from 'evolution-frontend/lib/utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
 import helper          from '../helper';
 

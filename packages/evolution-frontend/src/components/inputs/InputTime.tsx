@@ -7,11 +7,11 @@
 import React from 'react';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputTimeType } from '../../services/widgets';
-import * as surveyHelper from '../../utils/helpers';
+import { InputTimeType } from 'evolution-common/lib/services/widgets';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
 export interface InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
@@ -21,7 +21,7 @@ export interface InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
-    user: FrontendUser;
+    user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
     widgetConfig: InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;

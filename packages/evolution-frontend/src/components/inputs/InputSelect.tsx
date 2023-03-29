@@ -8,10 +8,10 @@ import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputSelectType, isGroupedChoice, ChoiceType } from '../../services/widgets';
+import { InputSelectType, isGroupedChoice, ChoiceType } from 'evolution-common/lib/services/widgets';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import * as surveyHelper from '../../utils/helpers';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 export interface InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
@@ -20,7 +20,7 @@ export interface InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
-    user: FrontendUser;
+    user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
     widgetConfig: InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
@@ -31,7 +31,7 @@ export interface InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHom
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
-    user: FrontendUser;
+    user: CliUser;
 }
 
 const InputSelectOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(

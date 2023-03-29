@@ -1,5 +1,5 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { WidgetConfig, LangData } from '../widgets';
+import { WidgetConfig, LangData } from 'evolution-common/lib/services/widgets';
 
 export type WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     path: string;

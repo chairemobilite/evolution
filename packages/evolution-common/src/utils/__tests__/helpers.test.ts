@@ -10,7 +10,55 @@ import { UserInterviewAttributes } from '../../services/interviews/interview';
 
 import * as Helpers from '../helpers';
 
-const interviewAttributes: UserInterviewAttributes<any, any, any, any> = {
+type CustomSurvey = {
+    section1?: {
+        q1?: string;
+        q2?: number;
+    };
+    section2?: {
+        q1?: string;
+    }
+}
+
+const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+    id: 1,
+    uuid: 'arbitrary uuid',
+    user_id: 1,
+    is_completed: false,
+    responses: {
+        section1: {
+            q1: 'abc',
+            q2: 3
+        },
+        section2: {
+            q1: 'test'
+        }
+    },
+    validations: {
+        section1: {
+            q1: true,
+            q2: false
+        },
+        section2: {
+            q1: true
+        }
+    },
+    is_valid: true
+};
+
+const userAttributes = {
+    id: 1,
+    username: 'foo',
+    preferences: {  },
+    serializedPermissions: [],
+    isAuthorized: () => true,
+    is_admin: false,
+    pages: [],
+    showUserInfo: true
+};
+
+
+const interviewAttributes2: UserInterviewAttributes<any, any, any, any> = {
     id: 1,
     uuid: 'arbitrary uuid',
     user_id: 1,
@@ -45,7 +93,7 @@ const interviewAttributes: UserInterviewAttributes<any, any, any, any> = {
         }
     },
     is_valid: true
-}
+};
 
 test('devLog', () => {
     // Not really a test, just make sure it does not throw
@@ -108,14 +156,14 @@ test('getPath without relative path', () => {
 });
 
 each([
-    ['section1.q1', 'def', undefined, (interviewAttributes.responses.section1 as any).q1],
+    ['section1.q1', 'def', undefined, (interviewAttributes2.responses.section1 as any).q1],
     ['section1.q3', 'def', undefined, 'def'],
     ['section1.q3', undefined, undefined, undefined],
-    ['section1.q1', 'def', '../../section2.q1', (interviewAttributes.responses.section2 as any).q1],
+    ['section1.q1', 'def', '../../section2.q1', (interviewAttributes2.responses.section2 as any).q1],
     ['section1.q1', 'def', 'section2.q1', null],
-    ['section1', 'def', undefined, (interviewAttributes.responses.section1 as any)],
+    ['section1', 'def', undefined, (interviewAttributes2.responses.section1 as any)],
 ]).test('getResponse: %s %s %s', (path, defaultValue, relativePath, expected) => {
-    expect(Helpers.getResponse(interviewAttributes, path, defaultValue, relativePath)).toEqual(expected);
+    expect(Helpers.getResponse(interviewAttributes2, path, defaultValue, relativePath)).toEqual(expected);
 });
 
 each([
@@ -125,7 +173,7 @@ each([
     ['section1.q1.sq1', 'def', undefined, 'section1.q1.sq1'],
     ['section1.q1', 'def', 'section2.q1', 'section1.q1', 'abc']
 ]).test('setResponse: %s %s %s', (path, value, relativePath, finalPath, expected = undefined) => {
-    const attributes = _cloneDeep(interviewAttributes);
+    const attributes = _cloneDeep(interviewAttributes2);
     Helpers.setResponse(attributes, path, value, relativePath);
     expect(Helpers.getResponse(attributes, finalPath)).toEqual(expected === undefined ? value : expected);
 });
@@ -141,7 +189,7 @@ each([
     ['section1', false, null],
     ['section1.q2', undefined, false],
 ]).test('getValidation: %s %s %s', (path, defaultValue, expected) => {
-    expect(Helpers.getValidation(interviewAttributes, path, defaultValue)).toEqual(expected);
+    expect(Helpers.getValidation(interviewAttributes2, path, defaultValue)).toEqual(expected);
 });
 
 each([
@@ -151,7 +199,7 @@ each([
     ['section1.q1.sq1.other', false, undefined, 'section1.q1.sq1.other'],
     ['section1.q1', false, 'section2.q1', 'section1.q1', true]
 ]).test('setValidation: %s %s %s', (path, value, relativePath, finalPath, expected = undefined) => {
-    const attributes = _cloneDeep(interviewAttributes);
+    const attributes = _cloneDeep(interviewAttributes2);
     Helpers.setValidation(attributes, path, value, relativePath);
     expect(Helpers.getValidation(attributes, finalPath)).toEqual(expected === undefined ? value : expected);
 });
@@ -168,7 +216,7 @@ each([
 });
 
 each([
-    ['Has Household', interviewAttributes.responses, interviewAttributes.responses.household],
+    ['Has Household', interviewAttributes2.responses, interviewAttributes2.responses.household],
     ['Empty responses', {}, {}]
 ]).test('getHousehold: %s', (_title, responses, expected) => {
     const interview = _cloneDeep(interviewAttributes);
@@ -177,15 +225,123 @@ each([
 });
 
 each([
-    ['Person 1', interviewAttributes.responses, 'personId1', interviewAttributes.responses.household.persons.personId1],
-    ['Person 2', interviewAttributes.responses, 'personId2', interviewAttributes.responses.household.persons.personId2],
-    ['Undefined active person', interviewAttributes.responses, undefined, interviewAttributes.responses.household.persons.personId1],
-    ['Empty persons', { household: { ...interviewAttributes.responses.household, persons: {} } }, 'personId1', {}],
+    ['Person 1', interviewAttributes2.responses, 'personId1', interviewAttributes2.responses.household.persons.personId1],
+    ['Person 2', interviewAttributes2.responses, 'personId2', interviewAttributes2.responses.household.persons.personId2],
+    ['Undefined active person', interviewAttributes2.responses, undefined, interviewAttributes2.responses.household.persons.personId1],
+    ['Empty persons', { household: { ...interviewAttributes2.responses.household, persons: {} } }, 'personId1', {}],
     ['Empty household', { household: {} }, undefined, {}],
     ['Empty responses', {}, 'personId', {}]
 ]).test('getCurrentPerson: %s', (_title, responses, currentPersonId, expected) => {
-    const interview = _cloneDeep(interviewAttributes);
+    const interview = _cloneDeep(interviewAttributes2);
     interview.responses = responses;
     interview.responses._activePersonId = currentPersonId;
     expect(Helpers.getCurrentPerson(interview)).toEqual(expected);
+});
+
+
+test('parseString', () => {
+    // Default string value
+    expect(Helpers.parseString('test', interviewAttributes, 'some.path')).toEqual('test');
+    // Undefined
+    expect(Helpers.parseString(undefined, interviewAttributes, 'some.path')).toEqual(undefined);
+
+    const parseFct = jest.fn().mockReturnValue('test');
+    // With function, without user
+    expect(Helpers.parseString(parseFct, interviewAttributes, 'some.path')).toEqual('test');
+    expect(parseFct).toHaveBeenCalledTimes(1);
+    expect(parseFct).toHaveBeenCalledWith(interviewAttributes, 'some.path', undefined);
+    // With function and user
+    expect(Helpers.parseString(parseFct, interviewAttributes, 'some.path', userAttributes )).toEqual('test');
+    expect(parseFct).toHaveBeenCalledTimes(2);
+    expect(parseFct).toHaveBeenCalledWith(interviewAttributes, 'some.path', userAttributes);
+});
+
+test('parseBoolean', () => {
+    // boolean value
+    expect(Helpers.parseBoolean(false, interviewAttributes, 'some.path')).toEqual(false);
+    // Undefined or null, with or without default value
+    expect(Helpers.parseBoolean(undefined, interviewAttributes, 'some.path')).toEqual(true);
+    expect(Helpers.parseBoolean(null, interviewAttributes, 'some.path')).toEqual(true);
+    expect(Helpers.parseBoolean(undefined, interviewAttributes, 'some.path', undefined, false)).toEqual(false);
+
+    const parseFct = jest.fn().mockReturnValue(true);
+    // With function, without user
+    expect(Helpers.parseBoolean(parseFct, interviewAttributes, 'some.path')).toEqual(true);
+    expect(parseFct).toHaveBeenCalledTimes(1);
+    expect(parseFct).toHaveBeenCalledWith(interviewAttributes, 'some.path', undefined);
+    // With function and user
+    expect(Helpers.parseBoolean(parseFct, interviewAttributes, 'some.path', userAttributes)).toEqual(true);
+    expect(parseFct).toHaveBeenCalledTimes(2);
+    expect(parseFct).toHaveBeenLastCalledWith(interviewAttributes, 'some.path', userAttributes);
+    // With array return value
+    parseFct.mockReturnValueOnce([false, 'a']);
+    expect(Helpers.parseBoolean(parseFct, interviewAttributes, 'some.path', userAttributes)).toEqual(false);
+    expect(parseFct).toHaveBeenCalledTimes(3);
+    expect(parseFct).toHaveBeenLastCalledWith(interviewAttributes, 'some.path', userAttributes);
+});
+
+test('parse', () => {
+    const returnValue = { foo: 'bar' };
+
+    // Default values of different types
+    expect(Helpers.parse('test', interviewAttributes, 'some.path')).toEqual('test');
+    expect(Helpers.parse(4, interviewAttributes, 'some.path')).toEqual(4);
+    expect(Helpers.parse(returnValue, interviewAttributes, 'some.path')).toEqual(returnValue);
+    // Undefined
+    expect(Helpers.parse(undefined, interviewAttributes, 'some.path')).toEqual(undefined);
+
+    const parseFct = jest.fn().mockReturnValue(returnValue);
+    // With function, without user
+    expect(Helpers.parse(parseFct, interviewAttributes, 'some.path')).toEqual(returnValue);
+    expect(parseFct).toHaveBeenCalledTimes(1);
+    expect(parseFct).toHaveBeenCalledWith(interviewAttributes, 'some.path', undefined);
+    // With function and user
+    expect(Helpers.parse(parseFct, interviewAttributes, 'some.path', userAttributes )).toEqual(returnValue);
+    expect(parseFct).toHaveBeenCalledTimes(2);
+    expect(parseFct).toHaveBeenCalledWith(interviewAttributes, 'some.path', userAttributes);
+});
+
+test('parseInteger', () => {
+    // integer value
+    expect(Helpers.parseInteger(3, interviewAttributes, 'some.path')).toEqual(3);
+    // Undefined
+    expect(Helpers.parseInteger(undefined, interviewAttributes, 'some.path')).toEqual(undefined);
+
+    // parse function returns number
+    const returnValue = 4;
+    const parseFct = jest.fn().mockReturnValue(returnValue);
+    // With function, without user
+    expect(Helpers.parseInteger(parseFct, interviewAttributes, 'some.path')).toEqual(returnValue);
+    expect(parseFct).toHaveBeenCalledTimes(1);
+    expect(parseFct).toHaveBeenCalledWith(interviewAttributes, 'some.path', undefined);
+    // With function and user
+    expect(Helpers.parseInteger(parseFct, interviewAttributes, 'some.path', userAttributes)).toEqual(returnValue);
+    expect(parseFct).toHaveBeenCalledTimes(2);
+    expect(parseFct).toHaveBeenLastCalledWith(interviewAttributes, 'some.path', userAttributes);
+
+    // parse function returns string
+    const returnValueStr = '4';
+    const parseFctStr = jest.fn().mockReturnValue(returnValueStr);
+    // With function, without user
+    expect(Helpers.parseInteger(parseFctStr, interviewAttributes, 'some.path')).toEqual(returnValue);
+    expect(parseFctStr).toHaveBeenCalledTimes(1);
+    expect(parseFctStr).toHaveBeenCalledWith(interviewAttributes, 'some.path', undefined);
+    // With function and user
+    expect(Helpers.parseInteger(parseFctStr, interviewAttributes, 'some.path', userAttributes)).toEqual(returnValue);
+    expect(parseFctStr).toHaveBeenCalledTimes(2);
+    expect(parseFctStr).toHaveBeenLastCalledWith(interviewAttributes, 'some.path', userAttributes);
+});
+
+each([
+    ['simple path', 'home.address', 'home.address'],
+    ['single replacement for the whole string', '{section1.q1}', 'abc'],
+    ['single replacement at the beginning', '{section1.q1}.something', 'abc.something'],
+    ['single replacement at the end', 'something.{section1.q1}', 'something.abc'],
+    ['single replacement in the middle', 'something.{section1.q2}.other', 'something.3.other'],
+    ['replacement by an object response', 'something.{section1}.other', 'something.unknown.other'],
+    ['many replacements with no dot after second', 'something.{section1.q1}.{section2.q1}other', 'something.abc.testother'],
+    ['undefined replaced value', 'something.{section3.q1}.other', 'something.unknown.other'],
+    ['bot defined and undefined replaced values', 'something.{section1.q1}.{section3.q1}.other', 'something.abc.unknown.other'],
+]).test('interpolatePath, %s', (_title, path, expectedPath) => {
+    expect(Helpers.interpolatePath(interviewAttributes, path)).toEqual(expectedPath);
 });

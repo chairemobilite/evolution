@@ -13,10 +13,10 @@ import enCA from 'date-fns/locale/en-CA';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputDatePickerType } from '../../services/widgets';
-import * as surveyHelper from '../../utils/helpers';
+import { InputDatePickerType } from 'evolution-common/lib/services/widgets';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { FrontendUser } from 'chaire-lib-frontend/lib/services/auth/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 export interface InputDatePickerProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: string;
@@ -28,7 +28,7 @@ export interface InputDatePickerProps<CustomSurvey, CustomHousehold, CustomHome,
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
-    user: FrontendUser;
+    user: CliUser;
 }
 
 export const InputDatePicker = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(

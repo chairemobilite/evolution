@@ -10,7 +10,7 @@ import _set from 'lodash.set';
 import sortBy from 'lodash.sortby';
 
 import sharedHelper from '../shared/shared';
-import * as Helpers from 'evolution-frontend/lib/utils/helpers';
+import * as Helpers from 'evolution-common/lib/utils/helpers';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as DateTimeUtils from 'chaire-lib-common/lib/utils/DateTimeUtils';
 
