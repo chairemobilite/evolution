@@ -15,7 +15,7 @@ import { InputRadioType, RadioChoiceType } from 'evolution-common/lib/services/w
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
-export interface InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputRadioProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange: (e: any, customValue?: string) => void;
     value: string | boolean;
@@ -24,13 +24,13 @@ export interface InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, Cust
     // FIXME: customPath and customChoice are not part of checkbox, otherwise very similar to this one. Can they be treated the same? How does checkbox handle customPath?
     customPath?: string;
     customChoice?: string;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputRadioType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
 }
@@ -39,10 +39,10 @@ interface InputRadioState {
     customValue: string;
 }
 
-interface InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface InputRadioChoiceProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
-    choice: RadioChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    choice: RadioChoiceType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     checked: boolean;
@@ -58,8 +58,8 @@ interface InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     ) => void;
 }
 
-const InputRadioChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+const InputRadioChoice = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InputRadioChoiceProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 ) => {
     const id = `${props.id}__input-radio__${props.choice.value}`;
     const strValue =
@@ -123,17 +123,17 @@ const InputRadioChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerso
 };
 
 const InputRadioChoiceT = withTranslation()(InputRadioChoice) as React.FunctionComponent<
-    InputRadioChoiceProps<any, any, any, any>
+    InputRadioChoiceProps<any, any, any, any, any, any, any, any>
 >;
 
-export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
+export class InputRadio<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> extends React.Component<
+    InputRadioProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation,
     InputRadioState
 > {
     private customInputRef: React.RefObject<HTMLInputElement> = React.createRef();
     private customInputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
 
-    constructor(props: InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
+    constructor(props: InputRadioProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation) {
         super(props);
 
         this.state = {

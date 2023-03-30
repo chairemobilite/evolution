@@ -26,17 +26,14 @@ import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 // called whenever an update occurs in interview responses or when section is switched to
-export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const updateSection = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
     sectionShortname: string,
-    _interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    _interview: UserFrontendInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
     user?: CliUser
-): [
-    UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    { [path: string]: unknown }
-] => {
+): [UserFrontendInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>, { [path: string]: unknown }] => {
     let interview = _cloneDeep(_interview);
     let needToUpdate = true; // will stay true if an assigned value changed the initial value after a conditional failed
     let updateCount = 0;
@@ -57,17 +54,15 @@ export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomP
     return [interview, valuesByPath];
 };
 
-const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+const startUpdateInterviewCallback = async <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
     next,
     dispatch,
     getState,
     requestedSectionShortname: string | null,
     valuesByPath: { [path: string]: unknown } = {},
     unsetPaths?: string[],
-    initialInterview?: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    callback?: (
-        interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    ) => void,
+    initialInterview?: UserFrontendInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
+    callback?: (interview: UserFrontendInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>) => void,
     history?: History
 ) => {
     try {
@@ -120,12 +115,14 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
             requestedSectionShortname
         ) as string;
 
-        const [updatedInterview, updatedValuesByPath] = updateSection<
-            CustomSurvey,
-            CustomHousehold,
-            CustomHome,
-            CustomPerson
-        >(sectionShortname, interview, affectedPaths, valuesByPath, false, user);
+        const [updatedInterview, updatedValuesByPath] = updateSection<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+            sectionShortname,
+            interview,
+            affectedPaths,
+            valuesByPath,
+            false,
+            user
+        );
 
         if (!updatedInterview.sectionLoaded || updatedInterview.sectionLoaded !== sectionShortname) {
             updatedValuesByPath['sectionLoaded'] = sectionShortname;
@@ -235,8 +232,8 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
     }
 };
 
-export const updateInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const updateInterview = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: UserFrontendInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     errors: {
         [path: string]: {
             [lang: string]: string;
@@ -251,11 +248,11 @@ export const updateInterview = <CustomSurvey, CustomHousehold, CustomHome, Custo
         submitted
     });
 
-export const startUpdateInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const startUpdateInterview = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
     sectionShortname: string | null,
     valuesByPath?: { [path: string]: unknown },
     unsetPaths?: string[],
-    interview?: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview?: UserFrontendInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     callback?: () => void,
     history?: History
 ) => ({

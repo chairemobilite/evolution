@@ -9,10 +9,12 @@ import _set from 'lodash.set';
 
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { Household, InterviewResponses, Person, UserInterviewAttributes } from '../services/interviews/interview';
+import { InterviewResponses, UserInterviewAttributes } from '../services/interviews/interview';
+import { Household } from '../services/interviewObjects/Household';
+import { Person } from '../services/interviewObjects/Person';
 
-export type ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export type ParsingFunction<T, Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> = (
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     user?: CliUser
 ) => T;
@@ -27,9 +29,9 @@ export type ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, Custom
  * @param user The current user's information
  * @returns The parsed string value, or the value itself if it is a string
  */
-export const parseString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const parseString = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    value: string | ParsingFunction<string, Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | undefined,
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     user?: CliUser
 ): string | undefined => {
@@ -48,19 +50,13 @@ export const parseString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
  * really want a default value of true?
  * @returns The parsed string value, or the value itself if it is a string
  */
-export const parseBoolean = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const parseBoolean = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
     value:
         | boolean
-        | ParsingFunction<
-              boolean | [boolean] | [boolean, unknown],
-              CustomSurvey,
-              CustomHousehold,
-              CustomHome,
-              CustomPerson
-          >
+        | ParsingFunction<boolean | [boolean] | [boolean, unknown], Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>
         | undefined
         | null,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     user?: CliUser,
     defaultBoolean = true
@@ -90,14 +86,14 @@ export const parseBoolean = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
  * @param user The current user's information
  * @returns The parsed value of type T, or the value itself if it is a string
  */
-export const parse = <T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: T | ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined | null,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const parse = <T, Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    value: T | ParsingFunction<T, Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | undefined | null,
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     user?: CliUser
 ): T | undefined | null => {
     return typeof value === 'function'
-        ? (value as ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)(interview, path, user)
+        ? (value as ParsingFunction<T, Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>)(interview, path, user)
         : value;
 };
 
@@ -111,9 +107,9 @@ export const parse = <T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson
  * @param user The current user's information
  * @returns The parsed number value, or the value itself
  */
-export const parseInteger = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const parseInteger = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    value: number | ParsingFunction<number, Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | undefined,
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     user?: CliUser
 ): number | undefined => {
@@ -135,8 +131,8 @@ export const parseInteger = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
  * @param path The path, with possibly response placeholders between brackets
  * @returns The path with interpolated responses
  */
-export const interpolatePath = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const interpolatePath = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string
 ): string => {
     const splittedInterpolationPath = path ? path.match(/\{(.+?)\}/g) : null;
@@ -248,9 +244,9 @@ export const parseValue = function (value: any, datatype: 'integer' | 'float' | 
  * to go back in the path)
  * @returns The value of this path
  */
-export const getResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const getResponse = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
     // TODO Can this really be undefined? it was previously in the if clause, but try to make it not be undefined
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     defaultValue: unknown = undefined,
     relativePath?: string
@@ -277,13 +273,13 @@ export const getResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
  * to go back in the path)
  * @returns The interview responses with the field set
  */
-export const setResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const setResponse = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
     // TODO Can this really be undefined? it was previously in the if clause, but try to make it not be undefined
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | undefined,
     path: string,
     value: unknown = undefined,
     relativePath?: string
-): InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | null => {
+): InterviewResponses<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | null => {
     const newPath = getPath(path, relativePath);
     if (newPath && interview) {
         return _set(interview.responses, newPath, value);
@@ -300,9 +296,9 @@ export const setResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
  * @param interview The interview object
  * @returns The household object
  */
-export const getHousehold = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-): Partial<Household<CustomHousehold, CustomPerson>> => {
+export const getHousehold = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>
+): Partial<Household<Ho, Pe, Pl, Ve, Vp, Tr, Se>> => {
     return interview.responses.household || {};
 };
 
@@ -315,9 +311,9 @@ export const getHousehold = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
  * @param interview The interview object
  * @returns The current person object
  */
-export const getCurrentPerson = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-): Partial<Person<CustomPerson>> => {
+export const getCurrentPerson = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>
+): Partial<Person<Pe, Pl, Vp, Tr, Se>> => {
     const currentPerson = interview.responses._activePersonId;
     const hh = getHousehold(interview);
     if (currentPerson !== undefined) {
@@ -340,8 +336,8 @@ export const getCurrentPerson = <CustomSurvey, CustomHousehold, CustomHome, Cust
  * undefined
  * @returns The validation value of this path, or `null` if the path does not have a validation value
  */
-export const getValidation = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const getValidation = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     defaultValue?: boolean
 ): boolean | null => {
@@ -359,12 +355,12 @@ export const getValidation = <CustomSurvey, CustomHousehold, CustomHome, CustomP
  * to go back in the path)
  * @returns The interview responses with the field set
  */
-export const setValidation = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const setValidation = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     value: boolean,
     relativePath?: string
-): UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> => {
+): UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> => {
     const newPath = getPath(path, relativePath);
     if (newPath) {
         _set(interview.validations, newPath, value);

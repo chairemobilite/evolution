@@ -35,7 +35,7 @@ type CustomSurvey = {
     }
 }
 
-const interviewAttributes: InterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+const interviewAttributes: InterviewAttributes<CustomSurvey, unknown, unknown, unknown, unknown, unknown, unknown, unknown> = {
     uuid: uuidV4(),
     id: 4,
     user_id: 4,
@@ -62,7 +62,7 @@ describe('Set interview fields', () => {
             'responses.accessCode': '2222',
             'validations.accessCode': { is_valid: false },
             'responses.newField.foo': 'bar'
-        }
+        };
         setInterviewFields(testAttributes, { valuesByPath });
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
@@ -91,7 +91,7 @@ describe('Set interview fields', () => {
         const valuesByPath = {
             responses: { accessCode: '2222', newField: { foo: 'bar' } },
             validations: { accessCode: { is_valid: false } }
-        }
+        };
         setInterviewFields(testAttributes, { valuesByPath });
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
@@ -116,7 +116,7 @@ describe('Set interview fields', () => {
         const valuesByPath = {
             'responses.accessCode': '2222',
             'responses.newField.foo': 'bar'
-        }
+        };
         const unsetPaths = [ 'responses.testFields.fieldA' ];
         setInterviewFields(testAttributes, { valuesByPath, unsetPaths });
         expect(testAttributes).toEqual({
@@ -143,7 +143,7 @@ describe('Set interview fields', () => {
         const valuesByPath = {
             'is_valid': !interviewAttributes.is_valid,
             is_active: !interviewAttributes.is_active
-        }
+        };
         const unsetPaths = [ 'responses' ];
         setInterviewFields(testAttributes, { valuesByPath, unsetPaths });
         expect(testAttributes).toEqual({
@@ -178,7 +178,7 @@ describe('Update Interview', () => {
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
             validations: _cloneDeep(interviewAttributes.validations)
-        }
+        };
         expectedUpdatedValues.responses.foo = 'abc';
         expectedUpdatedValues.responses.testFields.fieldA = 'new';
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
@@ -200,7 +200,7 @@ describe('Update Interview', () => {
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
             validations: _cloneDeep(interviewAttributes.validations)
-        }
+        };
         expectedUpdatedValues.responses.foo = 'abc';
         delete expectedUpdatedValues.responses.accessCode;
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
@@ -220,7 +220,7 @@ describe('Update Interview', () => {
 
         const expectedUpdatedValues = {
             validated_data: { foo: 'abc' },
-        }
+        };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
     });
 
@@ -234,7 +234,7 @@ describe('Update Interview', () => {
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
             validations: _cloneDeep(interviewAttributes.validations)
-        }
+        };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
     });
 
@@ -264,7 +264,7 @@ describe('Update Interview', () => {
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
             validations: _cloneDeep(interviewAttributes.validations) as any
-        }
+        };
         expectedUpdatedValues.responses.foo = 'abc';
         expectedUpdatedValues.validations.foo = false;
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
@@ -277,9 +277,9 @@ describe('Update Interview', () => {
         // Prepare server update responses, callbacks won't be called, but we need an object
         const updateCallbacks = [
             { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
-        ]
+        ];
         registerServerUpdateCallbacks(updateCallbacks);
-        const updatedValuesByPath = { 'responses.testFields.fieldB': 'newVal' }
+        const updatedValuesByPath = { 'responses.testFields.fieldB': 'newVal' };
         mockedServerUpdate.mockResolvedValueOnce(updatedValuesByPath);
         const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths });
         registerServerUpdateCallbacks([]);
@@ -295,7 +295,7 @@ describe('Update Interview', () => {
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
             validations: _cloneDeep(interviewAttributes.validations) as any
-        }
+        };
         expectedUpdatedValues.responses.testFields.fieldB = updatedValuesByPath['responses.testFields.fieldB'];
         expectedUpdatedValues.responses.testFields.fieldA = valuesByPath['responses.testFields.fieldA'];
         delete expectedUpdatedValues.responses.accessCode;
@@ -330,7 +330,7 @@ describe('Update Interview', () => {
                     timestamp: updatedAt,
                     valuesByPath
                 }]
-            }
+            };
             expectedUpdatedValues.responses.foo = 'abc';
             expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
@@ -367,7 +367,7 @@ describe('Update Interview', () => {
                     timestamp: updatedAt,
                     valuesByPath
                 }]
-            }
+            };
             expectedUpdatedValues.responses.foo = 'abc';
             expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);

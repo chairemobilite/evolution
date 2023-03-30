@@ -15,17 +15,17 @@ import { ChoiceType, InputMultiselectType } from 'evolution-common/lib/services/
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
-interface InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface InputMultiselectProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange?: (e: any) => void;
     value: string[];
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputMultiselectType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
 }
 
 const formatOptionLabel = (data: { color?: string; label: string }) => (
@@ -45,8 +45,8 @@ const formatOptionLabel = (data: { color?: string; label: string }) => (
 
 type OptionType = { label: string; color?: string; value: string };
 
-export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+export class InputMultiselect<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> extends React.Component<
+    InputMultiselectProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 > {
     constructor(props) {
         super(props);
@@ -73,10 +73,7 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
         }
     };
 
-    selectShortcut = (
-        value: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-        e: React.MouseEvent
-    ) => {
+    selectShortcut = (value: ChoiceType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>, e: React.MouseEvent) => {
         if (this.props.onValueChange === undefined) {
             return;
         }

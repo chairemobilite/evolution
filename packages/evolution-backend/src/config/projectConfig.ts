@@ -11,21 +11,32 @@ import {
 import { ServerFieldUpdateCallback } from '../services/interviews/serverFieldUpdate';
 import { ServerValidation } from '../services/validations/serverValidation';
 
-interface ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface ProjectServerConfig<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     /**
      * Filters the interview object to return minimal data. Used server side
      * before sending validation list to server
      */
     validationListFilter: (
-        interview: InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    ) => InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+        interview: InterviewListAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>
+    ) => InterviewStatusAttributesBase<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     serverUpdateCallbacks: ServerFieldUpdateCallback[];
     serverValidations: ServerValidation;
     roleDefinitions: (() => void) | undefined;
 }
 
-export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unknown> = {
-    validationListFilter: (interview: InterviewListAttributes<unknown, unknown, unknown, unknown>) => {
+export const defaultConfig: ProjectServerConfig<
+    unknown,
+    unknown,
+    unknown,
+    unknown,
+    unknown,
+    unknown,
+    unknown,
+    unknown
+> = {
+    validationListFilter: (
+        interview: InterviewListAttributes<unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>
+    ) => {
         const {
             id,
             uuid,
@@ -68,8 +79,8 @@ const projectConfig = Object.assign({}, defaultConfig);
  *
  * @param config The project specific configuration elements
  */
-export const setProjectConfig = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    config: Partial<ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+export const setProjectConfig = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    config: Partial<ProjectServerConfig<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>>
 ) => {
     Object.assign(projectConfig, config);
 };

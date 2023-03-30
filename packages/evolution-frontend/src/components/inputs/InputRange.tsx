@@ -17,21 +17,21 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
-export interface InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputRangeProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange: (e: any) => void;
     value?: number;
     inputRef?: React.LegacyRef<ReactInputRange>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputRangeType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
 }
 
-export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+export const InputRange = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InputRangeProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 ) => {
     const [value, setValue] = React.useState<number | Range | undefined>(props.value);
 

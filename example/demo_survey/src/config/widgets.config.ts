@@ -18,8 +18,24 @@ export type SurveyPerson = {
     occupation: string;
 };
 
-export type SurveyHome = {
+export type SurveyPlace = {
     
 };
 
-export type SurveyWidgetConfig = WidgetConfig<SurveyBase, SurveyHousehold, SurveyHome, SurveyPerson>;
+export type SurveyVehicle = {
+    
+};
+
+export type SurveyVisitedPlace = {
+    
+};
+
+export type SurveyTrip = {
+    
+};
+
+export type SurveySegment = {
+    
+};
+
+export type SurveyWidgetConfig = WidgetConfig<SurveyBase, SurveyHousehold, SurveyPerson, SurveyPlace, SurveyVehicle, SurveyVisitedPlace, SurveyTrip, SurveySegment>;

@@ -5,7 +5,7 @@ import appConfig, {
 import React from 'react';
 import { SurveySections, SurveyWidgets } from '../services/interviews/interview';
 
-export type EvolutionApplicationConfiguration<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+export type EvolutionApplicationConfiguration<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> = {
     /**
      * Survey sections
      */
@@ -13,7 +13,7 @@ export type EvolutionApplicationConfiguration<CustomSurvey, CustomHousehold, Cus
     /**
      * Survey widgets
      */
-    widgets: SurveyWidgets<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgets: SurveyWidgets<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     /** Custom project helper functions.
      *
      * TODO Can these be typed? It's hard to do anything about it... Maybe they should not be in the application config but completely handled on the project side */
@@ -50,5 +50,5 @@ setApplicationConfiguration({
 });
 
 export default appConfig as ApplicationConfiguration<
-    EvolutionApplicationConfiguration<unknown, unknown, unknown, unknown>
+    EvolutionApplicationConfiguration<unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>
 >;

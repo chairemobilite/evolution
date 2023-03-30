@@ -12,7 +12,7 @@ type CustomSurvey = {
     foo?: string;
 }
 
-const interview: InterviewListAttributes<CustomSurvey, any, any, any> = {
+const interview: InterviewListAttributes<CustomSurvey, any, any, any, any, any, any, any> = {
     id: 1,
     uuid: 'arbitrary',
     user_id: 4,
@@ -23,7 +23,7 @@ const interview: InterviewListAttributes<CustomSurvey, any, any, any> = {
     username: 'test',
     facebook: false,
     google: false,
-    audits: { 'errorMsg': 2, 'errorMsg2': 5}
+    audits: { 'errorMsg': 2, 'errorMsg2': 5 }
 };
 
 const nullResponsesInterview = {
@@ -51,7 +51,7 @@ describe('Validation List Filter', () => {
             username: interview.username,
             facebook: interview.facebook,
             google: interview.google,
-            responses: { household: { size: 0 }},
+            responses: { household: { size: 0 } },
             audits: interview.audits
         });
     });
@@ -72,8 +72,8 @@ describe('Validation List Filter', () => {
     });
 
     test('Add project specific filter', () => {
-        setProjectConfig<CustomSurvey, any, any, any>({ validationListFilter: (interview: InterviewListAttributes<CustomSurvey, any, any, any>) => {
-            const status = defaultConfig.validationListFilter(interview) as InterviewStatusAttributesBase<CustomSurvey, any, any, any>;
+        setProjectConfig<CustomSurvey, any, any, any, any, any, any, any>({ validationListFilter: (interview: InterviewListAttributes<CustomSurvey, any, any, any, any, any, any, any>) => {
+            const status = defaultConfig.validationListFilter(interview) as InterviewStatusAttributesBase<CustomSurvey, any, any, any, any, any, any, any>;
             status.responses.accessCode = interview.responses.accessCode;
             return status;
         } });
@@ -91,6 +91,6 @@ describe('Validation List Filter', () => {
             responses: { accessCode: interview.responses.accessCode, household: { size: 0 } },
             audits: interview.audits
         });
-    })
+    });
 });
 

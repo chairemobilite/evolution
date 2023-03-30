@@ -14,17 +14,17 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
-export interface InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputTimeProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange: (e: any) => void;
     value?: number;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputTimeType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;
 }
@@ -33,10 +33,10 @@ const midnight = 24 * 60 * 60;
 const noon = 12 * 60 * 60;
 const onehour = 60 * 60;
 
-export class InputTime<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+export class InputTime<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> extends React.Component<
+    InputTimeProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 > {
-    constructor(props: InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
+    constructor(props: InputTimeProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation) {
         super(props);
     }
 

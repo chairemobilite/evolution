@@ -13,29 +13,29 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
-export interface InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputSelectProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange?: (e: any) => void;
     value?: string;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputSelectType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
 }
 
-export interface InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+export interface InputSelectOptionProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
+    choice: ChoiceType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
 }
 
-const InputSelectOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+const InputSelectOption = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InputSelectOptionProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 ) => {
     if (
         props.choice.hidden === true ||
@@ -60,11 +60,11 @@ const InputSelectOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
 };
 
 const InputSelectOptionT = withTranslation()(InputSelectOption) as React.FunctionComponent<
-    InputSelectOptionProps<any, any, any, any>
+    InputSelectOptionProps<any, any, any, any, any, any, any, any>
 >;
 
-export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+export const InputSelect = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InputSelectProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 ) => {
     const widgetChoices = props.widgetConfig.choices;
     const choices =
@@ -131,4 +131,6 @@ export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
     );
 };
 
-export default withTranslation()(InputSelect) as React.FunctionComponent<InputSelectProps<any, any, any, any>>;
+export default withTranslation()(InputSelect) as React.FunctionComponent<
+    InputSelectProps<any, any, any, any, any, any, any, any>
+>;

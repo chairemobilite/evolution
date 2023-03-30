@@ -16,10 +16,10 @@ import { InterviewListAttributes } from 'evolution-common/lib/services/interview
  * @param param0 description of the filtered column
  * @returns
  */
-export const ValidityColumnFilter = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>({
+export const ValidityColumnFilter = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>({
     t,
     column: { filterValue, setFilter }
-}: FilterProps<InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & WithTranslation) => {
+}: FilterProps<InterviewListAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>> & WithTranslation) => {
     // Pre-fixed list of validity options
     const options = React.useMemo(() => ['all', 'invalid', 'valid', 'notValidated', 'notInvalid'], []);
 
