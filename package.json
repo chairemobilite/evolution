@@ -15,7 +15,7 @@
         "setup": "yarn workspace chaire-lib-backend run setup",
         "setup-test": "yarn workspace chaire-lib-backend run setup-test",
         "migrate": "yarn workspace chaire-lib-backend run migrate && yarn workspace evolution-backend run migrate",
-        "migrate-test": "yarn workspace chaire-lib-backend run migrate-test && yarn workspace evolution-backend run migrate-test",
+        "migrate-test": "PROJECT_CONFIG=${PWD}/transition/tests/config_test.js yarn workspace chaire-lib-backend run migrate-test && PROJECT_CONFIG=${PWD}/transition/tests/config_test.js yarn workspace evolution-backend run migrate-test",
         "clean": "yarn workspaces run clean",
         "cleanModules": "yarn workspace evolution-common run cleanModules && yarn workspace evolution-backend run cleanModules && yarn workspace evolution-frontend run cleanModules && yarn workspace evolution-legacy run cleanModules && yarn workspace demo_survey run cleanModules && rimraf node_modules",
         "compile": "yarn workspaces run compile",
