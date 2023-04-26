@@ -4,12 +4,12 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-
-import User from 'chaire-lib-backend/lib/services/auth/user';
+// TODO Move this feature to chaire-lib or not, just drop and use reset password
+// import User from 'chaire-lib-backend/lib/services/auth/user';
 
 export default function(app){
 
-  app.post('/change_password', (req, res) => {
+  /* app.post('/change_password', (req, res) => {
     if (req.isAuthenticated() && req.user) {
         const _user = new User({ ...req.user });
         const password = req.body.password;
@@ -33,5 +33,5 @@ export default function(app){
         console.log('not logged in!');
         //return res.redirect(307, '/login');
     }
-  });
+  }); */
 };

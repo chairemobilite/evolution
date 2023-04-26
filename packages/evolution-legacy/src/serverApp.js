@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 const config           = require('chaire-lib-backend/lib/config/server.config').default;
-import passport from 'chaire-lib-backend/lib/config/auth';
 // TODO This is evolution specific
 import defineDefaultRoles from 'evolution-backend/lib/services/auth/roleDefinition';
 const knex             = require('chaire-lib-backend/lib/config/shared/db.config').default;
@@ -17,14 +16,13 @@ const expressSession   = require('express-session');
 const KnexSessionStore = require('connect-session-knex')(expressSession);
 const morgan           = require('morgan') // http logger
 import trRoutingRouter from 'chaire-lib-backend/lib/api/trRouting.routes';
+import { userAuthModel } from 'chaire-lib-backend/lib/services/auth/userAuthModel';
 
 //const WebSocket        = require('ws');
 const requestIp        = require('request-ip');
 
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
-// TODO As routes migrate to typescript, these won't be required
-import legacyAuthRoutes from './routes/shared/auth.routes';
 
 export const setupServerApp = (app, serverSetupFct = undefined) => {
 
@@ -66,8 +64,6 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
     app.use(express.json({ limit: '500mb' }));
     app.use(express.urlencoded({ limit: '500mb', extended: true }));
     app.use(session);
-    app.use(passport.initialize());
-    app.use(passport.session());
     app.use(requestIp.mw()); // to get users ip addresses
     app.use(favicon(path.join(publicDirectory, 'favicon.ico')));
 
@@ -94,8 +90,7 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
 
 
     // TODO: move all routes to socket routes:
-    authRoutes(app);
-    legacyAuthRoutes(app);
+    authRoutes(app, userAuthModel);
     // TODO Let the survey project's server.js file do this
     try {
         if (typeof serverSetupFct === 'function') {
