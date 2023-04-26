@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import express from 'express';
-import UserModel from 'chaire-lib-backend/lib/services/auth/user';
+import UserModel, { userAuthModel } from 'chaire-lib-backend/lib/services/auth/userAuthModel';
 import Interviews from '../services/interviews/interviews';
 import isAuthorized from 'chaire-lib-backend/lib/services/auth/authorization';
 import Users from 'chaire-lib-backend/lib/services/users/users';
@@ -45,7 +45,7 @@ router.post('/createNew', async (req, res) => {
         if (req.user && (req.user as any).id) {
             initialResponses['_editingUsers'] = [(req.user as any).id];
         }
-        const user = await UserModel.createAndSave({ username: userName });
+        const user = await userAuthModel.createAndSave({ username: userName });
         const interview = await Interviews.createInterviewForUser(user.attributes.id, initialResponses);
 
         return res.status(200).json({
