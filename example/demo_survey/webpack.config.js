@@ -16,6 +16,10 @@ if (!process.env.NODE_ENV) {
 const configuration = require('chaire-lib-backend/lib/config/server.config');
 const config = configuration.default ? configuration.default : configuration;
 
+// Public directory from which files are served
+const publicDirectory = path.join(__dirname, '..', '..', 'public');
+const bundleOutputPath = path.join(publicDirectory, 'dist', config.projectShortname, 'survey');
+
 const appIncludeName = 'survey';
 
 module.exports = (env) => {
@@ -32,7 +36,6 @@ module.exports = (env) => {
   const customLocalesFilePath = `${__dirname}/locales`;
   const entry                 = [entryFileName, customStylesFilePath];
   const includeDirectories    = [
-    path.join(__dirname, 'lib', 'admin'),
     path.join(__dirname, 'lib', 'survey'),
     
     path.join(__dirname, 'locales'),
@@ -44,7 +47,7 @@ module.exports = (env) => {
     mode: process.env.NODE_ENV,
     entry: entry,
     output: {
-      path: path.join(__dirname, '..', '..', 'public', 'dist', config.projectShortname),
+      path: bundleOutputPath,
       filename: isProduction ? `survey-${config.projectShortname}-bundle-${env}.[contenthash].js` : `survey-${config.projectShortname}-bundle-${env}.dev.js`,
       publicPath: '/dist/'
     },
@@ -126,7 +129,7 @@ module.exports = (env) => {
       }),
       new HtmlWebpackPlugin({
         filename: path.join(`index-survey-${config.projectShortname}${env === 'test' ? `_${env}` : ''}.html`),
-        template: path.join(__dirname, '..', '..', 'public', 'index.html'),
+        template: path.join(publicDirectory, 'index.html'),
       }),
       new MiniCssExtractPlugin({
         filename: isProduction ? `survey-${config.projectShortname}-styles.[contenthash].css` : `survey-${config.projectShortname}-styles.dev.css`//,
@@ -195,7 +198,7 @@ module.exports = (env) => {
     },
     devtool: isProduction ? 'cheap-source-map' : 'eval-source-map',
     devServer: {
-      contentBase: path.join(__dirname, '..', '..', 'public'),
+      contentBase: publicDirectory,
       historyApiFallback: true,
       publicPath: '/dist/' + config.projectShortname
     }
