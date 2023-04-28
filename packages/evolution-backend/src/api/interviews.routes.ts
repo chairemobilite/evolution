@@ -5,10 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import express from 'express';
-import UserModel, { userAuthModel } from 'chaire-lib-backend/lib/services/auth/userAuthModel';
+import { participantAuthModel } from '../services/auth/participantAuthModel';
 import Interviews from '../services/interviews/interviews';
 import isAuthorized from 'chaire-lib-backend/lib/services/auth/authorization';
-import Users from 'chaire-lib-backend/lib/services/users/users';
 import { InterviewsSubject } from '../services/auth/roleDefinition';
 
 const router = express.Router();
@@ -39,14 +38,14 @@ router.post('/createNew', async (req, res) => {
         let userName = req.body.createUser;
         const initialResponses = req.body.responses || {};
         let suffixCount = 0;
-        while ((await Users.getAllMatching({ filter: { username: userName } })).users.length !== 0) {
+        while ((await participantAuthModel.find({ username: userName })) !== undefined) {
             userName = `${req.body.createUser}_${suffixCount++}`;
         }
         if (req.user && (req.user as any).id) {
             initialResponses['_editingUsers'] = [(req.user as any).id];
         }
-        const user = await userAuthModel.createAndSave({ username: userName });
-        const interview = await Interviews.createInterviewForUser(user.attributes.id, initialResponses);
+        const participant = await participantAuthModel.createAndSave({ username: userName });
+        const interview = await Interviews.createInterviewForUser(participant.attributes.id, initialResponses);
 
         return res.status(200).json({
             status: 'success',
