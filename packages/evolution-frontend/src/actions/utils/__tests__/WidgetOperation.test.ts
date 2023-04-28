@@ -108,7 +108,7 @@ type CustomSurvey = {
 const userInterviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
-    user_id: 1,
+    participant_id: 1,
     is_completed: false,
     responses: {
         section1: {

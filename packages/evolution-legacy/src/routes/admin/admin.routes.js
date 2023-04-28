@@ -58,8 +58,8 @@ const getInterviewsStatus = function(res, updatedAt = 0) {
   let lastUpdatedAt = updatedAt;
   knex.select('i.id', 'i.uuid', 'i.updated_at', 'i.responses', 'i.validated_data', 'i.is_valid AS interview_is_valid', 'i.is_completed AS interview_is_completed', 'i.is_validated AS interview_is_validated')
   .from('sv_interviews AS i')
-  .leftJoin('users', 'i.user_id', 'users.id')
-  .whereRaw(`i.is_active IS TRUE AND users.is_valid IS TRUE AND users.is_test IS NOT TRUE AND extract(epoch from i.updated_at) > ${updatedAt}`)
+  .leftJoin('sv_participants', 'i.participant_id', 'sv_participants.id')
+  .whereRaw(`i.is_active IS TRUE AND sv_participants.is_valid IS TRUE AND sv_participants.is_test IS NOT TRUE AND extract(epoch from i.updated_at) > ${updatedAt}`)
   .orderBy('i.id')
   .then(function(rows) {
     for (let i = 0, count = rows.length; i < count; i++) {
@@ -225,8 +225,8 @@ const getInterviewsCache = function(cacheName) {
 const updateInterviews = function(interviewsData) {
   return knex.select('i.id', 'i.updated_at', 'responses')
   .from('sv_interviews AS i')
-  .leftJoin('users', 'i.user_id', 'users.id')
-  .whereRaw(`i.is_active IS TRUE AND users.is_valid IS TRUE AND users.is_test IS NOT TRUE AND extract(epoch from i.updated_at) > ${interviewsData.updatedAt}`)
+  .leftJoin('sv_participants', 'i.participant_id', 'sv_participants.id')
+  .whereRaw(`i.is_active IS TRUE AND sv_participants.is_valid IS TRUE AND sv_participants.is_test IS NOT TRUE AND extract(epoch from i.updated_at) > ${interviewsData.updatedAt}`)
   .orderBy('i.id')
   .then(function(rows) {
 

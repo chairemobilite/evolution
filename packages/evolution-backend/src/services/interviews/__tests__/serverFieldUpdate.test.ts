@@ -13,7 +13,7 @@ const mockSetPreFilledResponsesForRef = prefilledDbQueries.setPreFilledResponses
 const interviewAttributes = {
     uuid: uuidV4(),
     id: 4,
-    user_id: 4,
+    participant_id: 4,
     is_valid: true,
     is_active: true,
     is_completed: false,

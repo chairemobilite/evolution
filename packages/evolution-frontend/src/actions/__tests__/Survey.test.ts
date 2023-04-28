@@ -18,7 +18,7 @@ type CustomSurvey = {
 const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
-    user_id: 1,
+    participant_id: 1,
     is_completed: false,
     responses: {
         section1: {
@@ -107,7 +107,7 @@ describe('Update interview', () => {
             body: JSON.stringify({
                 id: interviewAttributes.id,
                 interviewId: interviewAttributes.uuid,
-                user_id: interviewAttributes.user_id,
+                participant_id: interviewAttributes.participant_id,
                 valuesByPath: { ...valuesByPath, sectionLoaded: 'section' },
                 unsetPaths: []
             })
@@ -161,7 +161,7 @@ describe('Update interview', () => {
             body: JSON.stringify({
                 id: interviewAttributes.id,
                 interviewId: interviewAttributes.uuid,
-                user_id: interviewAttributes.user_id,
+                participant_id: interviewAttributes.participant_id,
                 valuesByPath: { ...valuesByPath, 'validations.section1.q2': true, sectionLoaded: 'section' },
                 unsetPaths: ['responses.section2.q1']
             })
@@ -210,7 +210,7 @@ describe('Update interview', () => {
             body: JSON.stringify({
                 id: interviewAttributes.id,
                 interviewId: interviewAttributes.uuid,
-                user_id: interviewAttributes.user_id,
+                participant_id: interviewAttributes.participant_id,
                 valuesByPath: { ...valuesByPath, sectionLoaded: 'section' },
                 unsetPaths: []
             })
@@ -262,7 +262,7 @@ describe('Update interview', () => {
             body: JSON.stringify({
                 id: interviewAttributes.id,
                 interviewId: interviewAttributes.uuid,
-                user_id: interviewAttributes.user_id,
+                participant_id: interviewAttributes.participant_id,
                 valuesByPath: { ...valuesByPath, sectionLoaded: 'section' },
                 unsetPaths: []
             })

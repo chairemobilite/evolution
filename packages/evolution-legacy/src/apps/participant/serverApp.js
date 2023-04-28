@@ -5,8 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 const config           = require('chaire-lib-backend/lib/config/server.config').default;
-// TODO This is evolution specific
-import defineDefaultRoles from 'evolution-backend/lib/services/auth/roleDefinition';
 const knex             = require('chaire-lib-backend/lib/config/shared/db.config').default;
 const path             = require('path');
 const _camelCase        = require('lodash.camelcase');
@@ -16,21 +14,22 @@ const expressSession   = require('express-session');
 const KnexSessionStore = require('connect-session-knex')(expressSession);
 const morgan           = require('morgan') // http logger
 import trRoutingRouter from 'chaire-lib-backend/lib/api/trRouting.routes';
-import { userAuthModel } from 'chaire-lib-backend/lib/services/auth/userAuthModel';
+import { participantAuthModel } from 'evolution-backend/lib/services/auth/participantAuthModel';
 
 //const WebSocket        = require('ws');
 const requestIp        = require('request-ip');
 
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
+import participantRoutes from './routes';
 
 export const setupServerApp = (app, serverSetupFct = undefined) => {
 
     // Public directory from which files are served
-    const publicDirectory = path.join(__dirname, '..', '..', '..', 'public');
+    const publicDirectory = path.join(__dirname, '..', '..', '..', '..', '..', 'public');
     const publicDistDirectory = path.join(publicDirectory, 'dist', config.projectShortname);
     // Local path where locales are stored
-    const localeDirectory = path.join(__dirname, '..', 'locales');
+    const localeDirectory = path.join(__dirname, '..', '..', '..', '..', '..', 'locales');
 
     directoryManager.createDirectoryIfNotExistsAbsolute(publicDistDirectory);
     directoryManager.createDirectoryIfNotExists('logs');
@@ -90,7 +89,7 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
 
 
     // TODO: move all routes to socket routes:
-    authRoutes(app, userAuthModel);
+    authRoutes(app, participantAuthModel);
     // TODO Let the survey project's server.js file do this
     try {
         if (typeof serverSetupFct === 'function') {
@@ -99,14 +98,9 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
     } catch(error) {
         console.log('Error running project specific server setup function: ', error);
     }
-    require('./routes/survey/routes.js')(app);
+    participantRoutes(app);
     // Add the trRouting routes
     trRoutingRouter(app);
-    // Set the roles for the survey app
-    defineDefaultRoles();
-
-    const adminRoutes = require('./routes/admin/admin.routes.js');
-    app.use('/api/admin', adminRoutes);
 
     app.get('/incompatible', function (req, res) { res.sendFile(path.join(publicDirectory, 'incompatible.html')); });
 

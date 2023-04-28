@@ -161,7 +161,7 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
             body: JSON.stringify({
                 id: updatedInterview.id,
                 interviewId: interview.uuid,
-                user_id: updatedInterview.user_id,
+                participant_id: updatedInterview.participant_id,
                 valuesByPath: updatedValuesByPath,
                 unsetPaths: unsetPaths
             })

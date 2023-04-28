@@ -23,7 +23,7 @@ type CustomSurvey = {
 const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
-    user_id: 1,
+    participant_id: 1,
     is_completed: false,
     responses: {
         section1: {
@@ -61,7 +61,7 @@ const userAttributes = {
 const interviewAttributes2: UserInterviewAttributes<any, any, any, any> = {
     id: 1,
     uuid: 'arbitrary uuid',
-    user_id: 1,
+    participant_id: 1,
     is_completed: false,
     responses: {
         section1: {

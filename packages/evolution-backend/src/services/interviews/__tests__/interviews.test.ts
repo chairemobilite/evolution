@@ -34,7 +34,7 @@ const mockInterviewUpdate = updateInterview as jest.MockedFunction<typeof update
 const allInterviews = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
     id,
     uuid: 'arbitrary' + id,
-    user_id: id,
+    participant_id: id,
     is_valid: true,
     is_active: id % 2 === 0,
     responses: { accessCode: 'notsure' },
@@ -154,7 +154,7 @@ describe('Get interview by userId', () => {
 
 describe('Create interviews', () => {
 
-    const userId = 20;
+    const participantId = 20;
     let createdInterview: InterviewAttributes<unknown, unknown, unknown, unknown> | undefined = undefined 
 
     beforeEach(() => {
@@ -175,10 +175,10 @@ describe('Create interviews', () => {
     });
 
     test('Create with empty responses', async() => {
-        const newInterview = await Interviews.createInterviewForUser(userId, {});
+        const newInterview = await Interviews.createInterviewForUser(participantId, {});
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
-            user_id: userId,
+            participant_id: participantId,
             responses: {},
             is_active: true,
             validations: {},
@@ -197,10 +197,10 @@ describe('Create interviews', () => {
                 baz: 'test'
             }
         }
-        const newInterview = await Interviews.createInterviewForUser(userId, responses);
+        const newInterview = await Interviews.createInterviewForUser(participantId, responses);
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
-            user_id: userId,
+            participant_id: participantId,
             responses,
             is_active: true,
             validations: {},
@@ -216,32 +216,32 @@ describe('Create interviews', () => {
     });
 
     test('Create and return single other field', async() => {
-        const newInterview = await Interviews.createInterviewForUser(userId, {}, 'user_id');
+        const newInterview = await Interviews.createInterviewForUser(participantId, {}, 'participant_id');
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
-            user_id: userId,
+            participant_id: participantId,
             responses: {},
             is_active: true,
             validations: {},
             logs: []
-        }, 'user_id');
-        expect(newInterview).toEqual({ user_id: userId });
+        }, 'participant_id');
+        expect(newInterview).toEqual({ participant_id: participantId });
         expect(mockDbGetByUuid).not.toHaveBeenCalled();
         expect(mockInterviewUpdate).not.toHaveBeenCalled();
     });
 
     test('Create and return many other field', async() => {
-        const returningFields = ['user_id', 'responses', 'uuid'];
-        const newInterview = await Interviews.createInterviewForUser(userId, {}, returningFields);
+        const returningFields = ['participant_id', 'responses', 'uuid'];
+        const newInterview = await Interviews.createInterviewForUser(participantId, {}, returningFields);
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
-            user_id: userId,
+            participant_id: participantId,
             responses: {},
             is_active: true,
             validations: {},
             logs: []
         }, returningFields);
-        expect(newInterview).toEqual({ user_id: userId, uuid: expect.anything(), responses: {} });
+        expect(newInterview).toEqual({ participant_id: participantId, uuid: expect.anything(), responses: {} });
         expect(mockDbGetByUuid).not.toHaveBeenCalled();
         expect(mockInterviewUpdate).not.toHaveBeenCalled();
     });

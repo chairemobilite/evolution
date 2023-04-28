@@ -86,7 +86,7 @@ export default class Interviews {
     };
 
     static createInterviewForUser = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-        userId: number,
+        participantId: number,
         initialResponses: { [key: string]: any },
         returning: string | string[] = 'uuid'
     ): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
@@ -94,7 +94,7 @@ export default class Interviews {
 
         // Create the interview for this user
         const interview = await interviewsDbQueries.create(
-            { user_id: userId, responses: initialResponses, is_active: true, validations: {}, logs: [] },
+            { participant_id: participantId, responses: initialResponses, is_active: true, validations: {}, logs: [] },
             returning
         );
         if (!interview.uuid || Object.keys(initialResponses).length === 0) {

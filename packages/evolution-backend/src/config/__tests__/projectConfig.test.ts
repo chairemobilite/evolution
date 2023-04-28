@@ -15,7 +15,7 @@ type CustomSurvey = {
 const interview: InterviewListAttributes<CustomSurvey, any, any, any> = {
     id: 1,
     uuid: 'arbitrary',
-    user_id: 4,
+    participant_id: 4,
     is_valid: true,
     is_completed: true,
     responses: { accessCode: 'notsure', foo: 'bar', household: { size: 0 } },
@@ -29,7 +29,7 @@ const interview: InterviewListAttributes<CustomSurvey, any, any, any> = {
 const nullResponsesInterview = {
     id: 1,
     uuid: 'arbitrary',
-    user_id: 4,
+    participant_id: 4,
     is_valid: true,
     is_completed: true,
     responses: null,
