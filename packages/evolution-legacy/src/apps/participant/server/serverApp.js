@@ -26,10 +26,10 @@ import participantRoutes from './routes';
 export const setupServerApp = (app, serverSetupFct = undefined) => {
 
     // Public directory from which files are served
-    const publicDirectory = path.join(__dirname, '..', '..', '..', '..', '..', 'public');
-    const publicDistDirectory = path.join(publicDirectory, 'dist', config.projectShortname);
+    const publicDirectory = path.join(__dirname, '..', '..', '..', '..', '..', '..', 'public');
+    const publicDistDirectory = path.join(publicDirectory, 'dist', config.projectShortname, 'survey', );
     // Local path where locales are stored
-    const localeDirectory = path.join(__dirname, '..', '..', '..', '..', '..', 'locales');
+    const localeDirectory = path.join(__dirname, '..', '..', '..', '..', '..', '..', 'locales');
 
     directoryManager.createDirectoryIfNotExistsAbsolute(publicDistDirectory);
     directoryManager.createDirectoryIfNotExists('logs');
