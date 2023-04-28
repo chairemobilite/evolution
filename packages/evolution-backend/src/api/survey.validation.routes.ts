@@ -11,7 +11,7 @@ import express, { Request, Response } from 'express';
 import moment from 'moment';
 import Interviews from '../services/interviews/interviews';
 import { updateInterview } from '../services/interviews/interview';
-import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/authorization';
+import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import projectConfig from '../config/projectConfig';
 import { mapResponsesToValidatedData } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';

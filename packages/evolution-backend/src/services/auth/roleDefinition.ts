@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { addRole, DEFAULT_ROLE_NAME } from 'chaire-lib-backend/lib/services/auth/userPermissions';
 import serverConfig from '../../config/projectConfig';
 
@@ -13,12 +12,12 @@ export const InterviewSubject = 'Interview';
 /** constant for the list of interviews. Used on routes affecting lists of interviews */
 export const InterviewsSubject = 'Interviews';
 
+// Add default roles for users accessing the interview (not the participant)
 export const VALIDATOR_LVL1_ROLE = 'validatorLvl1';
 export const VALIDATOR_LVL2_ROLE = 'validatorLvl2';
 
-const addDefaultPermissions = ({ can }, user: UserAttributes) => {
-    can(['read', 'update'], InterviewSubject, { user_id: user.id, is_active: true });
-    can(['create'], InterviewSubject, { user_id: user.id });
+const addDefaultPermissions = () => {
+    // By default, no access to interviews
 };
 
 // Default role can only create interviews and read/update their own active interview
@@ -28,7 +27,7 @@ const defineDefaultRoles = function (): void {
 
     // Add an interviewer role
     addRole(VALIDATOR_LVL1_ROLE, ({ can }, user) => {
-        addDefaultPermissions({ can }, user);
+        addDefaultPermissions();
         // Required permissions to list interviews to validate
         can(['read', 'validate'], InterviewsSubject);
         // Required permissions to validate any user's interviews
@@ -37,7 +36,7 @@ const defineDefaultRoles = function (): void {
 
     // Add an interviewer role
     addRole(VALIDATOR_LVL2_ROLE, ({ can }, user) => {
-        addDefaultPermissions({ can }, user);
+        addDefaultPermissions();
         // Required permissions to list interviews to validate and confirm
         can(['read', 'validate', 'confirm'], InterviewsSubject);
         // Required permissions to validate and confirm any user's interviews

@@ -403,7 +403,7 @@ export const startUpdateSurveyValidateInterview = function(sectionShortname, val
           method: "POST",
           body: JSON.stringify({
             id          : interview.id,
-            user_id     : interview.user_id,
+            participant_id     : interview.participant_id,
             valuesByPath: valuesByPath,
             unsetPaths  : unsetPaths,
             //responses  : interview.responses,
@@ -526,7 +526,7 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
           method: "POST",
           body: JSON.stringify({
             id          : interview.id,
-            user_id     : interview.user_id,
+            participant_id: interview.participant_id,
             valuesByPath: valuesByPath,
             unsetPaths  : unsetPaths,
           })

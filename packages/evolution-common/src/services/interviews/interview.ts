@@ -133,7 +133,7 @@ export interface InterviewAudits {
 export interface UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: number;
     uuid: string;
-    user_id: number;
+    participant_id: number;
     is_completed: boolean;
     responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     validations: InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
@@ -167,7 +167,7 @@ export interface InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, 
 export interface InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     id: number;
     uuid: string;
-    user_id: number;
+    participant_id: number;
     responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     validated_data: ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     is_valid?: boolean;

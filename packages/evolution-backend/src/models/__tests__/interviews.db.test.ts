@@ -17,33 +17,39 @@ const permission1 = 'role1';
 const permission2 = 'role2';
 const localUser = {
     id: 1,
-    uuid: uuidV4(),
     email: 'test@transition.city',
-    is_valid: true,
+    is_valid: true
+};
+
+const localUserWithPermission = {
+    ...localUser,
+    uuid: uuidV4(),
     permissions: {
         [permission1]: true
     }
-};
+}
 
-const facebookUser = {
+const facebookParticipant = {
     id: 2,
-    uuid: uuidV4(),
     facebook_id: 'facebookId',
     is_valid: true
 };
 
-const googleUser = {
+const googleParticipant = {
     id: 3,
-    uuid: uuidV4(),
     google_id: 'googleId',
     is_valid: true
 };
 
 const localUser2 = {
     id: 4,
-    uuid: uuidV4(),
     email: 'test2@transition.city',
-    is_valid: true,
+    is_valid: true
+};
+
+const localUser2WithPermission = {
+    ...localUser2,
+    uuid: uuidV4(),
     permissions: {
         [permission1]: true,
         [permission2]: true
@@ -52,7 +58,7 @@ const localUser2 = {
 
 const localUserInterviewAttributes = {
     uuid: uuidV4(),
-    user_id: localUser.id,
+    participant_id: localUser.id,
     is_valid: false,
     is_active: true,
     is_completed: undefined,
@@ -68,7 +74,7 @@ const localUserInterviewAttributes = {
 
 const facebookUserInterviewAttributes = {
     uuid: uuidV4(),
-    user_id: facebookUser.id,
+    participant_id: facebookParticipant.id,
     is_valid: undefined,
     is_active: false,
     is_completed: false,
@@ -85,7 +91,7 @@ const facebookUserInterviewAttributes = {
 
 const googleUserInterviewAttributes = {
     uuid: uuidV4(),
-    user_id: googleUser.id,
+    participant_id: googleParticipant.id,
     is_valid: true,
     is_completed: true,
     is_active: true,
@@ -106,11 +112,14 @@ const googleUserInterviewAttributes = {
 beforeAll(async () => {
     jest.setTimeout(10000);
     await truncate(knex, 'sv_interviews');
+    await truncate(knex, 'sv_participants');
+    await create(knex, 'sv_participants', undefined, localUser as any);
+    await create(knex, 'sv_participants', undefined, facebookParticipant as any);
+    await create(knex, 'sv_participants', undefined, googleParticipant as any);
+    await create(knex, 'sv_participants', undefined, localUser2 as any);
     await truncate(knex, 'users');
-    await create(knex, 'users', undefined, localUser as any);
-    await create(knex, 'users', undefined, facebookUser as any);
-    await create(knex, 'users', undefined, googleUser as any);
-    await create(knex, 'users', undefined, localUser2 as any);
+    await create(knex, 'users', undefined, localUserWithPermission as any);
+    await create(knex, 'users', undefined, localUser2WithPermission as any);
     await dbQueries.create(localUserInterviewAttributes);
     await dbQueries.create(facebookUserInterviewAttributes);
     await dbQueries.create(googleUserInterviewAttributes);
@@ -119,13 +128,14 @@ beforeAll(async () => {
 afterAll(async() => {
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'users');
+    await truncate(knex, 'sv_participants');
 });
 
 describe('create new interviews', () => {
 
     test('create new interview, default returning fields', async () => {
         const newInterviewAttributes = {
-            user_id: googleUser.id,
+            participant_id: googleParticipant.id,
             responses: {},
             validations: {},
             logs: [],
@@ -139,24 +149,24 @@ describe('create new interviews', () => {
 
     test('create new interview, returning a few fields', async () => {
         const newInterviewAttributes = {
-            user_id: googleUser.id,
+            participant_id: googleParticipant.id,
             responses: {},
             validations: {},
             logs: [],
             is_active: true
         };
-        const returning = await dbQueries.create(newInterviewAttributes, ['uuid', 'id', 'responses', 'user_id']);
+        const returning = await dbQueries.create(newInterviewAttributes, ['uuid', 'id', 'responses', 'participant_id']);
         expect(returning).toEqual({
             uuid: expect.anything(),
             id: expect.anything(),
             responses: {},
-            user_id: newInterviewAttributes.user_id
+            participant_id: newInterviewAttributes.participant_id
         })
     });
 
     test('create new interview, returning single field', async () => {
         const newInterviewAttributes = {
-            user_id: googleUser.id,
+            participant_id: googleParticipant.id,
             responses: { foo: 'bar' },
             validations: {},
             logs: [],
@@ -272,7 +282,7 @@ describe('Get interview by user id', () => {
         expect(interview).toEqual({
             id: expect.anything(),
             uuid: localUserInterviewAttributes.uuid,
-            user_id: localUser.id,
+            participant_id: localUser.id,
             is_completed: localUserInterviewAttributes.is_completed,
             responses: localUserInterviewAttributes.responses,
             is_valid: localUserInterviewAttributes.is_valid,
@@ -287,7 +297,7 @@ describe('Get interview by user id', () => {
 
     test('Inactive interview', async () => {
         // Interview for facebook user is invalid
-        const interview = await dbQueries.getUserInterview(facebookUser.id);
+        const interview = await dbQueries.getUserInterview(facebookParticipant.id);
         expect(interview).toBeUndefined();
     });
 });

@@ -4,6 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import _cloneDeep from 'lodash.clonedeep';
 import { subject } from '@casl/ability';
 
 import defineDefaultRoles, { InterviewSubject, InterviewsSubject, VALIDATOR_LVL1_ROLE, VALIDATOR_LVL2_ROLE } from '../roleDefinition';
@@ -15,7 +16,7 @@ defineDefaultRoles();
 const interview = {
     id: 1,
     uuid: 'arbitrary',
-    user_id: 1,
+    participant_id: 1,
     is_active: true
 }
 
@@ -27,22 +28,23 @@ describe('default role', () => {
     };
 
     each([
-        ['can read own', true, 'read', true],
-        ['can update own', true, 'update', true],
-        ['cannot delete own', true, 'delete', false],
-        ['can create own', true, 'create', true],
-        ['cannot validate own', true, 'validate', false],
-        ['cannot confirm own', true, 'confirm', false],
-        ['cannot read other', false, 'read', false],
-        ['cannot update other', false, 'update', false],
-        ['cannot delete other', false, 'delete', false],
-        ['cannot create other', false, 'create', false],
-        ['cannot validate other', false, 'validate', false],
-        ['cannot confirm other', false, 'confirm', false],
-    ]).test('%s', (_title, same, permission, expectedResult) => {
-        user.id = same ? interview.user_id : interview.user_id + 1;
-        const permissions = defineAbilitiesFor(user);
-        expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(expectedResult);
+        ['read same id', true, 'read'],
+        ['update same id', true, 'update'],
+        ['delete same id', true, 'delete'],
+        ['create same id', true, 'create'],
+        ['validate same id', true, 'validate'],
+        ['confirm same id', true, 'confirm'],
+        ['cannot read other', false, 'read'],
+        ['cannot update other', false, 'update'],
+        ['cannot delete other', false, 'delete'],
+        ['cannot create other', false, 'create'],
+        ['cannot validate other', false, 'validate'],
+        ['cannot confirm other', false, 'confirm'],
+    ]).test('Default has no permission: %s', (_title, same, permission) => {
+        const testUser = _cloneDeep(user);
+        testUser.id = same ? interview.participant_id : interview.participant_id + 1;
+        const permissions = defineAbilitiesFor(testUser);
+        expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(false);
     });
 
     test('Interviews list', () => {
@@ -64,22 +66,15 @@ describe('admin role', () => {
     };
 
     each([
-        ['can read own', true, 'read', true],
-        ['can update own', true, 'update', true],
-        ['can delete own', true, 'delete', true],
-        ['can create own', true, 'create', true],
-        ['can validate own', true, 'validate', true],
-        ['can confirm own', true, 'confirm', true],
-        ['can read other', false, 'read', true],
-        ['can update other', false, 'update', true],
-        ['can delete other', false, 'delete', true],
-        ['can create other', false, 'create', true],
-        ['can validate other', false, 'validate', true],
-        ['can confirm other', false, 'confirm', true],
-    ]).test('%s', (_title, same, permission, expectedResult) => {
-        user.id = same ? interview.user_id : interview.user_id + 1;
+        ['can read other', 'read'],
+        ['can update other', 'update'],
+        ['can delete other', 'delete'],
+        ['can create other', 'create'],
+        ['can validate other', 'validate'],
+        ['can confirm other', 'confirm'],
+    ]).test('%s', (_title, permission) => {
         const permissions = defineAbilitiesFor(user);
-        expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(expectedResult);
+        expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(true);
     });
 
     test('Interviews list', () => {
@@ -102,20 +97,13 @@ describe('validator Lvl 1', () => {
     };
 
     each([
-        ['can read own', true, 'read', true],
-        ['can update own', true, 'update', true],
-        ['cannot delete own', true, 'delete', false],
-        ['can create own', true, 'create', true],
-        ['can validate own', true, 'validate', true],
-        ['cannot confirm own', true, 'confirm', false],
-        ['can read other', false, 'read', true],
-        ['cannot update other', false, 'update', false],
-        ['cannot delete other', false, 'delete', false],
-        ['cannot create other', false, 'create', false],
-        ['can validate other', false, 'validate', true],
-        ['cannot confirm other', false, 'confirm', false],
-    ]).test('%s', (_title, same, permission, expectedResult) => {
-        user.id = same ? interview.user_id : interview.user_id + 1;
+        ['can read other', 'read', true],
+        ['cannot update other', 'update', false],
+        ['cannot delete other', 'delete', false],
+        ['cannot create other', 'create', false],
+        ['can validate other', 'validate', true],
+        ['cannot confirm other', 'confirm', false],
+    ]).test('%s', (_title, permission, expectedResult) => {
         const permissions = defineAbilitiesFor(user);
         expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(expectedResult);
     });
@@ -140,20 +128,13 @@ describe('validator Lvl 2', () => {
     };
 
     each([
-        ['can read own', true, 'read', true],
-        ['can update own', true, 'update', true],
-        ['cannot delete own', true, 'delete', false],
-        ['can create own', true, 'create', true],
-        ['can validate own', true, 'validate', true],
-        ['cannot confirm own', true, 'confirm', true],
-        ['can read other', false, 'read', true],
-        ['cannot update other', false, 'update', false],
-        ['cannot delete other', false, 'delete', false],
-        ['cannot create other', false, 'create', false],
-        ['can validate other', false, 'validate', true],
-        ['cannot confirm other', false, 'confirm', true],
-    ]).test('%s', (_title, same, permission, expectedResult) => {
-        user.id = same ? interview.user_id : interview.user_id + 1;
+        ['can read other', 'read', true],
+        ['cannot update other', 'update', false],
+        ['cannot delete other', 'delete', false],
+        ['cannot create other', 'create', false],
+        ['can validate other', 'validate', true],
+        ['cannot confirm other', 'confirm', true],
+    ]).test('%s', (_title, permission, expectedResult) => {
         const permissions = defineAbilitiesFor(user);
         expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(expectedResult);
     });

@@ -1,4 +1,4 @@
-import runClientApp from 'evolution-legacy/lib/app-survey';
+import runClientApp from 'evolution-legacy/lib/apps/participant/app-survey';
 import { SurveyAppConfig } from './config/application.config';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 

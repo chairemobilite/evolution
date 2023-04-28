@@ -97,7 +97,7 @@ const writeCommentsCacheFile = function(comments) {
 
 const fetchInterviewsFromDb = function(users, interviews) { return knex.select('id', 'updated_at', 'responses', 'validations', 'user_id')
   .from('sv_interviews')
-  .whereRaw(`is_active IS TRUE AND user_id IN (${users.ids.join(',')})${interviews.lastUpdatedAt > 0 ? `AND extract(epoch from updated_at) > ${interviews.lastUpdatedAt} ` : ''}`)
+  .whereRaw(`is_active IS TRUE AND participant_id IN (${users.ids.join(',')})${interviews.lastUpdatedAt > 0 ? `AND extract(epoch from updated_at) > ${interviews.lastUpdatedAt} ` : ''}`)
   .then((rows) => {
     interviews.statsByInterviewId = interviews.statsByInterviewId || {};
     comments                      = comments || {};

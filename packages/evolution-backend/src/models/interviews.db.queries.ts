@@ -14,6 +14,7 @@ import {
 import { _booleish, _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 const tableName = 'sv_interviews';
+const participantTable = 'sv_participants';
 
 export interface InterviewSearchAttributes {
     id: number;
@@ -36,13 +37,13 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
                 knex.raw('responses->\'home\' as home'),
                 'i.is_completed',
                 'i.is_valid',
-                'users.email',
-                'users.username',
-                knex.raw('case when users.facebook_id is null then false else true end facebook'),
-                knex.raw('case when users.google_id is null then false else true end google')
+                'participant.email',
+                'participant.username',
+                knex.raw('case when participant.facebook_id is null then false else true end facebook'),
+                knex.raw('case when participant.google_id is null then false else true end google')
             )
             .from(`${tableName} as i`)
-            .join('users', 'i.user_id', 'users.id');
+            .join(`${participantTable} as participant`, 'i.participant_id', 'participant.id');
         // Create the where query
         const whereRawString: string[] = [];
         const bindings: string[] = [];
@@ -110,7 +111,7 @@ const getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, Cus
 };
 
 const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    userId: number
+    participantId: number
 ): Promise<UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
     try {
         const interviews = await knex
@@ -119,17 +120,17 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
                 'sv_interviews.uuid',
                 'responses',
                 'validations',
-                'user_id',
+                'participant_id',
                 'is_valid',
                 'is_completed'
             )
             .from('sv_interviews')
             .whereRaw('sv_interviews.is_active IS TRUE')
-            .andWhere('sv_interviews.user_id', userId);
+            .andWhere('sv_interviews.participant_id', participantId);
         if (interviews.length === 0) {
             return undefined;
         } else if (interviews.length > 1) {
-            console.warn(`There are more than one active interview for user ${userId}`);
+            console.warn(`There are more than one active interview for user ${participantId}`);
         }
         return _removeBlankFields(interviews[0]) as UserInterviewAttributes<
             CustomSurvey,
@@ -403,13 +404,14 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     totalCount: number;
 }> => {
     try {
-        const baseRawFilter = 'i.is_active IS TRUE AND users.is_valid IS TRUE AND users.is_test IS NOT TRUE';
+        const baseRawFilter =
+            'i.is_active IS TRUE AND participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
         const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
         // Get the total count for that query and filter
         const countResult = await knex
             .count('i.id')
             .from(`${tableName} as i`)
-            .leftJoin('users', 'i.user_id', 'users.id')
+            .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
             .whereRaw(rawFilter, bindings);
 
         const totalCount: number =
@@ -438,12 +440,12 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
                 'i.is_completed',
                 'i.is_validated',
                 'i.audits',
-                'users.username',
-                knex.raw('case when users.facebook_id is null then false else true end facebook'),
-                knex.raw('case when users.google_id is null then false else true end google')
+                'participant.username',
+                knex.raw('case when participant.facebook_id is null then false else true end facebook'),
+                knex.raw('case when participant.google_id is null then false else true end google')
             )
             .from(`${tableName} as i`)
-            .leftJoin('users', 'i.user_id', 'users.id')
+            .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
             .whereRaw(rawFilter, bindings);
         // Add sort fields
         sortFields.forEach((field) => {
@@ -480,14 +482,15 @@ const getValidationErrors = async (params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
 }): Promise<{ errors: { key: string; cnt: string }[] }> => {
     try {
-        const baseRawFilter = 'i.is_active IS TRUE AND users.is_valid IS TRUE AND users.is_test IS NOT TRUE';
+        const baseRawFilter =
+            'i.is_active IS TRUE AND participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
         const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
 
         const validationErrorsQuery = knex
             .select('key', knex.raw('sum(value::numeric) cnt'))
             .from(`${tableName} as i`)
             .joinRaw('inner join lateral json_each_text(audits) on TRUE')
-            .leftJoin('users', 'i.user_id', 'users.id')
+            .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
             .whereRaw(rawFilter, bindings)
             .groupBy('key')
             .orderBy('cnt', 'desc');
@@ -508,7 +511,7 @@ const getInterviewsStream = function (params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }) {
-    const baseRawFilter = 'users.is_valid IS TRUE AND users.is_test IS NOT TRUE';
+    const baseRawFilter = 'participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
     const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
     const sortFields = params.sort || [];
     const interviewsQuery = knex
@@ -524,7 +527,7 @@ const getInterviewsStream = function (params: {
             'i.audits'
         )
         .from(`${tableName} as i`)
-        .leftJoin('users', 'i.user_id', 'users.id')
+        .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
         .whereRaw(rawFilter, bindings);
     sortFields.forEach((field) => {
         addOrderByClause(interviewsQuery, field, 'i');

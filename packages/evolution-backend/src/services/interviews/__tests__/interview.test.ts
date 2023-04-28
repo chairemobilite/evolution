@@ -38,7 +38,7 @@ type CustomSurvey = {
 const interviewAttributes: InterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
     uuid: uuidV4(),
     id: 4,
-    user_id: 4,
+    participant_id: 4,
     is_valid: true,
     is_active: true,
     is_completed: false,
@@ -67,7 +67,7 @@ describe('Set interview fields', () => {
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
             id: interviewAttributes.id,
-            user_id: interviewAttributes.user_id,
+            participant_id: interviewAttributes.participant_id,
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
@@ -96,7 +96,7 @@ describe('Set interview fields', () => {
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
             id: interviewAttributes.id,
-            user_id: interviewAttributes.user_id,
+            participant_id: interviewAttributes.participant_id,
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
@@ -122,7 +122,7 @@ describe('Set interview fields', () => {
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
             id: interviewAttributes.id,
-            user_id: interviewAttributes.user_id,
+            participant_id: interviewAttributes.participant_id,
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
@@ -149,7 +149,7 @@ describe('Set interview fields', () => {
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
             id: interviewAttributes.id,
-            user_id: interviewAttributes.user_id,
+            participant_id: interviewAttributes.participant_id,
             is_valid: !interviewAttributes.is_valid,
             is_active: !interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
