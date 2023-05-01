@@ -91,6 +91,9 @@ export class Section extends React.Component {
       const widgetShortname = this.props.widgets[i];
       const widgetConfig = this.props.surveyContext.widgets[widgetShortname];
       unsortedWidgetShortnames.push(widgetShortname);
+      if (widgetConfig === undefined) {
+        continue;
+      }
       if (widgetConfig.randomOrder === true)
       {
         hasRandomOrderWidgets = true;
@@ -155,6 +158,13 @@ export class Section extends React.Component {
       const widgetShortname = this.props.widgets[i];
       surveyHelper.devLog('%c rendering widget ' + widgetShortname, 'background: rgba(0,255,0,0.1);')
       const widgetConfig = this.props.surveyContext.widgets[widgetShortname];
+      if (widgetConfig === undefined) {
+        console.error(`Widget is undefined: ${widgetShortname}`);
+        if (this.props.surveyContext.devMode) {
+          widgetsComponentByShortname[widgetShortname] = <div class="apptr__form-container two-columns question-invalid">{`Widget is undefined: ${widgetShortname}`}</div>
+        }
+        continue;
+      }
       const path         = surveyHelper.interpolatePath(this.props.interview, (widgetConfig.path || `${this.props.shortname}.${widgetShortname}`));
       const customPath   = widgetConfig.customPath ? surveyHelper.interpolatePath(this.props.interview, widgetConfig.customPath) : null;
       const widgetStatus = _get(this.props.interview, `widgets.${widgetShortname}`, {});
