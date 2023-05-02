@@ -22,18 +22,11 @@ interface InterviewListComponentProps extends WithTranslation {
     initialSortBy: { id: string; desc?: boolean }[];
 }
 
-const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = <
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
->(
-        props: InterviewListComponentProps
-    ) => {
+const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InterviewListComponentProps
+) => {
     // We'll start our table without any data
-    const [data, setData] = React.useState<
-        InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[]
-    >([]);
+    const [data, setData] = React.useState<InterviewStatusAttributesBase<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>[]>([]);
     const [loading, setLoading] = React.useState(false);
     const [totalCount, setTotalCount] = React.useState(0);
     const [pageCount, setPageCount] = React.useState(0);

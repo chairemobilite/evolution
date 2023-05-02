@@ -18,7 +18,7 @@ type CustomHousehold = {
 
 // Simply make sure various objects are recognize as WidgetConfig object. Any fault should result in compilation error.
 test('Test text assignation', () => {
-    const widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown> = {
+    const widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown, unknown, unknown, unknown, unknown> = {
         type: 'text',
         align: 'center',
         text: {
@@ -31,7 +31,7 @@ test('Test text assignation', () => {
 });
 
 test('Test input string assignation', () => {
-    let widgetConfig: WidgetConfig<CustomSurvey, CustomHousehold, unknown, unknown> = {
+    let widgetConfig: WidgetConfig<CustomSurvey, CustomHousehold, unknown, unknown, unknown, unknown, unknown, unknown> = {
         type: 'question',
         twoColumns: true,
         path: 'test.foo',
@@ -60,7 +60,7 @@ test('Test input string assignation', () => {
 });
 
 test('Test input text assignation', () => {
-    let widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown> = {
+    let widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown, unknown, unknown, unknown, unknown> = {
         type: 'question',
         twoColumns: true,
         path: 'comments',

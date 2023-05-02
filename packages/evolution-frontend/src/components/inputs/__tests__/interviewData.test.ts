@@ -1,4 +1,4 @@
-import { UserInterviewAttributes } from "evolution-common/lib/services/interviews/interview";
+import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 
 type CustomSurvey = {
     section1?: {
@@ -10,7 +10,7 @@ type CustomSurvey = {
     }
 }
 
-export const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+export const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown, unknown, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
     user_id: 1,

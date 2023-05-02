@@ -15,7 +15,7 @@ const testUser = {
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 jest.mock('../Conditional', () => ({
     checkConditional: jest.fn().mockReturnValue([true, undefined, undefined]),
@@ -84,7 +84,7 @@ const widgets = {
     },
     [group1Name]: {
         type: 'group',
-        path: `groupResponses`
+        path: 'groupResponses'
     }
 };
 const mockedDefaultValue = widgets.widget3.defaultValue as jest.MockedFunction<any>;
@@ -105,7 +105,7 @@ type CustomSurvey = {
     }
 }
 
-const userInterviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+const userInterviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown, unknown, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
     user_id: 1,
@@ -140,8 +140,8 @@ const userInterviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, un
         }
     },
     is_valid: true,
-}
-const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+};
+const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown, unknown, unknown, unknown, unknown, unknown, unknown> = {
     ...userInterviewAttributes,
     widgets: {},
     groups: {},
@@ -242,7 +242,7 @@ const defaultExpectedWidgetStatus = {
         customValue: undefined,
         currentUpdateKey: 0
     }
-}
+};
 
 beforeEach(() => {
     setApplicationConfiguration({ sections, widgets });
@@ -250,7 +250,7 @@ beforeEach(() => {
     mockedCheckValidations.mockClear();
     mockedCheckChoicesConditional.mockClear();
     mockedDefaultValue.mockClear();
-})
+});
 
 test('Test simple widget data', () => {
     // Prepare test data
@@ -329,7 +329,7 @@ test('Test with conditional, change in conditional', () => {
     });
     expect(interview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
     expect(interview.allWidgetsValid).toEqual(true);
-    
+
     // Change the status again
     const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareWidgets(mainSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
     interviewCopy.validations.section1.q2 = false;
@@ -492,10 +492,10 @@ test('Test a group widget, with visibility and default value', () => {
 
     // Make a fourth call, with _all values to check, validity should now be false
     (interviewExpected as any).validations.groupResponses[group2Id].gq1 = false;
-    const valuesByPathForGroup2 = { [`_all`]: true };
-    const [interview4, newValuesByPath4, foundModalOpen4, needUpdate4] = prepareWidgets(groupSection, interview2, { [`_all`]: true }, _cloneDeep(valuesByPathForGroup2));
+    const valuesByPathForGroup2 = { ['_all']: true };
+    const [interview4, newValuesByPath4, foundModalOpen4, needUpdate4] = prepareWidgets(groupSection, interview2, { ['_all']: true }, _cloneDeep(valuesByPathForGroup2));
     expect(interview4).toEqual(expect.objectContaining(interviewExpected));
-    expect(newValuesByPath4).toEqual(Object.assign({}, valuesByPathForGroup2, { [`validations.groupResponses.${group2Id}.gq1`]: false}));
+    expect(newValuesByPath4).toEqual(Object.assign({}, valuesByPathForGroup2, { [`validations.groupResponses.${group2Id}.gq1`]: false }));
     expect(foundModalOpen4).toEqual(false);
     expect(needUpdate4).toEqual(false);
     expect(interview4.groups[group1Name][group1Id].widget3).toEqual({
@@ -557,7 +557,7 @@ describe('Test with choice conditional', () => {
         interviewExpected.validations.section1.q4 = true;
         (testInterviewAttributes as any).responses.section1.q4 = newValue;
         const valuesByPath = { 'responses.section1.q4': newValue };
-    
+
         // Test
         const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
         expect(interview).toEqual(expect.objectContaining(interviewExpected));
@@ -573,7 +573,7 @@ describe('Test with choice conditional', () => {
         });
         expect(interview.visibleWidgets).toEqual(['section1.q4']);
         expect(interview.allWidgetsValid).toEqual(true);
-        
+
     });
 
     test('Change value for undefined', () => {
@@ -590,10 +590,10 @@ describe('Test with choice conditional', () => {
         const interviewExpected = _cloneDeep(userInterviewAttributes) as any;
         interviewExpected.responses.section1.q4 = undefined;
         interviewExpected.validations.section1.q4 = true;
-        
+
         // Put valuesByPath to some other widget, to see how this one changes independently
         const valuesByPath = { 'responses.section1.q2': 3 };
-    
+
         // Test
         const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
         expect(interview).toEqual(expect.objectContaining(interviewExpected));
@@ -613,7 +613,7 @@ describe('Test with choice conditional', () => {
         });
         expect(interview.visibleWidgets).toEqual(['section1.q4']);
         expect(interview.allWidgetsValid).toEqual(true);
-        
+
     });
 
     test('Change value for something else', () => {
@@ -628,11 +628,11 @@ describe('Test with choice conditional', () => {
         const interviewExpected = _cloneDeep(userInterviewAttributes) as any;
         interviewExpected.responses.section1.q4 = updatedValue;
         interviewExpected.validations.section1.q4 = true;
-        
+
         // Put valuesByPath to some other widget, to see how this one changes independently
         const valuesByPath = { 'responses.section1.q2': 3 };
-    
-        // validation and choice conditional response for widget4 
+
+        // validation and choice conditional response for widget4
         mockedCheckValidations.mockReturnValueOnce([true, undefined]);
         mockedCheckChoicesConditional.mockReturnValueOnce([false, updatedValue]);
 
@@ -679,5 +679,5 @@ describe('Test with choice conditional', () => {
         expect(interview.visibleWidgets).toEqual(['section1.q4']);
         expect(interview.allWidgetsValid).toEqual(true);
     });
-})
+});
 

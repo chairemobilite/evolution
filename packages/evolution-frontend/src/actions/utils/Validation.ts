@@ -12,14 +12,14 @@ import { ValidationFunction, LangData } from 'evolution-common/lib/services/widg
  * @returns An array where the first value is a boolean indicating if the value
  * is valid and the second value is the error message if the value is invalid
  */
-export const checkValidations = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    validations: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
+export const checkValidations = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    validations: ValidationFunction<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | undefined,
     value: unknown | undefined,
     customValue: unknown | undefined,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     path: string,
     customPath?: string
-): [boolean, LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined] => {
+): [boolean, LangData<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | undefined] => {
     if (typeof validations === 'function') {
         try {
             const validationsGroup = validations(value, customValue, interview, path, customPath);
@@ -38,8 +38,8 @@ export const checkValidations = <CustomSurvey, CustomHousehold, CustomHome, Cust
     return [true, undefined];
 };
 
-export const validateAllWidgets = function <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+export const validateAllWidgets = function <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>
 ) {
     // TODO Move the allWidgetsValid out of the interview type
     return (interview as any).allWidgetsValid;

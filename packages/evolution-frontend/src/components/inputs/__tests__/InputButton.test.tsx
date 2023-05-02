@@ -20,7 +20,7 @@ const userAttributes = {
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 describe('InputButton with normal options', () => {
     const conditionalFct = jest.fn().mockReturnValue(true);
@@ -58,14 +58,14 @@ describe('InputButton with normal options', () => {
         choices,
         containsHtml: true,
         label: {
-            fr: `Texte en français`,
-            en: `English text`
+            fr: 'Texte en français',
+            en: 'English text'
         },
         isModal: true
     };
 
     test('Render InputButton with normal option type', () => {
-        
+
         const wrapper = TestRenderer.create(
             <InputButton
                 id={'test'}
@@ -82,7 +82,7 @@ describe('InputButton with normal options', () => {
         expect(wrapper).toMatchSnapshot();
         expect(conditionalFct).toHaveBeenCalledTimes(1);
         expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
-        
+
     });
 
     test('Test Button click event', () => {
@@ -109,21 +109,21 @@ describe('InputButton with normal options', () => {
 
         const buttonOption3 = queryByText(choices[3].label['en']);
         expect(buttonOption3).toBeTruthy();
-    
+
         // Click on the close button
         fireEvent.click(buttonOption1 as any);
         expect(mockOnValueChange).toHaveBeenCalledTimes(1);
-        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[0].value }});
+        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[0].value } });
 
         // Click on the close button
         fireEvent.click(buttonOption2 as any);
         expect(mockOnValueChange).toHaveBeenCalledTimes(2);
-        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[1].value }});
+        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[1].value } });
 
         // Click on the close button
         fireEvent.click(buttonOption3 as any);
         expect(mockOnValueChange).toHaveBeenCalledTimes(3);
-        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[3].value }});
+        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[3].value } });
     });
 
     test('Test Button click event with close modal', () => {
@@ -147,15 +147,15 @@ describe('InputButton with normal options', () => {
         // Html was added, so the complete text is not there, it is actually composed of many texts
         const buttonOption1 = queryByText(choices[0].label['en']);
         expect(buttonOption1).toBeTruthy();
-    
+
         // Click on the close button
         fireEvent.click(buttonOption1 as any);
         expect(mockOnValueChange).toHaveBeenCalledTimes(1);
-        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[0].value }});
+        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[0].value } });
         expect(mockCloseModal).toHaveBeenCalledTimes(1);
         expect(mockCloseModal).toHaveBeenCalledWith('modalPath');
-    })
-})
+    });
+});
 
 test('Render InputButton with choice function', () => {
 
@@ -185,7 +185,7 @@ test('Render InputButton with choice function', () => {
         }
     ];
     const choiceFct = jest.fn().mockReturnValue(choices);
-    
+
     const widgetConfig = {
         type: 'question' as const,
         twoColumns: true,
@@ -196,11 +196,11 @@ test('Render InputButton with choice function', () => {
         sameLine: false,
         containsHtml: true,
         label: {
-            fr: `Texte en français`,
-            en: `English text`
+            fr: 'Texte en français',
+            en: 'English text'
         }
     };
-    
+
     const wrapper = TestRenderer.create(
         <InputButton
             id={'test'}
@@ -217,5 +217,5 @@ test('Render InputButton with choice function', () => {
     expect(wrapper).toMatchSnapshot();
     expect(choiceFct).toHaveBeenCalledTimes(1);
     expect(choiceFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
-    
+
 });

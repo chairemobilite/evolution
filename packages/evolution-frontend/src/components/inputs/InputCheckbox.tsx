@@ -15,19 +15,19 @@ import { InputCheckboxType, ChoiceType } from 'evolution-common/lib/services/wid
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
-export interface InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputCheckboxProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange: (e: any, customValue?: string) => void;
     value: string;
     /** Value of the custom field if 'other' is selected */
     customValue?: string;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputCheckboxType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
 }
@@ -36,10 +36,10 @@ interface InputCheckboxState {
     customValue: string;
 }
 
-interface InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface InputCheckboxChoiceProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
-    choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    choice: ChoiceType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     checked: boolean;
@@ -54,8 +54,8 @@ interface InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, Cu
     ) => void;
 }
 
-const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+const InputCheckboxChoice = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InputCheckboxChoiceProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 ) => {
     const id = `${props.id}__input-checkbox__${props.choice.value}`;
     const strValue =
@@ -118,16 +118,16 @@ const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
 };
 
 const InputCheckboxChoiceT = withTranslation()(InputCheckboxChoice) as React.FunctionComponent<
-    InputCheckboxChoiceProps<any, any, any, any>
+    InputCheckboxChoiceProps<any, any, any, any, any, any, any, any>
 >;
 
-export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
+export class InputCheckbox<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> extends React.Component<
+    InputCheckboxProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation,
     InputCheckboxState
 > {
     private customInputRef: React.RefObject<HTMLInputElement> = React.createRef();
 
-    constructor(props: InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
+    constructor(props: InputCheckboxProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation) {
         super(props);
 
         this.state = {

@@ -70,26 +70,26 @@ export default class Interviews {
         return await interviewsDbQueries.findByResponse({ accessCode });
     };
 
-    static getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    static getInterviewByUuid = async <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
         interviewId: string
-    ): Promise<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
+    ): Promise<InterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | undefined> => {
         if (!validateUuid(interviewId)) {
             return undefined;
         }
         return await interviewsDbQueries.getInterviewByUuid(interviewId);
     };
 
-    static getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    static getUserInterview = async <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
         userId: number
-    ): Promise<UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
+    ): Promise<UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> | undefined> => {
         return await interviewsDbQueries.getUserInterview(userId);
     };
 
-    static createInterviewForUser = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    static createInterviewForUser = async <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
         userId: number,
         initialResponses: { [key: string]: any },
         returning: string | string[] = 'uuid'
-    ): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
+    ): Promise<Partial<InterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>>> => {
         // TODO Make sure there is no active interview for this user already?
 
         // Create the interview for this user
@@ -98,7 +98,7 @@ export default class Interviews {
             returning
         );
         if (!interview.uuid || Object.keys(initialResponses).length === 0) {
-            return interview as InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+            return interview as InterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
         }
         // update interview with initial responses so that server updates are run on the initial responses
         const userInterview = await Interviews.getInterviewByUuid(interview.uuid);
@@ -113,11 +113,11 @@ export default class Interviews {
             valuesByPath,
             fieldsToUpdate: ['responses']
         });
-        return interview as InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+        return interview as InterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     };
 
     // TODO Add filters fields as required
-    static getAllMatching = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    static getAllMatching = async <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
         params: {
             filter?: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
                 [key: string]: string | { value: string | boolean | number | null; op?: keyof OperatorSigns };
@@ -128,7 +128,7 @@ export default class Interviews {
             sort?: (string | { field: string; order: 'asc' | 'desc' })[];
         } = {}
     ): Promise<{
-        interviews: InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
+        interviews: InterviewListAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>[];
         totalCount: number;
     }> => {
         const pageIndex = params.pageIndex || 0;

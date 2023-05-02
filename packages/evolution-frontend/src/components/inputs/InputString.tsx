@@ -12,31 +12,29 @@ import { parseString } from 'evolution-common/lib/utils/helpers';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
-export interface InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputStringProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange?: (e: any) => void;
     value?: string;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputStringType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     updateKey: number;
 }
 
-const getStateValue = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => {
+const getStateValue = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(props: InputStringProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>) => {
     const value = _isBlank(props.value)
         ? parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
         : props.value;
     return _isBlank(value) ? '' : value;
 };
 
-export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+export const InputString = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InputStringProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>
 ) => {
     const [value, setValue] = React.useState(getStateValue(props));
     // Update the value with props when updateKey prop is updated. Not using the

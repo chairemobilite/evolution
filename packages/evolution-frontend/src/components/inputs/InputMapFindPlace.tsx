@@ -26,11 +26,11 @@ import InputSelect from './InputSelect';
 import InputMapGoogle from './maps/google/InputMapGoogle';
 import { geocodeMultiplePlaces } from './maps/google/GoogleGeocoder';
 
-export interface InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputMapFindPlaceProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange: (e: any) => void;
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     loadingState?: number;
@@ -38,7 +38,7 @@ export interface InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHom
     shortname?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputMapFindPlaceType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
 }
 
 interface InputMapFindPlaceState {
@@ -65,8 +65,8 @@ interface InputMapFindPlaceState {
  * as possible. Main difference is that there can be multiple markers here and
  * it needs confirmation.
  */
-export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
+export class InputMapPoint<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> extends React.Component<
+    InputMapFindPlaceProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation,
     InputMapFindPlaceState
 > {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
@@ -75,9 +75,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     private shouldFitBoundsIdx = 0;
     private currentBounds: [number, number, number, number] | undefined = undefined;
 
-    constructor(
-        props: InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-    ) {
+    constructor(props: InputMapFindPlaceProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation) {
         super(props);
 
         this.onSearchPlaceButtonMouseDown = this.onSearchPlaceButtonMouseDown.bind(this);

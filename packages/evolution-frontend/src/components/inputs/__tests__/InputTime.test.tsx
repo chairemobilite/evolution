@@ -19,7 +19,7 @@ const userAttributes = {
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 describe('Should correctly render InputTime with minimal parameters', () => {
 
@@ -29,11 +29,11 @@ describe('Should correctly render InputTime with minimal parameters', () => {
         path: 'test.foo',
         containsHtml: true,
         label: {
-            fr: `Texte en français`,
-            en: `English text`
+            fr: 'Texte en français',
+            en: 'English text'
         },
         inputType: 'time' as const
-    }
+    };
 
     test('Test without value', () => {
         // Should have all times, at 5 minutes interval
@@ -80,15 +80,15 @@ describe('Should correctly render InputTime with various parameters', () => {
         path: 'test.foo',
         containsHtml: true,
         label: {
-            fr: `Texte en français`,
-            en: `English text`
+            fr: 'Texte en français',
+            en: 'English text'
         },
         inputType: 'time' as const
-    }
+    };
 
     test('Test with min max times values', () => {
         // Should times between 10 and 12.
-        const widgetConfig = Object.assign({ 
+        const widgetConfig = Object.assign({
             minTimeSecondsSinceMidnight: 10 * 60 * 60,
             maxTimeSecondsSinceMidnight: 12 * 60 * 60
         }, baseWidgetConfig);
@@ -112,7 +112,7 @@ describe('Should correctly render InputTime with various parameters', () => {
         const maxTimesFct = jest.fn().mockReturnValue(12 * 60 * 60);
         const stepFct = jest.fn().mockReturnValue(10);
         // Should display times between 10 and 12 in 10 minutes increments
-        const widgetConfig = Object.assign({ 
+        const widgetConfig = Object.assign({
             minTimeSecondsSinceMidnight: minTimesFct,
             maxTimeSecondsSinceMidnight: maxTimesFct,
             minuteStep: stepFct
@@ -145,7 +145,7 @@ describe('Should correctly render InputTime with various parameters', () => {
             [(13 * 60 * 60).toString()]: ' 13 suffix'
         });
         // have all times, at 15 minutes interval, separator between hours and some suffixes
-        const widgetConfig = Object.assign({ 
+        const widgetConfig = Object.assign({
             minuteStep: 15,
             suffixTimes: suffixTimeFct,
             addHourSeparators: true

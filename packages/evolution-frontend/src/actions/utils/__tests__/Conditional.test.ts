@@ -1,8 +1,8 @@
-import { UserInterviewAttributes } from "evolution-common/lib/services/interviews/interview";
+import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import _cloneDeep from 'lodash.clonedeep';
 import each from 'jest-each';
 
-import { checkConditional, checkChoicesConditional } from "../Conditional";
+import { checkConditional, checkChoicesConditional } from '../Conditional';
 
 const userAttributes = {
     id: 1,
@@ -13,7 +13,7 @@ const userAttributes = {
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 type CustomSurvey = {
     section1?: {
@@ -27,7 +27,7 @@ type CustomSurvey = {
     choicePath?: undefined | null | string | string[];
 }
 
-const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown, unknown, unknown, unknown, unknown> = {
     id: 1,
     uuid: 'arbitrary uuid',
     user_id: 1,
@@ -74,7 +74,7 @@ each([
     ['function which returns 2-elements array with null: false', jest.fn().mockReturnValue([false, null]), [false, null, null]],
     ['function which returns 2-elements array with value: false', jest.fn().mockReturnValue([false, 'string']), [false, 'string', null]],
     ['legacy return value', jest.fn().mockReturnValue(null), [false, undefined, undefined]],
-    ['function with error', jest.fn().mockImplementation(() => { throw 'error' }), [false, undefined, undefined]],
+    ['function with error', jest.fn().mockImplementation(() => { throw 'error'; }), [false, undefined, undefined]],
 ]).test('Test check conditional %s', (_title, conditional, expectedResult) => {
     expect(checkConditional(conditional, interviewAttributes, 'path', 'customPath', userAttributes)).toEqual(expectedResult);
     if (typeof conditional === 'function') {
@@ -111,7 +111,7 @@ describe('Test check choice conditional', () => {
         ] },
         { value: 'e', condition: true },
         { value: 'f', conditional: [false, 'a'] }
-    ]
+    ];
 
     each([
         ['Choices with boolean values (false)', withTrueFalseValues, false, [true, false]],
@@ -143,4 +143,4 @@ describe('Test check choice conditional', () => {
         interview.responses.choicePath = currentValue;
         expect(checkChoicesConditional(currentValue, choices, interview, 'choicePath', userAttributes)).toEqual(expectedResult);
     });
-})
+});

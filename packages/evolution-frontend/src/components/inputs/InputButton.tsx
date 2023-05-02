@@ -14,33 +14,33 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-export interface InputButtonProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputButtonProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
     onValueChange: (e: any) => void;
     value: string;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     size?: 'small' | 'medium' | 'large';
-    widgetConfig: InputButtonType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputButtonType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;
 }
 
-export interface InputButtonOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InputButtonOptionProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> {
     id: string;
-    choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    choice: ChoiceType<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
+    interview: UserInterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     onButtonClick: (e: React.MouseEvent, value: string) => void;
 }
 
-const InputButtonOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputButtonOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+const InputButtonOption = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InputButtonOptionProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 ) => {
     if (
         props.choice.hidden === true ||
@@ -70,13 +70,13 @@ const InputButtonOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
 };
 
 const InputButtonOptionT = withTranslation()(InputButtonOption) as React.FunctionComponent<
-    InputButtonOptionProps<any, any, any, any>
+    InputButtonOptionProps<any, any, any, any, any, any, any, any>
 >;
 
 /** Display a list of choices as buttons */
 
-const InputButton = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputButtonProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
+const InputButton = <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    props: InputButtonProps<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se> & WithTranslation
 ) => {
     const widgetChoices = props.widgetConfig.choices;
     const choices =

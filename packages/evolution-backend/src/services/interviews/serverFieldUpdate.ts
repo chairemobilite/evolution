@@ -9,15 +9,15 @@ import prefilledDbQueries from '../../models/interviewsPreFill.db.queries';
  */
 export type ServerFieldUpdateCallback = {
     field: string | { regex: string };
-    callback: <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-        interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    callback: <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+        interview: InterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
         newValue: unknown | undefined,
         path: string
     ) => Promise<{ [affectedResponseFieldPath: string]: unknown }>;
 };
 
-const waitExecuteCallback = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+const waitExecuteCallback = async <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: InterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     callbackPromise: Promise<{ [affectedResponseFieldPath: string]: unknown }>
 ): Promise<{ [affectedResponseFieldPath: string]: unknown }> => {
     try {
@@ -66,8 +66,8 @@ const getUpdateCallbackForPath = (
  * @param {string[]} unsetValues The valuesbyPath to set to undefined
  * @return {*}  {Promise<{ [key: string]: any }>}
  */
-const updateFields = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+const updateFields = async <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
+    interview: InterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>,
     serverUpdateCallbacks: ServerFieldUpdateCallback[],
     valuesByPath: { [key: string]: unknown },
     unsetValues?: string[]
@@ -125,9 +125,9 @@ export type PreFillResponses = {
  * @param interview The interview to update
  * @returns The responses to update
  */
-export const getPreFilledResponsesByPath = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const getPreFilledResponsesByPath = async <Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>(
     referenceValue: string,
-    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    interview: InterviewAttributes<Su, Ho, Pe, Pl, Ve, Vp, Tr, Se>
 ): Promise<{ [key: string]: unknown }> => {
     try {
         const prefilledResponses = await prefilledDbQueries.getByReferenceValue(referenceValue);
