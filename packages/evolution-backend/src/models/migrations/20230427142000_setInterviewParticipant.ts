@@ -7,7 +7,6 @@
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { Knex } from 'knex';
-import participantsDbQueries from '../participants.db.queries';
 import usersDbQueries from 'chaire-lib-backend/lib/models/db/users.db.queries';
 import { ParticipantAttributes } from '../../services/participants/participant';
 
@@ -29,26 +28,28 @@ export async function up(knex: Knex): Promise<unknown> {
 
     for (let i = 0; i < usersWithInterview.length; i++) {
         const user = usersWithInterview[i] as UserAttributes;
-        const participant = await participantsDbQueries.create({
-            email: user.email,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            is_valid: user.is_valid,
-            is_active: true,
-            profile: user.profile,
-            username: user.username,
-            preferences: user.preferences,
-            password: user.password,
-            is_confirmed: user.is_confirmed,
-            is_test: user.is_test,
-            confirmation_token: user.confirmation_token,
-            password_reset_token: user.password_reset_token,
-            password_reset_expire_at: user.password_reset_expire_at,
-            google_id: user.google_id,
-            facebook_id: user.facebook_id
-        });
+        const returning = await knex(participantTable)
+            .insert({
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                is_valid: user.is_valid,
+                is_active: true,
+                profile: user.profile,
+                username: user.username,
+                preferences: user.preferences,
+                password: user.password,
+                is_confirmed: user.is_confirmed,
+                is_test: user.is_test,
+                confirmation_token: user.confirmation_token,
+                password_reset_token: user.password_reset_token,
+                password_reset_expire_at: user.password_reset_expire_at,
+                google_id: user.google_id,
+                facebook_id: user.facebook_id
+            })
+            .returning('id');
         await knex(interviewTable)
-            .update({ participant_id: participant.id })
+            .update({ participant_id: returning[0].id })
             .where('id', (user as any).interview_id);
     }
 
