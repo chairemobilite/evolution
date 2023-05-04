@@ -19,7 +19,7 @@ For Ubuntu 20.04 or 22.04 users, use:
 sudo apt-get install postgresql postgis lua5.3 liblua5.3-dev postgresql-postgis postgresql-postgis-scripts
 ```
 * Create a `.env` file in the project root directory (you can copy the `.env.example` file) and setup the project
-* `git submodules init` will get the Transition repository
+* `git submodule init` will get the Transition repository
 * `yarn install` or just `yarn`: Will download the packages required by the application
 * `yarn compile`: Convert the typescript files to javascript
 * `yarn setup`: Run this command to setup the database for the current project
