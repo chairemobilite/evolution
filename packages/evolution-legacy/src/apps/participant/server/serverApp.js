@@ -66,6 +66,9 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
     app.use(requestIp.mw()); // to get users ip addresses
     app.use(favicon(path.join(publicDirectory, 'favicon.ico')));
 
+    // TODO: move all routes to socket routes:
+    authRoutes(app, participantAuthModel);
+
     app.set('trust proxy',true); // allow nginx or other proxy server to send request ip address
 
     // send js and css compressed (gzip) to save bandwidth:
@@ -87,9 +90,6 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
 
     app.use('/dist/', publicPath); // this needs to be after gzip middlewares.
 
-
-    // TODO: move all routes to socket routes:
-    authRoutes(app, participantAuthModel);
     // TODO Let the survey project's server.js file do this
     try {
         if (typeof serverSetupFct === 'function') {
