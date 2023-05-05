@@ -19,7 +19,7 @@ For Ubuntu 20.04 or 22.04 users, use:
 sudo apt-get install postgresql postgis lua5.3 liblua5.3-dev postgresql-postgis postgresql-postgis-scripts
 ```
 * Create a `.env` file in the project root directory (you can copy the `.env.example` file) and setup the project
-* `git submodule init` will get the Transition repository
+* `git submodule init && git submodule update` will get the Transition repository
 * `yarn install` or just `yarn`: Will download the packages required by the application
 * `yarn compile`: Convert the typescript files to javascript
 * `yarn setup`: Run this command to setup the database for the current project
@@ -42,3 +42,19 @@ To build and run the *administrative application*:
 
 * `yarn build:admin:dev` or `yarn build:admin:prod` to build the admin app, respectively in develpment adn production modes.
 * `HOST=http://localhost:8082 yarn start:admin --port 8082` will start the server on port 8082, while overwriting the HOST environment variable to match the admin URL.
+
+## Update the application
+
+When updating the application, or switching to a branch that may have changes to the `transition` submodule, run the following instructions to ensure the application is properly up to date
+
+```
+# Pull the branch
+git checkout main
+git pull origin main
+
+# Update the applicaiton
+yarn reset-submodules
+yarn
+yarn compile
+yarn migrate
+```
