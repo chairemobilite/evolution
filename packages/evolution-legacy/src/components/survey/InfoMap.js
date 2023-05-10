@@ -90,7 +90,7 @@ export class InfoMap extends React.Component {
     }
 
     this.bounds            = new this.props.google.maps.LatLngBounds();
-    const title            = surveyHelper.parseString(this.props.widgetConfig.title[this.props.i18n.language] || this.props.widgetConfig.title, this.props.interview, this.props.path, this.props.user);
+    const title            = surveyHelper.translateString(this.props.widgetConfig.title, this.props.i18n, this.props.interview, this.props.path, this.props.user);
     const geojsons         = this.props.widgetConfig.geojsons(this.props.interview, this.props.path, this.props.activeUuid);
     const gMarkers         = [];
     const gPolylines       = [];

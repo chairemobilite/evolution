@@ -206,9 +206,9 @@ export class Question extends React.Component {
       inputType = this.props.widgetConfig.inputType;
     }
     const InputComponent   = this.getInputComponent(inputType);
-    const label            = surveyHelper.parseString(widgetConfig.label[i18n.language] || widgetConfig.label, this.props.interview, this.props.path, this.props.user);
+    const label            = surveyHelper.translateString(widgetConfig.label, this.props.i18n, this.props.interview, this.props.path, this.props.user);
     const twoColumns       = typeof widgetConfig.twoColumns === 'function' ? widgetConfig.twoColumns(this.props.interview, this.props.path) : widgetConfig.twoColumns;
-    const showErrorMessage = widgetStatus.isResponded === true && widgetStatus.isValid === false && !disabled && widgetStatus.errorMessage && widgetStatus.errorMessage[i18n.language] ? true : false;
+    const showErrorMessage = widgetStatus.isResponded === true && widgetStatus.isValid === false && !disabled && widgetStatus.errorMessage ? true : false;
     const content = (
       <div 
         style={{position: 'relative'}}
@@ -225,19 +225,17 @@ export class Question extends React.Component {
               <Markdown className="label" source={label} />
             }
           </label>
-          { showErrorMessage === true && <p className="apptr__form-error-message">{widgetConfig.containsHtml ? <span dangerouslySetInnerHTML={{__html: widgetStatus.errorMessage[i18n.language]}}/> : widgetStatus.errorMessage[i18n.language] }</p>}
+          { showErrorMessage === true && <p className="apptr__form-error-message">{widgetConfig.containsHtml ? <span dangerouslySetInnerHTML={{__html: surveyHelper.translateString(widgetStatus.errorMessage, this.props.i18n, this.props.interview, this.props.path)}}/> : surveyHelper.translateString(widgetStatus.errorMessage, this.props.i18n, this.props.interview, this.props.path) }</p>}
           { /* helpPopup below: */ }
           {    widgetConfig.helpPopup 
             && widgetConfig.helpPopup.title 
-            && widgetConfig.helpPopup.content 
-            && widgetConfig.helpPopup.title[i18n.language] 
-            && widgetConfig.helpPopup.content[i18n.language]
+            && widgetConfig.helpPopup.content
             && (<div>
                 {this.state.helperModalIsOpen && <SimpleModal
                   isOpen       = {true}
                   closeModal   = {this.closeHelperModal}
-                  text         = {surveyHelper.parseString(widgetConfig.helpPopup.content[i18n.language] || widgetConfig.helpPopup.content, this.props.interview, this.props.path, this.props.user)}
-                  title        = {surveyHelper.parseString(widgetConfig.helpPopup.title[i18n.language] || widgetConfig.helpPopup.title, this.props.interview, this.props.path, this.props.user)}
+                  text         = {surveyHelper.translateString(widgetConfig.helpPopup.content, this.props.i18n, this.props.interview, this.props.path, this.props.user)}
+                  title        = {surveyHelper.translateString(widgetConfig.helpPopup.title, this.props.i18n, this.props.interview, this.props.path, this.props.user)}
                   containsHtml = {widgetConfig.helpPopup.containsHtml}
                   action       = {widgetConfig.action}
                 />}
@@ -248,7 +246,7 @@ export class Question extends React.Component {
                   tabIndex  = {-1}
                 >
                   <FontAwesomeIcon icon={faQuestionCircle} className="faIconLeft" />
-                  {surveyHelper.parseString(widgetConfig.helpPopup.title[i18n.language] || widgetConfig.helpPopup.title, this.props.interview, this.props.path, this.props.user)}
+                  {surveyHelper.translateString(widgetConfig.helpPopup.title, this.props.i18n, this.props.interview, this.props.path, this.props.user)}
                 </button>
               </div>)
             }

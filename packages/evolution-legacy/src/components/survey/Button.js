@@ -98,20 +98,19 @@ export class Button extends React.Component {
           onMouseUp = {this.onMouseUp}
         >
           {widgetConfig.icon && <FontAwesomeIcon icon={widgetConfig.icon} className="faIconLeft" />}
-          {surveyHelper.parseString((this.props.label || widgetConfig.label[this.props.i18n.language] || widgetConfig.label), this.props.interview, this.props.path)}
+          {surveyHelper.translateString(this.props.label || widgetConfig.label, this.props.i18n, this.props.interview, this.props.path)}
         </button>
         { /* confirmPopup below: */ }
         {    widgetConfig.confirmPopup 
           && widgetConfig.confirmPopup.shortname 
           && this.props.confirmModalOpenedShortname === widgetConfig.confirmPopup.shortname
           && widgetConfig.confirmPopup.content
-          && widgetConfig.confirmPopup.content[this.props.i18n.language]
           && (<div>
               <ConfirmModal
                 isOpen                      = {true}
                 closeModal                  = {this.props.closeConfirmModal}
-                text                        = {surveyHelper.parseString(widgetConfig.confirmPopup.content[this.props.i18n.language] || widgetConfig.confirmPopup.content, this.props.interview, this.props.path)}
-                title                       = {widgetConfig.confirmPopup.title && widgetConfig.confirmPopup.title[this.props.i18n.language] ? surveyHelper.parseString(widgetConfig.confirmPopup.title[this.props.i18n.language] || widgetConfig.confirmPopup.title, this.props.interview, this.props.path) : null}
+                text                        = {surveyHelper.translateString(widgetConfig.confirmPopup.content, this.props.i18n, this.props.interview, this.props.path)}
+                title                       = {widgetConfig.confirmPopup.title ? surveyHelper.translateString(widgetConfig.confirmPopup.title, this.props.i18n, this.props.interview, this.props.path) : null}
                 cancelAction                = {widgetConfig.confirmPopup.cancelAction}
                 showCancelButton            = {widgetConfig.confirmPopup.showCancelButton !== false}
                 showConfirmButton           = {widgetConfig.confirmPopup.showConfirmButton !== false}

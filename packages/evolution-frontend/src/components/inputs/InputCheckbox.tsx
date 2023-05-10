@@ -42,6 +42,7 @@ interface InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, Cu
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
+    user: CliUser;
     checked: boolean;
     iconSize: string;
     onCheckboxInputChange: React.ChangeEventHandler;
@@ -62,10 +63,12 @@ const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
         props.choice.value !== null && props.choice.value !== undefined
             ? props.choice.value.toString()
             : props.choice.value;
-    const strLabel = surveyHelper.parseString(
-        props.choice.label[props.i18n.language] || props.choice.label,
+    const strLabel = surveyHelper.translateString(
+        props.choice.label,
+        props.i18n,
         props.interview,
-        props.path
+        props.path,
+        props.user
     );
     const inputCheckboxRef: React.RefObject<HTMLInputElement> = React.createRef();
     const iconPath = props.choice.iconPath
@@ -236,6 +239,7 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                     key={`${this.props.id}__${choice.value}__key`}
                     interview={this.props.interview}
                     path={this.props.path}
+                    user={this.props.user}
                     checked={valueSet.has(choice.value)}
                     iconSize={iconSize}
                     onCheckboxClick={this.onCheckboxClick}
@@ -249,10 +253,9 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
         const columnedChoiceInputs = this.getColumnedChoices(choiceInputs);
 
         const strCustomLabel = this.props.widgetConfig.customLabel
-            ? surveyHelper.parseString(
-                this.props.widgetConfig.customLabel[this.props.i18n.language] ||
-                      (this.props.widgetConfig.customLabel as string) ||
-                      '',
+            ? surveyHelper.translateString(
+                this.props.widgetConfig.customLabel,
+                this.props.i18n,
                 this.props.interview,
                 this.props.path
             )

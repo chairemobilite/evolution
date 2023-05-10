@@ -45,6 +45,7 @@ interface InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
+    user: CliUser;
     checked: boolean;
     iconSize: string;
     children?: React.ReactNode;
@@ -66,10 +67,12 @@ const InputRadioChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerso
         props.choice.value !== null && props.choice.value !== undefined
             ? props.choice.value.toString()
             : props.choice.value;
-    const strLabel = surveyHelper.parseString(
-        props.choice.label[props.i18n.language] || props.choice.label,
+    const strLabel = surveyHelper.translateString(
+        props.choice.label,
+        props.i18n,
         props.interview,
-        props.path
+        props.path,
+        props.user
     );
     const inputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
     const iconPath = props.choice.iconPath
@@ -254,6 +257,7 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
                     key={`${this.props.id}__${choice.value}__key`}
                     interview={this.props.interview}
                     path={this.props.path}
+                    user={this.props.user}
                     checked={choice.value === this.props.value}
                     iconSize={iconSize}
                     onRadioClick={this.onRadioClick}

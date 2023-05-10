@@ -49,12 +49,7 @@ const InputSelectOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
             value={props.choice.value}
             className={'input-select-option'}
         >
-            {surveyHelper.parseString(
-                props.choice.label[props.i18n.language] || props.choice.label,
-                props.interview,
-                props.path,
-                props.user
-            )}
+            {surveyHelper.translateString(props.choice.label, props.i18n, props.interview, props.path, props.user)}
         </option>
     );
 };

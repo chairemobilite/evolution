@@ -40,6 +40,18 @@ exports[`InputButton with normal options Render InputButton with normal option t
       english conditional
     </button>
   </div>
+  <div
+    className="survey-question__input-button-input-container"
+  >
+    <button
+      className="survey-section__button button green large"
+      id="test__input-button__val3"
+      onClick={[Function]}
+      type="button"
+    >
+      Translated string
+    </button>
+  </div>
 </div>
 `;
 
