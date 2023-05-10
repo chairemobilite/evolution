@@ -1,5 +1,6 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { WidgetConfig, LangData } from 'evolution-common/lib/services/widgets';
+import { WidgetConfig } from 'evolution-common/lib/services/widgets';
+import { I18nData } from 'evolution-common/lib/utils/helpers';
 
 export type WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     path: string;
@@ -13,7 +14,7 @@ export type WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
     isValid: boolean;
     isResponded: boolean;
     isCustomResponded: boolean;
-    errorMessage?: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    errorMessage?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     groupedObjectId?: string;
     value: unknown;
     customValue?: unknown;

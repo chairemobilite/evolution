@@ -8,7 +8,7 @@
 
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { UserInterviewAttributes, InterviewResponsePath, InterviewResponses } from '../interviews/interview';
-import { ParsingFunction } from '../../utils/helpers';
+import { ParsingFunction, I18nData } from '../../utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 /**
@@ -29,11 +29,7 @@ export type ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, Custom
     path: string,
     customPath?: string,
     user?: CliUser
-) => { validation: boolean; errorMessage: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> }[];
-
-export type LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
-    [lang: string]: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-};
+) => { validation: boolean; errorMessage: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> }[];
 
 export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'string';
@@ -54,7 +50,7 @@ export type InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerso
 
 // TODO This type is used by select, checkbox, radio, buttons etc. See if we can leverage functionality. Now every widget uses a subset of the properties (some may not need some of them, some could use them)
 type BaseChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
-    label: string | { [lang: string]: string };
+    label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     hidden?: boolean;
     icon?: IconProp;
     iconPath?: string;
@@ -88,7 +84,7 @@ export type RadioChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPer
 
 export type GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     groupShortname: string;
-    groupLabel: string | { [lang: string]: string };
+    groupLabel: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     choices: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
 };
 
@@ -119,7 +115,7 @@ export type InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomP
     addCustom?: boolean;
     columns?: number;
     sameLine?: boolean;
-    customLabel?: string | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    customLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     datatype?: 'string' | 'integer' | 'float' | 'text';
 };
 
@@ -141,7 +137,7 @@ export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     addCustom?: boolean;
     columns?: number;
     sameLine?: boolean;
-    customLabel?: string | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    customLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     customChoice?: string;
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
 };
@@ -230,14 +226,14 @@ export type InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     maxValue?: number;
     minValue?: number;
     formatLabel?: (value: number, lang: string) => string;
-    labels?: (string | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)[];
+    labels?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
     trackClassName?: string;
 };
 
 export type InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'datePicker';
     showTimeSelect?: boolean;
-    placeholderText?: string | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    placeholderText?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     maxDate?: Date | ParsingFunction<Date, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     minDate?: Date | ParsingFunction<Date, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     locale?: { [languageCode: string]: string };
@@ -246,8 +242,8 @@ export type InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, Custo
 type InputMapType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     defaultCenter: { lat: number; lon: number };
     geocodingQueryString?: ParsingFunction<string | undefined, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    refreshGeocodingLabel?: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    afterRefreshButtonText?: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    refreshGeocodingLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    afterRefreshButtonText?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     icon?: {
         url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     };
@@ -287,10 +283,10 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
           twoColumns?: boolean;
           path: InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           containsHtml?: boolean;
-          label: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+          label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           helpPopup?: {
-              title: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-              content: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+              title: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+              content: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           };
           validations?: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           conditional?: ParsingFunction<
@@ -318,7 +314,7 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
           type: 'text';
           align?: 'center' | 'left' | 'right';
           containsHtml?: boolean;
-          text: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+          text: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           classes?: string;
           conditional?: ParsingFunction<
               boolean | [boolean] | [boolean, unknown],
@@ -345,7 +341,7 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
           // FIXME What is this path used for? Document and/or type further
           path: string;
           color?: string;
-          label: LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+          label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           hideWhenRefreshing?: boolean;
           icon?: IconProp;
           iconPath?: string;

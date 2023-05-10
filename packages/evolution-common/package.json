@@ -22,6 +22,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "chaire-lib-common": "^0.2.2",
+    "i18next": "^22.4.15",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.isequal": "^4.5.0",
