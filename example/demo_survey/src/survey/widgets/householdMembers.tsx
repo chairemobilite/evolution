@@ -12,6 +12,7 @@ import { faFemale } from '@fortawesome/free-solid-svg-icons/faFemale';
 import { faChild } from '@fortawesome/free-solid-svg-icons/faChild';
 import { faPortrait } from '@fortawesome/free-solid-svg-icons/faPortrait';
 import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
+import { TFunction } from 'i18next';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
@@ -42,24 +43,15 @@ export const personAge = {
   datatype: "integer",
   twoColumns: true,
   containsHtml: true,
-  label: {
-    fr: function(interview) {
-      const householdSize = helper.countPersons(interview);
-      return `Âge${householdSize !== 1 ? `<br /><span class="_pale _oblique">Inscrire 0 pour les bébés de moins de 1 an</span>` : ''}`;
-    },
-    en: function(interview) {
-      const householdSize = helper.countPersons(interview);
-      return `Age${householdSize !== 1 ? `<br /><span class=\"_pale _oblique\">Enter 0 for babies less than 1 years old</span>` : ''}`;
-    }
+  label: (t: TFunction, interview) => {
+    const householdSize = helper.countPersons(interview);
+    return t('survey:Age', { count: householdSize });
   },
   validations: function(value, customValue, interview, path, customPath) {
     return [
       {
         validation: _isBlank(value),
-        errorMessage: {
-          fr: `L'âge est requis.`,
-          en: `Age is required.`
-        }
+        errorMessage: (t: TFunction) => t('survey:validation:AgeRequired')
       },
       {
         validation: (isNaN(Number(value)) || !Number.isInteger(Number(value))),
@@ -136,10 +128,7 @@ export const personGender = {
     {
       value: 'female',
       internalId: 2,
-      label: {
-        fr: "Femme",
-        en: "Female"
-      }
+      label: (t: TFunction) => t('survey:Female')
     },
     {
       value: 'male',
@@ -152,17 +141,10 @@ export const personGender = {
     {
       value: 'custom',
       internalId: 3,
-      label: {
-        fr: function(interview, path) {
-          const householdSize = helper.countPersons(interview);
-          const nickname      = surveyHelperNew.getResponse(interview, path, "Cette personne", '../nickname');
-          return householdSize === 1 ? `Je m'identifie comme` : `${nickname} s'identifie comme`;
-        },
-        en: function(interview, path) {
-          const householdSize = helper.countPersons(interview);
-          const nickname = surveyHelperNew.getResponse(interview, path, "This person", '../nickname');
-          return householdSize === 1 ? `I identify myself as` : `${nickname} identifies themselves as`;
-        }
+      label: (t:TFunction, interview, path) => {
+        const householdSize = helper.countPersons(interview);
+        const nickname      = surveyHelperNew.getResponse(interview, path, "Cette personne", '../nickname');
+        return t('survey:gender:Custom', { count: householdSize, nickname });
       }
     }
   ],

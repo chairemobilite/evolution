@@ -6,6 +6,7 @@
  */
 import moment from 'moment-business-days';
 import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
+import { TFunction } from 'i18next';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
@@ -57,10 +58,7 @@ export const accessCode: SurveyWidgetConfig = {
   inputType: "string",
   datatype: "string",
   containsHtml: true,
-  label: {
-    fr: `Veuillez indiquer le code d'accès inscrit dans la lettre ou le courriel que vous avez reçu<br /><span class="_pale _oblique">Laissez vide si aucun code d'accès reçu</span>`,
-    en: `Please enter the access code written in the letter or the email you received<br /><span class="_pale _oblique">Leave blank if no access code was received</span>`
-  }
+  label: (t: TFunction) => t('survey:AccessCode')
 }
 
 export const householdSize: SurveyWidgetConfig = {
