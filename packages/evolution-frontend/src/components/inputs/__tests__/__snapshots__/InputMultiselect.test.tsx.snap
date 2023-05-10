@@ -623,5 +623,13 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
   >
     english conditional
   </button>
+  <button
+    className="button shortcut-button red"
+    onClick={[Function]}
+    tabIndex={-1}
+    type="button"
+  >
+    Translated shortcut
+  </button>
 </div>
 `;

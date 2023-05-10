@@ -122,8 +122,9 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
                 );
             })
             .map((choice) => {
-                const label = surveyHelper.parseString(
-                    choice.label[this.props.i18n.language] || choice.label,
+                const label = surveyHelper.translateString(
+                    choice.label,
+                    this.props.i18n,
                     this.props.interview,
                     this.props.path,
                     this.props.user
@@ -161,8 +162,9 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
                         tabIndex={-1}
                     >
                         {shortcut.icon && <FontAwesomeIcon icon={shortcut.icon} className="faIconLeft" />}
-                        {surveyHelper.parseString(
-                            shortcut.label[this.props.i18n.language] || shortcut.label,
+                        {surveyHelper.translateString(
+                            shortcut.label,
+                            this.props.i18n,
                             this.props.interview,
                             this.props.path,
                             this.props.user

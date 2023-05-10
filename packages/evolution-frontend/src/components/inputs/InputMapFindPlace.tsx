@@ -312,8 +312,9 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
             : undefined;
 
         const afterRefreshButtonText = this.props.widgetConfig.afterRefreshButtonText
-            ? surveyHelper.parseString(
-                this.props.widgetConfig.afterRefreshButtonText[this.props.i18n.language],
+            ? surveyHelper.translateString(
+                this.props.widgetConfig.afterRefreshButtonText,
+                this.props.i18n,
                 this.props.interview,
                 this.props.path,
                 this.props.user
@@ -341,8 +342,9 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                         ref={this.geocodeButtonRef}
                     >
                         <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />
-                        {surveyHelper.parseString(
-                            this.props.widgetConfig.refreshGeocodingLabel[this.props.i18n.language],
+                        {surveyHelper.translateString(
+                            this.props.widgetConfig.refreshGeocodingLabel,
+                            this.props.i18n,
                             this.props.interview,
                             this.props.path,
                             this.props.user

@@ -83,7 +83,7 @@ exports[`Should correctly render InputDatePicker with various parameters Test ti
         onClick={[Function]}
         onFocus={[Function]}
         onKeyDown={[Function]}
-        placeholder="ClickToSelectDate"
+        placeholder="click"
         readOnly={false}
         type="text"
         value=""

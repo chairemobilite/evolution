@@ -18,7 +18,7 @@ export const Text = ({widgetConfig, widgetStatus, i18n, interview, path, user}) 
     return null;
   }
 
-  const content = surveyHelper.parseString(widgetConfig.text[i18n.language] || widgetConfig.text, interview, path, user);
+  const content = surveyHelper.translateString(widgetConfig.text, i18n, interview, path, user);
   if (_isBlank(content))
   {
     return null;

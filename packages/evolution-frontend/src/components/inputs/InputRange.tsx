@@ -38,12 +38,7 @@ export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
     const labels = props.widgetConfig.labels;
     const labelItems = labels
         ? labels.map((label, idx) => {
-            const labelStr = surveyHelper.parseString(
-                label[props.i18n.language] || label,
-                props.interview,
-                props.path,
-                props.user
-            );
+            const labelStr = surveyHelper.translateString(label, props.i18n, props.interview, props.path, props.user);
             return (
                 <p
                     key={`inputRange_${props.id}_label_${idx}`}

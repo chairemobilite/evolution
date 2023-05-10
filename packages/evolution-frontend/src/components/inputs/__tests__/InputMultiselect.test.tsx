@@ -9,6 +9,7 @@ import TestRenderer from 'react-test-renderer';
 
 import { interviewAttributes } from './interviewData.test';
 import InputMultiselect from '../InputMultiselect';
+import i18next from 'i18next';
 
 const userAttributes = {
     id: 1,
@@ -24,6 +25,7 @@ const userAttributes = {
 describe('Render InputMultiselect with various options', () => {
 
     const conditionalFct = jest.fn().mockReturnValue(true);
+    const translationFct = jest.fn().mockReturnValue('Translated string');
     const choices = [
         {
             value: 'val1',
@@ -45,6 +47,12 @@ describe('Render InputMultiselect with various options', () => {
             value: 'conditionalVal',
             label: { en: 'english conditional', fr: 'conditionnelle' },
             conditional: conditionalFct
+        },
+        {
+            value: 'val3',
+            label: translationFct,
+            hidden: false,
+            color: 'green'
         }
     ];
 
@@ -78,9 +86,11 @@ describe('Render InputMultiselect with various options', () => {
         expect(wrapper).toMatchSnapshot();
         expect(conditionalFct).toHaveBeenCalledTimes(1);
         expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
+        expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
     });
     
     test('With shortcuts', () => {
+        const shortcutTranslateFct = jest.fn().mockReturnValue('Translated shortcut');
         const configWithShortcuts = Object.assign({}, widgetConfig, { 
             shortcuts: [
                 {
@@ -91,6 +101,11 @@ describe('Render InputMultiselect with various options', () => {
                 {
                     value: 'conditionalVal',
                     label: { en: 'english conditional', fr: 'conditionnelle' },
+                    color: 'red'
+                },
+                {
+                    value: 'val3',
+                    label: shortcutTranslateFct,
                     color: 'red'
                 },
             ]
@@ -109,6 +124,7 @@ describe('Render InputMultiselect with various options', () => {
             />
         );
         expect(wrapper).toMatchSnapshot();
+        expect(shortcutTranslateFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
     });
 
     test('With all parameters', () => {

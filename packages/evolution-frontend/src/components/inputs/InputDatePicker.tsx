@@ -63,9 +63,14 @@ export const InputDatePicker = <CustomSurvey, CustomHousehold, CustomHome, Custo
                         : undefined
                 }
                 placeholderText={
-                    props.widgetConfig.placeholderText && props.widgetConfig.placeholderText[props.i18n.language]
-                        ? props.widgetConfig.placeholderText[props.i18n.language]
-                        : props.t('ClickToSelectDate')
+                    props.widgetConfig.placeholderText
+                        ? surveyHelper.translateString(
+                            props.widgetConfig.placeholderText,
+                            props.i18n,
+                            props.interview,
+                            props.path
+                        )
+                        : props.t('main:ClickToSelectDate')
                 }
                 selected={props.value !== undefined ? new Date(props.value) : undefined}
                 onChange={(date) => props.onValueChange({ target: { value: date } })}

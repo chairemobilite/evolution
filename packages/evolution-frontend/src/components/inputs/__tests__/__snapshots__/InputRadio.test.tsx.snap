@@ -155,6 +155,33 @@ exports[`Render InputRadio with various parameter combinations, all parameters C
       </label>
     </div>
   </div>
+  <div
+    className="survey-question__input-radio-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-radio"
+        id="test_val3__input-radio__val3"
+        name="test_val3"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="radio"
+        value="val3"
+      />
+      <label
+        htmlFor="test_val3__input-radio__val3"
+        onClick={[Function]}
+      >
+        <span>
+          Translated string
+        </span>
+      </label>
+    </div>
+  </div>
 </div>
 `;
 
@@ -282,6 +309,33 @@ exports[`Render InputRadio with various parameter combinations, all parameters I
         >
           <span>
             english conditional
+          </span>
+        </label>
+      </div>
+    </div>
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_val3__input-radio__val3"
+          name="test_val3"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="val3"
+        />
+        <label
+          htmlFor="test_val3__input-radio__val3"
+          onClick={[Function]}
+        >
+          <span>
+            Translated string
           </span>
         </label>
       </div>
@@ -531,10 +585,6 @@ exports[`Render InputRadio with various parameter combinations, all parameters W
         value=""
       />
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-group-column"
-  >
     <div
       className="survey-question__input-radio-input-container"
       onClick={[Function]}
@@ -558,6 +608,37 @@ exports[`Render InputRadio with various parameter combinations, all parameters W
         >
           <span>
             english conditional
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_val3__input-radio__val3"
+          name="test_val3"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="val3"
+        />
+        <label
+          htmlFor="test_val3__input-radio__val3"
+          onClick={[Function]}
+        >
+          <span>
+            Translated string
           </span>
         </label>
       </div>

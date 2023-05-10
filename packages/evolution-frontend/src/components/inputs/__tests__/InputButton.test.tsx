@@ -10,6 +10,7 @@ import { render, fireEvent } from '@testing-library/react';
 
 import { interviewAttributes } from './interviewData.test';
 import InputButton from '../InputButton';
+import i18next from 'i18next';
 
 const userAttributes = {
     id: 1,
@@ -24,6 +25,7 @@ const userAttributes = {
 
 describe('InputButton with normal options', () => {
     const conditionalFct = jest.fn().mockReturnValue(true);
+    const translationFct = jest.fn().mockReturnValue('Translated string');
     const choices = [
         {
             value: 'val1',
@@ -47,6 +49,12 @@ describe('InputButton with normal options', () => {
             value: 'conditionalVal',
             label: { en: 'english conditional', fr: 'conditionnelle' },
             conditional: conditionalFct
+        },
+        {
+            value: 'val3',
+            label: translationFct,
+            hidden: false,
+            color: 'green'
         }
     ];
 
@@ -82,6 +90,7 @@ describe('InputButton with normal options', () => {
         expect(wrapper).toMatchSnapshot();
         expect(conditionalFct).toHaveBeenCalledTimes(1);
         expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
+        expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
         
     });
 

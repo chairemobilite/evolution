@@ -155,6 +155,33 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
       </label>
     </div>
   </div>
+  <div
+    className="survey-question__input-checkbox-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-checkbox"
+        id="test_val3__input-checkbox__val3"
+        name="test_val3"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="checkbox"
+        value="val3"
+      />
+      <label
+        htmlFor="test_val3__input-checkbox__val3"
+        onClick={[Function]}
+      >
+        <span>
+          Translated string
+        </span>
+      </label>
+    </div>
+  </div>
 </div>
 `;
 
@@ -282,6 +309,33 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
         >
           <span>
             english conditional
+          </span>
+        </label>
+      </div>
+    </div>
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_val3__input-checkbox__val3"
+          name="test_val3"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="val3"
+        />
+        <label
+          htmlFor="test_val3__input-checkbox__val3"
+          onClick={[Function]}
+        >
+          <span>
+            Translated string
           </span>
         </label>
       </div>
@@ -519,10 +573,6 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
         </label>
       </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-checkbox-group-column"
-  >
     <div
       className="survey-question__input-checkbox-input-container"
       onClick={[Function]}
@@ -546,6 +596,37 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
         >
           <span>
             english conditional
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-checkbox-group-column"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_val3__input-checkbox__val3"
+          name="test_val3"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="val3"
+        />
+        <label
+          htmlFor="test_val3__input-checkbox__val3"
+          onClick={[Function]}
+        >
+          <span>
+            Translated string
           </span>
         </label>
       </div>

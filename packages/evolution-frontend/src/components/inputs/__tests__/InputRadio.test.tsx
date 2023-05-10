@@ -13,6 +13,7 @@ import { interviewAttributes } from './interviewData.test';
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
 
 import InputRadio from '../InputRadio';
+import i18next from 'i18next';
 
 jest.mock('chaire-lib-common/lib/utils/RandomUtils', () => ({
     shuffle: jest.fn()
@@ -34,6 +35,7 @@ const userAttributes = {
 describe('Render InputRadio with various parameter combinations, all parameters', () => {
 
     const conditionalFct = jest.fn().mockReturnValue(true);
+    const translationFct = jest.fn().mockReturnValue('Translated string');
     const choices = [
         {
             value: 'val1',
@@ -55,6 +57,12 @@ describe('Render InputRadio with various parameter combinations, all parameters'
             value: 'conditionalVal',
             label: { en: 'english conditional', fr: 'conditionnelle' },
             conditional: conditionalFct
+        },
+        {
+            value: 'val3',
+            label: translationFct,
+            hidden: false,
+            color: 'green'
         }
     ];
 
@@ -99,6 +107,7 @@ describe('Render InputRadio with various parameter combinations, all parameters'
         expect(wrapper).toMatchSnapshot();
         expect(conditionalFct).toHaveBeenCalledTimes(1);
         expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
+        expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
     });
 
     test('Conditional value hidden, same line', () => {

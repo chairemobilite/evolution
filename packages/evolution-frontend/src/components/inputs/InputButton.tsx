@@ -59,11 +59,7 @@ const InputButtonOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
                 id={props.id}
             >
                 {props.choice.icon && <FontAwesomeIcon icon={props.choice.icon} className="faIconLeft" />}
-                {surveyHelper.parseString(
-                    props.choice.label[props.i18n.language] || props.choice.label,
-                    props.interview,
-                    props.path
-                )}
+                {surveyHelper.translateString(props.choice.label, props.i18n, props.interview, props.path, props.user)}
             </button>
         </div>
     );

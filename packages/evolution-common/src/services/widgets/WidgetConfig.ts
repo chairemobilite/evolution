@@ -350,8 +350,10 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
           action: (section: any, sections: any[], saveCallback?: () => void) => void;
           // FIXME: Type the saveCallback. There is a `this` bound to the function, with props.interview. See if we can pass the interview as parameter instead, and/or anything else.
           saveCallback?: () => void;
-          // FIXME Type the confirm popup
-          confirmPopup?: any;
+          confirmPopup?: {
+              title?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+              content: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+          };
           size?: 'small' | 'medium' | 'large';
           conditional?: ParsingFunction<
               boolean | [boolean] | [boolean, unknown],
@@ -370,5 +372,6 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
               CustomHome,
               CustomPerson
           >;
+          title: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           // TODO Further type this
       };

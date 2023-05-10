@@ -96,6 +96,12 @@ exports[`Render InputSelect with normal option type 1`] = `
     >
       english conditional
     </option>
+    <option
+      className="input-select-option"
+      value="val3"
+    >
+      Translated string
+    </option>
     <optgroup
       label=""
     />
