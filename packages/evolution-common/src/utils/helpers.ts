@@ -6,6 +6,7 @@
  */
 import _get from 'lodash.get';
 import _set from 'lodash.set';
+import { i18n, TFunction } from 'i18next';
 
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -16,6 +17,36 @@ export type ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, Custom
     path: string,
     user?: CliUser
 ) => T;
+
+export type LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+    [lang: string]: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+};
+
+export type TranslatableStringFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
+    t: TFunction,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    path: string,
+    user?: CliUser
+) => string;
+
+export type I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
+    | string
+    | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | TranslatableStringFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+
+export const translateString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    i18nData: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
+    i18nObj: i18n,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    path: string,
+    user?: CliUser
+): string | undefined => {
+    return typeof i18nData === 'function'
+        ? i18nData(i18nObj.t, interview, path, user)
+        : typeof i18nData === 'object'
+            ? parseString(i18nData[i18nObj.language], interview, path, user)
+            : i18nData;
+};
 
 /**
  * Verify if the value is a function. If so, call it with the other parameters,

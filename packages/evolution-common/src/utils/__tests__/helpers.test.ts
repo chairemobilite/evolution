@@ -5,10 +5,17 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import each from 'jest-each';
+import i18n from 'i18next';
 import _cloneDeep from 'lodash.clonedeep';
 import { UserInterviewAttributes } from '../../services/interviews/interview';
 
 import * as Helpers from '../helpers';
+
+jest.mock('i18next', () => ({
+    t: jest.fn(),
+    language: 'en'
+}));
+const mockedT = i18n.t as jest.MockedFunction<typeof i18n.t>;
 
 type CustomSurvey = {
     section1?: {
@@ -94,6 +101,12 @@ const interviewAttributes2: UserInterviewAttributes<any, any, any, any> = {
     },
     is_valid: true
 };
+
+const arbitraryFunction = jest.fn();
+beforeEach(() => {
+    mockedT.mockClear();
+    arbitraryFunction.mockClear();
+})
 
 test('devLog', () => {
     // Not really a test, just make sure it does not throw
@@ -330,6 +343,21 @@ test('parseInteger', () => {
     expect(Helpers.parseInteger(parseFctStr, interviewAttributes, 'some.path', userAttributes)).toEqual(returnValue);
     expect(parseFctStr).toHaveBeenCalledTimes(2);
     expect(parseFctStr).toHaveBeenLastCalledWith(interviewAttributes, 'some.path', userAttributes);
+});
+
+each([
+    ['Simple string', 'test', 'test', undefined],
+    ['Object with simple strings', { en: 'english', fr: 'french' }, 'english', undefined],
+    ['Object with parsed function', { en: arbitraryFunction.mockReturnValue('english'), fr: jest.fn().mockReturnValue('french') }, 'english', 'parseString'],
+    ['TFunction', arbitraryFunction.mockReturnValue('english'), 'english', 'parseWithT'],
+]).test('translate string: %s', (_title, toTranslate, expected, testCall?: 'parseString' | 'parseWithT') => {
+    const path = 'some.path';
+    expect(Helpers.translateString(toTranslate, i18n, interviewAttributes, path, userAttributes)).toEqual(expected);
+    if (testCall === 'parseString') {
+        expect(arbitraryFunction).toHaveBeenCalledWith(interviewAttributes, path, userAttributes);
+    } else if (testCall === 'parseWithT') {
+        expect(arbitraryFunction).toHaveBeenCalledWith(i18n.t, interviewAttributes, path, userAttributes);
+    }
 });
 
 each([

@@ -1,5 +1,6 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { ValidationFunction, LangData } from 'evolution-common/lib/services/widgets';
+import { ValidationFunction } from 'evolution-common/lib/services/widgets';
+import { I18nData } from 'evolution-common/lib/utils/helpers';
 
 /**
  * Check the validations for a specific value
@@ -19,7 +20,7 @@ export const checkValidations = <CustomSurvey, CustomHousehold, CustomHome, Cust
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     path: string,
     customPath?: string
-): [boolean, LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined] => {
+): [boolean, I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined] => {
     if (typeof validations === 'function') {
         try {
             const validationsGroup = validations(value, customValue, interview, path, customPath);
