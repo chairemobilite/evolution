@@ -16,13 +16,13 @@ export async function up(knex: Knex): Promise<unknown> {
     // named only 'interviews' so the default index name is not found.  To avoid
     // the migration failing for those databases, we need to drop those indexes
     // by name if exists. Knex does not support this, we use raw
-    await knex.schema.raw(`DROP INDEX IF EXISTS sv_interviews_is_active_index`);
-    await knex.schema.raw(`DROP INDEX IF EXISTS sv_interviews_is_frozen_index`);
-    await knex.schema.raw(`DROP INDEX IF EXISTS sv_interviews_start_at_index`);
-    await knex.schema.raw(`DROP INDEX IF EXISTS sv_interviews_is_started_index`);
-    await knex.schema.raw(`DROP INDEX IF EXISTS interviews_is_active_index`);
-    await knex.schema.raw(`DROP INDEX IF EXISTS interviews_start_at_index`);
-    await knex.schema.raw(`DROP INDEX IF EXISTS interviews_is_started_index`);
+    await knex.schema.raw('DROP INDEX IF EXISTS sv_interviews_is_active_index');
+    await knex.schema.raw('DROP INDEX IF EXISTS sv_interviews_is_frozen_index');
+    await knex.schema.raw('DROP INDEX IF EXISTS sv_interviews_start_at_index');
+    await knex.schema.raw('DROP INDEX IF EXISTS sv_interviews_is_started_index');
+    await knex.schema.raw('DROP INDEX IF EXISTS interviews_is_active_index');
+    await knex.schema.raw('DROP INDEX IF EXISTS interviews_start_at_index');
+    await knex.schema.raw('DROP INDEX IF EXISTS interviews_is_started_index');
     return;
 }
 
