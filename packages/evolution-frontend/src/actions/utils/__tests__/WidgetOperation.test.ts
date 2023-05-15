@@ -679,5 +679,29 @@ describe('Test with choice conditional', () => {
         expect(interview.visibleWidgets).toEqual(['section1.q4']);
         expect(interview.allWidgetsValid).toEqual(true);
     });
-})
+});
 
+describe('Test text widget', () => {
+
+    test('Test with path and conditional', () => {
+        // Test data
+        const mockConditional = jest.fn();
+        const path = 'somePath';
+        const widget = {
+            type: 'text',
+            align: 'center',
+            path,
+            text: 'Test text',
+            conditional: mockConditional
+        };
+        mockedCheckConditional.mockReturnValueOnce([true, undefined, undefined]);
+        setApplicationConfiguration({ sections: { [mainSection]: { widgets: ['widget'] }}, widgets: { widget } });
+
+        // Initialize current responses
+        const testInterviewAttributes = _cloneDeep(interviewAttributes);
+        prepareWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q4': true }, { _all: true });
+
+        expect(mockedCheckConditional).toHaveBeenLastCalledWith(mockConditional, testInterviewAttributes, path, undefined);
+    })
+
+})

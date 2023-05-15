@@ -324,7 +324,7 @@ const prepareWidget = function <CustomSurvey, CustomHousehold, CustomHome, Custo
         }
         const componentType = widgetConfig.type;
         const path =
-            componentType === 'group' || componentType === 'question'
+            typeof widgetConfig.path === 'string'
                 ? widgetPrepData.parentPath && widgetPrepData.parentPath.length > 0
                     ? [widgetPrepData.parentPath, surveyHelper.interpolatePath(data.interview, widgetConfig.path)].join(
                         '.'

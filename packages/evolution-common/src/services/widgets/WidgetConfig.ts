@@ -313,6 +313,7 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
     | {
           type: 'text';
           align?: 'center' | 'left' | 'right';
+          path?: string;
           containsHtml?: boolean;
           text: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
           classes?: string;
@@ -365,6 +366,7 @@ export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson
       }
     | {
           type: 'infoMap';
+          path?: string;
           conditional?: ParsingFunction<
               boolean | [boolean] | [boolean, unknown],
               CustomSurvey,
