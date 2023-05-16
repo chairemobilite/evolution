@@ -37,6 +37,7 @@ export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPer
     maxLength?: number;
     datatype?: 'string' | 'integer' | 'float';
     size?: 'large' | 'small' | 'medium';
+    textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
 };
 
 export type InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {

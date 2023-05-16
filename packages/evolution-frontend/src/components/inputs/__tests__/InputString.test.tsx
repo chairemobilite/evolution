@@ -32,6 +32,7 @@ test('Should correctly render InputString with all parameters', () =>{
         datatype: 'string' as const,
         maxLength: 20,
         defaultValue: 'test',
+        textTransform: 'lowercase' as const,
         containsHtml: true,
         label: {
             fr: `Texte en français`,
