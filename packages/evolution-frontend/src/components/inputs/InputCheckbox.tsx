@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
+import DOMPurify from 'dompurify';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -113,7 +114,7 @@ const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
                             />
                         </span>
                     )}
-                    <span>{strLabel}</span>
+                    <span dangerouslySetInnerHTML={{ __html : strLabel ? DOMPurify.sanitize(strLabel) : '' }} />
                 </label>
             </div>
         </div>

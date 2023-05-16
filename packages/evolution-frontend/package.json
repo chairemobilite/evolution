@@ -33,6 +33,7 @@
     "chaire-lib-common": "^0.2.2",
     "chaire-lib-frontend": "^0.2.2",
     "date-fns": "^2.29.1",
+    "dompurify": "^3.0.3",
     "evolution-common": "^0.2.2",
     "geojson": "^0.5.0",
     "history": "^4.9.0",
