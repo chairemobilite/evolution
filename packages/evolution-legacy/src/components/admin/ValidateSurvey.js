@@ -11,11 +11,11 @@ import moment              from 'moment-business-days';
 import _get                from 'lodash.get';
 
 import config                 from 'chaire-lib-common/lib/config/shared/project.config';
+import Preferences from 'chaire-lib-common/lib/config/Preferences';
 import * as surveyHelperNew   from 'evolution-common/lib/utils/helpers';
 import Section                from '../survey/Section';
 import SectionNav             from '../survey/SectionNav';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import ConfirmModal           from '../survey/modal/ConfirmModal';
 import LoadingPage            from '../shared/LoadingPage';
 import { startSetSurveyValidateInterview, startUpdateSurveyValidateInterview, startResetSurveyValidateInterview, startSurveyValidateAddGroupedObjects, startSurveyValidateRemoveGroupedObjects } from '../../actions/survey/survey';
 import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewContext';
@@ -26,7 +26,8 @@ export class ValidateSurvey extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      confirmModalOpenedShortname: null
+      confirmModalOpenedShortname: null,
+      preferencesLoaded: false
     };
     // set language if empty and change locale:
     if (!props.i18n.language || config.languages.indexOf(props.i18n.language) <= -1)
@@ -61,6 +62,9 @@ export class ValidateSurvey extends React.Component {
   componentDidMount() {
     const interviewUuid = this.props.interviewUuid;
     this.props.startSetSurveyValidateInterview(interviewUuid);
+    Preferences.load().then(() => {
+        this.setState({ preferencesLoaded: true })
+    })
   }
 
   onKeyPress(e) {
