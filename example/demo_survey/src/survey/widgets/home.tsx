@@ -444,6 +444,7 @@ export const homePostalCode = {
   inputType: "string",
   path: "home.postalCode",
   datatype: "string",
+  textTransform: "uppercase",
   twoColumns: true,
   label: {
     fr: "Code postal",

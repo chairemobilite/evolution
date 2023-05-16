@@ -8,6 +8,11 @@ exports[`Should correctly render InputString with a value of 0 1`] = `
   maxLength={255}
   name="test"
   onChange={[Function]}
+  style={
+    Object {
+      "textTransform": "none",
+    }
+  }
   type="text"
   value={0}
 />
@@ -22,6 +27,11 @@ exports[`Should correctly render InputString with all parameters 1`] = `
   name="test"
   onBlur={[Function]}
   onChange={[Function]}
+  style={
+    Object {
+      "textTransform": "lowercase",
+    }
+  }
   type="text"
   value="test"
 />
@@ -35,6 +45,11 @@ exports[`Should correctly render InputString with base parameters 1`] = `
   maxLength={255}
   name="test"
   onChange={[Function]}
+  style={
+    Object {
+      "textTransform": "none",
+    }
+  }
   type="text"
   value="value"
 />
@@ -49,6 +64,11 @@ exports[`Should correctly render InputString with default value as function 1`] 
   name="test"
   onBlur={[Function]}
   onChange={[Function]}
+  style={
+    Object {
+      "textTransform": "none",
+    }
+  }
   type="text"
   value="fctDefault"
 />
