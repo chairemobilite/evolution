@@ -11,6 +11,7 @@ import moment              from 'moment-business-days';
 import _get                from 'lodash.get';
 
 import config                                                                                         from 'chaire-lib-common/lib/config/shared/project.config';
+import Preferences from 'chaire-lib-common/lib/config/Preferences';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import Section                                                                                        from './Section';
 import SectionNav                                                                                     from './SectionNav';
@@ -28,7 +29,8 @@ export class Survey extends React.Component {
     super(props);
     surveyHelperNew.devLog('params_survey', props.location.search)
     this.state = {
-      confirmModalOpenedShortname: null
+      confirmModalOpenedShortname: null,
+      preferencesLoaded: false
     };
     // set language if empty and change locale:
     if (!props.i18n.language || config.languages.indexOf(props.i18n.language) <= -1)
@@ -67,6 +69,9 @@ export class Survey extends React.Component {
     const pathSectionParentSection = pathSectionShortname && this.surveyContext.sections[pathSectionShortname] ? this.surveyContext.sections[pathSectionShortname].parentSection : null;
     const { state } = this.context;
     this.props.startSetInterview(existingActiveSection || pathSectionParentSection, surveyUuid, state.status === 'entering' && Object.keys(state.responses).length > 0 ? state.responses : undefined);
+    Preferences.load().then(() => {
+        this.setState({ preferencesLoaded: true })
+    });
   }
 
   onKeyPress(e) {
