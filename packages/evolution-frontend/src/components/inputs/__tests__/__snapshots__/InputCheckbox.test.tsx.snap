@@ -1,5 +1,74 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Render InputCheckbox with HTML label HTML label 1`] = `
+<div
+  className="survey-question__input-checkbox-group-container"
+>
+  <div
+    className="survey-question__input-checkbox-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-checkbox"
+        id="test_first value__input-checkbox__first value"
+        name="test_first value"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="checkbox"
+        value="first value"
+      />
+      <label
+        htmlFor="test_first value__input-checkbox__first value"
+        onClick={[Function]}
+      >
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "<div>first value</div>",
+            }
+          }
+        />
+      </label>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-checkbox-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-checkbox"
+        id="test_second value__input-checkbox__second value"
+        name="test_second value"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="checkbox"
+        value="second value"
+      />
+      <label
+        htmlFor="test_second value__input-checkbox__second value"
+        onClick={[Function]}
+      >
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "<div>second value</div>",
+            }
+          }
+        />
+      </label>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Render InputCheckbox with minimum parameters Minimum parameters 1`] = `
 <div
   className="survey-question__input-checkbox-group-container"
@@ -25,9 +94,13 @@ exports[`Render InputCheckbox with minimum parameters Minimum parameters 1`] = `
         htmlFor="test_val1__input-checkbox__val1"
         onClick={[Function]}
       >
-        <span>
-          english value
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "english value",
+            }
+          }
+        />
       </label>
     </div>
   </div>
@@ -52,9 +125,13 @@ exports[`Render InputCheckbox with minimum parameters Minimum parameters 1`] = `
         htmlFor="test_val2__input-checkbox__val2"
         onClick={[Function]}
       >
-        <span>
-          Unilingual label
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "Unilingual label",
+            }
+          }
+        />
       </label>
     </div>
   </div>
@@ -109,9 +186,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
             />
           </svg>
         </span>
-        <span>
-          english value
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "english value",
+            }
+          }
+        />
       </label>
     </div>
   </div>
@@ -149,9 +230,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
             }
           />
         </span>
-        <span>
-          Unilingual label
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "Unilingual label",
+            }
+          }
+        />
       </label>
     </div>
   </div>
@@ -176,9 +261,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
         htmlFor="test_val3__input-checkbox__val3"
         onClick={[Function]}
       >
-        <span>
-          Translated string
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "Translated string",
+            }
+          }
+        />
       </label>
     </div>
   </div>
@@ -236,9 +325,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
               />
             </svg>
           </span>
-          <span>
-            english value
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "english value",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -276,9 +369,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
               }
             />
           </span>
-          <span>
-            Unilingual label
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Unilingual label",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -307,9 +404,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
           htmlFor="test_conditionalVal__input-checkbox__conditionalVal"
           onClick={[Function]}
         >
-          <span>
-            english conditional
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "english conditional",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -334,9 +435,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
           htmlFor="test_val3__input-checkbox__val3"
           onClick={[Function]}
         >
-          <span>
-            Translated string
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Translated string",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -385,9 +490,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
               }
             />
           </span>
-          <span>
-            Unilingual label
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Unilingual label",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -412,9 +521,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
           htmlFor="test_conditionalVal__input-checkbox__conditionalVal"
           onClick={[Function]}
         >
-          <span>
-            english conditional
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "english conditional",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -466,9 +579,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
               />
             </svg>
           </span>
-          <span>
-            english value
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "english value",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -527,9 +644,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
               />
             </svg>
           </span>
-          <span>
-            english value
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "english value",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -567,9 +688,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
               }
             />
           </span>
-          <span>
-            Unilingual label
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Unilingual label",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -594,9 +719,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
           htmlFor="test_conditionalVal__input-checkbox__conditionalVal"
           onClick={[Function]}
         >
-          <span>
-            english conditional
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "english conditional",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -625,9 +754,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
           htmlFor="test_val3__input-checkbox__val3"
           onClick={[Function]}
         >
-          <span>
-            Translated string
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Translated string",
+              }
+            }
+          />
         </label>
       </div>
     </div>
@@ -652,9 +785,13 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
           htmlFor="test_custom__input-checkbox__custom"
           onClick={[Function]}
         >
-          <span>
-            Other
-          </span>
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Other",
+              }
+            }
+          />
         </label>
       </div>
     </div>

@@ -214,5 +214,51 @@ describe('Render InputRadio with minimum parameters', () => {
         );
         expect(wrapper).toMatchSnapshot();
     });
-    
+});
+
+describe('Render InputRadio with HTML label', () => {
+
+    const choices = [
+        {
+            value: 'first value',
+            label: {
+                fr: '<div>premiere valeur</div>',
+                en: '<div>first value</div>'
+            }
+        },
+        {
+            value: 'second value',
+            label: '<div>second value</div>'
+        }
+    ];
+
+    const widgetConfig = {
+        type: 'question' as const,
+        twoColumns: true,
+        path: 'test.foo',
+        inputType: 'radio' as const,
+        choices,
+        containsHtml: true,
+        label: {
+            fr: `Texte en français`,
+            en: `English text`
+        }
+    };
+
+    test('HTML label', () => {
+        const wrapper = TestRenderer.create(
+            <InputRadio
+                id={'test'}
+                onValueChange={() => { /* nothing to do */}}
+                widgetConfig={widgetConfig}
+                value='value'
+                inputRef={React.createRef()}
+                size='medium'
+                interview={interviewAttributes}
+                user={userAttributes}
+                path='foo.test'
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
 });
