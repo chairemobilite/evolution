@@ -24,13 +24,11 @@ export interface InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, Cust
     customValue?: string;
     // FIXME: customPath and customChoice are not part of checkbox, otherwise very similar to this one. Can they be treated the same? How does checkbox handle customPath?
     customPath?: string;
-    customChoice?: string;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
@@ -169,7 +167,11 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     onRadioInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.stopPropagation();
 
-        if (this.props.customPath && e.target.value !== this.props.customChoice && this.props.customValue !== null) {
+        if (
+            this.props.customPath &&
+            e.target.value !== this.props.widgetConfig.customChoice &&
+            this.props.customValue !== null
+        ) {
             this.props.onValueChange(e, undefined);
             this.setState(() => ({ customValue: '' }));
         } else {
@@ -187,12 +189,12 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 
     onCustomInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         e.stopPropagation();
-        this.props.onValueChange({ target: { value: this.props.customChoice } }, e.target.value);
+        this.props.onValueChange({ target: { value: this.props.widgetConfig.customChoice } }, e.target.value);
     };
 
     onCustomInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
         e.stopPropagation();
-        if (this.props.customChoice !== this.props.value) {
+        if (this.props.widgetConfig.customChoice !== this.props.value) {
             // trigger change on custom choice radio button:
             const clickEvent = new MouseEvent('click', {
                 view: window,
@@ -266,7 +268,7 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
                     onContainerClick={this.onContainerClick}
                     onLabelClick={this.onLabelClick}
                 >
-                    {choice.value === this.props.customChoice && (
+                    {choice.value === this.props.widgetConfig.customChoice && (
                         <input
                             type="text"
                             tabIndex={-1}

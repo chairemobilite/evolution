@@ -65,6 +65,7 @@ describe('InputButton with normal options', () => {
         inputType: 'button' as const,
         choices,
         containsHtml: true,
+        size: 'medium' as const,
         label: {
             fr: `Texte en français`,
             en: `English text`
@@ -81,7 +82,6 @@ describe('InputButton with normal options', () => {
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -103,7 +103,6 @@ describe('InputButton with normal options', () => {
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -145,7 +144,6 @@ describe('InputButton with normal options', () => {
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -204,6 +202,7 @@ test('Render InputButton with choice function', () => {
         align: 'center' as const,
         sameLine: false,
         containsHtml: true,
+        size: 'medium' as const,
         label: {
             fr: `Texte en français`,
             en: `English text`
@@ -217,7 +216,6 @@ test('Render InputButton with choice function', () => {
             widgetConfig={widgetConfig}
             value='value'
             inputRef={React.createRef()}
-            size='medium'
             interview={interviewAttributes}
             user={userAttributes}
             path='foo.test'

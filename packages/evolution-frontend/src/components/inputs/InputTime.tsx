@@ -23,7 +23,6 @@ export interface InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;

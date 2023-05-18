@@ -27,7 +27,6 @@ export interface InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, C
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;

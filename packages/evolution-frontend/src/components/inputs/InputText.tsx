@@ -21,7 +21,6 @@ export interface InputTextProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 

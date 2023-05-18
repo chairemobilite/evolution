@@ -24,7 +24,6 @@ interface InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 

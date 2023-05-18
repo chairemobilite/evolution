@@ -22,7 +22,6 @@ export interface InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, Cust
     onValueChange: (e: any) => void;
     value?: number;
     inputRef?: React.LegacyRef<ReactInputRange>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary

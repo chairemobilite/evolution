@@ -21,7 +21,6 @@ export interface InputStringProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     updateKey: number;
 }
@@ -50,7 +49,7 @@ export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             style={{ textTransform: props.widgetConfig.textTransform || ('none' as any) }}
             autoComplete="none"
             type="text"
-            className={`apptr__form-input apptr__input-string input-${props.size || 'large'}`}
+            className={`apptr__form-input apptr__input-string input-${props.widgetConfig.size || 'large'}`}
             name={props.id}
             id={props.id}
             value={value}

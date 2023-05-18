@@ -33,6 +33,7 @@ test('Should correctly render InputText with all parameters', () =>{
         defaultValue: 'test',
         shortname: 'testName',
         rows: 10,
+        size: 'medium' as const,
         containsHtml: true,
         label: {
             fr: `Texte en français`,
@@ -47,7 +48,6 @@ test('Should correctly render InputText with all parameters', () =>{
             widgetConfig={widgetConfig}
             value='value'
             inputRef={React.createRef()}
-            size='medium'
             interview={interviewAttributes}
             path={'path'}
             user={userAttributes}

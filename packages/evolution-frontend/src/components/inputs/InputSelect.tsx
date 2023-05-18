@@ -22,7 +22,6 @@ export interface InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 

@@ -38,6 +38,7 @@ const baseWidgetConfig = {
         fr: `Texte en français`,
         en: `English text`
     },
+    size: 'medium' as const,
     inputType: 'mapFindPlace' as const,
     defaultCenter: { lat: 45, lon: -73 },
     showPhoto: false
@@ -53,7 +54,6 @@ describe('Render InputMapPoint with various parameters', () => {
                 widgetConfig={baseWidgetConfig}
                 value={undefined}
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -87,7 +87,6 @@ describe('Render InputMapPoint with various parameters', () => {
                 widgetConfig={testWidgetConfig}
                 value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -117,6 +116,7 @@ describe('Test geocoding requests', () => {
         placesIcon: {
             url: 'path/to/icon'
         },
+        size: 'medium',
         updateDefaultValueWhenResponded: true
     }, baseWidgetConfig);
 
@@ -144,7 +144,6 @@ describe('Test geocoding requests', () => {
             widgetConfig={testWidgetConfig}
             value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
             inputRef={React.createRef()}
-            size='medium'
             interview={interviewAttributes}
             user={userAttributes}
             path='foo.test'
@@ -186,7 +185,6 @@ describe('Test geocoding requests', () => {
             widgetConfig={testWidgetConfig}
             value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
             inputRef={React.createRef()}
-            size='medium'
             interview={interviewAttributes}
             user={userAttributes}
             path='foo.test'
@@ -239,7 +237,6 @@ describe('Test geocoding requests', () => {
             widgetConfig={testWidgetConfig}
             value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
             inputRef={React.createRef()}
-            size='medium'
             interview={interviewAttributes}
             user={userAttributes}
             path='foo.test'
@@ -293,7 +290,6 @@ describe('Test geocoding requests', () => {
             widgetConfig={testWidgetConfig}
             value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
             inputRef={React.createRef()}
-            size='medium'
             interview={interviewAttributes}
             user={userAttributes}
             path='foo.test'
