@@ -238,6 +238,7 @@ export type InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, Custo
     maxDate?: Date | ParsingFunction<Date, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     minDate?: Date | ParsingFunction<Date, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     locale?: { [languageCode: string]: string };
+    size?: 'small' | 'medium' | 'large';
 };
 
 type InputMapType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
@@ -252,6 +253,7 @@ type InputMapType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     maxZoom?: number;
     defaultZoom?: number;
     canBeCollapsed?: boolean;
+    shortname?: string;
 };
 
 export type InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = InputMapType<
@@ -278,39 +280,42 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
     updateDefaultValueWhenResponded?: boolean;
 };
 
+export type QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+    type: 'question';
+    twoColumns?: boolean;
+    path: InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    containsHtml?: boolean;
+    label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    helpPopup?: {
+        title: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+        content: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+        containsHtml?: boolean;
+    };
+    validations?: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    conditional?: ParsingFunction<
+        boolean | [boolean] | [boolean, unknown],
+        CustomSurvey,
+        CustomHousehold,
+        CustomHome,
+        CustomPerson
+    >;
+} & (
+    | InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputButtonType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+);
+
 export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
-    | ({
-          type: 'question';
-          twoColumns?: boolean;
-          path: InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-          containsHtml?: boolean;
-          label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-          helpPopup?: {
-              title: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-              content: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-          };
-          validations?: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-          conditional?: ParsingFunction<
-              boolean | [boolean] | [boolean, unknown],
-              CustomSurvey,
-              CustomHousehold,
-              CustomHome,
-              CustomPerson
-          >;
-      } & (
-          | InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputButtonType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          | InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-      ))
+    | QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     | {
           type: 'text';
           align?: 'center' | 'left' | 'right';
