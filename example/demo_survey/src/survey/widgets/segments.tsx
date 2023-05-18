@@ -84,17 +84,7 @@ export const segmentIntro = {
 export const segmentMode = {
   type: "question",
   path: "mode",
-  inputType: function(interview, path) {
-    const mode = surveyHelperNew.getResponse(interview, path, null);
-    if (_isBlank(mode))
-    {
-      return 'radio';
-    }
-    else
-    {
-      return 'select';
-    }
-  },
+  inputType: 'select',
   twoColumns: function(interview, path) {
     const mode = surveyHelperNew.getResponse(interview, path, null);
     return !_isBlank(mode);
