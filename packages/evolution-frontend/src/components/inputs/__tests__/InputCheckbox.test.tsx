@@ -78,6 +78,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
         columns: 2,
         sameLine: false,
         customLabel: 'custom label',
+        size: 'medium' as const,
         containsHtml: true,
         label: {
             fr: `Texte en français`,
@@ -97,7 +98,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
+                
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -119,7 +120,6 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 widgetConfig={testWidgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -138,7 +138,6 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 widgetConfig={testWidgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -158,7 +157,6 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 widgetConfig={testWidgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -204,7 +202,6 @@ describe('Render InputCheckbox with minimum parameters', () => {
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -237,6 +234,7 @@ describe('Render InputCheckbox with HTML label', () => {
         path: 'test.foo',
         inputType: 'checkbox' as const,
         choices,
+        size: 'medium',
         containsHtml: true,
         label: {
             fr: `Texte en français`,
@@ -252,7 +250,6 @@ describe('Render InputCheckbox with HTML label', () => {
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'

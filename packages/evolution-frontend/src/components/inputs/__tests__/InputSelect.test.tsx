@@ -62,6 +62,7 @@ test('Render InputSelect with normal option type', () => {
         path: 'test.foo',
         inputType: 'select' as const,
         choices,
+        size: 'medium',
         containsHtml: true,
         label: {
             fr: `Texte en français`,
@@ -76,7 +77,6 @@ test('Render InputSelect with normal option type', () => {
             widgetConfig={widgetConfig}
             value='value'
             inputRef={React.createRef()}
-            size='medium'
             interview={interviewAttributes}
             user={userAttributes}
             path='foo.test'
@@ -141,6 +141,7 @@ test('Render InputSelect with choice function and grouped choice type', () => {
         inputType: 'select' as const,
         choices: choiceFct,
         containsHtml: true,
+        size: 'medium',
         label: {
             fr: `Texte en français`,
             en: `English text`
@@ -154,7 +155,6 @@ test('Render InputSelect with choice function and grouped choice type', () => {
             widgetConfig={widgetConfig}
             value='value'
             inputRef={React.createRef()}
-            size='medium'
             interview={interviewAttributes}
             user={userAttributes}
             path='foo.test'

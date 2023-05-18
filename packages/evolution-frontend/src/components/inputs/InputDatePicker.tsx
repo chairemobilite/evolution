@@ -23,7 +23,6 @@ export interface InputDatePickerProps<CustomSurvey, CustomHousehold, CustomHome,
     onValueChange: (e: any) => void;
     value?: string;
     inputRef?: React.LegacyRef<DatePicker>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
@@ -49,7 +48,7 @@ export const InputDatePicker = <CustomSurvey, CustomHousehold, CustomHome, Custo
         <div className="survey-question__input-date-picker-container">
             <DatePicker
                 autoComplete="none"
-                className={`apptr__form-input input-date-picker input-${props.size || 'large'}`}
+                className={`apptr__form-input input-date-picker input-${props.widgetConfig.size || 'large'}`}
                 name={props.id}
                 id={props.id}
                 ref={props.inputRef}

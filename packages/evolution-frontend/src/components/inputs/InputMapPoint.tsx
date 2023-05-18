@@ -30,9 +30,7 @@ export interface InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, C
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
-    shortname?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 }
 
@@ -148,7 +146,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                 <input // we don't really need the input with maps. We just need to find a way to change style of map container according to isEmpty or isValid status
                     type="hidden"
                     className={'apptr__form-input input-map-hidden'}
-                    name={this.props.shortname}
+                    name={this.props.widgetConfig.shortname}
                     id={this.props.id}
                     defaultValue={JSON.stringify(this.props.value)}
                     readOnly={true}

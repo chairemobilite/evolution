@@ -23,7 +23,6 @@ export interface InputButtonProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     path: string;
     user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
-    size?: 'small' | 'medium' | 'large';
     widgetConfig: InputButtonType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;

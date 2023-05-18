@@ -77,6 +77,7 @@ describe('Render InputRadio with various parameter combinations, all parameters'
         shuffle: false,
         addCustom: false,
         columns: 2,
+        size: 'medium' as const,
         sameLine: false,
         customLabel: 'custom label',
         containsHtml: true,
@@ -98,7 +99,6 @@ describe('Render InputRadio with various parameter combinations, all parameters'
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -120,7 +120,6 @@ describe('Render InputRadio with various parameter combinations, all parameters'
                 widgetConfig={testWidgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -139,7 +138,6 @@ describe('Render InputRadio with various parameter combinations, all parameters'
                 widgetConfig={testWidgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -151,7 +149,7 @@ describe('Render InputRadio with various parameter combinations, all parameters'
     });
 
     test('With custom choice', () => {
-        const testWidgetConfig = Object.assign({}, widgetConfig, { addCustom: true });
+        const testWidgetConfig = Object.assign({}, widgetConfig, { addCustom: true, customChoice: 'val2' });
         const wrapper = TestRenderer.create(
             <InputRadio
                 id={'test'}
@@ -159,12 +157,11 @@ describe('Render InputRadio with various parameter combinations, all parameters'
                 widgetConfig={testWidgetConfig}
                 value='val2'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
                 customId='foo.test.custom'
-                customChoice='val2'
+                
             />
         );
         expect(wrapper).toMatchSnapshot();
@@ -206,7 +203,6 @@ describe('Render InputRadio with minimum parameters', () => {
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -238,6 +234,7 @@ describe('Render InputRadio with HTML label', () => {
         path: 'test.foo',
         inputType: 'radio' as const,
         choices,
+        size: 'medium',
         containsHtml: true,
         label: {
             fr: `Texte en français`,
@@ -253,7 +250,6 @@ describe('Render InputRadio with HTML label', () => {
                 widgetConfig={widgetConfig}
                 value='value'
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'

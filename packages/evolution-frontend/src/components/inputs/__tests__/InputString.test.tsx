@@ -34,6 +34,7 @@ test('Should correctly render InputString with all parameters', () =>{
         defaultValue: 'test',
         textTransform: 'lowercase' as const,
         containsHtml: true,
+        size: 'medium' as const,
         label: {
             fr: `Texte en français`,
             en: `English text`
@@ -47,7 +48,6 @@ test('Should correctly render InputString with all parameters', () =>{
             widgetConfig={widgetConfig}
             value={undefined}
             inputRef={React.createRef()}
-            size='medium'
             updateKey={0}
             interview={interviewAttributes}
             path={'path'}
@@ -66,6 +66,7 @@ test('Should correctly render InputString with default value as function', () =>
         inputType: 'string' as const,
         datatype: 'string' as const,
         maxLength: 20,
+        size: 'medium' as const,
         defaultValue: jest.fn().mockReturnValue('fctDefault'),
         containsHtml: true,
         label: {
@@ -81,7 +82,6 @@ test('Should correctly render InputString with default value as function', () =>
             widgetConfig={widgetConfig}
             value={undefined}
             inputRef={React.createRef()}
-            size='medium'
             updateKey={0}
             interview={interviewAttributes}
             path={'path'}

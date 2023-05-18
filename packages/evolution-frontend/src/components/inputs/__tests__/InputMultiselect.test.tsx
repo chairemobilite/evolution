@@ -62,6 +62,7 @@ describe('Render InputMultiselect with various options', () => {
         path: 'test.foo',
         inputType: 'multiselect' as const,
         choices,
+        size: 'medium',
         containsHtml: true,
         label: {
             fr: `Texte en français`,
@@ -77,7 +78,6 @@ describe('Render InputMultiselect with various options', () => {
                 widgetConfig={widgetConfig}
                 value={['val1','val2']}
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -117,7 +117,6 @@ describe('Render InputMultiselect with various options', () => {
                 widgetConfig={configWithShortcuts}
                 value={['val1']}
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
@@ -153,7 +152,6 @@ describe('Render InputMultiselect with various options', () => {
                 widgetConfig={configWithShortcuts}
                 value={['val1', 'val2']}
                 inputRef={React.createRef()}
-                size='medium'
                 interview={interviewAttributes}
                 user={userAttributes}
                 path='foo.test'
