@@ -18,7 +18,7 @@ import Text             from './Text';
 import InfoMap          from './InfoMap';
 import InfoMapDirection from './InfoMapDirection';
 import Button           from './Button';
-import Question         from './Question';
+import Question         from 'evolution-frontend/lib/components/survey/Question';
 import Group            from './Group';
 
 export class GroupedObject extends React.Component {

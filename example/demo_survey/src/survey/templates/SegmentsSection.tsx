@@ -24,7 +24,7 @@ import sectionTemplate from 'evolution-legacy/lib/components/survey/SectionTempl
 import Text            from 'evolution-legacy/lib/components/survey/Text';
 import InfoMap         from 'evolution-legacy/lib/components/survey/InfoMap';
 import Button          from 'evolution-legacy/lib/components/survey/Button';
-import Question        from 'evolution-legacy/lib/components/survey/Question';
+import Question        from 'evolution-frontend/lib/components/survey/Question';
 import Group           from 'evolution-legacy/lib/components/survey/Group';
 import GroupedObject   from 'evolution-legacy/lib/components/survey/GroupedObject';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
