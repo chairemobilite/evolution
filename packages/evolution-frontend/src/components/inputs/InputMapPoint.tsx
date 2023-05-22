@@ -50,6 +50,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
 > {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
     private iconUrl: string;
+    private iconSize: [number, number];
 
     constructor(props: InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
         super(props);
@@ -69,6 +70,8 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
             ) || '/dist/images/default_marker.svg'
             : '/dist/images/default_marker.svg';
 
+        this.iconSize = this.props.widgetConfig.icon && this.props.widgetConfig.icon.size ? this.props.widgetConfig.icon.size : [40, 40];
+
         this.state = {
             defaultCenter,
             currentBounds: undefined,
@@ -76,7 +79,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                 ? [
                     {
                         position: this.props.value,
-                        icon: { url: this.iconUrl },
+                        icon: { url: this.iconUrl, size: this.iconSize },
                         draggable: true
                     }
                 ]
@@ -94,7 +97,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                 ? [
                     {
                         position: feature,
-                        icon: { url: this.iconUrl },
+                        icon: { url: this.iconUrl, size: this.iconSize },
                         draggable: true
                     }
                 ]

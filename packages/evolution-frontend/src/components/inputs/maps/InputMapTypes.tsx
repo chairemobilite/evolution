@@ -18,10 +18,12 @@ export type PlaceGeocodedProperties = FeatureGeocodedProperties & {
 
 export interface MarkerData {
     position: GeoJSON.Feature<GeoJSON.Point>;
-    icon: { url: string };
+    icon: { url: string, size: [number, number] };
     draggable: boolean;
     readonly onClick?: () => void;
 }
+
+export const defaultIconSize: [number, number] = [40, 40];
 
 export type geocodeSingleFct = (
     addressQueryString: string,
