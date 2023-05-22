@@ -827,10 +827,12 @@ export const visitedPlaceGeography = {
       }
   },
   icon: {
-    url: (interview, path) => (`/dist/images/activities_icons/${surveyHelperNew.getResponse(interview, path, null, '../activity')}_marker.svg`)
+    url: (interview, path) => (`/dist/images/activities_icons/${surveyHelperNew.getResponse(interview, path, null, '../activity')}_marker.svg`),
+    size: [80, 80]
   },
   placesIcon: {
-    url: (interview, path) => (`/dist/images/activities_icons/default_marker.svg`)
+    url: (interview, path) => (`/dist/images/activities_icons/default_marker.svg`),
+    size: [80, 80]
   },
   defaultCenter: function (interview, path) {
     const person = helper.getPerson(interview);

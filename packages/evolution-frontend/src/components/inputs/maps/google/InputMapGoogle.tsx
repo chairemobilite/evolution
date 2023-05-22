@@ -192,8 +192,8 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props
                     draggable={markerData.draggable}
                     icon={{
                         url: markerData.icon.url,
-                        size: new google.maps.Size(40, 40),
-                        scaledSize: new google.maps.Size(40, 40)
+                        size: new google.maps.Size(markerData.icon.size[0], markerData.icon.size[1]),
+                        scaledSize: new google.maps.Size(markerData.icon.size[0], markerData.icon.size[1])
                     }}
                     onClick={markerData.onClick}
                 />

@@ -71,12 +71,14 @@ describe('Render InputMapPoint with various parameters', () => {
                 en: `Refresh map`
             },
             icon: {
-                url: 'path/to/icon'
+                url: 'path/to/icon',
+                size: [80, 80] as [number, number]
             },
             maxZoom: 18,
             defaultZoom: 15,
             placesIcon: {
-                url: 'path/to/icon'
+                url: 'path/to/icon',
+                size: [85, 85] as [number, number]
             },
             updateDefaultValueWhenResponded: true
         }, baseWidgetConfig);
@@ -109,12 +111,12 @@ describe('Test geocoding requests', () => {
             en: `Geocode`
         },
         icon: {
-            url: 'path/to/icon'
+            url: 'path/to/icon',
         },
         maxZoom: 18,
         defaultZoom: 15,
         placesIcon: {
-            url: 'path/to/icon'
+            url: 'path/to/icon',
         },
         size: 'medium',
         updateDefaultValueWhenResponded: true

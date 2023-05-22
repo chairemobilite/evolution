@@ -492,7 +492,8 @@ export const homeGeography = {
         </span></p>`
   },
   icon: {
-    url: `/dist/images/activities_icons/home_marker.svg`
+    url: `/dist/images/activities_icons/home_marker.svg`,
+    size: [80, 80]
   },
   defaultCenter: config.mapDefaultCenter,
   refreshGeocodingLabel: {

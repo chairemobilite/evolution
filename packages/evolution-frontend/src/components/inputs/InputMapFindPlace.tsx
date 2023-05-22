@@ -17,7 +17,7 @@ import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { InputMapFindPlaceType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { WithTranslation, withTranslation } from 'react-i18next';
-import { FeatureGeocodedProperties, MarkerData, PlaceGeocodedProperties } from './maps/InputMapTypes';
+import { FeatureGeocodedProperties, MarkerData, defaultIconSize, PlaceGeocodedProperties } from './maps/InputMapTypes';
 import InputSelect from './InputSelect';
 import { CommonInputProps } from './CommonInputProps';
 
@@ -263,6 +263,8 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
             ) || '/dist/images/default_marker.svg'
             : '/dist/images/default_marker.svg';
 
+        const placesIconSize = this.props.widgetConfig.placesIcon && this.props.widgetConfig.placesIcon.size ? this.props.widgetConfig.placesIcon.size : defaultIconSize;
+
         const iconUrl = this.props.widgetConfig.icon
             ? surveyHelper.parseString(
                 this.props.widgetConfig.icon.url,
@@ -271,6 +273,8 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                 this.props.user
             ) || '/dist/images/default_marker.svg'
             : '/dist/images/default_marker.svg';
+
+        const iconSize = this.props.widgetConfig.icon && this.props.widgetConfig.icon.size ? this.props.widgetConfig.icon.size : defaultIconSize;
 
         const placeMenuChoices = places.map((place) => {
             const placeData = place.properties.placeData as any;
@@ -287,7 +291,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
             places.forEach((feature) =>
                 markers.push({
                     position: feature,
-                    icon: { url: feature === this.state.selectedPlace ? this.selectedIconUrl : placesIconUrl },
+                    icon: { url: feature === this.state.selectedPlace ? this.selectedIconUrl : placesIconUrl, size: placesIconSize },
                     draggable: this.state.selectedPlace ? true : false,
                     onClick: () => this.setState({ selectedPlace: feature })
                 })
@@ -295,7 +299,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
         } else if (this.props.value) {
             markers.push({
                 position: this.props.value,
-                icon: { url: iconUrl },
+                icon: { url: iconUrl, size: iconSize},
                 draggable: true
             });
         }
