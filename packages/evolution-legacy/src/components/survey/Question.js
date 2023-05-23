@@ -254,13 +254,10 @@ export class Question extends React.Component {
         {!widgetStatus.isCollapsed && (!widgetStatus.isDisabled || (widgetStatus.isDisabled && !widgetConfig.canBeCollapsed)) && <div className={`apptr__form-input-container ${twoColumns ? 'two-columns' : ''}`}>
           {<InputComponent
             widgetConfig                = {widgetConfig}
-            widgetStatus                = {widgetStatus}
-            section                     = {this.props.section}
             loadingState                = {this.props.loadingState}
             value                       = {widgetStatus.value}
             customValue                 = {widgetStatus.customValue}
             onValueChange               = {this.onValueChange}
-            onCustomValueChange         = {this.onCustomValueChange}
             inputRef                    = {this.inputRef}
             path                        = {this.props.path}
             customId                    = {customId}
@@ -270,14 +267,7 @@ export class Question extends React.Component {
             id                          = {id}
             language                    = {this.props.i18n.language}
             closeQuestionModal          = {this.props.closeQuestionModal}
-            openConfirmModal            = {this.props.openConfirmModal}
-            closeConfirmModal           = {this.props.closeConfirmModal}
-            confirmModalOpenedShortname = {this.props.confirmModalOpenedShortname}
-            isInsideModal               = {widgetConfig.isModal === true}
             questionModalPath           = {this.props.questionModalPath}
-            startUpdateInterview        = {this.props.startUpdateInterview}
-            startAddGroupedObjects      = {this.props.startAddGroupedObjects}
-            startRemoveGroupedObjects   = {this.props.startRemoveGroupedObjects}
             key                   = {widgetStatus.currentUpdateKey}
           />}
         </div>}
