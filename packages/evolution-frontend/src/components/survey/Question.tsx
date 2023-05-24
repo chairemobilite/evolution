@@ -7,8 +7,7 @@
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
+
 import isEqual from 'lodash.isequal';
 
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -27,7 +26,7 @@ import InputSelect from '../inputs/InputSelect';
 import InputMultiselect from '../inputs/InputMultiselect';
 import InputTime from '../inputs/InputTime';
 import InputText from '../inputs/InputText';
-import SimpleModal from '../modal/SimpleModal';
+import HelpPopupLink from './widgets/HelpPopupLink';
 import Modal from 'react-modal';
 import { checkValidations } from '../../actions/utils';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
@@ -59,7 +58,6 @@ interface QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 
 type QuestionState = {
     modalIsOpen: boolean;
-    helperModalIsOpen: boolean;
     isCollapsed: boolean;
 };
 
@@ -77,25 +75,10 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
         super(props);
 
         this.state = {
-            helperModalIsOpen: false,
             modalIsOpen: props.widgetStatus.modalIsOpen,
             isCollapsed: false
         };
     }
-
-    private openHelperModal = (e?: React.MouseEvent) => {
-        if (e) {
-            e.preventDefault();
-        }
-        this.setState({ helperModalIsOpen: true });
-    };
-
-    private closeHelperModal = (e?: React.MouseEvent) => {
-        if (e) {
-            e.preventDefault();
-        }
-        this.setState({ helperModalIsOpen: false });
-    };
 
     private closeModal = (e?: React.MouseEvent) => {
         if (e) {
@@ -403,48 +386,25 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
                     )}
                     {/* helpPopup below: */}
                     {widgetConfig.helpPopup && widgetConfig.helpPopup.title && widgetConfig.helpPopup.content && (
-                        <div>
-                            {this.state.helperModalIsOpen && (
-                                <SimpleModal
-                                    isOpen={true}
-                                    closeModal={this.closeHelperModal}
-                                    text={
-                                        surveyHelper.translateString(
-                                            widgetConfig.helpPopup.content,
-                                            this.props.i18n,
-                                            this.props.interview,
-                                            this.props.path,
-                                            this.props.user
-                                        ) || ''
-                                    }
-                                    title={
-                                        surveyHelper.translateString(
-                                            widgetConfig.helpPopup.title,
-                                            this.props.i18n,
-                                            this.props.interview,
-                                            this.props.path,
-                                            this.props.user
-                                        ) || ''
-                                    }
-                                    containsHtml={widgetConfig.helpPopup.containsHtml}
-                                />
-                            )}
-                            <button
-                                type="button"
-                                className="button helper-popup blue small"
-                                onClick={this.openHelperModal}
-                                tabIndex={-1}
-                            >
-                                <FontAwesomeIcon icon={faQuestionCircle} className="faIconLeft" />
-                                {surveyHelper.translateString(
+                        <HelpPopupLink
+                            containsHtml={widgetConfig.helpPopup.containsHtml === true}
+                            title={
+                                surveyHelper.translateString(
                                     widgetConfig.helpPopup.title,
                                     this.props.i18n,
                                     this.props.interview,
-                                    this.props.path,
-                                    this.props.user
-                                )}
-                            </button>
-                        </div>
+                                    this.props.path
+                                ) || ''
+                            }
+                            content={() =>
+                                surveyHelper.translateString(
+                                    widgetConfig.helpPopup?.content,
+                                    this.props.i18n,
+                                    this.props.interview,
+                                    this.props.path
+                                ) || ''
+                            }
+                        />
                     )}
                 </div>
                 {!widgetStatus.isCollapsed &&
