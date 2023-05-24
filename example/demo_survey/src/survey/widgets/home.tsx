@@ -63,10 +63,11 @@ export const accessCode: SurveyWidgetConfig = {
 
 export const householdSize: SurveyWidgetConfig = {
   type: 'question',
-  twoColumns: true,
+  inputType: "radioNumber",
+  overMaxAllowed: true,
+  valueRange: {min: 1, max: 3},
   path: 'household.size',
-  inputType: 'string',
-  datatype: 'integer',
+  twoColumns: true,
   label: {
     fr: "Combien de personnes habitent votre domicile de façon permanente, **y compris vous-même**, pendant la semaine?",
     en: "Including yourself, how many people live permanently in your household during the week?"

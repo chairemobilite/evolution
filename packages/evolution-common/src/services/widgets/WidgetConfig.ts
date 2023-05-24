@@ -143,6 +143,15 @@ export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
 };
 
+export type InputRadioNumberType = {
+    inputType: 'radioNumber';
+    valueRange: { min: number; max: number };
+    iconSize?: string;
+    icon?: IconProp;
+    inputIconPath?: { iconPath: string; iconSize: string };
+    overMaxAllowed?: boolean;
+};
+
 // TODO Could select widget have a custom 'other' field? Like checkbox and radios
 export type InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'select';
@@ -321,6 +330,7 @@ export type QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, Cust
     | InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     | InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     | InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    | InputRadioNumberType
 );
 
 export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
