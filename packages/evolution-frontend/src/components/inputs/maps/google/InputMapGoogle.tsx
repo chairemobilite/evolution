@@ -24,6 +24,7 @@ const containerStyle = {
 
 export interface InputGoogleMapPointProps {
     defaultCenter: { lat: number; lon: number };
+    maxGeocodingResultsBounds?: [{ lat: number; lng: number }, { lat: number; lng: number }];
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
     defaultZoom?: number;
     maxZoom?: number;
@@ -134,27 +135,45 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props
 
     React.useEffect(() => {
         if (map && props.markers.length >= 1) {
-            const mapBounds = new google.maps.LatLngBounds();
-            props.markers.forEach((marker) =>
-                mapBounds.extend({
+            const maxMapBounds = new google.maps.LatLngBounds();
+            if (props.maxGeocodingResultsBounds !== undefined) {
+                maxMapBounds.extend(props.maxGeocodingResultsBounds[0]); // lower left
+                maxMapBounds.extend(props.maxGeocodingResultsBounds[1]); // upper right
+            }
+            let atLeastOneMarkerInMaxBounds = false;
+            const markerBounds = new google.maps.LatLngBounds();
+            const boundsForMarkersInMaxBounds = new google.maps.LatLngBounds();
+            props.markers.forEach((marker) => {
+                const position = {
                     lat: marker.position.geometry.coordinates[1],
                     lng: marker.position.geometry.coordinates[0]
-                })
-            );
+                };
+                markerBounds.extend(position);
+
+                if (!maxMapBounds.isEmpty() && maxMapBounds.contains(position)) {
+                    atLeastOneMarkerInMaxBounds = true;
+                    boundsForMarkersInMaxBounds.extend(position);
+                }
+            });
+
             // hack for single markers: see https://stackoverflow.com/questions/3334729/google-maps-v3-fitbounds-zoom-too-close-for-single-marker
-            if (mapBounds.getNorthEast().equals(mapBounds.getSouthWest())) {
+            if (markerBounds.getNorthEast().equals(markerBounds.getSouthWest())) {
                 const extendPoint1 = new google.maps.LatLng(
-                    mapBounds.getNorthEast().lat() + 0.001,
-                    mapBounds.getNorthEast().lng() + 0.001
+                    markerBounds.getNorthEast().lat() + 0.001,
+                    markerBounds.getNorthEast().lng() + 0.001
                 );
                 const extendPoint2 = new google.maps.LatLng(
-                    mapBounds.getNorthEast().lat() - 0.001,
-                    mapBounds.getNorthEast().lng() - 0.001
+                    markerBounds.getNorthEast().lat() - 0.001,
+                    markerBounds.getNorthEast().lng() - 0.001
                 );
-                mapBounds.extend(extendPoint1);
-                mapBounds.extend(extendPoint2);
+                markerBounds.extend(extendPoint1);
+                markerBounds.extend(extendPoint2);
             }
-            map.fitBounds(mapBounds);
+            if (atLeastOneMarkerInMaxBounds) {
+                map.fitBounds(boundsForMarkersInMaxBounds);
+            } else {
+                map.fitBounds(markerBounds);
+            }
         }
     }, [props.shouldFitBounds]);
 

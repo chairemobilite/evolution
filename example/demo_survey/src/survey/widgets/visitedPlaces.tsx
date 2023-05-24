@@ -27,6 +27,7 @@ import '@react-google-maps/api';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 // import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import waterBoundaries  from '../waterBoundaries.json';
+import mtlLavalLongueuil from '../mtlLavalLongueuil.json';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
@@ -806,6 +807,9 @@ export const visitedPlaceGeography = {
   },
   geocodingQueryString: function (interview, path) {
     return surveyHelperNew.formatGeocodingQueryStringFromMultipleFields([surveyHelper.get(interview, path, null, '../name')]);
+  },
+  maxGeocodingResultsBounds: function (interview, path) {
+    return config.mapMaxGeocodingResultsBounds;
   },
   autoCollapseWhenValid: false, // not implemented
   label: {
