@@ -157,6 +157,12 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
             : undefined;
     };
 
+    getMaxGeocodingResultsBounds = () => {
+        return this.props.widgetConfig.maxGeocodingResultsBounds
+            ? this.props.widgetConfig.maxGeocodingResultsBounds(this.props.interview, this.props.path, this.props.user)
+            : undefined;
+    };
+
     setGeocodingOptions = (options: { [key: string]: unknown }) => {
         this.setState({ geocodingSpecificOptions: options });
     };
@@ -403,6 +409,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                 <div aria-hidden="true" className="survey-question__input-map-container">
                     <InputMapGoogle
                         defaultCenter={this.state.defaultCenter}
+                        maxGeocodingResultsBounds={this.getMaxGeocodingResultsBounds()}
                         value={this.props.value}
                         onValueChange={this.onValueChange}
                         defaultZoom={Math.min(this.props.widgetConfig.defaultZoom || 16, maxZoom)}

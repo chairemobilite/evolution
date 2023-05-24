@@ -80,6 +80,9 @@ describe('Render InputMapPoint with various parameters', () => {
                 url: 'path/to/icon',
                 size: [85, 85] as [number, number]
             },
+            maxGeocodingResultsBounds: function (interview, path) {
+                return [{lat: 45.2229, lng: -74.3230}, {lat: 46.1181, lng: -72.9215}] as [{ lat: number; lng: number; }, { lat: number; lng: number; }];
+            },
             updateDefaultValueWhenResponded: true
         }, baseWidgetConfig);
         const wrapper = TestRenderer.create(

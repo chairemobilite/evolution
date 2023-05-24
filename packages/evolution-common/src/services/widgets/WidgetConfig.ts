@@ -277,6 +277,13 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
         url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
         size?: [number, number];
     };
+    maxGeocodingResultsBounds?: ParsingFunction<
+        [{ lat: number; lng: number }, { lat: number; lng: number }] | undefined,
+        CustomSurvey,
+        CustomHousehold,
+        CustomHome,
+        CustomPerson
+    >;
     showPhoto?: boolean;
     autoConfirmIfSingleResult?: boolean;
     updateDefaultValueWhenResponded?: boolean;

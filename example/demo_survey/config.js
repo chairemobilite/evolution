@@ -61,6 +61,14 @@ module.exports = {
     lat: 45.503205,
     lon: -73.569417
   },
+  mapMaxGeocodingResultsBounds: [{
+      lat: 45.2229,
+      lng: -74.3230
+    },
+    {
+      lat: 46.1181,
+      lng: -72.9215
+  }],
   detectLanguage: false,
   languages: ['fr', 'en'],
   locales: {
