@@ -15,22 +15,22 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { InputCheckboxType, ChoiceType } from 'evolution-common/lib/services/widgets';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { CommonInputProps } from './CommonInputProps';
 
-export interface InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    id: string;
-    onValueChange: (e: any, customValue?: string) => void;
+export type InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value: string;
     /** Value of the custom field if 'other' is selected */
     customValue?: string;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
-    path: string;
-    user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     widgetConfig: InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
-}
+};
 
 interface InputCheckboxState {
     customValue: string;

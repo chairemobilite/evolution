@@ -9,21 +9,19 @@ import React from 'react';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InputStringType } from 'evolution-common/lib/services/widgets';
 import { parseString } from 'evolution-common/lib/utils/helpers';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { CommonInputProps } from './CommonInputProps';
 
-export interface InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    id: string;
-    onValueChange?: (e: any) => void;
+export type InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value?: string;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
-    path: string;
-    user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     widgetConfig: InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     updateKey: number;
-}
+};
 
 const getStateValue = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     props: InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>

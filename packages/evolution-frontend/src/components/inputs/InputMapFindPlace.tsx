@@ -16,28 +16,26 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { InputMapFindPlaceType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FeatureGeocodedProperties, MarkerData, PlaceGeocodedProperties } from './maps/InputMapTypes';
 import InputSelect from './InputSelect';
+import { CommonInputProps } from './CommonInputProps';
 
 // TODO Allow to support multiple maps and geocoders
 import InputMapGoogle from './maps/google/InputMapGoogle';
 import { geocodeMultiplePlaces } from './maps/google/GoogleGeocoder';
 
-export interface InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    id: string;
-    onValueChange: (e: any) => void;
+export type InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
-    path: string;
     loadingState?: number;
-    user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     widgetConfig: InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-}
+};
 
 interface InputMapFindPlaceState {
     geocoding: boolean;

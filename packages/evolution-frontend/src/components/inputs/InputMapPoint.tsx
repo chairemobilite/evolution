@@ -13,26 +13,24 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { InputMapPointType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FeatureGeocodedProperties, MarkerData } from './maps/InputMapTypes';
+import { CommonInputProps } from './CommonInputProps';
 
 // TODO Allow to support multiple maps and geocoders
 import InputMapGoogle from './maps/google/InputMapGoogle';
 import { geocodeSinglePoint } from './maps/google/GoogleGeocoder';
 
-export interface InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    id: string;
-    onValueChange: (e: any) => void;
+export type InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
-    path: string;
-    user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     widgetConfig: InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-}
+};
 
 interface InputMapPointState {
     defaultCenter: any;

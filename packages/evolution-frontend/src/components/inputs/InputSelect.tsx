@@ -12,18 +12,18 @@ import { InputSelectType, isGroupedChoice, ChoiceType } from 'evolution-common/l
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { CommonInputProps } from './CommonInputProps';
 
-export interface InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    id: string;
-    onValueChange?: (e: any) => void;
+export type InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value?: string;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
-    path: string;
-    user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     widgetConfig: InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-}
+};
 
 export interface InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;

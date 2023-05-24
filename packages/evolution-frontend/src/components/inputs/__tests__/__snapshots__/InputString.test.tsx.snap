@@ -7,6 +7,7 @@ exports[`Should correctly render InputString with a value of 0 1`] = `
   id="test"
   maxLength={255}
   name="test"
+  onBlur={[MockFunction]}
   onChange={[Function]}
   style={
     Object {
@@ -44,6 +45,7 @@ exports[`Should correctly render InputString with base parameters 1`] = `
   id="test"
   maxLength={255}
   name="test"
+  onBlur={[MockFunction]}
   onChange={[Function]}
   style={
     Object {

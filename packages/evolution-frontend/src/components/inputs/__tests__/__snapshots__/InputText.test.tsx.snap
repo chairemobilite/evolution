@@ -20,6 +20,7 @@ exports[`Should correctly render InputText with base parameters 1`] = `
   defaultValue="value"
   id="test"
   maxLength={2000}
+  onBlur={[MockFunction]}
   rows={5}
 />
 `;
@@ -31,6 +32,7 @@ exports[`Should correctly render InputText with defaultValue 1`] = `
   defaultValue="This is the text that should be present"
   id="test"
   maxLength={2000}
+  onBlur={[MockFunction]}
   rows={5}
 />
 `;
