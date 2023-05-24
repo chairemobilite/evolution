@@ -78,4 +78,4 @@ export const InputDatePicker = <CustomSurvey, CustomHousehold, CustomHome, Custo
     );
 };
 
-export default withTranslation()(InputDatePicker);
+export default withTranslation()(InputDatePicker) as React.FunctionComponent<InputDatePickerProps<any, any, any, any>>;

@@ -26,7 +26,7 @@ export interface InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, C
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
-    inputRef?: React.LegacyRef<HTMLTextAreaElement>;
+    inputRef?: React.LegacyRef<HTMLInputElement>;
     widgetConfig: InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
@@ -294,4 +294,4 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     }
 }
 
-export default withTranslation()(InputCheckbox);
+export default withTranslation()(InputCheckbox) as React.FunctionComponent<InputCheckboxProps<any, any, any, any>>;

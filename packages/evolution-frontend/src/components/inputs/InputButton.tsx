@@ -110,4 +110,4 @@ const InputButton = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     );
 };
 
-export default withTranslation()(InputButton);
+export default withTranslation()(InputButton) as React.FunctionComponent<InputButtonProps<any, any, any, any>>;

@@ -99,4 +99,4 @@ export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
     );
 };
 
-export default withTranslation()(InputRange);
+export default withTranslation()(InputRange) as React.FunctionComponent<InputRangeProps<any, any, any, any>>;

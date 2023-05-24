@@ -212,4 +212,6 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
     }
 }
 
-export default withTranslation()(InputMultiselect);
+export default withTranslation()(InputMultiselect) as React.FunctionComponent<
+    InputMultiselectProps<any, any, any, any>
+>;
