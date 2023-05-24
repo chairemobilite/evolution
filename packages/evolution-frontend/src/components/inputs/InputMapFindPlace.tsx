@@ -63,7 +63,7 @@ interface InputMapFindPlaceState {
  * as possible. Main difference is that there can be multiple markers here and
  * it needs confirmation.
  */
-export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
+export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
     InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
     InputMapFindPlaceState
 > {
@@ -427,4 +427,6 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     }
 }
 
-export default withTranslation()(InputMapPoint);
+export default withTranslation()(InputMapFindPlace) as React.FunctionComponent<
+    InputMapFindPlaceProps<any, any, any, any>
+>;

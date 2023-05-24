@@ -28,7 +28,7 @@ export interface InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, Cust
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
-    inputRef?: React.LegacyRef<HTMLTextAreaElement>;
+    inputRef?: React.LegacyRef<HTMLInputElement>;
     widgetConfig: InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
@@ -301,4 +301,4 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     }
 }
 
-export default withTranslation()(InputRadio);
+export default withTranslation()(InputRadio) as React.FunctionComponent<InputRadioProps<any, any, any, any>>;

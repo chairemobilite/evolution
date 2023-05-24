@@ -186,4 +186,4 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     }
 }
 
-export default withTranslation()(InputMapPoint);
+export default withTranslation()(InputMapPoint) as React.FunctionComponent<InputMapPointProps<any, any, any, any>>;

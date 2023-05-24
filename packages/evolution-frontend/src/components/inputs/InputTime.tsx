@@ -131,4 +131,4 @@ export class InputTime<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> 
     }
 }
 
-export default withTranslation()(InputTime);
+export default withTranslation()(InputTime) as React.FunctionComponent<InputTimeProps<any, any, any, any>>;
