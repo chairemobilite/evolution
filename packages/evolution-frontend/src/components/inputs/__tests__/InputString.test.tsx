@@ -112,6 +112,7 @@ test('Should correctly render InputString with base parameters', () =>{
             interview={interviewAttributes}
             path={'path'}
             user={userAttributes}
+            onValueChange={jest.fn()}
         />
     );
     expect(wrapper).toMatchSnapshot();
@@ -137,6 +138,7 @@ test('Should correctly render InputString with a value of 0', () =>{
             interview={interviewAttributes}
             path={'path'}
             user={userAttributes}
+            onValueChange={jest.fn()}
         />
     );
     expect(wrapper).toMatchSnapshot();
@@ -161,6 +163,7 @@ test('Test update value through props', () => {
         interview={interviewAttributes}
         path={'path'}
         user={userAttributes}
+        onValueChange={jest.fn()}
     />);
 
     // Validate initial values

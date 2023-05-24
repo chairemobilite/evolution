@@ -12,20 +12,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { ChoiceType, InputMultiselectType } from 'evolution-common/lib/services/widgets';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { CommonInputProps } from './CommonInputProps';
 
-interface InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    id: string;
-    onValueChange?: (e: any) => void;
+type InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value: string[];
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
-    path: string;
-    user: CliUser;
     inputRef?: React.LegacyRef<HTMLInputElement>;
     widgetConfig: InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-}
+};
 
 const formatOptionLabel = (data: { color?: string; label: string }) => (
     <div style={{ display: 'flex', alignItems: 'center' }}>

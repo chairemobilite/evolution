@@ -75,6 +75,7 @@ test('Should correctly render InputText with base parameters', () =>{
             interview={interviewAttributes}
             path={'path'}
             user={userAttributes}
+            onValueChange={jest.fn()}
         />
     );
     expect(wrapper).toMatchSnapshot();
@@ -100,6 +101,7 @@ test('Should correctly render InputText with defaultValue', () =>{
             interview={interviewAttributes}
             path={'path'}
             user={userAttributes}
+            onValueChange={jest.fn()}
         />
     );
     expect(wrapper).toMatchSnapshot();

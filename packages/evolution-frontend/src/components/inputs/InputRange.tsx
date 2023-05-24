@@ -14,20 +14,18 @@ import 'react-input-range/lib/css/index.css';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InputRangeType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { CommonInputProps } from './CommonInputProps';
 
-export interface InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    id: string;
-    onValueChange: (e: any) => void;
+export type InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value?: number;
     inputRef?: React.LegacyRef<ReactInputRange>;
     widgetConfig: InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
-    path: string;
-    user: CliUser;
-}
+};
 
 export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     props: InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation

@@ -10,23 +10,21 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InputTimeType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WithTranslation, withTranslation } from 'react-i18next';
+import { CommonInputProps } from './CommonInputProps';
 
-export interface InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    id: string;
-    onValueChange: (e: any) => void;
+export type InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
+    CustomSurvey,
+    CustomHousehold,
+    CustomHome,
+    CustomPerson
+> & {
     value?: number;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
-    path: string;
-    user: CliUser;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     widgetConfig: InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;
-}
+};
 
 const midnight = 24 * 60 * 60;
 const noon = 12 * 60 * 60;
