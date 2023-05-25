@@ -80,7 +80,7 @@ each([
     ['InputMultiselect', { ...commonWidgetConfig, inputType: 'multiselect', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2', false],
     ['InputButton', { ...commonWidgetConfig, inputType: 'button', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
     ['InputDatePicker', { ...commonWidgetConfig, inputType: 'datePicker', minDate: new Date('2023-05-01'), maxDate: new Date('2023-06-01') }, new Date('2023-05-24 10:00:00 GMT-0400')],
-    ['InputRange', { ...commonWidgetConfig, inputType: 'slider', minValue: 3, maxValue: 10 }, undefined, false],
+    ['InputRange', { ...commonWidgetConfig, inputType: 'slider', minValue: 3, maxValue: 10 }],
     ['InputText', { ...commonWidgetConfig, inputType: 'text' }, 'foo'], // This test needs a value
     ['InputString', { ...commonWidgetConfig, inputType: 'string' }],
     ['InputTime', { ...commonWidgetConfig, inputType: 'time', minTimeSecondsSinceMidnight: 3600, maxTimeSecondsSinceMidnight: 7200, minuteStep: 10 }, 3660], // This test needs a value
