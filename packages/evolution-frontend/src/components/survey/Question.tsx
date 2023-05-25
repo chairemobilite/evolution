@@ -26,7 +26,6 @@ import InputSelect from '../inputs/InputSelect';
 import InputMultiselect from '../inputs/InputMultiselect';
 import InputTime from '../inputs/InputTime';
 import InputText from '../inputs/InputText';
-import HelpPopupLink from './widgets/HelpPopupLink';
 import Modal from 'react-modal';
 import { checkValidations } from '../../actions/utils';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
@@ -34,7 +33,7 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
 import { UserFrontendInterviewAttributes, WidgetStatus } from '../../services/interviews/interview';
-import SurveyErrorMessage from './widgets/SurveyErrorMessage';
+import InputWidgetWrapper from './widgets/InputWidgetWrapper';
 
 interface QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     path: string;
@@ -59,7 +58,6 @@ interface QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 
 type QuestionState = {
     modalIsOpen: boolean;
-    isCollapsed: boolean;
 };
 
 export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
@@ -76,8 +74,7 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
         super(props);
 
         this.state = {
-            modalIsOpen: props.widgetStatus.modalIsOpen,
-            isCollapsed: false
+            modalIsOpen: props.widgetStatus.modalIsOpen
         };
     }
 
@@ -146,17 +143,6 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
             this.closeModal();
         }
     };
-
-    private toggleCollapse(e) {
-        if (e) {
-            e.preventDefault();
-        }
-        this.setState((prevState, props) => {
-            return {
-                isCollapsed: !prevState.isCollapsed
-            };
-        });
-    }
 
     shouldComponentUpdate(nextProps, nextState) {
         // we need to re-render whenever loading state changes for widgets with buttons, like mapFindPlace:
@@ -349,61 +335,53 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
                         : null;
                 }}
             >
-                <div
-                    className={`apptr__form-label-container${twoColumns ? ' two-columns' : ''}${
-                        (widgetConfig as any).align === 'center' ? ' align-center' : ''
-                    }`}
-                >
-                    <label htmlFor={id} onClick={widgetStatus.isCollapsed ? this.toggleCollapse : () => {}}>
-                        {widgetConfig.containsHtml ? (
-                            <div dangerouslySetInnerHTML={{ __html: label }} />
-                        ) : (
-                            <Markdown className="label">{label}</Markdown>
-                        )}
-                    </label>
-                    {showErrorMessage === true && (
-                        <SurveyErrorMessage
-                            containsHtml={widgetConfig.containsHtml === true}
-                            text={
-                                surveyHelper.translateString(
-                                    widgetStatus.errorMessage,
-                                    this.props.i18n,
-                                    this.props.interview,
-                                    this.props.path
-                                ) || ''
-                            }
-                        />
-                    )}
-                    {/* helpPopup below: */}
-                    {widgetConfig.helpPopup && widgetConfig.helpPopup.title && widgetConfig.helpPopup.content && (
-                        <HelpPopupLink
-                            containsHtml={widgetConfig.helpPopup.containsHtml === true}
-                            title={
-                                surveyHelper.translateString(
-                                    widgetConfig.helpPopup.title,
-                                    this.props.i18n,
-                                    this.props.interview,
-                                    this.props.path
-                                ) || ''
-                            }
-                            content={() =>
+                <InputWidgetWrapper
+                    label={label}
+                    errorMessage={
+                        showErrorMessage === true
+                            ? surveyHelper.translateString(
+                                widgetStatus.errorMessage,
+                                this.props.i18n,
+                                this.props.interview,
+                                this.props.path
+                            ) || ''
+                            : undefined
+                    }
+                    helpTitle={
+                        widgetConfig.helpPopup && widgetConfig.helpPopup.title
+                            ? surveyHelper.translateString(
+                                widgetConfig.helpPopup.title,
+                                this.props.i18n,
+                                this.props.interview,
+                                this.props.path
+                            ) || ''
+                            : undefined
+                    }
+                    helpContent={
+                        widgetConfig.helpPopup && widgetConfig.helpPopup.content
+                            ? () =>
                                 surveyHelper.translateString(
                                     widgetConfig.helpPopup?.content,
                                     this.props.i18n,
                                     this.props.interview,
                                     this.props.path
                                 ) || ''
-                            }
-                        />
-                    )}
-                </div>
-                {!widgetStatus.isCollapsed &&
-                    (!widgetStatus.isDisabled ||
+                            : undefined
+                    }
+                    widgetConfig={widgetConfig as any}
+                    isCollapsed={widgetStatus.isCollapsed}
+                    className={`apptr__form-label-container${twoColumns ? ' two-columns' : ''}${
+                        (widgetConfig as any).align === 'center' ? ' align-center' : ''
+                    }`}
+                    widgetId={id}
+                >
+                    {(!widgetStatus.isDisabled ||
                         (widgetStatus.isDisabled && !(widgetConfig as any).canBeCollapsed)) && (
-                    <div className={`apptr__form-input-container ${twoColumns ? 'two-columns' : ''}`}>
-                        {widgetContent()}
-                    </div>
-                )}
+                        <div className={`apptr__form-input-container ${twoColumns ? 'two-columns' : ''}`}>
+                            {widgetContent()}
+                        </div>
+                    )}
+                </InputWidgetWrapper>
             </div>
         );
 
