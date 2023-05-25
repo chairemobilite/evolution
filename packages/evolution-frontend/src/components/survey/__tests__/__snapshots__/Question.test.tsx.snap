@@ -235,8 +235,9 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
   <div
     className="apptr__form-label-container two-columns"
   >
-    <label
-      htmlFor="survey-question__home.region"
+    <div
+      className="apptr__form__label-standalone"
+      id="survey-question__home.region_label"
     >
       <div
         dangerouslySetInnerHTML={
@@ -245,7 +246,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
           }
         }
       />
-    </label>
+    </div>
   </div>
   <div
     className="apptr__form-input-container two-columns"
@@ -333,6 +334,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
                 aria-autocomplete="list"
                 aria-expanded={false}
                 aria-haspopup={true}
+                aria-labelledby="survey-question__home.region_label"
                 autoCapitalize="none"
                 autoComplete="off"
                 autoCorrect="off"

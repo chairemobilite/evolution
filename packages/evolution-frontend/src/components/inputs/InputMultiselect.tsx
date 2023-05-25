@@ -186,6 +186,7 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
         return (
             <div className="survey-question__input-multiselect-container">
                 <Select
+                    aria-labelledby={`${this.props.id}_label`}
                     formatOptionLabel={formatOptionLabel}
                     //disabled={false}
                     isMulti={this.props.widgetConfig.multiple !== false}

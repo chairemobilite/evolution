@@ -131,7 +131,7 @@ export const InputWidgetWrapper = <CustomSurvey, CustomHousehold, CustomHome, Cu
         () =>
             props.widgetConfig.inputType === 'radio' || props.widgetConfig.inputType === 'checkbox'
                 ? 'fieldset'
-                : props.widgetConfig.inputType === 'slider'
+                : props.widgetConfig.inputType === 'slider' || props.widgetConfig.inputType === 'multiselect'
                     ? 'noLabel'
                     : 'label',
         []
