@@ -45,7 +45,7 @@ export const geocodeSinglePoint = (
 
 export const geocodeMultiplePlaces = (
     geocodingQueryString: string,
-    options: { bbox?: [number, number, number, number]; map?: google.maps.Map }
+    options: { bbox?: [number, number, number, number]; map?: google.maps.Map; language?: string; }
 ): Promise<GeoJSON.Feature<GeoJSON.Point, PlaceGeocodedProperties>[] | undefined> => {
     return new Promise((resolve, reject) => {
         if (!options.map) {
@@ -62,7 +62,7 @@ export const geocodeMultiplePlaces = (
             { lat: options.bbox[2], lng: options.bbox[3] }
         );
         geocoder.textSearch(
-            { query: geocodingQueryString, location: bounds.getCenter(), radius: 5000 },
+            { query: geocodingQueryString, location: bounds.getCenter(), radius: 5000, language: options.language },
             (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results !== null) {
                     const places = results

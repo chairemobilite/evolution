@@ -167,6 +167,8 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     };
 
     geocodePlaces = async (bbox?: [number, number, number, number]) => {
+        const language = this.props.i18n.language === 'fr' ? 'fr-CA' : 'en-CA';
+
         const geocodingQueryString = this.getGeocodingQueryString();
         if (geocodingQueryString) {
             try {
@@ -174,6 +176,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                 const features =
                     (await geocodeMultiplePlaces(geocodingQueryString, {
                         bbox,
+                        language,
                         ...this.state.geocodingSpecificOptions
                     })) || [];
                 const isSingleResult = features && features.length === 1;
