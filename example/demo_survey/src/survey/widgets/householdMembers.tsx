@@ -1095,8 +1095,8 @@ export const selectPerson = {
       return {
         value: personId,
         label: {
-          fr: () => (<div style={{display: 'flex', alignItems: 'center', fontSize: '150%', fontWeight: 300}}><FontAwesomeIcon icon={icon} className="faIconLeft" style={{width: '4rem', height: '4rem'}} />{`Personne ${index+1} • ${persons[personId].nickname} (${persons[personId].age} ans)`}</div>),
-          en: () => (<div style={{display: 'flex', alignItems: 'center', fontSize: '150%', fontWeight: 300}}><FontAwesomeIcon icon={icon} className="faIconLeft" style={{width: '4rem', height: '4rem'}} />{`Person ${index+1} • ${persons[personId].nickname} (${persons[personId].age} years old)`}</div>)
+          fr: `<div style={{display: 'flex', alignItems: 'center', fontSize: '150%', fontWeight: 300}}><FontAwesomeIcon icon={icon} className="faIconLeft" style={{width: '4rem', height: '4rem'}} />Personne ${index+1} • ${persons[personId].nickname} (${persons[personId].age} ans)}</div>`,
+          en: `<div style={{display: 'flex', alignItems: 'center', fontSize: '150%', fontWeight: 300}}><FontAwesomeIcon icon={icon} className="faIconLeft" style={{width: '4rem', height: '4rem'}} />Person ${index+1} • ${persons[personId].nickname} (${persons[personId].age} years old)}</div>`
         }
       }
     });
