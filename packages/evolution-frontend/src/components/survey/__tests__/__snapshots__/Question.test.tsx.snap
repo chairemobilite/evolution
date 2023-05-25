@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Render widget type InputButton 1`] = `
+exports[`Question with widget InputButton Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-button question-filled question-valid"
   onClick={[Function]}
@@ -60,7 +60,7 @@ exports[`Render widget type InputButton 1`] = `
 </div>
 `;
 
-exports[`Render widget type InputCheckbox 1`] = `
+exports[`Question with widget InputCheckbox Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-checkbox question-filled question-valid"
   onClick={[Function]}
@@ -162,7 +162,7 @@ exports[`Render widget type InputCheckbox 1`] = `
 </div>
 `;
 
-exports[`Render widget type InputDatePicker 1`] = `
+exports[`Question with widget InputDatePicker Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-datePicker question-filled question-valid"
   onClick={[Function]}
@@ -222,7 +222,7 @@ exports[`Render widget type InputDatePicker 1`] = `
 </div>
 `;
 
-exports[`Render widget type InputMultiselect 1`] = `
+exports[`Question with widget InputMultiselect Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-multiselect question-filled question-valid"
   onClick={[Function]}
@@ -406,7 +406,7 @@ exports[`Render widget type InputMultiselect 1`] = `
 </div>
 `;
 
-exports[`Render widget type InputRadio 1`] = `
+exports[`Question with widget InputRadio Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-radio question-filled question-valid"
   onClick={[Function]}
@@ -508,7 +508,7 @@ exports[`Render widget type InputRadio 1`] = `
 </div>
 `;
 
-exports[`Render widget type InputRange 1`] = `
+exports[`Question with widget InputRange Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-slider question-filled question-valid"
   onClick={[Function]}
@@ -622,7 +622,7 @@ exports[`Render widget type InputRange 1`] = `
 </div>
 `;
 
-exports[`Render widget type InputSelect 1`] = `
+exports[`Question with widget InputSelect Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-select question-filled question-valid"
   onClick={[Function]}
@@ -691,7 +691,7 @@ exports[`Render widget type InputSelect 1`] = `
 </div>
 `;
 
-exports[`Render widget type InputString 1`] = `
+exports[`Question with widget InputString Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-string question-filled question-valid"
   onClick={[Function]}
@@ -733,12 +733,13 @@ exports[`Render widget type InputString 1`] = `
         }
       }
       type="text"
+      value=""
     />
   </div>
 </div>
 `;
 
-exports[`Render widget type InputText 1`] = `
+exports[`Question with widget InputText Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-text question-filled question-valid"
   onClick={[Function]}
@@ -779,7 +780,7 @@ exports[`Render widget type InputText 1`] = `
 </div>
 `;
 
-exports[`Render widget type InputTime 1`] = `
+exports[`Question with widget InputTime Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-time question-filled question-valid"
   onClick={[Function]}

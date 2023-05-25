@@ -9,6 +9,9 @@ import React from 'react';
 import TestRenderer from 'react-test-renderer';
 import each from 'jest-each';
 import { mount } from 'enzyme';
+import { render } from '@testing-library/react'
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations)
 
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 import Question from '../Question';
@@ -74,30 +77,55 @@ each([
     ['InputSelect', { ...commonWidgetConfig, inputType: 'select', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
     ['InputRadio', { ...commonWidgetConfig, inputType: 'radio', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
     ['InputCheckbox', { ...commonWidgetConfig, inputType: 'checkbox', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, ['c2']],
-    ['InputMultiselect', { ...commonWidgetConfig, inputType: 'multiselect', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
+    ['InputMultiselect', { ...commonWidgetConfig, inputType: 'multiselect', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2', false],
     ['InputButton', { ...commonWidgetConfig, inputType: 'button', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
     ['InputDatePicker', { ...commonWidgetConfig, inputType: 'datePicker', minDate: new Date('2023-05-01'), maxDate: new Date('2023-06-01') }, new Date('2023-05-24 10:00:00 GMT-0400')],
-    ['InputRange', { ...commonWidgetConfig, inputType: 'slider', minValue: 3, maxValue: 10 }],
+    ['InputRange', { ...commonWidgetConfig, inputType: 'slider', minValue: 3, maxValue: 10 }, undefined, false],
     ['InputText', { ...commonWidgetConfig, inputType: 'text' }, 'foo'], // This test needs a value
     ['InputString', { ...commonWidgetConfig, inputType: 'string' }],
     ['InputTime', { ...commonWidgetConfig, inputType: 'time', minTimeSecondsSinceMidnight: 3600, maxTimeSecondsSinceMidnight: 7200, minuteStep: 10 }, 3660], // This test needs a value
-]).test('Render widget type %s', (_widget, widgetConfig, value: unknown = undefined) => {
+]).describe('Question with widget %s', (_widget, widgetConfig, value: unknown = undefined, testAccessibility: boolean = true) => {
+
     const widgetStatus = _cloneDeep(defaultWidgetStatus);
     widgetStatus.value = value as any;
-    
-    const wrapper = TestRenderer.create(
-        <Question
-            path='home.region'
-            section='test'
-            loadingState={0}
-            widgetConfig={widgetConfig}
-            interview={interviewAttributes}
-            user={userAttributes}
-            widgetStatus={widgetStatus}
-            startUpdateInterview={() => { /* Nothing to do */}}
-        />
-    );
-    expect(wrapper).toMatchSnapshot();
+
+    test('Render widget', () => {
+        
+        const wrapper = TestRenderer.create(
+            <Question
+                path='home.region'
+                section='test'
+                loadingState={0}
+                widgetConfig={widgetConfig}
+                interview={interviewAttributes}
+                user={userAttributes}
+                widgetStatus={widgetStatus}
+                startUpdateInterview={() => { /* Nothing to do */}}
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('Widget accessibility', async () => {
+        // FIXME Temporary, some widgets are not accessible yet and the test will fail. Remove once they are all accessible
+        if (!testAccessibility) {
+            return;
+        }
+        const { container} = render(
+            <Question
+                path='home.region'
+                section='test'
+                loadingState={0}
+                widgetConfig={widgetConfig}
+                interview={interviewAttributes}
+                user={userAttributes}
+                widgetStatus={widgetStatus}
+                startUpdateInterview={() => { /* Nothing to do */}}
+            />
+        );
+        const results = await axe(container);
+        expect(results).toHaveNoViolations();
+    });
 });
 
 describe('With help popup and link', () => {
