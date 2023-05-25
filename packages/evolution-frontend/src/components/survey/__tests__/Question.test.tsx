@@ -162,4 +162,32 @@ describe('With help popup and link', () => {
     });
 });
 
+describe('With error message', () => {
+    const widgetConfig = {
+        ...commonWidgetConfig,
+        inputType: 'string',
+    };
+
+    test('Error message on visible widget', () => {
+        const widgetStatus = _cloneDeep(defaultWidgetStatus);
+        widgetStatus.errorMessage = 'error test';
+        widgetStatus.isValid = false;
+
+        const wrapper = TestRenderer.create(
+            <Question
+                path='home.region'
+                section='test'
+                loadingState={0}
+                widgetConfig={widgetConfig as any}
+                interview={interviewAttributes}
+                user={userAttributes}
+                widgetStatus={widgetStatus}
+                startUpdateInterview={() => { /* Nothing to do */}}
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+});
+
 // TODO: Test with modal and other Question props

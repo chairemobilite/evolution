@@ -869,6 +869,66 @@ exports[`Render widget type InputTime 1`] = `
 </div>
 `;
 
+exports[`With error message Error message on visible widget 1`] = `
+<div
+  className="apptr__form-container two-columns question-type-string question-filled question-invalid"
+  onClick={[Function]}
+  style={
+    Object {
+      "position": "relative",
+    }
+  }
+>
+  <div
+    className="apptr__form-label-container two-columns"
+  >
+    <label
+      htmlFor="survey-question__home.region"
+      onClick={[Function]}
+    >
+      <div
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "English text",
+          }
+        }
+      />
+    </label>
+    <p
+      className="apptr__form-error-message"
+    >
+      <span
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "error test",
+          }
+        }
+      />
+    </p>
+  </div>
+  <div
+    className="apptr__form-input-container two-columns"
+  >
+    <input
+      autoComplete="none"
+      className="apptr__form-input apptr__input-string input-large"
+      id="survey-question__home.region"
+      maxLength={255}
+      name="survey-question__home.region"
+      onBlur={[Function]}
+      onChange={[Function]}
+      style={
+        Object {
+          "textTransform": "none",
+        }
+      }
+      type="text"
+      value=""
+    />
+  </div>
+</div>
+`;
+
 exports[`With help popup and link Open modal 1`] = `
 Array [
   <Modal
