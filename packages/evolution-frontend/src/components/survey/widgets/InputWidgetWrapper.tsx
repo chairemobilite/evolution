@@ -67,15 +67,31 @@ const FieldsetWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson
     );
 };
 
-export const LabelWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+export const LabelOrDiv = (
+    props: React.PropsWithChildren<{ needsLabel: boolean; widgetId: string; onClick?: () => void }>
+) =>
+    props.needsLabel ? (
+        <label htmlFor={props.widgetId} onClick={props.onClick}>
+            {props.children}
+        </label>
+    ) : (
+        <div className="apptr__form__label-standalone" id={`${props.widgetId}_label`} onClick={props.onClick}>
+            {props.children}
+        </div>
+    );
+
+export const LabelOrDivWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & {
+        needsLabel: boolean;
+    }
 ) => {
     const [isCollapsed, setIsCollapsed] = React.useState(props.isCollapsed);
     return (
         <React.Fragment>
             <div className={props.className}>
-                <label
-                    htmlFor={props.widgetId}
+                <LabelOrDiv
+                    widgetId={props.widgetId}
+                    needsLabel={props.needsLabel}
                     onClick={
                         (props.widgetConfig as any).canBeCollapsed === true
                             ? () => setIsCollapsed(!isCollapsed)
@@ -87,7 +103,7 @@ export const LabelWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
                     ) : (
                         <Markdown className="label">{props.label}</Markdown>
                     )}
-                </label>
+                </LabelOrDiv>
                 {props.errorMessage !== undefined && (
                     <SurveyErrorMessage
                         containsHtml={props.widgetConfig.containsHtml === true}
@@ -111,11 +127,20 @@ export const LabelWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
 export const InputWidgetWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
 ) => {
-    const shouldUseFieldset = React.useMemo(
-        () => props.widgetConfig.inputType === 'radio' || props.widgetConfig.inputType === 'checkbox',
+    const typeOfWrapping = React.useMemo(
+        () =>
+            props.widgetConfig.inputType === 'radio' || props.widgetConfig.inputType === 'checkbox'
+                ? 'fieldset'
+                : props.widgetConfig.inputType === 'slider'
+                    ? 'noLabel'
+                    : 'label',
         []
     );
-    return shouldUseFieldset ? <FieldsetWrapper {...props} /> : <LabelWrapper {...props} />;
+    return typeOfWrapping === 'fieldset' ? (
+        <FieldsetWrapper {...props} />
+    ) : (
+        <LabelOrDivWrapper {...props} needsLabel={typeOfWrapping === 'label'} />
+    );
 };
 
 export default InputWidgetWrapper;

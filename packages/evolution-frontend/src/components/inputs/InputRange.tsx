@@ -70,6 +70,7 @@ export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
         >
             <ReactInputRange
                 name={props.id}
+                ariaLabelledby={`${props.id}_label`}
                 // defaultValue = {_isBlank(this.props.value) ? this.props.widgetConfig.defaultValue : this.props.value }
                 ref={props.inputRef}
                 maxValue={maxValue as number | undefined}

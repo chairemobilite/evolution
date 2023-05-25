@@ -54,6 +54,7 @@ exports[`Should correctly render InputRange with minimal parameters Test with va
           </span>
         </span>
         <div
+          aria-labelledby="test_label"
           aria-valuemax={100}
           aria-valuemin={-10}
           aria-valuenow={10}
@@ -139,6 +140,7 @@ exports[`Should correctly render InputRange with minimal parameters Test without
           </span>
         </span>
         <div
+          aria-labelledby="test_label"
           aria-valuemax={100}
           aria-valuemin={-10}
           aria-valuenow={-10}
@@ -224,6 +226,7 @@ exports[`Should correctly render InputRange with various parameters Test trackcl
           </span>
         </span>
         <div
+          aria-labelledby="test_label"
           aria-valuemax={100}
           aria-valuemin={-10}
           aria-valuenow={10}
@@ -323,6 +326,7 @@ exports[`Should correctly render InputRange with various parameters Test with mi
           </span>
         </span>
         <div
+          aria-labelledby="test_label"
           aria-valuemax={40}
           aria-valuemin={10}
           aria-valuenow={10}

@@ -521,8 +521,9 @@ exports[`Question with widget InputRange Render widget 1`] = `
   <div
     className="apptr__form-label-container two-columns"
   >
-    <label
-      htmlFor="survey-question__home.region"
+    <div
+      className="apptr__form__label-standalone"
+      id="survey-question__home.region_label"
     >
       <div
         dangerouslySetInnerHTML={
@@ -531,7 +532,7 @@ exports[`Question with widget InputRange Render widget 1`] = `
           }
         }
       />
-    </label>
+    </div>
   </div>
   <div
     className="apptr__form-input-container two-columns"
@@ -589,6 +590,7 @@ exports[`Question with widget InputRange Render widget 1`] = `
               </span>
             </span>
             <div
+              aria-labelledby="survey-question__home.region_label"
               aria-valuemax={10}
               aria-valuemin={3}
               aria-valuenow={3}
