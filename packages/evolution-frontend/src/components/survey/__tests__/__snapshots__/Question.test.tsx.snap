@@ -15,7 +15,6 @@ exports[`Render widget type InputButton 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -71,92 +70,95 @@ exports[`Render widget type InputCheckbox 1`] = `
     }
   }
 >
-  <div
-    className="apptr__form-label-container two-columns"
-  >
-    <label
-      htmlFor="survey-question__home.region"
-      onClick={[Function]}
-    >
-      <div
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
-  >
+  <fieldset>
     <div
-      className="survey-question__input-checkbox-group-container"
+      className="apptr__form-label-container two-columns"
+    >
+      <legend>
+        <div
+          className="apptr__form__label-standalone"
+        >
+          <div
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "English text",
+              }
+            }
+          />
+        </div>
+      </legend>
+    </div>
+    <div
+      className="apptr__form-input-container two-columns"
     >
       <div
-        className="survey-question__input-checkbox-input-container"
-        onClick={[Function]}
+        className="survey-question__input-checkbox-group-container"
       >
         <div
-          className="label-input-container"
+          className="survey-question__input-checkbox-input-container"
+          onClick={[Function]}
         >
-          <input
-            checked={false}
-            className="input-checkbox"
-            id="survey-question__home.region_c1__input-checkbox__c1"
-            name="survey-question__home.region_c1"
-            onChange={[Function]}
-            onClick={[Function]}
-            type="checkbox"
-            value="c1"
-          />
-          <label
-            htmlFor="survey-question__home.region_c1__input-checkbox__c1"
-            onClick={[Function]}
+          <div
+            className="label-input-container"
           >
-            <span
-              dangerouslySetInnerHTML={
-                Object {
-                  "__html": "choice 1",
-                }
-              }
+            <input
+              checked={false}
+              className="input-checkbox"
+              id="survey-question__home.region_c1__input-checkbox__c1"
+              name="survey-question__home.region_c1"
+              onChange={[Function]}
+              onClick={[Function]}
+              type="checkbox"
+              value="c1"
             />
-          </label>
+            <label
+              htmlFor="survey-question__home.region_c1__input-checkbox__c1"
+              onClick={[Function]}
+            >
+              <span
+                dangerouslySetInnerHTML={
+                  Object {
+                    "__html": "choice 1",
+                  }
+                }
+              />
+            </label>
+          </div>
         </div>
-      </div>
-      <div
-        className="survey-question__input-checkbox-input-container checked"
-        onClick={[Function]}
-      >
         <div
-          className="label-input-container"
+          className="survey-question__input-checkbox-input-container checked"
+          onClick={[Function]}
         >
-          <input
-            checked={true}
-            className="input-checkbox"
-            id="survey-question__home.region_c2__input-checkbox__c2"
-            name="survey-question__home.region_c2"
-            onChange={[Function]}
-            onClick={[Function]}
-            type="checkbox"
-            value="c2"
-          />
-          <label
-            htmlFor="survey-question__home.region_c2__input-checkbox__c2"
-            onClick={[Function]}
+          <div
+            className="label-input-container"
           >
-            <span
-              dangerouslySetInnerHTML={
-                Object {
-                  "__html": "choice 2",
-                }
-              }
+            <input
+              checked={true}
+              className="input-checkbox"
+              id="survey-question__home.region_c2__input-checkbox__c2"
+              name="survey-question__home.region_c2"
+              onChange={[Function]}
+              onClick={[Function]}
+              type="checkbox"
+              value="c2"
             />
-          </label>
+            <label
+              htmlFor="survey-question__home.region_c2__input-checkbox__c2"
+              onClick={[Function]}
+            >
+              <span
+                dangerouslySetInnerHTML={
+                  Object {
+                    "__html": "choice 2",
+                  }
+                }
+              />
+            </label>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </fieldset>
 </div>
 `;
 
@@ -175,7 +177,6 @@ exports[`Render widget type InputDatePicker 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -236,7 +237,6 @@ exports[`Render widget type InputMultiselect 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -416,92 +416,95 @@ exports[`Render widget type InputRadio 1`] = `
     }
   }
 >
-  <div
-    className="apptr__form-label-container two-columns"
-  >
-    <label
-      htmlFor="survey-question__home.region"
-      onClick={[Function]}
-    >
-      <div
-        dangerouslySetInnerHTML={
-          Object {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
-  >
+  <fieldset>
     <div
-      className="survey-question__input-radio-group-container"
+      className="apptr__form-label-container two-columns"
+    >
+      <legend>
+        <div
+          className="apptr__form__label-standalone"
+        >
+          <div
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "English text",
+              }
+            }
+          />
+        </div>
+      </legend>
+    </div>
+    <div
+      className="apptr__form-input-container two-columns"
     >
       <div
-        className="survey-question__input-radio-input-container"
-        onClick={[Function]}
+        className="survey-question__input-radio-group-container"
       >
         <div
-          className="label-input-container"
+          className="survey-question__input-radio-input-container"
+          onClick={[Function]}
         >
-          <input
-            checked={false}
-            className="input-radio"
-            id="survey-question__home.region_c1__input-radio__c1"
-            name="survey-question__home.region_c1"
-            onChange={[Function]}
-            onClick={[Function]}
-            type="radio"
-            value="c1"
-          />
-          <label
-            htmlFor="survey-question__home.region_c1__input-radio__c1"
-            onClick={[Function]}
+          <div
+            className="label-input-container"
           >
-            <span
-              dangerouslySetInnerHTML={
-                Object {
-                  "__html": "choice 1",
-                }
-              }
+            <input
+              checked={false}
+              className="input-radio"
+              id="survey-question__home.region_c1__input-radio__c1"
+              name="survey-question__home.region_c1"
+              onChange={[Function]}
+              onClick={[Function]}
+              type="radio"
+              value="c1"
             />
-          </label>
+            <label
+              htmlFor="survey-question__home.region_c1__input-radio__c1"
+              onClick={[Function]}
+            >
+              <span
+                dangerouslySetInnerHTML={
+                  Object {
+                    "__html": "choice 1",
+                  }
+                }
+              />
+            </label>
+          </div>
         </div>
-      </div>
-      <div
-        className="survey-question__input-radio-input-container checked"
-        onClick={[Function]}
-      >
         <div
-          className="label-input-container"
+          className="survey-question__input-radio-input-container checked"
+          onClick={[Function]}
         >
-          <input
-            checked={true}
-            className="input-radio"
-            id="survey-question__home.region_c2__input-radio__c2"
-            name="survey-question__home.region_c2"
-            onChange={[Function]}
-            onClick={[Function]}
-            type="radio"
-            value="c2"
-          />
-          <label
-            htmlFor="survey-question__home.region_c2__input-radio__c2"
-            onClick={[Function]}
+          <div
+            className="label-input-container"
           >
-            <span
-              dangerouslySetInnerHTML={
-                Object {
-                  "__html": "choice 2",
-                }
-              }
+            <input
+              checked={true}
+              className="input-radio"
+              id="survey-question__home.region_c2__input-radio__c2"
+              name="survey-question__home.region_c2"
+              onChange={[Function]}
+              onClick={[Function]}
+              type="radio"
+              value="c2"
             />
-          </label>
+            <label
+              htmlFor="survey-question__home.region_c2__input-radio__c2"
+              onClick={[Function]}
+            >
+              <span
+                dangerouslySetInnerHTML={
+                  Object {
+                    "__html": "choice 2",
+                  }
+                }
+              />
+            </label>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </fieldset>
 </div>
 `;
 
@@ -520,7 +523,6 @@ exports[`Render widget type InputRange 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -635,7 +637,6 @@ exports[`Render widget type InputSelect 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -705,7 +706,6 @@ exports[`Render widget type InputString 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -753,7 +753,6 @@ exports[`Render widget type InputText 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -795,7 +794,6 @@ exports[`Render widget type InputTime 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -884,7 +882,6 @@ exports[`With error message Error message on visible widget 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
@@ -1352,7 +1349,6 @@ exports[`With help popup and link Test widget with help 1`] = `
   >
     <label
       htmlFor="survey-question__home.region"
-      onClick={[Function]}
     >
       <div
         dangerouslySetInnerHTML={
