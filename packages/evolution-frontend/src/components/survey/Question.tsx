@@ -34,6 +34,7 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
 import { UserFrontendInterviewAttributes, WidgetStatus } from '../../services/interviews/interview';
+import SurveyErrorMessage from './widgets/SurveyErrorMessage';
 
 interface QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     path: string;
@@ -361,28 +362,17 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
                         )}
                     </label>
                     {showErrorMessage === true && (
-                        <p className="apptr__form-error-message">
-                            {widgetConfig.containsHtml ? (
-                                <span
-                                    dangerouslySetInnerHTML={{
-                                        __html:
-                                            surveyHelper.translateString(
-                                                widgetStatus.errorMessage,
-                                                this.props.i18n,
-                                                this.props.interview,
-                                                this.props.path
-                                            ) || ''
-                                    }}
-                                />
-                            ) : (
+                        <SurveyErrorMessage
+                            containsHtml={widgetConfig.containsHtml === true}
+                            text={
                                 surveyHelper.translateString(
                                     widgetStatus.errorMessage,
                                     this.props.i18n,
                                     this.props.interview,
                                     this.props.path
                                 ) || ''
-                            )}
-                        </p>
+                            }
+                        />
                     )}
                     {/* helpPopup below: */}
                     {widgetConfig.helpPopup && widgetConfig.helpPopup.title && widgetConfig.helpPopup.content && (
