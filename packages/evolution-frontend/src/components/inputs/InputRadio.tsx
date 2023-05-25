@@ -118,7 +118,7 @@ const InputRadioChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerso
                             />
                         </span>
                     )}
-                    <span dangerouslySetInnerHTML={{ __html : strLabel ? DOMPurify.sanitize(strLabel) : '' }} />
+                    <span dangerouslySetInnerHTML={{ __html: strLabel ? DOMPurify.sanitize(strLabel) : '' }} />
                 </label>
             </div>
             {props.children}
