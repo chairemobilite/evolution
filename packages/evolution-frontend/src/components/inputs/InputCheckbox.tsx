@@ -114,7 +114,7 @@ const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
                             />
                         </span>
                     )}
-                    <span dangerouslySetInnerHTML={{ __html : strLabel ? DOMPurify.sanitize(strLabel) : '' }} />
+                    <span dangerouslySetInnerHTML={{ __html: strLabel ? DOMPurify.sanitize(strLabel) : '' }} />
                 </label>
             </div>
         </div>
