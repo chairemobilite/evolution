@@ -24,7 +24,50 @@ interface InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, Cus
     widgetId: string;
 }
 
-export const InputWidgetWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+const FieldsetWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+) => {
+    const [isCollapsed, setIsCollapsed] = React.useState(props.isCollapsed);
+    return (
+        <fieldset>
+            <div className={props.className}>
+                <legend>
+                    <div
+                        className="apptr__form__label-standalone"
+                        onClick={
+                            (props.widgetConfig as any).canBeCollapsed === true
+                                ? () => setIsCollapsed(!isCollapsed)
+                                : undefined
+                        }
+                    >
+                        {props.widgetConfig.containsHtml ? (
+                            <div dangerouslySetInnerHTML={{ __html: props.label }} />
+                        ) : (
+                            <Markdown className="label">{props.label}</Markdown>
+                        )}
+                    </div>
+                    {props.errorMessage !== undefined && (
+                        <SurveyErrorMessage
+                            containsHtml={props.widgetConfig.containsHtml === true}
+                            text={props.errorMessage}
+                        />
+                    )}
+                    {/* helpPopup below: */}
+                    {props.helpTitle && typeof props.helpContent === 'function' && (
+                        <HelpPopupLink
+                            containsHtml={props.widgetConfig.helpPopup?.containsHtml === true}
+                            title={props.helpTitle}
+                            content={props.helpContent}
+                        />
+                    )}
+                </legend>
+            </div>
+            {!isCollapsed && props.children}
+        </fieldset>
+    );
+};
+
+export const LabelWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
 ) => {
     const [isCollapsed, setIsCollapsed] = React.useState(props.isCollapsed);
@@ -36,7 +79,7 @@ export const InputWidgetWrapper = <CustomSurvey, CustomHousehold, CustomHome, Cu
                     onClick={
                         (props.widgetConfig as any).canBeCollapsed === true
                             ? () => setIsCollapsed(!isCollapsed)
-                            : () => {}
+                            : undefined
                     }
                 >
                     {props.widgetConfig.containsHtml ? (
@@ -63,6 +106,16 @@ export const InputWidgetWrapper = <CustomSurvey, CustomHousehold, CustomHome, Cu
             {!isCollapsed && props.children}
         </React.Fragment>
     );
+};
+
+export const InputWidgetWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+) => {
+    const shouldUseFieldset = React.useMemo(
+        () => props.widgetConfig.inputType === 'radio' || props.widgetConfig.inputType === 'checkbox',
+        []
+    );
+    return shouldUseFieldset ? <FieldsetWrapper {...props} /> : <LabelWrapper {...props} />;
 };
 
 export default InputWidgetWrapper;

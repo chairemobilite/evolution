@@ -139,6 +139,18 @@ label strong, .apptr__form__label-standalone strong {
       }
     }
   }
+  
+  fieldset{
+    position: relative;
+    width: 100%;
+    @media only screen and (min-width: $desktop-breakpoint) {
+        display: flex;
+        text-align: left;
+        flex-direction: row;
+        justify-content: center;
+        align-items: stretch;
+    }
+  }
 
   &.two-columns {
     @media only screen and (min-width: $desktop-breakpoint) {
