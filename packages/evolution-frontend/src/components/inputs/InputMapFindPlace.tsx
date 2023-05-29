@@ -167,7 +167,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     };
 
     geocodePlaces = async (bbox?: [number, number, number, number]) => {
-        const language = this.props.i18n.language === 'fr' ? 'fr-CA' : 'en-CA';
+        const language = this.props.i18n.language;
 
         const geocodingQueryString = this.getGeocodingQueryString();
         if (geocodingQueryString) {
