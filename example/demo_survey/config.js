@@ -76,5 +76,6 @@ module.exports = {
     en: "Demo"
   },
   defaultLocale: "fr",
-  timezone: 'America/Montreal'
+  timezone: 'America/Montreal',
+  region: 'CA', // Used for Google Maps localization. See https://developers.google.com/maps/coverage for possible region codes
 };
