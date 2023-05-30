@@ -8,6 +8,7 @@ import React from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import GeoJSON from 'geojson';
 
+import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { googleMapConfigNew as googleConfig } from '../../../../config/googleMaps.config';
 import InputLoading from '../../InputLoading';
@@ -59,6 +60,7 @@ const callWithBounds = (
 
 const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props: InputGoogleMapPointProps) => {
     const { isLoaded } = useJsApiLoader({
+        region: projectConfig.region,
         ...googleConfig
     });
 
