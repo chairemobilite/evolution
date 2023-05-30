@@ -83,6 +83,15 @@ label strong, .apptr__form__label-standalone strong {
       padding: 0 4rem 0 1.5rem;
       //min-width: calc(100vw*0.6);
     }
+
+    fieldset{
+      @media only screen and (min-width: $desktop-breakpoint) {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: stretch;
+      }
+    }
   }
   display: flex;
   margin-bottom: $xxs-size;
@@ -144,11 +153,7 @@ label strong, .apptr__form__label-standalone strong {
     position: relative;
     width: 100%;
     @media only screen and (min-width: $desktop-breakpoint) {
-        display: flex;
         text-align: left;
-        flex-direction: row;
-        justify-content: center;
-        align-items: stretch;
     }
   }
 
