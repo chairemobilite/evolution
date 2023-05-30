@@ -36,6 +36,7 @@ export interface InputGoogleMapPointProps {
     shouldFitBounds?: number;
     infoWindow?: InfoWindow;
     setGeocodingOptions?: (options: { [key: string]: unknown }) => void;
+    language?: string;
 }
 
 const callWithBounds = (
@@ -59,6 +60,7 @@ const callWithBounds = (
 
 const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props: InputGoogleMapPointProps) => {
     const { isLoaded } = useJsApiLoader({
+        language: props.language || 'fr',
         region: projectConfig.region,
         ...googleConfig
     });

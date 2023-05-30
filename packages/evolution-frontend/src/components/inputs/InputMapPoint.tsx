@@ -181,6 +181,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                         markers={this.state.markers}
                         onMapReady={this.onMapReady}
                         onBoundsChanged={this.onBoundsChanged}
+                        language={this.props.i18n.language}
                     />
                 </div>
             </div>

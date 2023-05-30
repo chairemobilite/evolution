@@ -410,6 +410,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                         shouldFitBounds={this.shouldFitBoundsIdx}
                         infoWindow={infoWindow}
                         setGeocodingOptions={this.setGeocodingOptions}
+                        language={this.props.i18n.language}
                     />
                 </div>
                 {this.state.selectedPlace && places.length > 0 && (
