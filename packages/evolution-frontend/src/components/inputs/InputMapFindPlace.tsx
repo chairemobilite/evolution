@@ -130,7 +130,6 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
         this.props.onValueChange({ target: { value: feature } });
         this.setState({
             selectedPlace: undefined,
-            places: [],
             defaultCenter: feature
                 ? { lat: feature.geometry.coordinates[1], lon: feature.geometry.coordinates[0] }
                 : this.state.defaultCenter
@@ -292,7 +291,9 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                     onClick: () => this.setState({ selectedPlace: feature })
                 })
             );
-        } else if (this.props.value) {
+        }
+
+        if (this.props.value) {
             markers.push({
                 position: this.props.value,
                 icon: { url: iconUrl },
