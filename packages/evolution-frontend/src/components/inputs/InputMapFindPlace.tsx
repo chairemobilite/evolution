@@ -204,6 +204,11 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
         }
     };
 
+    onMarkerSelect = (feature) => {
+        this.onValueChange(feature);
+        this.setState({ selectedPlace: feature });
+    };
+
     onConfirmPlace = (e: React.MouseEvent | undefined) => {
         if (e) {
             e.preventDefault();
@@ -292,7 +297,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                     position: feature,
                     icon: { url: feature === this.state.selectedPlace ? this.selectedIconUrl : placesIconUrl, size: placesIconSize },
                     draggable: this.state.selectedPlace ? true : false,
-                    onClick: () => this.setState({ selectedPlace: feature })
+                    onClick: () => this.onMarkerSelect(feature)
                 })
             );
         }
