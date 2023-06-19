@@ -39,6 +39,7 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import helper          from '../helper';
 import ConfirmModal    from 'evolution-legacy/lib/components/survey/modal/ConfirmModal';
 import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
+import { getPathForSection } from 'evolution-frontend/lib/services/url';
 
 export class VisitedPlacesSection extends React.Component<any, any> {
 
@@ -129,9 +130,9 @@ export class VisitedPlacesSection extends React.Component<any, any> {
     }
     const history = createBrowserHistory();
 
-    if (history.location.pathname !== '/survey/' + this.props.shortname && !history.location.pathname.startsWith('/admin') && !history.location.pathname.startsWith('/admin/survey'))
-    {
-      history.push('/survey/' + this.props.shortname);
+    const path = getPathForSection(history.location.pathname, this.props.shortname);
+    if (path) {
+        history.push(path);
     }
 
     surveyHelper.devLog('%c rendering section ' + this.props.shortname, 'background: rgba(0,0,255,0.1);')
