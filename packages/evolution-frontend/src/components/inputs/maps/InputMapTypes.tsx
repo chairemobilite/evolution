@@ -18,7 +18,7 @@ export type PlaceGeocodedProperties = FeatureGeocodedProperties & {
 
 export interface MarkerData {
     position: GeoJSON.Feature<GeoJSON.Point>;
-    icon: { url: string, size: [number, number] };
+    icon: { url: string; size: [number, number] };
     draggable: boolean;
     readonly onClick?: () => void;
 }
