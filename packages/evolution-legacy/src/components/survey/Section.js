@@ -20,6 +20,7 @@ import Button           from './Button';
 import Question         from 'evolution-frontend/lib/components/survey/Question';
 import Group            from './Group';
 import LoadingPage      from '../shared/LoadingPage';
+import { getPathForSection } from 'evolution-frontend/lib/services/url';
 
 export class Section extends React.Component {
 
@@ -135,19 +136,9 @@ export class Section extends React.Component {
     }
     const history = createBrowserHistory();
 
-    if (!history.location.pathname.startsWith('/admin') && !history.location.pathname.startsWith('/admin/survey') && !history.location.pathname.endsWith(`/${this.props.shortname}`))
-    {
-        // Change the last part of the path to be the current section
-        // TODO Originally, admin routes did not need this. Can they be included in this code path?
-        const pathParts = history.location.pathname.split('/');
-        // Ignore if it corresponds to the 'survey' path, which would be the first, preceded or not by /
-        // TODO Too custom! there must be a better way
-        if ((!history.location.pathname.startsWith('/') && pathParts.length > 1) || (history.location.pathname.startsWith('/') && pathParts.length > 2)) {
-            pathParts.splice(pathParts.length - 1, 1, this.props.shortname);
-        } else {
-            pathParts.push(this.props.shortname);
-        }
-        history.push(pathParts.join('/'));
+    const path = getPathForSection(history.location.pathname, this.props.shortname);
+    if (path) {
+        history.push(path);
     }
 
     const widgetsComponentByShortname = {};

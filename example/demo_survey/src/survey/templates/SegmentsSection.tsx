@@ -30,6 +30,7 @@ import GroupedObject   from 'evolution-legacy/lib/components/survey/GroupedObjec
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
 import helper          from '../helper';
+import { getPathForSection } from 'evolution-frontend/lib/services/url';
 
 //const ResponsiveEllipsis = responsiveHOC()(HTMLEllipsis);
 
@@ -97,9 +98,9 @@ export class SegmentsSection extends React.Component<any, any> {
     }
     const history = createBrowserHistory();
 
-    if (history.location.pathname !== '/survey/' + this.props.shortname && !history.location.pathname.startsWith('/admin') && !history.location.pathname.startsWith('/admin/survey'))
-    {
-      history.push('/survey/' + this.props.shortname);
+    const path = getPathForSection(history.location.pathname, this.props.shortname);
+    if (path) {
+        history.push(path);
     }
     
     surveyHelper.devLog('%c rendering section ' + this.props.shortname, 'background: rgba(0,0,255,0.1);')
