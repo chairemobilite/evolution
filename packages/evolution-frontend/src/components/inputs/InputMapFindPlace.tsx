@@ -273,7 +273,10 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
             ) || '/dist/images/default_marker.svg'
             : '/dist/images/default_marker.svg';
 
-        const placesIconSize = this.props.widgetConfig.placesIcon && this.props.widgetConfig.placesIcon.size ? this.props.widgetConfig.placesIcon.size : defaultIconSize;
+        const placesIconSize =
+            this.props.widgetConfig.placesIcon && this.props.widgetConfig.placesIcon.size
+                ? this.props.widgetConfig.placesIcon.size
+                : defaultIconSize;
 
         const iconUrl = this.props.widgetConfig.icon
             ? surveyHelper.parseString(
@@ -284,7 +287,10 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
             ) || '/dist/images/default_marker.svg'
             : '/dist/images/default_marker.svg';
 
-        const iconSize = this.props.widgetConfig.icon && this.props.widgetConfig.icon.size ? this.props.widgetConfig.icon.size : defaultIconSize;
+        const iconSize =
+            this.props.widgetConfig.icon && this.props.widgetConfig.icon.size
+                ? this.props.widgetConfig.icon.size
+                : defaultIconSize;
 
         const placeMenuChoices = places.map((place) => {
             const placeData = place.properties.placeData as any;
@@ -301,7 +307,10 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
             places.forEach((feature) =>
                 markers.push({
                     position: feature,
-                    icon: { url: feature === this.state.selectedPlace ? this.selectedIconUrl : placesIconUrl, size: placesIconSize },
+                    icon: {
+                        url: feature === this.state.selectedPlace ? this.selectedIconUrl : placesIconUrl,
+                        size: placesIconSize
+                    },
                     draggable: this.state.selectedPlace ? true : false,
                     onClick: () => this.onMarkerSelect(feature)
                 })
@@ -311,7 +320,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
         if (this.props.value) {
             markers.push({
                 position: this.props.value,
-                icon: { url: iconUrl, size: iconSize},
+                icon: { url: iconUrl, size: iconSize },
                 draggable: true
             });
         }

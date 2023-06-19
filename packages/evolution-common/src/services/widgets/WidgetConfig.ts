@@ -247,7 +247,7 @@ type InputMapType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     refreshGeocodingLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     afterRefreshButtonText?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     icon?: {
-        url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+        url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
         size?: [number, number];
     };
     containsHtml?: boolean;
@@ -274,7 +274,7 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
 > & {
     inputType: 'mapFindPlace';
     placesIcon?: {
-        url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+        url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
         size?: [number, number];
     };
     maxGeocodingResultsBounds?: ParsingFunction<

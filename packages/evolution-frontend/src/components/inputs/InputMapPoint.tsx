@@ -70,7 +70,10 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
             ) || '/dist/images/default_marker.svg'
             : '/dist/images/default_marker.svg';
 
-        this.iconSize = this.props.widgetConfig.icon && this.props.widgetConfig.icon.size ? this.props.widgetConfig.icon.size : [40, 40];
+        this.iconSize =
+            this.props.widgetConfig.icon && this.props.widgetConfig.icon.size
+                ? this.props.widgetConfig.icon.size
+                : [40, 40];
 
         this.state = {
             defaultCenter,
