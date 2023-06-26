@@ -165,3 +165,77 @@ test('Render InputSelect with choice function and grouped choice type', () => {
     expect(choiceFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
     
 });
+
+test('Render InputSelect with grouped choice type without labels', () => {
+
+    const choices = [
+        {
+            value: 'val1',
+            label: { en: 'english value', fr: 'valeur française' },
+            hidden: false,
+            icon: 'creative-commons' as const
+        },
+        {
+            groupName: 'select group',
+            groupShortname: 'sel',
+            groupLabel: '',
+            choices: [
+                {
+                    value: 'val2',
+                    label: 'Unilingual label',
+                    iconPath: 'img/test.png'
+                },
+                {
+                    value: 'hiddenVal',
+                    label: { en: 'english hidden', fr: 'cachée' },
+                    hidden: true
+                },
+            ]
+        },
+        {
+            groupName: 'select group',
+            groupShortname: 'sel',
+            groupLabel: '',
+            choices: [
+                {
+                    value: 'val2',
+                    label: 'Unilingual label',
+                    iconPath: 'img/test.png'
+                },
+                {
+                    value: 'val3',
+                    label: { en: 'english val3', fr: 'val3 français' }
+                },
+            ]
+        }
+    ];
+
+    const widgetConfig = {
+        type: 'question' as const,
+        twoColumns: true,
+        path: 'test.foo',
+        inputType: 'select' as const,
+        choices,
+        containsHtml: true,
+        size: 'medium',
+        label: {
+            fr: `Texte en français`,
+            en: `English text`
+        }
+    };
+
+    const wrapper = TestRenderer.create(
+        <InputSelect
+            id={'test'}
+            onValueChange={() => { /* nothing to do */}}
+            widgetConfig={widgetConfig}
+            value='value'
+            inputRef={React.createRef()}
+            interview={interviewAttributes}
+            user={userAttributes}
+            path='foo.test'
+        />
+    );
+    expect(wrapper).toMatchSnapshot();
+
+});

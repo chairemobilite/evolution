@@ -57,6 +57,65 @@ exports[`Render InputSelect with choice function and grouped choice type 1`] = `
 </div>
 `;
 
+exports[`Render InputSelect with grouped choice type without labels 1`] = `
+<div
+  className="survey-question__input-select-container"
+>
+  <select
+    id="test"
+    onChange={[Function]}
+    style={
+      Object {
+        "maxWidth": "100%",
+        "overflow": "hidden",
+        "textOverflow": "ellipsis",
+        "whiteSpace": "nowrap",
+      }
+    }
+    value="value"
+  >
+    <option
+      className="input-select-option"
+      value=""
+    />
+    <option
+      className="input-select-option"
+      value="val1"
+    >
+      english value
+    </option>
+    <option
+      disabled={true}
+    >
+      _________
+    </option>
+    <option
+      className="input-select-option"
+      value="val2"
+    >
+      Unilingual label
+    </option>
+    <option
+      disabled={true}
+    >
+      _________
+    </option>
+    <option
+      className="input-select-option"
+      value="val2"
+    >
+      Unilingual label
+    </option>
+    <option
+      className="input-select-option"
+      value="val3"
+    >
+      english val3
+    </option>
+  </select>
+</div>
+`;
+
 exports[`Render InputSelect with normal option type 1`] = `
 <div
   className="survey-question__input-select-container"

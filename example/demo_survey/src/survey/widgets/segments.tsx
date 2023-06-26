@@ -2646,77 +2646,88 @@ export const segmentParkingPaymentType = {
   },
   choices: [
     {
-      value: "parkingMeter",
-      internalId: 1,
-      label: {
-        fr: "Oui (parcomètre)",
-        en: "Yes (parking meter)"
-      }
-    },
-    {
-      value: "residentialPermit",
-      internalId: 1,
-      label: {
-        fr: "Oui (vignette de stationnement résidentiel)",
-        en: "Yes (residential permit)"
-      }
-    },
-    {
-      value: "parkingPass",
-      internalId: 1,
-      label: {
-        fr: "Oui (passe ou permis de stationnement)",
-        en: "Yes (parking pass or permit)"
-      }
-    },
-    {
-      value: "free",
-      internalId: 2,
-      label: {
-        fr: "Non (gratuit)",
-        en: "No (free parking)"
-      }
-    },
-    {
-      value: "paidByEmployer",
-      internalId: 3,
-      label: {
-        fr: "Non (payé par l'employeur)",
-        en: "No (paid by employer)"
-      },
-      conditional: function(interview, path) {
-        const person = helper.getPerson(interview);
-        const trip: any = surveyHelperNew.getResponse(interview, path, null, '../../');
-        const visitedPlaces = person.visitedPlaces;
-        const destination = trip && trip._destinationVisitedPlaceUuid && visitedPlaces[trip._destinationVisitedPlaceUuid] ? visitedPlaces[trip._destinationVisitedPlaceUuid] : null;
-        const destinationActivity = destination ? destination.activity : null;
-        return ['workUsual', 'workNotUsual', 'workOnTheRoad', 'workOnTheRoadFromUsualWork'].indexOf(destinationActivity) > -1;
-      }
-    },
-    {
-      value: "didNotPark",
-      internalId: 5,
-      label: {
-        fr: "Le véhicule n'a pas été stationné",
-        en: "The vehicle was not parked"
-      }
-    },
-    {
-      value: "dontKnow",
-      internalId: 4,
-      label: {
-        fr: "Je ne sais pas",
-        en: "I don't know"
-      }
-    },
-    {
-      value: "nonApplicable",
-      internalId: 5,
-      label: {
-        fr: "Non applicable",
-        en: "N/A"
-      },
-      conditional: false
+        groupLabel: '',
+        groupShortname: 'paid',
+        choices: [
+            {
+                value: "parkingMeter",
+                internalId: 1,
+                label: {
+                  fr: "Oui (parcomètre)",
+                  en: "Yes (parking meter)"
+                }
+            },
+            {
+                value: "residentialPermit",
+                internalId: 1,
+                label: {
+                    fr: "Oui (vignette de stationnement résidentiel)",
+                    en: "Yes (residential permit)"
+                }
+            },
+            {
+                value: "parkingPass",
+                internalId: 1,
+                label: {
+                    fr: "Oui (passe ou permis de stationnement)",
+                    en: "Yes (parking pass or permit)"
+                }
+            },
+        ]
+    }, {
+        groupLabel: '',
+        groupShortname: 'freeOthers',
+        choices: [
+            {
+                value: "free",
+                internalId: 2,
+                label: {
+                  fr: "Non (gratuit)",
+                  en: "No (free parking)"
+                }
+            },
+            {
+                value: "paidByEmployer",
+                internalId: 3,
+                label: {
+                  fr: "Non (payé par l'employeur)",
+                  en: "No (paid by employer)"
+                },
+                conditional: function(interview, path) {
+                  const person = helper.getPerson(interview);
+                  const trip: any = surveyHelperNew.getResponse(interview, path, null, '../../');
+                  const visitedPlaces = person.visitedPlaces;
+                  const destination = trip && trip._destinationVisitedPlaceUuid && visitedPlaces[trip._destinationVisitedPlaceUuid] ? visitedPlaces[trip._destinationVisitedPlaceUuid] : null;
+                  const destinationActivity = destination ? destination.activity : null;
+                  return ['workUsual', 'workNotUsual', 'workOnTheRoad', 'workOnTheRoadFromUsualWork'].indexOf(destinationActivity) > -1;
+                }
+            },
+            {
+                value: "didNotPark",
+                internalId: 5,
+                label: {
+                  fr: "Le véhicule n'a pas été stationné",
+                  en: "The vehicle was not parked"
+                }
+            },
+            {
+                value: "dontKnow",
+                internalId: 4,
+                label: {
+                  fr: "Je ne sais pas",
+                  en: "I don't know"
+                }
+            },
+            {
+                value: "nonApplicable",
+                internalId: 5,
+                label: {
+                  fr: "Non applicable",
+                  en: "N/A"
+                },
+                conditional: false
+            }
+        ]
     }
   ],
   conditional: function(interview, path) {
