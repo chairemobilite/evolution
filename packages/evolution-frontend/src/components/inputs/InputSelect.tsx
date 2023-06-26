@@ -78,11 +78,20 @@ export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
                 />
             ));
 
-            return (
-                <optgroup
-                    key={`input-select-group-container__${choice.groupShortname}`}
-                    label={choice.groupLabel[props.i18n.language] || choice.groupLabel}
-                >
+            const groupLabel = surveyHelper.translateString(
+                choice.groupLabel,
+                props.i18n,
+                props.interview,
+                props.path,
+                props.user
+            );
+            return _isBlank(groupLabel) ? (
+                <React.Fragment>
+                    <option disabled>_________</option>
+                    {groupSelectOptions}
+                </React.Fragment>
+            ) : (
+                <optgroup key={`input-select-group-container__${choice.groupShortname}`} label={groupLabel}>
                     {groupSelectOptions}
                 </optgroup>
             );

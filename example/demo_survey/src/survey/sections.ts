@@ -27,7 +27,7 @@ const homeWidgets = [
   'homeRegion',
   'homeCountry',
   'homePostalCode',
-  //'homeDwellingType',
+  'homeDwellingType',
   'homeGeography'
 ];
 
