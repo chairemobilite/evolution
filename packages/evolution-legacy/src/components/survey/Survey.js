@@ -204,6 +204,7 @@ export class Survey extends React.Component {
                   submitted                   = {this.props.submitted}
                 />
               </form>
+              <div dangerouslySetInnerHTML={{__html: this.props.t(['survey:footer', 'main:footer']) }} />
             </div>
           </div>
         );

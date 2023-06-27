@@ -4,6 +4,7 @@
         "pageTwoIntroduction": "<p class=\"center _strong\" style=\"color: #2B7F79;\">You already completed the first part. The second part will focus on the travel behavior of your household's members.</p><p class=\"center _oblique\">To sign in, please use the same email and password that you provided when you did the first part, or use the same Google or Facebook account.</p>",
         "start": "Start"
     },
+    "footer": "<p class=\"center\" style=\"font-size: 85%; margin-bottom: 2rem; padding-top: 2rem;\">Powered by <a href=\"https://github.com/chairemobilite/evolution\" target=\"_blank\">Evolution</a></p>",
     "postregistration": {
         "introduction": "Thank you for your participation!",
         "login": "Your access code",
