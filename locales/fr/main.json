@@ -29,5 +29,6 @@
   "SelectPlaceResultsLabel": "Résultats de la recherche",
   "validatorLvl1": "Valideur de base",
   "validatorLvl2": "Super-valideur",
-  "ClickToSelectDate": "Cliquer pour sélectionner une date"
+  "ClickToSelectDate": "Cliquer pour sélectionner une date",
+  "footer": ""
 }
