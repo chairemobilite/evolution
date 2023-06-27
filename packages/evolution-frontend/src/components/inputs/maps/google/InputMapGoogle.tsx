@@ -156,24 +156,22 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props
                 }
             });
 
+            const bounds = atLeastOneMarkerInMaxBounds ? boundsForMarkersInMaxBounds : markerBounds;
+
             // hack for single markers: see https://stackoverflow.com/questions/3334729/google-maps-v3-fitbounds-zoom-too-close-for-single-marker
-            if (markerBounds.getNorthEast().equals(markerBounds.getSouthWest())) {
+            if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
                 const extendPoint1 = new google.maps.LatLng(
-                    markerBounds.getNorthEast().lat() + 0.001,
-                    markerBounds.getNorthEast().lng() + 0.001
+                    bounds.getNorthEast().lat() + 0.001,
+                    bounds.getNorthEast().lng() + 0.001
                 );
                 const extendPoint2 = new google.maps.LatLng(
-                    markerBounds.getNorthEast().lat() - 0.001,
-                    markerBounds.getNorthEast().lng() - 0.001
+                    bounds.getNorthEast().lat() - 0.001,
+                    bounds.getNorthEast().lng() - 0.001
                 );
-                markerBounds.extend(extendPoint1);
-                markerBounds.extend(extendPoint2);
+                bounds.extend(extendPoint1);
+                bounds.extend(extendPoint2);
             }
-            if (atLeastOneMarkerInMaxBounds) {
-                map.fitBounds(boundsForMarkersInMaxBounds);
-            } else {
-                map.fitBounds(markerBounds);
-            }
+            map.fitBounds(bounds);
         }
     }, [props.shouldFitBounds]);
 
