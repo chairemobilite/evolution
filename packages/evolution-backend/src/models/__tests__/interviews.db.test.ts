@@ -258,19 +258,26 @@ describe(`find by response`, () => {
 
 });
 
-describe('Get interview by interview uuid', () => {
+describe('Get interview and ID by interview uuid', () => {
     test('Valid interview', async () => {
         const interview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid);
         expect(interview).toEqual(expect.objectContaining(_removeBlankFields({ ...localUserInterviewAttributes })));
+        const interviewId = await dbQueries.getInterviewIdByUuid(localUserInterviewAttributes.uuid);
+        expect(interviewId).toEqual((interview as any).id);
     });
 
     test('Invalid interview', async () => {
         const interview = await dbQueries.getInterviewByUuid(uuidV4());
         expect(interview).toBeUndefined();
+        const interviewId = await dbQueries.getInterviewIdByUuid(uuidV4());
+        expect(interviewId).toBeUndefined()
     });
 
     test('Not a valid uuid', async () => {
         await expect(dbQueries.getInterviewByUuid('not a valid uuid'))
+            .rejects
+            .toThrowError();
+        await expect(dbQueries.getInterviewIdByUuid('not a valid uuid'))
             .rejects
             .toThrowError();
     })
