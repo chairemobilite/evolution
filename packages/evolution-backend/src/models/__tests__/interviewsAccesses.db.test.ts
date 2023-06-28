@@ -11,6 +11,9 @@ import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.qu
 import dbQueries from '../interviewsAccesses.db.queries';
 import interviewsDbQueries from '../interviews.db.queries';
 
+const permission1 = 'role1';
+const permission2 = 'role2';
+
 const localParticipant = {
     id: 1,
     email: 'test@transition.city',
@@ -20,6 +23,9 @@ const localParticipant = {
 const localUser = {
     ...localParticipant,
     uuid: uuidV4(),
+    permissions: {
+        [permission1]: true
+    }
 }
 
 const anotherUser = {
@@ -27,6 +33,9 @@ const anotherUser = {
     email: 'test2@transition.city',
     is_valid: true,
     uuid: uuidV4(),
+    permissions: {
+        [permission2]: true
+    }
 }
 
 const localUserInterviewAttributes = {
@@ -120,7 +129,6 @@ describe('userUpdatedInterview', () => {
 
     const assertUpdateCounts = async (userId: number, validationMode: boolean, updateCnt: number) => {
         const data = await dbQueries.collection();
-        console.log(data, userId, validationMode);
         const record = data.find(access => access.user_id === userId && access.for_validation === validationMode)
         expect(record).toBeDefined();
         expect(record?.update_count).toEqual(updateCnt);
@@ -183,6 +191,58 @@ describe('userUpdatedInterview', () => {
         }
         expect(exception).toBeDefined();
         expect((exception as any).message).toEqual(expect.stringContaining('violates foreign key constraint "sv_interviews_accesses_user_id_foreign")'))
+    });
+
+});
+
+describe(`Stat editing users`, () => {
+
+    test('Stat all users', async () => {
+        const statUsers = await dbQueries.statEditingUsers({});
+        expect(statUsers.length).toEqual(4);
+        statUsers.forEach((statUser) => {
+            switch(statUser.email) {
+                case localUser.email: 
+                    expect(statUser.update_count).toEqual(statUser.for_validation ? 2 : 0);
+                    break;
+                case anotherUser.email:
+                    expect(statUser.update_count).toEqual(2);
+                    break;
+                default:
+                    throw `Unexpected user email ${statUser.email}`;
+            }
+        })
+    });
+
+    test('Stat for specific permission', async () => {
+        const statUsers = await dbQueries.statEditingUsers({ permissions: [permission2]});
+        expect(statUsers.length).toEqual(2);
+        statUsers.forEach((statUser) => {
+            switch(statUser.email) {
+                case anotherUser.email:
+                    expect(statUser.update_count).toEqual(2);
+                    break;
+                default:
+                    throw `Unexpected user email ${statUser.email}`;
+            }
+        })
+    });
+
+    test('Stat for multiple permission', async () => {
+        const statUsers = await dbQueries.statEditingUsers({ permissions: [permission2, permission1]});
+        expect(statUsers.length).toEqual(4);
+        statUsers.forEach((statUser) => {
+            switch(statUser.email) {
+                case localUser.email: 
+                    expect(statUser.update_count).toEqual(statUser.for_validation ? 2 : 0);
+                    break;
+                case anotherUser.email:
+                    expect(statUser.update_count).toEqual(2);
+                    break;
+                default:
+                    throw `Unexpected user email ${statUser.email}`;
+            }
+        })
     });
 
 });

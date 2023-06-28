@@ -41,9 +41,6 @@ router.post('/createNew', async (req, res) => {
         while ((await participantAuthModel.find({ username: userName })) !== undefined) {
             userName = `${req.body.createUser}_${suffixCount++}`;
         }
-        if (req.user && (req.user as any).id) {
-            initialResponses['_editingUsers'] = [(req.user as any).id];
-        }
         const participant = await participantAuthModel.createAndSave({ username: userName });
         const interview = await Interviews.createInterviewForUser(participant.attributes.id, initialResponses);
 

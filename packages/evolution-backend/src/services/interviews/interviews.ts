@@ -11,11 +11,13 @@ import { mapResponsesToValidatedData } from './interviewUtils';
 import { validateAccessCode } from '../accessCode';
 import { validate as validateUuid } from 'uuid';
 import interviewsDbQueries, { InterviewSearchAttributes, OperatorSigns } from '../../models/interviews.db.queries';
+import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.queries';
 import {
     InterviewAttributes,
     InterviewListAttributes,
     UserInterviewAttributes
 } from 'evolution-common/lib/services/interviews/interview';
+import { UserInterviewAccesses } from '../logging/loggingTypes';
 
 const getFiltersForDb = (
     filter: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
@@ -259,7 +261,7 @@ export default class Interviews {
 
     static statEditingUsers = async (
         params: { permissions?: string[] } = {}
-    ): Promise<{ email: string; count: number }[]> => {
-        return await interviewsDbQueries.statEditingUsers(params);
+    ): Promise<(UserInterviewAccesses & { email: string })[]> => {
+        return await interviewsAccessesDbQueries.statEditingUsers(params);
     };
 }
