@@ -551,43 +551,6 @@ const getInterviewsStream = function (params: {
     return interviewsQuery.stream();
 };
 
-// TODO Add filters by date?
-const statEditingUsers = async (params: { permissions?: string[] }): Promise<{ email: string; count: number }[]> => {
-    try {
-        const innerQuery = knex
-            .select('id', knex.raw('json_array_elements(responses->\'_editingUsers\')::text::int as user_id'))
-            .from(tableName)
-            .whereRaw('responses->\'_editingUsers\' is not null')
-            .groupBy('id')
-            .as('i');
-        const statQuery = knex
-            .select('email')
-            .from(innerQuery)
-            .leftJoin('users', 'users.id', 'i.user_id')
-            .count()
-            .groupBy('email');
-
-        if (params.permissions) {
-            params.permissions.forEach((permission, index) => {
-                const wherePermission = `(users.permissions->>'${permission}')::boolean = true`;
-                if (index === 0) {
-                    statQuery.whereRaw(wherePermission);
-                } else {
-                    statQuery.orWhereRaw(wherePermission);
-                }
-            });
-        }
-
-        return (await statQuery) as { email: string; count: number }[];
-    } catch (error) {
-        throw new TrError(
-            `Cannot stat the editing users for interviews (knex error: ${error})`,
-            'DBQCR0007',
-            'DatabaseCannotStatEditingUsersBecauseDatabaseError'
-        );
-    }
-};
-
 export default {
     findByResponse,
     getInterviewByUuid,
@@ -597,6 +560,5 @@ export default {
     update,
     getList,
     getValidationErrors,
-    getInterviewsStream,
-    statEditingUsers
+    getInterviewsStream
 };

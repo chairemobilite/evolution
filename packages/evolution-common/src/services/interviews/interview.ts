@@ -87,9 +87,6 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
     _language?: string;
     _isCompleted?: boolean;
 
-    // Array of user_id of users who edited this interview, excluding the user himself
-    // FIXME Remove from here (see https://github.com/chairemobilite/transition-legacy/issues/1987)
-    _editingUsers?: number[];
     _sections?: {
         [sectionName: string]: SectionStatus & {
             [subSection: string]: SectionStatus;

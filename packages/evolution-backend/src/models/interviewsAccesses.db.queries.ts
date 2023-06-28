@@ -104,8 +104,40 @@ const collection = async (): Promise<UserInterviewAccesses[]> => {
     }
 };
 
+// TODO Add filters by date?
+const statEditingUsers = async (params: {
+    permissions?: string[];
+}): Promise<(UserInterviewAccesses & { email: string })[]> => {
+    try {
+        const statQuery = knex
+            .select(`${tableName}.*`, 'users.email')
+            .from(tableName)
+            .leftJoin('users', `${tableName}.user_id`, 'users.id');
+
+        if (params.permissions) {
+            params.permissions.forEach((permission, index) => {
+                const wherePermission = `(users.permissions->>'${permission}')::boolean = true`;
+                if (index === 0) {
+                    statQuery.whereRaw(wherePermission);
+                } else {
+                    statQuery.orWhereRaw(wherePermission);
+                }
+            });
+        }
+
+        return (await statQuery) as (UserInterviewAccesses & { email: string })[];
+    } catch (error) {
+        throw new TrError(
+            `Cannot stat the editing users for interviews (knex error: ${error})`,
+            'DBQCR0007',
+            'DatabaseCannotStatEditingUsersBecauseDatabaseError'
+        );
+    }
+};
+
 export default {
     userOpenedInterview,
     userUpdatedInterview,
-    collection
+    collection,
+    statEditingUsers
 };

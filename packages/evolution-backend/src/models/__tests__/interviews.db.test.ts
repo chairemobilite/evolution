@@ -64,8 +64,7 @@ const localUserInterviewAttributes = {
     is_completed: undefined,
     responses: {
         accessCode: '11111',
-        booleanField: true,
-        _editingUsers: [localUser.id]
+        booleanField: true
     },
     validations: {},
     logs: [],
@@ -101,8 +100,7 @@ const googleUserInterviewAttributes = {
             someField: 'somewhere',
             otherField: 'Third stop on the right',
             arrayField: ['foo', 'bar']
-        },
-        _editingUsers: [localUser.id, localUser2.id]
+        }
     },
     validations: {},
     logs: [],
@@ -679,58 +677,6 @@ describe(`stream interviews query`, () => {
             expect(i).toBe(nbInterviews);
             done();
         });
-    });
-
-});
-
-describe(`Stat editing users`, () => {
-
-    test('Stat all users', async () => {
-        const statUsers = await dbQueries.statEditingUsers({});
-        expect(statUsers.length).toEqual(2);
-        statUsers.forEach((statUser) => {
-            switch(statUser.email) {
-                case localUser.email: 
-                    expect(statUser.count).toEqual('2');
-                    break;
-                case localUser2.email:
-                    expect(statUser.count).toEqual('1');
-                    break;
-                default:
-                    throw `Unexpected user email ${statUser.email}`;
-            }
-        })
-    });
-
-    test('Stat for specific permission', async () => {
-        const statUsers = await dbQueries.statEditingUsers({ permissions: [permission2]});
-        expect(statUsers.length).toEqual(1);
-        statUsers.forEach((statUser) => {
-            switch(statUser.email) {
-                case localUser2.email:
-                    expect(statUser.count).toEqual('1');
-                    break;
-                default:
-                    throw `Unexpected user email ${statUser.email}`;
-            }
-        })
-    });
-
-    test('Stat for multiple permission', async () => {
-        const statUsers = await dbQueries.statEditingUsers({ permissions: [permission2, permission1]});
-        expect(statUsers.length).toEqual(2);
-        statUsers.forEach((statUser) => {
-            switch(statUser.email) {
-                case localUser.email: 
-                    expect(statUser.count).toEqual('2');
-                    break;
-                case localUser2.email:
-                    expect(statUser.count).toEqual('1');
-                    break;
-                default:
-                    throw `Unexpected user email ${statUser.email}`;
-            }
-        })
     });
 
 });

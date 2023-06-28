@@ -9,6 +9,7 @@ import { v4 as uuidV4 } from 'uuid';
 import Interviews from '../interviews';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import interviewsQueries from '../../../models/interviews.db.queries';
+import interviewsAccessesQueries from '../../../models/interviewsAccesses.db.queries';
 import { registerAccessCodeValidationFunction } from '../../accessCode';
 import { updateInterview } from '../interview';
 
@@ -18,12 +19,15 @@ jest.mock('../../../models/interviews.db.queries', () => ({
     create: jest.fn(),
     getUserInterview: jest.fn(),
     getList: jest.fn(),
-    getValidationErrors: jest.fn(),
+    getValidationErrors: jest.fn()
+}));
+
+jest.mock('../../../models/interviewsAccesses.db.queries', () => ({
     statEditingUsers: jest.fn()
 }));
 const mockDbCreate = interviewsQueries.create as jest.MockedFunction<typeof interviewsQueries.create>;
 const mockDbGetByUuid = interviewsQueries.getInterviewByUuid as jest.MockedFunction<typeof interviewsQueries.getInterviewByUuid>;
-const mockStatEditingUsers = interviewsQueries.statEditingUsers as jest.MockedFunction<typeof interviewsQueries.statEditingUsers>;
+const mockStatEditingUsers = interviewsAccessesQueries.statEditingUsers as jest.MockedFunction<typeof interviewsAccessesQueries.statEditingUsers>;
 
 jest.mock('../interview', () => ({
     updateInterview: jest.fn()
@@ -489,8 +493,8 @@ describe('Stat editing users', () => {
 
     test('Test with correct answer', async () => {
         const userStats = [
-            { email: 'foo@bar.com', count: 10 },
-            { email: 'a@b.c', count: 2 }
+            { email: 'foo@bar.com', interview_id: 12, user_id: 3, for_validation: false, update_count: 10, created_at: '2023-06-28', updated_at: '2023-06-28' },
+            { email: 'a@b.c', interview_id: 12, user_id: 3, for_validation: false, update_count: 2, created_at: '2023-06-28', updated_at: '2023-06-28' }
         ]
         mockStatEditingUsers.mockResolvedValueOnce(userStats);
         const stats = await Interviews.statEditingUsers();
@@ -500,8 +504,8 @@ describe('Stat editing users', () => {
 
     test('Test with permissions', async () => {
         const userStats = [
-            { email: 'foo@bar.com', count: 10 },
-            { email: 'a@b.c', count: 2 }
+            { email: 'foo@bar.com', interview_id: 12, user_id: 3, for_validation: false, update_count: 10, created_at: '2023-06-28', updated_at: '2023-06-28' },
+            { email: 'a@b.c', interview_id: 12, user_id: 3, for_validation: false, update_count: 2, created_at: '2023-06-28', updated_at: '2023-06-28' }
         ]
         mockStatEditingUsers.mockResolvedValueOnce(userStats);
         const stats = await Interviews.statEditingUsers({ permissions: [ 'role1', 'role2' ] });
