@@ -6,8 +6,9 @@
  */
 import getSurveyRouter from 'evolution-backend/lib/api/survey.user.routes';
 import participantIsAuthorized from 'evolution-backend/lib/services/auth/participantAuthorization';
+import { defaultMiddlewares } from 'evolution-backend/lib/services/logging/queryLoggingMiddleware';
 
 module.exports = function(app) {
-    const userSurveyRouter = getSurveyRouter(participantIsAuthorized);
+    const userSurveyRouter = getSurveyRouter(participantIsAuthorized, defaultMiddlewares);
     app.use('/api', userSurveyRouter);
 };
