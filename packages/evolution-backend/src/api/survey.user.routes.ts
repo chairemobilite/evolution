@@ -16,8 +16,9 @@ import Interviews from '../services/interviews/interviews';
 import { addRolesToInterview, updateInterview } from '../services/interviews/interview';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import serverConfig from '../config/projectConfig';
+import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
 
-export default (authorizationMiddleware): Router => {
+export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMiddlewares): Router => {
     const router = express.Router();
 
     router.use(isLoggedIn);
@@ -78,6 +79,7 @@ export default (authorizationMiddleware): Router => {
     router.get(
         '/survey/activeInterview/:interviewId',
         authorizationMiddleware(['update', 'read']),
+        loggingMiddleware.openingInterview(false),
         async (req: Request, res: Response) => {
             try {
                 activateInterview(req, res, (req) => Interviews.getInterviewByUuid(req.params.interviewId));
@@ -91,6 +93,7 @@ export default (authorizationMiddleware): Router => {
     router.post(
         '/survey/updateInterview/',
         authorizationMiddleware(['update', 'read']),
+        loggingMiddleware.updatingInterview(false),
         async (req: Request, res: Response) => {
             try {
                 const ip = (req as any).clientIp;

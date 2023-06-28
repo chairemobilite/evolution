@@ -16,93 +16,102 @@ import projectConfig from '../config/projectConfig';
 import { mapResponsesToValidatedData } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
 
 const router = express.Router();
 
 router.use(interviewUserIsAuthorized(['validate', 'read']));
 
-router.get('/survey/validateInterview/:interviewUuid', async (req: Request, res: Response) => {
-    if (req.params.interviewUuid) {
+router.get(
+    '/survey/validateInterview/:interviewUuid',
+    logUserAccessesMiddleware.openingInterview(true),
+    async (req: Request, res: Response) => {
+        if (req.params.interviewUuid) {
+            try {
+                const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+                if (interview) {
+                    // TODO Here, the responses field should not make it to frontend, it should freeze the survey and initialize the validated_data here. But make sure there are no side effect in the frontend, where the _responses is used or checked.
+                    const { responses, validated_data, ...rest } = interview;
+                    return res.status(200).json({
+                        status: 'success',
+                        interview: { responses: validated_data, _responses: responses, ...rest }
+                    });
+                } else {
+                    return res.status(500).json({ status: 'failed', interview: null });
+                }
+            } catch (error) {
+                console.error(`Error getting interview to validate: ${error}`);
+                return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });
+            }
+        } else {
+            return res.status(500).json({ status: 'failed', interview: null, error: 'wrong interview id' });
+        }
+    }
+);
+
+router.post(
+    '/survey/updateValidateInterview/:interviewUuid',
+    logUserAccessesMiddleware.updatingInterview(true),
+    async (req: Request, res: Response) => {
         try {
+            const timestamp = moment().unix();
+
+            const content = req.body;
+            if (!content.valuesByPath || !req.params.interviewUuid) {
+                console.log('Missing valuesByPath or unspecified interview ID');
+                return res.status(400).json({ status: 'BadRequest' });
+            }
+            const valuesByPath = content.valuesByPath || {};
+            const origUnsetPaths = content.unsetPaths || [];
+
+            if (origUnsetPaths.length === 0 && Object.keys(valuesByPath).length === 0) {
+                return res.status(200).json({ status: 'success', interviewId: req.params.interviewUuid });
+            }
+
+            const { valuesByPath: mappedValuesByPath, unsetPaths } = mapResponsesToValidatedData(
+                valuesByPath,
+                origUnsetPaths
+            );
+
             const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
             if (interview) {
-                // TODO Here, the responses field should not make it to frontend, it should freeze the survey and initialize the validated_data here. But make sure there are no side effect in the frontend, where the _responses is used or checked.
-                const { responses, validated_data, ...rest } = interview;
-                return res.status(200).json({
-                    status: 'success',
-                    interview: { responses: validated_data, _responses: responses, ...rest }
+                const canConfirm = isUserAllowed(req.user as UserAttributes, interview, ['confirm']);
+                const fieldsToUpdate: (keyof InterviewAttributes<unknown, unknown, unknown, unknown>)[] = [
+                    'validated_data',
+                    'validations',
+                    'audits',
+                    'is_valid',
+                    'is_completed',
+                    'is_frozen'
+                ];
+                interview.responses._updatedAt = timestamp;
+                const retInterview = await updateInterview<unknown, unknown, unknown, unknown>(interview, {
+                    valuesByPath: mappedValuesByPath,
+                    unsetPaths,
+                    fieldsToUpdate: canConfirm ? [...fieldsToUpdate, 'is_validated'] : fieldsToUpdate,
+                    logData: { adminValidation: true }
                 });
-            } else {
-                return res.status(500).json({ status: 'failed', interview: null });
-            }
-        } catch (error) {
-            console.error(`Error getting interview to validate: ${error}`);
-            return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });
-        }
-    } else {
-        return res.status(500).json({ status: 'failed', interview: null, error: 'wrong interview id' });
-    }
-});
-
-router.post('/survey/updateValidateInterview/:interviewUuid', async (req: Request, res: Response) => {
-    try {
-        const timestamp = moment().unix();
-
-        const content = req.body;
-        if (!content.valuesByPath || !req.params.interviewUuid) {
-            console.log('Missing valuesByPath or unspecified interview ID');
-            return res.status(400).json({ status: 'BadRequest' });
-        }
-        const valuesByPath = content.valuesByPath || {};
-        const origUnsetPaths = content.unsetPaths || [];
-
-        if (origUnsetPaths.length === 0 && Object.keys(valuesByPath).length === 0) {
-            return res.status(200).json({ status: 'success', interviewId: req.params.interviewUuid });
-        }
-
-        const { valuesByPath: mappedValuesByPath, unsetPaths } = mapResponsesToValidatedData(
-            valuesByPath,
-            origUnsetPaths
-        );
-
-        const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
-        if (interview) {
-            const canConfirm = isUserAllowed(req.user as UserAttributes, interview, ['confirm']);
-            const fieldsToUpdate: (keyof InterviewAttributes<unknown, unknown, unknown, unknown>)[] = [
-                'validated_data',
-                'validations',
-                'audits',
-                'is_valid',
-                'is_completed',
-                'is_frozen'
-            ];
-            interview.responses._updatedAt = timestamp;
-            const retInterview = await updateInterview<unknown, unknown, unknown, unknown>(interview, {
-                valuesByPath: mappedValuesByPath,
-                unsetPaths,
-                fieldsToUpdate: canConfirm ? [...fieldsToUpdate, 'is_validated'] : fieldsToUpdate,
-                logData: { adminValidation: true }
-            });
-            if (retInterview.serverValidations === true) {
+                if (retInterview.serverValidations === true) {
+                    return res.status(200).json({
+                        status: 'success',
+                        interviewId: retInterview.interviewId,
+                        updatedValuesByPath: retInterview.serverValuesByPath
+                    });
+                }
                 return res.status(200).json({
-                    status: 'success',
+                    status: 'invalid',
                     interviewId: retInterview.interviewId,
+                    messages: retInterview.serverValidations,
                     updatedValuesByPath: retInterview.serverValuesByPath
                 });
             }
-            return res.status(200).json({
-                status: 'invalid',
-                interviewId: retInterview.interviewId,
-                messages: retInterview.serverValidations,
-                updatedValuesByPath: retInterview.serverValuesByPath
-            });
+            return res.status(200).json({ status: 'failed', interviewId: null });
+        } catch (error) {
+            console.error(`Error getting interviews: ${error}`);
+            return res.status(500).json({ status: 'failed', interviewId: null });
         }
-        return res.status(200).json({ status: 'failed', interviewId: null });
-    } catch (error) {
-        console.error(`Error getting interviews: ${error}`);
-        return res.status(500).json({ status: 'failed', interviewId: null });
     }
-});
+);
 
 router.post('/validationList', async (req, res) => {
     try {
