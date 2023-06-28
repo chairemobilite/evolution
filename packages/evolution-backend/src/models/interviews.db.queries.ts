@@ -110,6 +110,21 @@ const getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, Cus
     }
 };
 
+const getInterviewIdByUuid = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interviewUuid: string
+): Promise<number | undefined> => {
+    try {
+        const interviews = await knex.select('id').from(tableName).where('uuid', interviewUuid);
+        return interviews.length === 1 ? interviews[0].id : undefined;
+    } catch (error) {
+        console.error(error);
+        throw new TrError(
+            `cannot find interview id by uuid because of a database error (knex error: ${error})`,
+            'TITQGC0022'
+        );
+    }
+};
+
 const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     participantId: number
 ): Promise<UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
@@ -576,6 +591,7 @@ const statEditingUsers = async (params: { permissions?: string[] }): Promise<{ e
 export default {
     findByResponse,
     getInterviewByUuid,
+    getInterviewIdByUuid,
     getUserInterview,
     create,
     update,

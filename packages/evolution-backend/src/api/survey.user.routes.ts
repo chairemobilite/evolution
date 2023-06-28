@@ -110,6 +110,7 @@ export default (authorizationMiddleware): Router => {
 
                 const interview = await Interviews.getInterviewByUuid(content.interviewId);
                 if (interview) {
+                    // TODO Log a different way
                     if (req.user && (req.user as any).id !== interview.participant_id) {
                         const userId = (req.user as any).id;
                         const editingUsers = interview.responses._editingUsers || [];
