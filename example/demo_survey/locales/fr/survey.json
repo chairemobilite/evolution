@@ -1,8 +1,9 @@
 {
     "homepage": {
-        "introduction": "<p class=\"center _strong\" style=\"color: #2B7F79;\">Nous sollicitons votre participation à une étude sur la mobilité des personnes de la région de Montréal. Cette étude vise à mieux connaître les déplacements des personnes habitant sur le territoire de la grande région de Montréal.</p><p class=\"center _oblique\"><a href=\"http://www.artm.quebec/eod/\">En savoir davantage sur cette étude</a></p>",
-        "pageTwoIntroduction": "<p class=\"center _strong\" style=\"color: #2B7F79;\">Vous avez déjà complété la première partie. La deuxième partie concerne les déplacements des membres de votre ménage.</p><p class=\"center _oblique\">Pour vous connecter, utilisez l'adresse courriel et le mot de passe que vous avez indiqués pour accéder à la première partie ou utilisez le même compte Google ou Facebook.</p>",
-        "start": "Débuter"
+        "introduction": "<p class=\"_strong\" style=\"color: #2B7F79;\">Nous sollicitons votre participation à une étude sur la mobilité des personnes de la région de Montréal. Cette étude vise à mieux connaître les déplacements des personnes habitant sur le territoire de la grande région de Montréal.</p><p class=\"_oblique\"><a href=\"http://www.artm.quebec/eod/\">En savoir davantage sur cette étude</a></p>",
+        "pageTwoIntroduction": "<p class=\"_strong\" style=\"color: #2B7F79;\">Vous avez déjà complété la première partie. La deuxième partie concerne les déplacements des membres de votre ménage.</p><p class=\"center _oblique\">Pour vous connecter, utilisez l'adresse courriel et le mot de passe que vous avez indiqués pour accéder à la première partie ou utilisez le même compte Google ou Facebook.</p>",
+        "start": "Débuter",
+        "AgreementText": "Je consens à l'usage des mes données à des fins de recherche"
     },
     "footer": "<p class=\"center\" style=\"font-size: 85%; margin-bottom: 2rem; padding-top: 2rem;\">Propulsé par <a href=\"https://github.com/chairemobilite/evolution\" target=\"_blank\">Evolution</a></p>",
     "postregistration": {

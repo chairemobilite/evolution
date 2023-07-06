@@ -30,5 +30,7 @@
   "validatorLvl1": "Basic validator",
   "validatorLvl2": "Super validator",
   "ClickToSelectDate": "Click to select a date",
-  "footer": ""
+  "footer": "",
+  "AgreementText": "",
+  "ErrorNotAgreed": "You must accept usage of your date to continue to the survey"
 }
