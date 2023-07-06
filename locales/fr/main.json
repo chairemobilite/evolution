@@ -30,5 +30,7 @@
   "validatorLvl1": "Valideur de base",
   "validatorLvl2": "Super-valideur",
   "ClickToSelectDate": "Cliquer pour sélectionner une date",
-  "footer": ""
+  "footer": "",
+  "AgreementText": "",
+  "ErrorNotAgreed": "Vous devez accepter l'utilisation de vos données pour continuer vers l'enquête"
 }

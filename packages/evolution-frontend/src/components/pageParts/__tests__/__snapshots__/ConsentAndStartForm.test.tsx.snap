@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Render ConsentAndStartForm With consent checkbox 1`] = `
+<div
+  className="survey-section__button-agreement"
+>
+  <input
+    checked={false}
+    className="_input-checkbox"
+    id="surveyConsent"
+    onChange={[Function]}
+    type="checkbox"
+    value="agree"
+  />
+  <label
+    htmlFor="surveyConsent"
+    onClick={[Function]}
+  >
+    <span>
+      I agree
+    </span>
+  </label>
+  <div
+    className="center"
+  >
+    <button
+      className="survey-section__button button green large"
+      onClick={[Function]}
+      type="button"
+    >
+      survey:homepage:start
+    </button>
+  </div>
+</div>
+`;
+
+exports[`Render ConsentAndStartForm Without consent checkbox 1`] = `
+<div
+  className="survey-section__button-agreement"
+>
+  <div
+    className="center"
+  >
+    <button
+      className="survey-section__button button green large"
+      onClick={[Function]}
+      type="button"
+    >
+      survey:homepage:start
+    </button>
+  </div>
+</div>
+`;

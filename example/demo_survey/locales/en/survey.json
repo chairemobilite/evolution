@@ -1,8 +1,9 @@
 {
     "homepage": {
-        "introduction": "<p class=\"center _dark-green _strong\" style=\"color: #2B7F79;\">We are seeking your participation in a study on people's travel behavior in the Montreal area. This study aims to better understand the trips of people living in the Greater Montreal Area.</p><p class=\"center _oblique\"><a href=\"http://www.artm.quebec/origin-destination-survey/\">More about this survey</p>",
-        "pageTwoIntroduction": "<p class=\"center _strong\" style=\"color: #2B7F79;\">You already completed the first part. The second part will focus on the travel behavior of your household's members.</p><p class=\"center _oblique\">To sign in, please use the same email and password that you provided when you did the first part, or use the same Google or Facebook account.</p>",
-        "start": "Start"
+        "introduction": "<p class=\"_dark-green _strong\" style=\"color: #2B7F79;\">We are seeking your participation in a study on people's travel behavior in the Montreal area. This study aims to better understand the trips of people living in the Greater Montreal Area.</p><p class=\"_oblique\"><a href=\"http://www.artm.quebec/origin-destination-survey/\">More about this survey</p>",
+        "pageTwoIntroduction": "<p class=\"_strong\" style=\"color: #2B7F79;\">You already completed the first part. The second part will focus on the travel behavior of your household's members.</p><p class=\"center _oblique\">To sign in, please use the same email and password that you provided when you did the first part, or use the same Google or Facebook account.</p>",
+        "start": "Start",
+        "AgreementText": "I consent to the usage of my data for research purposes"
     },
     "footer": "<p class=\"center\" style=\"font-size: 85%; margin-bottom: 2rem; padding-top: 2rem;\">Powered by <a href=\"https://github.com/chairemobilite/evolution\" target=\"_blank\">Evolution</a></p>",
     "postregistration": {
