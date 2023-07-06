@@ -323,6 +323,9 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                 icon: { url: iconUrl, size: iconSize },
                 draggable: true
             });
+            // Since this block of code runs when the map is given an initial value (for example when a shortcut is chosen),
+            // we need to update the map bounds.
+            this.shouldFitBoundsIdx++;
         }
 
         const infoWindow = this.state.selectedPlace
