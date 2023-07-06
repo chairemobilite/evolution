@@ -1,4 +1,4 @@
-# evolution
+# Evolution
 
 Evolution is a survey platform for travel survey. Its originality resides in the support of travel diaries, where participants in the survey can enter all the trips they did in a day for example. But it allows to develop flexible questionnaires, in multiple arbitrary sections, with complex conditions, validations, labels and choices, which can all be scripted to use any of the previous answers.
 
@@ -8,17 +8,33 @@ Typically, a survey application is split in 2 separate websites, one where parti
 
 This repo contains an example travel survey, in the `example/demo_survey` folder. It is possible to copy-paste this directory and start editing the survey.
 
-## Installation
+## Install dependencies for Linux
 
-The following instructions explain how to install dependencies and prepare and compile the application
-
-* Install dependencies:
+The following instructions explain how to install dependencies for Linux. 
 
 For Ubuntu 20.04 or 22.04 users, use:
 ```
 sudo apt-get install postgresql postgis lua5.3 liblua5.3-dev postgresql-postgis postgresql-postgis-scripts
 ```
+
+## Install dependencies for Windows
+
+The following instructions explain how to install dependencies for Windows. 
+
+* Download PostgreSQL at `https://www.enterprisedb.com/downloads/postgres-postgresql-downloads`
+* Install PostgreSQL. During the installation, make sure you provide a password for your postgres database superuser, and that you install the components pgAdmin 4 and Stack Builder. You can use port 5432
+* `psql --version`: Verify your PostgreSQL version inside Powershell
+* Find and run the “Stack Builder” program that was installed with the database. Select the “Spatial Extensions” section and choose the latest “PostGIS Bundle” option. Accept the defaults and install
+
+## Prepare and compile the application 
+The following instructions explain how to prepare and compile the application 
+
 * Create a `.env` file in the project root directory (you can copy the `.env.example` file) and setup the project
+* Update the `.env` with the Postgres connection string and create a new Google map API key if you need the Google map in the project
+``` 
+PG_CONNECTION_STRING_PREFIX=postgres://postgres:<Password>@localhost:5432/ 
+GOOGLE_API_KEY= MyGoogleApiKey
+```
 * `git submodule init && git submodule update` will get the Transition repository
 * `yarn install` or just `yarn`: Will download the packages required by the application
 * `yarn compile`: Convert the typescript files to javascript
@@ -26,10 +42,9 @@ sudo apt-get install postgresql postgis lua5.3 liblua5.3-dev postgresql-postgis 
 * `yarn migrate`: Update the database schema with latest changes. This can be run whenever the source code is updated
 * Optionally `yarn create-user`: Run this task to create a new user in the database. The user will be able to login to the web interface. This command can be run entirely in a non-interactive mode with the following parameters: `yarn create-user --username <username> --email <email> --password <clearTextPassword> [--first_name <firstName> --last_name <lastName> --[no-]admin --[no-]valid --[no-]confirmed --prefs <jsonStringOfPreferences>]`. For example, to create and administrator user with the english language as preference, run the following command `yarn create-user --username admin --email admin@example.org --password MyAdminPassword --admin --prefs '{ "lang": "en" }'`
 
-
 ## Run the example application
 
-The example application contains 2 distinct application. For local development, we will run the participant app on port 8080 (the default port) and the administrative app on port 8082. Each application needs to build the client app and run the server
+The example application contains 2 distinct application. For local development, we will run the participant app on port 8080 (the default port) and the administrative app on port 8082. Each application needs to build the client app and run the server. 
 
 To build and run the *participant application*:
 
