@@ -20,6 +20,7 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 import { FeatureGeocodedProperties, MarkerData, defaultIconSize, PlaceGeocodedProperties } from './maps/InputMapTypes';
 import InputSelect from './InputSelect';
 import { CommonInputProps } from './CommonInputProps';
+import Loader from 'react-spinners/HashLoader';
 
 // TODO Allow to support multiple maps and geocoders
 import InputMapGoogle from './maps/google/InputMapGoogle';
@@ -363,26 +364,28 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                     ref={this.props.inputRef}
                 />
                 {this.props.widgetConfig.refreshGeocodingLabel && (
-                    <button
-                        id={`${this.props.id}_refresh`}
-                        type="button"
-                        className="button refresh-geocode green large"
-                        onMouseDown={this.onSearchPlaceButtonMouseDown}
-                        onMouseUp={this.onSearchPlaceButtonMouseUp}
-                        ref={this.geocodeButtonRef}
-                    >
-                        <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />
-                        {surveyHelper.translateString(
-                            this.props.widgetConfig.refreshGeocodingLabel,
-                            this.props.i18n,
-                            this.props.interview,
-                            this.props.path,
-                            this.props.user
-                        )}
-                    </button>
+                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+                        <button
+                            id={`${this.props.id}_refresh`}
+                            type="button"
+                            className="button refresh-geocode green large"
+                            onMouseDown={this.onSearchPlaceButtonMouseDown}
+                            onMouseUp={this.onSearchPlaceButtonMouseUp}
+                            ref={this.geocodeButtonRef}
+                        >
+                            <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />
+                            {surveyHelper.translateString(
+                                this.props.widgetConfig.refreshGeocodingLabel,
+                                this.props.i18n,
+                                this.props.interview,
+                                this.props.path,
+                                this.props.user
+                            )}
+                        </button>
+                        <div style={{marginLeft: 10}}><Loader size={30} color={'#aaaaaa'} loading={this.state.geocoding } /></div>
+                    </div>
                 )}
 
-                {this.state.geocoding && <p>{this.props.t('main:Searching')}...</p>}
                 {places.length > 0 && (
                     <p className="_strong _dark">
                         {this.props.t(places.length > 1 ? 'main:SelectPlaceText' : 'main:SelectPlaceTextSingleResult')}
