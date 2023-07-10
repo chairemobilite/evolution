@@ -9,12 +9,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { InputRadioNumberType } from 'evolution-common/lib/services/widgets';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import {UserInterviewAttributes} from "evolution-common/lib/services/interviews/interview";
+import {CliUser} from "chaire-lib-common/lib/services/user/userType";
+import * as surveyHelper from "evolution-common/lib/utils/helpers";
 
-type InputRadioNumberProps = {
+type InputRadioNumberProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     id: string;
     onValueChange: (e: any, customValue?: string) => void;
     value?: number;
-    widgetConfig: InputRadioNumberType;
+    widgetConfig: InputRadioNumberType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    path: string;
+    user: CliUser;
 };
 
 type InputRadioChoiceProps = {
@@ -34,7 +40,7 @@ const InputRadioNumberChoice = ({
     selected,
     icon,
     inputIconPath,
-    onChange
+    onChange,
 }: InputRadioChoiceProps) => {
     const inputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
     return (
@@ -73,14 +79,28 @@ const InputRadioNumberChoice = ({
     );
 };
 
-export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig }: InputRadioNumberProps) => {
+export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig, interview, path, user }: InputRadioNumberProps<any, any, any, any>) => {
+    const minValue =
+        (surveyHelper.parseInteger(
+            widgetConfig.valueRange.min,
+            interview,
+            path,
+            user
+        ) || 0);
+    const maxValue =
+        (surveyHelper.parseInteger(
+            widgetConfig.valueRange.max,
+            interview,
+            path,
+            user
+        ) || minValue + 1 );
     const [currentValue, setCurrentValue] = useState(!_isBlank(value) ? Number(value) : -1);
-    const [isOverMax, setIsOverMax] = useState(Number(value) > widgetConfig.valueRange.max);
+    const [isOverMax, setIsOverMax] = useState(Number(value) > maxValue);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setCurrentValue(Number(event.target.value));
         onValueChange(event, Number(event.target.value).toString());
-        Number(event.target.value) <= widgetConfig.valueRange.max ? setIsOverMax(false) : setIsOverMax(true);
+        Number(event.target.value) <= maxValue ? setIsOverMax(false) : setIsOverMax(true);
     };
     const choiceBuilder = (
         min: number,
@@ -90,12 +110,13 @@ export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig }: Inp
     ) => {
         const choiceList: ReactElement[] = [];
 
-        for (let i = min; i <= max; i += 1) {
+        for (let i = Number(min); i <= Number(max); i += 1) {
             choiceList.push(
                 <InputRadioNumberChoice
                     selected={currentValue === i}
                     key={`${id}_${i}`}
                     id={`${id}_${i}`}
+                    aria-label={'number input radio'}
                     name={`inputChoice_${id}`}
                     value={i}
                     icon={widgetConfig.icon}
@@ -110,8 +131,8 @@ export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig }: Inp
     return (
         <div className={'survey-question__input-radio-group-container'}>
             {choiceBuilder(
-                widgetConfig.valueRange.min,
-                widgetConfig.valueRange.max,
+                minValue,
+                maxValue,
                 handleOnChange,
                 widgetConfig.inputIconPath
             )}
@@ -121,16 +142,16 @@ export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig }: Inp
                         <div className="label-input-container">
                             <input
                                 type="radio"
-                                id={`${id}_${widgetConfig.valueRange.max + 1}`}
-                                aria-label={'number input'}
+                                id={`${id}_${maxValue + 1}`}
+                                aria-label={'number input radio'}
                                 name={`inputChoice_${id}`}
-                                checked={Number(value) > widgetConfig.valueRange.max}
-                                value={widgetConfig.valueRange.max + 1}
+                                checked={Number(value) > maxValue}
+                                value={maxValue + 1}
                                 className={'input-radio'}
                                 onChange={handleOnChange}
                             />
-                            <label htmlFor={`${id}_${widgetConfig.valueRange.max + 1}`}>{`${
-                                widgetConfig.valueRange.max + 1
+                            <label htmlFor={`${id}_${maxValue + 1}`}>{`${
+                                maxValue + 1
                             } +`}</label>
                         </div>
                     </div>
@@ -142,8 +163,9 @@ export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig }: Inp
                             }`}
                             name={`${id}over-max`}
                             id={`${id}over-max`}
+                            aria-label={'number input'}
                             defaultValue={currentValue}
-                            min={widgetConfig.valueRange.max + 1}
+                            min={maxValue + 1}
                             onChange={handleOnChange}
                         />
                     )}

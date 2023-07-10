@@ -83,7 +83,7 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       className="label-input-container"
     >
       <input
-        aria-label="number input"
+        aria-label="number input radio"
         checked={false}
         className="input-radio"
         id="test_4"
@@ -185,7 +185,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       className="label-input-container"
     >
       <input
-        aria-label="number input"
+        aria-label="number input radio"
         checked={true}
         className="input-radio"
         id="test_4"
@@ -202,6 +202,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
     </div>
   </div>
   <input
+    aria-label="number input"
     className="apptr__form-input apptr__input-string input-large"
     defaultValue={4}
     id="testover-max"

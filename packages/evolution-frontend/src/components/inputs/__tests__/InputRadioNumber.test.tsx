@@ -7,6 +7,9 @@
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 import InputRadioNumber from "../InputRadioNumber";
+import {InterviewResponses, InterviewValidations} from "evolution-common/lib/services/interviews/interview";
+import {PackRule} from "@casl/ability/extra";
+import {UserPages, UserPermissions} from "chaire-lib-common/lib/services/user/userType";
 
 describe('Render InputRadioNumber', () => {
     const widgetConfig = {
@@ -21,12 +24,34 @@ describe('Render InputRadioNumber', () => {
         overMaxAllowed: true
     }
 
+    const interview = {
+        id: 1,
+        uuid: "",
+        participant_id: 1,
+        is_completed: false,
+        responses: {},
+        validations: {},
+        is_valid: true
+    }
+
+    const user = {
+        id: 1,
+        username: '',
+        serializedPermissions: [],
+        preferences: {},
+        isAuthorized: (permissions: UserPermissions) => false,
+        is_admin: false,
+        pages: [],
+        showUserInfo: false,
+    }
+
     test('InputRadioNumber without "over max" option', () => {
         const wrapper = TestRenderer.create(
             <InputRadioNumber
                 id={'test'}
                 widgetConfig={widgetConfig}
                 onValueChange={(e) => null}
+                interview={interview} path={''} user={user}
             />
         );
         expect(wrapper).toMatchSnapshot();
@@ -38,7 +63,7 @@ describe('Render InputRadioNumber', () => {
                 id={'test'}
                 widgetConfig={widgetConfigOverMax}
                 onValueChange={(e) => null}
-            />
+             interview={interview} path={''} user={user}/>
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -50,6 +75,7 @@ describe('Render InputRadioNumber', () => {
                 value={4}
                 widgetConfig={widgetConfigOverMax}
                 onValueChange={(e) => null}
+                interview={interview} path={''} user={user}
             />
         );
         expect(wrapper).toMatchSnapshot();

@@ -143,9 +143,11 @@ export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
 };
 
-export type InputRadioNumberType = {
+export type InputRadioNumberType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'radioNumber';
-    valueRange: { min: number; max: number };
+    valueRange: {
+        min: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+        max: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> };
     iconSize?: string;
     icon?: IconProp;
     inputIconPath?: { iconPath: string; iconSize: string };
@@ -330,7 +332,7 @@ export type QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, Cust
     | InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     | InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     | InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    | InputRadioNumberType
+    | InputRadioNumberType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 );
 
 export type WidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
