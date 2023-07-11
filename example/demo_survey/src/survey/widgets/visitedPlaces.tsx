@@ -808,6 +808,23 @@ export const visitedPlaceGeography = {
   geocodingQueryString: function (interview, path) {
     return surveyHelperNew.formatGeocodingQueryStringFromMultipleFields([surveyHelper.get(interview, path, null, '../name')]);
   },
+  invalidGeocodingResultTypes: [
+    'political', 
+    'country',
+    'administrative_area_level_1',
+    'administrative_area_level_2',
+    'administrative_area_level_3',
+    'administrative_area_level_4',
+    'administrative_area_level_5',
+    'administrative_area_level_6',
+    'administrative_area_level_7',
+    'colloquial_area',
+    'locality',
+    'sublocality',
+    'sublocality_level_1',
+    'neighborhood',
+    'route'
+  ],
   maxGeocodingResultsBounds: function (interview, path) {
     return config.mapMaxGeocodingResultsBounds;
   },
@@ -882,6 +899,8 @@ export const visitedPlaceGeography = {
   validations: function(value, customValue, interview, path, customPath) {
     const activity: any = surveyHelperNew.getResponse(interview, path, null, '../activity');
     const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
+    const geocodingTextInput = geography.properties?.geocodingQueryString;
+
     return [{
       validation: ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(activity) <= -1 && surveyHelper.isBlank(value),
       errorMessage: {
@@ -894,6 +913,13 @@ export const visitedPlaceGeography = {
       errorMessage: {
         fr: `Le positionnement du lieu n'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l'icône.`,
         en: `Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.`
+      }
+    },
+    {
+      validation: geography.properties.isGeocodingImprecise,
+      errorMessage: {
+        fr: `Le nom du lieu utilisé pour effectuer la recherche ${!_isBlank(geocodingTextInput) ? `("${geocodingTextInput}")` : ''} n'est pas assez précis. Ajoutez de l'information ou précisez la localisation à l'aide de la carte.`,
+        en: `The location name used for searching ${!_isBlank(geocodingTextInput) ? `("${geocodingTextInput}")` : ''} is not specific enough. Please add information or specify the location more precisely using the map.`,
       }
     },
     {

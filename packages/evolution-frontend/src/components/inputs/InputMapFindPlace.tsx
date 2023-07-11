@@ -188,19 +188,54 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                         ...this.state.geocodingSpecificOptions
                     })) || [];
                 const isSingleResult = features && features.length === 1;
+
+                // If there is only a single result, we check if it's precise enough using the location type information
+                // returned by the geocoding API.
+                // The Google Maps geocoding API returns an array of location types for each result.
+                // For a result, if all of its location types are deemed too imprecise, then this result is considered to be imprecise and an error is shown to the user.
+                for (let i = 0; i < features.length; i++) {
+                    if (
+                        this.props.widgetConfig.invalidGeocodingResultTypes &&
+                        features[i] &&
+                        features[i].properties.placeData &&
+                        features[i].properties.placeData.types
+                    ) {
+                        const types = features[i].properties.placeData.types as Array<string>;
+                        features[i].properties.isGeocodingImprecise = types.every((e) =>
+                            this.props.widgetConfig.invalidGeocodingResultTypes!.includes(e)
+                        );
+                    }
+                }
+                const isSingleResultAndImpreciseGeocoding =
+                    this.props.widgetConfig.invalidGeocodingResultTypes &&
+                    isSingleResult &&
+                    features[0].properties.isGeocodingImprecise;
+
                 this.setState(
                     {
                         places: features,
-                        selectedPlace: features && features.length === 1 ? features[0] : undefined,
+                        selectedPlace: isSingleResult ? features[0] : undefined,
                         geocodingQueryString
                     },
                     () => {
-                        if (this.autoConfirmIfSingleResult && isSingleResult) {
+                        // FIXME: In order to directly show the "geocoding is imprecise" warning if there is a *single* result
+                        // we must automatically confirm the place so that the validation code is executed.
+                        // Ideally, we would not have to do this and we would be able to trigger the validation code directly
+                        // from inside this react component.
+                        if (isSingleResult && (this.autoConfirmIfSingleResult || isSingleResultAndImpreciseGeocoding)) {
                             this.onConfirmPlace(undefined);
+                        } else if (this.props.widgetConfig.invalidGeocodingResultTypes !== undefined) {
+                            // Kind of a hack, but we must clear the value for this question when we do geocoding.
+                            // For example, if you search for "montreal", you would get the "geocoding is imprecise" label in red.
+                            // Then, if you search for "place ville marie" (a more specific place), you would see search results
+                            // but STILL see the "geocoding is imprecise" error label since you haven't yet confirmed this location.
+                            // This is weird and it seems to indicate to the user that this location is still not precise enough, which is not the case.
+                            // Therefore, by clearing the value here, we get rid of any existing warning labels shown on the widget.
+                            this.props.onValueChange({ target: { value: null } });
                         }
                     }
                 );
-                if (!this.autoConfirmIfSingleResult || !isSingleResult) {
+                if ((!this.autoConfirmIfSingleResult || !isSingleResult) && !isSingleResultAndImpreciseGeocoding) {
                     this.shouldFitBoundsIdx++;
                 }
             } catch (error) {
@@ -238,6 +273,11 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
             selectedPlace.properties = { ...selectedPlaceProperties };
             selectedPlace.properties.lastAction = 'findPlace';
             selectedPlace.properties.geocodingQueryString = this.state.geocodingQueryString;
+            selectedPlace.properties.geocodingResultsData = {
+                formatted_address: placeData.formatted_address,
+                place_id: placeData.place_id,
+                types: placeData.types
+            };
             this.props.onValueChange({ target: { value: selectedPlace } });
             this.setState({
                 places: [],

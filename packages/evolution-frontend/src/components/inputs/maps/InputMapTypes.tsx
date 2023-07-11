@@ -9,6 +9,8 @@ export interface FeatureGeocodedProperties {
     geocodingQueryString?: string;
     zoom?: number;
     geocodingResultMetadata?: { [key: string]: any };
+    geocodingResultsData?: { [key: string]: any };
+    isGeocodingImprecise?: boolean;
 }
 
 export type PlaceGeocodedProperties = FeatureGeocodedProperties & {
