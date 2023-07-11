@@ -9,9 +9,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { InputRadioNumberType } from 'evolution-common/lib/services/widgets';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import {UserInterviewAttributes} from "evolution-common/lib/services/interviews/interview";
-import {CliUser} from "chaire-lib-common/lib/services/user/userType";
-import * as surveyHelper from "evolution-common/lib/utils/helpers";
+import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
+import { WithTranslation } from 'react-i18next';
 
 type InputRadioNumberProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     id: string;
@@ -40,7 +41,7 @@ const InputRadioNumberChoice = ({
     selected,
     icon,
     inputIconPath,
-    onChange,
+    onChange
 }: InputRadioChoiceProps) => {
     const inputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
     return (
@@ -79,21 +80,18 @@ const InputRadioNumberChoice = ({
     );
 };
 
-export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig, interview, path, user }: InputRadioNumberProps<any, any, any, any>) => {
-    const minValue =
-        (surveyHelper.parseInteger(
-            widgetConfig.valueRange.min,
-            interview,
-            path,
-            user
-        ) || 0);
-    const maxValue =
-        (surveyHelper.parseInteger(
-            widgetConfig.valueRange.max,
-            interview,
-            path,
-            user
-        ) || minValue + 1 );
+export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>({
+    id,
+    onValueChange,
+    value,
+    widgetConfig,
+    interview,
+    path,
+    user,
+    t
+}: InputRadioNumberProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) => {
+    const minValue = surveyHelper.parseInteger(widgetConfig.valueRange.min, interview, path, user) || 0;
+    const maxValue = surveyHelper.parseInteger(widgetConfig.valueRange.max, interview, path, user) || minValue + 1;
     const [currentValue, setCurrentValue] = useState(!_isBlank(value) ? Number(value) : -1);
     const [isOverMax, setIsOverMax] = useState(Number(value) > maxValue);
 
@@ -110,13 +108,12 @@ export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig, inter
     ) => {
         const choiceList: ReactElement[] = [];
 
-        for (let i = Number(min); i <= Number(max); i += 1) {
+        for (let i = min; i <= max; i += 1) {
             choiceList.push(
                 <InputRadioNumberChoice
                     selected={currentValue === i}
                     key={`${id}_${i}`}
                     id={`${id}_${i}`}
-                    aria-label={'number input radio'}
                     name={`inputChoice_${id}`}
                     value={i}
                     icon={widgetConfig.icon}
@@ -130,12 +127,7 @@ export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig, inter
 
     return (
         <div className={'survey-question__input-radio-group-container'}>
-            {choiceBuilder(
-                minValue,
-                maxValue,
-                handleOnChange,
-                widgetConfig.inputIconPath
-            )}
+            {choiceBuilder(minValue, maxValue, handleOnChange, widgetConfig.inputIconPath)}
             {widgetConfig.overMaxAllowed && (
                 <>
                     <div className={'survey-question__input-radio-input-container'}>
@@ -143,31 +135,32 @@ export const InputRadioNumber = ({ id, onValueChange, value, widgetConfig, inter
                             <input
                                 type="radio"
                                 id={`${id}_${maxValue + 1}`}
-                                aria-label={'number input radio'}
                                 name={`inputChoice_${id}`}
                                 checked={Number(value) > maxValue}
                                 value={maxValue + 1}
                                 className={'input-radio'}
                                 onChange={handleOnChange}
                             />
-                            <label htmlFor={`${id}_${maxValue + 1}`}>{`${
-                                maxValue + 1
-                            } +`}</label>
+                            <label htmlFor={`${id}_${maxValue + 1}`}>{`${maxValue + 1} +`}</label>
                         </div>
                     </div>
                     {isOverMax && (
-                        <input
-                            type="number"
-                            className={`apptr__form-input apptr__input-string input-${
-                                widgetConfig.iconSize || 'large'
-                            }`}
-                            name={`${id}over-max`}
-                            id={`${id}over-max`}
-                            aria-label={'number input'}
-                            defaultValue={currentValue}
-                            min={maxValue + 1}
-                            onChange={handleOnChange}
-                        />
+                        <div>
+                            <label htmlFor={`${id}over-max`}>
+                                <span>{t('main:enterValueAboveLimit')}</span>
+                            </label>
+                            <input
+                                type="number"
+                                className={`apptr__form-input apptr__input-string input-${
+                                    widgetConfig.iconSize || 'large'
+                                }`}
+                                name={`${id}over-max`}
+                                id={`${id}over-max`}
+                                defaultValue={currentValue}
+                                min={maxValue + 1}
+                                onChange={handleOnChange}
+                            />
+                        </div>
                     )}
                 </>
             )}

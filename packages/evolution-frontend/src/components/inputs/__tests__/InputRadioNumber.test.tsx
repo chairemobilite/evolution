@@ -7,9 +7,7 @@
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 import InputRadioNumber from "../InputRadioNumber";
-import {InterviewResponses, InterviewValidations} from "evolution-common/lib/services/interviews/interview";
-import {PackRule} from "@casl/ability/extra";
-import {UserPages, UserPermissions} from "chaire-lib-common/lib/services/user/userType";
+import {UserPermissions} from "chaire-lib-common/lib/services/user/userType";
 
 describe('Render InputRadioNumber', () => {
     const widgetConfig = {

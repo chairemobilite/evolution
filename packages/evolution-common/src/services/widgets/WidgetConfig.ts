@@ -147,7 +147,8 @@ export type InputRadioNumberType<CustomSurvey, CustomHousehold, CustomHome, Cust
     inputType: 'radioNumber';
     valueRange: {
         min: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-        max: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> };
+        max: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    };
     iconSize?: string;
     icon?: IconProp;
     inputIconPath?: { iconPath: string; iconSize: string };
