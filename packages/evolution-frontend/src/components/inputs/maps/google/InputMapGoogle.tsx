@@ -19,7 +19,7 @@ const containerStyle = {
     boxSizing: 'border-box' as const,
     position: 'relative' as const,
     width: '100%',
-    height: '400px',
+    height: '550px',
     border: '1px solid rgba(0,0,0,0.2)'
 };
 
