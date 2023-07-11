@@ -10,7 +10,7 @@ import { point as turfPoint, distance as turfDistance } from '@turf/turf';
 
 // In meters:
 const geocodingSearchRadiusMinimum = 500;
-const geocodingSearchRadiusMaximum = 8000; 
+const geocodingSearchRadiusMaximum = 8000;
 
 export const geocodeSinglePoint = (
     addressQueryString: string,
@@ -50,7 +50,7 @@ export const geocodeSinglePoint = (
 
 export const geocodeMultiplePlaces = (
     geocodingQueryString: string,
-    options: { bbox?: [number, number, number, number]; map?: google.maps.Map; language?: string; }
+    options: { bbox?: [number, number, number, number]; map?: google.maps.Map; language?: string }
 ): Promise<GeoJSON.Feature<GeoJSON.Point, PlaceGeocodedProperties>[] | undefined> => {
     return new Promise((resolve, reject) => {
         if (!options.map) {
@@ -70,10 +70,18 @@ export const geocodeMultiplePlaces = (
         const upperBound = turfPoint([options.bbox[0], options.bbox[1]]);
         const lowerBound = turfPoint([options.bbox[2], options.bbox[3]]);
         const viewportRadius = turfDistance(upperBound, lowerBound, { units: 'meters' }) / 2;
-        const searchRadius = Math.min(Math.max(viewportRadius, geocodingSearchRadiusMinimum), geocodingSearchRadiusMaximum);
+        const searchRadius = Math.min(
+            Math.max(viewportRadius, geocodingSearchRadiusMinimum),
+            geocodingSearchRadiusMaximum
+        );
 
         geocoder.textSearch(
-            { query: geocodingQueryString, location: bounds.getCenter(), radius: searchRadius, language: options.language },
+            {
+                query: geocodingQueryString,
+                location: bounds.getCenter(),
+                radius: searchRadius,
+                language: options.language
+            },
             (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results !== null) {
                     const places = results

@@ -370,7 +370,14 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                     ref={this.props.inputRef}
                 />
                 {this.props.widgetConfig.refreshGeocodingLabel && (
-                    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center'}}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'flex-start',
+                            alignItems: 'center'
+                        }}
+                    >
                         <button
                             id={`${this.props.id}_refresh`}
                             type="button"
@@ -388,7 +395,9 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                                 this.props.user
                             )}
                         </button>
-                        <div style={{marginLeft: 10}}><Loader size={30} color={'#aaaaaa'} loading={this.state.geocoding } /></div>
+                        <div style={{ marginLeft: 10 }}>
+                            <Loader size={30} color={'#aaaaaa'} loading={this.state.geocoding} />
+                        </div>
                     </div>
                 )}
 
