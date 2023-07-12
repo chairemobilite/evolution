@@ -284,6 +284,7 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
         CustomHome,
         CustomPerson
     >;
+    coordinatesPrecision?: number; // number of decimals to keep for latitute longitude coordinates.
     showPhoto?: boolean;
     autoConfirmIfSingleResult?: boolean;
     updateDefaultValueWhenResponded?: boolean;

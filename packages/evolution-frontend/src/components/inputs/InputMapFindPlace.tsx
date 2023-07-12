@@ -127,6 +127,12 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
     }
 
     onValueChange = (feature?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>) => {
+        if (feature) {
+            feature.geometry.coordinates = feature.geometry.coordinates.map((coordinate) => {
+                return Number(coordinate.toFixed(this.props.widgetConfig.coordinatesPrecision ?? 5));
+            });
+        }
+
         this.props.onValueChange({ target: { value: feature } });
         this.setState({
             selectedPlace: undefined,
