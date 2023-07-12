@@ -84,6 +84,10 @@ describe('Render InputMapPoint with various parameters', () => {
             maxGeocodingResultsBounds: function (interview, path) {
                 return [{lat: 45.2229, lng: -74.3230}, {lat: 46.1181, lng: -72.9215}] as [{ lat: number; lng: number; }, { lat: number; lng: number; }];
             },
+            invalidGeocodingResultTypes: [
+                'political', 
+                'country',
+            ],
             updateDefaultValueWhenResponded: true
         }, baseWidgetConfig);
         const wrapper = TestRenderer.create(
@@ -135,6 +139,11 @@ describe('Test geocoding requests', () => {
         type: 'Feature' as const, 
         geometry: { type: 'Point' as const, coordinates: [-73.2, 45.1] },
         properties: { placeData: { place_id: 2, formatted_address: '123 foo street', types: ['street_address'] } }
+    };
+    const placeFeature3 = {
+        type: 'Feature' as const, 
+        geometry: { type: 'Point' as const, coordinates: [ -73.5673919, 45.5018869] },
+        properties: { placeData: { place_id: 3, formatted_address: 'Montreal, QC, Canada', types: ['locality', 'political'] } }
     };
 
     beforeEach(() => {
@@ -395,5 +404,67 @@ describe('Test geocoding requests', () => {
         const confirmButton = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
         expect(confirmButton.length).toEqual(1);
         
+    });
+
+    test('Geocode with single imprecise result', async () => {
+        const widgetConfig = Object.assign({
+            invalidGeocodingResultTypes: [
+                'political', 
+                'country',
+                'administrative_area_level_1',
+                'administrative_area_level_2',
+                'administrative_area_level_3',
+                'administrative_area_level_4',
+                'administrative_area_level_5',
+                'administrative_area_level_6',
+                'administrative_area_level_7',
+                'colloquial_area',
+                'locality',
+                'sublocality',
+                'sublocality_level_1',
+                'neighborhood',
+                'route'
+            ]
+        }, testWidgetConfig);
+
+        const findPlaceWidget = mount(<InputMapFindPlace
+            id={testId}
+            onValueChange={mockOnValueChange}
+            widgetConfig={widgetConfig}
+            value={undefined}
+            inputRef={React.createRef()}
+            interview={interviewAttributes}
+            user={userAttributes}
+            path='foo.test'
+            loadingState={0}
+        />);
+
+        // Find and click on the Geocode button, to return a single but imprecise value (according to testWidgetConfig.invalidGeocodingResultTypes)
+        mockedGeocode.mockResolvedValueOnce([placeFeature3]);
+        const geocodeButton = findPlaceWidget.find({id: `${testId}_refresh`, type: 'button'});
+        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
+        geocodeButton.simulate('mousedown');
+        geocodeButton.simulate('mouseup');
+        // Let async functions terminate
+        await new Promise(process.nextTick);
+    
+        // Make sure the widget after 1 result are present
+        findPlaceWidget.update();
+        expect(mockedGeocode).toHaveBeenCalledTimes(1);
+        expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
+        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: {
+            type: 'Feature' as const,
+            geometry: placeFeature3.geometry,
+            properties: { 
+                lastAction: 'findPlace',
+                geocodingQueryString: geocodingString,
+                geocodingResultsData: {
+                    formatted_address: placeFeature3.properties.placeData.formatted_address,
+                    place_id: placeFeature3.properties.placeData.place_id,
+                    types: placeFeature3.properties.placeData.types,
+                },
+                isGeocodingImprecise: true, // key part!
+            }
+        }}})
     });
 });
