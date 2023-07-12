@@ -76,6 +76,7 @@ describe('Render InputMapPoint with various parameters', () => {
             },
             maxZoom: 18,
             defaultZoom: 15,
+            coordinatesPrecision: 6,
             placesIcon: {
                 url: 'path/to/icon',
                 size: [85, 85] as [number, number]
