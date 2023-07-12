@@ -223,7 +223,15 @@ describe('Test geocoding requests', () => {
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: {
             type: 'Feature' as const,
             geometry: placeFeature1.geometry,
-            properties: { lastAction: 'findPlace', geocodingQueryString: geocodingString }
+            properties: { 
+                lastAction: 'findPlace',
+                geocodingQueryString: geocodingString,
+                geocodingResultsData: {
+                    formatted_address: placeFeature1.properties.placeData.formatted_address,
+                    place_id: placeFeature1.properties.placeData.place_id,
+                    types: undefined,
+                }
+            }
         }}})
 
         // There should not be any selection or confirm widgets
