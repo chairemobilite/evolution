@@ -10,12 +10,12 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { _chunkify } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { InputCheckboxType, ChoiceType } from 'evolution-common/lib/services/widgets';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { CommonInputProps } from './CommonInputProps';
+import { sortByParameters } from './InputChoiceSorting';
 
 export type InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
     CustomSurvey,
@@ -184,11 +184,10 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     };
 
     private getColumnedChoices = (choiceInputs: JSX.Element[]): JSX.Element[] => {
-        if (this.props.widgetConfig.columns === undefined || this.props.widgetConfig.columns <= 0) {
+        if ((this.props.widgetConfig.alignment === undefined && this.props.widgetConfig.columns === undefined && this.props.widgetConfig.rows === undefined && (!this.props.widgetConfig.customAlignmentLengths || this.props.widgetConfig.customAlignmentLengths === undefined))) {
             return choiceInputs;
         }
-        // Chunkify the input choices in columns
-        const widgetsByColumn = _chunkify(choiceInputs, this.props.widgetConfig.columns, true);
+        const widgetsByColumn = sortByParameters(choiceInputs, this.props.widgetConfig.alignment, this.props.widgetConfig.columns, this.props.widgetConfig.rows, this.props.widgetConfig.customAlignmentLengths);
         const columnedChoiceInputs: JSX.Element[] = [];
         for (let i = 0, count = widgetsByColumn.length; i < count; i++) {
             const columnWidgets = widgetsByColumn[i];
@@ -198,6 +197,7 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                 </div>
             );
         }
+
         return columnedChoiceInputs;
     };
 
@@ -263,9 +263,8 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
 
         return (
             <div
-                className={`survey-question__input-checkbox-group-container${
-                    this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
-                }`}
+                className={`survey-question__input-checkbox-group-container${this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
+                    }`}
             >
                 {columnedChoiceInputs}
                 {this.props.customId && (

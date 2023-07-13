@@ -114,10 +114,13 @@ export type InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomP
     seed?: number;
     shuffle?: boolean;
     addCustom?: boolean;
-    columns?: number;
     sameLine?: boolean;
     customLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     datatype?: 'string' | 'integer' | 'float' | 'text';
+    columns?: number;
+    rows?: number;
+    alignment?: 'vertical' | 'horizontal' | 'auto';
+    customAlignmentLengths?: number[];
 };
 
 export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
@@ -136,11 +139,14 @@ export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     seed?: number;
     shuffle?: boolean;
     addCustom?: boolean;
-    columns?: number;
     sameLine?: boolean;
     customLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     customChoice?: string;
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
+    columns?: number;
+    rows?: number;
+    alignment?: 'vertical' | 'horizontal' | 'auto';
+    customAlignmentLengths?: number[];
 };
 
 export type InputRadioNumberType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
