@@ -1,13 +1,7 @@
-const verticalByColumns = function (arr: any[], columns: number) {
-    const len = arr.length;
-    const out: any[] = [];
-    let index = 0;
-    while (index + columns < len) {
-        out.push(arr.slice(index, index += columns));
-    }
-    out.push(arr.slice(index));
+import { _chunkify } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
-    return out;
+const verticalByColumns = function (arr: any[], columns: number) {
+    return _chunkify(arr, columns);
 }
 export { verticalByColumns };
 
