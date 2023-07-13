@@ -114,10 +114,15 @@ export type InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomP
     seed?: number;
     shuffle?: boolean;
     addCustom?: boolean;
-    columns?: number;
     sameLine?: boolean;
     customLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     datatype?: 'string' | 'integer' | 'float' | 'text';
+    alignChoices?: boolean;
+    columns?: number;
+    rows?: number;
+    alignment?: 'vertical' | 'horizontal' | 'auto';
+    customAlignment?: boolean;
+    customAlignmentLengths?: [number];
 };
 
 export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
@@ -136,11 +141,16 @@ export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     seed?: number;
     shuffle?: boolean;
     addCustom?: boolean;
-    columns?: number;
     sameLine?: boolean;
     customLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     customChoice?: string;
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
+    alignChoices?: boolean;
+    columns?: number;
+    rows?: number;
+    alignment?: 'vertical' | 'horizontal' | 'auto';
+    customAlignment?: boolean;
+    customAlignmentLengths?: number[];
 };
 
 // TODO Could select widget have a custom 'other' field? Like checkbox and radios
