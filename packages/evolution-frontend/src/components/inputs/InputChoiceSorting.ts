@@ -1,7 +1,15 @@
-import { _chunkify } from 'chaire-lib-common/lib/utils/LodashExtensions';
-
 const verticalByColumns = function (arr: any[], columns: number) {
-    return _chunkify(arr, columns);
+    const len = arr.length;
+    const out: any[] = [];
+    let index = 0, countPerColumn = Math.ceil(len / columns), columnIndex = 0;
+    while (index + countPerColumn < len) {
+        out.push(arr.slice(index, (index += countPerColumn)))
+        columnIndex++;
+        countPerColumn = Math.ceil((index + 1) / (columns - columnIndex));
+    }
+    out.push(arr.slice(index))
+
+    return out;
 }
 export { verticalByColumns };
 
@@ -103,7 +111,7 @@ const customHorizontal = function (arr: any[], custom: number[]) {
 }
 export { customHorizontal };
 
-const _sortByParameters = function (arr: any[], alignment, columns, rows, customAlignment, customAlignmentLengths?: number[]) {
+const _sortByParameters = function (arr: any[], alignment: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignment?: boolean, customAlignmentLengths?: number[]) {
     if (customAlignment) {
         if (customAlignmentLengths && customAlignmentLengths.length > 0) {
             switch (alignment) {
@@ -117,7 +125,7 @@ const _sortByParameters = function (arr: any[], alignment, columns, rows, custom
                     break;
             }
         }
-    } else if ((columns ?? 0) > 0) {
+    } else if (columns && columns > 0) {
         switch (alignment) {
             case 'vertical':
                 arr = verticalByColumns(arr, columns);
@@ -129,7 +137,7 @@ const _sortByParameters = function (arr: any[], alignment, columns, rows, custom
                 verticalByColumns(arr, columns);
                 break;
             }
-    } else if ((rows ?? 0 ) > 0) {
+    } else if (rows && rows > 0) {
         switch (alignment) {
             case 'vertical':
                 arr = verticalByRows(arr, rows);

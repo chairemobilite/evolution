@@ -209,6 +209,8 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     private getColumnedChoices = (choiceInputs: JSX.Element[]): JSX.Element[] => {
         if ((this.props.widgetConfig.alignChoices === undefined || !this.props.widgetConfig.alignChoices)) {
             return choiceInputs;
+        } else if (!this.props.widgetConfig.alignment) {
+            return choiceInputs;
         }
         const widgetsByColumn = _sortByParameters(choiceInputs, this.props.widgetConfig.alignment, this.props.widgetConfig.columns, this.props.widgetConfig.rows, this.props.widgetConfig.customAlignment, this.props.widgetConfig.customAlignmentLengths);
         const columnedChoiceInputs: JSX.Element[] = [];
