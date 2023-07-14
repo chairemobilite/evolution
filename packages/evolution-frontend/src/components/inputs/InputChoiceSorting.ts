@@ -5,7 +5,7 @@ const verticalByColumns = function (arr: any[], columns: number) {
     while (index + countPerColumn < len) {
         out.push(arr.slice(index, (index += countPerColumn)))
         columnIndex++;
-        countPerColumn = Math.ceil((index + 1) / (columns - columnIndex));
+        countPerColumn = Math.ceil((len - index) / (columns - columnIndex));
     }
     out.push(arr.slice(index))
 
