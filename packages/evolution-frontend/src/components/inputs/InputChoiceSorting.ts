@@ -111,19 +111,17 @@ const customHorizontal = function (arr: any[], custom: number[]) {
 }
 export { customHorizontal };
 
-const _sortByParameters = function (arr: any[], alignment: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignment?: boolean, customAlignmentLengths?: number[]) {
-    if (customAlignment) {
-        if (customAlignmentLengths && customAlignmentLengths.length > 0) {
-            switch (alignment) {
-                case 'vertical':
-                    arr = customVertical(arr, customAlignmentLengths);
-                    break;
-                case 'horizontal':
-                    arr = customHorizontal(arr, customAlignmentLengths);
-                    break;
-                default:
-                    break;
-            }
+const _sortByParameters = function (arr: any[], alignment: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignmentLengths?: number[]) {
+    if (customAlignmentLengths && customAlignmentLengths.length > 0) {
+        switch (alignment) {
+            case 'vertical':
+                arr = customVertical(arr, customAlignmentLengths);
+                break;
+            case 'horizontal':
+                arr = customHorizontal(arr, customAlignmentLengths);
+                break;
+            default:
+                break;
         }
     } else if (columns && columns > 0) {
         switch (alignment) {

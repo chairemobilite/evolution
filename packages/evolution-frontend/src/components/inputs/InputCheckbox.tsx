@@ -189,7 +189,7 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
         } else if (!this.props.widgetConfig.alignment) {
             return choiceInputs;
         }
-        const widgetsByColumn = _sortByParameters(choiceInputs, this.props.widgetConfig.alignment, this.props.widgetConfig.columns, this.props.widgetConfig.rows, this.props.widgetConfig.customAlignment, this.props.widgetConfig.customAlignmentLengths);
+        const widgetsByColumn = _sortByParameters(choiceInputs, this.props.widgetConfig.alignment, this.props.widgetConfig.columns, this.props.widgetConfig.rows, this.props.widgetConfig.customAlignmentLengths);
         const columnedChoiceInputs: JSX.Element[] = [];
         for (let i = 0, count = widgetsByColumn.length; i < count; i++) {
             const columnWidgets = widgetsByColumn[i];

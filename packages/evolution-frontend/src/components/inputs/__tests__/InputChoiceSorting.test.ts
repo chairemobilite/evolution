@@ -51,17 +51,15 @@ describe('Sort array by parameters ', () => {
     });
     test('with custom vertical parameters.', () => {
         const alignment = "vertical";
-        const customAlignment = true;
         const customAlignmentLengths = [4,4,2];
-        const result = inputChoiceSorting._sortByParameters(array, alignment, undefined, undefined, customAlignment, customAlignmentLengths)
+        const result = inputChoiceSorting._sortByParameters(array, alignment, undefined, undefined, customAlignmentLengths)
 
         expect(result).toEqual([[0,1,2,3],[4,5,6,7],[8,9]]);
     });
     test('with custom horizontal parameters.', () => {
         const alignment = "horizontal";
-        const customAlignment = true;
         const customAlignmentLengths = [4,4,2];
-        const result = inputChoiceSorting._sortByParameters(array, alignment, undefined, undefined, customAlignment, customAlignmentLengths)
+        const result = inputChoiceSorting._sortByParameters(array, alignment, undefined, undefined, customAlignmentLengths)
 
         expect(result).toEqual([[0,4,8],[1,5,9],[2,6],[3,7]]);
     });

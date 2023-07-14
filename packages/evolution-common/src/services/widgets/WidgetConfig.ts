@@ -121,7 +121,6 @@ export type InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomP
     columns?: number;
     rows?: number;
     alignment?: 'vertical' | 'horizontal' | 'auto';
-    customAlignment?: boolean;
     customAlignmentLengths?: number[];
 };
 
@@ -149,7 +148,6 @@ export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     columns?: number;
     rows?: number;
     alignment?: 'vertical' | 'horizontal' | 'auto';
-    customAlignment?: boolean;
     customAlignmentLengths?: number[];
 };
 
