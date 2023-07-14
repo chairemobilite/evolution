@@ -122,7 +122,7 @@ export type InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomP
     rows?: number;
     alignment?: 'vertical' | 'horizontal' | 'auto';
     customAlignment?: boolean;
-    customAlignmentLengths?: [number];
+    customAlignmentLengths?: number[];
 };
 
 export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {

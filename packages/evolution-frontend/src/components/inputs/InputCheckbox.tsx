@@ -10,7 +10,6 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { _chunkify } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { InputCheckboxType, ChoiceType } from 'evolution-common/lib/services/widgets';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
