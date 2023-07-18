@@ -1,7 +1,25 @@
-const verticalByColumns = function (arr: any[], columns: number) {
+/*
+ * Copyright 2023, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+/**
+ * Sort the array to be displayed to the target number of columns in vertical fashion.
+ * @param arr - Array to be sorted.
+ * @param columns - Target number of columns.
+ * @returns A 2 dimension array containing the data as columns to be displayed.
+ *
+ * @example
+ * // Prints [[0,1,2],[3,4,5]]
+ * console.log(verticalByColumns([0,1,2,3,4,5], 2));
+ */
+const verticalByColumns = function (arr: any[], columns: number): any[][] {
     const len = arr.length;
     const out: any[] = [];
-    let index = 0, countPerColumn = Math.ceil(len / columns), columnIndex = 0;
+    let index = 0;
+    let columnIndex = 0;
+    let countPerColumn = Math.ceil(len / columns);
     while (index + countPerColumn < len) {
         out.push(arr.slice(index, (index += countPerColumn)))
         columnIndex++;
@@ -11,9 +29,18 @@ const verticalByColumns = function (arr: any[], columns: number) {
 
     return out;
 }
-export { verticalByColumns };
 
-const verticalByRows = function (arr: any[], rows: number) {
+/**
+ * Sort the array to be displayed to the target number of rows in vertical fashion.
+ * @param arr - Array to be sorted
+ * @param rows - Target number of rows.
+ * @returns A 2 dimension array containing the data as columns to be displayed.
+ *
+ * @example
+ * // Prints [[0,1],[2,3],[4,5]]
+ * console.log(verticalByRows([0,1,2,3,4,5], 2));
+ */
+const verticalByRows = function (arr: any[], rows: number): any[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -23,13 +50,23 @@ const verticalByRows = function (arr: any[], rows: number) {
     out.push(arr.slice(index))
 
     return out;
-};
-export { verticalByRows };
+}
 
-const horizontalByColumns = function (arr: any[], columns: number ) {
+/**
+ * Sort the array to be displayed to the target number of columns in horizontal fashion
+ * @param arr - Array to be sorted.
+ * @param columns - Target number of columns.
+ * @returns A 2 dimension array containing the data as columns to be displayed.
+ *
+ * @example
+ * // Prints [[0,2,4],[1,3,5]]
+ * console.log(horizontalByColumns([0,1,2,3,4,5], 2));
+ */
+const horizontalByColumns = function (arr: any[], columns: number ): any[][] {
     const len = arr.length;
     const out: any[] = [];
-    let index = 0, columnIndex = 0;
+    let index = 0;
+    let columnIndex = 0;
     let newColumn: any[] = [];
     while(index < len)
     {
@@ -45,12 +82,23 @@ const horizontalByColumns = function (arr: any[], columns: number ) {
 
     return out;
 }
-export { horizontalByColumns };
 
-const horizontalByRows = function (arr: any[], rows: number) {
+/**
+ * Sort the array to be displayed to the target number of rows in horizontal fashion.
+ * @param arr - Array to be sorted.
+ * @param rows - Target number of rows.
+ * @returns A 2 dimension array containing the data as columns to be displayed.
+ *
+ * @example
+ * // Prints [[0,3],[1,4],[2,5]]
+ * console.log(horizontalByRows([0,1,2,3,4,5], 2));
+ */
+const horizontalByRows = function (arr: any[], rows: number): any[][] {
     const len = arr.length;
     const out: any[] = [];
-    let index = 0, columnIndex = 0, columns = Math.ceil(arr.length / rows);
+    let index = 0;
+    let columnIndex = 0;
+    const columns = Math.ceil(arr.length / rows);
     let newColumn: any[] = [];
     while (index < len) {
         newColumn.push(arr[index]);
@@ -65,12 +113,22 @@ const horizontalByRows = function (arr: any[], rows: number) {
 
     return out;
 }
-export { horizontalByRows };
 
-const customVertical = function (arr: any[], custom: number[]) {
+/**
+ * Sort the array to be displayed in columns by the custom array information.
+ * @param arr - Array to be sorted.
+ * @param custom - Array containing the dedired length of each column.
+ * @returns A 2 dimension array containing the data as columns to be displayed.
+ *
+ * @example
+ * // Prints [[0,1,2],[3,4],[5]]
+ * console.log(customVertical([0,1,2,3,4,5], [3,2,1]));
+ */
+const customVertical = function (arr: any[], custom: number[]): any[][] {
     const len = arr.length;
     const out: any[] = [];
-    let index = 0, columnIndex = 0;
+    let index = 0;
+    let columnIndex = 0;
     while (index + custom[columnIndex] < len) {
         out.push(arr.slice(index, index += custom[columnIndex]))
         columnIndex++;
@@ -79,12 +137,25 @@ const customVertical = function (arr: any[], custom: number[]) {
 
     return out;
 }
-export { customVertical }
 
-const customHorizontal = function (arr: any[], custom: number[]) {
-    const len = arr.length, customLen = custom.length;
+/**
+ * Sort the array to be displayed in rows by the custom array information.
+ * @param arr - Array to be sorted.
+ * @param custom - Array containing the desired legnths of each row.
+ * @returns A 2 dimension array containing the data as columns to be displayed.
+ *
+ * @example
+ * // Prints [[0,3,5],[1,4],[2]]
+ * console.log(customHorizontal([0,1,2,3,4,5], [3,2,1]));
+ */
+const customHorizontal = function (arr: any[], custom: number[]): any[][] {
+    console.log(custom);
+    
+    const len = arr.length;
     const out: any[] = [];
-    let index = 0, columnIndex = 0, rowIndex = 0;
+    let index = 0;
+    let columnIndex = 0;
+    let rowIndex = 0;
     let newColumn: any[] = [];
     while (index < len && columnIndex < custom[0]) {
         if (columnIndex >= custom[rowIndex]) {
@@ -97,8 +168,9 @@ const customHorizontal = function (arr: any[], custom: number[]) {
         }
         newColumn.push(arr[index]);
         index += custom[rowIndex];
+        console.log(custom[rowIndex]);
         rowIndex++;
-        if(index >= len) {
+        if(index >= len || rowIndex >= custom[columnIndex]) {
             columnIndex++;
             rowIndex = 0;
             index = columnIndex;
@@ -109,46 +181,50 @@ const customHorizontal = function (arr: any[], custom: number[]) {
 
     return out;
 }
-export { customHorizontal };
 
-const _sortByParameters = function (arr: any[], alignment: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignmentLengths?: number[]) {
+/**
+   * Sorts the array based on the specified parameters.
+   *
+   * @remarks
+   * The return array will always contain the data sorted in columns.
+   *
+   * @param arr - Array to be sorted.
+   * @param alignement - In wich way should the array be sorted? Top to bottom or left to right.
+   * @param colums - Target amount of columns, if columns and rows are specified, columns is used.
+   * @param rows - target amount of rows, if columns and rows are specified, columns is used.
+   * @param customAlignmentLengths - Specify the lengths of each row or column individually, if alignement is horizontal, the first specified row must be the longuest.
+   * @returns A 2 dimension array containing the input array sorted into columns for display or the original array in case of invalid parameters.
+   */
+const sortByParameters = function (arr: any[], alignment?: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignmentLengths?: number[]): any[] | any[][] {
     if (customAlignmentLengths && customAlignmentLengths.length > 0) {
         switch (alignment) {
             case 'vertical':
-                arr = customVertical(arr, customAlignmentLengths);
-                break;
+                return customVertical(arr, customAlignmentLengths);
             case 'horizontal':
-                arr = customHorizontal(arr, customAlignmentLengths);
-                break;
+                return customHorizontal(arr, customAlignmentLengths);
             default:
                 break;
         }
     } else if (columns && columns > 0) {
         switch (alignment) {
             case 'vertical':
-                arr = verticalByColumns(arr, columns);
-                break;
+                return verticalByColumns(arr, columns);
             case 'horizontal':
-                arr = horizontalByColumns(arr, columns);
-                break;
+                return horizontalByColumns(arr, columns);
             default:
-                verticalByColumns(arr, columns);
-                break;
+                return verticalByColumns(arr, columns);
             }
     } else if (rows && rows > 0) {
         switch (alignment) {
             case 'vertical':
-                arr = verticalByRows(arr, rows);
-                break;
+                return verticalByRows(arr, rows);
             case 'horizontal':
-                arr = horizontalByRows(arr, rows);
-                break;
+                return horizontalByRows(arr, rows);
             default:
-                verticalByRows(arr, rows);
-                break;
+                return verticalByRows(arr, rows);
             }
     }
 
     return arr;
 }
-export { _sortByParameters };
+export { sortByParameters };

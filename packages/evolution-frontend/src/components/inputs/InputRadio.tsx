@@ -15,7 +15,7 @@ import { InputRadioType, RadioChoiceType } from 'evolution-common/lib/services/w
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { CommonInputProps } from './CommonInputProps';
-import { _sortByParameters } from './InputChoiceSorting';
+import { sortByParameters } from './InputChoiceSorting';
 
 export type InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
     CustomSurvey,
@@ -208,10 +208,8 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     private getColumnedChoices = (choiceInputs: JSX.Element[]): JSX.Element[] => {
         if ((this.props.widgetConfig.alignChoices === undefined || !this.props.widgetConfig.alignChoices)) {
             return choiceInputs;
-        } else if (!this.props.widgetConfig.alignment) {
-            return choiceInputs;
         }
-        const widgetsByColumn = _sortByParameters(choiceInputs, this.props.widgetConfig.alignment, this.props.widgetConfig.columns, this.props.widgetConfig.rows, this.props.widgetConfig.customAlignmentLengths);
+        const widgetsByColumn = sortByParameters(choiceInputs, this.props.widgetConfig.alignment, this.props.widgetConfig.columns, this.props.widgetConfig.rows, this.props.widgetConfig.customAlignmentLengths);
         const columnedChoiceInputs: JSX.Element[] = [];
         for (let i = 0, count = widgetsByColumn.length; i < count; i++) {
             const columnWidgets = widgetsByColumn[i];
