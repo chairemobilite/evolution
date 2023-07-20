@@ -4,6 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+
+import { Type } from "typescript";
+
 /**
  * Sort the array to be displayed to the target number of columns in vertical fashion.
  * @param arr - Array to be sorted.
@@ -14,7 +17,7 @@
  * // Prints [[0,1,2],[3,4,5]]
  * console.log(verticalByColumns([0,1,2,3,4,5], 2));
  */
-const verticalByColumns = function (arr: any[], columns: number): any[][] {
+const verticalByColumns = function<Type>(arr: Type[], columns: number): Type[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -40,7 +43,7 @@ const verticalByColumns = function (arr: any[], columns: number): any[][] {
  * // Prints [[0,1],[2,3],[4,5]]
  * console.log(verticalByRows([0,1,2,3,4,5], 2));
  */
-const verticalByRows = function (arr: any[], rows: number): any[][] {
+const verticalByRows = function<Type>(arr: Type[], rows: number): Type[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -62,7 +65,7 @@ const verticalByRows = function (arr: any[], rows: number): any[][] {
  * // Prints [[0,2,4],[1,3,5]]
  * console.log(horizontalByColumns([0,1,2,3,4,5], 2));
  */
-const horizontalByColumns = function (arr: any[], columns: number ): any[][] {
+const horizontalByColumns = function<Type>(arr: Type[], columns: number ): Type[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -93,7 +96,7 @@ const horizontalByColumns = function (arr: any[], columns: number ): any[][] {
  * // Prints [[0,3],[1,4],[2,5]]
  * console.log(horizontalByRows([0,1,2,3,4,5], 2));
  */
-const horizontalByRows = function (arr: any[], rows: number): any[][] {
+const horizontalByRows = function<Type>(arr: Type[], rows: number): Type[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -124,7 +127,7 @@ const horizontalByRows = function (arr: any[], rows: number): any[][] {
  * // Prints [[0,1,2],[3,4],[5]]
  * console.log(customVertical([0,1,2,3,4,5], [3,2,1]));
  */
-const customVertical = function (arr: any[], custom: number[]): any[][] {
+const customVertical = function<Type>(arr: Type[], custom: number[]): Type[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -148,9 +151,9 @@ const customVertical = function (arr: any[], custom: number[]): any[][] {
  * // Prints [[0,3,5],[1,4],[2]]
  * console.log(customHorizontal([0,1,2,3,4,5], [3,2,1]));
  */
-const customHorizontal = function (arr: any[], custom: number[]): any[][] {
+const customHorizontal = function<Type>(arr: Type[], custom: number[]): Type[][] {
     console.log(custom);
-    
+
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -195,7 +198,7 @@ const customHorizontal = function (arr: any[], custom: number[]): any[][] {
    * @param customAlignmentLengths - Specify the lengths of each row or column individually, if alignement is horizontal, the first specified row must be the longuest.
    * @returns A 2 dimension array containing the input array sorted into columns for display or the original array in case of invalid parameters.
    */
-const sortByParameters = function (arr: any[], alignment?: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignmentLengths?: number[]): any[] | any[][] {
+const sortByParameters = function<Type>(arr: Type[], alignment?: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignmentLengths?: number[]): Type[] | Type[][] {
     if (customAlignmentLengths && customAlignmentLengths.length > 0) {
         switch (alignment) {
             case 'vertical':
@@ -203,7 +206,7 @@ const sortByParameters = function (arr: any[], alignment?: 'vertical' | 'horizon
             case 'horizontal':
                 return customHorizontal(arr, customAlignmentLengths);
             default:
-                break;
+                return customVertical(arr, customAlignmentLengths);
         }
     } else if (columns && columns > 0) {
         switch (alignment) {
@@ -222,6 +225,15 @@ const sortByParameters = function (arr: any[], alignment?: 'vertical' | 'horizon
                 return horizontalByRows(arr, rows);
             default:
                 return verticalByRows(arr, rows);
+            }
+    } else {
+        switch(alignment) {
+            case 'vertical':
+                return verticalByColumns(arr, 2);
+            case 'horizontal':
+                return horizontalByRows(arr, 2);
+            default:
+                return verticalByColumns(arr, 2);
             }
     }
 

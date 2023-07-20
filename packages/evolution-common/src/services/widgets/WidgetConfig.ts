@@ -117,7 +117,6 @@ export type InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomP
     sameLine?: boolean;
     customLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     datatype?: 'string' | 'integer' | 'float' | 'text';
-    alignChoices?: boolean;
     columns?: number;
     rows?: number;
     alignment?: 'vertical' | 'horizontal' | 'auto';
@@ -144,7 +143,6 @@ export type InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     customLabel?: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     customChoice?: string;
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
-    alignChoices?: boolean;
     columns?: number;
     rows?: number;
     alignment?: 'vertical' | 'horizontal' | 'auto';
