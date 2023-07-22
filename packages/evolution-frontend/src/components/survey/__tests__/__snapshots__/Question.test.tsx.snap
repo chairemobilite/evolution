@@ -623,7 +623,6 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             className="label-input-container"
           >
             <input
-              aria-label="number input radio"
               checked={true}
               className="input-radio"
               id="survey-question__home.region_4"
@@ -639,16 +638,24 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             </label>
           </div>
         </div>
-        <input
-          aria-label="number input"
-          className="apptr__form-input apptr__input-string input-large"
-          defaultValue={4}
-          id="survey-question__home.regionover-max"
-          min={4}
-          name="survey-question__home.regionover-max"
-          onChange={[Function]}
-          type="number"
-        />
+        <div>
+          <label
+            htmlFor="survey-question__home.regionover-max"
+          >
+            <span>
+              enterValueAboveLimit
+            </span>
+          </label>
+          <input
+            className="apptr__form-input apptr__input-string input-large"
+            defaultValue={4}
+            id="survey-question__home.regionover-max"
+            min={4}
+            name="survey-question__home.regionover-max"
+            onChange={[Function]}
+            type="number"
+          />
+        </div>
       </div>
     </div>
   </fieldset>

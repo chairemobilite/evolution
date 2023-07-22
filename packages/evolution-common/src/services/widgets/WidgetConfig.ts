@@ -153,6 +153,8 @@ export type InputRadioNumberType<CustomSurvey, CustomHousehold, CustomHome, Cust
     icon?: IconProp;
     inputIconPath?: { iconPath: string; iconSize: string };
     overMaxAllowed?: boolean;
+    columns?: number;
+    sameLine?: boolean;
 };
 
 // TODO Could select widget have a custom 'other' field? Like checkbox and radios

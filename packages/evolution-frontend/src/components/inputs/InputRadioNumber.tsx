@@ -12,7 +12,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { WithTranslation } from 'react-i18next';
+import { withTranslation, WithTranslation } from 'react-i18next';
 
 type InputRadioNumberProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     id: string;
@@ -126,7 +126,9 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     };
 
     return (
-        <div className={'survey-question__input-radio-group-container'}>
+        <div className={`survey-question__input-radio-group-container${
+            widgetConfig.sameLine === false ? ' no-wrap' : ''
+        }`}>
             {choiceBuilder(minValue, maxValue, handleOnChange, widgetConfig.inputIconPath)}
             {widgetConfig.overMaxAllowed && (
                 <>
@@ -168,4 +170,4 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     );
 };
 
-export default InputRadioNumber;
+export default withTranslation()(InputRadioNumber) as React.FunctionComponent<InputRadioNumberProps<any, any, any, any>>;
