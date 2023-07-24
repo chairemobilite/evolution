@@ -127,6 +127,8 @@ describe('Render InputMultiselect with various options', () => {
     });
 
     test('With all parameters', () => {
+        // One of the shortcuts is not a present choice
+        conditionalFct.mockReturnValueOnce(false);
         const configWithShortcuts = Object.assign({}, widgetConfig, { 
             shortcuts: [
                 {

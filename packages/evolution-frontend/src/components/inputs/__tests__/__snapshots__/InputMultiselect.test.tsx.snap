@@ -446,14 +446,6 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
   >
     Unilingual label
   </button>
-  <button
-    className="button shortcut-button red"
-    onClick={[Function]}
-    tabIndex={-1}
-    type="button"
-  >
-    english conditional
-  </button>
 </div>
 `;
 
