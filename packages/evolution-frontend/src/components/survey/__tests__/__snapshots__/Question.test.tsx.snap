@@ -643,7 +643,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             htmlFor="survey-question__home.regionover-max"
           >
             <span>
-              enterValueAboveLimit
+              SpecifyAboveLimit
             </span>
           </label>
           <input

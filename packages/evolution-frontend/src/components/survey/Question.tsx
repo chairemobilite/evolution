@@ -35,7 +35,6 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
 import { UserFrontendInterviewAttributes, WidgetStatus } from '../../services/interviews/interview';
 import InputWidgetWrapper from './widgets/InputWidgetWrapper';
-import i18n from 'i18next';
 
 interface QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     path: string;

@@ -204,7 +204,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       htmlFor="testover-max"
     >
       <span>
-        enterValueAboveLimit
+        SpecifyAboveLimit
       </span>
     </label>
     <input

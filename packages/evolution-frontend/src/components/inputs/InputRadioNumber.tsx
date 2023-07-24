@@ -126,9 +126,11 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     };
 
     return (
-        <div className={`survey-question__input-radio-group-container${
-            widgetConfig.sameLine === false ? ' no-wrap' : ''
-        }`}>
+        <div
+            className={`survey-question__input-radio-group-container${
+                widgetConfig.sameLine === false ? ' no-wrap' : ''
+            }`}
+        >
             {choiceBuilder(minValue, maxValue, handleOnChange, widgetConfig.inputIconPath)}
             {widgetConfig.overMaxAllowed && (
                 <>
@@ -149,7 +151,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                     {isOverMax && (
                         <div>
                             <label htmlFor={`${id}over-max`}>
-                                <span>{t('main:enterValueAboveLimit')}</span>
+                                <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit'])}</span>
                             </label>
                             <input
                                 type="number"
@@ -170,4 +172,6 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     );
 };
 
-export default withTranslation()(InputRadioNumber) as React.FunctionComponent<InputRadioNumberProps<any, any, any, any>>;
+export default withTranslation()(InputRadioNumber) as React.FunctionComponent<
+    InputRadioNumberProps<any, any, any, any>
+>;
