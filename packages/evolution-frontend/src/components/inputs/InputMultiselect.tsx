@@ -150,6 +150,10 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
             hasShortcuts = true;
             for (let i = 0, count = this.props.widgetConfig.shortcuts.length; i < count; i++) {
                 const shortcut = this.props.widgetConfig.shortcuts[i];
+                // Make sure the corresponding option is available, otherwise don't add the shortcut
+                if (selectOptions.findIndex((visiblechoice) => visiblechoice.value === shortcut.value) === -1) {
+                    continue;
+                }
                 shortcutButtons.push(
                     <button
                         key={'shortcut' + i}
