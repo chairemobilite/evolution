@@ -129,7 +129,9 @@ export const InputWidgetWrapper = <CustomSurvey, CustomHousehold, CustomHome, Cu
 ) => {
     const typeOfWrapping = React.useMemo(
         () =>
-            props.widgetConfig.inputType === 'radio' || props.widgetConfig.inputType === 'checkbox'
+            props.widgetConfig.inputType === 'radio' ||
+            props.widgetConfig.inputType === 'checkbox' ||
+            props.widgetConfig.inputType === 'radioNumber'
                 ? 'fieldset'
                 : props.widgetConfig.inputType === 'slider' || props.widgetConfig.inputType === 'multiselect'
                     ? 'noLabel'

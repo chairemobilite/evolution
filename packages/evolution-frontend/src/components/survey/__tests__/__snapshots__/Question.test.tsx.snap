@@ -510,6 +510,158 @@ exports[`Question with widget InputRadio Render widget 1`] = `
 </div>
 `;
 
+exports[`Question with widget InputRadioNumber Render widget 1`] = `
+<div
+  className="apptr__form-container two-columns question-type-radioNumber question-filled question-valid"
+  onClick={[Function]}
+  style={
+    Object {
+      "position": "relative",
+    }
+  }
+>
+  <fieldset>
+    <div
+      className="apptr__form-label-container two-columns"
+    >
+      <legend>
+        <div
+          className="apptr__form__label-standalone"
+        >
+          <div
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "English text",
+              }
+            }
+          />
+        </div>
+      </legend>
+    </div>
+    <div
+      className="apptr__form-input-container two-columns"
+    >
+      <div
+        className="survey-question__input-radio-group-container"
+      >
+        <div
+          className="survey-question__input-radio-input-container"
+        >
+          <div
+            className="label-input-container"
+          >
+            <input
+              checked={false}
+              className="input-radio"
+              id="survey-question__home.region_1"
+              name="inputChoice_survey-question__home.region"
+              onChange={[Function]}
+              type="radio"
+              value={1}
+            />
+            <label
+              htmlFor="survey-question__home.region_1"
+            >
+              <span>
+                1
+              </span>
+            </label>
+          </div>
+        </div>
+        <div
+          className="survey-question__input-radio-input-container"
+        >
+          <div
+            className="label-input-container"
+          >
+            <input
+              checked={false}
+              className="input-radio"
+              id="survey-question__home.region_2"
+              name="inputChoice_survey-question__home.region"
+              onChange={[Function]}
+              type="radio"
+              value={2}
+            />
+            <label
+              htmlFor="survey-question__home.region_2"
+            >
+              <span>
+                2
+              </span>
+            </label>
+          </div>
+        </div>
+        <div
+          className="survey-question__input-radio-input-container"
+        >
+          <div
+            className="label-input-container"
+          >
+            <input
+              checked={false}
+              className="input-radio"
+              id="survey-question__home.region_3"
+              name="inputChoice_survey-question__home.region"
+              onChange={[Function]}
+              type="radio"
+              value={3}
+            />
+            <label
+              htmlFor="survey-question__home.region_3"
+            >
+              <span>
+                3
+              </span>
+            </label>
+          </div>
+        </div>
+        <div
+          className="survey-question__input-radio-input-container"
+        >
+          <div
+            className="label-input-container"
+          >
+            <input
+              checked={true}
+              className="input-radio"
+              id="survey-question__home.region_4"
+              name="inputChoice_survey-question__home.region"
+              onChange={[Function]}
+              type="radio"
+              value={4}
+            />
+            <label
+              htmlFor="survey-question__home.region_4"
+            >
+              4 +
+            </label>
+          </div>
+        </div>
+        <div>
+          <label
+            htmlFor="survey-question__home.regionover-max"
+          >
+            <span>
+              SpecifyAboveLimit
+            </span>
+          </label>
+          <input
+            className="apptr__form-input apptr__input-string input-large"
+            defaultValue={4}
+            id="survey-question__home.regionover-max"
+            min={4}
+            name="survey-question__home.regionover-max"
+            onChange={[Function]}
+            type="number"
+          />
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</div>
+`;
+
 exports[`Question with widget InputRange Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-slider question-filled question-valid"

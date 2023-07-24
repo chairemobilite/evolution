@@ -25,6 +25,7 @@ import InputButton from '../inputs/InputButton';
 import InputSelect from '../inputs/InputSelect';
 import InputMultiselect from '../inputs/InputMultiselect';
 import InputTime from '../inputs/InputTime';
+import InputRadioNumber from '../inputs/InputRadioNumber';
 import InputText from '../inputs/InputText';
 import Modal from 'react-modal';
 import { checkValidations } from '../../actions/utils';
@@ -238,6 +239,14 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
                         value={widgetStatus.value as any}
                         customPath={this.props.customPath}
                         customId={this.props.customPath ? `survey-question__${this.props.customPath}` : undefined}
+                        widgetConfig={widgetConfig as any}
+                    />
+                );
+            case 'radioNumber':
+                return (
+                    <InputRadioNumber
+                        {...commonProps}
+                        value={widgetStatus.value as any}
                         widgetConfig={widgetConfig as any}
                     />
                 );

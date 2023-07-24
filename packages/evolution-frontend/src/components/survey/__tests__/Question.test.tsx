@@ -76,6 +76,7 @@ const defaultWidgetStatus: WidgetStatus<unknown, unknown, unknown, unknown> = {
 each([
     ['InputSelect', { ...commonWidgetConfig, inputType: 'select', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
     ['InputRadio', { ...commonWidgetConfig, inputType: 'radio', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
+    ['InputRadioNumber', { ...commonWidgetConfig, valueRange: {min: 1, max: 3}, inputType: 'radioNumber', overMaxAllowed: true}, 4],
     ['InputCheckbox', { ...commonWidgetConfig, inputType: 'checkbox', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, ['c2']],
     ['InputMultiselect', { ...commonWidgetConfig, inputType: 'multiselect', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
     ['InputButton', { ...commonWidgetConfig, inputType: 'button', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
