@@ -11,7 +11,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ConfirmModal         from './modal/ConfirmModal';
 import * as surveyHelper    from 'evolution-common/lib/utils/helpers';
-import InputLoading         from 'evolution-frontend/lib/components/inputs/InputLoading';
 
 export class Button extends React.Component {
   constructor(props) {
@@ -79,23 +78,23 @@ export class Button extends React.Component {
     {
       return null;
     }
-    
-    if(widgetConfig.hideWhenRefreshing && this.props.loadingState > 0)
-    {
-      return <InputLoading t={this.props.t} />;
-    }
+
     let saveCallback = this.props.saveCallback || this.props.widgetConfig.saveCallback;
     if (typeof saveCallback === 'function')
     {
       saveCallback = saveCallback.bind(this);
-    }    
+    }
+
+    const isLoading = widgetConfig.hideWhenRefreshing && this.props.loadingState > 0;
+    const buttonColor = (widgetConfig.color || 'green');
     return (
       <div className={widgetConfig.align || 'center'}>
         <button
           type      = "button"
-          className = {`survey-section__button button ${widgetConfig.color || 'green'} ${widgetConfig.size || 'large'}`}
+          className = {`survey-section__button button ${buttonColor} ${widgetConfig.size || 'large'} ${isLoading ? 'disabled' : ''}`}
           onMouseDown = {this.onMouseDown}
           onMouseUp = {this.onMouseUp}
+          disabled={{isLoading}}
         >
           {widgetConfig.icon && <FontAwesomeIcon icon={widgetConfig.icon} className="faIconLeft" />}
           {surveyHelper.translateString(this.props.label || widgetConfig.label, this.props.i18n, this.props.interview, this.props.path)}
