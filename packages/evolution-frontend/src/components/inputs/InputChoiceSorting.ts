@@ -15,7 +15,7 @@
  * // Prints [[0,1,2],[3,4,5]]
  * console.log(verticalByColumns([0,1,2,3,4,5], 2));
  */
-const verticalByColumns = function<T>(arr: T[], columns: number): T[][] {
+const verticalByColumns = function<Value>(arr: Value[], columns: number): Value[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -41,7 +41,7 @@ const verticalByColumns = function<T>(arr: T[], columns: number): T[][] {
  * // Prints [[0,1],[2,3],[4,5]]
  * console.log(verticalByRows([0,1,2,3,4,5], 2));
  */
-const verticalByRows = function<T>(arr: T[], rows: number): T[][] {
+const verticalByRows = function<Value>(arr: Value[], rows: number): Value[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -63,7 +63,7 @@ const verticalByRows = function<T>(arr: T[], rows: number): T[][] {
  * // Prints [[0,2,4],[1,3,5]]
  * console.log(horizontalByColumns([0,1,2,3,4,5], 2));
  */
-const horizontalByColumns = function<T>(arr: T[], columns: number ): T[][] {
+const horizontalByColumns = function<Value>(arr: Value[], columns: number ): Value[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -94,7 +94,7 @@ const horizontalByColumns = function<T>(arr: T[], columns: number ): T[][] {
  * // Prints [[0,3],[1,4],[2,5]]
  * console.log(horizontalByRows([0,1,2,3,4,5], 2));
  */
-const horizontalByRows = function<T>(arr: T[], rows: number): T[][] {
+const horizontalByRows = function<Value>(arr: Value[], rows: number): Value[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -125,7 +125,7 @@ const horizontalByRows = function<T>(arr: T[], rows: number): T[][] {
  * // Prints [[0,1,2],[3,4],[5]]
  * console.log(customVertical([0,1,2,3,4,5], [3,2,1]));
  */
-const customVertical = function<T>(arr: T[], custom: number[]): T[][] {
+const customVertical = function<Value>(arr: Value[], custom: number[]): Value[][] {
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -149,7 +149,7 @@ const customVertical = function<T>(arr: T[], custom: number[]): T[][] {
  * // Prints [[0,3,5],[1,4],[2]]
  * console.log(customHorizontal([0,1,2,3,4,5], [3,2,1]));
  */
-const customHorizontal = function<T>(arr: T[], custom: number[]): T[][] {
+const customHorizontal = function<Value>(arr: Value[], custom: number[]): Value[][] {
     console.log(custom);
 
     const len = arr.length;
@@ -196,7 +196,7 @@ const customHorizontal = function<T>(arr: T[], custom: number[]): T[][] {
    * @param customAlignmentLengths - Specify the lengths of each row or column individually, if alignement is horizontal, the first specified row must be the longuest.
    * @returns A 2 dimension array containing the input array sorted into columns for display or the original array in case of invalid parameters.
    */
-const sortByParameters = function<T>(arr: T[], alignment?: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignmentLengths?: number[]): T[] | T[][] {
+const sortByParameters = function<Value>(arr: Value[], alignment?: 'vertical' | 'horizontal' | 'auto', columns?: number, rows?: number, customAlignmentLengths?: number[]): Value[][] {
     if (customAlignmentLengths && customAlignmentLengths.length > 0) {
         switch (alignment) {
             case 'vertical':
@@ -234,7 +234,5 @@ const sortByParameters = function<T>(arr: T[], alignment?: 'vertical' | 'horizon
                 return verticalByColumns(arr, 2);
             }
     }
-
-    return arr;
 }
 export { sortByParameters };

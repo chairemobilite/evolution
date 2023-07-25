@@ -4,7 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import exp from 'constants';
 import {sortByParameters} from '../InputChoiceSorting';
+import { ro } from 'date-fns/locale';
 
 const array = [0,1,2,3,4,5,6,7,8,9];
 
@@ -31,7 +33,7 @@ describe('Sort array in vertical fashion ', () =>{
     test('Vertical By no columns & no rows', () => {
         const result = sortByParameters(array, alignment);
 
-        expect(result).toEqual([0,1,2,3,4,5,6,7,8,9]);
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
     });
 });
 
@@ -58,7 +60,33 @@ describe('Sort array in horizontal fashion', () =>{
     test('horizontal By no columns & no rows', () => {
         const result = sortByParameters(array, alignment);
 
-        expect(result).toEqual([0,1,2,3,4,5,6,7,8,9]);
+        expect(result).toEqual([[0,5],[1,6],[2,7],[3,8],[4,9]]);
+    });
+});
+
+describe('Sort array with no alignement', () => {
+    const columns = 2;
+    const rows = 2;
+
+    test('with  columns', () => {
+        const result = sortByParameters(array, undefined, columns);
+
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
+    });
+    test('with rows', () => {
+        const result = sortByParameters(array, undefined, undefined, rows);
+
+        expect(result).toEqual([[0,1],[2,3],[4,5],[6,7],[8,9]]);
+    });
+    test('with columns & rows', () => {
+        const result = sortByParameters(array, undefined, columns, rows);
+
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
+    });
+    test('with no columns & no rows', () => {
+        const result = sortByParameters(array);
+
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
     });
 });
 
@@ -75,7 +103,7 @@ describe('Sort array by parameters', () => {
     test('with invalid parameters.', () => {
         const result = sortByParameters(array, alignment, undefined, rows, undefined);
 
-        expect(result).toEqual([0,1,2,3,4,5,6,7,8,9]);
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
     });
     test('with valid columns but invalid rows', () => {
         const result = sortByParameters(array, alignment, columns, rows, undefined);
