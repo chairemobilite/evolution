@@ -61,6 +61,7 @@ const callWithBounds = (
 const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props: InputGoogleMapPointProps) => {
     const { isLoaded } = useJsApiLoader({
         region: projectConfig.region,
+        language: projectConfig.defaultLocale,
         ...googleConfig
     });
 
