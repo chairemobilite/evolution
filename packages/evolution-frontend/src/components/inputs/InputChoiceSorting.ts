@@ -22,14 +22,14 @@ const verticalByColumns = function<Value>(arr: Value[], columns: number): Value[
     let columnIndex = 0;
     let countPerColumn = Math.ceil(len / columns);
     while (index + countPerColumn < len) {
-        out.push(arr.slice(index, (index += countPerColumn)))
+        out.push(arr.slice(index, (index += countPerColumn)));
         columnIndex++;
         countPerColumn = Math.ceil((len - index) / (columns - columnIndex));
     }
-    out.push(arr.slice(index))
+    out.push(arr.slice(index));
 
     return out;
-}
+};
 
 /**
  * Sort the array to be displayed to the target number of rows in vertical fashion.
@@ -46,12 +46,12 @@ const verticalByRows = function<Value>(arr: Value[], rows: number): Value[][] {
     const out: any[] = [];
     let index = 0;
     while (index + rows < len) {
-        out.push(arr.slice(index, (index += rows)))
+        out.push(arr.slice(index, (index += rows)));
     }
-    out.push(arr.slice(index))
+    out.push(arr.slice(index));
 
     return out;
-}
+};
 
 /**
  * Sort the array to be displayed to the target number of columns in horizontal fashion
@@ -82,7 +82,7 @@ const horizontalByColumns = function<Value>(arr: Value[], columns: number ): Val
     }
 
     return out;
-}
+};
 
 /**
  * Sort the array to be displayed to the target number of rows in horizontal fashion.
@@ -113,7 +113,7 @@ const horizontalByRows = function<Value>(arr: Value[], rows: number): Value[][] 
     }
 
     return out;
-}
+};
 
 /**
  * Sort the array to be displayed in columns by the custom array information.
@@ -137,7 +137,7 @@ const customVertical = function<Value>(arr: Value[], custom: number[]): Value[][
     out.push(arr.slice(index));
 
     return out;
-}
+};
 
 /**
  * Sort the array to be displayed in rows by the custom array information.
@@ -181,7 +181,7 @@ const customHorizontal = function<Value>(arr: Value[], custom: number[]): Value[
     }
 
     return out;
-}
+};
 
 /**
    * Sorts the array based on the specified parameters.
@@ -234,5 +234,6 @@ const sortByParameters = function<Value>(arr: Value[], alignment?: 'vertical' | 
                 return verticalByColumns(arr, 2);
             }
     }
-}
+};
+
 export { sortByParameters };
