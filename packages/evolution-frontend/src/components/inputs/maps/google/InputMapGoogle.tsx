@@ -202,6 +202,7 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props
             onClick={(e) => onPositionChange(e, 'mapClicked')}
             onZoomChanged={onZoomChange}
             onBoundsChanged={onBoundsChanged}
+            clickableIcons={false}
         >
             {props.markers.map((markerData, index) => (
                 <Marker
