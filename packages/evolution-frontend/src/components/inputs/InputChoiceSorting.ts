@@ -131,7 +131,7 @@ const customVertical = function<Value>(arr: Value[], custom: number[]): Value[][
     let index = 0;
     let columnIndex = 0;
     while (index + custom[columnIndex] < len) {
-        out.push(arr.slice(index, index += custom[columnIndex]))
+        out.push(arr.slice(index, index += custom[columnIndex]));
         columnIndex++;
     }
     out.push(arr.slice(index));
