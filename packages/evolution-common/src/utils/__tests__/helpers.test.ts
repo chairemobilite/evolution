@@ -373,3 +373,32 @@ each([
 ]).test('interpolatePath, %s', (_title, path, expectedPath) => {
     expect(Helpers.interpolatePath(interviewAttributes, path)).toEqual(expectedPath);
 });
+
+each([
+    ['Phone Number, 10-digit', '5141234567', true],
+    ['Phone Number, spaces', '514 123 4567', true],
+    ['Phone Number, more spaces', '514   123   4567', true],
+    ['Phone Number, dashes', '514-123-4567', true],
+    ['Phone Number, more dashes', '514---123---4567', true],
+    ['Phone Number, dots', '514.123.4567', true],
+    ['Phone Number, parenthesis & spaces', '(514) 123 4567', true],
+    ['Phone Number, parenthesis & dash, dots', '(514)-123.4567', true],
+    ['Phone Number, with prefix 11-digit', '15141234567', true],
+    ['Phone Number, with prefix 12-digit', '125141234567', true],
+    ['Phone Number, with prefix 13-digit', '1235141234567', true],
+    ['Phone Number, plus prefix', '+1 5141234567', true],
+    ['Phone Number, plus prefix & spaces', '+123 514 123 4567', true],
+    ['Phone Number, plus prefix & dashes', '+123-514-123-4567', true],
+    ['Phone Number, plus prefix & parenthesis & space, dash', '+123 (514) 123-4567', true],
+    ['Phone Number, plus prefix & more dashes', '+123---514---123---4567', true],
+    ['Phone Number, extension', '5141234567x1234', true],
+    ['Phone Number, extension & spaces', '514 123 4567 x1234', true],
+    ['Phone Number, extension & prefix', '1235141234567x1234', true],
+    ['Phone Number, everything', '+123 (514)-123.4567 x1234', true],
+    ['Not a Phone Number, letter', '514ABC4567', false],
+    ['Not a Phone Number, too many numbers', '514 123456 789012345', false],
+    ['Not a Phone Number, bad parenthesis', '(514)-(123)-(4567)', false],
+    ['Not a Phone Number, invalid characters', '514/123/4567', false]
+]).test('Is Phone Number? %s', (_title, phoneNumber, expected) => {
+    expect(Helpers.isPhoneNumber(phoneNumber)).toEqual(expected);
+});
