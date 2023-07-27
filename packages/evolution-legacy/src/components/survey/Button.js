@@ -94,7 +94,7 @@ export class Button extends React.Component {
           className = {`survey-section__button button ${buttonColor} ${widgetConfig.size || 'large'} ${isLoading ? 'disabled' : ''}`}
           onMouseDown = {this.onMouseDown}
           onMouseUp = {this.onMouseUp}
-          disabled={{isLoading}}
+          disabled={isLoading}
         >
           {widgetConfig.icon && <FontAwesomeIcon icon={widgetConfig.icon} className="faIconLeft" />}
           {surveyHelper.translateString(this.props.label || widgetConfig.label, this.props.i18n, this.props.interview, this.props.path)}
