@@ -29,10 +29,12 @@
         "evolution-common": "^0.2.2",
         "express": "^4.17.1",
         "knex": "^2.4.2",
+        "lodash.camelcase": "^4.3.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.set": "^4.3.2",
         "lodash.unset": "^4.5.2",
         "moment": "^2.29.4",
+        "slugify": "^1.6.6",
         "typescript": "^4.9.4",
         "uuid": "^8.3.2"
     },
