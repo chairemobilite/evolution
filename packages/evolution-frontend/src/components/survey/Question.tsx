@@ -326,7 +326,7 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
                 );
             }
         };
-        const content = (
+        const content = [(
             <div
                 style={{ position: 'relative' }}
                 className={`apptr__form-container${twoColumns ? ' two-columns' : ''}${
@@ -392,7 +392,15 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
                     )}
                 </InputWidgetWrapper>
             </div>
-        );
+        )];
+
+        if ((widgetConfig as any).joinPrevious) {
+            content.unshift(
+            <div
+                style={{marginTop: '-40px', marginBottom: '-40px', paddingTop: '20px', paddingBottom: '20px'}}
+                className={`apptr__form-container`}
+            ><label style={{height: '20px'}}></label></div>);
+        }
 
         if ((widgetConfig as any).isModal) {
             if (!this.state.modalIsOpen) {

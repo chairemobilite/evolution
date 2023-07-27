@@ -308,6 +308,7 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
 export type QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     type: 'question';
     twoColumns?: boolean;
+    joinPrevious?: boolean;
     path: InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     containsHtml?: boolean;
     label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
