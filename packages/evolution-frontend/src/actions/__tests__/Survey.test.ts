@@ -4,6 +4,10 @@ import { UserFrontendInterviewAttributes } from '../../services/interviews/inter
 import { startUpdateInterview } from '../Survey';
 import { prepareWidgets } from '../utils';
 
+jest.mock('chaire-lib-frontend/lib/config/i18n.config', () => ({
+    language: 'en'
+}))
+
 type CustomSurvey = {
     section1?: {
         q1?: string;
@@ -21,6 +25,7 @@ const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown
     participant_id: 1,
     is_completed: false,
     responses: {
+        _language: 'en',
         section1: {
             q1: 'abc',
             q2: 3

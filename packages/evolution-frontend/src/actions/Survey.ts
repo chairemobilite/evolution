@@ -24,6 +24,7 @@ import { prepareWidgets } from './utils';
 import { UserFrontendInterviewAttributes } from '../services/interviews/interview';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
 
 // called whenever an update occurs in interview responses or when section is switched to
 export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
@@ -96,7 +97,7 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
 
         // update language if needed:
         const oldLanguage = surveyHelper.getResponse(interview, '_language', null);
-        const actualLanguage = null; //i18n.language;
+        const actualLanguage = i18n.language;
         if (oldLanguage !== actualLanguage) {
             valuesByPath['responses._language'] = actualLanguage;
         }
