@@ -9,6 +9,7 @@
         "packages/evolution-backend",
         "packages/evolution-frontend",
         "packages/evolution-legacy",
+        "packages/evolution-interviewer",
         "example/demo_survey"
     ],
     "scripts": {
@@ -17,7 +18,7 @@
         "migrate": "yarn workspace chaire-lib-backend run migrate && yarn workspace evolution-backend run migrate",
         "migrate-test": "PROJECT_CONFIG=${PWD}/transition/tests/config_test.js yarn workspace chaire-lib-backend run migrate-test && PROJECT_CONFIG=${PWD}/transition/tests/config_test.js yarn workspace evolution-backend run migrate-test",
         "clean": "yarn workspaces run clean",
-        "cleanModules": "yarn workspace evolution-common run cleanModules && yarn workspace evolution-backend run cleanModules && yarn workspace evolution-frontend run cleanModules && yarn workspace evolution-legacy run cleanModules && yarn workspace demo_survey run cleanModules && rimraf node_modules",
+        "cleanModules": "yarn workspace evolution-common run cleanModules && yarn workspace evolution-backend run cleanModules && yarn workspace evolution-frontend run cleanModules && yarn workspace evolution-legacy run cleanModules && yarn workspace evolution-interviewer run cleanModules && yarn workspace demo_survey run cleanModules && rimraf node_modules",
         "compile": "yarn workspaces run compile",
         "compile:dev": "yarn wsrun compile:dev",
         "create-user": "yarn workspace chaire-lib-backend run create-user",
@@ -29,11 +30,11 @@
         "start:admin": "yarn workspace demo_survey run start:admin",
         "start:debug": "yarn workspace demo_survey run start:debug",
         "start:tracing": "yarn workspace demo_survey run start:tracing",
-        "test": "yarn workspace evolution-common run test && yarn workspace evolution-backend run test && yarn workspace evolution-frontend run test && yarn workspace evolution-legacy run test",
-        "test:unit": "yarn workspace evolution-common run test:unit && yarn workspace evolution-backend run test:unit && yarn workspace evolution-frontend run test:unit && yarn workspace evolution-legacy run test:unit",
-        "test:sequential": "yarn workspace evolution-common run test:sequential && yarn workspace evolution-backend run test:sequential && yarn workspace evolution-frontend run test:sequential",
-        "lint": "yarn workspace evolution-common run lint && yarn workspace evolution-backend run lint && yarn workspace evolution-frontend run lint",
-        "format": "yarn workspace evolution-common run format && yarn workspace evolution-backend run format && yarn workspace evolution-frontend run format",
+        "test": "yarn workspace evolution-common run test && yarn workspace evolution-backend run test && yarn workspace evolution-frontend run test && yarn workspace evolution-legacy run test && yarn workspace evolution-interviewer run test",
+        "test:unit": "yarn workspace evolution-common run test:unit && yarn workspace evolution-backend run test:unit && yarn workspace evolution-frontend run test:unit && yarn workspace evolution-legacy run test:unit && yarn workspace evolution-interviewer run test:unit",
+        "test:sequential": "yarn workspace evolution-common run test:sequential && yarn workspace evolution-backend run test:sequential && yarn workspace evolution-frontend run test:sequential && yarn workspace evolution-interviewer run test:sequential",
+        "lint": "yarn workspace evolution-common run lint && yarn workspace evolution-backend run lint && yarn workspace evolution-frontend run lint && yarn workspace evolution-interviewer run lint",
+        "format": "yarn workspace evolution-common run format && yarn workspace evolution-backend run format && yarn workspace evolution-frontend run format && yarn workspace evolution-interviewer run format",
         "list-tasks": "yarn workspace evolution-legacy run list-tasks",
         "generate-migration": "knex migrate:make",
         "reset-submodules": "rimraf transition/ && git submodule init && git submodule update"
