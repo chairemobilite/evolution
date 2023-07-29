@@ -184,10 +184,22 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     };
 
     private getColumnedChoices = (choiceInputs: JSX.Element[]): JSX.Element[] => {
-        if ((this.props.widgetConfig.alignment === undefined && this.props.widgetConfig.columns === undefined && this.props.widgetConfig.rows === undefined && (!this.props.widgetConfig.customAlignmentLengths || this.props.widgetConfig.customAlignmentLengths === undefined))) {
+        if (
+            this.props.widgetConfig.alignment === undefined &&
+            this.props.widgetConfig.columns === undefined &&
+            this.props.widgetConfig.rows === undefined &&
+            (!this.props.widgetConfig.customAlignmentLengths ||
+                this.props.widgetConfig.customAlignmentLengths === undefined)
+        ) {
             return choiceInputs;
         }
-        const widgetsByColumn = sortByParameters(choiceInputs, this.props.widgetConfig.alignment, this.props.widgetConfig.columns, this.props.widgetConfig.rows, this.props.widgetConfig.customAlignmentLengths);
+        const widgetsByColumn = sortByParameters(
+            choiceInputs,
+            this.props.widgetConfig.alignment,
+            this.props.widgetConfig.columns,
+            this.props.widgetConfig.rows,
+            this.props.widgetConfig.customAlignmentLengths
+        );
         const columnedChoiceInputs: JSX.Element[] = [];
         for (let i = 0, count = widgetsByColumn.length; i < count; i++) {
             const columnWidgets = widgetsByColumn[i];
@@ -263,8 +275,9 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
 
         return (
             <div
-                className={`survey-question__input-checkbox-group-container${this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
-                    }`}
+                className={`survey-question__input-checkbox-group-container${
+                    this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
+                }`}
             >
                 {columnedChoiceInputs}
                 {this.props.customId && (

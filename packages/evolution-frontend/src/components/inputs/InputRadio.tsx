@@ -206,10 +206,22 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     };
 
     private getColumnedChoices = (choiceInputs: JSX.Element[]): JSX.Element[] => {
-        if ((this.props.widgetConfig.alignment === undefined && this.props.widgetConfig.columns === undefined && this.props.widgetConfig.rows === undefined && (!this.props.widgetConfig.customAlignmentLengths || this.props.widgetConfig.customAlignmentLengths === undefined))) {
+        if (
+            this.props.widgetConfig.alignment === undefined &&
+            this.props.widgetConfig.columns === undefined &&
+            this.props.widgetConfig.rows === undefined &&
+            (!this.props.widgetConfig.customAlignmentLengths ||
+                this.props.widgetConfig.customAlignmentLengths === undefined)
+        ) {
             return choiceInputs;
         }
-        const widgetsByColumn = sortByParameters(choiceInputs, this.props.widgetConfig.alignment, this.props.widgetConfig.columns, this.props.widgetConfig.rows, this.props.widgetConfig.customAlignmentLengths);
+        const widgetsByColumn = sortByParameters(
+            choiceInputs,
+            this.props.widgetConfig.alignment,
+            this.props.widgetConfig.columns,
+            this.props.widgetConfig.rows,
+            this.props.widgetConfig.customAlignmentLengths
+        );
         const columnedChoiceInputs: JSX.Element[] = [];
         for (let i = 0, count = widgetsByColumn.length; i < count; i++) {
             const columnWidgets = widgetsByColumn[i];
