@@ -33,5 +33,7 @@
   "ClickToSelectDate": "Cliquer pour sélectionner une date",
   "footer": "",
   "AgreementText": "",
-  "ErrorNotAgreed": "Vous devez accepter l'utilisation de vos données pour continuer vers l'enquête"
+  "ErrorNotAgreed": "Vous devez accepter l'utilisation de vos données pour continuer vers l'enquête",
+  "InterviewerMode": "Mode intervieweur",
+  "ParticipantMode": "Mode participant"
 }

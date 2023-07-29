@@ -13,8 +13,8 @@ import { EvolutionApplicationConfiguration } from 'evolution-frontend/lib/config
 const interviewerModeMenuItem = {
     getText: (t: TFunction) =>
         Preferences.get('interviewMode', 'participant') === 'interviewer'
-            ? t('survey:ParticipantMode')
-            : t('survey:InterviewerMode'),
+            ? t(['survey:ParticipantMode', 'main:ParticipantMode'])
+            : t(['survey:InterviewerMode', 'main:InterviewerMode']),
     action: () => {
         const currentMode = Preferences.get('interviewMode', 'participant');
         const newMode = currentMode === 'participant' ? 'interviewer' : 'participant';
@@ -23,14 +23,19 @@ const interviewerModeMenuItem = {
 };
 
 const addInterviewerOptions = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    config: ApplicationConfiguration<
-        EvolutionApplicationConfiguration<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    config: Partial<
+        ApplicationConfiguration<
+            EvolutionApplicationConfiguration<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+        >
     >
-) => {
+): Partial<
+    ApplicationConfiguration<EvolutionApplicationConfiguration<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
+> => {
     const menuItems = config.userMenuItems || [];
     menuItems.push(interviewerModeMenuItem);
     config.userMenuItems = menuItems;
     // TODO Add specific monitoring for interviewers
+    return config;
 };
 
 export default addInterviewerOptions;

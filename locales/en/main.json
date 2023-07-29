@@ -33,5 +33,7 @@
   "ClickToSelectDate": "Click to select a date",
   "footer": "",
   "AgreementText": "",
-  "ErrorNotAgreed": "You must accept usage of your date to continue to the survey"
+  "ErrorNotAgreed": "You must accept usage of your date to continue to the survey",
+  "InterviewerMode": "Interviewer mode",
+  "ParticipantMode": "Participant mode"
 }
