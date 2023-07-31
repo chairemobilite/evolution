@@ -42,6 +42,7 @@ interface QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     section: string;
     loadingState: number;
     widgetConfig: QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    join?: string;
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     user: CliUser;
     widgetStatus: WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
@@ -394,7 +395,7 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
             </div>
         )];
 
-        switch(widgetConfig.join) {
+        switch(this.props.join) {
             case "next":
                 content.push(
                 <div
@@ -412,7 +413,7 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
             default:
                 break;
         }
-        
+
         if ((widgetConfig as any).isModal) {
             if (!this.state.modalIsOpen) {
                 return null;

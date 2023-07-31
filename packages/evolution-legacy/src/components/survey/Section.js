@@ -157,17 +157,6 @@ export class Section extends React.Component {
         continue;
       }
 
-      if (widgetConfig.joinWith) {
-        const previous = this.props.widgets[i - 1] ? this.props.widgets[i - 1] : undefined;
-        const next = this.props.widgets[i + 1] ? this.props.widgets[i + 1] : undefined;
-
-        if (widgetConfig.joinWith === previous) {
-            this.props.surveyContext.widgets[widgetShortname].join = 'previous';
-        } else if (widgetConfig.joinWith === next) {
-            this.props.surveyContext.widgets[widgetShortname].join = 'next';
-        }
-      }
-
       const path         = surveyHelper.interpolatePath(this.props.interview, (widgetConfig.path || `${this.props.shortname}.${widgetShortname}`));
       const customPath   = widgetConfig.customPath ? surveyHelper.interpolatePath(this.props.interview, widgetConfig.customPath) : null;
       const widgetStatus = _get(this.props.interview, `widgets.${widgetShortname}`, {});
@@ -176,6 +165,17 @@ export class Section extends React.Component {
       if (!isServerValid) {
         widgetStatus.isValid = false;
         widgetStatus.errorMessage = widgetStatus.errorMessage || serverErrorMessage;
+      }
+
+      const join = undefined;
+      if (widgetConfig.joinWith) {
+        const previous = this.props.widgets[i - 1] ? this.props.widgets[i - 1] : undefined;
+        const previousStatus = this.props.widgets[i - 1] ? _get(this.props.interview, `widgets.${this.props.widgets[i - 1]}`, {}) : undefined;
+        const next = this.props.widgets[i + 1] ? this.props.widgets[i + 1] : undefined;
+        const nextStatus = this.props.widgets[i + 1] ? _get(this.props.interview, `widgets.${this.props.widgets[i + 1]}`, {}) : undefined;
+
+        join = widgetConfig.joinWith === previous && previousStatus.isVisible ? 'previous' : undefined;
+        join = widgetConfig.joinWith === next && nextStatus.isVisible? 'next' : undefined;
       }
 
       const defaultProps = {
@@ -187,6 +187,7 @@ export class Section extends React.Component {
         groupShortname             : null,
         groupedObjectId            : null,
         widgetConfig               : widgetConfig,
+        join                       : join,
         widgetStatus               : widgetStatus,
         section                    : this.props.shortname,
         interview                  : this.props.interview,
@@ -211,7 +212,7 @@ export class Section extends React.Component {
           parentObjectIds                 = {{}}
         />;
       }
-      else 
+      else
       {
         switch(widgetConfig.type)
         {

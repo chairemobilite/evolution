@@ -309,7 +309,6 @@ export type QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, Cust
     type: 'question';
     twoColumns?: boolean;
     joinWith?: string;
-    join?: 'next' | 'previous';
     path: InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     containsHtml?: boolean;
     label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
