@@ -156,6 +156,18 @@ export class Section extends React.Component {
         }
         continue;
       }
+
+      if (widgetConfig.joinWith) {
+        const previous = this.props.widgets[i - 1] ? this.props.widgets[i - 1] : undefined;
+        const next = this.props.widgets[i + 1] ? this.props.widgets[i + 1] : undefined;
+
+        if (widgetConfig.joinWith === previous) {
+            this.props.surveyContext.widgets[widgetShortname].join = 'previous';
+        } else if (widgetConfig.joinWith === next) {
+            this.props.surveyContext.widgets[widgetShortname].join = 'next';
+        }
+      }
+
       const path         = surveyHelper.interpolatePath(this.props.interview, (widgetConfig.path || `${this.props.shortname}.${widgetShortname}`));
       const customPath   = widgetConfig.customPath ? surveyHelper.interpolatePath(this.props.interview, widgetConfig.customPath) : null;
       const widgetStatus = _get(this.props.interview, `widgets.${widgetShortname}`, {});

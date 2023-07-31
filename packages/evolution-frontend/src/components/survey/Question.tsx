@@ -394,14 +394,25 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
             </div>
         )];
 
-        if ((widgetConfig as any).joinPrevious) {
-            content.unshift(
-            <div
-                style={{marginTop: '-40px', marginBottom: '-40px', paddingTop: '20px', paddingBottom: '20px'}}
-                className={`apptr__form-container`}
-            ><label style={{height: '20px'}}></label></div>);
+        switch(widgetConfig.join) {
+            case "next":
+                content.push(
+                <div
+                    style={{marginTop: '-40px', marginBottom: '-40px', paddingTop: '20px', paddingBottom: '20px'}}
+                    className={`apptr__form-container`}
+                ><label style={{height: '20px'}}></label></div>);
+                break;
+            case "previous":
+                content.unshift(
+                    <div
+                        style={{marginTop: '-40px', marginBottom: '-40px', paddingTop: '20px', paddingBottom: '20px'}}
+                        className={`apptr__form-container`}
+                    ><label style={{height: '20px'}}></label></div>);
+                break;
+            default:
+                break;
         }
-
+        
         if ((widgetConfig as any).isModal) {
             if (!this.state.modalIsOpen) {
                 return null;

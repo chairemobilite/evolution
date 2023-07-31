@@ -385,7 +385,6 @@ export const homeApartmentNumber = {
   path: "home.apartmentNumber",
   datatype: "string",
   twoColumns: true,
-  joinPrevious: true,
   label: {
     fr: '<p>Numéro d\'appartement<br /><span class="_em _pale">Laisser vide si aucun</span></p>',
     en: 'Apartment number<br /><span class="_em _pale">Leave empty if none</span>'
@@ -398,6 +397,7 @@ export const homeCity = {
   path: "home.city",
   twoColumns: true,
   datatype: "string",
+  joinWith: "homeRegion",
   label: {
     fr: "Ville",
     en: "City"
@@ -421,7 +421,7 @@ export const homeRegion = {
   path: "home.region",
   datatype: "string",
   twoColumns: true,
-  joinPrevious: true,
+  joinWith: "homeCountry",
   defaultValue: "Québec",
   label: {
     fr: "Province",
@@ -435,7 +435,6 @@ export const homeCountry = {
   path: "home.country",
   datatype: "string",
   twoColumns: true,
-  joinPrevious: true,
   defaultValue: "Canada",
   label: {
     fr: "Pays",
