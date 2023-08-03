@@ -5,6 +5,7 @@
         "rootDir": "src",
         "isolatedModules": false, // Should be removed to inherit the true eventually
         "noImplicitAny": false, // Should be removed to inherit the true eventually
+        "moduleResolution": "node"
     },
     "exclude": [
         "node_modules",

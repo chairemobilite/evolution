@@ -1,0 +1,6 @@
+section,name,type,inputType,path,label,datatype,containsHtml,twoColumns,required,regex,choices,icon,align,action,conditional
+home,address,question,string,home.address,home:HomeAddress,string,TRUE,TRUE,TRUE,,,,,,
+home,carParkingPrivate,question,radio,home.carParkingsPrivate,home:CarParkingPrivate,boolean,FALSE,TRUE,TRUE,,yesNo,,,,home.address exists
+home,,button,,buttonSaveHomeWithCompleteSection,home:SaveAndContinue,,,,,,,circle,center,goToNextSection,
+,yesNo,choice,,yes,main:Yes,,,,,,,,,,
+,yesNo,choice,,no,main:No,,,,,,,,,,
