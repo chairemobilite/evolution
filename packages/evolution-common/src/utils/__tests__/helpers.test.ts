@@ -402,3 +402,52 @@ each([
 ]).test('Is Phone Number? %s', (_title, phoneNumber, expected) => {
     expect(Helpers.isPhoneNumber(phoneNumber)).toEqual(expected);
 });
+
+describe('getPersons', () => {
+    test('test without household', () => {
+        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
+    });
+
+    test('test without persons', () => {
+        const attributes = _cloneDeep(interviewAttributes) as any;
+        attributes.household = {};
+        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
+    });
+
+    test('empty persons', () => {
+        const attributes = _cloneDeep(interviewAttributes) as any;
+        attributes.household = { size: 0, persons: {} };
+        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
+    });
+
+    test('with persons', () => {
+        expect(Helpers.getPersons(interviewAttributes2)).toEqual(interviewAttributes2.responses.household.persons);
+    });
+
+    test('array: test without household', () => {
+        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
+    });
+
+    test('array: test without persons', () => {
+        const attributes = _cloneDeep(interviewAttributes) as any;
+        attributes.household = {};
+        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
+    });
+
+    test('array: empty persons', () => {
+        const attributes = _cloneDeep(interviewAttributes) as any;
+        attributes.household = { size: 0, persons: {} };
+        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
+    });
+
+    test('array: with persons, unordered', () => {
+        expect(Helpers.getPersonsArray(interviewAttributes2)).toEqual(Object.values(interviewAttributes2.responses.household.persons));
+    });
+
+    test('array: with persons, ordered', () => {
+        const attributes = _cloneDeep(interviewAttributes2) as any;
+        attributes.responses.household.persons.personId1._sequence = 2;
+        attributes.responses.household.persons.personId2._sequence = 1;
+        expect(Helpers.getPersonsArray(attributes)).toEqual([attributes.responses.household.persons.personId2, attributes.responses.household.persons.personId1]);
+    });
+});
