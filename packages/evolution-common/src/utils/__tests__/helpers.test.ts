@@ -7,7 +7,7 @@
 import each from 'jest-each';
 import i18n from 'i18next';
 import _cloneDeep from 'lodash.clonedeep';
-import { UserInterviewAttributes } from '../../services/interviews/interview';
+import { Person, UserInterviewAttributes } from '../../services/interviews/interview';
 
 import * as Helpers from '../helpers';
 
@@ -450,4 +450,58 @@ describe('getPersons', () => {
         attributes.responses.household.persons.personId2._sequence = 1;
         expect(Helpers.getPersonsArray(attributes)).toEqual([attributes.responses.household.persons.personId2, attributes.responses.household.persons.personId1]);
     });
+});
+
+describe('getVisitedPlaces', () => {
+
+    const person: Person<unknown> = {
+        _uuid: 'arbitraryPerson',
+        _sequence: 1
+    }
+
+    const visitedPlaces = {
+        visitedPlace1: {
+            _uuid: 'visitedPlace1',
+            _sequence: 2,
+            activity: 'home',
+        },
+        visitedPlace2: {
+            _uuid: 'visitedPlace2',
+            _sequence: 1,
+            activity: 'work',
+        }
+    }
+
+    test('object: test without visited places', () => {
+        expect(Helpers.getVisitedPlaces(person)).toEqual({});
+    });
+
+    test('object: empty visited places', () => {
+        const attributes = _cloneDeep(person);
+        attributes.visitedPlaces = { };
+        expect(Helpers.getVisitedPlaces(attributes)).toEqual({});
+    });
+
+    test('object: with visited places, ordered', () => {
+        const attributes = _cloneDeep(person);
+        attributes.visitedPlaces = visitedPlaces;
+        expect(Helpers.getVisitedPlaces(attributes)).toEqual(visitedPlaces);
+    });
+
+    test('array: test without visited places', () => {
+        expect(Helpers.getVisitedPlacesArray(person)).toEqual([]);
+    });
+
+    test('array: empty visited places', () => {
+        const attributes = _cloneDeep(person);
+        attributes.visitedPlaces = { };
+        expect(Helpers.getVisitedPlacesArray(attributes)).toEqual([]);
+    });
+
+    test('array: with visited places, ordered', () => {
+        const attributes = _cloneDeep(person);
+        attributes.visitedPlaces = visitedPlaces;
+        expect(Helpers.getVisitedPlacesArray(attributes)).toEqual([visitedPlaces.visitedPlace2, visitedPlaces.visitedPlace1]);
+    });
+
 });
