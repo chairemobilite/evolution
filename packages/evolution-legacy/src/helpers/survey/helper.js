@@ -626,11 +626,20 @@ export default {
       const nextVisitedPlacePath = `household.persons.${person._uuid}.visitedPlaces.${nextVisitedPlace._uuid}`;
       visitedPlacePaths.push(nextVisitedPlacePath);
     }
+    // Before deleting, replace the location shortcuts by original data, the will be updated after group removal
+    const updatedValues = visitedPlacePaths
+        .map(placePath => surveyHelperNew.replaceVisitedPlaceShortcuts(interview, placePath))
+        .filter(updatedPaths => updatedPaths !== undefined)
+        .reduce((previous, current) => ({
+            updatedValuesByPath: Object.assign(previous.updatedValuesByPath, current.updatedValuesByPath),
+            unsetPaths: previous.unsetPaths.push(...current.unsetPaths)
+        }), { updatedValuesByPath: {}, unsetPaths: [] });
+    
     startRemoveGroupedObjects(visitedPlacePaths, (function(interview) {
       const person             = getPerson(interview);
       const visitedPlaces      = getVisitedPlaces(person);
       const updateValuesByPath = updateVisitedPlaces(person, visitedPlaces, true);
-      startUpdateInterview('visitedPlaces', updateValuesByPath);
+      startUpdateInterview('visitedPlaces', Object.assign(updatedValues.updatedValuesByPath, updateValuesByPath), updatedValues.unsetPaths);
     }).bind(this));
   },
   

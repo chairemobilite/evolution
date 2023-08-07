@@ -505,3 +505,147 @@ describe('getVisitedPlaces', () => {
     });
 
 });
+
+describe('replaceVisitedPlaceShortcuts', () => {
+
+    const shortcutInterview = _cloneDeep(interviewAttributes);
+    shortcutInterview.responses.household = {
+        size: 3,
+        persons: {
+            person1: {
+                _uuid: 'person1',
+                _sequence: 1,
+                visitedPlaces: {
+                    basicPlace: {
+                        _uuid: 'basicPlace',
+                        _sequence: 1,
+                        geography: {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [-73, 45 ]},
+                            properties: { lastAction: 'mapClicked' }
+                        },
+                        name: 'blabla'
+                    },
+                    usedAsShortcut: {
+                        _uuid: 'usedAsShortcut',
+                        _sequence: 2,
+                        geography: {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
+                            properties: { lastAction: 'mapClicked' }
+                        },
+                        name: 'used as a shortcut'
+                    },
+                    shortcutToShortcut: {
+                        _uuid: 'shortcutToShortcut',
+                        _sequence: 3,
+                        geography: {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [-73.2, 45.2 ]},
+                            properties: { lastAction: 'shortcut' }
+                        },
+                        shortcut: 'household.persons.person3.visitedPlaces.shortcutToBasic2'
+                    },
+                }
+            },
+            person2: {
+                _uuid: 'person2',
+                _sequence: 2,
+                visitedPlaces: {
+                    isAShortcut: {
+                        _uuid: 'isAShortcut',
+                        _sequence: 1,
+                        geography: {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
+                            properties: { lastAction: 'shortcut' }
+                        },
+                        shortcut: 'household.persons.person1.visitedPlaces.usedAsShortcut'
+                    },
+                    basicPlace2: {
+                        _uuid: 'basicPlace2',
+                        _sequence: 2,
+                        geography: {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [-73.2, 45.2 ]},
+                            properties: { lastAction: 'markerDragged' }
+                        },
+                        name: 'basic place 2'
+                    },
+                }
+            },
+            person3: {
+                _uuid: 'person3',
+                _sequence: 3,
+                visitedPlaces: {
+                    isAShortcutToo: {
+                        _uuid: 'isAShortcutToo',
+                        _sequence: 1,
+                        geography: {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
+                            properties: { lastAction: 'shortcut' }
+                        },
+                        shortcut: 'household.persons.person1.visitedPlaces.usedAsShortcut'
+                    },
+                    shortcutToBasic2: {
+                        _uuid: 'shortcutToBasic2',
+                        _sequence: 2,
+                        geography: {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [-73.2, 45.2 ]},
+                            properties: { lastAction: 'shortcut' }
+                        },
+                        shortcut: 'household.persons.person2.visitedPlaces.basicPlace2'
+                    },
+                    againAShortcut: {
+                        _uuid: 'againAShortcut',
+                        _sequence: 3,
+                        geography: {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
+                            properties: { lastAction: 'shortcut' }
+                        },
+                        shortcut: 'household.persons.person1.visitedPlaces.usedAsShortcut'
+                    },
+                }
+            }
+        }
+    }
+
+    test('Place is not a shortcut', () => {
+        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person1.visitedPlaces.basicPlace1')).toBeUndefined();
+    });
+
+    test('Place is a shortcut to a shorcut', () => {
+        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person3.visitedPlaces.shortcutToBasic2')).toEqual({
+            updatedValuesByPath: {
+                ['responses.household.persons.person1.visitedPlaces.shortcutToShortcut.shortcut']: ((shortcutInterview.responses.household?.persons['person3'].visitedPlaces || {})['shortcutToBasic2'] as any).shortcut,
+                ['responses.household.persons.person1.visitedPlaces.shortcutToShortcut.geography']: (shortcutInterview.responses.household?.persons['person3'].visitedPlaces || {})['shortcutToBasic2'].geography
+            },
+            unsetPaths: []
+        });
+    });
+
+    test('Place shortcut to one other place', () => {
+        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person2.visitedPlaces.basicPlace2')).toEqual({
+            updatedValuesByPath: {
+                ['responses.household.persons.person3.visitedPlaces.shortcutToBasic2.name']: ((shortcutInterview.responses.household?.persons['person2'].visitedPlaces || {})['basicPlace2'] as any).name,
+                ['responses.household.persons.person3.visitedPlaces.shortcutToBasic2.geography']: (shortcutInterview.responses.household?.persons['person2'].visitedPlaces || {})['basicPlace2'].geography
+            },
+            unsetPaths: ['responses.household.persons.person3.visitedPlaces.shortcutToBasic2.shortcut']
+        });
+    });
+
+    test('Place shortcut to many places from many persons', () => {
+        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person1.visitedPlaces.usedAsShortcut')).toEqual({
+            updatedValuesByPath: {
+                ['responses.household.persons.person2.visitedPlaces.isAShortcut.name']: ((shortcutInterview.responses.household?.persons['person1'].visitedPlaces || {})['usedAsShortcut'] as any).name,
+                ['responses.household.persons.person2.visitedPlaces.isAShortcut.geography']: (shortcutInterview.responses.household?.persons['person1'].visitedPlaces || {})['usedAsShortcut'].geography,
+                ['responses.household.persons.person3.visitedPlaces.isAShortcutToo.shortcut']: 'household.persons.person2.visitedPlaces.isAShortcut',
+                ['responses.household.persons.person3.visitedPlaces.againAShortcut.shortcut']: 'household.persons.person2.visitedPlaces.isAShortcut'
+            },
+            unsetPaths: ['responses.household.persons.person2.visitedPlaces.isAShortcut.shortcut']
+        });
+    });
+})

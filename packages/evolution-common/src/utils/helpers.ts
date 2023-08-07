@@ -473,3 +473,53 @@ export const getVisitedPlacesArray = <CustomPerson>(person: Person<CustomPerson>
     });
 };
 
+/**
+ * Replace visited places that are shortcuts to the given location by the data
+ * of this location. Only the first shortcut will be replaced, the others will
+ * use the first place as new shortcut
+ * @param interview The interview
+ * @param visitedPlacesPath The path of the visited place to replace
+ */
+export const replaceVisitedPlaceShortcuts = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    shortcutTo: string
+): { updatedValuesByPath: { [path: string]: any }; unsetPaths: string[] } | undefined => {
+    const originalVisitedPlace = getResponse(interview, shortcutTo, {}) as VisitedPlace;
+
+    // Find shortcuts to this place
+    const placesWithShortcut = getPersonsArray(interview).flatMap((person) =>
+        getVisitedPlacesArray(person)
+            .filter((visitedPlace) => (visitedPlace as any).shortcut && (visitedPlace as any).shortcut === shortcutTo)
+            .map((visitedPlace) => ({ person, visitedPlace }))
+    );
+
+    if (placesWithShortcut.length === 0) {
+        return undefined;
+    }
+    const updatedValuesByPath: { [path: string]: any } = {};
+    const unsetPaths: string[] = [];
+
+    // Replace first place's name and geography with original and remove shortcut if necessary. The original place can itself be a shortcut
+    const firstVisitedPlace = placesWithShortcut[0];
+    const firstPlacePath = `household.persons.${firstVisitedPlace.person._uuid}.visitedPlaces.${firstVisitedPlace.visitedPlace._uuid}`;
+
+    if ((originalVisitedPlace as any).shortcut) {
+        updatedValuesByPath[`responses.${firstPlacePath}.shortcut`] = (originalVisitedPlace as any).shortcut;
+    } else {
+        unsetPaths.push(`responses.${firstPlacePath}.shortcut`);
+        updatedValuesByPath[`responses.${firstPlacePath}.name`] = (originalVisitedPlace as any).name;
+    }
+    updatedValuesByPath[`responses.${firstPlacePath}.geography`] = (originalVisitedPlace as any).geography;
+
+    // Replace all other places' shortcut with first place
+    placesWithShortcut
+        .slice(1)
+        .forEach(
+            (place) =>
+                (updatedValuesByPath[
+                    `responses.household.persons.${place.person._uuid}.visitedPlaces.${place.visitedPlace._uuid}.shortcut`
+                ] = firstPlacePath)
+        );
+
+    return { updatedValuesByPath, unsetPaths };
+};
