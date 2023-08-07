@@ -1877,6 +1877,11 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/module-importer/-/module-importer-1.0.1.tgz#af5b2691a22b44be847b0ca81641c5fb6ad0172c"
   integrity sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==
 
+"@humanwhocodes/momoa@^2.0.2":
+  version "2.0.4"
+  resolved "https://registry.yarnpkg.com/@humanwhocodes/momoa/-/momoa-2.0.4.tgz#8b9e7a629651d15009c3587d07a222deeb829385"
+  integrity sha512-RE815I4arJFtt+FVeU1Tgp9/Xvecacji8w/V6XtXsWWH/wz/eNkNbhb+ny/+PlVZjV0rxQpRSQKNKE3lcktHEA==
+
 "@humanwhocodes/object-schema@^1.2.1":
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
@@ -2491,6 +2496,15 @@
     "@opentelemetry/resources" "0.23.0"
     "@opentelemetry/semantic-conventions" "0.23.0"
     lodash.merge "^4.6.2"
+
+"@placemarkio/check-geojson@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@placemarkio/check-geojson/-/check-geojson-0.1.7.tgz#5051a560e4121592b6142d8bf6926fed30b631d7"
+  integrity sha512-4slk9RCDcGxNXkdGS3Ku6gl5/oCG9Mi+IXGno8FhuiILAGFPkNhOA6tprJx04t8aTdWZGtHI6eqf/1zz+NmF3g==
+  dependencies:
+    "@humanwhocodes/momoa" "^2.0.2"
+    "@types/geojson" "^7946.0.7"
+    type-fest "^1.2.1"
 
 "@popperjs/core@^2.9.2":
   version "2.11.5"
@@ -11139,6 +11153,14 @@ klona@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/klona/-/klona-1.1.2.tgz#a79e292518a5a5412ec8d097964bff1571a64db0"
   integrity sha512-xf88rTeHiXk+XE2Vhi6yj8Wm3gMZrygGdKjJqN8HkV+PwF/t50/LdAKHoHpPcxFAlmQszTZ1CugrK25S7qDRLA==
+
+knex-postgis@^0.14.3:
+  version "0.14.3"
+  resolved "https://registry.yarnpkg.com/knex-postgis/-/knex-postgis-0.14.3.tgz#bd698fe32083c9fe868bf8e2e01c2aa2ea95574d"
+  integrity sha512-jmIjawmN7c45OJG3gi8CJs7ei+rG8LjUTwrqa+K2ihUW5OoOj88DT0uHbnFP3lLQVIeVJGsXma7PRG3UnGd1uQ==
+  dependencies:
+    "@placemarkio/check-geojson" "0.1.7"
+    "@types/geojson" "^7946.0.7"
 
 knex@^2.3.0, knex@^2.4.2:
   version "2.4.2"
