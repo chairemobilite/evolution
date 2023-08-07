@@ -231,25 +231,7 @@ const countPersons = function(interview)
   return Object.keys(personIds).length;
 };
 
-const getVisitedPlaces = function(person, asArray = true)
-{
-  if (person)
-  {
-    const visitedPlaces = person.visitedPlaces || {};
-    if (asArray)
-    {
-      return Object.values(visitedPlaces).sort((visitedPlaceA, visitedPlaceB) => {
-        return visitedPlaceA['_sequence'] - visitedPlaceB['_sequence'];
-      });
-    }
-    else
-    {
-      return visitedPlaces;
-    }
-    
-  }
-  return asArray ? [] : {};
-};
+const getVisitedPlaces = (person, asArray = true) => asArray ? surveyHelperNew.getVisitedPlacesArray(person) : surveyHelperNew.getVisitedPlaces(person);
 
 const getTrips = function(person, asArray = true)
 {

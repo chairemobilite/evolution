@@ -10,7 +10,13 @@ import { i18n, TFunction } from 'i18next';
 
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { Household, InterviewResponses, Person, UserInterviewAttributes } from '../services/interviews/interview';
+import {
+    Household,
+    InterviewResponses,
+    Person,
+    UserInterviewAttributes,
+    VisitedPlace
+} from '../services/interviews/interview';
 
 export type ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
@@ -451,6 +457,19 @@ export const getPersonsArray = <CustomSurvey, CustomHousehold, CustomHome, Custo
     const persons = getPersons(interview);
     return Object.values(persons).sort((personA, personB) => {
         return personA._sequence - personB._sequence;
+    });
+};
+
+export const getVisitedPlaces = <CustomPerson>(
+    person: Person<CustomPerson>
+): { [visitedPlaceId: string]: VisitedPlace } => {
+    return person.visitedPlaces || {};
+};
+
+export const getVisitedPlacesArray = <CustomPerson>(person: Person<CustomPerson>) => {
+    const visitedPlaces = getVisitedPlaces(person);
+    return Object.values(visitedPlaces).sort((visitedPlaceA, visitedPlaceB) => {
+        return visitedPlaceA._sequence - visitedPlaceB._sequence;
     });
 };
 

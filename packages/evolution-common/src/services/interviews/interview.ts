@@ -51,6 +51,9 @@ export type InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, Cust
 export type BasePerson = {
     _uuid: string;
     _sequence: number;
+    visitedPlaces?: {
+        [placeUuid: string]: VisitedPlace;
+    };
 };
 
 export type Person<CustomPerson> = BasePerson & CustomPerson;
@@ -63,6 +66,18 @@ export type Household<CustomHousehold, CustomPerson> = {
         [personId: string]: Person<CustomPerson>;
     };
 } & CustomHousehold;
+
+type SurveyPointProperties = {
+    lastAction: 'findPlace' | 'shortcut' | 'mapClicked' | 'markerDragged';
+};
+
+export type VisitedPlace = {
+    _isNew?: boolean;
+    _sequence: number;
+    _uuid: string;
+    activity?: string;
+    geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
+} & ({ name?: string } | { shortcut?: string });
 
 type SectionStatus = {
     _isCompleted?: boolean;
