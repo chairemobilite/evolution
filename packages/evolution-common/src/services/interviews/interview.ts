@@ -50,6 +50,7 @@ export type InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, Cust
 
 export type BasePerson = {
     _uuid: string;
+    _sequence: number;
 };
 
 export type Person<CustomPerson> = BasePerson & CustomPerson;

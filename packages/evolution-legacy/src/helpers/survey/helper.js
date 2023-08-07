@@ -223,20 +223,7 @@ const getSegments = function(trip, asArray = true) {
   return asArray ? [] : {};
 };
 
-const getPersons = function(interview, asArray = false)
-{
-  const persons = surveyHelperNew.getResponse(interview, `household.persons`, {});
-  if (asArray)
-  {
-    return Object.values(persons).sort((personA, personB) => {
-      return personA['_sequence'] - personB['_sequence'];
-    });
-  }
-  else
-  {
-    return persons;
-  }
-};
+const getPersons = (interview, asArray = false) => asArray ? surveyHelperNew.getPersonsArray(interview) : surveyHelperNew.getPersons(interview);
 
 const countPersons = function(interview)
 {
