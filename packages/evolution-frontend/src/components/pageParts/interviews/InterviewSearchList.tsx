@@ -10,46 +10,68 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 import Interview from './InterviewSearchResult';
 import InterviewsCreateNew from './InterviewsCreateNew';
 import { InterviewContext } from '../../../contexts/InterviewContext';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
-const InterviewSearchList: React.FunctionComponent<WithTranslation> = (props: WithTranslation) => {
+type InterviewSearchListProps = {
+    autoCreateIfNoData: boolean;
+};
+
+const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & WithTranslation> = (
+    props: InterviewSearchListProps & WithTranslation
+) => {
     const [data, setData] = React.useState<{ [key: string]: any }[]>([]);
     const [loading, setLoading] = React.useState(false);
     const { state, dispatch } = React.useContext(InterviewContext);
     const fetchIdRef = React.useRef(0);
 
     // Function to fetch data from the server, with paging and filtering
-    const fetchData = React.useCallback(async (accessCode: string) => {
-        // Give this fetch an ID
-        const fetchId = ++fetchIdRef.current;
+    const fetchData = React.useCallback(
+        async (accessCode: string) => {
+            // Give this fetch an ID
+            const fetchId = ++fetchIdRef.current;
 
-        // Set the loading state
-        setLoading(true);
+            // Set the loading state
+            setLoading(true);
 
-        // Make a query string from the filters
+            // Make a query string from the filters
 
-        try {
-            const response = await fetch(`/api/interviews/interviewByCode?accessCode=${accessCode}`);
-            if (fetchId !== fetchIdRef.current) {
-                // There was another query since, ignore
-                return;
-            }
-            if (response.status === 200) {
-                const jsonData = await response.json();
-                if (jsonData.interviews) {
-                    setData(jsonData.interviews);
+            try {
+                const response = await fetch(`/api/interviews/interviewByCode?accessCode=${accessCode}`);
+                if (fetchId !== fetchIdRef.current) {
+                    // There was another query since, ignore
+                    return;
                 }
-            } else {
-                console.error('Invalid response code from server: ', response.status);
+                if (response.status === 200) {
+                    const jsonData = await response.json();
+                    if (jsonData.interviews) {
+                        setData(jsonData.interviews);
+                        if (
+                            !_isBlank(accessCode) &&
+                            jsonData.interviews.length === 0 &&
+                            props.autoCreateIfNoData &&
+                            state.status !== 'creating'
+                        ) {
+                            // automatically create new interview with this access code
+                            dispatch({
+                                type: 'createNew',
+                                username: `telephone_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`
+                            });
+                        }
+                    }
+                } else {
+                    console.error('Invalid response code from server: ', response.status);
+                }
+            } catch (error) {
+                console.error(`Error fetching user data from server: ${error}`);
+                setData([]);
+            } finally {
+                if (fetchId === fetchIdRef.current) {
+                    setLoading(false);
+                }
             }
-        } catch (error) {
-            console.error(`Error fetching user data from server: ${error}`);
-            setData([]);
-        } finally {
-            if (fetchId === fetchIdRef.current) {
-                setLoading(false);
-            }
-        }
-    }, []);
+        },
+        [state.status]
+    );
 
     React.useEffect(() => {
         fetchData(state.responses.accessCode);
