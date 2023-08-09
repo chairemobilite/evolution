@@ -43,7 +43,8 @@ class ValueReplacer():
     @staticmethod
     def replace(string):
         # \n  by br tags
-        replacedStr = string.replace("\n", "<br />")
+        replacedStr = string.replace("\r\n", "<br />")
+        replacedStr = replacedStr.replace("\n", "<br />")
         # replaced each bold, oblique, green and red notations by proper tags
         replacedStr = ValueReplacer.replaceStartEnd(replacedStr, ValueReplacer.boldNotation, ValueReplacer.startBoldHtml, ValueReplacer.endBoldHtml)
         replacedStr = ValueReplacer.replaceStartEnd(replacedStr, ValueReplacer.obliqueNotation, ValueReplacer.startOblique, ValueReplacer.endOblique)
@@ -81,7 +82,7 @@ class TranslationLangNs():
     def save(self):
         if self.modified:
             
-            with open(self.file, 'w') as file:
+            with open(self.file, 'w', newline="\n") as file:
                 yaml.dump(self.data, file)
             print(f"Saved translation file {self.file}")
 
