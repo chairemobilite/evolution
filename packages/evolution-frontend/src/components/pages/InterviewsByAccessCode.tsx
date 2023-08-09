@@ -12,6 +12,7 @@ import Loader from 'react-spinners/HashLoader';
 import { InterviewContext, interviewReducer, initialState } from '../../contexts/InterviewContext';
 import InputString from 'chaire-lib-frontend/lib/components/input/InputString';
 import { Link, RouteComponentProps } from 'react-router-dom';
+import { _booleish } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 interface MatchParams {
     accessCode: string;
@@ -36,7 +37,9 @@ const InterviewsComponent = Loadable({
 const InterviewsByAccessCode: React.FunctionComponent<InterviewsByCodePageProps> = (
     props: InterviewsByCodePageProps
 ) => {
+    const urlSearch = new URLSearchParams(props.location.search);
     const [currentCode, setCurrentCode] = React.useState(props.match.params.accessCode);
+    const [createNewIfNoData] = React.useState(_booleish(urlSearch.get('autoCreate')) === true);
     const { state, dispatch } = React.useContext(InterviewContext);
     React.useEffect(() => {
         if (props.match.params.accessCode !== state.responses.accessCode) {
@@ -58,7 +61,7 @@ const InterviewsByAccessCode: React.FunctionComponent<InterviewsByCodePageProps>
                     </button>
                 </Link>
             </div>
-            <InterviewsComponent />
+            <InterviewsComponent autoCreateIfNoData={createNewIfNoData} />
         </div>
     );
 };
