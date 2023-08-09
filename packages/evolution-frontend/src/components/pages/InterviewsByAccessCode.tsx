@@ -61,7 +61,7 @@ const InterviewsByAccessCode: React.FunctionComponent<InterviewsByCodePageProps>
                     </button>
                 </Link>
             </div>
-            <InterviewsComponent autoCreateIfNoData={createNewIfNoData} />
+            <InterviewsComponent autoCreateIfNoData={createNewIfNoData} queryData={urlSearch} />
         </div>
     );
 };

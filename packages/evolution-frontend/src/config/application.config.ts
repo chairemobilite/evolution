@@ -18,6 +18,11 @@ export type EvolutionApplicationConfiguration<CustomSurvey, CustomHousehold, Cus
      *
      * TODO Can these be typed? It's hard to do anything about it... Maybe they should not be in the application config but completely handled on the project side */
     projectHelpers: { [helperName: string]: () => any };
+    /**
+     * Fields that, if present in the original query string to the survey, will
+     * be pre-filled in the responses
+     */
+    allowedUrlFields: string[];
 
     // TODO The fields below are only for the administrative side of the application. The don't need to exist/be loaded for the main survey app. Add a special admin config when the admin app is separate.
     /** Get a custom admin interview stat widget, or undefined to use the default one */
@@ -42,6 +47,7 @@ setApplicationConfiguration({
     section: {},
     widgets: {},
     projectHelpers: {},
+    allowedUrlFields: [],
     getCustomInterviewStat: () => undefined,
     getCustomInterviewMap: () => undefined,
     getAdminValidations: () => undefined,

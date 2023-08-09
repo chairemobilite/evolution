@@ -11,6 +11,7 @@ import parsers from './parsers'
 setApplicationConfiguration<SurveyAppConfig>({
     sections: surveySections,
     widgets: widgetsConfig,
+    allowedUrlFields: ['source', 'household.carNumber'],
     // TODO See if the demo is wrong or the admin validation types
     getAdminValidations: () => validations as any,
     projectHelpers,
