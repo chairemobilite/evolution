@@ -10,6 +10,7 @@ setApplicationConfiguration<SurveyAppConfig>({
     sections: surveySections,
     widgets: widgetsConfig,
     projectHelpers,
+    allowedUrlFields: ['source', 'household.carNumber']
 });
 
 runClientApp();

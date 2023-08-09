@@ -217,7 +217,7 @@ export const startSetInterview = (activeSection = null, surveyUuid = undefined, 
             };
             if (preFilledResponses) {
                 Object.keys(preFilledResponses).forEach((key) => {
-                    valuesByPath[`responses._${key}`] = preFilledResponses[key];
+                    valuesByPath[`responses.${key}`] = preFilledResponses[key];
                 })
             }
             // update browser data if different:
@@ -280,7 +280,7 @@ export const startCreateInterview = (preFilledResponses = undefined) => {
             };
             if (preFilledResponses) {
                 Object.keys(preFilledResponses).forEach((key) => {
-                    responses[`responses._${key}`] = preFilledResponses[key];
+                    responses[`responses.${key}`] = preFilledResponses[key];
                 })
             }
             dispatch(startUpdateInterview(activeSection, responses, null, body.interview));

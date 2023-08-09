@@ -14,6 +14,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 type InterviewSearchListProps = {
     autoCreateIfNoData: boolean;
+    queryData: URLSearchParams;
 };
 
 const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & WithTranslation> = (
@@ -54,7 +55,8 @@ const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & Wi
                             // automatically create new interview with this access code
                             dispatch({
                                 type: 'createNew',
-                                username: `telephone_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`
+                                username: `telephone_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`,
+                                queryData: props.queryData
                             });
                         }
                     }
@@ -93,7 +95,8 @@ const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & Wi
                         e.preventDefault();
                         dispatch({
                             type: 'createNew',
-                            username: `telephone_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`
+                            username: `telephone_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`,
+                            queryData: props.queryData
                         });
                     }}
                 >
