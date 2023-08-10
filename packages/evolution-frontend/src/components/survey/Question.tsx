@@ -329,6 +329,7 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
         };
         const content = [(
             <div
+                key="content"
                 style={{ position: 'relative' }}
                 className={`apptr__form-container${twoColumns ? ' two-columns' : ''}${
                     widgetStatus.isDisabled || disabled ? ' disabled' : ''
@@ -399,6 +400,7 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
             case "next":
                 content.push(
                 <div
+                    key="postJoin"
                     style={{marginTop: '-40px', marginBottom: '-40px', paddingTop: '20px', paddingBottom: '20px'}}
                     className={`apptr__form-container`}
                 ><label style={{height: '20px'}}></label></div>);
@@ -406,6 +408,7 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
             case "previous":
                 content.unshift(
                     <div
+                        Key="preJoin"
                         style={{marginTop: '-40px', marginBottom: '-40px', paddingTop: '20px', paddingBottom: '20px'}}
                         className={`apptr__form-container`}
                     ><label style={{height: '20px'}}></label></div>);
