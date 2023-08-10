@@ -167,15 +167,14 @@ export class Section extends React.Component {
         widgetStatus.errorMessage = widgetStatus.errorMessage || serverErrorMessage;
       }
 
-      const join = undefined;
+      let join = undefined;
       if (widgetConfig.joinWith) {
-        const previous = this.props.widgets[i - 1] ? this.props.widgets[i - 1] : undefined;
+        const previous = this.props.widgets[i - 1];
         const previousStatus = this.props.widgets[i - 1] ? _get(this.props.interview, `widgets.${this.props.widgets[i - 1]}`, {}) : undefined;
-        const next = this.props.widgets[i + 1] ? this.props.widgets[i + 1] : undefined;
+        const next = this.props.widgets[i + 1];
         const nextStatus = this.props.widgets[i + 1] ? _get(this.props.interview, `widgets.${this.props.widgets[i + 1]}`, {}) : undefined;
 
-        join = widgetConfig.joinWith === previous && previousStatus.isVisible ? 'previous' : undefined;
-        join = widgetConfig.joinWith === next && nextStatus.isVisible? 'next' : undefined;
+        widgetConfig.joinWith === previous && previousStatus.isVisible ? 'previous' : widgetConfig.joinWith === next && nextStatus.isVisible? 'next' : undefined;
       }
 
       const defaultProps = {
