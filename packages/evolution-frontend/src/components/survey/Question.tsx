@@ -408,7 +408,7 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
             case "previous":
                 content.unshift(
                     <div
-                        Key="preJoin"
+                        key="preJoin"
                         style={{marginTop: '-40px', marginBottom: '-40px', paddingTop: '20px', paddingBottom: '20px'}}
                         className={`apptr__form-container`}
                     ><label style={{height: '20px'}}></label></div>);
