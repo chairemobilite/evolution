@@ -48,6 +48,7 @@
   "nextInterview": "View next survey",
   "validatorComment": "Validator comment",
   "refreshValidationList": "Refresh list",
+  "unauthorized": "You are not authorized to access these data",
   "user": {
     "Username": "Username",
     "Email": "Email",
@@ -85,5 +86,9 @@
   },
   "auditErrorFilter": {
     "title": "Errors"
+  },
+  "interviewer": {
+    "refreshInterviewerCache": "Refresh interviewer cache",
+    "error": "Error while refreshing the cache"
   }
 }
