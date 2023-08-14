@@ -48,6 +48,7 @@
   "nextInterview": "Voir prochaine entrevue",
   "validatorComment": "Commentaire de validation",
   "refreshValidationList": "Rafraîchir la liste",
+  "unauthorized": "Vous n'êtes pas autorisé à accéder à ces données",
   "user": {
     "Username": "Nom d'utilisateur",
     "Email": "Courriel",
@@ -85,5 +86,9 @@
   },
   "auditErrorFilter": {
     "title": "Erreurs"
+  },
+  "interviewer": {
+    "refreshInterviewerCache": "Rafraîchir la cache interviewer",
+    "error": "Une erreur s'est produite en rafraîchissant la cache"
   }
 }
