@@ -174,7 +174,7 @@ export class Section extends React.Component {
         const next = this.props.widgets[i + 1];
         const nextStatus = this.props.widgets[i + 1] ? _get(this.props.interview, `widgets.${this.props.widgets[i + 1]}`, {}) : undefined;
 
-        widgetConfig.joinWith === previous && previousStatus.isVisible ? 'previous' : widgetConfig.joinWith === next && nextStatus.isVisible? 'next' : undefined;
+        join = widgetConfig.joinWith === previous && previousStatus.isVisible ? 'previous' : widgetConfig.joinWith === next && nextStatus.isVisible? 'next' : undefined;
       }
 
       const defaultProps = {
