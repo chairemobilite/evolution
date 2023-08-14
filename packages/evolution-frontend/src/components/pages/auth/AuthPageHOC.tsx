@@ -155,7 +155,7 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
 
 
                     </div>
-                    <div>
+                    <div className='apptr__auth-box'>
                         {currentAuthMethod !== 'passwordless' && authMethods.includes('passwordless') && (
                             <div>
                                 <a className="register-link _oblique" href="#" onClick={selectAuthMethod('passwordless')}>
@@ -170,11 +170,11 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
                                 </a>
                             </div>
                         )}
-                        <div className={'apptr__form-label-container apptr_form-why-login-info'}>
-                            <div className="apptr__form__label-standalone no-question _oblique">
-                                <p>{props.t(['survey:auth:WhyLoginInfo', 'auth:WhyLoginInfo'])}</p>
-                            </div>
-                        </div>
+                    </div>
+                </div>
+                <div className={'apptr__form-label-container apptr_form-why-login-info'}>
+                    <div className="apptr__form__label-standalone no-question _oblique">
+                        <p>{props.t(['survey:auth:WhyLoginInfo', 'auth:WhyLoginInfo'])}</p>
                     </div>
                 </div>
             </div>
