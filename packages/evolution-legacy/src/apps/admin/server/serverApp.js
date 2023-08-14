@@ -96,7 +96,7 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
     // TODO Let the survey project's server.js file do this
     try {
         if (typeof serverSetupFct === 'function') {
-            serverSetupFct();
+            serverSetupFct(app);
         }
     } catch(error) {
         console.log('Error running project specific server setup function: ', error);
