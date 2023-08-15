@@ -56,7 +56,7 @@ export class Section extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!this.props.allWidgetsValid && this.props.submitted)
+    if (!this.props.allWidgetsValid && this.props.submitted && this.props.loadingState === 0)
     {
       const invalidInputs = document.querySelectorAll('.question-invalid input');
       if (invalidInputs.length > 0) {
