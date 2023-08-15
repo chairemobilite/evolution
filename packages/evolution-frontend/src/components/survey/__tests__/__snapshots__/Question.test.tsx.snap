@@ -1566,140 +1566,50 @@ exports[`With help popup and link Test widget with help 1`] = `
 </div>
 `;
 
-exports[`With joining questions Joining previous 1`] = `
-Array [
-  <div
-    className="apptr__form-container"
-    style={
-      Object {
-        "marginBottom": "-40px",
-        "marginTop": "-40px",
-        "paddingBottom": "20px",
-        "paddingTop": "20px",
-      }
-    }
-  >
-    <label
-      style={
-        Object {
-          "height": "20px",
-        }
-      }
-    />
-  </div>,
-  <div
-    className="apptr__form-container two-columns question-type-string question-filled question-valid"
-    onClick={[Function]}
-    style={
-      Object {
-        "position": "relative",
-      }
-    }
-  >
-    <div
-      className="apptr__form-label-container two-columns"
-    >
-      <label
-        htmlFor="survey-question__home.region"
-      >
-        <div
-          dangerouslySetInnerHTML={
-            Object {
-              "__html": "English text",
-            }
-          }
-        />
-      </label>
-    </div>
-    <div
-      className="apptr__form-input-container two-columns"
-    >
-      <input
-        autoComplete="none"
-        className="apptr__form-input apptr__input-string input-large"
-        id="survey-question__home.region"
-        maxLength={255}
-        name="survey-question__home.region"
-        onBlur={[Function]}
-        onChange={[Function]}
-        style={
-          Object {
-            "textTransform": "none",
-          }
-        }
-        type="text"
-        value=""
-      />
-    </div>
-  </div>,
-]
-`;
-
 exports[`With joining questions Joining next 1`] = `
-Array [
-  <div
-    className="apptr__form-container two-columns question-type-string question-filled question-valid"
-    onClick={[Function]}
-    style={
-      Object {
-        "position": "relative",
-      }
+<div
+  className="apptr__form-container apptr__form-join-next two-columns question-type-string question-filled question-valid"
+  onClick={[Function]}
+  style={
+    Object {
+      "position": "relative",
     }
-  >
-    <div
-      className="apptr__form-label-container two-columns"
-    >
-      <label
-        htmlFor="survey-question__home.region"
-      >
-        <div
-          dangerouslySetInnerHTML={
-            Object {
-              "__html": "English text",
-            }
-          }
-        />
-      </label>
-    </div>
-    <div
-      className="apptr__form-input-container two-columns"
-    >
-      <input
-        autoComplete="none"
-        className="apptr__form-input apptr__input-string input-large"
-        id="survey-question__home.region"
-        maxLength={255}
-        name="survey-question__home.region"
-        onBlur={[Function]}
-        onChange={[Function]}
-        style={
-          Object {
-            "textTransform": "none",
-          }
-        }
-        type="text"
-        value=""
-      />
-    </div>
-  </div>,
+  }
+>
   <div
-    className="apptr__form-container"
-    style={
-      Object {
-        "marginBottom": "-40px",
-        "marginTop": "-40px",
-        "paddingBottom": "20px",
-        "paddingTop": "20px",
-      }
-    }
+    className="apptr__form-label-container two-columns"
   >
     <label
+      htmlFor="survey-question__home.region"
+    >
+      <div
+        dangerouslySetInnerHTML={
+          Object {
+            "__html": "English text",
+          }
+        }
+      />
+    </label>
+  </div>
+  <div
+    className="apptr__form-input-container two-columns"
+  >
+    <input
+      autoComplete="none"
+      className="apptr__form-input apptr__input-string input-large"
+      id="survey-question__home.region"
+      maxLength={255}
+      name="survey-question__home.region"
+      onBlur={[Function]}
+      onChange={[Function]}
       style={
         Object {
-          "height": "20px",
+          "textTransform": "none",
         }
       }
+      type="text"
+      value=""
     />
-  </div>,
-]
+  </div>
+</div>
 `;

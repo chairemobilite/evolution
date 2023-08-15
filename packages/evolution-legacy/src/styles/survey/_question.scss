@@ -46,6 +46,29 @@ label strong, .apptr__form__label-standalone strong {
 
 }
 
+.apptr__form-join-next {
+    border-radius: 1.7rem 1.7rem 0 0 !important;
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.apptr__form-join-next:not(.question-invalid) {
+    border-bottom-width: 0 !important;
+}
+
+.apptr__form-join-next + .apptr__form-container {
+    padding-top: 0 !important;
+    border-radius: 0 0 1.7rem 1.7rem !important;
+}
+
+.apptr__form-join-next + .apptr__form-container:not(.question-invalid) {
+    border-top-width: 0 !important;
+}
+
+.apptr__form-join-next + .apptr__form-join-next {
+    border-radius: 0 0 0 0 !important;
+}
+
 .validation .apptr__form-input-container {
   
   input[type=text], input[type=password], input[type=email] {
