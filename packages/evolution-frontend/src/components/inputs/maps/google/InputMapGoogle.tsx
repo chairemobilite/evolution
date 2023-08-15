@@ -15,20 +15,13 @@ import InputLoading from '../../InputLoading';
 import { FeatureGeocodedProperties, MarkerData, InfoWindow } from '../InputMapTypes';
 import { geojson, toLatLng } from './GoogleMapUtils';
 
-const containerStyle = {
-    boxSizing: 'border-box' as const,
-    position: 'relative' as const,
-    width: '100%',
-    height: '550px',
-    border: '1px solid rgba(0,0,0,0.2)'
-};
-
 export interface InputGoogleMapPointProps {
     defaultCenter: { lat: number; lon: number };
     maxGeocodingResultsBounds?: [{ lat: number; lng: number }, { lat: number; lng: number }];
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
     defaultZoom?: number;
     maxZoom?: number;
+    height?: string; // the height of the map container in css units: example: 28rem or 550px
     markers: MarkerData[];
     onValueChange: (feature: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties> | undefined) => void;
     onMapReady?: (bbox?: [number, number, number, number]) => void;
@@ -195,7 +188,13 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props
 
     return isLoaded ? (
         <GoogleMap
-            mapContainerStyle={containerStyle}
+            mapContainerStyle={{
+                boxSizing: 'border-box' as const,
+                position: 'relative' as const,
+                width: '100%',
+                height: props.height || '40rem',
+                border: '1px solid rgba(0,0,0,0.2)'
+            }}
             center={center}
             zoom={props.defaultZoom || 10}
             onLoad={onLoad}
