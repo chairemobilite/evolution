@@ -429,7 +429,7 @@ export class InputMapFindPlacePhotonOsm extends React.Component {
                             boxSizing: 'border-box',
                             position: 'relative',
                             width: '100%',
-                            height: '400px',
+                            height: this.props.widgetConfig.height || '40rem',
                             border: '1px solid rgba(0,0,0,0.2'
                         }}
                         onClick={this.onMapClick}

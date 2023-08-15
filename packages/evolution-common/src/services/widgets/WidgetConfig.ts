@@ -304,6 +304,7 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
         CustomHome,
         CustomPerson
     >;
+    height?: string; // the height of the map container in css units: example: 28rem or 550px
     coordinatesPrecision?: number; // number of decimals to keep for latitute longitude coordinates.
     invalidGeocodingResultTypes?: string[];
     showPhoto?: boolean;

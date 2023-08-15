@@ -488,6 +488,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                         maxGeocodingResultsBounds={this.getMaxGeocodingResultsBounds()}
                         value={this.props.value}
                         onValueChange={this.onValueChange}
+                        height={this.props.widgetConfig.height}
                         defaultZoom={Math.min(this.props.widgetConfig.defaultZoom || 16, maxZoom)}
                         maxZoom={maxZoom}
                         markers={markers}
