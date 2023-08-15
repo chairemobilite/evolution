@@ -397,6 +397,7 @@ export const homeCity = {
   path: "home.city",
   twoColumns: true,
   datatype: "string",
+  joinWith: "homeRegion",
   label: {
     fr: "Ville",
     en: "City"
@@ -420,6 +421,7 @@ export const homeRegion = {
   path: "home.region",
   datatype: "string",
   twoColumns: true,
+  joinWith: "homeCountry",
   defaultValue: "Québec",
   label: {
     fr: "Province",

@@ -215,4 +215,53 @@ describe('With error message', () => {
 
 });
 
+describe('With joining questions', () => {
+    const widgetConfig = {
+        ...commonWidgetConfig,
+        inputType: 'string',
+    };
+    const widgetStatus = _cloneDeep(defaultWidgetStatus);
+
+    test('Joining previous', () => {
+        widgetConfig
+        const wrapper = TestRenderer.create(
+            <Question
+                path='home.region'
+                section='test'
+                loadingState={0}
+                widgetConfig={widgetConfig as any}
+                interview={interviewAttributes}
+                user={userAttributes}
+                widgetStatus={widgetStatus}
+                startUpdateInterview={() => { /* Nothing to do */}}
+                join="previous"
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('Joining next', () => {
+        const widgetConfig = {
+            ...commonWidgetConfig,
+            inputType: 'string',
+        };
+        const widgetStatus = _cloneDeep(defaultWidgetStatus);
+
+        const wrapper = TestRenderer.create(
+            <Question
+                path='home.region'
+                section='test'
+                loadingState={0}
+                widgetConfig={widgetConfig as any}
+                interview={interviewAttributes}
+                user={userAttributes}
+                widgetStatus={widgetStatus}
+                startUpdateInterview={() => { /* Nothing to do */}}
+                join="next"
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+});
+
 // TODO: Test with modal and other Question props
