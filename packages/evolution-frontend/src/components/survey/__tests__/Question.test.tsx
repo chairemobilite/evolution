@@ -9,9 +9,9 @@ import React from 'react';
 import TestRenderer from 'react-test-renderer';
 import each from 'jest-each';
 import { mount } from 'enzyme';
-import { render } from '@testing-library/react'
+import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
-expect.extend(toHaveNoViolations)
+expect.extend(toHaveNoViolations);
 
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 import Question from '../Question';
@@ -44,7 +44,7 @@ const userAttributes = {
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 const commonWidgetConfig = {
     type: 'question' as const,
@@ -52,8 +52,8 @@ const commonWidgetConfig = {
     path: 'home.region',
     containsHtml: true,
     label: {
-        fr: `Texte en français`,
-        en: `English text`
+        fr: 'Texte en français',
+        en: 'English text'
     }
 };
 
@@ -74,12 +74,12 @@ const defaultWidgetStatus: WidgetStatus<unknown, unknown, unknown, unknown> = {
 };
 
 each([
-    ['InputSelect', { ...commonWidgetConfig, inputType: 'select', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
-    ['InputRadio', { ...commonWidgetConfig, inputType: 'radio', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
-    ['InputRadioNumber', { ...commonWidgetConfig, valueRange: {min: 1, max: 3}, inputType: 'radioNumber', overMaxAllowed: true}, 4],
-    ['InputCheckbox', { ...commonWidgetConfig, inputType: 'checkbox', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, ['c2']],
-    ['InputMultiselect', { ...commonWidgetConfig, inputType: 'multiselect', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
-    ['InputButton', { ...commonWidgetConfig, inputType: 'button', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }]}, 'c2'],
+    ['InputSelect', { ...commonWidgetConfig, inputType: 'select', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
+    ['InputRadio', { ...commonWidgetConfig, inputType: 'radio', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
+    ['InputRadioNumber', { ...commonWidgetConfig, valueRange: { min: 1, max: 3 }, inputType: 'radioNumber', overMaxAllowed: true }, 4],
+    ['InputCheckbox', { ...commonWidgetConfig, inputType: 'checkbox', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, ['c2']],
+    ['InputMultiselect', { ...commonWidgetConfig, inputType: 'multiselect', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
+    ['InputButton', { ...commonWidgetConfig, inputType: 'button', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
     ['InputDatePicker', { ...commonWidgetConfig, inputType: 'datePicker', minDate: new Date('2023-05-01'), maxDate: new Date('2023-06-01') }, new Date('2023-05-24 10:00:00 GMT-0400')],
     ['InputRange', { ...commonWidgetConfig, inputType: 'slider', minValue: 3, maxValue: 10 }],
     ['InputText', { ...commonWidgetConfig, inputType: 'text' }, 'foo'], // This test needs a value
@@ -91,7 +91,7 @@ each([
     widgetStatus.value = value as any;
 
     test('Render widget', () => {
-        
+
         const wrapper = TestRenderer.create(
             <Question
                 path='home.region'
@@ -108,7 +108,7 @@ each([
     });
 
     test('Widget accessibility', async () => {
-        const { container} = render(
+        const { container } = render(
             <Question
                 path='home.region'
                 section='test'
@@ -139,7 +139,7 @@ describe('With help popup and link', () => {
     test('Test widget with help', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.value = 'test';
-        
+
         const wrapper = TestRenderer.create(
             <Question
                 path='home.region'
@@ -158,7 +158,7 @@ describe('With help popup and link', () => {
     test('Open modal', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.value = 'test';
-    
+
         const questionWidget = mount(<Question
             path='home.region'
             section='test'
@@ -177,13 +177,13 @@ describe('With help popup and link', () => {
         expect(modal.children().length).toEqual(0);
         expect(helpButton.getDOMNode<HTMLButtonElement>().textContent).toEqual(widgetConfig.helpPopup.title);
         helpButton.simulate('click');
-    
+
         // The modal should be opened now
         questionWidget.update();
         expect(widgetConfig.helpPopup.content).toHaveBeenCalledTimes(1);
         const modalAfterClick = questionWidget.find('.react-modal');
         expect(modalAfterClick).toMatchSnapshot();
-        
+
     });
 });
 
@@ -216,29 +216,6 @@ describe('With error message', () => {
 });
 
 describe('With joining questions', () => {
-    const widgetConfig = {
-        ...commonWidgetConfig,
-        inputType: 'string',
-    };
-    const widgetStatus = _cloneDeep(defaultWidgetStatus);
-
-    test('Joining previous', () => {
-        widgetConfig
-        const wrapper = TestRenderer.create(
-            <Question
-                path='home.region'
-                section='test'
-                loadingState={0}
-                widgetConfig={widgetConfig as any}
-                interview={interviewAttributes}
-                user={userAttributes}
-                widgetStatus={widgetStatus}
-                startUpdateInterview={() => { /* Nothing to do */}}
-                join="previous"
-            />
-        );
-        expect(wrapper).toMatchSnapshot();
-    });
 
     test('Joining next', () => {
         const widgetConfig = {
@@ -257,7 +234,7 @@ describe('With joining questions', () => {
                 user={userAttributes}
                 widgetStatus={widgetStatus}
                 startUpdateInterview={() => { /* Nothing to do */}}
-                join="next"
+                join={true}
             />
         );
         expect(wrapper).toMatchSnapshot();

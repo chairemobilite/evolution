@@ -360,6 +360,7 @@ export const homeAddress = {
   inputType: "string",
   path: "home.address",
   datatype: "string",
+  //joinWith: 'homeApartmentNumber',
   twoColumns: true,
   label: {
     fr: "Adresse",
@@ -383,6 +384,7 @@ export const homeApartmentNumber = {
   inputType: "string",
   containsHtml: true,
   path: "home.apartmentNumber",
+  joinWith: 'homeAddress',
   datatype: "string",
   twoColumns: true,
   label: {
@@ -436,6 +438,7 @@ export const homeCountry = {
   datatype: "string",
   twoColumns: true,
   defaultValue: "Canada",
+  joinWith: 'homePostalCode',
   label: {
     fr: "Pays",
     en: "Country"
