@@ -24,9 +24,9 @@
         "missingUsernameOrEmail": "Please provide your email address",
         "authenticationFailed": "Your email address or password was not found or is invalid",
         "pleaseChooseAUsernameOrEnterYourEmail": "To participate, please provide your email address",
-        "pleaseChooseAUsernameOrEnterYourEmailAndAPassword": "To register, please enter your email address, choose a password and confirm it, or use your Google or Facebook account.",
+        "pleaseChooseAUsernameOrEnterYourEmailAndAPassword": "To register, please enter your email address, choose a password and confirm it, or use a sign-in partner.",
         "usernameOrEmailAlreadyExists": "Your email address is already registered. PLease use your existing account.",
-        "WhyLoginInfo": "Because of the survey length, we propose that you connect with an email, or Google or Facebook account, so that you can come back later to finish the survey. You may choose to continue without an account, but you will not be able to finish the survey if your session expires.",
+        "WhyLoginInfo": "Because of the survey length, we propose that you connect with an email, or with a sign-in partner, so that you can come back later to finish the survey. You may choose to continue without an account, but you will not be able to finish the survey if your session expires.",
         "PasswordlessHeader": "",
         "UseAnonymousLogin": "Continue without connecting"
     },

@@ -85,7 +85,7 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
             <div className="survey" style={surveyContainerStyle}>
                 <div style={{ width: '100%', margin: '0 auto', maxWidth: '90em' }}>
                     <div className="apptr__separator"></div>
-                    <p className='_center _large' style={{ marginBottom: '1rem' }}>{props.t(['survey:auth:AuthMainIntroduction', 'auth:AuthMainIntroduction'])}</p>
+                    <p className='_center _large' style={{ marginBottom: '1rem', paddingLeft: '2rem', paddingRight: '2rem' }}>{props.t(['survey:auth:AuthMainIntroduction', 'auth:AuthMainIntroduction'])}</p>
                     <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'stretch', alignContent: 'flex-start' }}>
 
 
@@ -95,6 +95,21 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
                                 authMethod={currentAuthMethod}
                                 isAuthenticated={isAuthenticated}
                             />
+                            <div className="apptr__separator"></div>
+                            {currentAuthMethod !== 'passwordless' && authMethods.includes('passwordless') && (
+                                <div>
+                                    <a className="register-link _oblique" href="#" onClick={selectAuthMethod('passwordless')}>
+                                        {props.t(['survey:auth:UsePasswordLessAuthMethod', 'auth:UsePasswordLessAuthMethod'])}
+                                    </a>
+                                </div>
+                            )}
+                            {currentAuthMethod !== 'localLogin' && authMethods.includes('localLogin') && (
+                                <div>
+                                    <a className="register-link _oblique" href="#" onClick={selectAuthMethod('localLogin')}>
+                                        {props.t(['survey:auth:UseLocalLoginAuthMethod', 'auth:UseLocalLoginAuthMethod'])}
+                                    </a>
+                                </div>
+                            )}
                         </div>
 
 
@@ -153,30 +168,15 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
                                 ))}
                         </div>}
 
+                    </div>
+                    <div className={'apptr__form-label-container apptr_form-why-login-info'} style={{ paddingLeft: '2rem', paddingRight: '2rem' }}>
+                        <div className="apptr__form__label-standalone no-question _oblique">
+                            <p>{props.t(['survey:auth:WhyLoginInfo', 'auth:WhyLoginInfo'])}</p>
+                        </div>
+                    </div>
 
-                    </div>
-                    <div className='apptr__auth-box'>
-                        {currentAuthMethod !== 'passwordless' && authMethods.includes('passwordless') && (
-                            <div>
-                                <a className="register-link _oblique" href="#" onClick={selectAuthMethod('passwordless')}>
-                                    {props.t(['survey:auth:UsePasswordLessAuthMethod', 'auth:UsePasswordLessAuthMethod'])}
-                                </a>
-                            </div>
-                        )}
-                        {currentAuthMethod !== 'localLogin' && authMethods.includes('localLogin') && (
-                            <div>
-                                <a className="register-link _oblique" href="#" onClick={selectAuthMethod('localLogin')}>
-                                    {props.t(['survey:auth:UseLocalLoginAuthMethod', 'auth:UseLocalLoginAuthMethod'])}
-                                </a>
-                            </div>
-                        )}
-                    </div>
                 </div>
-                <div className={'apptr__form-label-container apptr_form-why-login-info'}>
-                    <div className="apptr__form__label-standalone no-question _oblique">
-                        <p>{props.t(['survey:auth:WhyLoginInfo', 'auth:WhyLoginInfo'])}</p>
-                    </div>
-                </div>
+
             </div>
         );
     };

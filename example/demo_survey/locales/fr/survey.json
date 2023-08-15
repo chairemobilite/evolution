@@ -24,9 +24,9 @@
         "missingUsernameOrEmail": "Veuillez indiquer votre courriel",
         "authenticationFailed": "Votre courriel ou votre mot de passe est introuvable ou invalide",
         "pleaseChooseAUsernameOrEnterYourEmail": "Pour participer, veuillez entrer votre courriel",
-        "pleaseChooseAUsernameOrEnterYourEmailAndAPassword": "Pour vous enregistrer, entrez votre courriel, puis choisissez un mot de passe et confirmez-le, ou utilisez votre compte Google ou Facebook.",
+        "pleaseChooseAUsernameOrEnterYourEmailAndAPassword": "Pour vous enregistrer, entrez votre courriel, puis choisissez un mot de passe et confirmez-le, ou utilisez un partenaire de connexion.",
         "usernameOrEmailAlreadyExists": "Votre courriel est déjà enregistré, veuillez utiliser votre compte déjà créé.",
-        "WhyLoginInfo": "En raison de la durée de l'enquête, nous vous proposons de vous connecter avec une adresse courriel, ou un compte Facebook ou Google, pour pouvoir la poursuivre plus tard. Enfin, il est tout à fait possible de continuer sans compte, mais vous ne pourrez revenir dans votre questionnaire si votre session expire.",
+        "WhyLoginInfo": "En raison de la durée de l'enquête, nous vous proposons de vous connecter avec une adresse courriel, ou en utilisant un partenaire de connexion, pour pouvoir la poursuivre plus tard. Enfin, il est tout à fait possible de continuer sans compte, mais vous ne pourrez revenir dans votre questionnaire si votre session expire.",
         "PasswordlessHeader": "",
         "UseAnonymousLogin": "Continuer sans se connecter"
     },
