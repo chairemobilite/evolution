@@ -1,5 +1,5 @@
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 html {
@@ -177,6 +177,21 @@ strong, .strong {
 
 .apptr__separator {
   height: 1rem;
+}
+
+.apptr__auth-box {
+  border: 0.5rem solid rgba(255,255,255,1.0);
+  font-size: $font-size-medium;
+  border-radius: 2.2rem;
+  margin: 1rem;
+  padding: 1rem;
+  max-width: 33rem;
+  background-color: #fff;
+}
+
+.facebook-oauth-button, .google-oauth-button {
+  border-radius: 2rem !important;
+  font-size: $font-size-medium;
 }
 
 ._fill {
