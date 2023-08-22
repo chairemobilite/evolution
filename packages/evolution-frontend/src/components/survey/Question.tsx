@@ -331,9 +331,11 @@ export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> e
             <div
                 key={'content_' + this.props.path}
                 style={{ position: 'relative' }}
-                className={`apptr__form-container${this.props.join ? ' apptr__form-join-next' : ''}${twoColumns ? ' two-columns' : ''}${
-                    widgetStatus.isDisabled || disabled ? ' disabled' : ''
-                } question-type-${inputType}${widgetStatus.isEmpty ? ' question-empty' : ' question-filled'}${
+                className={`apptr__form-container${this.props.join ? ' apptr__form-join-next' : ''}${
+                    twoColumns ? ' two-columns' : ''
+                }${widgetStatus.isDisabled || disabled ? ' disabled' : ''} question-type-${inputType}${
+                    widgetStatus.isEmpty ? ' question-empty' : ' question-filled'
+                }${
                     !widgetStatus.isEmpty && widgetStatus.isValid === true
                         ? ' question-valid'
                         : showErrorMessage === true

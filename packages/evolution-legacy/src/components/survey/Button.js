@@ -90,11 +90,12 @@ export class Button extends React.Component {
     return (
       <div className={widgetConfig.align || 'center'}>
         <button
-          type      = "button"
+          type = "button"
           className = {`survey-section__button button ${buttonColor} ${widgetConfig.size || 'large'} ${isLoading ? 'disabled' : ''}`}
           onMouseDown = {this.onMouseDown}
           onMouseUp = {this.onMouseUp}
-          disabled={isLoading}
+          onKeyUp = {(e) => { if (e.key === 'enter' || e.key === 'space' || e.which === 13 || e.which === 32) { this.onClickButton(); } else { return; } }}
+          disabled = {isLoading}
         >
           {widgetConfig.icon && <FontAwesomeIcon icon={widgetConfig.icon} className="faIconLeft" />}
           {surveyHelper.translateString(this.props.label || widgetConfig.label, this.props.i18n, this.props.interview, this.props.path)}
