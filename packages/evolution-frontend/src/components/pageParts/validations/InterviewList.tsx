@@ -13,6 +13,7 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/interviews/interview';
 import { LoadingPage } from 'chaire-lib-frontend/lib/components/pages';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
+import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface UsersTableProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends WithTranslation {
@@ -23,6 +24,9 @@ interface UsersTableProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerso
     pageCount: number;
     itemCount: number;
     initialSortBy: { id: string; desc?: boolean }[];
+    interviewListChange: (show: boolean) => void;
+    showInterviewList: boolean;
+    validationInterview: any;
 }
 
 // User react-table to handle a few table functionalities like paging and filtering
@@ -73,6 +77,11 @@ const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
         </div>
     ) : (
         <div style={{ flexDirection: 'row', flex: '0 0 auto' }}>
+            {(props.validationInterview !== null && props.showInterviewList) &&
+            <button title={props.t("admin:HideInterviewList")} onClick={() => props.interviewListChange(false)}>
+                <FontAwesomeIcon icon={faFolder} />
+            </button>}
+
             <div className={'admin-widget-container _overflow-scroll'}>
                 <a
                     href="#"

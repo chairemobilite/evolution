@@ -31,6 +31,8 @@ import LoadingPage from '../../shared/LoadingPage';
 import ValidationLinks from './ValidationLinks';
 import { startSetValidateInterview, startUpdateValidateInterview, startResetValidateInterview, startValidateAddGroupedObjects, startValidateRemoveGroupedObjects } from '../../../actions/survey/survey';
 import ValidationCommentForm from './ValidationCommentForm'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 
 const surveyProjectHelper = appConfig.projectHelpers;
 const parsers = appConfig.getParsers();
@@ -534,6 +536,8 @@ export class ValidationSurvey extends React.Component {
             }
             return (
                 <div className="survey validation">
+
+
                     <div style={{ width: '100%', margin: '0 auto' }}>
                         <div className="admin__interview-map-and-stats-container">
                             <div className="admin__interview-map-container">
@@ -580,6 +584,13 @@ export class ValidationSurvey extends React.Component {
                             </div>
                         </div>
                     </div>
+
+                    {this.props.showInterviewList ||
+                    <div>
+                    <button title={this.props.t("admin:ShowInterviewList")} onClick={() => this.props.interviewListChange(true)}>
+                        <FontAwesomeIcon icon={faFolderOpen} />
+                    </button>
+                    </div>}
                 </div>
             );
         }

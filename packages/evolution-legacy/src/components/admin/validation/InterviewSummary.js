@@ -34,8 +34,9 @@ class InterviewSummary extends React.Component {
           prevInterviewUuid            = {this.props.prevInterviewUuid}
           nextInterviewUuid            = {this.props.nextInterviewUuid}
           handleInterviewSummaryChange = {this.props.handleInterviewSummaryChange}
-        /> {/* key change will force remount the component*/}
-
+          interviewListChange          = {this.props.interviewListChange}
+          showInterviewList            = {this.props.showInterviewList}
+          /> {/* key change will force remount the component*/}
       </div>
     );
 
