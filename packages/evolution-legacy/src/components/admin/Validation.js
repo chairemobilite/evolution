@@ -8,19 +8,23 @@ import React               from 'react';
 import { withTranslation } from 'react-i18next';
 
 import InterviewSummary from './validation/InterviewSummary';
-import adminHelper      from '../../helpers/admin/admin.helper';
+import adminHelper from '../../helpers/admin/admin.helper';
 import InterviewListComponent from 'evolution-frontend/lib/components/pageParts/validations/InterviewListComponent';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
+import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 
 class Validation extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      showInterviewList: false,
       validationInterview: null,
       prevInterviewUuid:   null,
       nextInterviewUuid:   null
     };
     this.handleInterviewSummaryChange = this.handleInterviewSummaryChange.bind(this);
+    this.handleInterviewListChange = (bool) => this.setState(() => ({ showInterviewList: bool }))
   }
 
   handleInterviewSummaryChange(interviewUuid) {
@@ -31,12 +35,12 @@ class Validation extends React.Component {
         // The filter probably changed, reset to null
         this.setState({validationInterview: null, prevInterviewUuid: null, nextInterviewUuid: null});
       }
-      let   prevInterviewUuid = null;
+      let prevInterviewUuid = null;
       if (listButton.getAttribute('data-prev-uuid'))
       {
         prevInterviewUuid = listButton.getAttribute('data-prev-uuid');
       }
-      let   nextInterviewUuid = null;
+      let nextInterviewUuid = null;
       if (listButton.getAttribute('data-next-uuid'))
       {
         nextInterviewUuid = listButton.getAttribute('data-next-uuid');
@@ -67,7 +71,6 @@ class Validation extends React.Component {
         return { validationInterview: null };
       });
     }
-
   }
 
   render() {
@@ -83,17 +86,36 @@ class Validation extends React.Component {
               nextInterviewUuid            = {this.state.nextInterviewUuid}
             />
           }
-          <InterviewListComponent
-            onInterviewSummaryChanged={this.handleInterviewSummaryChange}
-            initialSortBy={[{id: 'responses.accessCode'}]}
-          />
-
+          {(!this.state.validationInterview || this.state.showInterviewList)
+          ? <div>
+              {this.state.validationInterview !== null &&
+              <button onClick={() => this.handleInterviewListChange(false)}>
+                {this.state.showInterviewList &&
+                <FontAwesomeIcon
+                  title={this.props.t("admin:HideInterviewList")}
+                  icon={faFolder}
+                />}
+              </button>
+            }
+              <InterviewListComponent
+                onInterviewSummaryChanged={this.handleInterviewSummaryChange}
+                initialSortBy={[{id: 'responses.accessCode'}]}
+              />
+            </div>
+          : <button
+              style={{position: "relative", top: "1rem", left: "-5rem"}}
+              onClick={() => this.handleInterviewListChange(true)}
+            >
+              <FontAwesomeIcon
+                title={this.props.t("admin:ShowInterviewList")}
+                icon={faFolderOpen}
+              />
+            </button>
+          }
         </div>
       </div>
     );
-
   }
-
 }
 
-export default withTranslation()(Validation)
+export default withTranslation(['admin'])(Validation)
