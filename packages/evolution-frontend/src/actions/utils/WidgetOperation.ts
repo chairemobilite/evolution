@@ -159,7 +159,7 @@ const prepareSimpleWidget = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
             value === undefined ||
             (widgetConfig.updateDefaultValueWhenResponded === true && !pointHasMoved))
     ) {
-        const defaultValue = surveyHelper.parse(widgetConfig.defaultValue, data.interview, path, data.user);
+        const defaultValue = widgetConfig.useAssignedValueOnHide && !_isBlank(assignedValue) ? assignedValue : surveyHelper.parse(widgetConfig.defaultValue, data.interview, path, data.user);
         if (value !== defaultValue) {
             surveyHelper.setResponse(data.interview, path, defaultValue);
             data.valuesByPath['responses.' + path] = defaultValue;
