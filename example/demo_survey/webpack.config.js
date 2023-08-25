@@ -128,6 +128,8 @@ module.exports = (env) => {
         cleanAfterEveryBuildPatterns: ['**/*', '!images/**', '!*.html'],
       }),
       new HtmlWebpackPlugin({
+        title: process.env.DEFAULT_TITLE || 'Evolution',
+        noindex: process.env.NOINDEX === 'true',
         filename: path.join(`index-survey-${config.projectShortname}${env === 'test' ? `_${env}` : ''}.html`),
         template: path.join(publicDirectory, 'index.html'),
       }),
