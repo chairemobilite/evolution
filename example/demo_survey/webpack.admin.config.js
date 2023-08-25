@@ -129,6 +129,8 @@ module.exports = (env) => {
         cleanAfterEveryBuildPatterns: ['**/*', '!images/**', '!*.html'],
       }),
       new HtmlWebpackPlugin({
+        title: process.env.DEFAULT_TITLE || 'Evolution - Admin',
+        noindex: true, // we should never index the admin dashboard
         filename: path.join(`index-survey-${config.projectShortname}${env === 'test' ? `_${env}` : ''}.html`),
         template: path.join(__dirname, '..', '..', 'public', 'index.html'),
       }),
