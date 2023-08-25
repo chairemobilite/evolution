@@ -66,8 +66,7 @@
     "SearchByCode": "Search by access code"
   },
   "interviewers": {
-    "InterviewersPage": "Interviewer's page",
-    "NothingToDo": "No functionnality available yet"
+    "InterviewsSearchAndEdit": "Search And Edit Surveys"
   },
   "validationFilters": {
     "title": "Valid?",
