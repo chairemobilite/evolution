@@ -67,8 +67,7 @@
     "SearchByCode": "Chercher par code d'accès"
   },
   "interviewers": {
-    "InterviewersPage": "Page des intervieweurs",
-    "NothingToDo": "Aucune fonctionnalité disponible présentement"
+    "InterviewsSearchAndEdit": "Recherche et édition d'enquêtes"
   },
   "validationFilters": {
     "title": "Valides?",
