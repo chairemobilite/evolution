@@ -11,6 +11,7 @@ export interface FeatureGeocodedProperties {
     geocodingResultMetadata?: { [key: string]: any };
     geocodingResultsData?: { [key: string]: any };
     isGeocodingImprecise?: boolean;
+    platform?: string;
 }
 
 export type PlaceGeocodedProperties = FeatureGeocodedProperties & {
