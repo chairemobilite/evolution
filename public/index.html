@@ -12,8 +12,9 @@
     <link rel="mask-icon" href="/dist/images/favicons/survey-safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#2b5797">
     <meta name="theme-color" content="#ffffff">
-    <title>Survey</title>
-    <base href="<%= htmlWebpackPlugin.options.CDN %>">    
+     <%= htmlWebpackPlugin.options.noindex ? '<meta name="robots" content="noindex">' : '' %>
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <base href="<%= htmlWebpackPlugin.options.CDN %>">
 
   </head>
 
