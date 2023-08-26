@@ -6,6 +6,8 @@
  */
 import React               from 'react';
 import { withTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 
 import InterviewSummary from './validation/InterviewSummary';
 import adminHelper from '../../helpers/admin/admin.helper';
@@ -21,7 +23,7 @@ class Validation extends React.Component {
       nextInterviewUuid:   null
     };
     this.handleInterviewSummaryChange = this.handleInterviewSummaryChange.bind(this);
-    this.handleInterviewListChange = (show) => this.setState({ showInterviewList: show })
+    this.handleInterviewListChange = (showInterviewList) => this.setState({ showInterviewList })
   }
 
   handleInterviewSummaryChange(interviewUuid) {
@@ -74,7 +76,14 @@ class Validation extends React.Component {
     return (
       <div className="survey">
         <div className="admin">
-          { this.state.validationInterview !== null &&
+          <div style={{ flexDirection: 'row', flex: '1 1 auto' }}>
+            {this.state.validationInterview !== null && !this.state.showInterviewList &&
+            <div style={{float: "right", position: "relative", left: "-3rem"}}>
+                <button title={this.props.t("admin:ShowInterviewList")} onClick={() => this.handleInterviewListChange(true)}>
+                    <FontAwesomeIcon icon={faFolderOpen} />
+                </button>
+            </div>}
+            {this.state.validationInterview !== null &&
             <InterviewSummary
               handleInterviewSummaryChange = {this.handleInterviewSummaryChange}
               interview                    = {this.state.validationInterview}
@@ -83,17 +92,15 @@ class Validation extends React.Component {
               interviewListChange          = {this.handleInterviewListChange}
               showInterviewList            = {this.state.showInterviewList}
             />
-          }
-
-          { (this.state.showInterviewList || this.state.validationInterview === null) &&
-            <InterviewListComponent
-              onInterviewSummaryChanged={this.handleInterviewSummaryChange}
-              initialSortBy={[{id: 'responses.accessCode'}]}
-              interviewListChange={this.handleInterviewListChange}
-              showInterviewList = {this.state.showInterviewList}
-              validationInterview = {this.state.validationInterview}
-            />
-          }
+            }
+          </div>
+          <InterviewListComponent
+            onInterviewSummaryChanged={this.handleInterviewSummaryChange}
+            initialSortBy={[{id: 'responses.accessCode'}]}
+            interviewListChange={this.handleInterviewListChange}
+            showInterviewList = {this.state.showInterviewList}
+            validationInterview = {this.state.validationInterview}
+          />
         </div>
       </div>
     );

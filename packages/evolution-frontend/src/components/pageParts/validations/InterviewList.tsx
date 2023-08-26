@@ -76,8 +76,9 @@ const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
             <LoadingPage />
         </div>
     ) : (
-        <div style={{ flexDirection: 'row', flex: '0 0 auto' }}>
-            {(props.validationInterview !== null && props.showInterviewList) &&
+        <div style={{ flexDirection: 'row', flex: '0 0 auto', display: (props.showInterviewList || props.validationInterview === null) ? "block": "none"
+    }}>
+            {(props.validationInterview !== null) &&
             <button title={props.t("admin:HideInterviewList")} onClick={() => props.interviewListChange(false)}>
                 <FontAwesomeIcon icon={faFolder} />
             </button>}
