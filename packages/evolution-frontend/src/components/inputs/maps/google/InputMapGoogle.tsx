@@ -7,6 +7,7 @@
 import React from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import GeoJSON from 'geojson';
+import bowser from 'bowser';
 
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -101,6 +102,7 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props
             if (geojsonValue) {
                 geojsonValue.properties.lastAction = triggerEvent;
                 geojsonValue.properties.zoom = (map as google.maps.Map).getZoom();
+                geojsonValue.properties.platform = bowser.getParser(window.navigator.userAgent).getPlatformType();
             }
             changeValueAndPan(geojsonValue);
         },
