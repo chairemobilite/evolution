@@ -173,7 +173,7 @@ export class Survey extends React.Component {
                   containsHtml       = {false}
                 />
               </div>)}
-              <form onSubmit={(e) => { if (e.key === 'enter' || e.which === 13 ) { e.preventDefault(); }}} className="apptr__form" id="survey_form" style={customStyle} autocomplete="off">
+              <form onSubmit={(e) => e.preventDefault() } className="apptr__form" id="survey_form" style={customStyle} autocomplete="off">
                 <SectionComponent
                   key                         = {sectionShortname}
                   loadingState                = {this.props.loadingState}
