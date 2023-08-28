@@ -206,7 +206,8 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
                 dispatch(
                     updateInterview(
                         _cloneDeep(serverUpdatedInterview),
-                        Object.assign(currentServerErrors, newServerErrors)
+                        Object.assign(currentServerErrors, newServerErrors),
+                        updatedValuesByPath['_all'] === true
                     )
                 );
                 if (typeof callback === 'function') {
