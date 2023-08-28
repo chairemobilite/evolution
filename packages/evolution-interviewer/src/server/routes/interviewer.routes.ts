@@ -80,6 +80,14 @@ const updateInterviewerCache = async function (
     });
 };
 
+/**
+ * Add interviewer routes to the application. With the resulting router, set it
+ * to the `interviewer` path, like this: `app.use('/interviewer',
+ * interviewerRoutes(...));`
+ *
+ * @param interviewDataFct
+ * @returns
+ */
 export default function (interviewDataFct: {
     data: (responses) => { [key: string]: unknown };
     aggregate: (dataForInterviewer: any[]) => { [key: string]: unknown };
@@ -88,7 +96,7 @@ export default function (interviewDataFct: {
 
     router.use(isAuthorized({ [InterviewersSubject]: ['manage'] }));
 
-    router.post('/interviewer/monitoring/update_interviewer_cache', async (req, res) => {
+    router.post('/monitoring/update_interviewer_cache', async (req, res) => {
         try {
             if (!(req as any).user) {
                 throw 'Request user is not defined, an interview cannot be created for the user';
@@ -106,7 +114,7 @@ export default function (interviewDataFct: {
         }
     });
 
-    router.get('/interviewer/monitoring/get_interviewer_data', (req, res, next) => {
+    router.get('/monitoring/get_interviewer_data', (req, res, next) => {
         try {
             if (!(req as any).user) {
                 throw 'Request user is not defined, an interview cannot be created for the user';
