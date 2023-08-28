@@ -321,10 +321,10 @@ export type QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, Cust
     label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 
     /**
-    * When the conditional triggers a hide status and then a show status later on,
-    * instead of reverting to default or empty value, use the assigned value of the conditional:
-    * this is useful when we want to hide a widget but keep its assigned value intact after hide/show toggle.
-    */
+     * When the conditional triggers a hide status and then a show status later on,
+     * instead of reverting to default or empty value, use the assigned value of the conditional:
+     * this is useful when we want to hide a widget but keep its assigned value intact after hide/show toggle.
+     */
     useAssignedValueOnHide?: boolean;
 
     helpPopup?: {
