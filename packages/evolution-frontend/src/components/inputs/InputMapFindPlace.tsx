@@ -38,7 +38,7 @@ export type InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, Cu
     widgetConfig: InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 };
 
-interface InputMapFindPlaceState {
+interface InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     geocoding: boolean;
     geocodingQueryString?: string;
     defaultCenter: any;
@@ -64,7 +64,7 @@ interface InputMapFindPlaceState {
  */
 export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
     InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
-    InputMapFindPlaceState
+    InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 > {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
     private autoConfirmIfSingleResult: boolean;
@@ -418,7 +418,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                             alignItems: 'center'
                         }}
                     >
-                        <button
+                        {this.props.widgetConfig.showSearchPlaceButton !== false && <button
                             id={`${this.props.id}_refresh`}
                             type="button"
                             className="button refresh-geocode green large"
@@ -434,7 +434,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                                 this.props.path,
                                 this.props.user
                             )}
-                        </button>
+                        </button>}
                         <div style={{ marginLeft: 10 }}>
                             <Loader size={30} color={'#aaaaaa'} loading={this.state.geocoding} />
                         </div>

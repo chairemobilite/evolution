@@ -284,6 +284,7 @@ export type InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomP
     CustomPerson
 > & {
     inputType: 'mapPoint';
+    showSearchPlaceButton?: boolean | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 };
 
 export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = InputMapType<
@@ -293,6 +294,7 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
     CustomPerson
 > & {
     inputType: 'mapFindPlace';
+    showSearchPlaceButton?: boolean | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     placesIcon?: {
         url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
         size?: [number, number];

@@ -156,7 +156,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                     readOnly={true}
                     ref={this.props.inputRef}
                 />
-                {this.props.widgetConfig.refreshGeocodingLabel && (
+                {this.props.widgetConfig.refreshGeocodingLabel && this.props.widgetConfig.showSearchPlaceButton !== false &&  (
                     <button
                         type="button"
                         id={`${this.props.id}_refresh`}
