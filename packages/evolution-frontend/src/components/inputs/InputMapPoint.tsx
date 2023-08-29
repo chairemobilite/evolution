@@ -145,6 +145,14 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     render() {
         const maxZoom = this.props.widgetConfig.maxZoom || 18;
 
+        const showSearchPlaceButton = this.props.widgetConfig.showSearchPlaceButton
+            ? surveyHelper.parseBoolean(
+                this.props.widgetConfig.showSearchPlaceButton,
+                this.props.interview,
+                this.props.path,
+                this.props.user
+            ) : true;
+
         return (
             <div className={'survey-question__input-map-container'}>
                 <input // we don't really need the input with maps. We just need to find a way to change style of map container according to isEmpty or isValid status
@@ -156,7 +164,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                     readOnly={true}
                     ref={this.props.inputRef}
                 />
-                {this.props.widgetConfig.refreshGeocodingLabel && (
+                {this.props.widgetConfig.refreshGeocodingLabel && showSearchPlaceButton !== false &&  (
                     <button
                         type="button"
                         id={`${this.props.id}_refresh`}

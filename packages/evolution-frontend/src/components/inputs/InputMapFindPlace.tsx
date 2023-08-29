@@ -38,7 +38,7 @@ export type InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, Cu
     widgetConfig: InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 };
 
-interface InputMapFindPlaceState {
+interface InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     geocoding: boolean;
     geocodingQueryString?: string;
     defaultCenter: any;
@@ -64,7 +64,7 @@ interface InputMapFindPlaceState {
  */
 export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
     InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
-    InputMapFindPlaceState
+    InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 > {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
     private autoConfirmIfSingleResult: boolean;
@@ -314,6 +314,14 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
         const maxZoom = this.props.widgetConfig.maxZoom || 18;
         const places = this.state.places;
 
+        const showSearchPlaceButton = this.props.widgetConfig.showSearchPlaceButton
+            ? surveyHelper.parseBoolean(
+                this.props.widgetConfig.showSearchPlaceButton,
+                this.props.interview,
+                this.props.path,
+                this.props.user
+            ) : true;
+
         const placesIconUrl = this.props.widgetConfig.placesIcon
             ? surveyHelper.parseString(
                 this.props.widgetConfig.placesIcon.url,
@@ -409,7 +417,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                     readOnly={true}
                     ref={this.props.inputRef}
                 />
-                {this.props.widgetConfig.refreshGeocodingLabel && (
+                {this.props.widgetConfig.refreshGeocodingLabel && showSearchPlaceButton !== false && (
                     <div
                         style={{
                             display: 'flex',
