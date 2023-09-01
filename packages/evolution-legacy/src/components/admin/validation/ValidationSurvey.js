@@ -586,7 +586,6 @@ export class ValidationSurvey extends React.Component {
         surveyHelperNew.devLog('%c rendering empty survey', 'background: rgba(0,0,0,0.1);');
         return <LoadingPage />;
     }
-
 }
 
 const mapStateToProps = (state, props) => {

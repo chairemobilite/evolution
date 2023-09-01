@@ -20,6 +20,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 interface InterviewListComponentProps extends WithTranslation {
     onInterviewSummaryChanged: (uuid: string, prevUuid?: string, nextUuid?: string) => void;
     initialSortBy: { id: string; desc?: boolean }[];
+    interviewListChange: (show: boolean) => void;
+    showInterviewList: boolean;
+    validationInterview: any;
 }
 
 const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = <
@@ -208,6 +211,9 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
 
     return (
         <InterviewList
+            showInterviewList = {props.showInterviewList}
+            validationInterview = {props.validationInterview}
+            interviewListChange={props.interviewListChange}
             columns={columns}
             data={data}
             fetchData={fetchData}
