@@ -26,16 +26,14 @@ class InterviewSummary extends React.Component {
     }
 
     return (
-      <div className="admin-widget-container" style={{ flexDirection: 'row', flex: '1 1 auto' }}>
-
+      <div className="admin-widget-container">
         <ValidationSurvey
           key                          = {this.props.interview.uuid}
           interviewUuid                = {this.props.interview.uuid}
           prevInterviewUuid            = {this.props.prevInterviewUuid}
           nextInterviewUuid            = {this.props.nextInterviewUuid}
           handleInterviewSummaryChange = {this.props.handleInterviewSummaryChange}
-        /> {/* key change will force remount the component*/}
-
+          /> {/* key change will force remount the component*/}
       </div>
     );
 
