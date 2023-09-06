@@ -119,7 +119,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
         this.setState({ currentBounds: bbox });
     };
 
-    onGeocodeAddress = (e: React.MouseEvent) => {
+    onGeocodeAddress = (e: React.MouseEvent | React.KeyboardEvent) => {
         e.preventDefault();
         this.geocodeAddress(this.state.currentBounds);
     };

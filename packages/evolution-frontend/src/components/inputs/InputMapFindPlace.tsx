@@ -79,6 +79,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
 
         this.onSearchPlaceButtonMouseDown = this.onSearchPlaceButtonMouseDown.bind(this);
         this.onSearchPlaceButtonMouseUp = this.onSearchPlaceButtonMouseUp.bind(this);
+        this.onSearchPlaceButtonKeyDown = this.onSearchPlaceButtonKeyDown.bind(this);
 
         // get initial map center from current value or widget config (can be a function)
         const defaultCenter = props.value
@@ -124,6 +125,13 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
         e.preventDefault();
         if (this.props.loadingState === 0) {
             this.setState({ searchPlaceButtonWasMouseDowned: false }, this.onButtonFindPlaceClick);
+        }
+    }
+
+    onSearchPlaceButtonKeyDown(e) {
+        e.preventDefault();
+        if (e.key === 'enter' || e.key === 'space' || e.which === 13 || e.which === 32) {
+            this.onButtonFindPlaceClick();
         }
     }
 
@@ -432,6 +440,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                             className="button refresh-geocode green large"
                             onMouseDown={this.onSearchPlaceButtonMouseDown}
                             onMouseUp={this.onSearchPlaceButtonMouseUp}
+                            onKeyDown={this.onSearchPlaceButtonKeyDown}
                             ref={this.geocodeButtonRef}
                         >
                             <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />
