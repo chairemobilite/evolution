@@ -48,7 +48,7 @@ if (InterviewMap === undefined) {
 let validations = appConfig.getAdminValidations();
 console.log('validations', validations);
 
-export class ValidationSurvey extends React.Component {
+export class ValidationOnePageSummary extends React.Component {
     static contextType = InterviewContext;
 
     constructor(props) {
@@ -611,4 +611,4 @@ const mapDispatchToProps = (dispatch, props) => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withTranslation()(withSurveyContext(ValidationSurvey)));
+)(withTranslation()(withSurveyContext(ValidationOnePageSummary)));
