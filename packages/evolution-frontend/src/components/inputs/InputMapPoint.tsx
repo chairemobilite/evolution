@@ -151,7 +151,8 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                 this.props.interview,
                 this.props.path,
                 this.props.user
-            ) : true;
+            )
+            : true;
 
         return (
             <div className={'survey-question__input-map-container'}>
@@ -164,7 +165,7 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                     readOnly={true}
                     ref={this.props.inputRef}
                 />
-                {this.props.widgetConfig.refreshGeocodingLabel && showSearchPlaceButton !== false &&  (
+                {this.props.widgetConfig.refreshGeocodingLabel && showSearchPlaceButton !== false && (
                     <button
                         type="button"
                         id={`${this.props.id}_refresh`}

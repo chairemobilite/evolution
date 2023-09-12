@@ -328,7 +328,8 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                 this.props.interview,
                 this.props.path,
                 this.props.user
-            ) : true;
+            )
+            : true;
 
         const placesIconUrl = this.props.widgetConfig.placesIcon
             ? surveyHelper.parseString(
