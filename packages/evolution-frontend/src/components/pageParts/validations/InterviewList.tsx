@@ -76,12 +76,18 @@ const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
             <LoadingPage />
         </div>
     ) : (
-        <div style={{ flexDirection: 'row', flex: '0 0 auto', display: (props.showInterviewList || props.validationInterview === null) ? "block": "none"
-    }}>
-            {(props.validationInterview !== null) &&
-            <button title={props.t("admin:HideInterviewList")} onClick={() => props.interviewListChange(false)}>
-                <FontAwesomeIcon icon={faFolder} />
-            </button>}
+        <div
+            style={{
+                flexDirection: 'row',
+                flex: '0 0 auto',
+                display: props.showInterviewList || props.validationInterview === null ? 'block' : 'none'
+            }}
+        >
+            {props.validationInterview !== null && (
+                <button title={props.t('admin:HideInterviewList')} onClick={() => props.interviewListChange(false)}>
+                    <FontAwesomeIcon icon={faFolder} />
+                </button>
+            )}
 
             <div className={'admin-widget-container _overflow-scroll'}>
                 <a

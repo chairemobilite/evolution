@@ -211,8 +211,8 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
 
     return (
         <InterviewList
-            showInterviewList = {props.showInterviewList}
-            validationInterview = {props.validationInterview}
+            showInterviewList={props.showInterviewList}
+            validationInterview={props.validationInterview}
             interviewListChange={props.interviewListChange}
             columns={columns}
             data={data}
