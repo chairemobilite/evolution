@@ -9,7 +9,7 @@ import { withTranslation } from 'react-i18next';
 
 import { _isBlank }     from 'chaire-lib-common/lib/utils/LodashExtensions';
 import LoadingPage      from '../../shared/LoadingPage';
-import ValidationSurvey from './ValidationSurvey';
+import ValidationOnePageSummary from './ValidationOnePageSummary';
 
 class InterviewSummary extends React.Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class InterviewSummary extends React.Component {
 
     return (
       <div className="admin-widget-container">
-        <ValidationSurvey
+        <ValidationOnePageSummary
           key                          = {this.props.interview.uuid}
           interviewUuid                = {this.props.interview.uuid}
           prevInterviewUuid            = {this.props.prevInterviewUuid}

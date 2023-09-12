@@ -47,6 +47,13 @@ export const updateSection = updateSectionTs;
 export const startUpdateInterview = startUpdateInterviewTs;
 export const updateInterview = updateInterviewTs;
 
+/**
+ * Fetch an interview from server and set it for edition in validation mode.
+ * 
+ * @param {*} interviewUuid The uuid of the interview to open
+ * @param {*} callback 
+ * @returns 
+ */
 export const startSetSurveyValidateInterview = (interviewUuid, callback = function() {}) => {
   return (dispatch, getState) => {
     return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
@@ -82,33 +89,15 @@ export const startSetSurveyValidateInterview = (interviewUuid, callback = functi
   };
 };
 
-export const startResetSurveyValidateInterview = (interviewUuid, callback = function() {}) => {
-  return (dispatch, getState) => {
-    return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
-      credentials: 'include'
-    })
-    .then((response) => {
-
-      if (response.status === 200) {
-        response.json().then((body) => {
-          if (body.interview)
-          {
-            const interview     = body.interview;
-            interview.responses = _cloneDeep(interview._responses);
-            dispatch(startUpdateSurveyValidateInterview('home', {
-              responses: _cloneDeep(interview._responses),
-              is_frozen: true
-            }, null, interview, callback));
-          }
-        });
-      }
-    })
-    .catch((err) => {
-      surveyHelperNew.devLog('Error fetching interview to reset.', err);
-    });
-  };
-};
-
+/**
+ * Fetch an interview from server and set it for display in a one page summary.
+ * 
+ * TODO Only the section ('home', 'validationOnePager') is different from 'startSetSurveyValidateInterview' Re-use
+ * 
+ * @param {*} interviewUuid The uuid of the interview to open
+ * @param {*} callback 
+ * @returns 
+ */
 export const startSetValidateInterview = (interviewUuid, callback = function() {}) => {
   return (dispatch, getState) => {
     return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
@@ -144,6 +133,14 @@ export const startSetValidateInterview = (interviewUuid, callback = function() {
   };
 };
 
+/**
+ * Fetch an interview from server and re-initialize the validated_data to the
+ * participant's responses, but keeping the validation comments.
+ *
+ * @param {*} interviewUuid The uuid of the interview to open
+ * @param {*} callback 
+ * @returns 
+ */
 export const startResetValidateInterview = (interviewUuid, callback = function() {}) => {
   return (dispatch, getState) => {
     return fetch(`/api/survey/validateInterview/${interviewUuid}`, {

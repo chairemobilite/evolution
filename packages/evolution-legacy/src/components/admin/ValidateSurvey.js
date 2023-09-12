@@ -17,7 +17,7 @@ import Section                from '../survey/Section';
 import SectionNav             from '../survey/SectionNav';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import LoadingPage            from '../shared/LoadingPage';
-import { startSetSurveyValidateInterview, startUpdateSurveyValidateInterview, startResetSurveyValidateInterview, startSurveyValidateAddGroupedObjects, startSurveyValidateRemoveGroupedObjects } from '../../actions/survey/survey';
+import { startSetSurveyValidateInterview, startUpdateSurveyValidateInterview, startSurveyValidateAddGroupedObjects, startSurveyValidateRemoveGroupedObjects } from '../../actions/survey/survey';
 import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewContext';
 
 export class ValidateSurvey extends React.Component {
@@ -208,7 +208,6 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => ({
   startSetSurveyValidateInterview: (interviewUuid, callback)                                                 => dispatch(startSetSurveyValidateInterview(interviewUuid, callback)),
   startUpdateInterview           : (sectionShortname, valuesByPath, unsetPaths, interview, callback)         => dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback)),
-  startResetValidateInterview    : (interviewUuid, callback)                                                 => dispatch(startResetSurveyValidateInterview(interviewUuid, callback)),
   startAddGroupedObjects         : (newObjectsCount, insertSequence, path, attributes, callback, returnOnly) => dispatch(startSurveyValidateAddGroupedObjects(newObjectsCount, insertSequence, path, attributes, callback, returnOnly)),
   startRemoveGroupedObjects      : (paths, callback, returnOnly)                                             => dispatch(startSurveyValidateRemoveGroupedObjects(paths, callback, returnOnly))
 });
