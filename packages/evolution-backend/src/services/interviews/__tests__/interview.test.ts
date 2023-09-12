@@ -5,8 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _cloneDeep from 'lodash.clonedeep';
+import moment from 'moment';
 import { v4 as uuidV4 } from 'uuid';
-import { updateInterview, setInterviewFields } from '../interview';
+import { updateInterview, setInterviewFields, copyResponsesToValidatedData } from '../interview';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import interviewsQueries from '../../../models/interviews.db.queries';
 import serverValidate from '../../validations/serverValidation';
@@ -26,6 +27,7 @@ const mockedServerUpdate = serverUpdate as jest.MockedFunction<typeof serverUpda
 jest.mock('../../../models/interviews.db.queries', () => ({
     update: jest.fn()
 }));
+const mockUpdate = interviewsQueries.update as jest.MockedFunction<typeof interviewsQueries.update>;
 
 type CustomSurvey = {
     accessCode: string;
@@ -392,6 +394,69 @@ describe('Update Interview', () => {
         }
         expect(error).toBeDefined();
 
+    });
+
+});
+
+describe('copyResponsesToValidatedData', () => {
+
+    beforeEach(async () => {
+        mockUpdate.mockClear();
+    });
+
+    test('First copy', async() => {
+        const testAttributes = _cloneDeep(interviewAttributes);
+
+        expect(testAttributes.validated_data).not.toBeDefined();
+        await copyResponsesToValidatedData(testAttributes);
+        expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.responses));
+        expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
+        expect(testAttributes.is_frozen).toEqual(true);
+        expect(mockUpdate).toHaveBeenCalledTimes(1);
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { is_frozen: true, validated_data: testAttributes.validated_data });
+    });
+
+    test('Copy with existing validation data', async() => {
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const originalTimestamp = moment('2023-09-12 15:02:00').unix();
+        testAttributes.validated_data = {
+            _validatedDataCopiedAt: originalTimestamp,
+            accessCode: '2222',
+            testFields: {
+                fieldA: 'test',
+                fieldB: 'changed'
+            }
+        },
+
+        await copyResponsesToValidatedData(testAttributes);
+        expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.responses));
+        expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
+        expect(testAttributes.validated_data?._validatedDataCopiedAt).not.toEqual(originalTimestamp);
+        expect(testAttributes.is_frozen).toEqual(true);
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { is_frozen: true, validated_data: testAttributes.validated_data });
+    });
+
+    test('Copy with existing and comment', async() => {
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const originalTimestamp = moment('2023-09-12 15:02:00').unix();
+
+        const validationComment = 'This was commented previously';
+        testAttributes.validated_data = {
+            _validatedDataCopiedAt: originalTimestamp,
+            accessCode: '2222',
+            testFields: {
+                fieldA: 'test',
+                fieldB: 'changed'
+            },
+            _validationComment: validationComment
+        },
+
+        await copyResponsesToValidatedData(testAttributes);
+        expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.responses));
+        expect(testAttributes.validated_data._validationComment).toEqual(validationComment);
+        expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
+        expect(testAttributes.is_frozen).toEqual(true);
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { is_frozen: true, validated_data: testAttributes.validated_data });
     });
 
 });
