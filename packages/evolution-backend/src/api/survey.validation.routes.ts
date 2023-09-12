@@ -10,13 +10,14 @@
 import express, { Request, Response } from 'express';
 import moment from 'moment';
 import Interviews from '../services/interviews/interviews';
-import { updateInterview } from '../services/interviews/interview';
+import { updateInterview, copyResponsesToValidatedData } from '../services/interviews/interview';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import projectConfig from '../config/projectConfig';
 import { mapResponsesToValidatedData } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
+import { _booleish } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 const router = express.Router();
 
@@ -30,7 +31,12 @@ router.get(
             try {
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
                 if (interview) {
-                    // TODO Here, the responses field should not make it to frontend, it should freeze the survey and initialize the validated_data here. But make sure there are no side effect in the frontend, where the _responses is used or checked.
+                    const forceCopy = _booleish(req.query.reset) === true;
+                    // Copy the responses in the validated_data
+                    if (forceCopy || interview.validated_data === null) {
+                        await copyResponsesToValidatedData(interview);
+                    }
+                    // TODO Here, the responses field should not make it to frontend. But make sure there are no side effect in the frontend, where the _responses is used or checked.
                     const { responses, validated_data, ...rest } = interview;
                     return res.status(200).json({
                         status: 'success',

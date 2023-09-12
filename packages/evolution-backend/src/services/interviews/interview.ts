@@ -6,6 +6,7 @@
  */
 import _set from 'lodash.set';
 import _unset from 'lodash.unset';
+import _cloneDeep from 'lodash.clonedeep';
 import moment from 'moment';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import serverValidate, { ServerValidation } from '../validations/serverValidation';
@@ -153,4 +154,20 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
 
     const retInterview = await interviewsDbQueries.update(interview.uuid, databaseUpdateJson);
     return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath };
+};
+
+export const copyResponsesToValidatedData = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => {
+    // TODO The frontend code that was replaced by this method said: // TODO The copy to validated_data should include the audit
+
+    // Keep the _validationComment from current validated_data, then copy original responses
+    const validationComment = interview.validated_data ? interview.validated_data._validationComment : undefined;
+    interview.validated_data = _cloneDeep(interview.responses);
+    interview.validated_data._validatedDataCopiedAt = moment().unix();
+    if (validationComment) {
+        interview.validated_data._validationComment = validationComment;
+    }
+    interview.is_frozen = true;
+    await interviewsDbQueries.update(interview.uuid, { is_frozen: true, validated_data: interview.validated_data });
 };

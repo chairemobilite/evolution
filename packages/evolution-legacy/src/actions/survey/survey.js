@@ -66,18 +66,7 @@ export const startSetSurveyValidateInterview = (interviewUuid, callback = functi
           if (body.interview)
           {
             const interview = body.interview;
-            if (interview.is_frozen !== true) // we put validated_data into responses and responses into _responses
-            {
-              interview.responses = _cloneDeep(interview._responses);
-              dispatch(startUpdateSurveyValidateInterview('home', {
-                responses: _cloneDeep(interview._responses),
-                is_frozen: true
-              }, null, interview, callback));
-            }
-            else
-            {
-              dispatch(startUpdateSurveyValidateInterview('home', {}, null, interview, callback));
-            }
+            dispatch(startUpdateSurveyValidateInterview('home', {}, null, interview, callback));
 
           }
         });
@@ -110,18 +99,7 @@ export const startSetValidateInterview = (interviewUuid, callback = function() {
           if (body.interview)
           {
             const interview = body.interview;
-            if (interview.is_frozen !== true) // we put validated_data into responses and responses into _responses
-            {
-              interview.responses = _cloneDeep(interview._responses);
-              dispatch(startUpdateValidateInterview('validationOnePager', {
-                responses: _cloneDeep(interview._responses),
-                is_frozen: true
-              }, null, interview, callback));
-            }
-            else
-            {
-              dispatch(startUpdateValidateInterview('validationOnePager', {}, null, interview, callback));
-            }
+            dispatch(startUpdateValidateInterview('validationOnePager', {}, null, interview, callback));
 
           }
         });
@@ -143,7 +121,7 @@ export const startSetValidateInterview = (interviewUuid, callback = function() {
  */
 export const startResetValidateInterview = (interviewUuid, callback = function() {}) => {
   return (dispatch, getState) => {
-    return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
+    return fetch(`/api/survey/validateInterview/${interviewUuid}?reset=true`, {
       credentials: 'include'
     })
     .then((response) => {
@@ -153,17 +131,7 @@ export const startResetValidateInterview = (interviewUuid, callback = function()
           if (body.interview)
           {
             const interview     = body.interview;
-            // TODO This should be done server side and the copy to validated_data should include the audit
-            // Keep the _validationComment from current responses, then copy original responses
-            const validationComment = interview.responses ? interview.responses._validationComment : undefined;
-            interview.responses = _cloneDeep(interview._responses);
-            if (validationComment) {
-                interview.responses._validationComment = validationComment;
-            }
-            dispatch(startUpdateValidateInterview('validationOnePager', {
-              responses: _cloneDeep(interview.responses),
-              is_frozen: true
-            }, null, interview, callback));
+            dispatch(startUpdateValidateInterview('validationOnePager', {}, null, interview, callback));
           }
         });
       }

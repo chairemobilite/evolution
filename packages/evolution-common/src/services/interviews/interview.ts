@@ -129,6 +129,7 @@ type ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     CustomHome,
     CustomPerson
 > & {
+    _validatedDataCopiedAt?: number;
     _validationComment?: string;
 };
 
