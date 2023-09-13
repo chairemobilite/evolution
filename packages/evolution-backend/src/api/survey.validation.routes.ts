@@ -40,7 +40,16 @@ router.get(
                     const { responses, validated_data, ...rest } = interview;
                     return res.status(200).json({
                         status: 'success',
-                        interview: { responses: validated_data, _responses: responses, ...rest }
+                        interview: {
+                            responses: validated_data,
+                            _responses: responses,
+                            ...rest,
+                            validationDataDirty:
+                                responses._updatedAt !== undefined &&
+                                interview.is_frozen !== true &&
+                                (validated_data?._validatedDataCopiedAt === undefined ||
+                                    validated_data._validatedDataCopiedAt < responses._updatedAt)
+                        }
                     });
                 } else {
                     return res.status(500).json({ status: 'failed', interview: null });

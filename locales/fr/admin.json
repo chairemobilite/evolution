@@ -49,6 +49,7 @@
   "validatorComment": "Commentaire de validation",
   "refreshValidationList": "Rafraîchir la liste",
   "unauthorized": "Vous n'êtes pas autorisé à accéder à ces données",
+  "ValidationDataDirty": "Les réponses du participant ont été modifiées depuis la copie pour validation. Vous pouvez cliquer sur l'icône de réinitialisation pour re-copier les données de l'enquête du participant.",
   "user": {
     "Username": "Nom d'utilisateur",
     "Email": "Courriel",
