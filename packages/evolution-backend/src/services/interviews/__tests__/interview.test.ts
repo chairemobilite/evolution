@@ -226,6 +226,78 @@ describe('Update Interview', () => {
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
     });
 
+    test('With completed', async() => {
+        // Test with true value
+        let testAttributes = _cloneDeep(interviewAttributes);
+        let valuesByPath = { 'is_completed': true };
+        let interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+        expect(mockedServerValidate).toHaveBeenCalledTimes(1);
+        expect(mockedServerValidate).toHaveBeenCalledWith(undefined, valuesByPath, []);
+        expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_completed: true }, undefined);
+
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: true, is_frozen: true });
+
+        // Test with false value
+        testAttributes = _cloneDeep(interviewAttributes);
+        valuesByPath = { 'is_completed': false };
+        interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(2);
+
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: false, is_frozen: true });
+
+        // Test with null value
+        testAttributes = _cloneDeep(interviewAttributes);
+        valuesByPath = { 'is_completed': null } as any;
+        interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(3);
+
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: null });
+    });
+
+    test('With valid', async() => {
+        // Test with true value
+        let testAttributes = _cloneDeep(interviewAttributes);
+        let valuesByPath = { 'is_valid': true };
+        let interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_valid'] });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+        expect(mockedServerValidate).toHaveBeenCalledTimes(1);
+        expect(mockedServerValidate).toHaveBeenCalledWith(undefined, valuesByPath, []);
+        expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_valid: true }, undefined);
+
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: true, is_frozen: true });
+
+        // Test with false value
+        testAttributes = _cloneDeep(interviewAttributes);
+        valuesByPath = { 'is_valid': false };
+        interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_valid'] });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(2);
+
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: false, is_frozen: true });
+
+        // Test with null value
+        testAttributes = _cloneDeep(interviewAttributes);
+        valuesByPath = { 'is_valid': null } as any;
+        interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_valid'] });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(3);
+
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: null });
+    });
+
     test('With no field to be updated', async() => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const interview = await updateInterview(testAttributes, { valuesByPath: { 'notAnInterviewField': 'abc' } });
@@ -411,9 +483,8 @@ describe('copyResponsesToValidatedData', () => {
         await copyResponsesToValidatedData(testAttributes);
         expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.responses));
         expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
-        expect(testAttributes.is_frozen).toEqual(true);
         expect(mockUpdate).toHaveBeenCalledTimes(1);
-        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { is_frozen: true, validated_data: testAttributes.validated_data });
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { validated_data: testAttributes.validated_data });
     });
 
     test('Copy with existing validation data', async() => {
@@ -432,8 +503,7 @@ describe('copyResponsesToValidatedData', () => {
         expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.responses));
         expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
         expect(testAttributes.validated_data?._validatedDataCopiedAt).not.toEqual(originalTimestamp);
-        expect(testAttributes.is_frozen).toEqual(true);
-        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { is_frozen: true, validated_data: testAttributes.validated_data });
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { validated_data: testAttributes.validated_data });
     });
 
     test('Copy with existing and comment', async() => {
@@ -455,8 +525,7 @@ describe('copyResponsesToValidatedData', () => {
         expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.responses));
         expect(testAttributes.validated_data._validationComment).toEqual(validationComment);
         expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
-        expect(testAttributes.is_frozen).toEqual(true);
-        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { is_frozen: true, validated_data: testAttributes.validated_data });
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { validated_data: testAttributes.validated_data });
     });
 
 });
