@@ -15,6 +15,7 @@ import config from 'chaire-lib-backend/lib/config/server.config';
 import interviewsDbQueries from '../../models/interviews.db.queries';
 import { UserInterviewAttributes, InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import projectConfig from '../../config/projectConfig';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 export const addRolesToInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
@@ -152,6 +153,10 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
         databaseUpdateJson.logs = interview.logs;
     }
 
+    // Freeze the interviews when they are marked validated or completed (the participant won't be able to change the answers anymore)
+    if (!_isBlank(databaseUpdateJson.is_valid) || !_isBlank(databaseUpdateJson.is_completed)) {
+        databaseUpdateJson.is_frozen = true;
+    }
     const retInterview = await interviewsDbQueries.update(interview.uuid, databaseUpdateJson);
     return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath };
 };
@@ -168,6 +173,5 @@ export const copyResponsesToValidatedData = async <CustomSurvey, CustomHousehold
     if (validationComment) {
         interview.validated_data._validationComment = validationComment;
     }
-    interview.is_frozen = true;
-    await interviewsDbQueries.update(interview.uuid, { is_frozen: true, validated_data: interview.validated_data });
+    await interviewsDbQueries.update(interview.uuid, { validated_data: interview.validated_data });
 };
