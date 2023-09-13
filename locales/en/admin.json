@@ -49,6 +49,7 @@
   "validatorComment": "Validator comment",
   "refreshValidationList": "Refresh list",
   "unauthorized": "You are not authorized to access these data",
+  "ValidationDataDirty": "Respondent data was modified since copied for validation. You may click the reset button to fetch the respondent's responses again.",
   "user": {
     "Username": "Username",
     "Email": "Email",

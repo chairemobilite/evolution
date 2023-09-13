@@ -26,7 +26,7 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import Section from '../../survey/Section';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import ConfirmModal from '../../survey/modal/ConfirmModal';
+import FormErrors from 'chaire-lib-frontend/lib/components/pageParts/FormErrors';
 import LoadingPage from '../../shared/LoadingPage';
 import ValidationLinks from './ValidationLinks';
 import { startSetValidateInterview, startUpdateValidateInterview, startResetValidateInterview, startValidateAddGroupedObjects, startValidateRemoveGroupedObjects } from '../../../actions/survey/survey';
@@ -564,6 +564,10 @@ export class ValidationOnePageSummary extends React.Component {
                                     user={this.props.user}
                                     t={this.props.t}
                                 />
+                                { this.props.interview.validationDataDirty && <FormErrors
+                                    errors={[this.props.t(['admin:ValidationDataDirty'])]}
+                                    errorType="Warning"
+                                />}
                                 {household && <InterviewStats
                                     key={this.props.interview.id}
                                     selectPlace={this.selectPlace}
