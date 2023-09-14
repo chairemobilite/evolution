@@ -11,7 +11,7 @@ import ReduxAsyncQueue from 'redux-async-queue';
 //LogRocket.init('9w4ag0/od_mtl_2018');
 
 import { authReducer } from 'chaire-lib-frontend/lib/store/auth';
-import surveyReducer from '../../reducers/survey/survey';
+import { surveyReducer } from 'evolution-frontend/lib/store/survey';
 import loadingStateReducer from '../../reducers/survey/loadingState';
 //import config from 'chaire-lib-common/lib/config/shared/project.config';
 
