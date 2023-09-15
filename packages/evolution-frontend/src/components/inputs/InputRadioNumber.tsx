@@ -152,7 +152,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                         </div>
                     </div>
                     {isOverMax && (
-                        <div>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                             <label htmlFor={`${id}over-max`}>
                                 <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit']) + ':'}</span>
                             </label>
@@ -161,6 +161,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                                 className={`apptr__form-input apptr__input-string input-${
                                     widgetConfig.iconSize || 'large'
                                 }`}
+                                style={{width: '6rem'}}
                                 name={`${id}over-max`}
                                 id={`${id}over-max`}
                                 defaultValue={currentValue}
