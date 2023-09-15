@@ -77,7 +77,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
         logDatabaseUpdates?: boolean;
         valuesByPath: { [key: string]: unknown };
         unsetPaths?: string[];
-        serverValidations?: ServerValidation;
+        serverValidations?: ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
         fieldsToUpdate?: (keyof InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)[];
         logData?: { [key: string]: unknown };
     }
@@ -95,6 +95,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
     const fieldsToUpdate = options.fieldsToUpdate || ['responses', 'validations'];
     const logData = options.logData || {};
     const serverValidations = await serverValidate(
+        interview,
         options.serverValidations,
         options.valuesByPath,
         options.unsetPaths || []

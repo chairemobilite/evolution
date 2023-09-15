@@ -195,7 +195,7 @@ describe('Update Interview', () => {
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledWith(undefined, valuesByPath, unsetPaths);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, unsetPaths);
 
@@ -216,7 +216,7 @@ describe('Update Interview', () => {
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledWith(undefined, valuesByPath, []);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, []);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined);
 
@@ -235,7 +235,7 @@ describe('Update Interview', () => {
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledWith(undefined, valuesByPath, []);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, []);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_completed: true }, undefined);
 
@@ -271,7 +271,7 @@ describe('Update Interview', () => {
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledWith(undefined, valuesByPath, []);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, []);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_valid: true }, undefined);
 
@@ -331,7 +331,7 @@ describe('Update Interview', () => {
         expect(interview.serverValidations).toEqual(serverValidationErrors);
 
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledWith(serverValidations, valuesByPath, []);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, serverValidations, valuesByPath, []);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
@@ -362,7 +362,7 @@ describe('Update Interview', () => {
         expect(interview.serverValuesByPath).toEqual(updatedValuesByPath);
 
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledWith(undefined, valuesByPath, unsetPaths);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, updateCallbacks, valuesByPath, unsetPaths);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);

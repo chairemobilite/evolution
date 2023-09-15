@@ -20,7 +20,7 @@ interface ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomP
         interview: InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     ) => InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     serverUpdateCallbacks: ServerFieldUpdateCallback[];
-    serverValidations: ServerValidation;
+    serverValidations: ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     roleDefinitions: (() => void) | undefined;
 }
 
