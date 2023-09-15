@@ -96,6 +96,9 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     const [isOverMax, setIsOverMax] = useState(Number(value) > maxValue);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.value === '') {
+            return;
+        }
         setCurrentValue(Number(event.target.value));
         onValueChange(event, Number(event.target.value).toString());
         Number(event.target.value) <= maxValue ? setIsOverMax(false) : setIsOverMax(true);
