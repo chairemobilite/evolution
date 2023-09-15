@@ -4,12 +4,18 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+
+import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+
 // TODO Projects define server-side validations for fields. For now, we will use something similar to the client-side validation, for ease of use, but there should be a better way to do this, without having all validations in a single file
-export type ServerValidation =
+export type ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
     | {
           [key: string]: {
               validations: {
-                  validation: (fieldValue: any) => boolean;
+                  validation: (
+                      fieldValue: any,
+                      interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+                  ) => boolean;
                   errorMessage: { [key: string]: string };
               }[];
           };
@@ -28,8 +34,9 @@ export type ServerValidation =
  * @return {*}  {Promise<{ [key: string]: { [key: string]: string } } |
  * boolean>}
  */
-const validate = async (
-    serverValidations: ServerValidation,
+const validate = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    serverValidations: ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
     valuesByPath: { [key: string]: any },
     unsetValues: string[]
 ): Promise<{ [key: string]: { [key: string]: string } } | true> => {
@@ -47,7 +54,7 @@ const validate = async (
         const key = fieldsToValidate[i];
         const validations = serverValidations[key].validations;
         const validationErrors = validations.filter((validation) =>
-            validation.validation(valuesByPath['responses.' + key])
+            validation.validation(valuesByPath['responses.' + key], interview)
         );
         if (validationErrors.length !== 0) {
             errors[key] = validationErrors[0].errorMessage;
