@@ -154,7 +154,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                     {isOverMax && (
                         <div>
                             <label htmlFor={`${id}over-max`}>
-                                <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit'])}</span>
+                                <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit']) + ':'}</span>
                             </label>
                             <input
                                 type="number"
