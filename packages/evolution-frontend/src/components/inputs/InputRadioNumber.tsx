@@ -158,6 +158,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                             </label>
                             <input
                                 type="number"
+                                pattern="[0-9]*"
                                 className={`apptr__form-input apptr__input-string input-${
                                     widgetConfig.iconSize || 'large'
                                 }`}
