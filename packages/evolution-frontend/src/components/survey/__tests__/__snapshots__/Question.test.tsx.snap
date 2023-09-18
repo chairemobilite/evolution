@@ -638,12 +638,20 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             </label>
           </div>
         </div>
-        <div>
+        <div
+          style={
+            Object {
+              "alignItems": "center",
+              "display": "flex",
+              "gap": "1rem",
+            }
+          }
+        >
           <label
             htmlFor="survey-question__home.regionover-max"
           >
             <span>
-              SpecifyAboveLimit
+              SpecifyAboveLimit:
             </span>
           </label>
           <input
@@ -653,6 +661,12 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             min={4}
             name="survey-question__home.regionover-max"
             onChange={[Function]}
+            pattern="[0-9]*"
+            style={
+              Object {
+                "width": "6rem",
+              }
+            }
             type="number"
           />
         </div>

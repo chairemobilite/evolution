@@ -199,12 +199,20 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       </label>
     </div>
   </div>
-  <div>
+  <div
+    style={
+      Object {
+        "alignItems": "center",
+        "display": "flex",
+        "gap": "1rem",
+      }
+    }
+  >
     <label
       htmlFor="testover-max"
     >
       <span>
-        SpecifyAboveLimit
+        SpecifyAboveLimit:
       </span>
     </label>
     <input
@@ -214,6 +222,12 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       min={4}
       name="testover-max"
       onChange={[Function]}
+      pattern="[0-9]*"
+      style={
+        Object {
+          "width": "6rem",
+        }
+      }
       type="number"
     />
   </div>

@@ -96,6 +96,9 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     const [isOverMax, setIsOverMax] = useState(Number(value) > maxValue);
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.value === '') {
+            return;
+        }
         setCurrentValue(Number(event.target.value));
         onValueChange(event, Number(event.target.value).toString());
         Number(event.target.value) <= maxValue ? setIsOverMax(false) : setIsOverMax(true);
@@ -149,15 +152,17 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                         </div>
                     </div>
                     {isOverMax && (
-                        <div>
+                        <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                             <label htmlFor={`${id}over-max`}>
-                                <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit'])}</span>
+                                <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit']) + ':'}</span>
                             </label>
                             <input
                                 type="number"
+                                pattern="[0-9]*"
                                 className={`apptr__form-input apptr__input-string input-${
                                     widgetConfig.iconSize || 'large'
                                 }`}
+                                style={{width: '6rem'}}
                                 name={`${id}over-max`}
                                 id={`${id}over-max`}
                                 defaultValue={currentValue}
