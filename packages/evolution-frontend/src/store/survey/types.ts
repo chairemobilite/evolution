@@ -6,7 +6,8 @@
  */
 export enum SurveyActionTypes {
     SET_INTERVIEW = 'SET_INTERVIEW',
-    UPDATE_INTERVIEW = 'UPDATE_INTERVIEW'
+    UPDATE_INTERVIEW = 'UPDATE_INTERVIEW',
+    ADD_CONSENT = 'ADD_CONSENT'
 }
 
 export type SurveyAction =
@@ -27,6 +28,10 @@ export type SurveyAction =
               };
           };
           submitted: boolean;
+      }
+    | {
+          type: SurveyActionTypes.ADD_CONSENT;
+          consented: boolean;
       };
 
 export interface SurveyState {
@@ -38,4 +43,5 @@ export interface SurveyState {
         };
     };
     readonly submitted?: boolean;
+    readonly hasConsent?: boolean;
 }

@@ -276,3 +276,8 @@ export const startUpdateInterview = <CustomSurvey, CustomHousehold, CustomHome, 
             );
         }
     });
+
+export const addConsent = (consented: boolean) => ({
+    type: 'ADD_CONSENT',
+    consented
+});

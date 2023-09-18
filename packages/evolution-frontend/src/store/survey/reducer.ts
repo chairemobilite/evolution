@@ -23,6 +23,11 @@ const reducer: Reducer<SurveyState> = (state = initialState, action) => {
             errors: action.errors,
             submitted: action.submitted
         };
+    case SurveyActionTypes.ADD_CONSENT:
+        return {
+            ...state,
+            hasConsent: action.consented
+        };
     default:
         return state;
     }
