@@ -408,6 +408,9 @@ export const startUpdateSurveyValidateInterview = function(sectionShortname, val
 };
 
 export const startUpdateValidateInterview = function(sectionShortname, valuesByPath = null, unsetPaths = null, interview = null, callback) {
+  console.log("sectionShortname", sectionShortname)
+  console.log("valuesByPath", valuesByPath)
+  console.log("interview0", interview)
   return {
     queue: 'UPDATE_INTERVIEW',
     callback: async function(next, dispatch, getState) {
@@ -415,6 +418,7 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
         if (interview === null)
         {
           interview = _cloneDeep(getState().survey.interview);
+          console.log("interview1", interview)
         }
 
         dispatch(incrementLoadingState());
@@ -451,11 +455,14 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
             affectedPaths[path] = true;
             _set(interview, path, valuesByPath[path]);
           }
+
+          console.log("affectedPaths", affectedPaths)
         }
 
         sectionShortname = 'validationOnePager';
         const updatedInterviewAndValuesByPath = updateSection(sectionShortname, interview, affectedPaths, valuesByPath);
         interview    = updatedInterviewAndValuesByPath[0];
+        console.log("interview2", interview)
         valuesByPath = updatedInterviewAndValuesByPath[1];
 
         if (!interview.sectionLoaded || interview.sectionLoaded !== sectionShortname)
@@ -482,6 +489,16 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
           }
           return null;
         }
+
+        const updateBody = {
+          id          : interview.id,
+          participant_id: interview.participant_id,
+          valuesByPath: valuesByPath,
+          unsetPaths  : unsetPaths,
+        }
+
+        console.log("updateBody", updateBody)
+
         const response = await fetch(`/api/survey/updateValidateInterview/${interview.uuid}`, {
           headers: {
             'Accept': 'application/json',
@@ -489,16 +506,13 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
           },
           credentials: 'include',
           method: "POST",
-          body: JSON.stringify({
-            id          : interview.id,
-            participant_id: interview.participant_id,
-            valuesByPath: valuesByPath,
-            unsetPaths  : unsetPaths,
-          })
+          body: JSON.stringify(updateBody)
         })
 
         if (response.status === 200) {
           const body = await response.json();
+          console.log("Body", body)
+
           if (body.status === 'success' && body.interviewId === interview.uuid)
           {
             //surveyHelperNew.devLog('Interview saved to db');
