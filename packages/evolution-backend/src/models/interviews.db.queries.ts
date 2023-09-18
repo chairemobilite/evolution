@@ -331,6 +331,8 @@ const getRawWhereClause = (
         } ${filter.value} `;
     case 'is_valid':
         return getBooleanFilter(`${tblAlias}.is_valid`, filter);
+    case 'is_questionable':
+        return getBooleanFilter(`${tblAlias}.is_questionable`, filter);
     case 'uuid':
         return `${tblAlias}.${field} ${filter.op ? operatorSigns[filter.op] : operatorSigns.eq} '${filter.value}'`;
     case 'audits':
@@ -454,6 +456,7 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
                 'i.is_valid',
                 'i.is_completed',
                 'i.is_validated',
+                'i.is_questionable',
                 'i.audits',
                 'participant.username',
                 knex.raw('case when participant.facebook_id is null then false else true end facebook'),
