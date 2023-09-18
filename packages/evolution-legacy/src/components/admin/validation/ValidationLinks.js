@@ -13,17 +13,20 @@ import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { faUndoAlt } from '@fortawesome/free-solid-svg-icons/faUndoAlt';
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
 import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 import { faChevronCircleRight } from '@fortawesome/free-solid-svg-icons/faChevronCircleRight';
 import { faChevronCircleLeft } from '@fortawesome/free-solid-svg-icons/faChevronCircleLeft';
 
-export default function({handleInterviewSummaryChange, updateValuesByPath, interviewIsValid, interviewUuid, user, nextInterviewUuid, prevInterviewUuid, refreshInterview, resetInterview, interviewIsComplete, interviewIsValidated, t}) {
+export default function({handleInterviewSummaryChange, updateValuesByPath, interviewIsValid, interviewIsQuestionable, interviewUuid, user, nextInterviewUuid, prevInterviewUuid, refreshInterview, resetInterview, interviewIsComplete, interviewIsValidated, t}) {
   const canConfirm = user.isAuthorized({ 'Interviews': ['confirm'] });
   return (
     <p className="center _large">
       <a href="#" onClick={(e) => { e.preventDefault(); handleInterviewSummaryChange(null); }} title={t('admin:closeInterviewSummary')}><FontAwesomeIcon icon={faWindowClose} /></a>
       {/* interviewIsValid === true  && <React.Fragment>{" "}&nbsp;&nbsp;<a href="#" className="_red"      title={t('admin:SetInvalid')} onClick={(e) => { e.preventDefault(); updateValuesByPath({is_valid: false}); }}><FontAwesomeIcon icon={faBan} /></a></React.Fragment> */}
       {/* interviewIsValid === false && <React.Fragment>{" "}&nbsp;&nbsp;<a href="#" className="_green"    title={t('admin:SetValid')} onClick={(e) => { e.preventDefault(); updateValuesByPath({is_valid: true }); }}><FontAwesomeIcon icon={faCheck} /></a></React.Fragment> */}
+      {interviewIsValid === true && <React.Fragment>{" "}&nbsp;&nbsp;<a href="#" className={`_red${interviewIsQuestionable === false ? ' _active-background' : ''}`} title={t('admin:UnsetQuestionable')} onClick={(e) => { e.preventDefault(); updateValuesByPath({is_questionable: false}); }}><FontAwesomeIcon icon={faQuestionCircle} /></a></React.Fragment> }
+      {interviewIsValid === true && <React.Fragment>{" "}&nbsp;&nbsp;<a href="#" className={`_green${interviewIsQuestionable === true ? ' _active-background' : ''}`} title={t('admin:SetQuestionable')} onClick={(e) => { e.preventDefault(); updateValuesByPath({is_questionable: true}); }}><FontAwesomeIcon icon={faQuestionCircle} /></a></React.Fragment> }
       { <React.Fragment>{" "}&nbsp;&nbsp;<a href="#" className={`_red${interviewIsValid === false ? ' _active-background' : ''}`} title={t('admin:SetInvalid')} onClick={(e) => { e.preventDefault(); updateValuesByPath({is_valid: false}); }}><FontAwesomeIcon icon={faBan} /></a></React.Fragment> }
       { <React.Fragment>{" "}&nbsp;&nbsp;<a href="#" className={`_green${interviewIsValid === true ? ' _active-background' : ''}`} title={t('admin:SetValid')}   onClick={(e) => { e.preventDefault(); updateValuesByPath({is_valid: true}); }}><FontAwesomeIcon icon={faCheck} /></a></React.Fragment> }
       {/* interviewIsComplete === true  && <React.Fragment>{" "}&nbsp;&nbsp;<a href="#" className="_red"   title={t('admin:SetIncomplete')} onClick={(e) => { e.preventDefault(); updateValuesByPath({is_completed: false}); }}><span className="_small"><FontAwesomeIcon icon={faBan} /></span><FontAwesomeIcon icon={faClipboardList} /></a></React.Fragment> */}
