@@ -17,7 +17,7 @@ import { mapResponsesToValidatedData } from '../services/interviews/interviewUti
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
-import { _booleish } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 const router = express.Router();
 
@@ -33,7 +33,7 @@ router.get(
                 if (interview) {
                     const forceCopy = _booleish(req.query.reset) === true;
                     // Copy the responses in the validated_data
-                    if (forceCopy || interview.validated_data === null) {
+                    if (forceCopy || _isBlank(interview.validated_data)) {
                         await copyResponsesToValidatedData(interview);
                     }
                     // TODO Here, the responses field should not make it to frontend. But make sure there are no side effect in the frontend, where the _responses is used or checked.
