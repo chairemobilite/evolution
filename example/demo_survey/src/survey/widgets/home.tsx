@@ -137,6 +137,7 @@ export const householdCarNumber: SurveyWidgetConfig = {
   twoColumns: true,
   inputType: "string",
   datatype: "integer",
+  numericKeyboard: true,
   containsHtml: true,
   label: {
     fr: `Combien de véhicules sont à la disposition d'un ou des membres de votre ménage?<br /><span class="_pale _oblique">Inscrivez "0" si aucun véhicule dans le ménage</span>`,

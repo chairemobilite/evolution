@@ -39,6 +39,7 @@ export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPer
     size?: 'large' | 'small' | 'medium';
     textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
     disallowedCharactersRegex?: RegExp;
+    numericKeyboard?: boolean;
 };
 
 export type InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
