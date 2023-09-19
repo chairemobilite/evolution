@@ -38,6 +38,7 @@ export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPer
     datatype?: 'string' | 'integer' | 'float';
     size?: 'large' | 'small' | 'medium';
     textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+    disallowedCharactersRegex?: RegExp;
 };
 
 export type InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
