@@ -898,6 +898,7 @@ exports[`Question with widget InputString Render widget 1`] = `
       name="survey-question__home.region"
       onBlur={[Function]}
       onChange={[Function]}
+      pattern=""
       style={
         Object {
           "textTransform": "none",
@@ -1086,6 +1087,7 @@ exports[`With error message Error message on visible widget 1`] = `
       name="survey-question__home.region"
       onBlur={[Function]}
       onChange={[Function]}
+      pattern=""
       style={
         Object {
           "textTransform": "none",
@@ -1569,6 +1571,7 @@ exports[`With help popup and link Test widget with help 1`] = `
       name="survey-question__home.region"
       onBlur={[Function]}
       onChange={[Function]}
+      pattern=""
       style={
         Object {
           "textTransform": "none",
@@ -1617,6 +1620,7 @@ exports[`With joining questions Joining next 1`] = `
       name="survey-question__home.region"
       onBlur={[Function]}
       onChange={[Function]}
+      pattern=""
       style={
         Object {
           "textTransform": "none",
