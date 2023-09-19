@@ -331,6 +331,15 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
             )
             : true;
 
+        const searchPlaceButtonColor = this.props.widgetConfig.searchPlaceButtonColor
+            ? surveyHelper.parseString(
+                this.props.widgetConfig.searchPlaceButtonColor,
+                this.props.interview,
+                this.props.path,
+                this.props.user
+            )
+            : 'green';
+
         const placesIconUrl = this.props.widgetConfig.placesIcon
             ? surveyHelper.parseString(
                 this.props.widgetConfig.placesIcon.url,
@@ -438,7 +447,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                         <button
                             id={`${this.props.id}_refresh`}
                             type="button"
-                            className="button refresh-geocode green large"
+                            className={`button refresh-geocode ${searchPlaceButtonColor} large`}
                             onMouseDown={this.onSearchPlaceButtonMouseDown}
                             onMouseUp={this.onSearchPlaceButtonMouseUp}
                             onKeyDown={this.onSearchPlaceButtonKeyDown}
