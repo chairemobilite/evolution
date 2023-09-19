@@ -295,6 +295,7 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
 > & {
     inputType: 'mapFindPlace';
     showSearchPlaceButton?: boolean | ParsingFunction<boolean, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    searchPlaceButtonColor?: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     placesIcon?: {
         url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
         size?: [number, number];
