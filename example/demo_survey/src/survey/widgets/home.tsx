@@ -58,6 +58,7 @@ export const accessCode: SurveyWidgetConfig = {
   inputType: "string",
   datatype: "string",
   containsHtml: true,
+  disallowedCharactersRegex: /[^-\d]/g, // Remove everything but numbers and -
   label: (t: TFunction) => t('survey:AccessCode')
 }
 

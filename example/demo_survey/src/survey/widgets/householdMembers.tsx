@@ -40,6 +40,7 @@ export const personAge = {
   type: "question",
   path: "age",
   inputType: "string",
+  disallowedCharactersRegex: /\D/g, // Remove everything but numbers
   datatype: "integer",
   twoColumns: true,
   containsHtml: true,
