@@ -95,8 +95,12 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     const [currentValue, setCurrentValue] = useState(!_isBlank(value) ? Number(value) : -1);
     const [isOverMax, setIsOverMax] = useState(Number(value) > maxValue);
 
-    const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.value === '') {
+    const handleOnChange = (event) => {
+        // "blur" is the event triggered when the input loses focus.
+        // When this happens, if the text field contains "" (an empty string), then the text box is left empty 
+        // and it's not clear what is the true value recorded by the widget. Therefore, if the event is 'blur', 
+        // we change the value of the widget to "" to make it appear unanswered. 
+        if (event.type !== "blur" && event.target.value === '') {
             return;
         }
         setCurrentValue(Number(event.target.value));
@@ -167,7 +171,8 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                                 id={`${id}over-max`}
                                 defaultValue={currentValue}
                                 min={maxValue + 1}
-                                onChange={handleOnChange}
+                                onBlur={handleOnChange}
+                                onMouseUp={handleOnChange}
                             />
                         </div>
                     )}
