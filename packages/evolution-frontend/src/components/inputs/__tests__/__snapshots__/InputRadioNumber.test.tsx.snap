@@ -216,7 +216,6 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       </span>
     </label>
     <input
-      autoFocus={true}
       className="apptr__form-input apptr__input-string input-large"
       defaultValue={4}
       id="testover-max"

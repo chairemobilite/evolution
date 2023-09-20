@@ -655,7 +655,6 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             </span>
           </label>
           <input
-            autoFocus={true}
             className="apptr__form-input apptr__input-string input-large"
             defaultValue={4}
             id="survey-question__home.regionover-max"
