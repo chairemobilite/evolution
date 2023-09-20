@@ -152,7 +152,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                                 className={'input-radio'}
                                 onChange={handleOnChange}
                             />
-                            <label htmlFor={`${id}_${maxValue + 1}`}>{`${maxValue + 1} +`}</label>
+                            <label htmlFor={`${id}_${maxValue + 1}`}>{`${maxValue + 1}+`}</label>
                         </div>
                     </div>
                     {isOverMax && (
