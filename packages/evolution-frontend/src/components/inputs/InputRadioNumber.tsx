@@ -161,7 +161,6 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                                 <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit']) + ':'}</span>
                             </label>
                             <input
-                                autoFocus
                                 type="number"
                                 pattern="[0-9]*"
                                 className={`apptr__form-input apptr__input-string input-${
