@@ -94,7 +94,7 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       <label
         htmlFor="test_4"
       >
-        4 +
+        4+
       </label>
     </div>
   </div>
@@ -195,7 +195,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       <label
         htmlFor="test_4"
       >
-        4 +
+        4+
       </label>
     </div>
   </div>
@@ -216,12 +216,14 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       </span>
     </label>
     <input
+      autoFocus={true}
       className="apptr__form-input apptr__input-string input-large"
       defaultValue={4}
       id="testover-max"
       min={4}
       name="testover-max"
-      onChange={[Function]}
+      onBlur={[Function]}
+      onMouseUp={[Function]}
       pattern="[0-9]*"
       style={
         Object {

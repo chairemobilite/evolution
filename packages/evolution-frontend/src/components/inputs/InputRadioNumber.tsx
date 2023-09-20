@@ -97,10 +97,10 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
 
     const handleOnChange = (event) => {
         // "blur" is the event triggered when the input loses focus.
-        // When this happens, if the text field contains "" (an empty string), then the text box is left empty 
-        // and it's not clear what is the true value recorded by the widget. Therefore, if the event is 'blur', 
-        // we change the value of the widget to "" to make it appear unanswered. 
-        if (event.type !== "blur" && event.target.value === '') {
+        // When this happens, if the text field contains "" (an empty string), then the text box is left empty
+        // and it's not clear what is the true value recorded by the widget. Therefore, if the event is 'blur',
+        // we change the value of the widget to "" to make it appear unanswered.
+        if (event.type !== 'blur' && event.target.value === '') {
             return;
         }
         setCurrentValue(Number(event.target.value));
@@ -156,7 +156,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                         </div>
                     </div>
                     {isOverMax && (
-                        <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                             <label htmlFor={`${id}over-max`}>
                                 <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit']) + ':'}</span>
                             </label>
@@ -167,7 +167,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                                 className={`apptr__form-input apptr__input-string input-${
                                     widgetConfig.iconSize || 'large'
                                 }`}
-                                style={{width: '6rem'}}
+                                style={{ width: '6rem' }}
                                 name={`${id}over-max`}
                                 id={`${id}over-max`}
                                 defaultValue={currentValue}
