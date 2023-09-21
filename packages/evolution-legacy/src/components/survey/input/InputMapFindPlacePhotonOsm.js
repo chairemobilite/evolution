@@ -24,7 +24,7 @@ import {
 import {
     faMapMarkerAlt
 } from '@fortawesome/free-solid-svg-icons/faMapMarkerAlt';
-import _get from 'lodash.get';
+import _get from 'lodash/get';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';

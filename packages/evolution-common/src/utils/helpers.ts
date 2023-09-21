@@ -4,8 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _get from 'lodash.get';
-import _set from 'lodash.set';
+import _get from 'lodash/get';
+import _set from 'lodash/set';
 import { i18n, TFunction } from 'i18next';
 
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';

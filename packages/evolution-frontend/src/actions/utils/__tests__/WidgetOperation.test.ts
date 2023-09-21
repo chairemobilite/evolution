@@ -1,4 +1,4 @@
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 import { prepareWidgets } from '../WidgetOperation';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 import { SurveyWidgets, UserFrontendInterviewAttributes } from '../../../services/interviews/interview';

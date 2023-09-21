@@ -7,7 +7,6 @@
 import moment from 'moment';
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import _max from 'lodash.max';
 import Button from 'evolution-legacy/lib/components/survey/Button';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import DatePicker from 'chaire-lib-frontend/lib/components/input/Calendar';

@@ -10,8 +10,8 @@ const knex      = require('knex')(require('../../../knexfile'));
 const fs        = require('fs');
 const chalk     = require('chalk');
 const moment    = require('moment');
-const _get      = require('lodash.get');
-const _mean     = require('lodash.mean');
+const _get      = require('lodash/get');
+const _mean     = require('lodash/mean');
 
 console.log('Exporting monitoring for project', process.env.PROJECT_SHORTNAME);
 

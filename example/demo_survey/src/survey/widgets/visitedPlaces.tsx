@@ -9,10 +9,10 @@
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons/faTrashAlt';
 import moment from 'moment-business-days';
-import _get from 'lodash.get';
-import _min from 'lodash.min';
-import _max from 'lodash.max';
-import isEmpty from 'lodash.isempty';
+import _get from 'lodash/get';
+import _min from 'lodash/min';
+import _max from 'lodash/max';
+import isEmpty from 'lodash/isEmpty';
 import { 
     lineString as turfLineString,
     distance as turfDistance,

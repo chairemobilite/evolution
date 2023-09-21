@@ -6,7 +6,6 @@
  */
 
 import moment from 'moment';
-import _get from 'lodash.get';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
 import serverHelper from 'evolution-legacy/lib/helpers/server';
 import express from 'express';

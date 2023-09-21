@@ -1,5 +1,5 @@
 import { UserInterviewAttributes } from "evolution-common/lib/services/interviews/interview";
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
 
 import { checkConditional, checkChoicesConditional } from "../Conditional";

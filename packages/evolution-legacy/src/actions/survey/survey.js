@@ -7,11 +7,11 @@
 import bowser     from 'bowser';
 //import 'whatwg-fetch';
 //import 'promise-polyfill/src/polyfill';
-import _get       from 'lodash.get';
-import _set       from 'lodash.set';
-import _cloneDeep from 'lodash.clonedeep';
-import isEqual    from 'lodash.isequal';
-import _unset     from 'lodash.unset';
+import _get       from 'lodash/get';
+import _set       from 'lodash/set';
+import _cloneDeep from 'lodash/cloneDeep';
+import isEqual    from 'lodash/isEqual';
+import _unset     from 'lodash/unset';
 
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
 // TODO Default options for retry are as high as 15 seconds, during which the

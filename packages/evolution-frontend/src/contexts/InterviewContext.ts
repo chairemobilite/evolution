@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _get from 'lodash.get';
+import _get from 'lodash/get';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as React from 'react';
 import appConfig from '../config/application.config';

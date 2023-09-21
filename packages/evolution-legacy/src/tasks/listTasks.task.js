@@ -1,7 +1,6 @@
 import 'chaire-lib-backend/lib/config/dotenv.config';
 
 import inquirer   from 'inquirer';
-import _camelCase from 'lodash.camelcase';
 import path       from 'path';
 import util       from 'util';
 import glob       from 'glob';

@@ -8,7 +8,7 @@ import parse from 'csv-parse/lib/sync';
 import fs from 'fs';
 import chalk from 'chalk';
 import slugify from 'slugify';
-import _camelCase from 'lodash.camelcase';
+import _camelCase from 'lodash/camelCase';
 
 const agenciesOutputGeojsonFilePath = __dirname + '/../survey/agencies.json';
 const outputGeojsonFilePath         = __dirname + '/../survey/busRoutes.geojson';

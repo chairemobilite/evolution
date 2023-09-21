@@ -4,10 +4,10 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _get from 'lodash.get';
-import _set from 'lodash.set';
-import _isEqual from 'lodash.isequal';
-import _cloneDeep from 'lodash.clonedeep';
+import _get from 'lodash/get';
+import _set from 'lodash/set';
+import _isEqual from 'lodash/isEqual';
+import _cloneDeep from 'lodash/cloneDeep';
 
 type Required<T> = { [P in keyof T]-?: T[P] };
 // This recursive generic type is taken from this stack overflow question:

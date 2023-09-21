@@ -9,7 +9,7 @@ const config           = require('chaire-lib-backend/lib/config/server.config').
 import defineDefaultRoles from 'evolution-backend/lib/services/auth/roleDefinition';
 const knex             = require('chaire-lib-backend/lib/config/shared/db.config').default;
 const path             = require('path');
-const _camelCase        = require('lodash.camelcase');
+import _camelCase from 'lodash/camelCase';
 const express          = require('express');
 const favicon          = require('serve-favicon');
 const expressSession   = require('express-session');

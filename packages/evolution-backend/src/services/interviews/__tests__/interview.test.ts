@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { v4 as uuidV4 } from 'uuid';
 import { updateInterview, setInterviewFields, copyResponsesToValidatedData } from '../interview';

@@ -7,7 +7,7 @@
 import React                          from 'react';
 import { withTranslation }            from 'react-i18next';
 import moment                         from 'moment-business-days';
-import _get                           from 'lodash.get';
+import _get                           from 'lodash/get';
 import { FontAwesomeIcon }            from '@fortawesome/react-fontawesome';
 import { faCheck }                    from '@fortawesome/free-solid-svg-icons/faCheck';
 import { faTimes }                    from '@fortawesome/free-solid-svg-icons/faTimes';

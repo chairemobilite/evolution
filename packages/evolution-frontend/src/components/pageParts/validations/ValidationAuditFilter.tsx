@@ -7,7 +7,7 @@
 import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FilterProps } from 'react-table';
-import _truncate from 'lodash.truncate';
+import _truncate from 'lodash/truncate';
 
 import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
 

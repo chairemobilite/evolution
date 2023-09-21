@@ -8,10 +8,10 @@
  * in the files in src/, so it was moved here. These survey helper should be
  * moved to typescript and use object-like structures, properly typed. */
 import moment       from 'moment-business-days';
-import isEmpty      from 'lodash.isempty';
-import isEqual      from 'lodash.isequal';
-import _get         from 'lodash.get';
-import _cloneDeep   from 'lodash.clonedeep';
+import isEmpty      from 'lodash/isEmpty';
+import isEqual      from 'lodash/isEqual';
+import _get         from 'lodash/get';
+import _cloneDeep from 'lodash/cloneDeep';
 import { distance as turfDistance } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';

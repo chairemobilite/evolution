@@ -8,7 +8,7 @@ import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';
 
-import isEqual from 'lodash.isequal';
+import isEqual from 'lodash/isEqual';
 
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import InputLoading from '../inputs/InputLoading';

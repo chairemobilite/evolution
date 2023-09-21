@@ -4,12 +4,12 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const isObject   = require('lodash.isobject');
-const isEmpty    = require('lodash.isempty');
-const _cloneDeep = require('lodash.clonedeep');
+const isObject   = require('lodash/isObject');
+const isEmpty    = require('lodash/isEmpty');
+import _cloneDeep from 'lodash/cloneDeep';
 const fs         = require('fs');
 const path       = require('path');
-const padStart   = require('lodash.padstart');
+const padStart   = require('lodash/padStart');
 const { directoryManager } = require('chaire-lib-backend/lib/utils/filesystem/directoryManager');
 
 const mkDirByPathSync = function(targetDir, { isRelativeToScript = false } = {}) {

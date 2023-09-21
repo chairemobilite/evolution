@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const _uniq = require('lodash.uniq')
+const _uniq = require('lodash/uniq')
 
 module.exports = function(segments) { // segments array
   const multimodes        = [];

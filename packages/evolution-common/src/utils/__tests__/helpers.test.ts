@@ -6,7 +6,7 @@
  */
 import each from 'jest-each';
 import i18n from 'i18next';
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 import { Person, UserInterviewAttributes } from '../../services/interviews/interview';
 
 import * as Helpers from '../helpers';

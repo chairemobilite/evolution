@@ -4,9 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _set from 'lodash.set';
-import _unset from 'lodash.unset';
-import _cloneDeep from 'lodash.clonedeep';
+import _set from 'lodash/set';
+import _unset from 'lodash/unset';
+import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import serverValidate, { ServerValidation } from '../validations/serverValidation';
