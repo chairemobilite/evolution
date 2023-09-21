@@ -443,10 +443,10 @@ describe(`list interviews`, () => {
 
     test('Get lists with various filter combinations', async () => {
 
-        // Query by updated time, use 0
+        // Query by updated time, most are null, 1 is 0
         const { interviews: filterUpdated0, totalCount: countUpdated0 } = await dbQueries.getList({ filters: { updated_at: { value: 0, op: 'gt' } }, pageIndex: 0, pageSize: -1 });
-        expect(countUpdated0).toEqual(5);
-        expect(filterUpdated0.length).toEqual(5);
+        expect(countUpdated0).toEqual(1); 
+        expect(filterUpdated0.length).toEqual(1);
 
         // Query by updated time, use now
         const updatedAt = moment().valueOf() / 1000;
