@@ -6,7 +6,7 @@
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import moment from 'moment-timezone';
-import _get from 'lodash.get';
+import _get from 'lodash/get';
 import { featureEach as turfFeatureEach, booleanPointInPolygon as turfPointInPolygon } from '@turf/turf';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import helper from 'evolution-legacy/lib/helpers/server';

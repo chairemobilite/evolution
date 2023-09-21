@@ -6,9 +6,8 @@
  */
 import { isFeature } from 'geojson-validation';
 import { distance as turfDistance } from '@turf/turf';
-import _get from 'lodash.get';
-import _set from 'lodash.set';
-import _cloneDeep from 'lodash.clonedeep';
+import _get from 'lodash/get';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import helper from '../../survey/helper';
 

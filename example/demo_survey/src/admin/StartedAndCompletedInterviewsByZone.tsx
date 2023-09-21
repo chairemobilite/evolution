@@ -7,7 +7,7 @@
 import React from 'react';
 import { withTranslation } from 'react-i18next';
 import ReactHighcharts from 'react-highcharts';
-import _max from 'lodash.max';
+import _max from 'lodash/max';
 
 class StartedAndCompletedInterviewsByZone extends React.Component<any, any> { 
   constructor(props) {
@@ -62,7 +62,7 @@ class StartedAndCompletedInterviewsByZone extends React.Component<any, any> {
     this.state.data.completed.reduce(function(cumulativeCount, value, i) {
       return cumulativeCompletedData[i] = cumulativeCount + value;
     },0);
-    const dataMax               = _max(this.state.data.started) || 0;
+    const dataMax               = _max(this.state.data.started as number[]) || 0;
     const cumulativeDataMax     = _max(cumulativeStartedData) || 0;
 
     const chartOptions = {

@@ -5,9 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { v4 as uuidV4 } from 'uuid';
-import _get from 'lodash.get';
-import _set from 'lodash.set';
-import sortBy from 'lodash.sortby';
+import _get from 'lodash/get';
+import sortBy from 'lodash/sortBy';
 
 import sharedHelper from '../shared/shared';
 import * as Helpers from 'evolution-common/lib/utils/helpers';

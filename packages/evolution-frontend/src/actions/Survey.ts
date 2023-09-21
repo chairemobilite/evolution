@@ -1,7 +1,7 @@
-import _set from 'lodash.set';
-import _cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
-import _unset from 'lodash.unset';
+import _set from 'lodash/set';
+import _cloneDeep from 'lodash/cloneDeep';
+import isEqual from 'lodash/isEqual';
+import _unset from 'lodash/unset';
 import { History } from 'history';
 
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));

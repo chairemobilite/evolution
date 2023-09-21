@@ -7,8 +7,8 @@
 import { withTranslation }      from 'react-i18next';
 import React                    from 'react';
 import { createBrowserHistory } from 'history';
-import _get                     from 'lodash.get';
-import _shuffle                 from 'lodash.shuffle';
+import _get                     from 'lodash/get';
+import _shuffle                 from 'lodash/shuffle';
 
 import sectionTemplate  from './SectionTemplateHOC';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';

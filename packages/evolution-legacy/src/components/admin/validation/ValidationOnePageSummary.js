@@ -8,8 +8,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import moment from 'moment-business-days';
-import _get from 'lodash.get';
-import isEqual from 'lodash.isequal';
+import _get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import {
     lineString as turfLineString,
     distance as turfDistance,

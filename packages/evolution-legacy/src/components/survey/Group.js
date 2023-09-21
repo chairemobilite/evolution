@@ -8,9 +8,9 @@ import React               from 'react';
 import { withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle }    from '@fortawesome/free-solid-svg-icons/faPlusCircle';
-import _get                from 'lodash.get';
-import sortBy              from 'lodash.sortby';
-import _cloneDeep          from 'lodash.clonedeep';
+import _get                from 'lodash/get';
+import sortBy              from 'lodash/sortBy';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';

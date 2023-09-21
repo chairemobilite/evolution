@@ -8,7 +8,7 @@ import React               from 'react';
 import { connect }         from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import moment              from 'moment-business-days';
-import _get                from 'lodash.get';
+import _get                from 'lodash/get';
 
 import config                                                                                         from 'chaire-lib-common/lib/config/shared/project.config';
 import Preferences from 'chaire-lib-common/lib/config/Preferences';

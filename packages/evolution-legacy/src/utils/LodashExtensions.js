@@ -4,10 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _isObject  from 'lodash.isobject';
-import _isEmpty   from 'lodash.isempty';
-import _isFinite  from 'lodash.isfinite';
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 const _blankToNull = function(value) {

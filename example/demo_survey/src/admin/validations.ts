@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { isFeature } from 'geojson-validation';
-import _get from 'lodash.get';
+import _get from 'lodash/get';
 import {validate as uuidValidate} from 'uuid';
 import { distance as turfDistance } from '@turf/turf';
 

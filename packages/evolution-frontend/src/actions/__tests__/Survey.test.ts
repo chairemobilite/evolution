@@ -1,5 +1,5 @@
 import fetchMock from 'jest-fetch-mock';
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
 import { startUpdateInterview } from '../Survey';
 import { prepareWidgets } from '../utils';

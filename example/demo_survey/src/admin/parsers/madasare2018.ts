@@ -5,10 +5,10 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment-timezone';
-import truncate from 'lodash.truncate';
+import truncate from 'lodash/truncate';
 import { isFeature } from 'geojson-validation';
 import { distance as turfDistance } from '@turf/turf';
-import _uniq from 'lodash.uniq';
+import _uniq from 'lodash/uniq';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import sharedHelper from 'evolution-legacy/lib/helpers/shared/shared';

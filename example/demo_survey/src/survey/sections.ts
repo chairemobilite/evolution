@@ -5,8 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment-business-days';
-import isEmpty from 'lodash.isempty';
-import _get from 'lodash.get';
+import isEmpty from 'lodash/isEmpty';
+import _get from 'lodash/get';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import SegmentsSection from './templates/SegmentsSection';

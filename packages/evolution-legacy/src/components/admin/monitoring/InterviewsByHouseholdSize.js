@@ -7,7 +7,6 @@
 import React               from 'react';
 import { withTranslation } from 'react-i18next';
 import ReactHighcharts     from 'react-highcharts';
-import _max                from 'lodash.max';
 
 import config       from 'chaire-lib-common/lib/config/shared/project.config';
 import adminHelper  from '../../../helpers/admin/admin.helper';
