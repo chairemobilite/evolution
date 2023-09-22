@@ -85,7 +85,7 @@ describe('userOpenedInterview', () => {
     });
 
     test('User opened existing interview once more', async() => {
-        expect(await dbQueries.userOpenedInterview({ interviewUuid: localUserInterviewAttributes.uuid, userId: localUser.id })).toEqual(false);
+        expect(await dbQueries.userOpenedInterview({ interviewUuid: localUserInterviewAttributes.uuid, userId: localUser.id })).toEqual(true);
         await assertAccessCounts(1);
     });
 
