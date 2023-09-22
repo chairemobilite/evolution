@@ -20,16 +20,6 @@ const getInterviewId = async (interviewUuid: string): Promise<number> => {
     return interviewId;
 };
 
-const getRecord = async (options: { interviewId: number; userId: number; validationMode?: boolean }) => {
-    const record = await knex
-        .select(`${tableName}.*`)
-        .from(tableName)
-        .where('interview_id', options.interviewId)
-        .andWhere('user_id', options.userId)
-        .andWhere('for_validation', options.validationMode === true);
-    return record.length !== 1 ? undefined : record[0];
-};
-
 const userOpenedInterview = async (options: {
     interviewUuid: string;
     userId: number;
@@ -37,20 +27,15 @@ const userOpenedInterview = async (options: {
 }): Promise<boolean> => {
     try {
         const interviewId = await getInterviewId(options.interviewUuid);
-        const userRecord = await getRecord({
-            interviewId,
-            userId: options.userId,
-            validationMode: options.validationMode
-        });
-        if (userRecord !== undefined) {
-            // There already a record, return
-            return false;
-        }
-        await knex(tableName).insert({
-            interview_id: interviewId,
-            user_id: options.userId,
-            for_validation: options.validationMode === true
-        });
+        await knex(tableName)
+            .insert({
+                interview_id: interviewId,
+                user_id: options.userId,
+                for_validation: options.validationMode === true
+            })
+            .onConflict(['interview_id', 'user_id', 'for_validation'])
+            .ignore();
+
         return true;
     } catch (error) {
         console.error(error);
@@ -65,29 +50,19 @@ const userUpdatedInterview = async (options: {
 }): Promise<boolean> => {
     try {
         const interviewId = await getInterviewId(options.interviewUuid);
-        const userRecord = await getRecord({
-            interviewId,
-            userId: options.userId,
-            validationMode: options.validationMode
-        });
-        if (userRecord !== undefined) {
-            // There already a record, update the edit counts
-            await knex(tableName)
-                .update({
-                    update_count: userRecord.update_count + 1
-                })
-                .where('interview_id', interviewId)
-                .andWhere('user_id', options.userId)
-                .andWhere('for_validation', options.validationMode === true);
-        } else {
-            // Insert a new record, the opening time will be the current timestamp
-            await knex(tableName).insert({
+        // Insert a new record, the opening time will be the current timestamp
+        await knex(tableName)
+            .insert({
                 interview_id: interviewId,
                 user_id: options.userId,
                 for_validation: options.validationMode === true,
                 update_count: 1
+            })
+            .onConflict(['interview_id', 'user_id', 'for_validation'])
+            .merge({
+                update_count: knex.raw(`${tableName}.update_count + 1`)
             });
-        }
+
         return true;
     } catch (error) {
         console.error(error);
