@@ -36,6 +36,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
                 'i.uuid',
                 knex.raw('responses->\'home\' as home'),
                 'i.is_completed',
+                'i.is_questionable',
                 'i.is_valid',
                 'participant.email',
                 'participant.username',
@@ -68,6 +69,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
             uuid: interview.uuid,
             home: interview.home === null ? {} : interview.home,
             isCompleted: interview.is_completed === null ? undefined : interview.is_completed,
+            isQuestionable: interview.is_questionable,
             isValid: interview.is_valid === null ? undefined : interview.is_valid,
             email: interview.email === null ? undefined : interview.email,
             username: interview.username === null ? undefined : interview.username,
@@ -137,7 +139,8 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
                 'validations',
                 'participant_id',
                 'is_valid',
-                'is_completed'
+                'is_completed',
+                'is_questionable'
             )
             .from('sv_interviews')
             .whereRaw('sv_interviews.is_active IS TRUE')

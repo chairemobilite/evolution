@@ -7,16 +7,16 @@
 import { Knex } from 'knex';
 
 const interviewsTbl = 'sv_interviews';
-const columnName = 'is_questionable'
+const columnName = 'is_questionable';
 
 export async function up(knex: Knex): Promise<unknown> {
     return knex.schema.alterTable(interviewsTbl, (table: Knex.TableBuilder) => {
         table.boolean(columnName).defaultTo(false).index();
-    })
+    });
 }
 
 export async function down(knex: Knex): Promise<unknown> {
     return knex.schema.alterTable(interviewsTbl, (table: Knex.TableBuilder) => {
         table.dropColumn(columnName);
-    })
+    });
 }
