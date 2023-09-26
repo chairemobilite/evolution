@@ -194,6 +194,10 @@ strong, .strong {
   font-size: $font-size-medium;
 }
 
+._together {
+  white-space: "nowrap";
+}
+
 ._fill {
   display: flex;
   flex-direction: row;
