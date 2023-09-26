@@ -96,7 +96,8 @@ router.post(
                     'validations',
                     'audits',
                     'is_valid',
-                    'is_completed'
+                    'is_completed',
+                    'is_questionable'
                 ];
                 interview.responses._updatedAt = timestamp;
                 const retInterview = await updateInterview<unknown, unknown, unknown, unknown>(interview, {

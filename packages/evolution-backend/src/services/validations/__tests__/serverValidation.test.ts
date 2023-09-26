@@ -29,6 +29,7 @@ const interviewAttributes: InterviewAttributes<unknown, unknown, unknown, unknow
     is_valid: true,
     is_active: true,
     is_completed: false,
+    is_questionable: false,
     responses: {},
     validations: {},
     logs: []

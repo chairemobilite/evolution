@@ -482,6 +482,14 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
           }
           return null;
         }
+
+        const updateBody = {
+          id          : interview.id,
+          participant_id: interview.participant_id,
+          valuesByPath: valuesByPath,
+          unsetPaths  : unsetPaths,
+        }
+
         const response = await fetch(`/api/survey/updateValidateInterview/${interview.uuid}`, {
           headers: {
             'Accept': 'application/json',
@@ -489,16 +497,12 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
           },
           credentials: 'include',
           method: "POST",
-          body: JSON.stringify({
-            id          : interview.id,
-            participant_id: interview.participant_id,
-            valuesByPath: valuesByPath,
-            unsetPaths  : unsetPaths,
-          })
+          body: JSON.stringify(updateBody)
         })
 
         if (response.status === 200) {
           const body = await response.json();
+
           if (body.status === 'success' && body.interviewId === interview.uuid)
           {
             //surveyHelperNew.devLog('Interview saved to db');

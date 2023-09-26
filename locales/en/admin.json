@@ -24,6 +24,8 @@
   "SetIncomplete": "Set as incomplete",
   "SetIsValidated": "Set as validated and confirmed",
   "SetIsValidatedEmpty": "Disable validated and confirmed",
+  "SetQuestionable": "Flag as questionable",
+  "UnsetQuestionable": "Unflag as questionable",
   "household": "household",
   "person": "person",
   "trip": "trip",
@@ -76,7 +78,8 @@
     "invalid": "Show only invalid",
     "valid": "Show only valid",
     "notValidated": "Show unvalidated",
-    "notInvalid": "Hide invalid"
+    "notInvalid": "Hide invalid",
+    "questionable": "Show only questionables"
   },
   "interviewCompletedFilter": {
     "title": "Completed?",

@@ -554,6 +554,7 @@ export class ValidationOnePageSummary extends React.Component {
                                     handleInterviewSummaryChange={this.props.handleInterviewSummaryChange}
                                     updateValuesByPath={this.updateValuesByPath}
                                     interviewIsValid={this.props.interview.is_valid}
+                                    interviewIsQuestionable={this.props.interview.is_questionable}
                                     interviewIsComplete={this.props.interview.is_completed}
                                     interviewIsValidated={this.props.interview.is_validated}
                                     interviewUuid={this.props.interview.uuid}
