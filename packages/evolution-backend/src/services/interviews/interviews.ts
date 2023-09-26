@@ -47,7 +47,6 @@ const getFiltersForDb = (
         actualFilters.is_valid = { value: null, op: 'eq' };
         break;
     case 'questionable':
-        actualFilters.is_valid = { value: true, op: 'eq' };
         actualFilters.is_questionable = { value: true, op: 'eq' };
         break;
         default:
