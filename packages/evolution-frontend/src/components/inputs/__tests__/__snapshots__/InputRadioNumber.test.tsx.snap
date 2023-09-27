@@ -6,6 +6,7 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
 >
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -13,23 +14,30 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       <input
         checked={false}
         className="input-radio"
-        id="test_1"
-        name="inputChoice_test"
+        id="test_1__input-radio__1"
+        name="test_1"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={1}
+        value="1"
       />
       <label
-        htmlFor="test_1"
+        htmlFor="test_1__input-radio__1"
+        onClick={[Function]}
       >
-        <span>
-          1
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "1",
+            }
+          }
+        />
       </label>
     </div>
   </div>
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -37,23 +45,30 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       <input
         checked={false}
         className="input-radio"
-        id="test_2"
-        name="inputChoice_test"
+        id="test_2__input-radio__2"
+        name="test_2"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={2}
+        value="2"
       />
       <label
-        htmlFor="test_2"
+        htmlFor="test_2__input-radio__2"
+        onClick={[Function]}
       >
-        <span>
-          2
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "2",
+            }
+          }
+        />
       </label>
     </div>
   </div>
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -61,23 +76,30 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       <input
         checked={false}
         className="input-radio"
-        id="test_3"
-        name="inputChoice_test"
+        id="test_3__input-radio__3"
+        name="test_3"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={3}
+        value="3"
       />
       <label
-        htmlFor="test_3"
+        htmlFor="test_3__input-radio__3"
+        onClick={[Function]}
       >
-        <span>
-          3
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "3",
+            }
+          }
+        />
       </label>
     </div>
   </div>
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -85,16 +107,24 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       <input
         checked={false}
         className="input-radio"
-        id="test_4"
-        name="inputChoice_test"
+        id="test_4__input-radio__4"
+        name="test_4"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={4}
+        value="4"
       />
       <label
-        htmlFor="test_4"
+        htmlFor="test_4__input-radio__4"
+        onClick={[Function]}
       >
-        4+
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "4+",
+            }
+          }
+        />
       </label>
     </div>
   </div>
@@ -107,6 +137,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
 >
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -114,23 +145,30 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       <input
         checked={false}
         className="input-radio"
-        id="test_1"
-        name="inputChoice_test"
+        id="test_1__input-radio__1"
+        name="test_1"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={1}
+        value="1"
       />
       <label
-        htmlFor="test_1"
+        htmlFor="test_1__input-radio__1"
+        onClick={[Function]}
       >
-        <span>
-          1
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "1",
+            }
+          }
+        />
       </label>
     </div>
   </div>
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -138,23 +176,30 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       <input
         checked={false}
         className="input-radio"
-        id="test_2"
-        name="inputChoice_test"
+        id="test_2__input-radio__2"
+        name="test_2"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={2}
+        value="2"
       />
       <label
-        htmlFor="test_2"
+        htmlFor="test_2__input-radio__2"
+        onClick={[Function]}
       >
-        <span>
-          2
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "2",
+            }
+          }
+        />
       </label>
     </div>
   </div>
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -162,23 +207,30 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       <input
         checked={false}
         className="input-radio"
-        id="test_3"
-        name="inputChoice_test"
+        id="test_3__input-radio__3"
+        name="test_3"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={3}
+        value="3"
       />
       <label
-        htmlFor="test_3"
+        htmlFor="test_3__input-radio__3"
+        onClick={[Function]}
       >
-        <span>
-          3
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "3",
+            }
+          }
+        />
       </label>
     </div>
   </div>
   <div
-    className="survey-question__input-radio-input-container"
+    className="survey-question__input-radio-input-container checked"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -186,16 +238,24 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       <input
         checked={true}
         className="input-radio"
-        id="test_4"
-        name="inputChoice_test"
+        id="test_4__input-radio__4"
+        name="test_4"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={4}
+        value="4"
       />
       <label
-        htmlFor="test_4"
+        htmlFor="test_4__input-radio__4"
+        onClick={[Function]}
       >
-        4+
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "4+",
+            }
+          }
+        />
       </label>
     </div>
   </div>
@@ -241,6 +301,7 @@ exports[`Render InputRadioNumber InputRadioNumber without "over max" option 1`] 
 >
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -248,23 +309,30 @@ exports[`Render InputRadioNumber InputRadioNumber without "over max" option 1`] 
       <input
         checked={false}
         className="input-radio"
-        id="test_1"
-        name="inputChoice_test"
+        id="test_1__input-radio__1"
+        name="test_1"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={1}
+        value="1"
       />
       <label
-        htmlFor="test_1"
+        htmlFor="test_1__input-radio__1"
+        onClick={[Function]}
       >
-        <span>
-          1
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "1",
+            }
+          }
+        />
       </label>
     </div>
   </div>
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -272,23 +340,30 @@ exports[`Render InputRadioNumber InputRadioNumber without "over max" option 1`] 
       <input
         checked={false}
         className="input-radio"
-        id="test_2"
-        name="inputChoice_test"
+        id="test_2__input-radio__2"
+        name="test_2"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={2}
+        value="2"
       />
       <label
-        htmlFor="test_2"
+        htmlFor="test_2__input-radio__2"
+        onClick={[Function]}
       >
-        <span>
-          2
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "2",
+            }
+          }
+        />
       </label>
     </div>
   </div>
   <div
     className="survey-question__input-radio-input-container"
+    onClick={[Function]}
   >
     <div
       className="label-input-container"
@@ -296,18 +371,24 @@ exports[`Render InputRadioNumber InputRadioNumber without "over max" option 1`] 
       <input
         checked={false}
         className="input-radio"
-        id="test_3"
-        name="inputChoice_test"
+        id="test_3__input-radio__3"
+        name="test_3"
         onChange={[Function]}
+        onClick={[Function]}
         type="radio"
-        value={3}
+        value="3"
       />
       <label
-        htmlFor="test_3"
+        htmlFor="test_3__input-radio__3"
+        onClick={[Function]}
       >
-        <span>
-          3
-        </span>
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "3",
+            }
+          }
+        />
       </label>
     </div>
   </div>

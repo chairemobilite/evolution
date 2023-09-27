@@ -52,7 +52,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
         Number(event.target.value) <= maxValue ? setIsOverMax(false) : setIsOverMax(true);
     };
 
-    // TODO: The three functions below are copied from InputRadio.tsx. 
+    // TODO: The three functions below are copied from InputRadio.tsx.
     // Ideally we would not repeat code like this.
     const onRadioClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -84,7 +84,12 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     const choiceList: ReactElement[] = [];
 
     for (let i = minValue; i <= maxValue; i += 1) {
-        const choice = {value: i, label: i.toString(), icon: widgetConfig.icon, inputIconPath: widgetConfig.inputIconPath};
+        const choice = {
+            value: i,
+            label: i.toString(),
+            icon: widgetConfig.icon,
+            inputIconPath: widgetConfig.inputIconPath
+        };
         choiceList.push(
             <InputRadioChoiceT
                 checked={currentValue === i}
@@ -103,7 +108,12 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
         );
     }
 
-    const overMaxChoice = {value: maxValue + 1, label: `${maxValue + 1}+`, icon: widgetConfig.icon, inputIconPath: widgetConfig.inputIconPath};
+    const overMaxChoice = {
+        value: maxValue + 1,
+        label: `${maxValue + 1}+`,
+        icon: widgetConfig.icon,
+        inputIconPath: widgetConfig.inputIconPath
+    };
     return (
         <div
             className={`survey-question__input-radio-group-container${
@@ -113,44 +123,44 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
             {choiceList}
             {widgetConfig.overMaxAllowed && (
                 <>
-                <InputRadioChoiceT
-                    checked={Number(value) > maxValue}
-                    key={`${id}_${maxValue + 1}`}
-                    id={`${id}_${maxValue + 1}`}
-                    choice={overMaxChoice as any}
-                    iconSize={widgetConfig.inputIconPath?.iconSize || '2em'}
-                    path={path}
-                    user={user}
-                    interview={interview as any}
-                    onRadioInputChange={handleOnChange}
-                    onRadioClick={onRadioClick}
-                    onContainerClick={onContainerClick}
-                    onLabelClick={onLabelClick}
-                />
-                {isOverMax && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <label htmlFor={`${id}over-max`}>
-                            <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit']) + ':'}</span>
-                        </label>
-                        <input
-                            type="number"
-                            pattern="[0-9]*"
-                            className={`apptr__form-input apptr__input-string input-${
-                                widgetConfig.iconSize || 'large'
-                            }`}
-                            style={{ width: '6rem' }}
-                            name={`${id}over-max`}
-                            id={`${id}over-max`}
-                            defaultValue={currentValue}
-                            min={maxValue + 1}
-                            onBlur={handleOnChange}
-                            onMouseUp={handleOnChange}
-                        />
-                    </div>
-                )}
-            </>
-        )}
-    </div>
+                    <InputRadioChoiceT
+                        checked={Number(value) > maxValue}
+                        key={`${id}_${maxValue + 1}`}
+                        id={`${id}_${maxValue + 1}`}
+                        choice={overMaxChoice as any}
+                        iconSize={widgetConfig.inputIconPath?.iconSize || '2em'}
+                        path={path}
+                        user={user}
+                        interview={interview as any}
+                        onRadioInputChange={handleOnChange}
+                        onRadioClick={onRadioClick}
+                        onContainerClick={onContainerClick}
+                        onLabelClick={onLabelClick}
+                    />
+                    {isOverMax && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <label htmlFor={`${id}over-max`}>
+                                <span>{t(['survey:SpecifyAboveLimit', 'main:SpecifyAboveLimit']) + ':'}</span>
+                            </label>
+                            <input
+                                type="number"
+                                pattern="[0-9]*"
+                                className={`apptr__form-input apptr__input-string input-${
+                                    widgetConfig.iconSize || 'large'
+                                }`}
+                                style={{ width: '6rem' }}
+                                name={`${id}over-max`}
+                                id={`${id}over-max`}
+                                defaultValue={currentValue}
+                                min={maxValue + 1}
+                                onBlur={handleOnChange}
+                                onMouseUp={handleOnChange}
+                            />
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
     );
 };
 

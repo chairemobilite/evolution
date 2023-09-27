@@ -47,14 +47,16 @@ export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             style={{ textTransform: props.widgetConfig.textTransform || ('none' as any) }}
             autoComplete="none"
             type="text"
-            pattern={props.widgetConfig.numericKeyboard ? "[0-9]*" : ""}
+            pattern={props.widgetConfig.numericKeyboard ? '[0-9]*' : ''}
             className={`apptr__form-input apptr__input-string input-${props.widgetConfig.size || 'large'}`}
             name={props.id}
             id={props.id}
             value={value}
             onBlur={props.onValueChange}
             // if disallowedCharactersRegex is null or undefined, then replace(...) does nothing, which is the intended behavior.
-            onChange={(e) => setValue(e.target.value.replace(props.widgetConfig.disallowedCharactersRegex as RegExp, '')) }
+            onChange={(e) =>
+                setValue(e.target.value.replace(props.widgetConfig.disallowedCharactersRegex as RegExp, ''))
+            }
             ref={props.inputRef}
             maxLength={props.widgetConfig.maxLength ? props.widgetConfig.maxLength : 255}
         />
