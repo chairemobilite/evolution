@@ -22,6 +22,8 @@
   "SetIncomplete": "Rendre incomplète",
   "SetIsValidated": "Rendre validé et confirmé",
   "SetIsValidatedEmpty": "Désactiver validé et confirmé",
+  "SetQuestionable": "Rendre questionable",
+  "UnsetQuestionable": "Enlever questionable",
   "ShowMore": "Montrer plus",
   "ReloadCache": "Rafraîchir",
   "household": "ménage",
@@ -76,7 +78,8 @@
     "invalid": "Invalides seulement",
     "valid": "Valides seulement",
     "notValidated": "Non validées seulement",
-    "notInvalid": "Cacher invalides"
+    "notInvalid": "Cacher invalides",
+    "questionable": "Montrer seulement questionables"
   },
   "interviewCompletedFilter": {
     "title": "Complètes?",

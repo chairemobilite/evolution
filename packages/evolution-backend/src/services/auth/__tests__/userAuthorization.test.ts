@@ -82,6 +82,7 @@ describe('is User allowed', () => {
             uuid: 'arbitrary',
             participant_id: 1,
             is_completed: true,
+            is_questionable: false,
             responses: {},
             validations: {},
             is_valid: true,

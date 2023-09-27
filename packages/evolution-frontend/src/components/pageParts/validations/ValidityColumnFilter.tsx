@@ -21,7 +21,7 @@ export const ValidityColumnFilter = <CustomSurvey, CustomHousehold, CustomHome, 
     column: { filterValue, setFilter }
 }: FilterProps<InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & WithTranslation) => {
     // Pre-fixed list of validity options
-    const options = React.useMemo(() => ['all', 'invalid', 'valid', 'notValidated', 'notInvalid'], []);
+    const options = React.useMemo(() => ['all', 'invalid', 'valid', 'notValidated', 'notInvalid', 'questionable'], []);
 
     return (
         <div>
