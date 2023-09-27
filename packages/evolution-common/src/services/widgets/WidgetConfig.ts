@@ -29,7 +29,7 @@ export type ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, Custom
     path: string,
     customPath?: string,
     user?: CliUser
-) => { validation: boolean; errorMessage: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> }[];
+) => { validation: boolean; errorCode?: string, errorMessage: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> }[];
 
 export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'string';

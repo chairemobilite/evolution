@@ -102,6 +102,7 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
     _updatedAt?: number;
     _language?: string;
     _isCompleted?: boolean;
+    _completedAt?: number;
 
     _sections?: {
         [sectionName: string]: SectionStatus & {
