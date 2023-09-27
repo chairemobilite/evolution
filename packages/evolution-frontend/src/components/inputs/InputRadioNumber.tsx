@@ -81,34 +81,27 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
         }
     };
 
-    const choiceBuilder = (
-        min: number,
-        max: number,
-        inputIconPath?: { iconPath: string; iconSize: string }
-    ) => {
-        const choiceList: ReactElement[] = [];
+    const choiceList: ReactElement[] = [];
 
-        for (let i = min; i <= max; i += 1) {
-            const choice = {value: i, label: i.toString(), icon: widgetConfig.icon, inputIconPath: inputIconPath};
-            choiceList.push(
-                <InputRadioChoiceT
-                    checked={currentValue === i}
-                    key={`${id}_${i}`}
-                    id={`${id}_${i}`}
-                    choice={choice as any}
-                    iconSize={inputIconPath?.iconSize || '2em'}
-                    path={path}
-                    user={user}
-                    interview={interview as any}
-                    onRadioInputChange={handleOnChange}
-                    onRadioClick={onRadioClick}
-                    onContainerClick={onContainerClick}
-                    onLabelClick={onLabelClick}
-                />
-            );
-        }
-        return choiceList;
-    };
+    for (let i = minValue; i <= maxValue; i += 1) {
+        const choice = {value: i, label: i.toString(), icon: widgetConfig.icon, inputIconPath: widgetConfig.inputIconPath};
+        choiceList.push(
+            <InputRadioChoiceT
+                checked={currentValue === i}
+                key={`${id}_${i}`}
+                id={`${id}_${i}`}
+                choice={choice as any}
+                iconSize={widgetConfig.inputIconPath?.iconSize || '2em'}
+                path={path}
+                user={user}
+                interview={interview as any}
+                onRadioInputChange={handleOnChange}
+                onRadioClick={onRadioClick}
+                onContainerClick={onContainerClick}
+                onLabelClick={onLabelClick}
+            />
+        );
+    }
 
     const overMaxChoice = {value: maxValue + 1, label: `${maxValue + 1}+`, icon: widgetConfig.icon, inputIconPath: widgetConfig.inputIconPath};
     return (
@@ -117,7 +110,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
                 widgetConfig.sameLine === false ? ' no-wrap' : ''
             }`}
         >
-            {choiceBuilder(minValue, maxValue, widgetConfig.inputIconPath)}
+            {choiceList}
             {widgetConfig.overMaxAllowed && (
                 <>
                 <InputRadioChoiceT
