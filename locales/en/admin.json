@@ -87,6 +87,10 @@
     "true": "Completed",
     "false": "Incomplete"
   },
+  "interviewByCodeFilter": {
+    "title": "Access Code",
+    "button": "Filter by access code"
+  },
   "auditErrorFilter": {
     "title": "Errors"
   },

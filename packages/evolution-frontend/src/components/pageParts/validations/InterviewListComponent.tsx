@@ -11,6 +11,7 @@ import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/int
 import InterviewList from './InterviewList';
 import ValidityColumnFilter from './ValidityColumnFilter';
 import InterviewCompletedFilter from './InterviewCompletedFilter';
+import InterviewByCodeFilter from './InterviewByCodeFilter';
 import ValidationAuditFilter from './ValidationAuditFilter';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
@@ -128,7 +129,8 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             {
                 // TODO, this column is specific to projects, it should come as props from the project
                 id: 'responses.accessCode',
-                accessor: 'responses.accessCode'
+                accessor: 'responses.accessCode',
+                Filter: InterviewByCodeFilter
             },
             {
                 accessor: 'responses._isCompleted',
