@@ -198,7 +198,9 @@ describe(`find by response`, () => {
             isCompleted: undefined,
             isValid: false,
             home: {},
+            isQuestionable: false,
             email: localUser.email,
+            username: undefined,
             facebook: false,
             google: false
         });
@@ -220,8 +222,10 @@ describe(`find by response`, () => {
             uuid: facebookUserInterviewAttributes.uuid,
             isCompleted: facebookUserInterviewAttributes.is_completed,
             isValid: facebookUserInterviewAttributes.is_valid,
+            isQuestionable: false,
             home: facebookUserInterviewAttributes.responses.home,
             email: undefined,
+            username: undefined,
             facebook: true,
             google: false
         });
@@ -230,8 +234,10 @@ describe(`find by response`, () => {
             uuid: googleUserInterviewAttributes.uuid,
             isCompleted: googleUserInterviewAttributes.is_completed,
             isValid: googleUserInterviewAttributes.is_valid,
+            isQuestionable: false,
             home: googleUserInterviewAttributes.responses.home,
             email: undefined,
+            username: undefined,
             facebook: false,
             google: true
         });
@@ -247,8 +253,10 @@ describe(`find by response`, () => {
             uuid: facebookUserInterviewAttributes.uuid,
             isCompleted: facebookUserInterviewAttributes.is_completed,
             isValid: facebookUserInterviewAttributes.is_valid,
+            isQuestionable: false,
             home: facebookUserInterviewAttributes.responses.home,
             email: undefined,
+            username: undefined,
             facebook: true,
             google: false
         });
@@ -299,6 +307,7 @@ describe('Get interview by user id', () => {
             is_completed: localUserInterviewAttributes.is_completed,
             responses: localUserInterviewAttributes.responses,
             is_valid: localUserInterviewAttributes.is_valid,
+            is_questionable: false,
             validations: localUserInterviewAttributes.validations
         });
     });
