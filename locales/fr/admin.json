@@ -87,6 +87,10 @@
     "true": "Complètes",
     "false": "Incomplètes"
   },
+  "interviewByCodeFilter": {
+    "title": "Code d'accès",
+    "button": "Filtrer par code d'accès"
+  },
   "auditErrorFilter": {
     "title": "Erreurs"
   },
