@@ -49,7 +49,7 @@ const getFiltersForDb = (
     case 'questionable':
         actualFilters.is_questionable = { value: true, op: 'eq' };
         break;
-        default:
+    default:
         // No filter required
         break;
     }
