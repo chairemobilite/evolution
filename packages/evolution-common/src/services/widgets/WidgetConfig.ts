@@ -29,7 +29,12 @@ export type ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, Custom
     path: string,
     customPath?: string,
     user?: CliUser
-) => { validation: boolean; errorCode?: string, errorMessage: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> }[];
+) => {
+    validation: boolean;
+    errorCode?: string;
+    errorMessage: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    isWarning?: boolean; // For now, used only in admin validations and auditing. Will be displayed differently in audits.
+}[];
 
 export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'string';
