@@ -528,25 +528,71 @@ const getValidationErrors = async (params: {
     }
 };
 
+/**
+ * Streams the interviews instead of returning them all together. Useful for
+ * tasks and operations that require parsing a possibly large number of
+ * interviews, like exports or global audits.
+ *
+ * Note: When processing a row involves writing data back to the database, it is
+ * necessary to pause the stream to avoid deadlocks and resume after the
+ * updates. Use `queryStream.pause()` and `queryStream.resume()` to do so.
+ *
+ * @param {({ filters: { [key: string]: { value: string | boolean | number, op:
+ * keyof OperatorSigns } }; select: { includeAudits?: boolean, responses?:
+ * ('none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable') };
+ * sort?: (string | { field: string; order: 'asc' | 'desc' })[] })} params
+ * filters specifies the fields on which to filter the interviews to stream,
+ * select allows to fine-tune the fields to return, including or excluding
+ * audits, and some combination or responses and validated_data, sort specifies
+ * which field to sort the interviews by
+ * @returns An interview stream
+ */
 const getInterviewsStream = function (params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
+    select?: {
+        includeAudits?: boolean;
+        responses?: 'none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable';
+    };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }) {
     const baseRawFilter = 'participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
     const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
     const sortFields = params.sort || [];
+    const selectFields = params.select || { includeAudits: true, responses: 'both' };
+    const responseType = selectFields.responses || 'both';
+    const select = [
+        'i.id',
+        'i.uuid',
+        'i.updated_at',
+        'i.is_valid',
+        'i.is_completed',
+        'i.is_validated',
+        knex.raw('case when validated_data is null then false else true end as validated_data_available')
+    ];
+    if (selectFields.includeAudits || selectFields.includeAudits === undefined) {
+        select.push('i.audits');
+    }
+    switch (responseType) {
+    case 'participant':
+        select.push('i.responses');
+        break;
+    case 'validated':
+        select.push('i.validated_data');
+        break;
+    case 'both':
+        select.push('i.responses');
+        select.push('i.validated_data');
+        break;
+    case 'validatedIfAvailable':
+        select.push(
+            knex.raw('case when validated_data is null then responses else validated_data end as responses')
+        );
+        break;
+    case 'none':
+        break;
+    }
     const interviewsQuery = knex
-        .select(
-            'i.id',
-            'i.uuid',
-            'i.updated_at',
-            'i.responses',
-            'i.validated_data',
-            'i.is_valid',
-            'i.is_completed',
-            'i.is_validated',
-            'i.audits'
-        )
+        .select(...select)
         .from(`${tableName} as i`)
         .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
         .whereRaw(rawFilter, bindings);

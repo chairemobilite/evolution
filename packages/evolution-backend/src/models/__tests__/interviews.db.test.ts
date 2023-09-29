@@ -104,7 +104,15 @@ const googleUserInterviewAttributes = {
     },
     validations: {},
     logs: [],
-    audits: { errorOne: 3, errorTwo: 1 }
+    audits: { errorOne: 3, errorTwo: 1 },
+    validated_data: {
+        accessCode: '2222',
+        home: {
+            someField: 'validated',
+            otherField: 'changed',
+            arrayField: ['foo', 'bar']
+        }
+    },
 };
 
 beforeAll(async () => {
@@ -663,6 +671,10 @@ describe(`stream interviews query`, () => {
     // There are 6 interviews in the DB
     const nbInterviews = 6;
     let i = 0;
+    beforeEach(() => {
+        i = 0;
+    });
+
     test('Get the complete list', (done) => {
         const queryStream = dbQueries.getInterviewsStream({filters: {}});
         queryStream.on('error', function (error) {
@@ -671,6 +683,145 @@ describe(`stream interviews query`, () => {
             done();
         })
         .on('data', function (row) {
+            expect(row.audits).toBeDefined();
+            expect(row.responses).toBeDefined();
+            expect(row.validated_data).toBeDefined();
+            if (row.validated_data_available) {
+                expect(row.validated_data).not.toBeNull();
+            } else {
+                expect(row.validated_data).toBeNull();
+            }
+            i++;
+        })
+        .on('end', function () {
+            expect(i).toBe(nbInterviews);
+            done();
+        });
+    });
+
+    test('Stream without audits', (done) => {
+        const queryStream = dbQueries.getInterviewsStream({filters: {}, select: { includeAudits: false }});
+        queryStream.on('error', function (error) {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        })
+        .on('data', function (row) {
+            expect(row.audits).not.toBeDefined();
+            expect(row.responses).toBeDefined();
+            expect(row.validated_data).toBeDefined();
+            if (row.validated_data_available) {
+                expect(row.validated_data).not.toBeNull();
+            } else {
+                expect(row.validated_data).toBeNull();
+            }
+            i++;
+        })
+        .on('end', function () {
+            expect(i).toBe(nbInterviews);
+            done();
+        });
+    });
+
+    test('Stream with only responses', (done) => {
+        const queryStream = dbQueries.getInterviewsStream({filters: {}, select: { responses: 'participant' }});
+        queryStream.on('error', function (error) {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        })
+        .on('data', function (row) {
+            expect(row.audits).toBeDefined();
+            expect(row.responses).toBeDefined();
+            expect(row.validated_data).not.toBeDefined();
+            i++;
+        })
+        .on('end', function () {
+            expect(i).toBe(nbInterviews);
+            done();
+        });
+    });
+
+    test('Stream with only validated_data', (done) => {
+        const queryStream = dbQueries.getInterviewsStream({filters: {}, select: { responses: 'validated' }});
+        queryStream.on('error', function (error) {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        })
+        .on('data', function (row) {
+            expect(row.audits).toBeDefined();
+            expect(row.responses).not.toBeDefined();
+            expect(row.validated_data).toBeDefined();
+            i++;
+        })
+        .on('end', function () {
+            expect(i).toBe(nbInterviews);
+            done();
+        });
+    });
+
+    test('Stream without responses or validated_data or audits', (done) => {
+        const queryStream = dbQueries.getInterviewsStream({filters: {}, select: { includeAudits: false, responses: 'none' }});
+        queryStream.on('error', function (error) {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        })
+        .on('data', function (row) {
+            expect(row.audits).not.toBeDefined();
+            expect(row.responses).not.toBeDefined();
+            expect(row.validated_data).not.toBeDefined();
+            i++;
+        })
+        .on('end', function () {
+            expect(i).toBe(nbInterviews);
+            done();
+        });
+    });
+
+    test('Stream with both responses and validated_data', (done) => {
+        const queryStream = dbQueries.getInterviewsStream({filters: {}, select: { responses: 'both' }});
+        queryStream.on('error', function (error) {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        })
+        .on('data', function (row) {
+            expect(row.audits).toBeDefined();
+            expect(row.responses).toBeDefined();
+            expect(row.validated_data).toBeDefined();
+            i++;
+        })
+        .on('end', function () {
+            expect(i).toBe(nbInterviews);
+            done();
+        });
+    });
+
+    test('Stream with validated_data if available', (done) => {
+        const queryStream = dbQueries.getInterviewsStream({filters: {}, select: { responses: 'validatedIfAvailable' }});
+        queryStream.on('error', function (error) {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        })
+        .on('data', function (row) {
+            expect(row.audits).toBeDefined();
+            expect(row.responses).toBeDefined();
+            expect(row.validated_data).not.toBeDefined();
+            if (row.validated_data_available) {
+                if (row.uuid === googleUserInterviewAttributes.uuid) {
+                    expect(row.responses).toEqual(googleUserInterviewAttributes.validated_data);
+                } else {
+                    expect('There is a unknown row with validated_data').toEqual('Only the google participant interview should have validated_data');
+                }
+            } else {
+                expect(row.uuid).not.toEqual(googleUserInterviewAttributes.uuid);
+                if (row.uuid === facebookUserInterviewAttributes.uuid) {
+                    expect(row.responses).toEqual(facebookUserInterviewAttributes.responses);
+                }
+            }
             i++;
         })
         .on('end', function () {
