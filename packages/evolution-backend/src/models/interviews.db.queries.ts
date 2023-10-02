@@ -228,6 +228,7 @@ export type OperatorSigns = {
     gte: string;
     lte: string;
     not: string;
+    like: string;
 };
 const operatorSigns = {
     eq: '=',
@@ -235,7 +236,8 @@ const operatorSigns = {
     lt: '<',
     gte: '>=',
     lte: '<=',
-    not: '!='
+    not: '!=',
+    like: 'like'
 };
 
 // Even if it is typed, in reality, this data comes from the universe and can be anything. Make sure we don't inject sql
@@ -284,6 +286,9 @@ const addOrderByClause = (
         knexQuery.orderByRaw(`${prefix}->>'${field}' ${order}`);
     }
 };
+
+const addLikeBinding = (operator: keyof OperatorSigns | undefined, binding: string | boolean | number) =>
+    operator === 'like' && typeof binding === 'string' ? `%${binding}%` : binding;
 
 /**
  * Create a raw where clause from a filter
@@ -365,7 +370,7 @@ const getRawWhereClause = (
                         ? `${operatorSigns[filter.op] || operatorSigns.eq} ?`
                         : `${operatorSigns.eq} ?`
                 }`,
-                filter.value
+                addLikeBinding(filter.op, filter.value)
             ];
     }
     return undefined;

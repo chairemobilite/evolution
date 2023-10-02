@@ -36,6 +36,6 @@ export type PathConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> 
     // export generated values from this value, uses the same function as the parser:
     // example: from _completedAt timestamp, generate completedAtDate and completedAtTime
     generatedValues?: {
-        [key: string]: PathConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+        [key: string]: PathConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     };
 };

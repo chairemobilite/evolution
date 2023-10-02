@@ -23,6 +23,6 @@ export type ParserFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPers
         country?: string;
     } & CustomHome,
     personsById: { [key: string]: Person<CustomPerson> }, // kept for backward compatibility, will be replaced by object types
-    personsArray: Person<CustomPerson>[],// kept for backward compatibility, one of the two will be removed
+    personsArray: Person<CustomPerson>[], // kept for backward compatibility, one of the two will be removed
     person: Person<CustomPerson>
 ) => any; // returns the new value after parsing
