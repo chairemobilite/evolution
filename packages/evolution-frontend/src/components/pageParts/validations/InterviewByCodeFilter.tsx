@@ -13,6 +13,7 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
 import InputString from 'chaire-lib-frontend/lib/components/input/InputString';
 import InputButton from 'chaire-lib-frontend/lib/components/input/Button';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 /**
  * Textbox input for access code filter
@@ -24,7 +25,9 @@ export const InterviewByCodeFilter = <CustomSurvey, CustomHousehold, CustomHome,
     t,
     column: { filterValue, setFilter }
 }: FilterProps<InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & WithTranslation) => {
-    const [currentValue, setCurrentValue] = React.useState(filterValue);
+    const [currentValue, setCurrentValue] = React.useState(
+        !_isBlank(filterValue) && filterValue.value ? filterValue.value : filterValue
+    );
 
     return (
         <div style={{ display: 'flex' }}>
@@ -35,7 +38,7 @@ export const InterviewByCodeFilter = <CustomSurvey, CustomHousehold, CustomHome,
                 onValueUpdated={(newValue) => setCurrentValue(newValue.value)}
             />
             <InputButton
-                onClick={() => setFilter(currentValue)}
+                onClick={() => setFilter(!_isBlank(currentValue) ? { value: currentValue, op: 'like' } : currentValue)}
                 icon={faCheckCircle}
                 label=""
                 size="small"

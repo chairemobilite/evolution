@@ -518,6 +518,13 @@ describe(`list interviews`, () => {
         expect(filterAccessCodeGTE.length).toEqual(1);
         expect((filterAccessCodeGTE[0].responses as any).accessCode).toEqual(googleUserInterviewAttributes.responses.accessCode);
 
+        // Query by access code with like
+        const { interviews: filterAccessCodeLike, totalCount: countAccessCodeLike } =
+            await dbQueries.getList({ filters: { 'responses.accessCode': { value: localUserInterviewAttributes.responses.accessCode.substring(0, 3), op: 'like' } }, pageIndex: 0, pageSize: -1 });
+        expect(countAccessCodeLike).toEqual(1);
+        expect(filterAccessCodeLike.length).toEqual(1);
+        expect((filterAccessCodeLike[0].responses as any).accessCode).toEqual(localUserInterviewAttributes.responses.accessCode);
+
         // Query by responses boolean
         const { interviews: filterResponsesBoolean, totalCount: countResponsesBoolean } =
             await dbQueries.getList({ filters: { 'responses.booleanField': { value: 'true' } }, pageIndex: 0, pageSize: -1 });
