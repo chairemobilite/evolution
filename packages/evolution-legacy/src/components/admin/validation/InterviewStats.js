@@ -73,9 +73,10 @@ class InterviewStats extends React.Component {
     const formattedTripsDate = responses.tripsDate ? moment(responses.tripsDate).format('LL') : "-";
 
     const personsStats = [];
+    let personNumber = 0
     for (const personId in persons)
     {
-
+      ++personNumber
       const person       = persons[personId];
       const personErrors = demoSurveyHelper.validatePerson(this.validations.person, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person);
       
@@ -186,7 +187,8 @@ class InterviewStats extends React.Component {
       
 
       const personStats = (
-        <div className="_widget_container" key={personId}>
+        <details className="_widget_container" key={personId}>
+          <summary>Personne #{personNumber}</summary>
           <span className="_widget"><FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />{person.age} ans</span>
           <span className="_widget">{person.gender}</span>
           <span className="_widget">{person.occupation}</span>
@@ -229,7 +231,7 @@ class InterviewStats extends React.Component {
 
           {tripsStats}
 
-        </div>
+        </details>
       );
       personsStats.push(personStats);
     }
