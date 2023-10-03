@@ -37,6 +37,57 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationErrors from './ValidationErrors';
 
+class KeepDiscardIgnoreImp extends React.Component {
+    static KEEP = 'keep'
+    static DISCARD = 'discard'
+    static IGNORE = 'ignore'
+
+    constructor(props) {
+      super(props);
+
+      this.state = {
+        choice: props.choice || KeepDiscardIgnoreImp.choice
+      };
+
+      this.onChange = (ev) => this.setState({ choice: ev.target.value })
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if ((prevState.choice === this.state.choice) || !this.props.CB) return
+        this.props.CB({ choice: this.state.choice, personId: this.props.personId })
+    }
+
+    render () {
+        return (
+            <div className='_member-survey-keeper'>
+                <label className='_member-survey-keeper-left' onChange={this.onChange}>
+                    <span style={this.state.choice === KeepDiscardIgnoreImp.KEEP ? {background: 'lightgreen'} : {}}>
+                      {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.KEEP}`)}
+                    </span>
+                    <input defaultChecked={this.state.choice === KeepDiscardIgnoreImp.KEEP} type="radio" name={`should-keep-${this.props.personId}`} value={KeepDiscardIgnoreImp.KEEP} />
+                </label>
+
+                <label className='_member-survey-keeper-center' onChange={this.onChange}>
+
+                    <span style={this.state.choice === KeepDiscardIgnoreImp.DISCARD ? {background: 'lightcoral'} : {}}>
+                      {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.DISCARD}`)}
+                    </span>
+                    <input defaultChecked={this.state.choice === KeepDiscardIgnoreImp.DISCARD} type="radio" name={`should-keep-${this.props.personId}`} value={KeepDiscardIgnoreImp.DISCARD} />
+                </label>
+
+                <label className='_member-survey-keeper-right' onChange={this.onChange}>
+                    <span style={this.state.choice === KeepDiscardIgnoreImp.IGNORE ? {background: 'lightgray'} : {}}>
+                      {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.IGNORE}`)}
+                    </span>
+                    <input defaultChecked={this.state.choice === KeepDiscardIgnoreImp.IGNORE} type="radio" name={`should-keep-${this.props.personId}`} value={KeepDiscardIgnoreImp.IGNORE} />
+                </label>
+            </div>
+        )
+    }
+}
+
+const KeepDiscardIgnore = withTranslation()(KeepDiscardIgnoreImp)
+
 class InterviewStats extends React.Component {
 
   constructor(props) {
@@ -45,6 +96,12 @@ class InterviewStats extends React.Component {
     //  parsed: false
     //};
     this.validations = appConfig.getAdminValidations();
+
+    this.KeepDiscardIgnoreChange = ({ choice, personId }) => {
+        const valuesByPath = {};
+        valuesByPath[`responses.household.persons.${personId}.keepDiscardIgnore`] = choice;
+        this.props.startUpdateInterview(undefined, valuesByPath, null, null);
+    }
   }
 
   componentDidMount() {
@@ -187,6 +244,7 @@ class InterviewStats extends React.Component {
 
       const personStats = (
         <div className="_widget_container" key={personId}>
+          <KeepDiscardIgnore personId={personId} choice={household.persons[personId].keepDiscardIgnore || KeepDiscardIgnoreImp.KEEP} CB={this.KeepDiscardIgnoreChange} />
           <span className="_widget"><FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />{person.age} ans</span>
           <span className="_widget">{person.gender}</span>
           <span className="_widget">{person.occupation}</span>

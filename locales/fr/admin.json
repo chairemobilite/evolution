@@ -97,5 +97,10 @@
   "interviewer": {
     "refreshInterviewerCache": "Rafraîchir la cache interviewer",
     "error": "Une erreur s'est produite en rafraîchissant la cache"
+  },
+  "interviewMember": {
+    "keep": "GARDER",
+    "discard": "ÉCARTER",
+    "ignore": "IGNORER"
   }
 }
