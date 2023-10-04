@@ -30,7 +30,7 @@ export const InterviewByCodeFilter = <CustomSurvey, CustomHousehold, CustomHome,
     );
 
     return (
-        <div style={{ display: 'flex' }}>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
             <label htmlFor={'accessCodeSearchInput'}>{t('admin:interviewByCodeFilter:title')}</label>
             <InputString
                 id="accessCodeSearchInput"
