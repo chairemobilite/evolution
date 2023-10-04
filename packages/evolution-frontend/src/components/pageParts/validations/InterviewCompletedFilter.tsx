@@ -25,7 +25,7 @@ export const InterviewCompletedFilter = <CustomSurvey, CustomHousehold, CustomHo
     const currentSelection = Object.keys(options).find((key) => _isEqual(filterValue, options[key]));
 
     return (
-        <div>
+        <div style={{ display: 'flex', margin: '2px 0' }}>
             <label htmlFor={'surveyValidation-filter-completed'}>{t('admin:interviewCompletedFilter:title')}</label>
             <select
                 id={'surveyValidation-filter-completed'}
