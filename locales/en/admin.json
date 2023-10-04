@@ -91,6 +91,10 @@
     "title": "Access Code",
     "button": "Filter by access code"
   },
+  "interviewByDateFilter": {
+    "title": "Interview date",
+    "placeholder": "Select a period"
+  },
   "auditErrorFilter": {
     "title": "Errors"
   },

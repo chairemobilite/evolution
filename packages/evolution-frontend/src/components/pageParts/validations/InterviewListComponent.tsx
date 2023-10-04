@@ -12,6 +12,7 @@ import InterviewList from './InterviewList';
 import ValidityColumnFilter from './ValidityColumnFilter';
 import InterviewCompletedFilter from './InterviewCompletedFilter';
 import InterviewByCodeFilter from './InterviewByCodeFilter';
+import InterviewByDateFilter from './InterviewByDateFilter';
 import ValidationAuditFilter from './ValidationAuditFilter';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
@@ -131,6 +132,13 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 id: 'responses.accessCode',
                 accessor: 'responses.accessCode',
                 Filter: InterviewByCodeFilter
+            },
+            {
+                id: 'created_at',
+                accessor: 'created_at',
+                Cell: ({ value }) =>
+                    !_isBlank(value) ? new Date(value).toISOString().split('T')[0].replace('/', '-') : '?', // Converts to YYYY-MM-DD format
+                Filter: InterviewByDateFilter
             },
             {
                 accessor: 'responses._isCompleted',

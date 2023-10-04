@@ -482,6 +482,13 @@ describe(`list interviews`, () => {
         expect(countCreate2).toEqual(3);
         expect(filterCreate2.length).toEqual(3);
 
+        // Query by creation time range
+        const createdAtStart = (moment(filterCreate[2].created_at).valueOf() - 1) / 1000;
+        const createdAtEnd = (moment(filterCreate[4].created_at).valueOf() + 1) / 1000;
+        const { interviews: filterCreate3, totalCount: countCreate3 } = await dbQueries.getList({ filters: { created_at: { value: [createdAtStart, createdAtEnd] as any } }, pageIndex: 0, pageSize: -1 });
+        expect(countCreate3).toEqual(3);
+        expect(filterCreate3.length).toEqual(3);
+
         // Update one interview and query again by same updated time, it should return the udpated interview
         const addAttributes = { responses: { foo: 'test' }, validations: { bar: true, other: 'data' }};
         const newAttributes = {
