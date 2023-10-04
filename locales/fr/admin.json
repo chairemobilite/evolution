@@ -91,6 +91,10 @@
     "title": "Code d'accès",
     "button": "Filtrer par code d'accès"
   },
+  "interviewByDateFilter": {
+    "title": "Date d'entrevue",
+    "placeholder": "Sélectionner une période"
+  },
   "auditErrorFilter": {
     "title": "Erreurs"
   },

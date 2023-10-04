@@ -29,6 +29,7 @@ export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unkno
         const {
             id,
             uuid,
+            created_at,
             is_valid,
             is_completed,
             is_validated,
@@ -43,6 +44,7 @@ export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unkno
         return {
             id,
             uuid,
+            created_at,
             is_valid,
             is_completed,
             is_validated,

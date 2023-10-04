@@ -329,14 +329,25 @@ const getRawWhereClause = (
         return `${fieldName} IS ${notStr} null`;
     };
     switch (field) {
+    // For created_at and updated_at, we also accept a date range as an array two unix timestamps.
+    // Note that dates in the database are saved with time zones.
+    // In such a case, the filter operation parmeter is ignored (>= and <= are used).
     case 'created_at':
-        return `extract(epoch from ${tblAlias}.created_at) ${
-            filter.op ? operatorSigns[filter.op] : operatorSigns.eq
-        } ${filter.value} `;
+        if (Array.isArray(filter.value) && filter.value.length === 2) {
+            return `extract(epoch from ${tblAlias}.created_at) >= ${filter.value[0]} AND extract(epoch from ${tblAlias}.created_at) <= ${filter.value[1]} `;
+        } else {
+            return `extract(epoch from ${tblAlias}.created_at) ${
+                filter.op ? operatorSigns[filter.op] : operatorSigns.eq
+            } ${filter.value} `;
+        }
     case 'updated_at':
-        return `extract(epoch from ${tblAlias}.updated_at) ${
-            filter.op ? operatorSigns[filter.op] : operatorSigns.eq
-        } ${filter.value} `;
+        if (Array.isArray(filter.value) && filter.value.length === 2) {
+            return `extract(epoch from ${tblAlias}.updated_at) >= ${filter.value[0]} AND extract(epoch from ${tblAlias}.updated_at) <= ${filter.value[1]} `;
+        } else {
+            return `extract(epoch from ${tblAlias}.updated_at) ${
+                filter.op ? operatorSigns[filter.op] : operatorSigns.eq
+            } ${filter.value} `;
+        }
     case 'is_valid':
         return getBooleanFilter(`${tblAlias}.is_valid`, filter);
     case 'is_questionable':
