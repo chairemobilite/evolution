@@ -79,7 +79,7 @@ export const ValidationAuditFilter = <CustomSurvey, CustomHousehold, CustomHome,
     }, [filters]);
 
     return (
-        <div>
+        <div style={{ display: 'flex', margin: '2px 0' }}>
             <label htmlFor={'surveyValidation-filter-audit'}>{t('admin:auditErrorFilter:title')}</label>
             <select
                 id={'surveyValidation-filter-audit'}

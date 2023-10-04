@@ -24,7 +24,7 @@ export const ValidityColumnFilter = <CustomSurvey, CustomHousehold, CustomHome, 
     const options = React.useMemo(() => ['all', 'invalid', 'valid', 'notValidated', 'notInvalid', 'questionable'], []);
 
     return (
-        <div>
+        <div style={{ display: 'flex', margin: '2px 0' }}>
             <label htmlFor={'surveyValidation-filter-validity'}>{t('admin:validationFilters:title')}</label>
             <select
                 id={'surveyValidation-filter-validity'}
