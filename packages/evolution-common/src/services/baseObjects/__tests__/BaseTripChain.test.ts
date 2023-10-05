@@ -10,6 +10,8 @@ import { BaseTrip, BaseTripAttributes } from '../BaseTrip';
 import { BaseTripChain, BaseTripChainAttributes, ExtendedTripChainAttributes } from '../BaseTripChain';
 import { Weight } from '../Weight';
 import { WeightMethod } from '../WeightMethod';
+import * as TCAttr from '../attributeTypes/TripChainAttributes';
+import * as VPAttr from '../attributeTypes/VisitedPlaceAttributes';
 
 const validUUID = uuidV4();
 
@@ -32,6 +34,11 @@ describe('BaseTripChain', () => {
         _uuid: validUUID,
         _weight: { weight: 0.0, method: new WeightMethod(weightMethodAttributes) },
         trips: [new BaseTrip(baseTripAttributes)],
+        isMultiloop: false,
+        isConstrained: true,
+        category: 'simple' as TCAttr.TripChainCategory,
+        mainActivityCategory: 'work' as VPAttr.ActivityCategory,
+        mainActivity: 'workOther' as VPAttr.Activity,
     };
 
     it('should create a new BaseTripChain instance', () => {
@@ -42,18 +49,34 @@ describe('BaseTripChain', () => {
         expect(tripChain.trips[0]).toBeInstanceOf(BaseTrip);
         expect(tripChain.trips[0]._uuid).toEqual(baseTripAttributes._uuid);
         expect(tripChain.trips[0].segments.length).toEqual(0);
+        expect(tripChain.trips[0].origin).toBeUndefined();
+        expect(tripChain.trips[0].destination).toBeUndefined();
+        expect(tripChain.isMultiloop).toEqual(false);
+        expect(tripChain.isConstrained).toEqual(true);
+        expect(tripChain.category).toEqual('simple');
+        expect(tripChain.mainActivityCategory).toEqual('work');
+        expect(tripChain.mainActivity).toEqual('workOther');
     });
 
     it('should create a new BaseTripChain instance with minimal attributes', () => {
         const minimalAttributes: BaseTripChainAttributes = {
             _uuid: validUUID,
             trips: [],
+            isMultiloop: true,
+            isConstrained: false,
+            category: 'complex' as TCAttr.TripChainCategory,
         };
 
         const tripChain = new BaseTripChain(minimalAttributes);
         expect(tripChain).toBeInstanceOf(BaseTripChain);
         expect(tripChain._uuid).toEqual(validUUID);
         expect(tripChain.trips).toEqual([]);
+        expect(tripChain.isMultiloop).toEqual(true);
+        expect(tripChain.isConstrained).toEqual(false);
+        expect(tripChain.category).toEqual('complex');
+        expect(tripChain.mainActivityCategory).toBeUndefined();
+        expect(tripChain.mainActivity).toBeUndefined();
+        expect(tripChain._weight).toBeUndefined();
     });
 
     it('should validate a BaseTripChain instance', () => {

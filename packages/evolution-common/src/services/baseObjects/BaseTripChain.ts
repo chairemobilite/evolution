@@ -17,10 +17,18 @@ import { Uuidable } from './Uuidable';
 import { OptionalValidity, IValidatable } from './Validatable';
 import { BaseTrip } from './BaseTrip';
 import { Weightable, Weight } from './Weight';
+import * as TCAttr from './attributeTypes/TripChainAttributes';
+import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
 
 export type BaseTripChainAttributes = {
 
     _uuid?: string;
+
+    isMultiloop: boolean;
+    isConstrained: boolean;
+    category: TCAttr.TripChainCategory;
+    mainActivityCategory?: VPAttr.ActivityCategory; // TODO: This should maybe removed and included in the activity object
+    mainActivity?: VPAttr.Activity;
 
     trips: BaseTrip[];
 
@@ -36,6 +44,12 @@ export class BaseTripChain extends Uuidable implements IValidatable {
     _isValid: OptionalValidity;
     _weight?: Weight;
 
+    category: TCAttr.TripChainCategory;
+    isMultiloop: boolean;
+    isConstrained: boolean;
+    mainActivityCategory?: VPAttr.ActivityCategory; // TODO: This should maybe removed and included in the activity object
+    mainActivity?: VPAttr.Activity;
+
     trips: BaseTrip[];
 
     constructor(params: BaseTripChainAttributes | ExtendedTripChainAttributes) {
@@ -44,6 +58,13 @@ export class BaseTripChain extends Uuidable implements IValidatable {
 
         this._isValid = undefined;
         this._weight = params._weight;
+
+        this.category = params.category;
+        this.isMultiloop = params.isMultiloop;
+        this.isConstrained = params.isConstrained;
+        this.mainActivityCategory = params.mainActivityCategory;
+        this.mainActivity = params.mainActivity;
+
         this.trips = params.trips || [];
 
     }
@@ -69,7 +90,10 @@ export class BaseTripChain extends Uuidable implements IValidatable {
         // validate types and required attributes
         // TODO: implement dirtyParams validation:
         const params: BaseTripChainAttributes = {
-            trips: dirtyParams.trips
+            trips: dirtyParams.trips,
+            category: dirtyParams.category,
+            isMultiloop: dirtyParams.isMultiloop,
+            isConstrained: dirtyParams.isConstrained
         };
         if (allParamsValid === true) {
             return new BaseTripChain(params);

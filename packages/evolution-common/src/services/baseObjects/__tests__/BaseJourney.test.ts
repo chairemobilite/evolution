@@ -14,6 +14,7 @@ import { BasePlace } from '../BasePlace';
 import { Weight } from '../Weight';
 import { WeightMethod } from '../WeightMethod';
 import * as VPAttr from '../attributeTypes/VisitedPlaceAttributes';
+import * as TCAttr from '../attributeTypes/TripChainAttributes';
 
 const validUUID = uuidV4();
 
@@ -38,6 +39,9 @@ describe('BaseJourney', () => {
     const baseTripChainAttributes: BaseTripChainAttributes = {
         _uuid: validUUID,
         trips: [new BaseTrip(baseTripAttributes)],
+        isMultiloop: false,
+        isConstrained: true,
+        category: 'simple' as TCAttr.TripChainCategory,
     };
 
     const weightMethodAttributes = {
