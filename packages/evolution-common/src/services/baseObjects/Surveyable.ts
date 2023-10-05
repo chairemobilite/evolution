@@ -9,6 +9,12 @@ import { Uuidable } from './Uuidable';
 import { Sample } from './Sample';
 import { Survey } from './Survey';
 
+/**
+ * Surveyable is a composition class for objects that can be associated with a survey
+ * It includes both the survey object and the sample object, alongside the
+ * sample batch number (lot number)
+ */
+
 export type SurveyableAttributes = {
 
     sample: Sample;
