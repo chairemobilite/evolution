@@ -52,6 +52,7 @@ export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unkno
             google,
             responses: {
                 _isCompleted: responses?._isCompleted,
+                acceptToBeContactedByEmailForHelp: responses?.acceptToBeContactedByEmailForHelp,
                 household: { size: responses?.household?.size },
                 _validationComment: validated_data?._validationComment
             },

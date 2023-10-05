@@ -26,6 +26,7 @@
   "SetIsValidatedEmpty": "Disable validated and confirmed",
   "SetQuestionable": "Flag as questionable",
   "UnsetQuestionable": "Unflag as questionable",
+  "AcceptsToBeContactedByEmailForHelp": "Accepts to be contacted",
   "household": "household",
   "person": "person",
   "trip": "trip",
@@ -90,6 +91,12 @@
   "interviewByCodeFilter": {
     "title": "Access Code",
     "button": "Filter by access code"
+  },
+  "InterviewByAcceptsRecontactFilter": {
+    "title": "Accepts recontacts",
+    "all": "Show all",
+    "true": "Oui",
+    "false": "Non"
   },
   "auditErrorFilter": {
     "title": "Errors"

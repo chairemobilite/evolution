@@ -24,6 +24,7 @@
   "SetIsValidatedEmpty": "Désactiver validé et confirmé",
   "SetQuestionable": "Rendre questionable",
   "UnsetQuestionable": "Enlever questionable",
+  "AcceptsToBeContactedByEmailForHelp": "Accepte d'être contacté(e)",
   "ShowMore": "Montrer plus",
   "ReloadCache": "Rafraîchir",
   "household": "ménage",
@@ -90,6 +91,12 @@
   "interviewByCodeFilter": {
     "title": "Code d'accès",
     "button": "Filtrer par code d'accès"
+  },
+  "interviewByAcceptsRecontactFilter": {
+    "title": "Accepte d'être recontacté(e)",
+    "all": "Tout montrer",
+    "true": "Oui",
+    "false": "Non"
   },
   "auditErrorFilter": {
     "title": "Erreurs"

@@ -12,10 +12,12 @@ import InterviewList from './InterviewList';
 import ValidityColumnFilter from './ValidityColumnFilter';
 import InterviewCompletedFilter from './InterviewCompletedFilter';
 import InterviewByCodeFilter from './InterviewByCodeFilter';
+import InterviewByAcceptsRecontactFilter from './InterviewByAcceptsRecontactFilter';
 import ValidationAuditFilter from './ValidationAuditFilter';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
-import { faEnvelope as faValidationComment } from '@fortawesome/free-solid-svg-icons/faEnvelope';
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons/faEnvelope';
+import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface InterviewListComponentProps extends WithTranslation {
@@ -139,6 +141,20 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                     value ? props.t('admin:CompletedFemSingular') : props.t('admin:NotCompletedFemSingular')
             },
             {
+                accessor: 'responses.acceptToBeContactedByEmailForHelp',
+                Filter: InterviewByAcceptsRecontactFilter,
+                Cell: ({ value }) =>
+                    value ? (
+                        <FontAwesomeIcon
+                            icon={faIdCard}
+                            className="faIconNoMargin"
+                            title={props.t('admin:AcceptsToBeContactedByEmailForHelp')}
+                        />
+                    ) : (
+                        ''
+                    )
+            },
+            {
                 accessor: 'is_valid',
                 Filter: ValidityColumnFilter,
                 Cell: ({ value }) =>
@@ -203,7 +219,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                     _isBlank(value) ? (
                         ''
                     ) : (
-                        <FontAwesomeIcon icon={faValidationComment} className="faIconNoMargin" title={value} />
+                        <FontAwesomeIcon icon={faEnvelope} className="faIconNoMargin" title={value} />
                     )
             }
         ];
