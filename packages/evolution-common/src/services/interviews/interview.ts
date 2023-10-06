@@ -103,6 +103,7 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
     _language?: string;
     _isCompleted?: boolean;
     _completedAt?: number;
+    acceptToBeContactedByEmailForHelp?: boolean;
 
     _sections?: {
         [sectionName: string]: SectionStatus & {
