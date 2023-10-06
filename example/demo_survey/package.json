@@ -71,7 +71,7 @@
         "react-i18next": "^12.2.2",
         "slugify": "^1.6.5",
         "typescript": "^4.9.4",
-        "uuid": "^9.0.0"
+        "uuid": "^8.3.2"
     },
     "devDependencies": {
         "@alienfast/i18next-loader": "^1.1.4",
