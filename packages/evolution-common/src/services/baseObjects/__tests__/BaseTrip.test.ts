@@ -19,6 +19,7 @@ const validUUID = uuidV4();
 describe('BaseTrip', () => {
     const baseVisitedPlaceAttributes: BaseVisitedPlaceAttributes = {
         _uuid: uuidV4(),
+        basePlace: new BasePlace({}),
         arrivalDate: new Date('2023-10-01'),
         departureDate: new Date(),
         arrivalTime: 36000, // 10:00 AM in seconds since midnight
@@ -36,34 +37,34 @@ describe('BaseTrip', () => {
 
     const baseTripAttributes: BaseTripAttributes = {
         _uuid: validUUID,
-        _weight: { weight: 34.444, method: new WeightMethod(weightMethodAttributes) },
-        origin: new BaseVisitedPlace(new BasePlace(undefined, {}), baseVisitedPlaceAttributes),
-        destination: new BaseVisitedPlace(new BasePlace(undefined, {}), baseVisitedPlaceAttributes),
-        segments: [new BaseSegment({ _uuid: uuidV4() } as BaseSegmentAttributes), new BaseSegment({ _uuid: uuidV4() } as BaseSegmentAttributes)],
+        _weights: [{ weight: 34.444, method: new WeightMethod(weightMethodAttributes) }],
+        baseOrigin: new BaseVisitedPlace(baseVisitedPlaceAttributes),
+        baseDestination: new BaseVisitedPlace(baseVisitedPlaceAttributes),
+        baseSegments: [new BaseSegment({ _uuid: uuidV4() } as BaseSegmentAttributes), new BaseSegment({ _uuid: uuidV4() } as BaseSegmentAttributes)],
     };
 
     it('should create a new BaseTrip instance', () => {
         const trip = new BaseTrip(baseTripAttributes);
         expect(trip).toBeInstanceOf(BaseTrip);
         expect(trip._uuid).toEqual(validUUID);
-        expect(trip.origin).toBeInstanceOf(BaseVisitedPlace);
-        expect(trip.destination).toBeInstanceOf(BaseVisitedPlace);
-        expect(trip.segments.length).toEqual(2);
+        expect(trip.baseOrigin).toBeInstanceOf(BaseVisitedPlace);
+        expect(trip.baseDestination).toBeInstanceOf(BaseVisitedPlace);
+        expect(trip.baseSegments?.length).toEqual(2);
     });
 
     it('should create a new BaseTrip instance with minimal attributes', () => {
         const minimalAttributes: BaseTripAttributes = {
             _uuid: validUUID,
-            segments: [],
+            baseSegments: [],
         };
 
         const trip = new BaseTrip(minimalAttributes);
         expect(trip).toBeInstanceOf(BaseTrip);
         expect(trip._uuid).toEqual(validUUID);
-        expect(trip.origin).toBeUndefined();
-        expect(trip.destination).toBeUndefined();
-        expect(trip.segments).toEqual([]);
-        expect(trip.segments.length).toEqual(0);
+        expect(trip.baseOrigin).toBeUndefined();
+        expect(trip.baseDestination).toBeUndefined();
+        expect(trip.baseSegments).toEqual([]);
+        expect(trip.baseSegments?.length).toEqual(0);
     });
 
     it('should validate a BaseTrip instance', () => {
@@ -86,11 +87,56 @@ describe('BaseTrip', () => {
 
     it('should set weight and method correctly', () => {
         const trip = new BaseTrip(baseTripAttributes);
-        const weight: Weight = trip._weight as Weight;
+        const weight: Weight = trip._weights?.[0] as Weight;
         expect(weight.weight).toBe(34.444);
         expect(weight.method).toBeInstanceOf(WeightMethod);
         expect(weight.method.shortname).toEqual('sample-shortname2');
         expect(weight.method.name).toEqual('Sample Weight Method2');
         expect(weight.method.description).toEqual('Sample weight method description2');
     });
+
+    it('should return an empty array for valid parameters', () => {
+        const params = {
+            _uuid: uuidV4(),
+
+            baseOrigin: new BaseVisitedPlace({}),
+            baseDestination: new BaseVisitedPlace({}),
+            baseSegments: [
+                new BaseSegment({}),
+                new BaseSegment({}),
+            ],
+        };
+
+        const errors = BaseTrip.validateParams(params);
+        expect(errors).toEqual([]);
+    });
+
+    it('should return errors for invalid parameters', () => {
+        const params = {
+            _uuid: 'invalid-uuid',
+            baseOrigin: 'invalid-origin',
+            baseDestination: new Date(),
+            baseSegments: [
+                {},
+                'invalid-segment',
+            ],
+        };
+
+        const errors = BaseTrip.validateParams(params);
+        expect(errors).toHaveLength(5); // Two errors expected
+        expect(errors).toEqual([
+            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('BaseTrip validateParams: baseOrigin should be an object'),
+            new Error('BaseTrip validateParams: baseDestination should be an object'),
+            new Error('BaseTrip validateParams: baseSegments at index 0 should be an instance of BaseSegment'),
+            new Error('BaseTrip validateParams: baseSegments at index 1 should be an instance of BaseSegment'),
+        ]);
+    });
+
+    it('should accept empty params', () => {
+        const params = {};
+        const errors = BaseTrip.validateParams(params);
+        expect(errors).toHaveLength(0);
+    });
+
 });

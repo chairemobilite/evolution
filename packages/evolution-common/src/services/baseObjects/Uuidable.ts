@@ -25,4 +25,19 @@ export class Uuidable {
 
     }
 
+    /**
+     * validates provided _uuid in params
+     * @param dirtyParams the params input
+     * @returns Error[] TODO: specialize this error class
+     */
+    static validateParams(dirtyParams: { [key: string]: any }): Error[] {
+        if (dirtyParams === undefined || typeof dirtyParams !== 'object') {
+            return [new Error('Uuidable validateParams: params is undefined or invalid')];
+        } else if (dirtyParams._uuid === undefined || uuidValidate(dirtyParams._uuid)) {
+            return [];
+        } else {
+            return [new Error('Uuidable validateParams: invalid uuid')];
+        }
+    }
+
 }

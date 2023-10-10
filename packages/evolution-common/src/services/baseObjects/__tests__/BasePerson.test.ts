@@ -44,13 +44,13 @@ describe('BasePerson', () => {
         isOnTheRoadWorker: 'no' as PAttr.IsOnTheRoadWorker, // Valid on-the-road worker status
         isJobTelecommuteCompatible: 'yes' as PAttr.IsJobTelecommuteCompatible, // Valid telecommute compatibility status
         educationalAttainment: 'PhD' as PAttr.EducationalAttainment, // Valid educational attainment
-        trips: [new BaseTrip({} as BaseTripAttributes), new BaseTrip({} as BaseTripAttributes)], // Valid trips
-        visitedPlaces: [new BaseVisitedPlace(new BasePlace(undefined, {} as BasePlaceAttributes), {} as BaseVisitedPlaceAttributes)], // Valid visited places
-        vehicles: [new BaseVehicle({} as BaseVehicleAttributes)], // Empty vehicles
-        workPlaces: [new BasePlace(undefined, {} as BasePlaceAttributes)], // Valid workPlaces
-        schoolPlaces: [new BasePlace(undefined, {} as BasePlaceAttributes)], // Valid schoolPlaces
-        home: new BasePlace(undefined, {} as BasePlaceAttributes), // Valid home
-        _weight: { weight: 1.5, method: new WeightMethod(weightMethodAttributes) },
+        baseTrips: [new BaseTrip({} as BaseTripAttributes), new BaseTrip({} as BaseTripAttributes)], // Valid trips
+        baseVisitedPlaces: [new BaseVisitedPlace({} as BaseVisitedPlaceAttributes)], // Valid visited places
+        baseVehicles: [new BaseVehicle({} as BaseVehicleAttributes)], // Empty baseVehicles
+        baseWorkPlaces: [new BasePlace({} as BasePlaceAttributes)], // Valid workPlaces
+        baseSchoolPlaces: [new BasePlace({} as BasePlaceAttributes)], // Valid schoolPlaces
+        baseHome: new BasePlace({} as BasePlaceAttributes), // Valid home
+        _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         foo: 'bar', // extended attribute
     };
 
@@ -78,30 +78,30 @@ describe('BasePerson', () => {
         expect(person.isOnTheRoadWorker).toBe('no');
         expect(person.isJobTelecommuteCompatible).toBe('yes');
         expect(person.educationalAttainment).toBe('PhD');
-        expect(person.visitedPlaces?.length).toEqual(1);
-        expect(person.trips?.length).toEqual(2);
-        expect(person.vehicles?.length).toEqual(1);
+        expect(person.baseVisitedPlaces?.length).toEqual(1);
+        expect(person.baseTrips?.length).toEqual(2);
+        expect(person.baseVehicles?.length).toEqual(1);
     });
 
     it('should allow empty arrays and home', () => {
 
         const personAttributes2: ExtendedPersonAttributes = {
             _uuid: validUuid,
-            trips: [], // Empty trips
-            visitedPlaces: [], // Empty visited places
-            vehicles: [], // Empty vehicles
-            workPlaces: [], // Empty work places
-            schoolPlaces: [], // Empty school places
-            home: undefined,
+            baseTrips: [], // Empty trips
+            baseVisitedPlaces: [], // Empty visited places
+            baseVehicles: [], // Empty vehicles
+            baseWorkPlaces: [], // Empty work places
+            baseSchoolPlaces: [], // Empty school places
+            baseHome: undefined,
             foo: 'bar', // extended attribute
         };
         const person2 = new BasePerson(personAttributes2);
-        expect(person2.visitedPlaces?.length).toEqual(0);
-        expect(person2.trips?.length).toEqual(0);
-        expect(person2.vehicles?.length).toEqual(0);
-        expect(person2.workPlaces?.length).toEqual(0);
-        expect(person2.schoolPlaces?.length).toEqual(0);
-        expect(person2.home).toBeUndefined();
+        expect(person2.baseVisitedPlaces?.length).toEqual(0);
+        expect(person2.baseTrips?.length).toEqual(0);
+        expect(person2.baseVehicles?.length).toEqual(0);
+        expect(person2.baseWorkPlaces?.length).toEqual(0);
+        expect(person2.baseSchoolPlaces?.length).toEqual(0);
+        expect(person2.baseHome).toBeUndefined();
     });
 
     it('should validate a BasePerson instance', () => {
@@ -115,12 +115,179 @@ describe('BasePerson', () => {
 
     it('should set weight and method correctly', () => {
         const person = new BasePerson(personAttributes);
-        const weight: Weight = person._weight as Weight;
+        const weight: Weight = person._weights?.[0] as Weight;
         expect(weight.weight).toBe(1.5);
         expect(weight.method).toBeInstanceOf(WeightMethod);
         expect(weight.method.shortname).toEqual('sample-shortname');
         expect(weight.method.name).toEqual('Sample Weight Method');
         expect(weight.method.description).toEqual('Sample weight method description');
+    });
+
+    test('validateParams with valid parameters', () => {
+        const params = {
+            _uuid: uuidV4(),
+            age: 23,
+            ageGroup: '20-24',
+            gender: 'male',
+            drivingLicenseOwnership: 'yes',
+            transitPassOwnership: 'no',
+            carsharingMember: 'yes',
+            carsharingUser: 'yes',
+            bikesharingMember: 'no',
+            bikesharingUser: 'yes',
+            ridesharingMember: 'no',
+            ridesharingUser: 'yes',
+            occupation: 'retired',
+            jobCategory: 'technology',
+            jobName: 'Software Developer',
+            isOnTheRoadWorker: true,
+            isJobTelecommuteCompatible: false,
+            educationalAttainment: 'Ph.D',
+            baseWorkPlaces: [new BasePlace({})],
+            baseSchoolPlaces: [new BasePlace({})],
+            baseHome: new BasePlace({}),
+            baseVisitedPlaces: [new BaseVisitedPlace({})],
+            baseTrips: [new BaseTrip({})],
+            baseVehicles: [new BaseVehicle({})],
+            nickname: 'John Doe',
+            contactPhoneNumber: '123-456-7890',
+            contactEmail: 'john.doe@example.com',
+        };
+
+        const errors = BasePerson.validateParams(params);
+        expect(errors.length).toBe(0);
+    });
+
+    test('validateParams with invalid parameters', () => {
+        const params = {
+            _uuid: 'invalid_uuid',
+            age: 'InvalidAge',
+            gender: 123,
+            drivingLicenseOwnership: 4343,
+            transitPassOwnership: {},
+            carsharingMember: null,
+            carsharingUser: -932.34,
+            bikesharingMember: 44,
+            bikesharingUser: 324,
+            ridesharingMember: new Date(),
+            ridesharingUser: [],
+            occupation: [1,2,3],
+            jobCategory: ['foo', 'bar'],
+            jobName: 123,
+            isOnTheRoadWorker: Infinity,
+            isJobTelecommuteCompatible: 1234,
+            educationalAttainment: 5678,
+            baseWorkPlaces: 'InvalidArray', // Invalid type
+            baseSchoolPlaces: [new BasePlace({}), 'InvalidPlace'], // Invalid type in array
+            baseHome: 'InvalidPlace', // Invalid type
+            baseVisitedPlaces: [new BaseVisitedPlace({}), 'InvalidPlace'], // Invalid type in array
+            baseTrips: [new BaseTrip({}), 'InvalidTrip'], // Invalid type in array
+            baseVehicles: [new BaseVehicle({}), 'InvalidVehicle'], // Invalid type in array
+            contactPhoneNumber: 123, // Invalid type
+            contactEmail: 'invalid-email', // Invalid email format
+        };
+
+        const errors = BasePerson.validateParams(params);
+        expect(errors.length).toBeGreaterThan(0);
+        expect(errors).toEqual([
+            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('BasePerson validateParams: age must be a positive integer'),
+            new Error('BasePerson validateParams: gender is not a valid value'),
+            new Error('BasePerson validateParams: drivingLicenseOwnership is not a valid value'),
+            new Error('BasePerson validateParams: transitPassOwnership is not a valid value'),
+            new Error('BasePerson validateParams: carsharingMember is not a valid value'),
+            new Error('BasePerson validateParams: carsharingUser is not a valid value'),
+            new Error('BasePerson validateParams: bikesharingMember is not a valid value'),
+            new Error('BasePerson validateParams: bikesharingUser is not a valid value'),
+            new Error('BasePerson validateParams: ridesharingMember is not a valid value'),
+            new Error('BasePerson validateParams: ridesharingUser is not a valid value'),
+            new Error('BasePerson validateParams: occupation is not a valid value'),
+            new Error('BasePerson validateParams: jobCategory is not a valid value'),
+            new Error('BasePerson validateParams: jobName should be a string'),
+            new Error('BasePerson validateParams: isOnTheRoadWorker should be a boolean'),
+            new Error('BasePerson validateParams: isJobTelecommuteCompatible should be a boolean'),
+            new Error('BasePerson validateParams: educationalAttainment is not a valid value'),
+            new Error('BasePerson validateParams: baseWorkPlaces should be an array of BasePlace'),
+            new Error('BasePerson validateParams: baseSchoolPlaces should be an array of BasePlace'),
+            new Error('BasePerson validateParams: baseHome should be an instance of BasePlace'),
+            new Error('BasePerson validateParams: baseVisitedPlaces should be an array of BaseVisitedPlace'),
+            new Error('BasePerson validateParams: baseTrips should be an array of BaseTrip'),
+            new Error('BasePerson validateParams: baseVehicles should be an array of BaseVehicle'),
+            new Error('BasePerson validateParams: contactPhoneNumber should be a string'),
+            new Error('BasePerson validateParams: contactEmail is invalid'),
+        ]);
+    });
+
+    test('validateParams with invalid age', () => {
+        const params = {
+            age: -324
+        };
+
+        const errors = BasePerson.validateParams(params);
+        expect(errors.length).toBeGreaterThan(0);
+        expect(errors).toEqual([
+            new Error('BasePerson validateParams: age must be a positive integer')
+        ]);
+
+        const params2 = {
+            age: 34.5
+        };
+
+        const errors2 = BasePerson.validateParams(params2);
+        expect(errors2.length).toBeGreaterThan(0);
+        expect(errors).toEqual([
+            new Error('BasePerson validateParams: age must be a positive integer')
+        ]);
+
+        const params3 = {
+            age: -99.23434
+        };
+
+        const errors3 = BasePerson.validateParams(params3);
+        expect(errors3.length).toBeGreaterThan(0);
+        expect(errors).toEqual([
+            new Error('BasePerson validateParams: age must be a positive integer')
+        ]);
+    });
+
+    test('validateParams with empty parameters', () => {
+        const params = {};
+
+        const errors = BasePerson.validateParams(params);
+        expect(errors.length).toBe(0);
+    });
+
+    test('validateParams with valid optional parameters', () => {
+        const params = {
+            _uuid: uuidV4(),
+            age: 25,
+            gender: 'female',
+            drivingLicenseOwnership: 'no',
+            transitPassOwnership: 'no',
+            carsharingMember: 'yes',
+            carsharingUser: 'yes',
+            bikesharingMember: 'no',
+            bikesharingUser: 'yes',
+            ridesharingMember: 'no',
+            ridesharingUser: 'no',
+            occupation: 'other',
+            jobCategory: 'Technology',
+            isOnTheRoadWorker: true,
+            isJobTelecommuteCompatible: false,
+            educationalAttainment: 'none',
+            baseWorkPlaces: [new BasePlace({})],
+            baseSchoolPlaces: [new BasePlace({})],
+            baseHome: new BasePlace({}),
+            baseVisitedPlaces: [new BaseVisitedPlace({})],
+            baseTrips: [new BaseTrip({})],
+            baseVehicles: [new BaseVehicle({})],
+            nickname: 'John Doe',
+            contactPhoneNumber: '123-456-7890',
+            contactEmail: 'john.doe@example.com',
+        };
+
+        const errors = BasePerson.validateParams(params);
+        expect(errors.length).toBe(0);
     });
 
 });

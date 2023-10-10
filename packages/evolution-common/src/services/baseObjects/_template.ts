@@ -24,13 +24,13 @@ interface IBaseCLASSAttributes extends BaseCLASSAttributes {}
 class BaseCLASS extends Uuidable implements IBaseCLASSAttributes, IValidatable {
 
     _isValid: OptionalValidity;
-    _weight?: Weight;
+    _weights?: Weight[];
 
     constructor(params: BaseCLASSAttributes | ExtendedCLASSAttributes) {
         super(params._uuid);
 
         this._isValid = undefined;
-        this._weight = params._weight;
+        this._weights = params._weights;
     }
 
     validate(): OptionalValidity {
