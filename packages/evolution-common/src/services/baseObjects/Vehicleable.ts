@@ -11,6 +11,6 @@ import { BaseVehicle } from './BaseVehicle';
 
 export type Vehicleable = {
 
-    vehicles?: BaseVehicle[];
+    baseVehicles?: BaseVehicle[];
 
 };

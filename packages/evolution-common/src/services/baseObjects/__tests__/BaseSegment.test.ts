@@ -25,7 +25,7 @@ describe('BaseSegment', () => {
 
     const baseSegmentAttributes: BaseSegmentAttributes = {
         _uuid: validUUID,
-        vehicle: new BaseVehicle(baseVehicleAttributes),
+        baseVehicle: new BaseVehicle(baseVehicleAttributes),
         modeCategory: 'car' as SAttr.ModeCategory,
         mode: 'carDriver' as SAttr.Mode,
     };
@@ -34,7 +34,7 @@ describe('BaseSegment', () => {
         const segment = new BaseSegment(baseSegmentAttributes);
         expect(segment).toBeInstanceOf(BaseSegment);
         expect(segment._uuid).toEqual(validUUID);
-        expect(segment.vehicle).toBeInstanceOf(BaseVehicle);
+        expect(segment.baseVehicle).toBeInstanceOf(BaseVehicle);
         expect(segment.modeCategory).toEqual('car');
         expect(segment.mode).toEqual('carDriver');
     });
@@ -47,7 +47,7 @@ describe('BaseSegment', () => {
         const segment = new BaseSegment(minimalAttributes);
         expect(segment).toBeInstanceOf(BaseSegment);
         expect(segment._uuid).toEqual(validUUID);
-        expect(segment.vehicle).toBeUndefined();
+        expect(segment.baseVehicle).toBeUndefined();
         expect(segment.modeCategory).toBeUndefined();
         expect(segment.mode).toBeUndefined();
     });
@@ -68,5 +68,57 @@ describe('BaseSegment', () => {
 
         const segment = new BaseSegment(extendedAttributes);
         expect(segment).toBeInstanceOf(BaseSegment);
+    });
+
+    it('should return an empty array for valid parameters', () => {
+        const params = {
+            modeCategory: 'walk',
+            mode: 'walk',
+            baseVehicle: new BaseVehicle({}),
+        };
+
+        const result = BaseSegment.validateParams(params);
+
+        expect(result).toEqual([]);
+    });
+
+    it('should accept empty params', () => {
+        const params = {};
+
+        const result = BaseSegment.validateParams(params);
+
+        expect(result).toHaveLength(0);
+    });
+
+    it('should return an array of errors for invalid modeCategory', () => {
+        const params = {
+            modeCategory: 42, // Invalid type
+            mode: new Date(), // Invalid type
+            baseVehicle: new BaseVehicle({}),
+        };
+
+        const result = BaseSegment.validateParams(params);
+
+        expect(result).toHaveLength(2);
+        expect(result[0]).toBeInstanceOf(Error);
+        expect(result).toEqual([
+            new Error('BaseSegment validateParams: modeCategory should be a string'),
+            new Error('BaseSegment validateParams: mode should be a string')
+        ]);
+    });
+
+    it('should return an array of errors for missing vehicleType in baseVehicle', () => {
+        const params = {
+            modeCategory: 'transit',
+            mode: 'tram',
+            baseVehicle: {}, // wrong vehicleType
+        };
+
+        const result = BaseSegment.validateParams(params);
+
+        expect(result).toHaveLength(1);
+        expect(result).toEqual([
+            new Error('BaseSegment validateParams: baseVehicle should be an instance of BaseVehicle'),
+        ]);
     });
 });
