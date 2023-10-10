@@ -243,6 +243,7 @@ class InterviewStats extends React.Component {
 
       const personStats = (
         <details open className="_widget_container" key={personId}>
+          <KeepDiscardIgnore personId={personId} choice={household.persons[personId].keepDiscardIgnore || KeepDiscardIgnoreImp.KEEP} CB={this.KeepDiscardIgnoreChange} />
           <summary>{person.gender} {person.age} ans</summary>
           <span className="_widget"><FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />{person.age} ans</span>
           <span className="_widget">{person.gender}</span>
