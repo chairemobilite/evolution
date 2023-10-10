@@ -21,27 +21,17 @@
     
   }
 
-  .admin__interview-stats ._member-survey-keeper {
-    max-width: 25rem;
+  ._member-survey-keeper {
     display: flex;
+    gap: 2rem;
+
     margin: 0.25rem 0;
 
-    label {
-      flex-basis: 100%;
+    button {
+      flex: 1;
+
       align-items: center;
-
-      span {
-        cursor: pointer;
-        padding: 0.3rem;
-      }
-
-      /* Hide radio button circle while maintaining A11Y
-         See <https://stackoverflow.com/a/22462740> */
-      input[type="radio"] {
-          position: fixed;
-          opacity: 0;
-          pointer-events: none;
-      }
+      padding: 0.15rem;
 
       &._member-survey-keeper-left {
         justify-content: flex-start;

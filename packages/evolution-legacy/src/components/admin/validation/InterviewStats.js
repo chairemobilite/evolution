@@ -41,52 +41,43 @@ class KeepDiscardIgnoreImp extends React.Component {
     static KEEP = 'keep'
     static DISCARD = 'discard'
     static IGNORE = 'ignore'
+    static UNSET = undefined
 
     constructor(props) {
       super(props);
 
-      this.state = {
-        choice: props.choice || KeepDiscardIgnoreImp.choice
-      };
+      this.state = { choice: this.props.choice || KeepDiscardIgnore.UNSET };
 
-      this.onChange = (ev) => this.setState({ choice: ev.target.value })
+      this.onClick = (it) => {
+        this.setState({ choice: this.state.choice === it ? undefined : it });
+      }
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if ((prevState.choice === this.state.choice) || !this.props.CB) return
-        this.props.CB({ choice: this.state.choice, personId: this.props.personId })
+        if ((prevState.choice === this.state.choice) || !this.props.CB) return;
+        this.props.CB({ choice: this.state.choice, personId: this.props.personId });
     }
 
     render () {
         return (
             <div className='_member-survey-keeper'>
-                <label className='_member-survey-keeper-left' onChange={this.onChange}>
-                    <span style={this.state.choice === KeepDiscardIgnoreImp.KEEP ? {background: 'lightgreen'} : {}}>
-                      {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.KEEP}`)}
-                    </span>
-                    <input defaultChecked={this.state.choice === KeepDiscardIgnoreImp.KEEP} type="radio" name={`should-keep-${this.props.personId}`} value={KeepDiscardIgnoreImp.KEEP} />
-                </label>
+                <button style={this.state.choice === KeepDiscardIgnoreImp.KEEP ? {background: 'lightgreen'} : {}} className='_member-survey-keeper-left' type="button" onClick={this.onClick.bind(this, KeepDiscardIgnoreImp.KEEP)}>
+                    {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.KEEP}`)}
+                </button>
 
-                <label className='_member-survey-keeper-center' onChange={this.onChange}>
+                <button style={this.state.choice === KeepDiscardIgnoreImp.DISCARD ? {background: 'lightcoral'} : {}} className='_member-survey-keeper-center' type="button" onClick={this.onClick.bind(this, KeepDiscardIgnoreImp.DISCARD)}>
+                    {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.DISCARD}`)}
+                </button>
 
-                    <span style={this.state.choice === KeepDiscardIgnoreImp.DISCARD ? {background: 'lightcoral'} : {}}>
-                      {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.DISCARD}`)}
-                    </span>
-                    <input defaultChecked={this.state.choice === KeepDiscardIgnoreImp.DISCARD} type="radio" name={`should-keep-${this.props.personId}`} value={KeepDiscardIgnoreImp.DISCARD} />
-                </label>
-
-                <label className='_member-survey-keeper-right' onChange={this.onChange}>
-                    <span style={this.state.choice === KeepDiscardIgnoreImp.IGNORE ? {background: 'lightgray'} : {}}>
-                      {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.IGNORE}`)}
-                    </span>
-                    <input defaultChecked={this.state.choice === KeepDiscardIgnoreImp.IGNORE} type="radio" name={`should-keep-${this.props.personId}`} value={KeepDiscardIgnoreImp.IGNORE} />
-                </label>
+                <button style={this.state.choice === KeepDiscardIgnoreImp.IGNORE ? {background: 'lightgray'} : {}} className='_member-survey-keeper-right' disabled type="button">
+                    {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.IGNORE}`)}
+                </button>
             </div>
-        )
+        );
     }
 }
 
-const KeepDiscardIgnore = withTranslation()(KeepDiscardIgnoreImp)
+const KeepDiscardIgnore = withTranslation()(KeepDiscardIgnoreImp);
 
 class InterviewStats extends React.Component {
 
