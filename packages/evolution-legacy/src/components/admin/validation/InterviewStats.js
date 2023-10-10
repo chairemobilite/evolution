@@ -68,10 +68,6 @@ class KeepDiscardIgnoreImp extends React.Component {
                 <button style={this.state.choice === KeepDiscardIgnoreImp.DISCARD ? {background: 'lightcoral'} : {}} className='_member-survey-keeper-center' type="button" onClick={this.onClick.bind(this, KeepDiscardIgnoreImp.DISCARD)}>
                     {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.DISCARD}`)}
                 </button>
-
-                <button style={this.state.choice === KeepDiscardIgnoreImp.IGNORE ? {background: 'lightgray'} : {}} className='_member-survey-keeper-right' disabled type="button">
-                    {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.IGNORE}`)}
-                </button>
             </div>
         );
     }

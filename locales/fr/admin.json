@@ -104,7 +104,6 @@
   },
   "interviewMember": {
     "keep": "GARDER",
-    "discard": "ÉCARTER",
-    "ignore": "IGNORER"
+    "discard": "ÉCARTER"
   }
 }
