@@ -18,20 +18,20 @@ export type BaseSegmentAttributes = {
 
     _uuid?: string;
 
-    vehicle?: BaseVehicle;
+    baseVehicle?: BaseVehicle;
 
     modeCategory?: SAttr.ModeCategory; // TODO: remove this an include the mode category in the mode itself
     mode?: SAttr.Mode;
 
 };
 
-export type ExtendedSegmentAttributes = BaseSegmentAttributes & {[key: string]: any};
+export type ExtendedSegmentAttributes = BaseSegmentAttributes & { [key: string]: any };
 
 export class BaseSegment extends Uuidable implements IValidatable {
 
     _isValid: OptionalValidity;
 
-    vehicle?: BaseVehicle;
+    baseVehicle?: BaseVehicle;
 
     modeCategory?: SAttr.ModeCategory;
     mode?: SAttr.Mode;
@@ -44,7 +44,7 @@ export class BaseSegment extends Uuidable implements IValidatable {
 
         this.modeCategory = params.modeCategory;
         this.mode = params.mode;
-        this.vehicle = params.vehicle;
+        this.baseVehicle = params.baseVehicle;
 
     }
 
@@ -62,16 +62,57 @@ export class BaseSegment extends Uuidable implements IValidatable {
      * Factory that validates input from an interview and makes
      * sure types and required fields are valid before returning a new object
      * @param dirtyParams
-     * @returns BaseSegment
+     * @returns BaseSegment | Error[]
      */
-    static create(dirtyParams: { [key: string]: any }) {
-        const allParamsValid = true;
-        // validate types and required attributes
-        // TODO: implement dirtyParams validation:
-        const params: BaseSegmentAttributes = {};
-        if (allParamsValid === true) {
-            return new BaseSegment(params);
+    static create(dirtyParams: { [key: string]: any }): BaseSegment | Error[] {
+        const errors = BaseSegment.validateParams(dirtyParams);
+        return errors.length > 0 ? errors : new BaseSegment(dirtyParams as ExtendedSegmentAttributes);
+    }
+
+    /**
+     * Factory that validates input from an interview and makes
+     * sure types and required fields are valid before returning a new object
+     * @param dirtyParams
+     * @returns Error[] TODO: specialize this error class
+     */
+    static validateParams(dirtyParams: { [key: string]: any }): Error[] {
+        const errors: Error[] = [];
+
+        // Validate params object:
+        if (!dirtyParams || typeof dirtyParams !== 'object') {
+            errors.push(new Error('BaseSegment validateParams: params is undefined or invalid'));
+            return errors; // stop now otherwise it will crash because params are not valid
         }
+
+        // Validate UUID
+        const uuidErrors: Error[] = Uuidable.validateParams(dirtyParams);
+        if (uuidErrors.length > 0) {
+            errors.push(...uuidErrors);
+        }
+
+        // Validate modeCategory (if provided)
+        if (
+            dirtyParams.modeCategory !== undefined &&
+            typeof dirtyParams.modeCategory !== 'string'
+        ) {
+            errors.push(new Error('BaseSegment validateParams: modeCategory should be a string'));
+        }
+
+        // Validate mode (if provided)
+        if (
+            dirtyParams.mode !== undefined &&
+            typeof dirtyParams.mode !== 'string'
+        ) {
+            errors.push(new Error('BaseSegment validateParams: mode should be a string'));
+        }
+
+        // Validate baseVehicle (if provided)
+        if (
+            dirtyParams.baseVehicle !== undefined && !(dirtyParams.baseVehicle instanceof BaseVehicle)) {
+            errors.push(new Error('BaseSegment validateParams: baseVehicle should be an instance of BaseVehicle'));
+        }
+
+        return errors;
     }
 
 }

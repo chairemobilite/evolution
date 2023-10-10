@@ -12,15 +12,13 @@
 
 import { Uuidable } from './Uuidable';
 import { OptionalValidity, IValidatable } from './Validatable';
-import { BasePerson } from './BasePerson';
-import { Weightable, Weight } from './Weight';
+import { Weightable, Weight, validateWeights } from './Weight';
 import * as VAttr from './attributeTypes/VehicleAttributes';
 
 
 export type BaseVehicleAttributes = {
 
     _uuid?: string;
-    _weight?: Weight;
 
     make?: VAttr.Make; // TODO: remove and use Make inside model instead
     model?: VAttr.Model;
@@ -38,7 +36,7 @@ export type ExtendedVehicleAttributes = BaseVehicleAttributes & { [key: string]:
 export class BaseVehicle extends Uuidable implements IValidatable {
 
     _isValid: OptionalValidity;
-    _weight?: Weight;
+    _weights?: Weight[];
 
     make?: VAttr.Make;
     model?: VAttr.Model;
@@ -51,7 +49,7 @@ export class BaseVehicle extends Uuidable implements IValidatable {
         super(params._uuid);
 
         this._isValid = undefined;
-        this._weight = params._weight;
+        this._weights = params._weights;
 
         this.make = params.make;
         this.model = params.model;
@@ -75,16 +73,66 @@ export class BaseVehicle extends Uuidable implements IValidatable {
      * Factory that validates input from an interview and makes
      * sure types and required fields are valid before returning a new object
      * @param dirtyParams
-     * @returns BaseVehicle
+     * @returns BaseVehicle | Error[]
      */
-    static create(dirtyParams: { [key: string]: any }) {
-        const allParamsValid = true;
-        // validate types and required attributes
-        // TODO: implement dirtyParams validation:
-        const params: BaseVehicleAttributes = {};
-        if (allParamsValid === true) {
-            return new BaseVehicle(params);
-        }
+    static create(dirtyParams: { [key: string]: any }): BaseVehicle | Error[] {
+        const errors = BaseVehicle.validateParams(dirtyParams);
+        return errors.length > 0 ? errors : new BaseVehicle(dirtyParams as ExtendedVehicleAttributes);
     }
+
+    /**
+    * Validates attributes types for BaseVehicle
+    * @param dirtyParams The params input
+    * @returns Error[] TODO: specialize this error class
+    */
+    static validateParams(dirtyParams: { [key: string]: any }): Error[] {
+        const errors: Error[] = [];
+
+        // Validate params object:
+        if (!dirtyParams || typeof dirtyParams !== 'object') {
+            errors.push(new Error('BaseVehicle validateParams: params is undefined or invalid'));
+            return errors; // Stop now; other validations may crash if params are not valid
+        }
+
+        // Validate UUID
+        const uuidErrors: Error[] = Uuidable.validateParams(dirtyParams);
+        if (uuidErrors.length > 0) {
+            errors.push(...uuidErrors);
+        }
+
+        // Validate make (if provided)
+        if (dirtyParams.make !== undefined && typeof dirtyParams.make !== 'string') {
+            errors.push(new Error('BaseVehicle validateParams: make should be a string'));
+        }
+
+        // Validate model (if provided)
+        if (dirtyParams.model !== undefined && typeof dirtyParams.model !== 'string') {
+            errors.push(new Error('BaseVehicle validateParams: model should be a string'));
+        }
+
+        // Validate licensePlateNumber (if provided)
+        if (dirtyParams.licensePlateNumber !== undefined && typeof dirtyParams.licensePlateNumber !== 'string') {
+            errors.push(new Error('BaseVehicle validateParams: licensePlateNumber should be a string'));
+        }
+
+        // Validate capacitySeated (if provided)
+        if (
+            dirtyParams.capacitySeated !== undefined &&
+            (typeof dirtyParams.capacitySeated !== 'number' || !Number.isInteger(dirtyParams.capacitySeated) || dirtyParams.capacitySeated < 0)
+        ) {
+            errors.push(new Error('BaseVehicle validateParams: capacitySeated should be a positive integer'));
+        }
+
+        // Validate capacityStanding (if provided)
+        if (
+            dirtyParams.capacityStanding !== undefined &&
+            (typeof dirtyParams.capacityStanding !== 'number' || !Number.isInteger(dirtyParams.capacityStanding) || dirtyParams.capacityStanding < 0)
+        ) {
+            errors.push(new Error('BaseVehicle validateParams: capacityStanding should be a positive integer'));
+        }
+
+        return errors;
+    }
+
 
 }

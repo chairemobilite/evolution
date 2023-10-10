@@ -31,4 +31,10 @@ describe('Uuidable Class', () => {
         const invalidUuid = 'invalid-uuid';
         expect(() => new Uuidable(invalidUuid)).toThrow('Uuidable: invalid uuid');
     });
+
+    it('should return errors for invalid params and accept empty or valid uuid', () => {
+        expect(Uuidable.validateParams({ _uuid: 'invalid-uuid' })).toEqual([new Error('Uuidable validateParams: invalid uuid')]);
+        expect(Uuidable.validateParams({})).toEqual([]);
+        expect(Uuidable.validateParams({ _uuid: uuidV4() })).toEqual([]);
+    });
 });

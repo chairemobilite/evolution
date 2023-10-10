@@ -22,6 +22,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "chaire-lib-common": "^0.2.2",
+    "geojson-validation": "^1.0.2",
     "i18next": "^22.4.15",
     "lodash": "^4.17.21",
     "typescript": "^4.9.4",

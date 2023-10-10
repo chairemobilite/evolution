@@ -50,6 +50,7 @@ describe('BasePlace', () => {
 
     const basePlaceAttributes: BasePlaceAttributes = {
         _uuid: validUUID2,
+        geography: geojson,
         name: 'Sample Place',
         shortname: 'Sample',
         address: baseAddress,
@@ -64,7 +65,7 @@ describe('BasePlace', () => {
     };
 
     it('should create a new BasePlace instance', () => {
-        const place = new BasePlace(geojson, basePlaceAttributes);
+        const place = new BasePlace(basePlaceAttributes);
         expect(place).toBeInstanceOf(BasePlace);
         expect(place._uuid).toEqual(validUUID2);
         expect(place.name).toEqual('Sample Place');
@@ -88,11 +89,12 @@ describe('BasePlace', () => {
 
     it('should create a new BasePlace instance with only _uuid and name', () => {
         const minimalAttributes: BasePlaceAttributes = {
+            geography: undefined,
             _uuid: validUUID2,
             name: 'Sample Place',
         };
 
-        const place = new BasePlace(undefined, minimalAttributes);
+        const place = new BasePlace(minimalAttributes);
         expect(place).toBeInstanceOf(BasePlace);
         expect(place._uuid).toEqual(validUUID2);
         expect(place.name).toEqual('Sample Place');
@@ -109,10 +111,147 @@ describe('BasePlace', () => {
     });
 
     it('should validate a BasePlace instance', () => {
-        const place = new BasePlace(undefined, basePlaceAttributes);
+        const place = new BasePlace(basePlaceAttributes);
         expect(place.isValid()).toBeUndefined();
         const validationResult = place.validate();
         expect(validationResult).toBe(true);
         expect(place.isValid()).toBe(true);
     });
+});
+
+describe('validateParams', () => {
+    it('should validate params with valid GeoJSON', () => {
+        const validParams = {
+            _uuid: uuidV4(),
+            name: 'Sample Place',
+            shortname: 'SP',
+            geography: {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [1, 2]
+                },
+                properties: {
+                    name: 'Sample Place',
+                    address: {
+                        civicNumber: 123,
+                        streetName: 'Main St',
+                        municipalityName: 'City',
+                        region: 'State',
+                        country: 'Country',
+                        postalCode: '12345'
+                    }
+                }
+            },
+            osmId: 'n1234',
+            landRoleId: 'lr123',
+            postalId: 'p123',
+            buildingId: 'b123',
+            internalId: 'i123',
+            geocodingPrecisionCategory: 'precise',
+            geocodingPrecisionMeters: 10,
+            geocodingQueryString: 'Main St, City'
+        };
+
+        const errors = BasePlace.validateParams(validParams);
+        expect(errors).toEqual([]);
+    });
+
+    it('should validate params without geography', () => {
+        const validParams = {
+            _uuid: uuidV4(),
+            name: 'Sample Place',
+            shortname: 'SP',
+            osmId: 'n1234',
+            landRoleId: 'lr123',
+            postalId: 'p123',
+            buildingId: 'b123',
+            internalId: 'i123',
+            geocodingPrecisionCategory: 'precise',
+            geocodingPrecisionMeters: 10,
+            geocodingQueryString: 'Main St, City'
+        };
+
+        const errors = BasePlace.validateParams(validParams);
+        expect(errors).toEqual([]);
+    });
+
+    it('should return errors for invalid GeoJSON', () => {
+        const invalidParams = {
+            _uuid: uuidV4(),
+            name: 'Sample Place',
+            shortname: 'SP',
+            geography: {
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon', // Invalid, should be Point
+                    coordinates: [
+                        [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]
+                    ]
+                },
+                properties: {
+                    name: 'Sample Place',
+                    address: {
+                        civicNumber: 123,
+                        streetName: 'Main St',
+                        municipalityName: 'City',
+                        region: 'State',
+                        country: 'Country',
+                        postalCode: '12345'
+                    }
+                }
+            },
+            osmId: 'n1234',
+            landRoleId: 'lr123',
+            postalId: 'p123',
+            buildingId: 'b123',
+            internalId: 'i123',
+            geocodingPrecisionCategory: 'precise',
+            geocodingPrecisionMeters: 10,
+            geocodingQueryString: 'Main St, City'
+        };
+
+        const errors = BasePlace.validateParams(invalidParams);
+        expect(errors.length).toBeGreaterThan(0);
+        expect(errors[0].message).toContain('BasePlace validateParams: geography should be a GeoJSON Point feature');
+    });
+
+    test('validateParams with invalid parameters', () => {
+        const params = {
+            geography: 'InvalidGeoJSON', // Invalid type
+            shortname: 124, // Invalid type
+            name: {}, // Invalid type
+            landRoleId: 56789, // Invalid type
+            osmId: Infinity, // Invalid type
+            buildingId: {}, // Invalid type
+            postalId: false, // Invalid type
+            internalId: new Date(),
+            geocodingPrecisionCategory: 123, // Invalid type
+            geocodingPrecisionMeters: 'foo', // Invalid type
+            geocodingQueryString: 123, // Invalid type
+        };
+
+        const errors = BasePlace.validateParams(params);
+        expect(errors.length).toBeGreaterThan(0);
+        expect(errors).toEqual([
+            new Error('BasePlace validateParams: geography should be a GeoJSON Point feature'),
+            new Error('BasePlace validateParams: name should be a string'),
+            new Error('BasePlace validateParams: shortname should be a string'),
+            new Error('BasePlace validateParams: osmId should be a string'),
+            new Error('BasePlace validateParams: landRoleId should be a string'),
+            new Error('BasePlace validateParams: postalId should be a string'),
+            new Error('BasePlace validateParams: buildingId should be a string'),
+            new Error('BasePlace validateParams: internalId should be a string'),
+            new Error('BasePlace validateParams: geocodingPrecisionCategory should be a string'),
+            new Error('BasePlace validateParams: geocodingPrecisionMeters should be a number'),
+            new Error('BasePlace validateParams: geocodingQueryString should be a string'),
+        ]);
+    });
+
+    test('validateParams with empty parameters', () => {
+        const params = {};
+        const errors = BasePlace.validateParams(params);
+        expect(errors.length).toBe(0);
+    });
+
 });

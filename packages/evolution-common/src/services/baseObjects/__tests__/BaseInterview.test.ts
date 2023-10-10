@@ -18,8 +18,8 @@ const validUUID = uuidV4();
 
 describe('BaseInterview', () => {
     const surveyableAttributes: SurveyableAttributes = {
-        survey: new Survey ({ name: 'Survey name', shortname: 'survey_shortname', startDate: new Date('2023-10-01'), endDate: new Date('2023-10-31') }),
-        sample: new Sample ({ name: 'Sample name', shortname: 'sample_shortname' }),
+        survey: new Survey({ name: 'Survey name', shortname: 'survey_shortname', startDate: new Date('2023-10-01'), endDate: new Date('2023-10-31') }),
+        sample: new Sample({ name: 'Sample name', shortname: 'sample_shortname' }),
         sampleBatchNumber: 123,
     };
 
@@ -85,6 +85,46 @@ describe('BaseInterview', () => {
         const validationResult = interview.validate();
         expect(validationResult).toBe(true);
         expect(interview.isValid()).toBe(true);
+    });
+
+    it('should validate params', () => {
+        const validParams = {
+            _uuid: uuidV4(),
+            startedDate: new Date(),
+            startedTime: 3600,
+            completedDate: new Date(),
+            completedTime: 7200,
+            baseHousehold: new BaseHousehold({ _uuid: uuidV4() }),
+            basePerson: new BasePerson({ _uuid: uuidV4() }),
+            baseOrganization: new BaseOrganization({ _uuid: uuidV4() }),
+        };
+
+        const validErrors = BaseInterview.validateParams(validParams);
+        expect(validErrors).toEqual([]);
+
+        const invalidParams = {
+            _uuid: 'invalid-uuid',
+            startedDate: 'invalid-date',
+            startedTime: 'invalid-time',
+            completedDate: 'invalid-date',
+            completedTime: 'invalid-time',
+            baseHousehold: 'invalid-household',
+            basePerson: 'invalid-person',
+            baseOrganization: 'invalid-organization',
+        };
+
+        const invalidErrors = BaseInterview.validateParams(invalidParams);
+        expect(invalidErrors.length).toBeGreaterThan(0);
+        expect(invalidErrors).toEqual([
+            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('BaseInterview validateParams: invalid startedDate'),
+            new Error('BaseInterview validateParams: startedTime should be a non-negative number'),
+            new Error('BaseInterview validateParams: invalid completedDate'),
+            new Error('BaseInterview validateParams: completedTime should be a non-negative number'),
+            new Error('BaseInterview validateParams: baseHousehold should be an instance of BaseHousehold'),
+            new Error('BaseInterview validateParams: basePerson should be an instance of BasePerson'),
+            new Error('BaseInterview validateParams: baseOrganization should be an instance of BaseOrganization'),
+        ]);
     });
 
 });
