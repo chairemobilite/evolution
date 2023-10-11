@@ -20,11 +20,11 @@ class ValueReplacer():
     endOblique = "</span>"
     obliqueNotation = "__"
 
-    startGreen = "<span style=\"color: green;\">"
+    startGreen = "<span class=\"_green\">"
     endGreen = "</span>"
     greenNotation = "_green_"
 
-    startRed = "<span style=\"color: red;\">"
+    startRed = "<span class=\"_red\">"
     endRed = "</span>"
     redNotation = "_red_"
 
