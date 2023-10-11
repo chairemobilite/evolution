@@ -85,6 +85,26 @@ const refreshView = async (viewName: string) => {
 };
 
 /**
+ * Refresh all materialized views' content in the database (this re-executes the query for all views)
+ * @returns `true` when all views have been updated, `false` otherwise
+ */
+const refreshAllViews = async () => {
+    try {
+        // Refresh all materialized views
+        const adminViews = await knex(tableName).select('*');
+        const promises: Promise<unknown>[] = [];
+        for (let i = 0; i < adminViews.length; i++) {
+            promises.push(knex.schema.refreshMaterializedView(adminViews[i].view_name as string));
+        }
+        await Promise.all(promises);
+        return true;
+    } catch (error) {
+        console.error(`Error updating view all materialized views in database (knex error: ${error})`);
+        return false;
+    }
+};
+
+/**
  * Query a view for various columns.
  *
  * Evolution does not control the views and their content. In case of errors or
@@ -143,6 +163,7 @@ export default {
     registerView,
     viewExists,
     refreshView,
+    refreshAllViews,
     queryView,
     countByView
 };

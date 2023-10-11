@@ -26,6 +26,12 @@ const otherParticipant = {
     google_id: '1234'
 };
 
+const participant3 = {
+    id: 3,
+    is_valid: true,
+    email: 'test@example.org',
+};
+
 const localUserInterviewAttributes = {
     uuid: uuidV4(),
     participant_id: localParticipant.id,
@@ -49,6 +55,7 @@ beforeAll(async () => {
     await truncate(knex, 'sv_participants');
     await create(knex, 'sv_participants', undefined, localParticipant as any);
     await create(knex, 'sv_participants', undefined, otherParticipant as any);
+    await create(knex, 'sv_participants', undefined, participant3 as any);
     await truncate(knex, 'users');
     await interviewsDbQueries.create(localUserInterviewAttributes);
 });
@@ -188,15 +195,29 @@ test('Update database view', async () => {
     await dbQueries.refreshView(viewName);
     const data3 = await knex(viewName).select('*');
     expect(data3.length).toEqual(originalCount + 1);
+
+    // Add another interview in the database
+    const newInterview2 = Object.assign({}, _cloneDeep(localUserInterviewAttributes), {
+        uuid: uuidV4(),
+        participant_id: participant3.id,
+        is_completed: true
+    });
+    await interviewsDbQueries.create(newInterview);
+
+    // Update the view with the refreshAllViews function, then make sure the new interview is now included
+    await dbQueries.refreshAllViews();
+    const data4 = await knex(viewName).select('*');
+    expect(data4.length).toEqual(originalCount + 2);
     
 });
 
 describe('Query view', () => {
+    const dataCount = 3;
 
     test('Query all fields', async() => {
         const data = await dbQueries.queryView(viewName);
         expect(data).not.toEqual(false);
-        expect((data as any[]).length).toEqual(2);
+        expect((data as any[]).length).toEqual(dataCount);
         expect(data[0]).toEqual({
             uuid: localUserInterviewAttributes.uuid,
             id: expect.anything(),
@@ -210,7 +231,7 @@ describe('Query view', () => {
     test('Query only a subset of the fields', async() => {
         const data = await dbQueries.queryView(viewName, ['id', 'auth']);
         expect(data).not.toEqual(false);
-        expect((data as any[]).length).toEqual(2);
+        expect((data as any[]).length).toEqual(dataCount);
         expect(data[0]).toEqual({
             id: expect.anything(),
             auth: 'email'
@@ -231,19 +252,21 @@ describe('Query view', () => {
 
 describe('Count by', () => {
 
+    const dataCount = 3;
+
     test('Count by one field', async() => {
         const data = await dbQueries.countByView(viewName, ['valid']);
         expect(data).not.toEqual(false);
         expect(data).toEqual([{
             valid: localUserInterviewAttributes.is_valid,
-            count: 2
+            count: dataCount
         }])
     });
 
     test('Count by 2 fields', async() => {
         const data = await dbQueries.countByView(viewName, ['id', 'auth']);
         expect(data).not.toEqual(false);
-        expect((data as any[]).length).toEqual(2);
+        expect((data as any[]).length).toEqual(dataCount);
         for (let i = 0; i < (data as any[]).length; i++) {
             switch(data[i].auth) {
                 case 'email': expect(data[i]).toEqual({
