@@ -124,12 +124,11 @@ export default {
         changedValuesByPath[`responses.${path}.${groupedObject._uuid}._sequence`] = seq + newObjectsCount;
       }
     }
-    for (let i = 0; i < newObjectsCount; i++)
+    for (let i = 0; i < newObjectsCount; i++)
     {
       const uniqueId            = uuidV4();
       const newSequence         = insertSequence + i;
       const newObjectAttributes = attributes[i] ? attributes[i] : {};
-      changedValuesByPath[`responses.${path}.${uniqueId}`] = {'_sequence': newSequence, '_uuid': uniqueId, ...newObjectAttributes};
       changedValuesByPath[`responses.${path}.${uniqueId}`] = {'_sequence': newSequence, '_uuid': uniqueId, ...newObjectAttributes};
       changedValuesByPath[`validations.${path}.${uniqueId}`] = {};
     }
