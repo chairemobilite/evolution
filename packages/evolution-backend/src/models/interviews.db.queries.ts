@@ -334,19 +334,19 @@ const getRawWhereClause = (
     // In such a case, the filter operation parmeter is ignored (>= and <= are used).
     case 'created_at':
         if (Array.isArray(filter.value) && filter.value.length === 2) {
-            return `extract(epoch from ${tblAlias}.created_at) >= ${filter.value[0]} AND extract(epoch from ${tblAlias}.created_at) <= ${filter.value[1]} `;
+            return `${tblAlias}.created_at >= to_timestamp(${filter.value[0]}) AND ${tblAlias}.created_at <= to_timestamp(${filter.value[1]}) `;
         } else {
-            return `extract(epoch from ${tblAlias}.created_at) ${
+            return `${tblAlias}.created_at ${
                 filter.op ? operatorSigns[filter.op] : operatorSigns.eq
-            } ${filter.value} `;
+            } to_timestamp(${filter.value}) `;
         }
     case 'updated_at':
         if (Array.isArray(filter.value) && filter.value.length === 2) {
-            return `extract(epoch from ${tblAlias}.updated_at) >= ${filter.value[0]} AND extract(epoch from ${tblAlias}.updated_at) <= ${filter.value[1]} `;
+            return `${tblAlias}.updated_at >= to_timestamp(${filter.value[0]}) AND ${tblAlias}.updated_at <= to_timestamp(${filter.value[1]}) `;
         } else {
-            return `extract(epoch from ${tblAlias}.updated_at) ${
+            return `${tblAlias}.updated_at ${
                 filter.op ? operatorSigns[filter.op] : operatorSigns.eq
-            } ${filter.value} `;
+            } to_timestamp(${filter.value}) `;
         }
     case 'is_valid':
         return getBooleanFilter(`${tblAlias}.is_valid`, filter);
