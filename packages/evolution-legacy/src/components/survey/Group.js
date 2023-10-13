@@ -109,7 +109,7 @@ export class Group extends React.Component {
     }, this);
     
     const showTitle         = surveyHelper.parseBoolean(this.props.groupConfig.showTitle, this.props.interview, this.props.path, this.props.user);
-    const showAddButton     = surveyHelper.parseBoolean(this.props.groupConfig.showGroupedObjectAddButton, this.props.interview, this.props.path, this.props.user);
+    const showAddButton     = this.props.loadingState === 0 && surveyHelper.parseBoolean(this.props.groupConfig.showGroupedObjectAddButton, this.props.interview, this.props.path, this.props.user);
     const addButtonLabel    = surveyHelper.parseString(this.props.groupConfig.groupedObjectAddButtonLabel ? (this.props.groupConfig.groupedObjectAddButtonLabel[this.props.i18n.language] || this.props.groupConfig.groupedObjectAddButtonLabel) : null, this.props.interview, this.props.path) || this.props.t(`survey:${widgetConfig.shortname}:addGroupedObject`);
     const addButtonLocation = this.props.groupConfig.addButtonLocation || 'bottom';
     const addButtonSize     = this.props.groupConfig.addButtonSize     || 'large';
