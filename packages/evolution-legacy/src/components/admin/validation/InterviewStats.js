@@ -40,7 +40,6 @@ import ValidationErrors from './ValidationErrors';
 class KeepDiscardIgnoreImp extends React.Component {
     static KEEP = 'keep'
     static DISCARD = 'discard'
-    static IGNORE = 'ignore'
     static UNSET = undefined
 
     constructor(props) {
@@ -65,7 +64,7 @@ class KeepDiscardIgnoreImp extends React.Component {
                     {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.KEEP}`)}
                 </button>
 
-                <button style={this.state.choice === KeepDiscardIgnoreImp.DISCARD ? {background: 'lightcoral'} : {}} className='_member-survey-keeper-center' type="button" onClick={this.onClick.bind(this, KeepDiscardIgnoreImp.DISCARD)}>
+                <button style={this.state.choice === KeepDiscardIgnoreImp.DISCARD ? {background: 'lightcoral'} : {}} className='_member-survey-keeper-right' type="button" onClick={this.onClick.bind(this, KeepDiscardIgnoreImp.DISCARD)}>
                     {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.DISCARD}`)}
                 </button>
             </div>
