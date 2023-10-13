@@ -1564,7 +1564,6 @@ exports[`With help popup and link Test widget with help 1`] = `
       <button
         className="button helper-popup blue small"
         onClick={[Function]}
-        tabIndex={-1}
         type="button"
       >
         <svg
