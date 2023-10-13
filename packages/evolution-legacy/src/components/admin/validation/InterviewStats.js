@@ -36,43 +36,7 @@ import demoSurveyHelper from '../../../helpers/survey/helper';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationErrors from './ValidationErrors';
-
-class KeepDiscardIgnoreImp extends React.Component {
-    static KEEP = 'keep'
-    static DISCARD = 'discard'
-    static UNSET = undefined
-
-    constructor(props) {
-      super(props);
-
-      this.state = { choice: this.props.choice || KeepDiscardIgnore.UNSET };
-
-      this.onClick = (it) => {
-        this.setState({ choice: this.state.choice === it ? undefined : it });
-      }
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if ((prevState.choice === this.state.choice) || !this.props.CB) return;
-        this.props.CB({ choice: this.state.choice, personId: this.props.personId });
-    }
-
-    render () {
-        return (
-            <div className='_member-survey-keeper'>
-                <button style={this.state.choice === KeepDiscardIgnoreImp.KEEP ? {background: 'lightgreen'} : {}} className='_member-survey-keeper-left' type="button" onClick={this.onClick.bind(this, KeepDiscardIgnoreImp.KEEP)}>
-                    {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.KEEP}`)}
-                </button>
-
-                <button style={this.state.choice === KeepDiscardIgnoreImp.DISCARD ? {background: 'lightcoral'} : {}} className='_member-survey-keeper-right' type="button" onClick={this.onClick.bind(this, KeepDiscardIgnoreImp.DISCARD)}>
-                    {this.props.t(`admin:interviewMember:${KeepDiscardIgnoreImp.DISCARD}`)}
-                </button>
-            </div>
-        );
-    }
-}
-
-const KeepDiscardIgnore = withTranslation()(KeepDiscardIgnoreImp);
+import KeepDiscard from './KeepDiscard';
 
 class InterviewStats extends React.Component {
 
@@ -83,9 +47,9 @@ class InterviewStats extends React.Component {
     //};
     this.validations = appConfig.getAdminValidations();
 
-    this.KeepDiscardIgnoreChange = ({ choice, personId }) => {
+    this.KeepDiscardChange = ({ choice, personId }) => {
         const valuesByPath = {};
-        valuesByPath[`responses.household.persons.${personId}.keepDiscardIgnore`] = choice;
+        valuesByPath[`responses.household.persons.${personId}.keepDiscard`] = choice;
         this.props.startUpdateInterview(undefined, valuesByPath, null, null);
     }
   }
@@ -226,10 +190,9 @@ class InterviewStats extends React.Component {
         tripsStats.push(tripStats);
       }
       
-
-      const personStats = (
-        <details open={!household.persons[personId].keepDiscardIgnore} className="_widget_container" key={personId}>
-          <KeepDiscardIgnore personId={personId} choice={household.persons[personId].keepDiscardIgnore} CB={this.KeepDiscardIgnoreChange} />
+      const personStats = (        
+        <details open={household.persons[personId].keepDiscard !== KeepDiscard.DISCARD} className="_widget_container" key={personId}>
+          <KeepDiscard personId={personId} choice={household.persons[personId].keepDiscard} change={this.KeepDiscardChange} />
           <summary>{person.gender} {person.age} ans</summary>
           <span className="_widget"><FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />{person.age} ans</span>
           <span className="_widget">{person.gender}</span>
@@ -330,14 +293,8 @@ class InterviewStats extends React.Component {
           <p className="_scrollable _oblique _small">{household.commentsOnSurvey || "Aucun commentaire"}</p>
         </div>
       </React.Fragment>
-    );
-    
+    ); 
   }
-
 }
 
-
-
-
-
-export default withTranslation()(withSurveyContext(InterviewStats))
+export default withTranslation()(withSurveyContext(InterviewStats));
