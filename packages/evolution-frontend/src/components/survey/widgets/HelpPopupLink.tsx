@@ -35,7 +35,6 @@ export const HelpPopupLink = (props: HelpPopupLinkProps) => {
                 type="button"
                 className="button helper-popup blue small"
                 onClick={() => setModalIsOpened(true)}
-                tabIndex={-1}
             >
                 <FontAwesomeIcon icon={faQuestionCircle} className="faIconLeft" />
                 {props.title}
