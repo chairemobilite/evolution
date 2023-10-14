@@ -66,6 +66,12 @@ class BaseOrganization extends Uuidable implements IValidatable {
     contactPhoneNumber?: string;
     contactEmail?: string;
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+        'contactPhoneNumber',
+        'contactEmail',
+        'contactPerson',
+    ];
+
     constructor(params: BaseOrganizationAttributes | ExtendedOrganizationAttributes) {
 
         super(params._uuid);

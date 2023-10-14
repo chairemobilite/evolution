@@ -72,6 +72,11 @@ class BaseHousehold extends Uuidable implements IValidatable {
     contactPhoneNumber?: string;
     contactEmail?: string;
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+        'contactPhoneNumber',
+        'contactEmail',
+    ];
+
     /**
      * TODO: make the constructor protected for all surveyed classes.
      * Only the factory create method should be able to generate a valid object

@@ -74,6 +74,12 @@ export class BaseInterview extends Surveyable implements IValidatable {
 
     _device?: Device;
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+        'contactPhoneNumber',
+        'contactEmail',
+        'accessCode',
+    ];
+
     constructor(params: BaseInterviewAttributes | ExtendedInterviewAttributes) {
 
         super(params.survey, params.sample, params.sampleBatchNumber, params._uuid);

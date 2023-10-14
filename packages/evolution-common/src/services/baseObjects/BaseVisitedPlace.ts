@@ -54,6 +54,9 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
     activityCategory?: VPAttr.ActivityCategory; // TODO: This should maybe removed and included in the activity object
     activity?: VPAttr.Activity;
 
+    _confidentialAttributes: string[] = [ // these attributes should be hidden when exporting
+    ];
+
     constructor(params: BaseVisitedPlaceAttributes | ExtendedVisitedPlaceAttributes) {
 
         super(params._uuid);

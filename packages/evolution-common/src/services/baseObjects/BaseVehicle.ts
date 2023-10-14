@@ -44,6 +44,10 @@ export class BaseVehicle extends Uuidable implements IValidatable {
     capacitySeated?: number;
     capacityStanding?: number;
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+        'licensePlateNumber',
+    ];
+
     constructor(params: BaseVehicleAttributes | ExtendedVehicleAttributes) {
 
         super(params._uuid);

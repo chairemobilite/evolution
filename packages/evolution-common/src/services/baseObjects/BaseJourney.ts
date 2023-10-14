@@ -53,6 +53,9 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
     baseTrips?: BaseTrip[];
     baseTripChains?: BaseTripChain[];
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    ];
+
     constructor(params: BaseJourneyAttributes | ExtendedJourneyAttributes) {
 
         super(params._uuid);

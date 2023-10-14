@@ -57,6 +57,9 @@ export class BasePlace extends Uuidable implements IValidatable {
     geocodingPrecisionMeters?: number; // the max distance in meters between the geocoded point and the real location
     geocodingQueryString?: string; // in most surveys, this would be the query used to geocode the location
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    ];
+
     constructor(params: BasePlaceAttributes | ExtendedPlaceAttributes) {
 
         super(params._uuid);

@@ -52,6 +52,9 @@ export class BaseTripChain extends Uuidable implements IValidatable {
 
     baseTrips?: BaseTrip[];
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    ];
+
     constructor(params: BaseTripChainAttributes | ExtendedTripChainAttributes) {
 
         super(params._uuid);
