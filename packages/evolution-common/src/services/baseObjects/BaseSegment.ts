@@ -36,6 +36,9 @@ export class BaseSegment extends Uuidable implements IValidatable {
     modeCategory?: SAttr.ModeCategory;
     mode?: SAttr.Mode;
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    ];
+
     constructor(params: BaseSegmentAttributes | ExtendedSegmentAttributes) {
 
         super(params._uuid);

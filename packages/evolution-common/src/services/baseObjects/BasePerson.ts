@@ -91,6 +91,12 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
     contactPhoneNumber?: string;
     contactEmail?: string;
 
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+        'contactPhoneNumber',
+        'contactEmail',
+        'nickname',
+    ];
+
     constructor(params: BasePersonAttributes | ExtendedPersonAttributes) {
 
         super(params._uuid);

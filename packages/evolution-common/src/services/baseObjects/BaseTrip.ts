@@ -32,7 +32,7 @@ export type BaseTripAttributes = {
 
 } & Weightable;
 
-export type ExtendedTripAttributes = BaseTripAttributes & {[key: string]: any};
+export type ExtendedTripAttributes = BaseTripAttributes & { [key: string]: any };
 
 export class BaseTrip extends Uuidable implements IValidatable {
 
@@ -42,6 +42,9 @@ export class BaseTrip extends Uuidable implements IValidatable {
     baseOrigin?: BaseVisitedPlace;
     baseDestination?: BaseVisitedPlace;
     baseSegments?: BaseSegment[];
+
+    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    ];
 
     constructor(params: BaseTripAttributes | ExtendedTripAttributes) {
 
