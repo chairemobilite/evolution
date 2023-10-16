@@ -8,8 +8,8 @@ import React                          from 'react';
 import { withTranslation }            from 'react-i18next';
 
 class KeepDiscard extends React.Component {
-  static KEEP = 'keep';
-  static DISCARD = 'discard';
+  static KEEP = 'Keep';
+  static DISCARD = 'Discard';
   
   constructor(props) {
     super(props);

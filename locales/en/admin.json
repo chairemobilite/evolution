@@ -103,7 +103,7 @@
     "error": "Error while refreshing the cache"
   },
   "interviewMember": {
-    "keep": "KEEP",
-    "discard": "DISCARD"
+    "Keep": "Keep",
+    "Discard": "Discard"
   }
 }

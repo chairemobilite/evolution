@@ -103,7 +103,7 @@
     "error": "Une erreur s'est produite en rafraîchissant la cache"
   },
   "interviewMember": {
-    "keep": "GARDER",
-    "discard": "ÉCARTER"
+    "Keep": "Garder",
+    "Discard": "Écarter"
   }
 }
