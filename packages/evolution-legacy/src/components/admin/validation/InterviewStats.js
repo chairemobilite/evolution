@@ -47,7 +47,7 @@ class InterviewStats extends React.Component {
     //};
     this.validations = appConfig.getAdminValidations();
 
-    this.KeepDiscardChange = ({ choice, personId }) => {
+    this.keepDiscard = ({ choice, personId }) => {
         const valuesByPath = {};
         valuesByPath[`responses.household.persons.${personId}.keepDiscard`] = choice;
         this.props.startUpdateInterview(undefined, valuesByPath, null, null);
@@ -192,7 +192,7 @@ class InterviewStats extends React.Component {
       
       const personStats = (        
         <details open={household.persons[personId].keepDiscard !== KeepDiscard.DISCARD} className="_widget_container" key={personId}>
-          <KeepDiscard personId={personId} choice={household.persons[personId].keepDiscard} change={this.KeepDiscardChange} />
+          <KeepDiscard personId={personId} choice={household.persons[personId].keepDiscard} onChange={this.keepDiscard} />
           <summary>{person.gender} {person.age} ans</summary>
           <span className="_widget"><FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />{person.age} ans</span>
           <span className="_widget">{person.gender}</span>
