@@ -20,7 +20,33 @@
     }
     
   }
-  
+
+  ._member-survey-keeper {
+    display: flex;
+    gap: 2rem;
+
+    margin: 0.25rem 0;
+
+    button {
+      flex: 1;
+      max-width: 10rem;
+
+      align-items: center;
+      padding: 0.15rem;
+
+      &._member-survey-keeper-left {
+        justify-content: flex-start;
+      }
+
+      &._member-survey-keeper-center {
+        justify-content: center;
+      }
+
+      &._member-survey-keeper-right {
+        justify-content: flex-end;
+      }
+    }
+  }
 }
 
 .admin-widget-container._full-width {

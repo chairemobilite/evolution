@@ -36,6 +36,7 @@ import demoSurveyHelper from '../../../helpers/survey/helper';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationErrors from './ValidationErrors';
+import KeepDiscard from './KeepDiscard';
 
 class InterviewStats extends React.Component {
 
@@ -45,6 +46,12 @@ class InterviewStats extends React.Component {
     //  parsed: false
     //};
     this.validations = appConfig.getAdminValidations();
+
+    this.keepDiscard = ({ choice, personId }) => {
+        const valuesByPath = {};
+        valuesByPath[`responses.household.persons.${personId}.keepDiscard`] = choice;
+        this.props.startUpdateInterview(undefined, valuesByPath, null, null);
+    }
   }
 
   componentDidMount() {
@@ -183,9 +190,9 @@ class InterviewStats extends React.Component {
         tripsStats.push(tripStats);
       }
       
-
-      const personStats = (
-        <details open className="_widget_container" key={personId}>
+      const personStats = (        
+        <details open={household.persons[personId].keepDiscard !== KeepDiscard.DISCARD} className="_widget_container" key={personId}>
+          <KeepDiscard personId={personId} choice={household.persons[personId].keepDiscard} onChange={this.keepDiscard} />
           <summary>{person.gender} {person.age} ans</summary>
           <span className="_widget"><FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />{person.age} ans</span>
           <span className="_widget">{person.gender}</span>
@@ -286,14 +293,8 @@ class InterviewStats extends React.Component {
           <p className="_scrollable _oblique _small">{household.commentsOnSurvey || "Aucun commentaire"}</p>
         </div>
       </React.Fragment>
-    );
-    
+    ); 
   }
-
 }
 
-
-
-
-
-export default withTranslation()(withSurveyContext(InterviewStats))
+export default withTranslation()(withSurveyContext(InterviewStats));

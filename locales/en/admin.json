@@ -101,5 +101,9 @@
   "interviewer": {
     "refreshInterviewerCache": "Refresh interviewer cache",
     "error": "Error while refreshing the cache"
+  },
+  "interviewMember": {
+    "Keep": "Keep",
+    "Discard": "Discard"
   }
 }
