@@ -53,9 +53,8 @@ export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             id={props.id}
             value={value}
             onBlur={props.onValueChange}
-            // if disallowedCharactersRegex is null or undefined, then replace(...) does nothing, which is the intended behavior.
             onChange={(e) =>
-                setValue(e.target.value.replace(props.widgetConfig.disallowedCharactersRegex as RegExp, ''))
+                setValue(!_isBlank(props.widgetConfig.inputFilter) ? props.widgetConfig.inputFilter!(e.target.value) : e.target.value)
             }
             ref={props.inputRef}
             maxLength={props.widgetConfig.maxLength ? props.widgetConfig.maxLength : 255}
