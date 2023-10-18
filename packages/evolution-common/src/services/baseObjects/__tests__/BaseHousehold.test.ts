@@ -190,7 +190,7 @@ describe('BaseHousehold Class Additional Tests', () => {
             wouldLikeToParticipateToOtherSurveys: 'true', // Should be a boolean
             homeCarParkings: [123], // Should contain valid strings
             contactPhoneNumber: 9876543210, // Should be a string
-            contactEmail: 'invalid-email', // Should be a valid email address
+            contactEmail: new Date(), // Should be a valid email address
             _weights: [
                 { weight: 5.5, method: 'foo' },
                 { weight: -3.2, method: new WeightMethod(weightMethodAttributes) },
@@ -211,11 +211,11 @@ describe('BaseHousehold Class Additional Tests', () => {
             new Error('BaseHousehold validateParams: twoWheelNumber should be a positive integer'),
             new Error('BaseHousehold validateParams: pluginHybridCarNumber should be a positive integer'),
             new Error('BaseHousehold validateParams: electricCarNumber should be a positive integer'),
-            new Error('BaseHousehold validateParams: category is not a valid household category'),
+            new Error('BaseHousehold validateParams: category should be a string'),
             new Error('BaseHousehold validateParams: wouldLikeToParticipateToOtherSurveys should be a boolean'),
-            new Error('BaseHousehold validateParams: homeCarParkings index 0 is not a valid home car parking type'),
+            new Error('BaseHousehold validateParams: homeCarParkings index 0 should be a string'),
             new Error('BaseHousehold validateParams: contactPhoneNumber should be a string'),
-            new Error('BaseHousehold validateParams: contactEmail is invalid'),
+            new Error('BaseHousehold validateParams: contactEmail should be a string'),
         ]);
     });
 

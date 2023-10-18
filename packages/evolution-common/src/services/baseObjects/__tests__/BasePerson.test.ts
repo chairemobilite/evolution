@@ -184,7 +184,7 @@ describe('BasePerson', () => {
             baseTrips: [new BaseTrip({}), 'InvalidTrip'], // Invalid type in array
             baseVehicles: [new BaseVehicle({}), 'InvalidVehicle'], // Invalid type in array
             contactPhoneNumber: 123, // Invalid type
-            contactEmail: 'invalid-email', // Invalid email format
+            contactEmail: 43.4, // Invalid email format
         };
 
         const errors = BasePerson.validateParams(params);
@@ -214,7 +214,7 @@ describe('BasePerson', () => {
             new Error('BasePerson validateParams: baseTrips should be an array of BaseTrip'),
             new Error('BasePerson validateParams: baseVehicles should be an array of BaseVehicle'),
             new Error('BasePerson validateParams: contactPhoneNumber should be a string'),
-            new Error('BasePerson validateParams: contactEmail is invalid'),
+            new Error('BasePerson validateParams: contactEmail should be a string'),
         ]);
     });
 

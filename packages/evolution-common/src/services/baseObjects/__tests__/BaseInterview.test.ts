@@ -142,8 +142,8 @@ describe('BaseInterview', () => {
             baseHousehold: 'invalid-household',
             basePerson: 'invalid-person',
             baseOrganization: 'invalid-organization',
-            contactEmail: 'foo',
-            contactPhoneNumber: '112',
+            contactEmail: new Date(),
+            contactPhoneNumber: Infinity,
             _language: 'aaa',
             _source: {},
             _isCompleted: 'true',
@@ -165,8 +165,8 @@ describe('BaseInterview', () => {
             new Error('BaseInterview validateParams: baseHousehold should be an instance of BaseHousehold'),
             new Error('BaseInterview validateParams: basePerson should be an instance of BasePerson'),
             new Error('BaseInterview validateParams: baseOrganization should be an instance of BaseOrganization'),
-            new Error('BaseInterview validateParams: contactPhoneNumber is a phone number but is invalid'),
-            new Error('BaseInterview validateParams: contactEmail is invalid'),
+            new Error('BaseInterview validateParams: contactPhoneNumber should be a string'),
+            new Error('BaseInterview validateParams: contactEmail should be a string'),
             new Error('BaseInterview validateParams: _device is invalid'),
         ]);
     });

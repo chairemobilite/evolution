@@ -12,7 +12,6 @@ import { Uuidable } from './Uuidable';
 import { BasePerson } from './BasePerson';
 import { BaseHousehold } from './BaseHousehold';
 import { BaseOrganization } from './BaseOrganization';
-import { _isEmail } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 export const devices = [
     'tablet',
@@ -122,6 +121,9 @@ export class BaseInterview extends Surveyable implements IValidatable {
 
     /**
      * Validates attribute types for BaseInterview.
+     * Any failing validation should prevent the creation of the object.
+     * Validations that should not prevent the creation of the object
+     * should be moved to survey audits.
      * @param dirtyParams The parameters to validate.
      * @returns Error[] TODO: specialize this error class
      */
@@ -196,20 +198,15 @@ export class BaseInterview extends Surveyable implements IValidatable {
         }
 
         // Validate contactPhoneNumber (if provided):
-        if (dirtyParams.contactPhoneNumber !== undefined) {
-            try {
-                const parsedPhoneNumber = parsePhoneNumber(dirtyParams.contactPhoneNumber, 'CA');
-                if (!parsedPhoneNumber.isValid()) {
-                    errors.push(new Error('BaseInterview validateParams: contactPhoneNumber is a phone number but is invalid'));
-                }
-            } catch (e) {
-                errors.push(new Error('BaseInterview validateParams: contactPhoneNumber is not a phone number'));
-            }
+        // Precise phone number validation must be done in audits, because incorrect phone number should not prevent the interview from being created.
+        if (dirtyParams.contactPhoneNumber !== undefined && typeof dirtyParams.contactPhoneNumber !== 'string') {
+            errors.push(new Error('BaseInterview validateParams: contactPhoneNumber should be a string'));
         }
 
         // Validate contactEmail (if provided):
-        if (dirtyParams.contactEmail !== undefined && !_isEmail(dirtyParams.contactEmail)) {
-            errors.push(new Error('BaseInterview validateParams: contactEmail is invalid'));
+        // Regex email validation must be done in audits, because incorrect email should not prevent the interview from being created.
+        if (dirtyParams.contactEmail !== undefined && typeof dirtyParams.contactEmail !== 'string') {
+            errors.push(new Error('BaseInterview validateParams: contactEmail should be a string'));
         }
 
         // Validate _device (if provided):
