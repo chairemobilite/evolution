@@ -165,18 +165,27 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
     }
 };
 
-// Arrays cannot be inserted as is, otherwise they throw an error, so logs need to be converted to string
-const stringifyJsonArray = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+/**
+ * Arrays cannot be inserted as is, otherwise they throw an error, so logs need
+ * to be converted to string. Also null unicode character \u0000 is not valid in a
+ * json string, replace with a space
+ * @param object
+ * @returns An object with the json data sanitized
+ */
+const sanitizeJsonData = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     object: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
 ) => {
-    if (object.logs) {
-        const { logs, ...rest } = object;
-        return {
-            ...rest,
-            logs: JSON.stringify(logs)
-        };
-    }
-    return object;
+    const { logs, responses, validated_data, ...rest } = object;
+    const newResponses = responses !== undefined ? JSON.stringify(responses).replaceAll('\\u0000', '') : undefined;
+    const newLogs = logs !== undefined ? JSON.stringify(logs).replaceAll('\\u0000', '') : undefined;
+    const newValidatedData =
+        validated_data !== undefined ? JSON.stringify(validated_data).replaceAll('\\u0000', '') : undefined;
+    return {
+        ...rest,
+        responses: newResponses,
+        logs: newLogs,
+        validated_data: newValidatedData
+    };
 };
 
 const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
@@ -184,7 +193,7 @@ const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     returning: string | string[] = 'id'
 ): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
     try {
-        const returningArray = await knex(tableName).insert(stringifyJsonArray(newObject)).returning(returning);
+        const returningArray = await knex(tableName).insert(sanitizeJsonData(newObject)).returning(returning);
         if (returningArray.length === 1) {
             return returningArray[0];
         }
@@ -205,7 +214,7 @@ const update = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
 ): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
     try {
         const returningArray = await knex(tableName)
-            .update(stringifyJsonArray(updatedInterview))
+            .update(sanitizeJsonData(updatedInterview))
             .where('uuid', uuid)
             .returning(returning);
         if (returningArray.length === 1) {

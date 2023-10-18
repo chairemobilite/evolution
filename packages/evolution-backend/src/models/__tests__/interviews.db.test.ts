@@ -367,6 +367,20 @@ describe('Update Interview', () => {
         expect(updateInterview.logs).toEqual(newAttributes.logs);
     });
 
+    test('Invalid null unicode character in json data', async () => {
+        const addAttributes = { responses: { name: 'McDonald\u0000\u0000\u0007s' } };
+        const newAttributes = {
+            responses: Object.assign({}, localUserInterviewAttributes.responses, addAttributes.responses),
+        };
+        const interview = await dbQueries.update(localUserInterviewAttributes.uuid, newAttributes, 'uuid');
+        expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
+
+        // Re-read the interview and make sure it does not contain the null, but other unicode characters are ok
+        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes<any, any, any, any>;
+        expect(updateInterview.responses.name).not.toContain('\u0000');
+        expect(updateInterview.responses.name).toContain('\u0007');
+    });
+
 });
 
 describe(`list interviews`, () => {
