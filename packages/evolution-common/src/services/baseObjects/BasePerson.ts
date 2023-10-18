@@ -15,7 +15,6 @@ import { BaseTrip } from './BaseTrip';
 import { BaseVehicle } from './BaseVehicle';
 import * as PAttr from './attributeTypes/PersonAttributes';
 import { Vehicleable } from './Vehicleable';
-import { _isEmail } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 type BasePersonAttributes = {
 
@@ -295,8 +294,8 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         }
 
         // Validate contactEmail (if provided)
-        if (dirtyParams.contactEmail !== undefined && !_isEmail(dirtyParams.contactEmail)) {
-            errors.push(new Error('BasePerson validateParams: contactEmail is invalid'));
+        if (dirtyParams.contactEmail !== undefined && typeof dirtyParams.contactEmail !== 'string') {
+            errors.push(new Error('BasePerson validateParams: contactEmail should be a string'));
         }
 
         return errors;

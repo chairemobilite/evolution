@@ -13,7 +13,6 @@ import * as HAttr from './attributeTypes/HouseholdAttributes';
 import { Uuidable } from './Uuidable';
 import { Vehicleable } from './Vehicleable';
 import { BaseVehicle } from './BaseVehicle';
-import { _isEmail } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 
 type BaseHouseholdAttributes = {
@@ -204,7 +203,7 @@ class BaseHousehold extends Uuidable implements IValidatable {
 
         // Validate category:
         if (dirtyParams.category !== undefined && typeof dirtyParams.category !== 'string') {
-            errors.push(new Error('BaseHousehold validateParams: category is not a valid household category'));
+            errors.push(new Error('BaseHousehold validateParams: category should be a string'));
         }
 
         // Validate wouldLikeToParticipateToOtherSurveys:
@@ -219,7 +218,7 @@ class BaseHousehold extends Uuidable implements IValidatable {
             } else {
                 for (let i = 0, countI = dirtyParams.homeCarParkings.length; i < countI; i++) {
                     if (typeof dirtyParams.homeCarParkings[i] !== 'string') {
-                        errors.push(new Error(`BaseHousehold validateParams: homeCarParkings index ${i} is not a valid home car parking type`));
+                        errors.push(new Error(`BaseHousehold validateParams: homeCarParkings index ${i} should be a string`));
                     }
                 }
             }
@@ -231,8 +230,8 @@ class BaseHousehold extends Uuidable implements IValidatable {
         }
 
         // Validate contactEmail:
-        if (dirtyParams.contactEmail !== undefined && !_isEmail(dirtyParams.contactEmail)) {
-            errors.push(new Error('BaseHousehold validateParams: contactEmail is invalid'));
+        if (dirtyParams.contactEmail !== undefined && typeof dirtyParams.contactEmail !== 'string') {
+            errors.push(new Error('BaseHousehold validateParams: contactEmail should be a string'));
         }
 
         return errors;
