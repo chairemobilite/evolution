@@ -79,7 +79,6 @@
         "deleteThisGroupedObject": "Delete this mode of transport",
         "addGroupedObject": "Add a mode of transport"
     },
-    "AccessCode": "Please enter the access code written in the letter or the email you received<br /><span class=\"_pale _oblique\">Leave blank if no access code was received</span>",
     "Age": "Age<span class=\\\"_pale _oblique\\\">Enter 0 for babies less than 1 years old</span>",
     "Age_one": "Age",
     "validation": {

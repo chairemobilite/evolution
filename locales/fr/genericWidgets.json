@@ -1,0 +1,8 @@
+{
+    "home": {
+        "AccessCode": "<strong>Code d'accès</strong><br /><span class=\"_pale _oblique\">Inscrit dans la lettre reçue</span>",
+        "AccessCodeRequiredError": "Le code d'accès est requis.",
+        "ContactEmail": "<strong>Adresse courriel</strong><br /><span class=\"_pale _oblique\">Requise pour être recontacté(e) au besoin.</span>",
+        "ContactEmailInvalidAddressError": "Le courriel est invalide."
+    }
+}

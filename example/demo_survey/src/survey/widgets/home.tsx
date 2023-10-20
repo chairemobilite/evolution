@@ -6,13 +6,17 @@
  */
 import moment from 'moment-business-days';
 import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
-import { TFunction } from 'i18next';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import waterBoundaries  from '../waterBoundaries.json';
 import { SurveyWidgetConfig } from '../../config/widgets.config';
+
+import { contactEmail as genericContactEmailWidget, contactEmailInvalidAddressValidation } from 'evolution-frontend/lib/components/genericWidgets/home';
+
+// Export generic widget as-is, without any modifications
+export { accessCode } from 'evolution-frontend/lib/components/genericWidgets/home';
 
 export const homeIntro = {
   type: "text",
@@ -51,25 +55,26 @@ export const interviewLanguage = {
   }
 };
 
-export const accessCode: SurveyWidgetConfig = {
-  type: 'question',
-  twoColumns: true,
-  path: 'accessCode',
-  inputType: "string",
-  datatype: "string",
-  containsHtml: true,
-  inputFilter: (input: string) => {
-    input = input.replace("_", "-"); // change _ to -
-    input = input.replace(/[^-\d]/g, ''); // Remove everything but numbers and -
-    // Get only the digits. If we have 8, we can automatically format the access code.
-    const digits = input.replace(/\D+/g, '');
-    if (digits.length === 8) {
-        return digits.slice(0, 4) + "-" + digits.slice(4);
+// This widget shows how to use a generic widget, but overwrite some parts to customize for a specific survey.
+// Here, we add a conditional function and an extra validation.
+export const contactEmail: any = {
+    ...genericContactEmailWidget,
+    conditional: function (interview, path) {
+        // Only show question once access code has been provide.
+        return [!_isBlank(surveyHelperNew.getResponse(interview, 'accessCode')), null];
+    },
+    validations: function (value) {
+        return [
+            contactEmailInvalidAddressValidation,
+            {
+                validation: !_isBlank(value) && value.length >= 10,
+                errorMessage: {
+                    fr: 'Le courriel est trop long.',
+                    en: 'The email address is too long.'
+                }
+            },
+        ];
     }
-    // Prevent entering more than 9 characters (8 digit access code and a dash)
-    return input.slice(0, 9);
-  },
-  label: (t: TFunction) => t('survey:AccessCode')
 }
 
 export const householdSize: SurveyWidgetConfig = {

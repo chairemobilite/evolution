@@ -19,6 +19,7 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 
 const homeWidgets = [
   //'homeIntro',
+  'contactEmail',
   'householdSize',
   'householdCarNumber',
   'homeAddress',

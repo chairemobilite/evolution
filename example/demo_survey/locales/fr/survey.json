@@ -79,7 +79,6 @@
         "deleteThisGroupedObject": "Supprimer ce mode de transport",
         "addGroupedObject": "Ajouter un mode de transport"
     },
-    "AccessCode": "Veuillez indiquer le code d'accès inscrit dans la lettre ou le courriel que vous avez reçu<br /><span class=\"_pale _oblique\">Laissez vide si aucun code d'accès reçu</span>",
     "Age": "Âge<br /><span class=\"_pale _oblique\">Inscrire 0 pour les bébés de moins de 1 an</span>",
     "Age_one": "Âge",
     "validation": {

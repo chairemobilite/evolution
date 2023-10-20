@@ -1,0 +1,8 @@
+{
+    "home": {
+        "AccessCode": "<strong>Access code</strong><br /><span class=\"_pale _oblique\">Printed on the letter you received</span>",
+        "AccessCodeRequiredError": "The access code is required.",
+        "ContactEmail": "<strong>Email address</strong><br /><span class=\"_pale _oblique\">Required to be be contacted in case of an an incomplete response.</span>",
+        "ContactEmailInvalidAddressError": "The email is invalid."
+    }
+}
