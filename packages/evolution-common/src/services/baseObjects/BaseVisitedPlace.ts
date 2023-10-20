@@ -10,7 +10,6 @@
  * Usually, visited palces are used as origin and/or destination for trips
  */
 
-
 import { Uuidable } from './Uuidable';
 import { OptionalValidity, IValidatable } from './Validatable';
 import { BasePlace } from './BasePlace';
@@ -18,7 +17,6 @@ import { Weightable, Weight, validateWeights } from './Weight';
 import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
 
 export type BaseVisitedPlaceAttributes = {
-
     _uuid?: string;
 
     basePlace?: BasePlace;
@@ -35,13 +33,11 @@ export type BaseVisitedPlaceAttributes = {
      * so shortcuts must be converted to places and each visited place
      * cloned for each occurence before creating trips here
      * */
-
 } & Weightable;
 
 export type ExtendedVisitedPlaceAttributes = BaseVisitedPlaceAttributes & { [key: string]: any };
 
 export class BaseVisitedPlace extends Uuidable implements IValidatable {
-
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
@@ -54,11 +50,11 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
     activityCategory?: VPAttr.ActivityCategory; // TODO: This should maybe removed and included in the activity object
     activity?: VPAttr.Activity;
 
-    _confidentialAttributes: string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
     ];
 
     constructor(params: BaseVisitedPlaceAttributes | ExtendedVisitedPlaceAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -71,7 +67,6 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
         this.departureTime = params.departureTime;
         this.activityCategory = params.activityCategory;
         this.activity = params.activity;
-
     }
 
     validate(): OptionalValidity {
@@ -96,10 +91,10 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
     }
 
     /**
-    * Validates attributes types for BaseVisitedPlace
-    * @param dirtyParams The params input
-    * @returns Error[] TODO: specialize this error class
-    */
+     * Validates attributes types for BaseVisitedPlace
+     * @param dirtyParams The params input
+     * @returns Error[] TODO: specialize this error class
+     */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
 
@@ -130,22 +125,34 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
         }
 
         // Validate arrivalDate (if provided):
-        if (dirtyParams.arrivalDate !== undefined && (!(dirtyParams.arrivalDate instanceof Date) || isNaN(dirtyParams.arrivalDate.getDate()))) {
+        if (
+            dirtyParams.arrivalDate !== undefined &&
+            (!(dirtyParams.arrivalDate instanceof Date) || isNaN(dirtyParams.arrivalDate.getDate()))
+        ) {
             errors.push(new Error('BaseVisitedPlace validateParams: arrivalDate should be a valid Date'));
         }
 
         // Validate departureDate (if provided):
-        if (dirtyParams.departureDate !== undefined && (!(dirtyParams.departureDate instanceof Date) || isNaN(dirtyParams.departureDate.getDate()))) {
+        if (
+            dirtyParams.departureDate !== undefined &&
+            (!(dirtyParams.departureDate instanceof Date) || isNaN(dirtyParams.departureDate.getDate()))
+        ) {
             errors.push(new Error('BaseVisitedPlace validateParams: departureDate should be a valid Date'));
         }
 
         // Validate arrivalTime (if provided):
-        if (dirtyParams.arrivalTime !== undefined && (!Number.isInteger(dirtyParams.arrivalTime) || dirtyParams.arrivalTime < 0)) {
+        if (
+            dirtyParams.arrivalTime !== undefined &&
+            (!Number.isInteger(dirtyParams.arrivalTime) || dirtyParams.arrivalTime < 0)
+        ) {
             errors.push(new Error('BaseVisitedPlace validateParams: arrivalTime should be a positive integer'));
         }
 
         // Validate departureTime (if provided):
-        if (dirtyParams.departureTime !== undefined && (!Number.isInteger(dirtyParams.departureTime) || dirtyParams.departureTime < 0)) {
+        if (
+            dirtyParams.departureTime !== undefined &&
+            (!Number.isInteger(dirtyParams.departureTime) || dirtyParams.departureTime < 0)
+        ) {
             errors.push(new Error('BaseVisitedPlace validateParams: departureTime should be a positive integer'));
         }
 
@@ -162,5 +169,4 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
 
         return errors;
     }
-
 }

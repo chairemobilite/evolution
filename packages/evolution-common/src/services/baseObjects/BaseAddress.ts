@@ -8,7 +8,6 @@
 import { Uuidable } from './Uuidable';
 
 export type BaseAddressAttributes = {
-
     _uuid?: string;
 
     civicNumber: number;
@@ -23,16 +22,14 @@ export type BaseAddressAttributes = {
     postalMunicipalityName?: string;
     region: string;
     country: string;
-    postalCode?: string
+    postalCode?: string;
     addressId?: string;
     internalId?: string;
-
 };
 
-export type ExtendendAddressAttributes = BaseAddressAttributes & {[key: string]: any};
+export type ExtendendAddressAttributes = BaseAddressAttributes & { [key: string]: any };
 
 export class BaseAddress extends Uuidable {
-
     civicNumber: number;
     civicNumberSuffix?: string; // A, B, C, etc.
     unitNumber?: number; // appartment number, office number, etc.
@@ -61,7 +58,6 @@ export class BaseAddress extends Uuidable {
     internalId?: string; // internal id used as the primary key for addresses by the survey administrator
 
     constructor(params: BaseAddressAttributes | ExtendendAddressAttributes) {
-
         super(params._uuid);
 
         this.civicNumber = params.civicNumber;
@@ -79,6 +75,5 @@ export class BaseAddress extends Uuidable {
         this.postalCode = params.postalCode;
         this.addressId = params.addressId;
         this.internalId = params.internalId;
-
     }
 }

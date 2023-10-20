@@ -9,15 +9,12 @@
  * A vehicle can be used to make trips or can be surveyed for a specific household or a specific company.
  */
 
-
 import { Uuidable } from './Uuidable';
 import { OptionalValidity, IValidatable } from './Validatable';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as VAttr from './attributeTypes/VehicleAttributes';
 
-
 export type BaseVehicleAttributes = {
-
     _uuid?: string;
 
     make?: VAttr.Make; // TODO: remove and use Make inside model instead
@@ -34,7 +31,6 @@ export type BaseVehicleAttributes = {
 export type ExtendedVehicleAttributes = BaseVehicleAttributes & { [key: string]: any };
 
 export class BaseVehicle extends Uuidable implements IValidatable {
-
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
@@ -44,12 +40,12 @@ export class BaseVehicle extends Uuidable implements IValidatable {
     capacitySeated?: number;
     capacityStanding?: number;
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
-        'licensePlateNumber',
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
+        'licensePlateNumber'
     ];
 
     constructor(params: BaseVehicleAttributes | ExtendedVehicleAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -60,7 +56,6 @@ export class BaseVehicle extends Uuidable implements IValidatable {
         this.licensePlateNumber = params.licensePlateNumber;
         this.capacitySeated = params.capacitySeated;
         this.capacityStanding = params.capacityStanding;
-
     }
 
     validate(): OptionalValidity {
@@ -85,10 +80,10 @@ export class BaseVehicle extends Uuidable implements IValidatable {
     }
 
     /**
-    * Validates attributes types for BaseVehicle
-    * @param dirtyParams The params input
-    * @returns Error[] TODO: specialize this error class
-    */
+     * Validates attributes types for BaseVehicle
+     * @param dirtyParams The params input
+     * @returns Error[] TODO: specialize this error class
+     */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
 
@@ -122,7 +117,9 @@ export class BaseVehicle extends Uuidable implements IValidatable {
         // Validate capacitySeated (if provided)
         if (
             dirtyParams.capacitySeated !== undefined &&
-            (typeof dirtyParams.capacitySeated !== 'number' || !Number.isInteger(dirtyParams.capacitySeated) || dirtyParams.capacitySeated < 0)
+            (typeof dirtyParams.capacitySeated !== 'number' ||
+                !Number.isInteger(dirtyParams.capacitySeated) ||
+                dirtyParams.capacitySeated < 0)
         ) {
             errors.push(new Error('BaseVehicle validateParams: capacitySeated should be a positive integer'));
         }
@@ -130,13 +127,13 @@ export class BaseVehicle extends Uuidable implements IValidatable {
         // Validate capacityStanding (if provided)
         if (
             dirtyParams.capacityStanding !== undefined &&
-            (typeof dirtyParams.capacityStanding !== 'number' || !Number.isInteger(dirtyParams.capacityStanding) || dirtyParams.capacityStanding < 0)
+            (typeof dirtyParams.capacityStanding !== 'number' ||
+                !Number.isInteger(dirtyParams.capacityStanding) ||
+                dirtyParams.capacityStanding < 0)
         ) {
             errors.push(new Error('BaseVehicle validateParams: capacityStanding should be a positive integer'));
         }
 
         return errors;
     }
-
-
 }

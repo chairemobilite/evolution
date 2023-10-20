@@ -15,20 +15,17 @@ import { OptionalValidity, IValidatable } from './Validatable';
 import * as SAttr from './attributeTypes/SegmentAttributes';
 
 export type BaseSegmentAttributes = {
-
     _uuid?: string;
 
     baseVehicle?: BaseVehicle;
 
     modeCategory?: SAttr.ModeCategory; // TODO: remove this an include the mode category in the mode itself
     mode?: SAttr.Mode;
-
 };
 
 export type ExtendedSegmentAttributes = BaseSegmentAttributes & { [key: string]: any };
 
 export class BaseSegment extends Uuidable implements IValidatable {
-
     _isValid: OptionalValidity;
 
     baseVehicle?: BaseVehicle;
@@ -36,11 +33,11 @@ export class BaseSegment extends Uuidable implements IValidatable {
     modeCategory?: SAttr.ModeCategory;
     mode?: SAttr.Mode;
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
     ];
 
     constructor(params: BaseSegmentAttributes | ExtendedSegmentAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -48,7 +45,6 @@ export class BaseSegment extends Uuidable implements IValidatable {
         this.modeCategory = params.modeCategory;
         this.mode = params.mode;
         this.baseVehicle = params.baseVehicle;
-
     }
 
     validate(): OptionalValidity {
@@ -94,28 +90,20 @@ export class BaseSegment extends Uuidable implements IValidatable {
         }
 
         // Validate modeCategory (if provided)
-        if (
-            dirtyParams.modeCategory !== undefined &&
-            typeof dirtyParams.modeCategory !== 'string'
-        ) {
+        if (dirtyParams.modeCategory !== undefined && typeof dirtyParams.modeCategory !== 'string') {
             errors.push(new Error('BaseSegment validateParams: modeCategory should be a string'));
         }
 
         // Validate mode (if provided)
-        if (
-            dirtyParams.mode !== undefined &&
-            typeof dirtyParams.mode !== 'string'
-        ) {
+        if (dirtyParams.mode !== undefined && typeof dirtyParams.mode !== 'string') {
             errors.push(new Error('BaseSegment validateParams: mode should be a string'));
         }
 
         // Validate baseVehicle (if provided)
-        if (
-            dirtyParams.baseVehicle !== undefined && !(dirtyParams.baseVehicle instanceof BaseVehicle)) {
+        if (dirtyParams.baseVehicle !== undefined && !(dirtyParams.baseVehicle instanceof BaseVehicle)) {
             errors.push(new Error('BaseSegment validateParams: baseVehicle should be an instance of BaseVehicle'));
         }
 
         return errors;
     }
-
 }

@@ -21,7 +21,6 @@ import * as TCAttr from './attributeTypes/TripChainAttributes';
 import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
 
 export type BaseTripChainAttributes = {
-
     _uuid?: string;
 
     isMultiloop?: boolean;
@@ -37,10 +36,9 @@ export type BaseTripChainAttributes = {
      * */
 } & Weightable;
 
-export type ExtendedTripChainAttributes = BaseTripChainAttributes & {[key: string]: any};
+export type ExtendedTripChainAttributes = BaseTripChainAttributes & { [key: string]: any };
 
 export class BaseTripChain extends Uuidable implements IValidatable {
-
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
@@ -52,11 +50,11 @@ export class BaseTripChain extends Uuidable implements IValidatable {
 
     baseTrips?: BaseTrip[];
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
     ];
 
     constructor(params: BaseTripChainAttributes | ExtendedTripChainAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -69,7 +67,6 @@ export class BaseTripChain extends Uuidable implements IValidatable {
         this.mainActivity = params.mainActivity;
 
         this.baseTrips = params.baseTrips || [];
-
     }
 
     validate(): OptionalValidity {
@@ -135,18 +132,12 @@ export class BaseTripChain extends Uuidable implements IValidatable {
         }
 
         // Validate mainActivityCategory (if provided)
-        if (
-            dirtyParams.mainActivityCategory !== undefined &&
-            typeof dirtyParams.mainActivityCategory !== 'string'
-        ) {
+        if (dirtyParams.mainActivityCategory !== undefined && typeof dirtyParams.mainActivityCategory !== 'string') {
             errors.push(new Error('BaseTripChain validateParams: mainActivityCategory should be a string'));
         }
 
         // Validate mainActivity (if provided)
-        if (
-            dirtyParams.mainActivity !== undefined &&
-            typeof dirtyParams.mainActivity !== 'string'
-        ) {
+        if (dirtyParams.mainActivity !== undefined && typeof dirtyParams.mainActivity !== 'string') {
             errors.push(new Error('BaseTripChain validateParams: mainActivity should be a string'));
         }
 
@@ -156,12 +147,15 @@ export class BaseTripChain extends Uuidable implements IValidatable {
         } else if (Array.isArray(dirtyParams.baseTrips)) {
             dirtyParams.baseTrips.forEach((trip: any, index: number) => {
                 if (!(trip instanceof BaseTrip)) {
-                    errors.push(new Error(`BaseTripChain validateParams: baseTrips at index ${index} should be an instance of BaseTrip`));
+                    errors.push(
+                        new Error(
+                            `BaseTripChain validateParams: baseTrips at index ${index} should be an instance of BaseTrip`
+                        )
+                    );
                 }
             });
         }
 
         return errors;
     }
-
 }

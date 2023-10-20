@@ -20,7 +20,6 @@ import { OptionalValidity, IValidatable } from './Validatable';
 // TODO: move these to chaire-lib
 
 export type BasePlaceAttributes = {
-
     _uuid?: string;
 
     geography?: GeoJSON.Feature<GeoJSON.Point> | undefined;
@@ -35,13 +34,11 @@ export type BasePlaceAttributes = {
     geocodingPrecisionCategory?: GeocodingPrecisionCategory;
     geocodingPrecisionMeters?: number;
     geocodingQueryString?: string;
-
 };
 
 export type ExtendedPlaceAttributes = BasePlaceAttributes & { [key: string]: any };
 
 export class BasePlace extends Uuidable implements IValidatable {
-
     _isValid: OptionalValidity;
 
     geography?: GeoJSON.Feature<GeoJSON.Point>;
@@ -57,11 +54,11 @@ export class BasePlace extends Uuidable implements IValidatable {
     geocodingPrecisionMeters?: number; // the max distance in meters between the geocoded point and the real location
     geocodingQueryString?: string; // in most surveys, this would be the query used to geocode the location
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
     ];
 
     constructor(params: BasePlaceAttributes | ExtendedPlaceAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -78,7 +75,6 @@ export class BasePlace extends Uuidable implements IValidatable {
         this.geocodingPrecisionCategory = params.geocodingPrecisionCategory;
         this.geocodingPrecisionMeters = params.geocodingPrecisionMeters;
         this.geocodingQueryString = params.geocodingQueryString;
-
     }
 
     validate(): OptionalValidity {
@@ -182,14 +178,10 @@ export class BasePlace extends Uuidable implements IValidatable {
         }
 
         // Validate geocodingQueryString (if provided)
-        if (
-            dirtyParams.geocodingQueryString !== undefined &&
-            typeof dirtyParams.geocodingQueryString !== 'string'
-        ) {
+        if (dirtyParams.geocodingQueryString !== undefined && typeof dirtyParams.geocodingQueryString !== 'string') {
             errors.push(new Error('BasePlace validateParams: geocodingQueryString should be a string'));
         }
 
         return errors;
     }
-
 }

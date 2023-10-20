@@ -10,7 +10,5 @@
 import { BaseVehicle } from './BaseVehicle';
 
 export type Vehicleable = {
-
     baseVehicles?: BaseVehicle[];
-
 };

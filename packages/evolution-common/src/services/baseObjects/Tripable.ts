@@ -13,8 +13,6 @@ import { BaseVisitedPlace } from './BaseVisitedPlace';
 import { BaseTrip } from './BaseTrip';
 
 export type Tripable = {
-
     baseVisitedPlaces?: BaseVisitedPlace[];
     baseTrips?: BaseTrip[];
-
 };

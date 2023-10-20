@@ -17,7 +17,6 @@ import * as PAttr from './attributeTypes/PersonAttributes';
 import { Vehicleable } from './Vehicleable';
 
 type BasePersonAttributes = {
-
     _uuid?: string;
 
     age?: PAttr.Age;
@@ -46,16 +45,16 @@ type BasePersonAttributes = {
     nickname?: string;
     contactPhoneNumber?: string;
     contactEmail?: string;
-
-} & Weightable & Tripable & Vehicleable;
+} & Weightable &
+    Tripable &
+    Vehicleable;
 
 type ExtendedPersonAttributes = BasePersonAttributes & { [key: string]: any };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface IBasePersonAttributes extends BasePersonAttributes { }
+interface IBasePersonAttributes extends BasePersonAttributes {}
 
 class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable {
-
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
@@ -91,14 +90,14 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
     contactPhoneNumber?: string;
     contactEmail?: string;
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
         'contactPhoneNumber',
         'contactEmail',
-        'nickname',
+        'nickname'
     ];
 
     constructor(params: BasePersonAttributes | ExtendedPersonAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -135,7 +134,6 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         this.baseVehicles = params.baseVehicles || [];
 
         this.baseHome = params.baseHome;
-
     }
 
     validate(): OptionalValidity {
@@ -149,10 +147,10 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
     }
 
     /**
- * Validates attributes types for BasePerson.
- * @param dirtyParams The parameters to validate.
- * @returns Error[] TODO: specialize this error class
- */
+     * Validates attributes types for BasePerson.
+     * @param dirtyParams The parameters to validate.
+     * @returns Error[] TODO: specialize this error class
+     */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
 
@@ -190,7 +188,10 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         }
 
         // Validate drivingLicenseOwnership (if provided)
-        if (dirtyParams.drivingLicenseOwnership !== undefined && typeof dirtyParams.drivingLicenseOwnership !== 'string') {
+        if (
+            dirtyParams.drivingLicenseOwnership !== undefined &&
+            typeof dirtyParams.drivingLicenseOwnership !== 'string'
+        ) {
             errors.push(new Error('BasePerson validateParams: drivingLicenseOwnership is not a valid value'));
         }
 
@@ -250,7 +251,10 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         }
 
         // Validate isJobTelecommuteCompatible (if provided)
-        if (dirtyParams.isJobTelecommuteCompatible !== undefined && typeof dirtyParams.isJobTelecommuteCompatible !== 'boolean') {
+        if (
+            dirtyParams.isJobTelecommuteCompatible !== undefined &&
+            typeof dirtyParams.isJobTelecommuteCompatible !== 'boolean'
+        ) {
             errors.push(new Error('BasePerson validateParams: isJobTelecommuteCompatible should be a boolean'));
         }
 
@@ -260,12 +264,20 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         }
 
         // Validate baseWorkPlaces (if provided)
-        if (dirtyParams.baseWorkPlaces !== undefined && (!Array.isArray(dirtyParams.baseWorkPlaces) || !dirtyParams.baseWorkPlaces.every((place) => place instanceof BasePlace))) {
+        if (
+            dirtyParams.baseWorkPlaces !== undefined &&
+            (!Array.isArray(dirtyParams.baseWorkPlaces) ||
+                !dirtyParams.baseWorkPlaces.every((place) => place instanceof BasePlace))
+        ) {
             errors.push(new Error('BasePerson validateParams: baseWorkPlaces should be an array of BasePlace'));
         }
 
         // Validate baseSchoolPlaces (if provided)
-        if (dirtyParams.baseSchoolPlaces !== undefined && (!Array.isArray(dirtyParams.baseSchoolPlaces) || !dirtyParams.baseSchoolPlaces.every((place) => place instanceof BasePlace))) {
+        if (
+            dirtyParams.baseSchoolPlaces !== undefined &&
+            (!Array.isArray(dirtyParams.baseSchoolPlaces) ||
+                !dirtyParams.baseSchoolPlaces.every((place) => place instanceof BasePlace))
+        ) {
             errors.push(new Error('BasePerson validateParams: baseSchoolPlaces should be an array of BasePlace'));
         }
 
@@ -275,17 +287,30 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         }
 
         // Validate baseVisitedPlaces (if provided)
-        if (dirtyParams.baseVisitedPlaces !== undefined && (!Array.isArray(dirtyParams.baseVisitedPlaces) || !dirtyParams.baseVisitedPlaces.every((place) => place instanceof BaseVisitedPlace))) {
-            errors.push(new Error('BasePerson validateParams: baseVisitedPlaces should be an array of BaseVisitedPlace'));
+        if (
+            dirtyParams.baseVisitedPlaces !== undefined &&
+            (!Array.isArray(dirtyParams.baseVisitedPlaces) ||
+                !dirtyParams.baseVisitedPlaces.every((place) => place instanceof BaseVisitedPlace))
+        ) {
+            errors.push(
+                new Error('BasePerson validateParams: baseVisitedPlaces should be an array of BaseVisitedPlace')
+            );
         }
 
         // Validate baseTrips (if provided)
-        if (dirtyParams.baseTrips !== undefined && (!Array.isArray(dirtyParams.baseTrips) || !dirtyParams.baseTrips.every((trip) => trip instanceof BaseTrip))) {
+        if (
+            dirtyParams.baseTrips !== undefined &&
+            (!Array.isArray(dirtyParams.baseTrips) || !dirtyParams.baseTrips.every((trip) => trip instanceof BaseTrip))
+        ) {
             errors.push(new Error('BasePerson validateParams: baseTrips should be an array of BaseTrip'));
         }
 
         // Validate baseVehicles (if provided)
-        if (dirtyParams.baseVehicles !== undefined && (!Array.isArray(dirtyParams.baseVehicles) || !dirtyParams.baseVehicles.every((vehicle) => vehicle instanceof BaseVehicle))) {
+        if (
+            dirtyParams.baseVehicles !== undefined &&
+            (!Array.isArray(dirtyParams.baseVehicles) ||
+                !dirtyParams.baseVehicles.every((vehicle) => vehicle instanceof BaseVehicle))
+        ) {
             errors.push(new Error('BasePerson validateParams: baseVehicles should be an array of BaseVehicle'));
         }
 
@@ -306,11 +331,6 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
 
         return errors;
     }
-
 }
 
-export {
-    BasePerson,
-    BasePersonAttributes,
-    ExtendedPersonAttributes
-};
+export { BasePerson, BasePersonAttributes, ExtendedPersonAttributes };
