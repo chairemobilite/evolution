@@ -8,11 +8,9 @@
 export type OptionalValidity = boolean | undefined;
 
 export interface IValidatable {
-
     _isValid: OptionalValidity; // undefined means not yet validated
 
     validate(): OptionalValidity;
 
     isValid(): OptionalValidity;
-
 }

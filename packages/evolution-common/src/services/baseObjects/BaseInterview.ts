@@ -13,18 +13,11 @@ import { BasePerson } from './BasePerson';
 import { BaseHousehold } from './BaseHousehold';
 import { BaseOrganization } from './BaseOrganization';
 
-export const devices = [
-    'tablet',
-    'mobile',
-    'desktop',
-    'other',
-    'unknown'
-] as const;
+export const devices = ['tablet', 'mobile', 'desktop', 'other', 'unknown'] as const;
 
-export type Device = typeof devices[number];
+export type Device = (typeof devices)[number];
 
 export type BaseInterviewAttributes = {
-
     _uuid?: string;
 
     accessCode?: string;
@@ -45,13 +38,11 @@ export type BaseInterviewAttributes = {
     _isCompleted?: boolean;
 
     _device?: Device;
-
 } & SurveyableAttributes;
 
 export type ExtendedInterviewAttributes = BaseInterviewAttributes & { [key: string]: any };
 
 export class BaseInterview extends Surveyable implements IValidatable {
-
     _isValid: OptionalValidity;
 
     baseHousehold?: BaseHousehold;
@@ -73,14 +64,14 @@ export class BaseInterview extends Surveyable implements IValidatable {
 
     _device?: Device;
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
         'contactPhoneNumber',
         'contactEmail',
-        'accessCode',
+        'accessCode'
     ];
 
     constructor(params: BaseInterviewAttributes | ExtendedInterviewAttributes) {
-
         super(params.survey, params.sample, params.sampleBatchNumber, params._uuid);
 
         this.baseHousehold = params.baseHousehold;
@@ -101,7 +92,6 @@ export class BaseInterview extends Surveyable implements IValidatable {
         this._isCompleted = params._isCompleted;
 
         this._device = params._device;
-
     }
 
     validate(): OptionalValidity {
@@ -154,7 +144,10 @@ export class BaseInterview extends Surveyable implements IValidatable {
         }
 
         // Validate _language (if provided)
-        if (dirtyParams._language !== undefined && (typeof dirtyParams._language !== 'string' || /^[a-zA-Z]{2}$/.test(dirtyParams._language) === false)) {
+        if (
+            dirtyParams._language !== undefined &&
+            (typeof dirtyParams._language !== 'string' || /^[a-zA-Z]{2}$/.test(dirtyParams._language) === false)
+        ) {
             errors.push(new Error('BaseInterview validateParams: _language should be a string of two letters'));
         }
 
@@ -169,28 +162,42 @@ export class BaseInterview extends Surveyable implements IValidatable {
         }
 
         // Validate assignedDate (if provided)
-        if (dirtyParams.assignedDate !== undefined && (!(dirtyParams.assignedDate instanceof Date) || isNaN(dirtyParams.assignedDate.getDate()))) {
+        if (
+            dirtyParams.assignedDate !== undefined &&
+            (!(dirtyParams.assignedDate instanceof Date) || isNaN(dirtyParams.assignedDate.getDate()))
+        ) {
             errors.push(new Error('BaseInterview validateParams: invalid assignedDate'));
         }
 
         // Validate _startedAt (if provided)
-        if (dirtyParams._startedAt !== undefined && (!(dirtyParams._startedAt instanceof Date) || isNaN(dirtyParams._startedAt.getDate()))) {
+        if (
+            dirtyParams._startedAt !== undefined &&
+            (!(dirtyParams._startedAt instanceof Date) || isNaN(dirtyParams._startedAt.getDate()))
+        ) {
             errors.push(new Error('BaseInterview validateParams: invalid _startedAt'));
         }
 
         // Validate _completedAt (if provided)
-        if (dirtyParams._completedAt !== undefined && (!(dirtyParams._completedAt instanceof Date) || isNaN(dirtyParams._completedAt.getDate()))) {
+        if (
+            dirtyParams._completedAt !== undefined &&
+            (!(dirtyParams._completedAt instanceof Date) || isNaN(dirtyParams._completedAt.getDate()))
+        ) {
             errors.push(new Error('BaseInterview validateParams: invalid _completedAt'));
         }
 
         // Validate _updatedAt (if provided)
-        if (dirtyParams._updatedAt !== undefined && (!(dirtyParams._updatedAt instanceof Date) || isNaN(dirtyParams._updatedAt.getDate()))) {
+        if (
+            dirtyParams._updatedAt !== undefined &&
+            (!(dirtyParams._updatedAt instanceof Date) || isNaN(dirtyParams._updatedAt.getDate()))
+        ) {
             errors.push(new Error('BaseInterview validateParams: invalid _updatedAt'));
         }
 
         // Validate baseHousehold (if provided)
         if (dirtyParams.baseHousehold !== undefined && !(dirtyParams.baseHousehold instanceof BaseHousehold)) {
-            errors.push(new Error('BaseInterview validateParams: baseHousehold should be an instance of BaseHousehold'));
+            errors.push(
+                new Error('BaseInterview validateParams: baseHousehold should be an instance of BaseHousehold')
+            );
         }
 
         // Validate basePerson (if provided)
@@ -200,7 +207,9 @@ export class BaseInterview extends Surveyable implements IValidatable {
 
         // Validate baseOrganization (if provided)
         if (dirtyParams.baseOrganization !== undefined && !(dirtyParams.baseOrganization instanceof BaseOrganization)) {
-            errors.push(new Error('BaseInterview validateParams: baseOrganization should be an instance of BaseOrganization'));
+            errors.push(
+                new Error('BaseInterview validateParams: baseOrganization should be an instance of BaseOrganization')
+            );
         }
 
         // Validate contactPhoneNumber (if provided):
@@ -226,7 +235,4 @@ export class BaseInterview extends Surveyable implements IValidatable {
     }
 
     // TODO: methods to get started and completed date/time with any format using moment or DateTime
-
-
-
 }

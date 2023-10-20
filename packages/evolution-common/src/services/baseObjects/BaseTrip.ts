@@ -9,7 +9,6 @@
  * A trip is has an origin and a destination, which are visited places, and is made by a person
  */
 
-
 import { Uuidable } from './Uuidable';
 import { OptionalValidity, IValidatable } from './Validatable';
 import { BaseSegment } from './BaseSegment';
@@ -17,7 +16,6 @@ import { BaseVisitedPlace } from './BaseVisitedPlace';
 import { Weightable, Weight, validateWeights } from './Weight';
 
 export type BaseTripAttributes = {
-
     _uuid?: string;
 
     baseOrigin?: BaseVisitedPlace;
@@ -29,13 +27,11 @@ export type BaseTripAttributes = {
      * so shortcuts must be converted to places and each visited place
      * cloned for each occurence before creating trips here
      * */
-
 } & Weightable;
 
 export type ExtendedTripAttributes = BaseTripAttributes & { [key: string]: any };
 
 export class BaseTrip extends Uuidable implements IValidatable {
-
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
@@ -43,11 +39,11 @@ export class BaseTrip extends Uuidable implements IValidatable {
     baseDestination?: BaseVisitedPlace;
     baseSegments?: BaseSegment[];
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
     ];
 
     constructor(params: BaseTripAttributes | ExtendedTripAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -56,7 +52,6 @@ export class BaseTrip extends Uuidable implements IValidatable {
         this.baseOrigin = params.baseOrigin;
         this.baseDestination = params.baseDestination;
         this.baseSegments = params.baseSegments || [];
-
     }
 
     validate(): OptionalValidity {
@@ -123,12 +118,15 @@ export class BaseTrip extends Uuidable implements IValidatable {
             // Validate each segment in baseSegments
             dirtyParams.baseSegments.forEach((segment: any, index: number) => {
                 if (!(segment instanceof BaseSegment)) {
-                    errors.push(new Error(`BaseTrip validateParams: baseSegments at index ${index} should be an instance of BaseSegment`));
+                    errors.push(
+                        new Error(
+                            `BaseTrip validateParams: baseSegments at index ${index} should be an instance of BaseSegment`
+                        )
+                    );
                 }
             });
         }
 
         return errors;
     }
-
 }

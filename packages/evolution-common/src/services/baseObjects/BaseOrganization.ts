@@ -20,7 +20,6 @@ import { Vehicleable } from './Vehicleable';
 import { BaseVehicle } from './BaseVehicle';
 
 type BaseOrganizationAttributes = {
-
     _uuid?: string;
 
     name?: string;
@@ -38,13 +37,12 @@ type BaseOrganizationAttributes = {
     contactPerson?: BasePerson;
     contactPhoneNumber?: string;
     contactEmail?: string;
-
-} & Weightable & Vehicleable;
+} & Weightable &
+    Vehicleable;
 
 type ExtendedOrganizationAttributes = BaseOrganizationAttributes & { [key: string]: any };
 
 class BaseOrganization extends Uuidable implements IValidatable {
-
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
@@ -66,14 +64,14 @@ class BaseOrganization extends Uuidable implements IValidatable {
     contactPhoneNumber?: string;
     contactEmail?: string;
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
         'contactPhoneNumber',
         'contactEmail',
-        'contactPerson',
+        'contactPerson'
     ];
 
     constructor(params: BaseOrganizationAttributes | ExtendedOrganizationAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -96,7 +94,6 @@ class BaseOrganization extends Uuidable implements IValidatable {
         this.contactPerson = params.contactPerson;
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
-
     }
 
     validate(): OptionalValidity {
@@ -121,10 +118,10 @@ class BaseOrganization extends Uuidable implements IValidatable {
     }
 
     /**
- * Validates attributes types for BaseOrganization.
- * @param dirtyParams The parameters to validate.
- * @returns Error[] TODO: specialize this error class
- */
+     * Validates attributes types for BaseOrganization.
+     * @param dirtyParams The parameters to validate.
+     * @returns Error[] TODO: specialize this error class
+     */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
 
@@ -167,43 +164,72 @@ class BaseOrganization extends Uuidable implements IValidatable {
         }
 
         // Validate vehicleNumber (if provided)
-        if (dirtyParams.vehicleNumber !== undefined && (!Number.isInteger(dirtyParams.vehicleNumber) || dirtyParams.vehicleNumber < 0)) {
+        if (
+            dirtyParams.vehicleNumber !== undefined &&
+            (!Number.isInteger(dirtyParams.vehicleNumber) || dirtyParams.vehicleNumber < 0)
+        ) {
             errors.push(new Error('BaseOrganization validateParams: vehicleNumber should be a positive integer'));
         }
 
         // Validate pluginHybridVehicleNumber (if provided)
-        if (dirtyParams.pluginHybridVehicleNumber !== undefined && (!Number.isInteger(dirtyParams.pluginHybridVehicleNumber) || dirtyParams.pluginHybridVehicleNumber < 0)) {
-            errors.push(new Error('BaseOrganization validateParams: pluginHybridVehicleNumber should be a positive integer'));
+        if (
+            dirtyParams.pluginHybridVehicleNumber !== undefined &&
+            (!Number.isInteger(dirtyParams.pluginHybridVehicleNumber) || dirtyParams.pluginHybridVehicleNumber < 0)
+        ) {
+            errors.push(
+                new Error('BaseOrganization validateParams: pluginHybridVehicleNumber should be a positive integer')
+            );
         }
 
         // Validate electricVehicleNumber (if provided)
-        if (dirtyParams.electricVehicleNumber !== undefined && (!Number.isInteger(dirtyParams.electricVehicleNumber) || dirtyParams.electricVehicleNumber < 0)) {
-            errors.push(new Error('BaseOrganization validateParams: electricVehicleNumber should be a positive integer'));
+        if (
+            dirtyParams.electricVehicleNumber !== undefined &&
+            (!Number.isInteger(dirtyParams.electricVehicleNumber) || dirtyParams.electricVehicleNumber < 0)
+        ) {
+            errors.push(
+                new Error('BaseOrganization validateParams: electricVehicleNumber should be a positive integer')
+            );
         }
 
         // Validate basePersons (if provided)
-        if (dirtyParams.basePersons !== undefined && (!Array.isArray(dirtyParams.basePersons) || !dirtyParams.basePersons.every((person) => person instanceof BasePerson))) {
+        if (
+            dirtyParams.basePersons !== undefined &&
+            (!Array.isArray(dirtyParams.basePersons) ||
+                !dirtyParams.basePersons.every((person) => person instanceof BasePerson))
+        ) {
             errors.push(new Error('BaseOrganization validateParams: basePersons should be an array of BasePerson'));
         }
 
         // Validate baseLocations (if provided)
-        if (dirtyParams.baseLocations !== undefined && (!Array.isArray(dirtyParams.baseLocations) || !dirtyParams.baseLocations.every((location) => location instanceof BasePlace))) {
+        if (
+            dirtyParams.baseLocations !== undefined &&
+            (!Array.isArray(dirtyParams.baseLocations) ||
+                !dirtyParams.baseLocations.every((location) => location instanceof BasePlace))
+        ) {
             errors.push(new Error('BaseOrganization validateParams: baseLocations should be an array of BasePlace'));
         }
 
         // Validate baseHeadquarter (if provided)
         if (dirtyParams.baseHeadquarter !== undefined && !(dirtyParams.baseHeadquarter instanceof BasePlace)) {
-            errors.push(new Error('BaseOrganization validateParams: baseHeadquarter should be an instance of BasePlace'));
+            errors.push(
+                new Error('BaseOrganization validateParams: baseHeadquarter should be an instance of BasePlace')
+            );
         }
 
         // Validate baseVehicles (if provided)
-        if (dirtyParams.baseVehicles !== undefined && (!Array.isArray(dirtyParams.baseVehicles) || !dirtyParams.baseVehicles.every((vehicle) => vehicle instanceof BaseVehicle))) {
+        if (
+            dirtyParams.baseVehicles !== undefined &&
+            (!Array.isArray(dirtyParams.baseVehicles) ||
+                !dirtyParams.baseVehicles.every((vehicle) => vehicle instanceof BaseVehicle))
+        ) {
             errors.push(new Error('BaseOrganization validateParams: baseVehicles should be an array of BaseVehicle'));
         }
 
         // Validate contactPerson (if provided)
         if (dirtyParams.contactPerson !== undefined && !(dirtyParams.contactPerson instanceof BasePerson)) {
-            errors.push(new Error('BaseOrganization validateParams: contactPerson should be an instance of BasePerson'));
+            errors.push(
+                new Error('BaseOrganization validateParams: contactPerson should be an instance of BasePerson')
+            );
         }
 
         // Validate contactPhoneNumber (if provided)
@@ -218,11 +244,6 @@ class BaseOrganization extends Uuidable implements IValidatable {
 
         return errors;
     }
-
 }
 
-export {
-    BaseOrganization,
-    BaseOrganizationAttributes,
-    ExtendedOrganizationAttributes
-};
+export { BaseOrganization, BaseOrganizationAttributes, ExtendedOrganizationAttributes };

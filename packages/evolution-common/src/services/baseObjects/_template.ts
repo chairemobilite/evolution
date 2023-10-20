@@ -13,7 +13,6 @@ type BaseCLASSAttributes = {
     _uuid?: string;
 
     // custom attributes
-
 } & Weightable;
 
 type ExtendedCLASSAttributes = BaseCLASSAttributes & { [key: string]: any };
@@ -22,7 +21,6 @@ type ExtendedCLASSAttributes = BaseCLASSAttributes & { [key: string]: any };
 interface IBaseCLASSAttributes extends BaseCLASSAttributes {}
 
 class BaseCLASS extends Uuidable implements IBaseCLASSAttributes, IValidatable {
-
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
@@ -42,12 +40,6 @@ class BaseCLASS extends Uuidable implements IBaseCLASSAttributes, IValidatable {
     isValid(): OptionalValidity {
         return this._isValid;
     }
-
-
 }
 
-export {
-    BaseCLASS,
-    BaseCLASSAttributes,
-    ExtendedCLASSAttributes
-};
+export { BaseCLASS, BaseCLASSAttributes, ExtendedCLASSAttributes };

@@ -8,4 +8,3 @@
 // TODO: move these to chaire-lib
 
 export type GeocodingPrecisionCategory = string; // TODO: add normalized precision levels
-

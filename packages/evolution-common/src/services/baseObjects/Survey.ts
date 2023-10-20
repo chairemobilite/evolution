@@ -12,7 +12,6 @@ import { Uuidable } from './Uuidable';
  */
 
 type SurveyAttributes = {
-
     _uuid?: string;
 
     name: string;
@@ -20,13 +19,11 @@ type SurveyAttributes = {
     description?: string;
     startDate: Date;
     endDate: Date;
-
-}
+};
 
 type ExtendedSurveyAttributes = SurveyAttributes & { [key: string]: any };
 
 class Survey extends Uuidable {
-
     name: string;
     shortname: string;
     description?: string;
@@ -34,7 +31,6 @@ class Survey extends Uuidable {
     endDate: Date;
 
     constructor(params: SurveyAttributes | ExtendedSurveyAttributes) {
-
         super(params._uuid);
 
         this.name = params.name;
@@ -42,7 +38,6 @@ class Survey extends Uuidable {
         this.description = params.description;
         this.startDate = params.startDate;
         this.endDate = params.endDate;
-
     }
 
     /**
@@ -51,7 +46,6 @@ class Survey extends Uuidable {
      * @returns Error[] TODO: specialize this error class
      */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
-
         const errors: Error[] = [];
 
         // Validate params object:
@@ -80,25 +74,25 @@ class Survey extends Uuidable {
         if (dirtyParams.description !== undefined && typeof dirtyParams.description !== 'string') {
             errors.push(new Error('Survey validateParams: description should be a string'));
         }
-        if (dirtyParams.startDate !== undefined && (!(dirtyParams.startDate instanceof Date) || isNaN(dirtyParams.startDate.getDate()))) {
+        if (
+            dirtyParams.startDate !== undefined &&
+            (!(dirtyParams.startDate instanceof Date) || isNaN(dirtyParams.startDate.getDate()))
+        ) {
             errors.push(new Error('Survey validateParams: invalid startDate'));
         } else if (dirtyParams.startDate === undefined) {
             errors.push(new Error('Survey validateParams: startDate is required'));
         }
-        if (dirtyParams.endDate !== undefined && (!(dirtyParams.endDate instanceof Date) || isNaN(dirtyParams.endDate.getDate()))) {
+        if (
+            dirtyParams.endDate !== undefined &&
+            (!(dirtyParams.endDate instanceof Date) || isNaN(dirtyParams.endDate.getDate()))
+        ) {
             errors.push(new Error('Survey validateParams: invalid endDate'));
         } else if (dirtyParams.endDate === undefined) {
             errors.push(new Error('Survey validateParams: endDate is required'));
         }
 
         return errors;
-
     }
-
 }
 
-export {
-    Survey,
-    SurveyAttributes,
-    ExtendedSurveyAttributes
-};
+export { Survey, SurveyAttributes, ExtendedSurveyAttributes };

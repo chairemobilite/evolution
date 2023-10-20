@@ -54,7 +54,11 @@ export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             value={value}
             onBlur={props.onValueChange}
             onChange={(e) =>
-                setValue(!_isBlank(props.widgetConfig.inputFilter) ? props.widgetConfig.inputFilter!(e.target.value) : e.target.value)
+                setValue(
+                    !_isBlank(props.widgetConfig.inputFilter)
+                        ? props.widgetConfig.inputFilter!(e.target.value)
+                        : e.target.value
+                )
             }
             ref={props.inputRef}
             maxLength={props.widgetConfig.maxLength ? props.widgetConfig.maxLength : 255}

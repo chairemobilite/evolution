@@ -14,9 +14,7 @@ import { Uuidable } from './Uuidable';
 import { Vehicleable } from './Vehicleable';
 import { BaseVehicle } from './BaseVehicle';
 
-
 type BaseHouseholdAttributes = {
-
     _uuid?: string;
 
     baseMembers?: BasePerson[];
@@ -34,13 +32,12 @@ type BaseHouseholdAttributes = {
     // must be anonymized:
     contactPhoneNumber?: string; // TODO: normalize and/or validate phone numbers
     contactEmail?: string;
-
-} & Weightable & Vehicleable;
+} & Weightable &
+    Vehicleable;
 
 type ExtendedHouseholdAttributes = BaseHouseholdAttributes & { [key: string]: any };
 
 class BaseHousehold extends Uuidable implements IValidatable {
-
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
@@ -71,9 +68,10 @@ class BaseHousehold extends Uuidable implements IValidatable {
     contactPhoneNumber?: string;
     contactEmail?: string;
 
-    _confidentialAttributes : string[] = [ // these attributes should be hidden when exporting
+    _confidentialAttributes: string[] = [
+        // these attributes should be hidden when exporting
         'contactPhoneNumber',
-        'contactEmail',
+        'contactEmail'
     ];
 
     /**
@@ -81,7 +79,6 @@ class BaseHousehold extends Uuidable implements IValidatable {
      * Only the factory create method should be able to generate a valid object
      * */
     constructor(params: BaseHouseholdAttributes | ExtendedHouseholdAttributes) {
-
         super(params._uuid);
 
         this._isValid = undefined;
@@ -102,7 +99,6 @@ class BaseHousehold extends Uuidable implements IValidatable {
         this.homeCarParkings = params.homeCarParkings;
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
-
     }
 
     validate(): OptionalValidity {
@@ -158,7 +154,11 @@ class BaseHousehold extends Uuidable implements IValidatable {
         } else if (dirtyParams.baseMembers !== undefined && dirtyParams.baseMembers.length > 0) {
             for (let i = 0, countI = dirtyParams.baseMembers.length; i < countI; i++) {
                 if (!dirtyParams.baseMembers[i] || !(dirtyParams.baseMembers[i] instanceof BasePerson)) {
-                    errors.push(new Error(`BaseHousehold validateParams: baseMembers index ${i} is not an instance of BasePerson`));
+                    errors.push(
+                        new Error(
+                            `BaseHousehold validateParams: baseMembers index ${i} is not an instance of BasePerson`
+                        )
+                    );
                 }
             }
         }
@@ -169,7 +169,11 @@ class BaseHousehold extends Uuidable implements IValidatable {
         } else if (dirtyParams.baseVehicles !== undefined && dirtyParams.baseVehicles.length > 0) {
             for (let i = 0, countI = dirtyParams.baseVehicles.length; i < countI; i++) {
                 if (!dirtyParams.baseVehicles[i] || !(dirtyParams.baseVehicles[i] instanceof BaseVehicle)) {
-                    errors.push(new Error(`BaseHousehold validateParams: baseVehicles index ${i} is not an instance of BaseVehicle`));
+                    errors.push(
+                        new Error(
+                            `BaseHousehold validateParams: baseVehicles index ${i} is not an instance of BaseVehicle`
+                        )
+                    );
                 }
             }
         }
@@ -187,22 +191,34 @@ class BaseHousehold extends Uuidable implements IValidatable {
         }
 
         // Validate carNumber:
-        if (dirtyParams.carNumber !== undefined && (!Number.isInteger(dirtyParams.carNumber) || dirtyParams.carNumber < 0)) {
+        if (
+            dirtyParams.carNumber !== undefined &&
+            (!Number.isInteger(dirtyParams.carNumber) || dirtyParams.carNumber < 0)
+        ) {
             errors.push(new Error('BaseHousehold validateParams: carNumber should be a positive integer'));
         }
 
         // Validate twoWheelNumber:
-        if (dirtyParams.twoWheelNumber !== undefined && (!Number.isInteger(dirtyParams.twoWheelNumber) || dirtyParams.twoWheelNumber < 0)) {
+        if (
+            dirtyParams.twoWheelNumber !== undefined &&
+            (!Number.isInteger(dirtyParams.twoWheelNumber) || dirtyParams.twoWheelNumber < 0)
+        ) {
             errors.push(new Error('BaseHousehold validateParams: twoWheelNumber should be a positive integer'));
         }
 
         // Validate pluginHybridCarNumber:
-        if (dirtyParams.pluginHybridCarNumber !== undefined && (!Number.isInteger(dirtyParams.pluginHybridCarNumber) || dirtyParams.pluginHybridCarNumber < 0)) {
+        if (
+            dirtyParams.pluginHybridCarNumber !== undefined &&
+            (!Number.isInteger(dirtyParams.pluginHybridCarNumber) || dirtyParams.pluginHybridCarNumber < 0)
+        ) {
             errors.push(new Error('BaseHousehold validateParams: pluginHybridCarNumber should be a positive integer'));
         }
 
         // Validate electricCarNumber:
-        if (dirtyParams.electricCarNumber !== undefined && (!Number.isInteger(dirtyParams.electricCarNumber) || dirtyParams.electricCarNumber < 0)) {
+        if (
+            dirtyParams.electricCarNumber !== undefined &&
+            (!Number.isInteger(dirtyParams.electricCarNumber) || dirtyParams.electricCarNumber < 0)
+        ) {
             errors.push(new Error('BaseHousehold validateParams: electricCarNumber should be a positive integer'));
         }
 
@@ -212,8 +228,13 @@ class BaseHousehold extends Uuidable implements IValidatable {
         }
 
         // Validate wouldLikeToParticipateToOtherSurveys:
-        if (dirtyParams.wouldLikeToParticipateToOtherSurveys !== undefined && typeof dirtyParams.wouldLikeToParticipateToOtherSurveys !== 'boolean') {
-            errors.push(new Error('BaseHousehold validateParams: wouldLikeToParticipateToOtherSurveys should be a boolean'));
+        if (
+            dirtyParams.wouldLikeToParticipateToOtherSurveys !== undefined &&
+            typeof dirtyParams.wouldLikeToParticipateToOtherSurveys !== 'boolean'
+        ) {
+            errors.push(
+                new Error('BaseHousehold validateParams: wouldLikeToParticipateToOtherSurveys should be a boolean')
+            );
         }
 
         // Validate homeCarParkings:
@@ -223,7 +244,9 @@ class BaseHousehold extends Uuidable implements IValidatable {
             } else {
                 for (let i = 0, countI = dirtyParams.homeCarParkings.length; i < countI; i++) {
                     if (typeof dirtyParams.homeCarParkings[i] !== 'string') {
-                        errors.push(new Error(`BaseHousehold validateParams: homeCarParkings index ${i} should be a string`));
+                        errors.push(
+                            new Error(`BaseHousehold validateParams: homeCarParkings index ${i} should be a string`)
+                        );
                     }
                 }
             }
@@ -241,11 +264,6 @@ class BaseHousehold extends Uuidable implements IValidatable {
 
         return errors;
     }
-
 }
 
-export {
-    BaseHousehold,
-    BaseHouseholdAttributes,
-    ExtendedHouseholdAttributes
-};
+export { BaseHousehold, BaseHouseholdAttributes, ExtendedHouseholdAttributes };

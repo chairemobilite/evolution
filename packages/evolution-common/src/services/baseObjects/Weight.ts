@@ -12,17 +12,13 @@ import { WeightMethod } from './WeightMethod';
  */
 
 export type Weight = {
-
     weight: number;
     method: WeightMethod;
-
-}
+};
 
 export type Weightable = {
-
     _weights?: Weight[];
-
-}
+};
 
 export function validateWeights(_weights: Weight[]): Error[] {
     const errors: Error[] = [];
@@ -34,7 +30,9 @@ export function validateWeights(_weights: Weight[]): Error[] {
             if (_weight !== undefined && (typeof _weight.weight !== 'number' || _weight.weight < 0)) {
                 errors.push(new Error(`Weightable validateWeights: weight at index ${i} must be a positive number`));
             } else if (_weight !== undefined && !(_weight.method instanceof WeightMethod)) {
-                errors.push(new Error(`Weightable validateWeights: method at index ${i} must be an instance of WeightMethod`));
+                errors.push(
+                    new Error(`Weightable validateWeights: method at index ${i} must be an instance of WeightMethod`)
+                );
             }
         }
     }
