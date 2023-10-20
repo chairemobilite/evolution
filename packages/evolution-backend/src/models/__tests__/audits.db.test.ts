@@ -236,3 +236,35 @@ test('Update audit', async() => {
     }
 });
 
+test('Set new audits that will be updated', async() => {
+    // For first audit, use the same as newAudits, with ignore to false (should be kept to true)
+    // For second audit, replace with a new code
+    // A third audit is added for an object not present the first time
+    const newAuditsToUpdate = [newAudits[0], {
+        ...newAudits[1],
+        errorCode: 'this-is-a-new-error'
+    }, {
+        objectType: 'newObject',
+        objectUuid: person1Uuid,
+        version: 2,
+        errorCode: 'NewObjectError',
+        message: 'NewMEssage2',
+        ignore: false
+    }];
+    // Prepare the modified audit and expected results
+    const modifiedAudit = _cloneDeep(newAudits[0]);
+    modifiedAudit.ignore = true;
+    const expectedAudits = [modifiedAudit, newAuditsToUpdate[1], newAuditsToUpdate[2]];
+
+    const result = await dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, newAuditsToUpdate);
+    expect(result).toBeTruthy();
+
+    // Ignore should be kept on existing audit, new audit should be there, but not the old
+    const dbAuditsOther = await dbQueries.getAuditsForInterview(otherUserInterviewAttributes.id);
+
+    expect(dbAuditsOther.length).toEqual(expectedAudits.length);
+    for (let i = 0; i < expectedAudits.length; i++) {
+        const findAudit = expectedAudits.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
+        expect(dbAuditsOther[i]).toEqual(findAudit);
+    }
+});
