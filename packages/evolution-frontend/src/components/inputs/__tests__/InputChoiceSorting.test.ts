@@ -4,87 +4,60 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import { DESTRUCTION } from 'dns';
 import {sortByParameters} from '../InputChoiceSorting';
 
 const array = [0,1,2,3,4,5,6,7,8,9];
 
-describe('Sort array in vertical fashion ', () =>{
-    const columns = 3;
-    const rows = 3;
-    const alignment = 'vertical';
+describe('Sort array with splitSort ', () => {
+    const count = 3;
 
-    test('Vertical By columns', () => {
-        const result = sortByParameters(array, alignment, columns);
+    test('SplitSort with count;', () => {
+        const result = sortByParameters(array, undefined, count);
 
         expect(result).toEqual([[0,1,2,3],[4,5,6],[7,8,9]]);
     });
-    test('Vertical By rows', () => {
-        const result = sortByParameters(array, alignment, undefined, rows);
-
-        expect(result).toEqual([[0,1,2],[3,4,5],[6,7,8],[9]]);
-    });
-    test('Vertical By columns & rows', () => {
-        const result = sortByParameters(array, alignment, columns, rows);
-
-        expect(result).toEqual([[0,1,2,3],[4,5,6],[7,8,9]]);
-    });
-    test('Vertical By no columns & no rows', () => {
-        const result = sortByParameters(array, alignment);
-
-        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
-    });
-});
-
-describe('Sort array in horizontal fashion', () =>{
-    const columns = 3;
-    const rows = 3;
-    const alignment = 'horizontal';
-
-    test('horizontal By columns', () => {
-        const result = sortByParameters(array, alignment, columns);
-
-        expect(result).toEqual([[0,3,6,9],[1,4,7],[2,5,8]]);
-    });
-    test('horizontal By rows', () => {
-        const result = sortByParameters(array, alignment, undefined, rows);
-
-        expect(result).toEqual([[0,4,8],[1,5,9],[2,6],[3,7]]);
-    });
-    test('horizontal By columns & rows', () => {
-        const result = sortByParameters(array, alignment, columns, rows);
-
-        expect(result).toEqual([[0,3,6,9],[1,4,7],[2,5,8]]);
-    });
-    test('horizontal By no columns & no rows', () => {
-        const result = sortByParameters(array, alignment);
-
-        expect(result).toEqual([[0,5],[1,6],[2,7],[3,8],[4,9]]);
-    });
-});
-
-describe('Sort array with no alignement', () => {
-    const columns = 2;
-    const rows = 2;
-
-    test('with  columns', () => {
-        const result = sortByParameters(array, undefined, columns);
-
-        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
-    });
-    test('with rows', () => {
-        const result = sortByParameters(array, undefined, undefined, rows);
-
-        expect(result).toEqual([[0,1],[2,3],[4,5],[6,7],[8,9]]);
-    });
-    test('with columns & rows', () => {
-        const result = sortByParameters(array, undefined, columns, rows);
-
-        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
-    });
-    test('with no columns & no rows', () => {
+    test('SplitSort with no count;', () => {
         const result = sortByParameters(array);
 
         expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
+    });
+});
+
+describe('Sort array with subsequentSort ', () => {
+    const length = 3;
+
+    test('SubsequentSort with length;', () => {
+        const result = sortByParameters(array, undefined, undefined, length);
+
+        expect(result).toEqual([[0,1,2],[3,4,5],[6,7,8],[9]]);
+    });
+    test('SubsequentSort with no length;', () => {
+        const result = sortByParameters(array);
+
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
+    });
+});
+
+describe('Sort array with customSort', () => {
+    const sameAmount = [4,4,2];
+    const moreParameters = [6,6,4];
+    const lessParameters = [2,2];
+
+    test('CustomSort with same amount of choices and parameters.', () => {
+        const result = sortByParameters(array, undefined, undefined, undefined, sameAmount)
+
+        expect(result).toEqual([[0,1,2,3],[4,5,6,7],[8,9]]);
+    });
+    test('CustomSort with less parameters than choices.', () => {
+        const result = sortByParameters(array, undefined, undefined, undefined, lessParameters)
+
+        expect(result).toEqual([[0,1],[2,3],[4,5,6,7,8,9]]);
+    });
+    test('CustomSort with more parameters than choices.', () => {
+        const result = sortByParameters(array, undefined, undefined, undefined, moreParameters)
+
+        expect(result).toEqual([[0,1,2,3,4,5],[6,7,8,9]]);
     });
 });
 
@@ -110,48 +83,28 @@ describe('Sort array by parameters', () => {
     })
 });
 
-describe('Sort array by custom parameters', () => {
-    const sameAmount = [4,4,2];
-    const moreParameters = [6,6,4];
-    const lessParameters = [2,2];
-    const invalidHorizontalParameters = [3,5,2];
-    const vertical = 'vertical';
-    const horizontal = 'horizontal';
+describe('Sort array with no alignement', () => {
+    const columns = 2;
+    const rows = 2;
 
-    test('Vertical with same amount of choices and parameters.', () => {
-        const result = sortByParameters(array, vertical, undefined, undefined, sameAmount)
+    test('with columns', () => {
+        const result = sortByParameters(array, undefined, columns);
 
-        expect(result).toEqual([[0,1,2,3],[4,5,6,7],[8,9]]);
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
     });
-    test('Vertical with less parameters than choices.', () => {
-        const result = sortByParameters(array, vertical, undefined, undefined, lessParameters)
+    test('with rows', () => {
+        const result = sortByParameters(array, undefined, undefined, rows);
 
-        expect(result).toEqual([[0,1],[2,3],[4,5,6,7,8,9]]);
+        expect(result).toEqual([[0,1],[2,3],[4,5],[6,7],[8,9]]);
     });
-    test('Vertical with more parameters than choices.', () => {
-        const result = sortByParameters(array, vertical, undefined, undefined, moreParameters)
+    test('with columns & rows', () => {
+        const result = sortByParameters(array, undefined, columns, rows);
 
-        expect(result).toEqual([[0,1,2,3,4,5],[6,7,8,9]]);
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
     });
+    test('with no columns & no rows', () => {
+        const result = sortByParameters(array);
 
-    test('Horizontal with same amount of choices and parameters.', () => {
-        const result = sortByParameters(array, horizontal, undefined, undefined, sameAmount)
-
-        expect(result).toEqual([[0,4,8],[1,5,9],[2,6],[3,7]]);
-    });
-    test('Horizontal with less parameters than choices.', () => {
-        const result = sortByParameters(array, horizontal, undefined, undefined, lessParameters)
-
-        expect(result).toEqual([[0,2],[1,3]]);
-    });
-    test('Horizontal with more parameters than choices.', () => {
-        const result = sortByParameters(array, horizontal, undefined, undefined, moreParameters)
-
-        expect(result).toEqual([[0,6],[1,7],[2,8],[3,9],[4],[5]]);
-    });
-    test('Horizontal with invalid parameters', () => {
-        const result = sortByParameters(array, horizontal, undefined, undefined, invalidHorizontalParameters);
-
-        expect(result).toEqual([[0,3,8],[1,4,9],[2,5]]);
+        expect(result).toEqual([[0,1,2,3,4],[5,6,7,8,9]]);
     });
 });
