@@ -17,7 +17,8 @@ export const registrationCompletedAfterStartButton: any  = registrationCompleted
 
 import * as homeWidgets from './widgets/home';
 
-export const accessCode          = homeWidgets.accessCode;
+export const accessCode               = homeWidgets.accessCode;
+export const contactEmail             = homeWidgets.contactEmail;
 export const interviewLanguage: any   = homeWidgets.interviewLanguage;
 export const homeIntro: any           = homeWidgets.homeIntro;
 export const householdSize: any       = homeWidgets.householdSize;
