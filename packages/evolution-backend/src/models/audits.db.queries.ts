@@ -94,7 +94,7 @@ const mergeOldWithNew = (newAudits: AuditForObject[], oldAudits: AuditForObject[
     return audits;
 };
 
-const setAuditsForInterview = async (interviewId: number, audits: AuditForObject[]): Promise<boolean> => {
+const setAuditsForInterview = async (interviewId: number, audits: AuditForObject[]): Promise<AuditForObject[]> => {
     try {
         // First we need to merge old audits with new ones for the ignored audits
         const oldAudits = await getAuditsForInterview(interviewId);
@@ -110,7 +110,7 @@ const setAuditsForInterview = async (interviewId: number, audits: AuditForObject
             await knex.batchInsert(tableName, _newObjects, chunkSize).transacting(trx);
         });
 
-        return true;
+        return auditsToInsert;
     } catch (error) {
         throw new TrError(
             `Error setting audits for interview ${interviewId} in database (knex error: ${error})`,

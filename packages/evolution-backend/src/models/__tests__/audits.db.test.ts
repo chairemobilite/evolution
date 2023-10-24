@@ -256,8 +256,13 @@ test('Set new audits that will be updated', async() => {
     modifiedAudit.ignore = true;
     const expectedAudits = [modifiedAudit, newAuditsToUpdate[1], newAuditsToUpdate[2]];
 
-    const result = await dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, newAuditsToUpdate);
-    expect(result).toBeTruthy();
+    const insertedAudits = await dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, newAuditsToUpdate);
+    // The returned audit should be the updated ones
+    expect(insertedAudits.length).toEqual(expectedAudits.length);
+    for (let i = 0; i < expectedAudits.length; i++) {
+        const findAudit = expectedAudits.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(insertedAudits[i])));
+        expect(insertedAudits[i]).toEqual(findAudit);
+    }
 
     // Ignore should be kept on existing audit, new audit should be there, but not the old
     const dbAuditsOther = await dbQueries.getAuditsForInterview(otherUserInterviewAttributes.id);
