@@ -47,6 +47,7 @@ export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             style={{ textTransform: props.widgetConfig.textTransform || ('none' as any) }}
             autoComplete="none"
             type="text"
+            placeholder={props.widgetConfig.placeholder}
             inputMode={props.widgetConfig.keyboardInputMode}
             className={`apptr__form-input apptr__input-string input-${props.widgetConfig.size || 'large'}`}
             name={props.id}

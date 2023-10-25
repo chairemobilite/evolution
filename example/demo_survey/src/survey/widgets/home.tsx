@@ -59,6 +59,7 @@ export const accessCode: SurveyWidgetConfig = {
   datatype: "string",
   containsHtml: true,
   keyboardInputMode: 'numeric',
+  placeholder: "ex. 1234-5678",
   inputFilter: (input: string) => {
     input = input.replace("_", "-"); // change _ to -
     input = input.replace(/[^-\d]/g, ''); // Remove everything but numbers and -
