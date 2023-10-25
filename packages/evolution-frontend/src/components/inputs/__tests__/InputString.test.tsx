@@ -33,6 +33,7 @@ test('Should correctly render InputString with all parameters', () =>{
         maxLength: 20,
         defaultValue: 'test',
         textTransform: 'lowercase' as const,
+        keyboardInputMode: 'decimal' as const,
         containsHtml: true,
         size: 'medium' as const,
         label: {
