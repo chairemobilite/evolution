@@ -5,6 +5,27 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { AuditForObject, Audits } from './types';
+import slugify from 'slugify';
+
+export const convertParamsErrorsToAudits = (
+    errors: Error[],
+    objectData: Pick<AuditForObject, 'objectType' | 'objectUuid'>
+): AuditForObject[] => {
+    const audits: AuditForObject[] = [];
+    for (let i = 0, countI = errors.length; i < countI; i++) {
+        const error = errors[i];
+        const errorCode = slugify(error.message);
+        audits.push({
+            version: 1,
+            errorCode,
+            message: error.message,
+            isWarning: false,
+            ignore: false, // params errors should never be ignored
+            ...objectData
+        });
+    }
+    return audits;
+};
 
 export const auditArrayToAudits = (auditsArr: AuditForObject[]): { [objectKey: string]: Audits } => {
     const audits: { [objectKey: string]: Audits } = {};
