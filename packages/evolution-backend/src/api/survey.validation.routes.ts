@@ -46,7 +46,7 @@ router.get(
                         interview: {
                             responses: validated_data,
                             _responses: responses,
-                            audits,
+                            auditsV2: audits,
                             ...rest,
                             validationDataDirty:
                                 responses._updatedAt !== undefined &&
