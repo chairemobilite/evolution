@@ -43,6 +43,7 @@ export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPer
     datatype?: 'string' | 'integer' | 'float';
     size?: 'large' | 'small' | 'medium';
     textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+    placeholder?: string;
     inputFilter?: (input: string) => string;
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode for the effect of the different options.
     keyboardInputMode?: 'none' | 'text' | 'numeric' | 'decimal' | 'tel' | 'search' | 'email' | 'url';

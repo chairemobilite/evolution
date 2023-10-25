@@ -29,6 +29,7 @@ exports[`Should correctly render InputString with all parameters 1`] = `
   name="test"
   onBlur={[Function]}
   onChange={[Function]}
+  placeholder="example placeholder"
   style={
     Object {
       "textTransform": "lowercase",

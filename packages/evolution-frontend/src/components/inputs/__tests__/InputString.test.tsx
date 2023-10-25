@@ -34,6 +34,7 @@ test('Should correctly render InputString with all parameters', () =>{
         defaultValue: 'test',
         textTransform: 'lowercase' as const,
         keyboardInputMode: 'decimal' as const,
+        placeholder: 'example placeholder' as const,
         containsHtml: true,
         size: 'medium' as const,
         label: {
