@@ -10,7 +10,8 @@ import _pickBy from 'lodash/pickBy';
 import _identity from 'lodash/identity';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { Knex } from 'knex';
-import * as AuditUtils from '../services/audits/AuditUtils';
+import * as AuditUtils from 'evolution-common/lib/services/audits/AuditUtils';
+import { mergeWithExisting } from '../services/audits/AuditUtils';
 
 const tableName = 'sv_audits';
 
@@ -86,7 +87,7 @@ const mergeOldWithNew = (newAudits: AuditForObject[], oldAudits: AuditForObject[
     for (const objectKey in newAuditsPerObject) {
         const [objectType, objectUuid] = objectKey.split('.');
         const mergedAudits = oldAuditsPerObject[objectKey]
-            ? AuditUtils.mergeWithExisting(oldAuditsPerObject[objectKey], newAuditsPerObject[objectKey])
+            ? mergeWithExisting(oldAuditsPerObject[objectKey], newAuditsPerObject[objectKey])
             : newAuditsPerObject[objectKey];
         audits.push(...AuditUtils.auditsToAuditArray(mergedAudits, { objectType, objectUuid }));
     }

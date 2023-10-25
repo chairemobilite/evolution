@@ -47,31 +47,3 @@ export const mergeWithExisting = (existingAudits: Audits, newAudits: Audits, ove
     }
     return newAudits;
 };
-
-export const auditArrayToAudits = (auditsArr: AuditForObject[]): { [objectKey: string]: Audits } => {
-    const audits: { [objectKey: string]: Audits } = {};
-
-    auditsArr.forEach((audit) => {
-        const objectKey = `${audit.objectType}.${audit.objectUuid}`;
-        const objectAudits = audits[objectKey] || {};
-        objectAudits[audit.errorCode] = {
-            version: audit.version,
-            errorCode: audit.errorCode,
-            message: audit.message,
-            isWarning: audit.isWarning,
-            ignore: audit.ignore
-        };
-        audits[objectKey] = objectAudits;
-    });
-
-    return audits;
-};
-
-export const auditsToAuditArray = (
-    audits: Audits,
-    objectData: Pick<AuditForObject, 'objectType' | 'objectUuid'>
-): AuditForObject[] =>
-    Object.keys(audits).map((errorCode) => ({
-        ...objectData,
-        ...audits[errorCode]
-    }));
