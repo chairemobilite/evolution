@@ -44,7 +44,8 @@ export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPer
     size?: 'large' | 'small' | 'medium';
     textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
     inputFilter?: (input: string) => string;
-    numericKeyboard?: boolean;
+    // See https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode for the effect of the different options.
+    keyboardInputMode?: 'none' | 'text' | 'numeric' | 'decimal' | 'tel' | 'search' | 'email' | 'url';
 };
 
 export type InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {

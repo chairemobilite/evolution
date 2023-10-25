@@ -58,6 +58,7 @@ export const accessCode: SurveyWidgetConfig = {
   inputType: "string",
   datatype: "string",
   containsHtml: true,
+  keyboardInputMode: 'numeric',
   inputFilter: (input: string) => {
     input = input.replace("_", "-"); // change _ to -
     input = input.replace(/[^-\d]/g, ''); // Remove everything but numbers and -
@@ -147,7 +148,7 @@ export const householdCarNumber: SurveyWidgetConfig = {
   twoColumns: true,
   inputType: "string",
   datatype: "integer",
-  numericKeyboard: true,
+  keyboardInputMode: 'numeric',
   containsHtml: true,
   label: {
     fr: `Combien de véhicules sont à la disposition d'un ou des membres de votre ménage?<br /><span class="_pale _oblique">Inscrivez "0" si aucun véhicule dans le ménage</span>`,
