@@ -52,7 +52,7 @@ type BasePersonAttributes = {
 type ExtendedPersonAttributes = BasePersonAttributes & { [key: string]: any };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface IBasePersonAttributes extends BasePersonAttributes {}
+interface IBasePersonAttributes extends BasePersonAttributes { }
 
 class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable {
     _isValid: OptionalValidity;
@@ -134,6 +134,18 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         this.baseVehicles = params.baseVehicles || [];
 
         this.baseHome = params.baseHome;
+    }
+
+
+    /**
+     * Factory that validates input from an interview and makes
+     * sure types and required fields are valid before returning a new object
+     * @param dirtyParams
+     * @returns BasePerson | Error[]
+     */
+    static create(dirtyParams: { [key: string]: any }): BasePerson | Error[] {
+        const errors = BasePerson.validateParams(dirtyParams);
+        return errors.length > 0 ? errors : new BasePerson(dirtyParams as ExtendedPersonAttributes);
     }
 
     validate(): OptionalValidity {
