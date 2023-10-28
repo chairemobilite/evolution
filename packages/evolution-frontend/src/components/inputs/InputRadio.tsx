@@ -306,23 +306,16 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
             ));
         // separate by columns if needed:
         const columnedChoiceInputs = this.getColumnedChoices(choiceInputs);
-        if (this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'vertical') {
-            return (
-                <div
-                    className={`survey-question__input-radio-group-container${
-                        this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
-                    }`}
-                >
-                    {columnedChoiceInputs}
-                </div>
-            );
-        }
 
+        const shouldDisplayAsRows =
+            this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'auto';
         return (
             <div
-                className={`survey-question__input-radio-group-container-column${
-                    this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
-                }`}
+                className={`${
+                    shouldDisplayAsRows
+                        ? 'survey-question__input-checkbox-group-container'
+                        : 'survey-question__input-checkbox-group-container-column'
+                } ${this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''}`}
             >
                 {columnedChoiceInputs}
             </div>

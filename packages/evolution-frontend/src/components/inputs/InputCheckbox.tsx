@@ -271,47 +271,6 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
 
         // separate by columns if needed:
         const columnedChoiceInputs = this.getColumnedChoices(choiceInputs);
-        if (this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'vertical') {
-            const strCustomLabel = this.props.widgetConfig.customLabel
-            ? surveyHelper.translateString(
-                this.props.widgetConfig.customLabel,
-                this.props.i18n,
-                this.props.interview,
-                this.props.path
-            )
-            : null;
-
-        return (
-            <div
-                className={`survey-question__input-checkbox-group-container${
-                    this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
-                }`}
-            >
-                {columnedChoiceInputs}
-                {this.props.customId && (
-                    <div className="label-input-custom-container">
-                        {strCustomLabel && (
-                            <label htmlFor={this.props.customId}>
-                                <span>{strCustomLabel}</span>
-                            </label>
-                        )}
-                        <input
-                            type="text"
-                            tabIndex={-1}
-                            autoComplete="none"
-                            id={this.props.customId}
-                            name={this.props.customId}
-                            className={'apptr__form-input input-custom apptr__input-string'}
-                            value={this.state.customValue === null ? '' : this.state.customValue}
-                            onBlur={this.onCustomInputBlur}
-                            onChange={(e) => this.setState({ customValue: e.target.value })}
-                            ref={this.customInputRef}
-                        />
-                    </div>
-                )}
-            </div>
-        );
-        }
 
         const strCustomLabel = this.props.widgetConfig.customLabel
             ? surveyHelper.translateString(
@@ -322,11 +281,15 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
             )
             : null;
 
+        const shouldDisplayAsRows =
+            this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'auto';
         return (
             <div
-                className={`survey-question__input-checkbox-group-container-column${
-                    this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
-                }`}
+                className={`${
+                    shouldDisplayAsRows
+                        ? 'survey-question__input-checkbox-group-container'
+                        : 'survey-question__input-checkbox-group-container-column'
+                } ${this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''}`}
             >
                 {columnedChoiceInputs}
                 {this.props.customId && (
