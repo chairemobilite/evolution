@@ -62,6 +62,7 @@ describe('BasePlace', () => {
         geocodingPrecisionCategory: 'high' as GeocodingPrecisionCategory,
         geocodingPrecisionMeters: 100,
         geocodingQueryString: 'Sample query',
+        lastAction: 'preGeocoded',
     };
 
     it('should create a new BasePlace instance', () => {
@@ -79,6 +80,7 @@ describe('BasePlace', () => {
         expect(place.geocodingPrecisionCategory).toEqual('high');
         expect(place.geocodingPrecisionMeters).toEqual(100);
         expect(place.geocodingQueryString).toEqual('Sample query');
+        expect(place.lastAction).toEqual('preGeocoded');
         expect(place.geography?.geometry.coordinates).toEqual([45.5, -89.0033423]);
         expect(place.geography?.geometry.type).toEqual('Point');
         expect(place.geography?.type).toEqual('Feature');
@@ -108,6 +110,7 @@ describe('BasePlace', () => {
         expect(place.geocodingPrecisionCategory).toBeUndefined();
         expect(place.geocodingPrecisionMeters).toBeUndefined();
         expect(place.geocodingQueryString).toBeUndefined();
+        expect(place.lastAction).toBeUndefined();
     });
 
     it('should validate a BasePlace instance', () => {
@@ -150,7 +153,8 @@ describe('validateParams', () => {
             internalId: 'i123',
             geocodingPrecisionCategory: 'precise',
             geocodingPrecisionMeters: 10,
-            geocodingQueryString: 'Main St, City'
+            geocodingQueryString: 'Main St, City',
+            lastAction: 'findPlace',
         };
 
         const errors = BasePlace.validateParams(validParams);
@@ -169,7 +173,8 @@ describe('validateParams', () => {
             internalId: 'i123',
             geocodingPrecisionCategory: 'precise',
             geocodingPrecisionMeters: 10,
-            geocodingQueryString: 'Main St, City'
+            geocodingQueryString: 'Main St, City',
+            lastAction: 'markerDragged',
         };
 
         const errors = BasePlace.validateParams(validParams);
@@ -208,7 +213,8 @@ describe('validateParams', () => {
             internalId: 'i123',
             geocodingPrecisionCategory: 'precise',
             geocodingPrecisionMeters: 10,
-            geocodingQueryString: 'Main St, City'
+            geocodingQueryString: 'Main St, City',
+            lastAction: 'mapClicked'
         };
 
         const errors = BasePlace.validateParams(invalidParams);
@@ -228,7 +234,8 @@ describe('validateParams', () => {
             internalId: new Date(),
             geocodingPrecisionCategory: 123, // Invalid type
             geocodingPrecisionMeters: 'foo', // Invalid type
-            geocodingQueryString: 123, // Invalid type
+            geocodingQueryString: 123, // Invalid type,
+            lastAction: new Date(),
         };
 
         const errors = BasePlace.validateParams(params);
@@ -245,6 +252,7 @@ describe('validateParams', () => {
             new Error('BasePlace validateParams: geocodingPrecisionCategory should be a string'),
             new Error('BasePlace validateParams: geocodingPrecisionMeters should be a number'),
             new Error('BasePlace validateParams: geocodingQueryString should be a string'),
+            new Error('BasePlace validateParams: lastAction should be a string'),
         ]);
     });
 
