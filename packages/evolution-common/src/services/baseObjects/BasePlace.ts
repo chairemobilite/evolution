@@ -13,7 +13,7 @@
 
 import { isFeature, isPoint } from 'geojson-validation';
 import { Uuidable } from './Uuidable';
-import { GeocodingPrecisionCategory } from './attributeTypes/PlaceAttributes';
+import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
 import { BaseAddress } from './BaseAddress';
 import { OptionalValidity, IValidatable } from './Validatable';
 
@@ -34,6 +34,7 @@ export type BasePlaceAttributes = {
     geocodingPrecisionCategory?: GeocodingPrecisionCategory;
     geocodingPrecisionMeters?: number;
     geocodingQueryString?: string;
+    lastAction?: LastAction;
 };
 
 export type ExtendedPlaceAttributes = BasePlaceAttributes & { [key: string]: any };
@@ -53,6 +54,7 @@ export class BasePlace extends Uuidable implements IValidatable {
     geocodingPrecisionCategory?: GeocodingPrecisionCategory;
     geocodingPrecisionMeters?: number; // the max distance in meters between the geocoded point and the real location
     geocodingQueryString?: string; // in most surveys, this would be the query used to geocode the location
+    lastAction?: LastAction; // how the location was geocoded or pinpointed on map
 
     _confidentialAttributes: string[] = [
         // these attributes should be hidden when exporting
@@ -75,6 +77,7 @@ export class BasePlace extends Uuidable implements IValidatable {
         this.geocodingPrecisionCategory = params.geocodingPrecisionCategory;
         this.geocodingPrecisionMeters = params.geocodingPrecisionMeters;
         this.geocodingQueryString = params.geocodingQueryString;
+        this.lastAction = params.lastAction;
     }
 
     validate(): OptionalValidity {
@@ -180,6 +183,11 @@ export class BasePlace extends Uuidable implements IValidatable {
         // Validate geocodingQueryString (if provided)
         if (dirtyParams.geocodingQueryString !== undefined && typeof dirtyParams.geocodingQueryString !== 'string') {
             errors.push(new Error('BasePlace validateParams: geocodingQueryString should be a string'));
+        }
+
+        // Validate lastAction (if provided)
+        if (dirtyParams.lastAction !== undefined && typeof dirtyParams.lastAction !== 'string') {
+            errors.push(new Error('BasePlace validateParams: lastAction should be a string'));
         }
 
         return errors;
