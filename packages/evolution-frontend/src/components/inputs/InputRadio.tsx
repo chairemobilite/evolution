@@ -313,9 +313,9 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
             <div
                 className={`${
                     shouldDisplayAsRows
-                        ? 'survey-question__input-checkbox-group-container'
-                        : 'survey-question__input-checkbox-group-container-column'
-                } ${this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''}`}
+                        ? 'survey-question__input-radio-group-container'
+                        : 'survey-question__input-radio-group-container-column'
+                }${this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''}`}
             >
                 {columnedChoiceInputs}
             </div>
