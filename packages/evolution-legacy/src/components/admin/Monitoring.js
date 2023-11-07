@@ -10,7 +10,8 @@ import moment from 'moment';
 
 import appConfig from 'evolution-frontend/lib/config/application.config';
 import StartedAndCompletedInterviewsByDay from './monitoring/StartedAndCompletedInterviewByDay';
-import InterviewsByHouseholdSize          from './monitoring/InterviewsByHouseholdSize';
+// FIXME Commented 2023-11-07 because of od_mtl_2023, it takes too long. Should it be a default widget? Or rather a widget implemented in evolution that surveys can optionally add?
+//import InterviewsByHouseholdSize          from './monitoring/InterviewsByHouseholdSize';
 //import config                             from 'chaire-lib-common/lib/config/shared/project.config';
 
 // import custom admin monitoring components if available in the project directory:
@@ -42,7 +43,6 @@ class Monitoring extends React.Component {
       <div className="survey">
         <div className="admin">
           <StartedAndCompletedInterviewsByDay onUpdate={this.onUpdate} lastUpdateAt={this.state.lastUpdateAt} />
-          <InterviewsByHouseholdSize onUpdate={this.onUpdate} lastUpdateAt={this.state.lastUpdateAt} />
           {customMonitoringComponentsArray}
         </div>
       </div>
