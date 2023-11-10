@@ -181,7 +181,7 @@ const getPathsByObject = async (): Promise<{ [objName: string]: string[] }> => {
     const paths = await getRenamedPaths();
 
     const pathsByObject = {
-        interview: ['hasValidatedData']
+        interview: ['hasValidatedData', 'is_valid', 'is_completed', 'is_validated']
     };
 
     for (let i = 0, count = paths.objectPaths.length; i < count; i++) {
@@ -270,6 +270,9 @@ const exportAllToCsvByObject = async function () {
                     interview: exportedInterviewDataByObjectPath.interview
                 };
                 objectsByObjectPath.interview.hasValidatedData = row.validated_data_available;
+                objectsByObjectPath.interview.is_valid = interview.is_valid;
+                objectsByObjectPath.interview.is_completed = interview.is_completed;
+                objectsByObjectPath.interview.is_validated = interview.is_validated;
                 objectsByObjectPath.interview._interviewUuid = interview.uuid;
                 //console.log('interviewPaths', interviewPaths);
 
