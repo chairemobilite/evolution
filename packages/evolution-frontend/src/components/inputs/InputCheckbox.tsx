@@ -203,7 +203,7 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
         const columnedChoiceInputs: JSX.Element[] = [];
         for (let i = 0, count = widgetsByColumn.length; i < count; i++) {
             const columnWidgets = widgetsByColumn[i];
-            if (this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'vertical') {
+            if (this.props.widgetConfig.alignment === 'vertical') {
                 columnedChoiceInputs.push(
                     <div className="survey-question__input-checkbox-group-column" key={i}>
                         {columnWidgets}
@@ -282,7 +282,7 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
             : null;
 
         const shouldDisplayAsRows =
-            this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'auto';
+            this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'auto' || this.props.widgetConfig.alignment === 'vertical';
         return (
             <div
                 className={`${

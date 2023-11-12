@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { DESTRUCTION } from 'dns';
 import {sortByParameters} from '../InputChoiceSorting';
 
 const array = [0,1,2,3,4,5,6,7,8,9];

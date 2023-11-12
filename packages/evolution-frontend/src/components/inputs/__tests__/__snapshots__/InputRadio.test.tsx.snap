@@ -138,6 +138,306 @@ exports[`Render InputRadio with minimum parameters Minimum parameters 1`] = `
 </div>
 `;
 
+exports[`Render InputRadio with various alignments Auto alignment with 2 columns 1`] = `
+<div
+  className="survey-question__input-radio-group-container"
+>
+  <div
+    className="survey-question__input-radio-group-row"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_first value__input-radio__first value"
+          name="test_first value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="first value"
+        />
+        <label
+          htmlFor="test_first value__input-radio__first value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>first value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-group-row"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_second value__input-radio__second value"
+          name="test_second value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="second value"
+        />
+        <label
+          htmlFor="test_second value__input-radio__second value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>second value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputRadio with various alignments Horizontal alignment with custom alignments 1`] = `
+<div
+  className="survey-question__input-radio-group-container-column"
+>
+  <div
+    className="survey-question__input-radio-group-row"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_first value__input-radio__first value"
+          name="test_first value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="first value"
+        />
+        <label
+          htmlFor="test_first value__input-radio__first value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>first value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-group-row"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_second value__input-radio__second value"
+          name="test_second value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="second value"
+        />
+        <label
+          htmlFor="test_second value__input-radio__second value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>second value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputRadio with various alignments Undefined alignment with no rows and no columns 1`] = `
+<div
+  className="survey-question__input-radio-group-container"
+>
+  <div
+    className="survey-question__input-radio-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-radio"
+        id="test_first value__input-radio__first value"
+        name="test_first value"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="radio"
+        value="first value"
+      />
+      <label
+        htmlFor="test_first value__input-radio__first value"
+        onClick={[Function]}
+      >
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "<div>first value</div>",
+            }
+          }
+        />
+      </label>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-radio"
+        id="test_second value__input-radio__second value"
+        name="test_second value"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="radio"
+        value="second value"
+      />
+      <label
+        htmlFor="test_second value__input-radio__second value"
+        onClick={[Function]}
+      >
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "<div>second value</div>",
+            }
+          }
+        />
+      </label>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputRadio with various alignments Vertical alignment with 4 rows 1`] = `
+<div
+  className="survey-question__input-radio-group-container"
+>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_first value__input-radio__first value"
+          name="test_first value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="first value"
+        />
+        <label
+          htmlFor="test_first value__input-radio__first value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>first value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-radio-group-column"
+  >
+    <div
+      className="survey-question__input-radio-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-radio"
+          id="test_second value__input-radio__second value"
+          name="test_second value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="radio"
+          value="second value"
+        />
+        <label
+          htmlFor="test_second value__input-radio__second value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>second value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Render InputRadio with various parameter combinations, all parameters Conditional value hidden, same line 1`] = `
 <div
   className="survey-question__input-radio-group-container"
@@ -279,7 +579,7 @@ exports[`Render InputRadio with various parameter combinations, all parameters I
   className="survey-question__input-radio-group-container no-wrap"
 >
   <div
-    className="survey-question__input-radio-group-column"
+    className="survey-question__input-radio-group-row"
   >
     <div
       className="survey-question__input-radio-input-container"
@@ -381,7 +681,7 @@ exports[`Render InputRadio with various parameter combinations, all parameters I
     </div>
   </div>
   <div
-    className="survey-question__input-radio-group-column"
+    className="survey-question__input-radio-group-row"
   >
     <div
       className="survey-question__input-radio-input-container"
@@ -454,7 +754,7 @@ exports[`Render InputRadio with various parameter combinations, all parameters S
   className="survey-question__input-radio-group-container no-wrap"
 >
   <div
-    className="survey-question__input-radio-group-column"
+    className="survey-question__input-radio-group-row"
   >
     <div
       className="survey-question__input-radio-input-container"
@@ -533,7 +833,7 @@ exports[`Render InputRadio with various parameter combinations, all parameters S
     </div>
   </div>
   <div
-    className="survey-question__input-radio-group-column"
+    className="survey-question__input-radio-group-row"
   >
     <div
       className="survey-question__input-radio-input-container"
@@ -598,7 +898,7 @@ exports[`Render InputRadio with various parameter combinations, all parameters W
   className="survey-question__input-radio-group-container no-wrap"
 >
   <div
-    className="survey-question__input-radio-group-column"
+    className="survey-question__input-radio-group-row"
   >
     <div
       className="survey-question__input-radio-input-container"
@@ -743,7 +1043,7 @@ exports[`Render InputRadio with various parameter combinations, all parameters W
     </div>
   </div>
   <div
-    className="survey-question__input-radio-group-column"
+    className="survey-question__input-radio-group-row"
   >
     <div
       className="survey-question__input-radio-input-container"

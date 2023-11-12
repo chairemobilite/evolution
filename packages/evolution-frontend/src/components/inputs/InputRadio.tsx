@@ -225,7 +225,7 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
         const columnedChoiceInputs: JSX.Element[] = [];
         for (let i = 0, count = widgetsByColumn.length; i < count; i++) {
             const columnWidgets = widgetsByColumn[i];
-            if (this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'vertical') {
+            if (this.props.widgetConfig.alignment === 'vertical') {
                 columnedChoiceInputs.push(
                     <div className="survey-question__input-radio-group-column" key={i}>
                         {columnWidgets}
@@ -308,7 +308,7 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
         const columnedChoiceInputs = this.getColumnedChoices(choiceInputs);
 
         const shouldDisplayAsRows =
-            this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'auto';
+            this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'auto' || this.props.widgetConfig.alignment === 'vertical';
         return (
             <div
                 className={`${
