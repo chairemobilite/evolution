@@ -63,6 +63,7 @@ describe('BasePlace', () => {
         geocodingPrecisionMeters: 100,
         geocodingQueryString: 'Sample query',
         lastAction: 'preGeocoded',
+        deviceUsed: 'tablet',
     };
 
     it('should create a new BasePlace instance', () => {
@@ -81,6 +82,7 @@ describe('BasePlace', () => {
         expect(place.geocodingPrecisionMeters).toEqual(100);
         expect(place.geocodingQueryString).toEqual('Sample query');
         expect(place.lastAction).toEqual('preGeocoded');
+        expect(place.deviceUsed).toEqual('tablet');
         expect(place.geography?.geometry.coordinates).toEqual([45.5, -89.0033423]);
         expect(place.geography?.geometry.type).toEqual('Point');
         expect(place.geography?.type).toEqual('Feature');
@@ -111,6 +113,7 @@ describe('BasePlace', () => {
         expect(place.geocodingPrecisionMeters).toBeUndefined();
         expect(place.geocodingQueryString).toBeUndefined();
         expect(place.lastAction).toBeUndefined();
+        expect(place.deviceUsed).toBeUndefined();
     });
 
     it('should validate a BasePlace instance', () => {
@@ -155,6 +158,7 @@ describe('validateParams', () => {
             geocodingPrecisionMeters: 10,
             geocodingQueryString: 'Main St, City',
             lastAction: 'findPlace',
+            deviceUsed: 'mobile'
         };
 
         const errors = BasePlace.validateParams(validParams);
@@ -175,6 +179,7 @@ describe('validateParams', () => {
             geocodingPrecisionMeters: 10,
             geocodingQueryString: 'Main St, City',
             lastAction: 'markerDragged',
+            deviceUsed: 'desktop',
         };
 
         const errors = BasePlace.validateParams(validParams);
@@ -214,7 +219,8 @@ describe('validateParams', () => {
             geocodingPrecisionCategory: 'precise',
             geocodingPrecisionMeters: 10,
             geocodingQueryString: 'Main St, City',
-            lastAction: 'mapClicked'
+            lastAction: 'mapClicked',
+            deviceUsed: 'other',
         };
 
         const errors = BasePlace.validateParams(invalidParams);
@@ -236,6 +242,7 @@ describe('validateParams', () => {
             geocodingPrecisionMeters: 'foo', // Invalid type
             geocodingQueryString: 123, // Invalid type,
             lastAction: new Date(),
+            deviceUsed: {},
         };
 
         const errors = BasePlace.validateParams(params);
@@ -253,6 +260,7 @@ describe('validateParams', () => {
             new Error('BasePlace validateParams: geocodingPrecisionMeters should be a number'),
             new Error('BasePlace validateParams: geocodingQueryString should be a string'),
             new Error('BasePlace validateParams: lastAction should be a string'),
+            new Error('BasePlace validateParams: deviceUsed should be a string'),
         ]);
     });
 
