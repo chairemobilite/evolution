@@ -37,6 +37,7 @@ export type BasePlaceAttributes = {
     geocodingQueryString?: string;
     lastAction?: LastAction;
     deviceUsed?: Device;
+    zoom?: number;
 };
 
 export type ExtendedPlaceAttributes = BasePlaceAttributes & { [key: string]: any };
@@ -58,6 +59,7 @@ export class BasePlace extends Uuidable implements IValidatable {
     geocodingQueryString?: string; // in most surveys, this would be the query used to geocode the location
     lastAction?: LastAction; // how the location was geocoded or pinpointed on map
     deviceUsed?: Device; // which device was used to pinpoint the location (only useful if not geocoded)
+    zoom?: number; // the zoom used when pinpointing the location on the map (only useful if not geocoded)
 
     _confidentialAttributes: string[] = [
         // these attributes should be hidden when exporting
@@ -82,6 +84,7 @@ export class BasePlace extends Uuidable implements IValidatable {
         this.geocodingQueryString = params.geocodingQueryString;
         this.lastAction = params.lastAction;
         this.deviceUsed = params.deviceUsed;
+        this.zoom = params.zoom;
     }
 
     validate(): OptionalValidity {
@@ -197,6 +200,11 @@ export class BasePlace extends Uuidable implements IValidatable {
         // Validate internalId (if provided)
         if (dirtyParams.deviceUsed !== undefined && typeof dirtyParams.deviceUsed !== 'string') {
             errors.push(new Error('BasePlace validateParams: deviceUsed should be a string'));
+        }
+
+        // Validate zoom (if provided)
+        if (dirtyParams.zoom !== undefined && (!Number.isInteger(dirtyParams.zoom) || dirtyParams.zoom < 0)) {
+            errors.push(new Error('BasePlace validateParams: zoom should be a positive number'));
         }
 
         return errors;
