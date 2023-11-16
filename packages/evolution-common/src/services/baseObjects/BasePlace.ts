@@ -16,6 +16,7 @@ import { Uuidable } from './Uuidable';
 import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
 import { BaseAddress } from './BaseAddress';
 import { OptionalValidity, IValidatable } from './Validatable';
+import { Device } from './BaseInterview';
 
 // TODO: move these to chaire-lib
 
@@ -35,6 +36,7 @@ export type BasePlaceAttributes = {
     geocodingPrecisionMeters?: number;
     geocodingQueryString?: string;
     lastAction?: LastAction;
+    deviceUsed?: Device;
 };
 
 export type ExtendedPlaceAttributes = BasePlaceAttributes & { [key: string]: any };
@@ -55,6 +57,7 @@ export class BasePlace extends Uuidable implements IValidatable {
     geocodingPrecisionMeters?: number; // the max distance in meters between the geocoded point and the real location
     geocodingQueryString?: string; // in most surveys, this would be the query used to geocode the location
     lastAction?: LastAction; // how the location was geocoded or pinpointed on map
+    deviceUsed?: Device; // which device was used to pinpoint the location (only useful if not geocoded)
 
     _confidentialAttributes: string[] = [
         // these attributes should be hidden when exporting
@@ -78,6 +81,7 @@ export class BasePlace extends Uuidable implements IValidatable {
         this.geocodingPrecisionMeters = params.geocodingPrecisionMeters;
         this.geocodingQueryString = params.geocodingQueryString;
         this.lastAction = params.lastAction;
+        this.deviceUsed = params.deviceUsed;
     }
 
     validate(): OptionalValidity {
@@ -188,6 +192,11 @@ export class BasePlace extends Uuidable implements IValidatable {
         // Validate lastAction (if provided)
         if (dirtyParams.lastAction !== undefined && typeof dirtyParams.lastAction !== 'string') {
             errors.push(new Error('BasePlace validateParams: lastAction should be a string'));
+        }
+
+        // Validate internalId (if provided)
+        if (dirtyParams.deviceUsed !== undefined && typeof dirtyParams.deviceUsed !== 'string') {
+            errors.push(new Error('BasePlace validateParams: deviceUsed should be a string'));
         }
 
         return errors;
