@@ -144,7 +144,7 @@ describe('registerView', () => {
         }])
     });
 
-    test('Register an exiting view, with a different query', async() => {
+    test('Register an existing view, with a different query', async() => {
         // Use the same query, but rename the fields
         const defaultViewQuery = `select i.id, 
             i.uuid,
@@ -169,6 +169,70 @@ describe('registerView', () => {
             auth: 'email'
         }]);
         expect(await dbQueries.viewExists(viewName)).toEqual(true);
+    });
+
+    test('Register an existing view, with a single unique field', async() => {
+        // Use the same query, but rename the fields
+        const defaultViewQuery = `select i.id, 
+            i.uuid,
+            i.participant_id as part_id,
+            i.is_valid as valid,
+            i.is_completed as completed,
+            CASE
+                WHEN part.google_id is not null THEN 'google'
+                WHEN part.email is null THEN 'anonymous'
+                else 'email'
+            END AS auth
+        from sv_interviews i
+        inner join sv_participants part on i.participant_id = part.id`;
+
+        expect(await dbQueries.registerView(viewName, defaultViewQuery, 'id')).toEqual(true);
+        expect(await knex(viewName).select('*')).toEqual([{
+            uuid: localUserInterviewAttributes.uuid,
+            id: expect.anything(),
+            part_id: localUserInterviewAttributes.participant_id,
+            valid: localUserInterviewAttributes.is_valid,
+            completed: null,
+            auth: 'email'
+        }]);
+        expect(await knex('sv_materialized_views').select('*').where('view_name', viewName)).toEqual([expect.objectContaining({
+            view_name: viewName,
+            view_query: defaultViewQuery,
+            unique_field: 'id',
+        })]);
+        
+    });
+
+    test('Register an existing view, with multiple unique fields', async() => {
+        // Use the same query, but rename the fields
+        const defaultViewQuery = `select i.id, 
+            i.uuid,
+            i.participant_id as part_id,
+            i.is_valid as valid,
+            i.is_completed as completed,
+            CASE
+                WHEN part.google_id is not null THEN 'google'
+                WHEN part.email is null THEN 'anonymous'
+                else 'email'
+            END AS auth
+        from sv_interviews i
+        inner join sv_participants part on i.participant_id = part.id`;
+
+        expect(await dbQueries.registerView(viewName, defaultViewQuery, ['id', 'uuid'])).toEqual(true);
+        expect(await knex(viewName).select('*')).toEqual([{
+            uuid: localUserInterviewAttributes.uuid,
+            id: expect.anything(),
+            part_id: localUserInterviewAttributes.participant_id,
+            valid: localUserInterviewAttributes.is_valid,
+            completed: null,
+            auth: 'email'
+        }]);
+        expect(await knex('sv_materialized_views').select('*').where('view_name', viewName)).toEqual([expect.objectContaining({
+            view_name: viewName,
+            view_query: defaultViewQuery,
+            unique_field: 'id, uuid'
+        })]);
+        
     });
 
 });

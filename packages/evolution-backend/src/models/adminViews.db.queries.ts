@@ -6,43 +6,66 @@
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
+import { Knex } from 'knex';
 
 const tableName = 'sv_materialized_views';
 
-const createView = async (viewName: string, viewQuery: string) => {
-    return await knex.transaction(async (trx) => {
-        await knex.schema
-            .createMaterializedView(viewName, (view) => {
-                view.as(knex.select('*').fromRaw(`(${viewQuery}) as viewTbl`));
-            })
+const createMaterializedView = async (
+    trx: Knex.Transaction,
+    viewName: string,
+    viewQuery: string,
+    viewUniqueField: string | null
+) => {
+    await knex.schema
+        .createMaterializedView(viewName, (view) => {
+            view.as(knex.select('*').fromRaw(`(${viewQuery}) as viewTbl`));
+        })
+        .transacting(trx);
+    if (viewUniqueField !== null) {
+        // Create a unique index on this view
+        await knex
+            .raw(`CREATE UNIQUE INDEX ${viewName}_uniqueIdx ON ${viewName} (${viewUniqueField})`)
             .transacting(trx);
-        await knex(tableName).insert({ view_name: viewName, view_query: viewQuery }).transacting(trx);
+    }
+};
+
+const createView = async (viewName: string, viewQuery: string, viewUniqueField: string | null) => {
+    return await knex.transaction(async (trx) => {
+        await createMaterializedView(trx, viewName, viewQuery, viewUniqueField);
+        await knex(tableName)
+            .insert({ view_name: viewName, view_query: viewQuery, unique_field: viewUniqueField })
+            .transacting(trx);
     });
 };
 
-const replaceView = async (viewName: string, viewQuery: string) => {
+const replaceView = async (viewName: string, viewQuery: string, viewUniqueField: string | null) => {
     return await knex.transaction(async (trx) => {
         await knex.schema.dropMaterializedViewIfExists(viewName).transacting(trx);
-        await knex.schema
-            .createMaterializedView(viewName, (view) => {
-                view.as(knex.select('*').fromRaw(`(${viewQuery}) as viewTbl`));
-            })
+        await createMaterializedView(trx, viewName, viewQuery, viewUniqueField);
+        await knex(tableName)
+            .update({ view_query: viewQuery, unique_field: viewUniqueField })
+            .where('view_name', viewName)
             .transacting(trx);
-        await knex(tableName).update({ view_query: viewQuery }).where('view_name', viewName).transacting(trx);
     });
 };
 
-const registerView = async (viewName: string, viewQuery: string) => {
+const registerView = async (viewName: string, viewQuery: string, viewUniqueField?: string | string[]) => {
     try {
+        const uniqueFieldStr =
+            viewUniqueField === undefined
+                ? null
+                : typeof viewUniqueField === 'string'
+                    ? viewUniqueField
+                    : viewUniqueField.join(', ');
         // Verify if the view exists in the view table
         const adminView = await knex(tableName).where('view_name', viewName);
 
         // If not, create the materialize view and register the view to the view table
         if (adminView.length === 0) {
-            await createView(viewName, viewQuery);
-        } else if (adminView[0].view_query !== viewQuery) {
+            await createView(viewName, viewQuery, uniqueFieldStr);
+        } else if (adminView[0].view_query !== viewQuery || adminView[0].unique_field !== uniqueFieldStr) {
             // If it exists, but the query is different, delete and re-create the view
-            await replaceView(viewName, viewQuery);
+            await replaceView(viewName, viewQuery, uniqueFieldStr);
         }
 
         return true;
@@ -94,7 +117,12 @@ const refreshAllViews = async () => {
         const adminViews = await knex(tableName).select('*');
         const promises: Promise<unknown>[] = [];
         for (let i = 0; i < adminViews.length; i++) {
-            promises.push(knex.schema.refreshMaterializedView(adminViews[i].view_name as string));
+            promises.push(
+                knex.schema.refreshMaterializedView(
+                    adminViews[i].view_name as string,
+                    adminViews[i].unique_field !== null
+                )
+            );
         }
         await Promise.all(promises);
         return true;
