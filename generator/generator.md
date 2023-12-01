@@ -1,69 +1,115 @@
 # Generator
 
+## Why Generator?
+
+The Generator is designed to simplify and expedite your workflow. It allows for quick and easy corrections, reducing the time spent on repetitive tasks. Our primary goal is to make the creation of transit surveys as straightforward as possible. By automating the generation of survey components, we are not only enhancing productivity and efficiency, but also contributing to the implementation of sustainable practices in transportation. This tool is part of our commitment to promoting sustainable development within the transport sector.
+
 ## Table of Contents
 
-- [How to Run the Script](#how-to-run-the-script)
+- [Why Generator?](#why-generator)
+- [How to Run?](#how-to-run)
+- [Generate Excel](#generate-excel)
 - [Generate Widgets](#generate-widgets)
   - [Widgets Fields](#widgets-fields)
-  - [Widgets TypeScript](#widgets-typescript)
   - [Widgets Example](#widgets-example)
 - [Generate Conditionals](#generate-conditionals)
   - [Conditionals Fields](#conditionals-fields)
-  - [Conditionals TypeScript](#conditionals-typescript)
+  - [Conditionals Example](#conditionals-example)
 - [Generate Choices](#generate-choices)
   - [Choices Fields](#choices-fields)
-  - [Choices TypeScript](#choices-typescript)
   - [Choices Example](#choices-example)
 - [Generate InputRange](#generate-inputrange)
   - [InputRange Fields](#inputrange-fields)
-  - [InputRange TypeScript](#inputrange-typescript)
   - [InputRange Example](#inputrange-example)
 - [Generate Libelles](#generate-libelles)
   - [Libelles Fields](#libelles-fields)
-  - [Libelles YAML](#libelles-yaml)
+  - [Libelles Example](#libelles-example)
 
-## How to Run the Script
+## How to Run?
 
 To run this script, follow these steps:
 
-1. Create an Excel file following this example : [Enquete_Teletravail_Generate_survey](https://polymtlca0-my.sharepoint.com/:x:/g/personal/samuel_duhaime-morissette_polymtl_ca/Ecp5FW8DQ5JFiYDEMCOb9PMBSUUbxdsaFq4_ncT5oxchWw?e=jsdIJt).
-2. Update the `.env` file with the necessary environment variables.
+1. Copy `generateSurveyExample.xlsx` to your project.
 
-    ```properties
-    # Download Excel file with Office365 and Sharepoint
-    SHAREPOINT_URL = "https://polymtlca0-my.sharepoint.com/personal/<your_name>_polymtl_ca/"
-    EXCEL_FILE_PATH = "/personal/<your_name>_polymtl_ca/Documents/<your_folder_name>/<your_excel_file_name>.xlsx"
-    OFFICE365_USERNAME_EMAIL = "<your_office365_username_email>"
-    OFFICE365_PASSWORD = "<your_office365_password>"
-    ```
+   For Windows users:
 
-3. Update `generatorConfig.yaml` with the correct settings.
-4. Navigate to the root folder of the project and run the following command:
+   ```bash
+   cd projectName
+   copy ./evolution/generator/example/generateSurveyExample.xlsx ./survey/src/survey/references/generateSurveyExample.xlsx
+   ```
 
-    ```bash
-    yarn generateSurvey
-    ```
+   For Linux and Mac users:
+
+   ```bash
+   cd projectName
+   cp ./evolution/generator/example/generateSurveyExample.xlsx ./survey/src/survey/references/generateSurveyExample.xlsx
+   ```
+
+2. Copy `generatorConfig.yaml` to your project.
+
+   For Windows users:
+
+   ```bash
+   cd projectName
+   copy ./evolution/generator/example/generatorConfig.yaml ./survey/src/survey/config/generatorConfig.yaml
+   ```
+
+   For Linux and Mac users:
+
+   ```bash
+   cd projectName
+   cp ./evolution/generator/example/generatorConfig.yaml ./survey/src/survey/config/generatorConfig.yaml
+   ```
+
+3. Navigate to the root folder of your project and run the following command:
+
+   ```bash
+   yarn generateSurvey
+   ```
+
+## Generate Excel
+
+This step is optional but can greatly improve your workflow if you're frequently updating your project's Excel document. By using Microsoft 365 Cloud, you can avoid the need to manually upload your document every time you make a change. Here's how you can set it up:
+
+1. Make sure the `generatorConfig.yaml` has the correct settings.
+
+   ```YAML
+   excel:
+       active_script: true
+   ```
+
+2. Copy the `generateSurveyExample.xlsx` to your own Microsoft 365 Cloud.
+
+3. Update the `.env` file with the correct environment variables.
+
+   ```properties
+   # Download Excel file with Office365 and Sharepoint
+   SHAREPOINT_URL = "https://polymtlca0-my.sharepoint.com/personal/<your_email_polymtl_ca>/"
+   EXCEL_FILE_PATH = "/personal/<your_email_polymtl_ca>/Documents/<folderName>/<yourExcelName>.xlsx"
+   OFFICE365_USERNAME_EMAIL = "<yourOffice365UsernameEmail>"
+   OFFICE365_PASSWORD = "<yourOffice365Password>"
+   ```
 
 ## Generate Widgets
 
-In your survey logic, widgets define the various elements that make up your survey questions, providing the structure and interaction for respondents. The table below outlines the fields used to define widgets in the `Widgets` tab, along with an example of generating TypeScript code in `widgets.tsx`.
+Widgets are the building blocks of your survey. They define the structure and interaction of your survey questions, providing a dynamic and engaging experience for respondents. The `Widgets` tab in Excel is used to generate these widgets in the `widgets.tsx` file. Each row in the `Widgets` tab corresponds to a widget in your survey.
 
 ### Widgets Fields
 
-| Field               | Description                                             | Example                                                                       | Type                 |
-|---------------------|---------------------------------------------------------|-------------------------------------------------------------------------------|----------------------|
-| questionName        | Name of the question                                    | home_Q2_nbPersonnesResidenceTravailPreciser                                   | string               |
-| [inputType](#input) | Type of input for the question                          | Number                                                                        | string               |
-| active              | Widget activation status                                | TRUE                                                                          | boolean              |
-| section             | Section to which the question belongs                   | home                                                                          | string               |
-| path                | Path to the data point for the question                 | home.Q2_nbPersonnesResidenceTravailPreciser                                   | string               |
-| fr                  | French label for the question                           | Veuillez préciser le nombre de \*\*personnes qui habitent votre domicile\*\*: | string               |
-| en                  | English label for the question                          | Please specify the number of \*\*people who live in your home\*\*:            | string               |
-| [conditional](#cond)| Conditional logic for displaying the widget (optional)  | nbPersonnesSeptPlusConditional                                                | string?              |
-| [validation](#val)  | Validation logic for the widget (optional)              | moreOrEqualTo7Validation                                                      | string?              |
-| [choices](#choices) | Choices for the InputRadio and InputCheckbox (optional) |                                                                               | string?              |
-| [inputRange](#range)| Input range name for InputRange (optional)              |                                                                               | string?              |
-| comments            | Additional comments for the question (optional)         | If number of persons = 7+                                                     | string?              |
+| Field                | Description                                             | Type    |
+| -------------------- | ------------------------------------------------------- | ------- |
+| questionName         | Name of the question                                    | string  |
+| [inputType](#input)  | Type of input for the question                          | string  |
+| active               | Widget activation status                                | boolean |
+| section              | Section to which the question belongs                   | string  |
+| path                 | Path of the responses object for the question           | string  |
+| fr                   | French label for the question                           | string  |
+| en                   | English label for the question                          | string  |
+| [conditional](#cond) | Conditional logic for displaying the widget (optional)  | string? |
+| [validation](#val)   | Validation logic for the widget (optional)              | string? |
+| [choices](#choices)  | Choices for the InputRadio and InputCheckbox (optional) | string? |
+| [inputRange](#range) | Input range name for InputRange (optional)              | string? |
+| comments             | Additional comments for the question (optional)         | string? |
 
 > <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Checkbox, Custom, NextButton, Number, Radio, Range, String, Text, or TextArea.
 
@@ -75,21 +121,26 @@ In your survey logic, widgets define the various elements that make up your surv
 
 > <span id="range">**Note:**</span> The `inputRange` field is optional and allows you to define the valid range of values for `Range` input.
 
-### Widgets TypeScript
+### Widgets Example
+
+In this example, we define a widget for the question `end_email`. This widget is an active InputString, and the path to the responses object for the question is `end.email`. The French and English labels for the question, the conditional logic for displaying the widget, and the validation logic are also provided. The corresponding TypeScript code and a visual representation of this widget are shown below:
+
+| questionName | inputType | active | section | path      | fr               | en             | conditional                     | validation      | choices | inputRange | comments |
+| ------------ | --------- | ------ | ------- | --------- | ---------------- | -------------- | ------------------------------- | --------------- | ------- | ---------- | -------- |
+| end_email    | String    | TRUE   | end     | end.email | \*\*Courriel\*\* | \*\*E-mail\*\* | hasAcceptGivingEmailConditional | emailValidation |         |            |          |
 
 ```typescript
-// home/widgets.tsx
-export const home_Q2_nbPersonnesResidenceTravailPreciser: inputTypes.InputString = {
-    ...defaultInputBase.inputNumberBase,
-    path: 'home.Q2_nbPersonnesResidenceTravailPreciser',
-    label: (t: TFunction) => t('home:home.Q2_nbPersonnesResidenceTravailPreciser'),
-    conditional: customConditionals.nbPersonnesSeptPlusConditional,
-    validations: validations.moreOrEqualTo7Validation
+// end/widgets.tsx
+export const end_email: inputTypes.InputString = {
+    ...defaultInputBase.inputStringBase,
+    path: 'end.email',
+    label: (t: TFunction) => t('end:end.email'),
+    conditional: customConditionals.hasAcceptGivingEmailConditional,
+    validations: validations.emailValidation
 };
 ```
 
-### Widgets Example
-![Widgets example](./assets/images/widgetsExample.png)
+![Email question example](./assets/images/emailQuestionExample.png)
 
 ## Generate Conditionals
 
@@ -97,150 +148,192 @@ In your survey logic, conditionals play a key role in determining if the widget 
 
 ### Conditionals Fields
 
-| Field                       | Description                            | Example                       | Type                    |
-|-----------------------------|----------------------------------------|-------------------------------|-------------------------|
-| conditionalName             | Name of the conditional                | siPermisConduireConditional   | string                  |
-| logicalOperator             | Logical operator (optional)            | &&                            | && or \|\|              |
-| path                        | Path to the data point for comparison  | [${relativePath}](#rel).age   | string                  |
-| [comparisonOperator](#comp) | Operator for comparison                | >=                            | ===, ==, >, <, >= or <= |
-| value                       | Value for the comparison               | 16                            | number or string        |
-| [parentheses](#par)         | Parentheses (optional)                 |                               | ( or )                  |
+| Field                       | Description                                 | Type                    |
+| --------------------------- | ------------------------------------------- | ----------------------- |
+| conditionalName             | Name of the conditional                     | string                  |
+| logicalOperator             | Logical operator (optional)                 | && or \|\|              |
+| path                        | Path to the responses object for comparison | string                  |
+| [comparisonOperator](#comp) | Operator for comparison                     | ===, ==, >, <, >= or <= |
+| value                       | Value for the comparison                    | number or string        |
+| [parentheses](#par)         | Parentheses (optional)                      | ( or )                  |
 
-> <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent responses with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. In this example, `>=` signifies that the condition is true when `person.age` is greater than or equal to 16.
+> <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent responses with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path responses is greater than or equal to the value.
 
 > <span id="par">**Note:**</span> The `parentheses` field is optional and allows you to add priority to the conditional logic by using opening and closing parentheses. This is useful for specifying the order in which conditions should be evaluated. For example, you can use parentheses to create complex conditions like `conditional1 || (conditional2 && conditional3)`, where `conditional2 && conditional3` is evaluated first due to the parentheses.
 
-> <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, facilitating the reference to data points that share a common parent or group with the current data point being processed in the TypeScript code for generating conditionals.
+### Conditionals Example
 
-### Conditionals TypeScript
+In this example, we are creating a conditional named `hasDrivingLicenseConditional`. This conditional checks if the age of the person is 16 or older and if the person has a driving license. The table below shows the fields and their corresponding values for this conditional.
+
+| conditionalName              | logicalOperator | path                                   | comparisonOperator | value | parentheses |
+| ---------------------------- | --------------- | -------------------------------------- | ------------------ | ----- | ----------- |
+| hasDrivingLicenseConditional |                 | [${relativePath}](#rel).age            | >=                 | 16    |             |
+| hasDrivingLicenseConditional | &&              | [${relativePath}](#rel).drivingLicense | ===                | yes   |             |
+
+> <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, facilitating the reference to responses object that share a common parent or group with the current widget.
+
+The corresponding TypeScript code for this conditional is shown below:
 
 ```typescript
 // customConditionals.tsx
-
-// In this example, the age of the person is equal or more than 16 and the person have a driving license 
-export const siPermisConduireConditional: Conditional = (interview, path) => {
-    const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path
-    return checkConditionals({
-        interview,
-        conditionals: [
-            {
-                path: `${relativePath}.age`,
-                comparisonOperator: '>=',
-                value: 16,
-            },
-            {
-                logicalOperator: '&&',
-                path: `${relativePath}.permisConduire`,
-                comparisonOperator: '===',
-                value: 'oui',
-            }
-        ]
-    });
+export const hasDrivingLicenseConditional: Conditional = (interview, path) => {
+  const relativePath = path.substring(0, path.lastIndexOf(".")); // Remove the last key from the path
+  return checkConditionals({
+    interview,
+    conditionals: [
+      {
+        path: `${relativePath}.age`,
+        comparisonOperator: ">=",
+        value: 16,
+      },
+      {
+        logicalOperator: "&&",
+        path: `${relativePath}.drivingLicense`,
+        comparisonOperator: "===",
+        value: "yes",
+      },
+    ],
+  });
 };
 ```
 
 ## Generate Choices
 
-Choices in your survey define the available options in ­­`RadioInput` or `InputCheckbox` for respondents. The table below outlines the fields in Choices tab used to define choices, along with an example and the expected output in a ­`choices.tsx­` file.
+Choices in your survey define the available options in ­­`InputRadio` or `InputCheckbox` for respondents. The table below outlines the fields in Choices tab used to define choices, along with an example and the expected output in a ­`choices.tsx­` file.
 
 ### Choices Fields
 
-| Field                        | Description                                            | Example        | Type             |
-|------------------------------|--------------------------------------------------------|----------------|------------------|
-| choicesName                  | Name for the choices group                             | ouiNonChoices  | string           |
-| value                        | Unique value for the choice                            | oui            | string or number |
-| fr                           | French label for the choice                            | Oui            | string or number |
-| en                           | English label for the choice                           | Yes            | string or number |
-| [spreadChoicesName](#spread) | Spreading another choicesName (optional)               |                | string?          |
-| conditional                  | Conditional name for displaying the choice (optional)  |                | string?          |
+| Field                        | Description                                           | Type             |
+| ---------------------------- | ----------------------------------------------------- | ---------------- |
+| choicesName                  | Name for the choices group                            | string           |
+| value                        | Unique value for the choice                           | string or number |
+| fr                           | French label for the choice                           | string or number |
+| en                           | English label for the choice                          | string or number |
+| [spreadChoicesName](#spread) | Spreading another choicesName (optional)              | string?          |
+| conditional                  | Conditional name for displaying the choice (optional) | string?          |
 
 > <span id="spread">**Note:**</span> The `spreadChoicesName` field is useful to avoid repetition. If you are using the same choices as another `choicesName`, you can specify the existing `choicesName` in `spreadChoicesName` to reuse the choices without duplicating them.
 
-### Choices TypeScript
+### Choices Example
+
+In this example, we define two sets of choices: `yesNoChoices` and `yesNoDontKnowChoices`. The `yesNoChoices` set includes two options: "yes" and "no". The `yesNoDontKnowChoices` set extends the `yesNoChoices` set by adding an additional option: "don't know". This demonstrates how you can reuse and extend choice sets to create more complex selections. The corresponding TypeScript code and a visual representation of these choices are shown below:
+
+| choicesName          | value    | fr             | en           | spreadChoicesName | conditional |
+| -------------------- | -------- | -------------- | ------------ | ----------------- | ----------- |
+| yesNoChoices         | yes      | Oui            | Yes          |                   |             |
+| yesNoChoices         | no       | Non            | No           |                   |             |
+| yesNoDontKnowChoices |          |                |              | yesNoChoices      |             |
+| yesNoDontKnowChoices | dontKnow | Je ne sais pas | I don't know |                   |             |
+
 ```typescript
 // choices.tsx
-export const ouiNonChoices: Choices = [
-    {
-        value: 'oui',
-        label: {
-            fr: 'Oui',
-            en: 'Yes'
-        }
+export const yesNoChoices: Choices = [
+  {
+    value: "yes",
+    label: {
+      fr: "Oui",
+      en: "Yes",
     },
-    {
-        value: 'non',
-        label: {
-            fr: 'Non',
-            en: 'No'
-        }
-    }
+  },
+  {
+    value: "no",
+    label: {
+      fr: "Non",
+      en: "No",
+    },
+  },
+];
+
+export const yesNoDontKnowChoices: Choices = [
+  ...yesNoChoices,
+  {
+    value: "dontKnow",
+    label: {
+      fr: "Je ne sais pas",
+      en: "I don't know",
+    },
+  },
 ];
 ```
 
-### Choices Example
-
-![Choices example](./assets/images/choicesExample.png)
+![Yes or no choices example](./assets/images/yesNoChoicesExample.png)
+![Yes, no or I don't know choices example](./assets/images/yesNoDontKnowChoicesExample.png)
 
 ## Generate InputRange
 
-In Excel, the `InputRange` tab generates sliders in `inputRange.tsx`. The provided table example will generate the following TypeScript code, defining the `confiantInputRange` object in `inputRange.tsx`.
+The `InputRange` tab in Excel is used to generate slider components in the `inputRange.tsx` file. These sliders allow users to select a value within a specified range. The table provided in the example below will generate the corresponding TypeScript code, defining the `confidentInputRange` object in `inputRange.tsx`.
 
 ### InputRange Fields
 
-| Field          | Description                                     | Example                 | Type        |
-|----------------|-------------------------------------------------|-------------------------|-------------|
-| inputRangeName | Name of the input range                         | confiantInputRange      | string      |
-| labelFrMin     | French label for the minimum value              | Pas du tout confiant    | string      |
-| labelFrMax     | French label for the maximum value              | Très confiant           | string      |
-| labelEnMin     | English label for the minimum value             | Not at all confident    | string      |
-| labelEnMax     | English label for the maximum value             | Very confident          | string      |
-| minValue       | Minimum numerical value for the input range     | -10                     | number      |
-| maxValue       | Maximum numerical value for the input range     | 100                     | number      |
-| unitFr         | Unit in French                                  | %                       | string      |
-| unitEn         | Unit in English                                 | %                       | string      |
+| Field          | Description                                 | Type   |
+| -------------- | ------------------------------------------- | ------ |
+| inputRangeName | Name of the input range                     | string |
+| labelMin_fr    | French label for the minimum value          | string |
+| labelMax_fr    | French label for the maximum value          | string |
+| labelMin_en    | English label for the minimum value         | string |
+| labelMax_en    | English label for the maximum value         | string |
+| minValue       | Minimum numerical value for the input range | number |
+| maxValue       | Maximum numerical value for the input range | number |
+| unit_fr        | Unit in French                              | string |
+| unit_en        | Unit in English                             | string |
 
-### InputRange TypeScript
+### InputRange Example
+
+In this example, we define an InputRange named `confidentInputRange`. This InputRange allows users to select a value representing their confidence level, ranging from "Not at all confident" to "Very confident". The corresponding TypeScript code and a visual representation of this InputRange are shown below:
+
+| inputRangeName      | labelMin_fr          | labelMax_fr   | labelMin_en          | labelMax_en    | minValue | maxValue | unit_fr | unit_en |
+| ------------------- | -------------------- | ------------- | -------------------- | -------------- | -------- | -------- | ------- | ------- |
+| confidentInputRange | Pas du tout confiant | Très confiant | Not at all confident | Very confident | -10      | 100      | %       | %       |
 
 ```typescript
 // inputRange.tsx
-export const confiantInputRange = {
-    labels: [
-        {
-            fr: 'Pas du tout confiant',
-            en: 'Not at all confident'
-        },
-        {
-            fr: 'Très confiant',
-            en: 'Very confident'
-        }
-    ],
-    minValue: -10,
-    maxValue: 100,
-    formatLabel: (value, language) => {
-        return value + ' ' + (language === 'fr' ? '%' : '%');
-    }
+export const confidentInputRange = {
+  labels: [
+    {
+      fr: "Pas du tout confiant",
+      en: "Not at all confident",
+    },
+    {
+      fr: "Très confiant",
+      en: "Very confident",
+    },
+  ],
+  minValue: -10,
+  maxValue: 100,
+  formatLabel: (value, language) => {
+    return value + " " + (language === "fr" ? "%" : "%");
+  },
 };
 ```
-### InputRange Example
+
 ![InputRange example](./assets/images/inputRangeExample.png)
 
 ## Generate Libelles
+
+<!-- TODO: Modify the generateLibelles.py and documentation to support en_cati, en_one, en_cati_one, fr_cati, etc. -->
 
 In the context of your survey logic, libelles (labels) play a crucial role in presenting questions to respondents in different languages. This Excel table below outlines the fields in `Widgets` tab used to define libelles, along with an example and the expected output in a `introduction.yml` file.
 
 ### Libelles Fields
 
-| Field       | Description          | Example                                                           | Type   |
-|-------------|----------------------|-------------------------------------------------------------------|--------|
-| path        | Path to the question | introduction.Q1_quelleOrganisation                                | string |
-| fr          | French libelle       | À quelle [\*\*organisation\*\*](#asterisks) êtes-vous affilié(e) ?| string |
-| en          | English libelle      | Which [\*\*organization\*\*](#asterisks) are you affiliated with? | string |
+| Field   | Description                           | Type   |
+| ------- | ------------------------------------- | ------ |
+| path    | Path of the responses                 | string |
+| section | Section to which the question belongs | string |
+| fr      | French libelle                        | string |
+| en      | English libelle                       | string |
+
+### Libelles Example
+
+In this example, we define a libelle for the question `introduction.whichOrganization`. Libelles are used to present questions to respondents in different languages. In this case, we provide translations for both French and English. The text within the double asterisks `**` will be displayed in bold. The corresponding YAML output for the English translation is also shown.
+
+| path                           | section      | fr                                                                 | en                                                                |
+| ------------------------------ | ------------ | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| introduction.whichOrganization | introduction | À quelle [\*\*organisation\*\*](#asterisks) êtes-vous affilié(e) ? | Which [\*\*organization\*\*](#asterisks) are you affiliated with? |
 
 > <span id="asterisks">**Note:**</span> Libelle between double asterisks `**` will be displayed in bold font.
 
-### Libelles YAML
-
 ```yaml
 # en/introduction.yml
-introduction.Q1_quelleOrganisation: Which <strong>organization</strong> are you affiliated with?
+introduction.whatOrganization: Which <strong>organization</strong> are you affiliated with?
 ```
