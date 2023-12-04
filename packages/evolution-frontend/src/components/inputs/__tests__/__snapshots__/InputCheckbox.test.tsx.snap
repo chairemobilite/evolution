@@ -138,6 +138,306 @@ exports[`Render InputCheckbox with minimum parameters Minimum parameters 1`] = `
 </div>
 `;
 
+exports[`Render InputCheckbox with various alignments Auto alignment with 2 columns 1`] = `
+<div
+  className="survey-question__input-checkbox-group-container"
+>
+  <div
+    className="survey-question__input-checkbox-group-row"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_first value__input-checkbox__first value"
+          name="test_first value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="first value"
+        />
+        <label
+          htmlFor="test_first value__input-checkbox__first value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>first value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-checkbox-group-row"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_second value__input-checkbox__second value"
+          name="test_second value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="second value"
+        />
+        <label
+          htmlFor="test_second value__input-checkbox__second value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>second value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputCheckbox with various alignments Horizontal alignment with custom alignments 1`] = `
+<div
+  className="survey-question__input-checkbox-group-container-column"
+>
+  <div
+    className="survey-question__input-checkbox-group-row"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_first value__input-checkbox__first value"
+          name="test_first value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="first value"
+        />
+        <label
+          htmlFor="test_first value__input-checkbox__first value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>first value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-checkbox-group-row"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_second value__input-checkbox__second value"
+          name="test_second value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="second value"
+        />
+        <label
+          htmlFor="test_second value__input-checkbox__second value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>second value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputCheckbox with various alignments Undefined alignment with no rows and no columns 1`] = `
+<div
+  className="survey-question__input-checkbox-group-container"
+>
+  <div
+    className="survey-question__input-checkbox-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-checkbox"
+        id="test_first value__input-checkbox__first value"
+        name="test_first value"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="checkbox"
+        value="first value"
+      />
+      <label
+        htmlFor="test_first value__input-checkbox__first value"
+        onClick={[Function]}
+      >
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "<div>first value</div>",
+            }
+          }
+        />
+      </label>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-checkbox-input-container"
+    onClick={[Function]}
+  >
+    <div
+      className="label-input-container"
+    >
+      <input
+        checked={false}
+        className="input-checkbox"
+        id="test_second value__input-checkbox__second value"
+        name="test_second value"
+        onChange={[Function]}
+        onClick={[Function]}
+        type="checkbox"
+        value="second value"
+      />
+      <label
+        htmlFor="test_second value__input-checkbox__second value"
+        onClick={[Function]}
+      >
+        <span
+          dangerouslySetInnerHTML={
+            Object {
+              "__html": "<div>second value</div>",
+            }
+          }
+        />
+      </label>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputCheckbox with various alignments Vertical alignment with 4 rows 1`] = `
+<div
+  className="survey-question__input-checkbox-group-container"
+>
+  <div
+    className="survey-question__input-checkbox-group-column"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_first value__input-checkbox__first value"
+          name="test_first value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="first value"
+        />
+        <label
+          htmlFor="test_first value__input-checkbox__first value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>first value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+  <div
+    className="survey-question__input-checkbox-group-column"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_second value__input-checkbox__second value"
+          name="test_second value"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="second value"
+        />
+        <label
+          htmlFor="test_second value__input-checkbox__second value"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "<div>second value</div>",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Render InputCheckbox with various parameter combinations, all parameters Conditional value hidden, same line 1`] = `
 <div
   className="survey-question__input-checkbox-group-container"
@@ -279,7 +579,7 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
   className="survey-question__input-checkbox-group-container no-wrap"
 >
   <div
-    className="survey-question__input-checkbox-group-column"
+    className="survey-question__input-checkbox-group-row"
   >
     <div
       className="survey-question__input-checkbox-input-container"
@@ -381,7 +681,7 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
     </div>
   </div>
   <div
-    className="survey-question__input-checkbox-group-column"
+    className="survey-question__input-checkbox-group-row"
   >
     <div
       className="survey-question__input-checkbox-input-container"
@@ -454,7 +754,7 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
   className="survey-question__input-checkbox-group-container no-wrap"
 >
   <div
-    className="survey-question__input-checkbox-group-column"
+    className="survey-question__input-checkbox-group-row"
   >
     <div
       className="survey-question__input-checkbox-input-container"
@@ -533,7 +833,7 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
     </div>
   </div>
   <div
-    className="survey-question__input-checkbox-group-column"
+    className="survey-question__input-checkbox-group-row"
   >
     <div
       className="survey-question__input-checkbox-input-container"
@@ -598,7 +898,7 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
   className="survey-question__input-checkbox-group-container no-wrap"
 >
   <div
-    className="survey-question__input-checkbox-group-column"
+    className="survey-question__input-checkbox-group-row"
   >
     <div
       className="survey-question__input-checkbox-input-container"
@@ -731,7 +1031,7 @@ exports[`Render InputCheckbox with various parameter combinations, all parameter
     </div>
   </div>
   <div
-    className="survey-question__input-checkbox-group-column"
+    className="survey-question__input-checkbox-group-row"
   >
     <div
       className="survey-question__input-checkbox-input-container"

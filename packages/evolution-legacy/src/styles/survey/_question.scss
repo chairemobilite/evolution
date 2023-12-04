@@ -19,9 +19,7 @@ label strong, .apptr__form__label-standalone strong {
 }
 
 
-
 .apptr__form-input-container {
-  
   input[type=text], input[type=password], input[type=email], input[type=number] {
     font-size: $font-size-medium-large;
     color: $input;
@@ -204,14 +202,15 @@ label strong, .apptr__form__label-standalone strong {
     //  min-width: calc(100vw * 0.8); // forces map to take minimum width
     //}
   }
+}
 
-  .survey-question__input-radio-group-container, .survey-question__input-checkbox-group-container {
+.survey-question__input-radio-group-container, .survey-question__input-checkbox-group-container {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 
     &.no-wrap {
-      flex-direction: column;
+      flex-direction: row;
       flex-wrap: nowrap;
     }
 
@@ -289,7 +288,110 @@ label strong, .apptr__form__label-standalone strong {
 
     }
 
+    .survey-question__input-radio-group-row, .survey-question__input-checkbox-group-row {
+        @media only screen and (min-width: $desktop-breakpoint) {
+            display: flex;
+            flex-flow: row wrap;
+            flex-basis: 0;
+            flex-grow: 1;
+    }
+
   }
+}
+
+.survey-question__input-radio-group-container-column, .survey-question__input-checkbox-group-container-column {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+
+    &.no-wrap {
+      flex-direction: column;
+      flex-wrap: nowrap;
+    }
+
+    label, .apptr__form__label-standalone {
+      text-align: left;
+      margin: 0.2rem 0 0 0.3rem;
+      font-weight: 700;
+      font-size: $font-size-medium;
+      color: $radio;
+      justify-content: center;
+      span {
+        display: table-cell;
+        vertical-align: middle;
+        //height: 100%;
+      }
+    }
+
+    .input-radio, .input-checkbox {
+      padding: 0 0.5rem;
+    }
+
+    .label-input-container {
+      padding: 0;
+      display: flex;
+      align-items: center;
+      align-content: stretch;
+      justify-content: center;
+    }
+
+    .label-input-custom-container {
+      padding: 0;
+      display: flex;
+      align-items: center;
+      align-content: stretch;
+      justify-content: flex-start !important;
+      width: 100%;
+
+      label, .label-input-container {
+        width: auto;
+        margin-right: 0.5rem;
+      }
+
+    }
+
+    .input-custom {
+      margin: 0.5rem 0;
+    }
+
+    .survey-question__input-radio-input-container, .survey-question__input-checkbox-input-container {
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: flex-start;
+      background: rgba(0,0,0,0.02);
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 0.2rem 0.8rem 0.2rem 0.5rem;
+      margin-right: 0.5rem;
+      margin-bottom: 3px;
+      border-radius: 1.5rem;
+      text-align: left;
+      line-height: 1.05;
+
+      &.checked {
+        background: rgba(0,0,0,0.06);
+        label, .apptr__form__label-standalone {
+          color: $input;
+        }
+      }
+    }
+
+    .survey-question__input-radio-group-column, .survey-question__input-checkbox-group-column {
+        @media only screen and (min-width: $desktop-breakpoint) {
+        flex-basis: 0;
+        flex-grow: 1;
+      }
+
+    }
+
+    .survey-question__input-radio-group-row, .survey-question__input-checkbox-group-row {
+        @media only screen and (min-width: $desktop-breakpoint) {
+            display: flex;
+            flex-flow: row wrap;
+            flex-basis: 0;
+            flex-grow: 1;
+        }
+
+    }
 
 }
 

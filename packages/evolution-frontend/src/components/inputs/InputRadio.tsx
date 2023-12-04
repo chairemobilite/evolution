@@ -225,11 +225,19 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
         const columnedChoiceInputs: JSX.Element[] = [];
         for (let i = 0, count = widgetsByColumn.length; i < count; i++) {
             const columnWidgets = widgetsByColumn[i];
-            columnedChoiceInputs.push(
-                <div className="survey-question__input-radio-group-column" key={i}>
-                    {columnWidgets}
-                </div>
-            );
+            if (this.props.widgetConfig.alignment === 'vertical') {
+                columnedChoiceInputs.push(
+                    <div className="survey-question__input-radio-group-column" key={i}>
+                        {columnWidgets}
+                    </div>
+                );
+            } else {
+                columnedChoiceInputs.push(
+                    <div className="survey-question__input-radio-group-row" key={i}>
+                        {columnWidgets}
+                    </div>
+                );
+            }
         }
         return columnedChoiceInputs;
     };
@@ -298,11 +306,16 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
             ));
         // separate by columns if needed:
         const columnedChoiceInputs = this.getColumnedChoices(choiceInputs);
+
+        const shouldDisplayAsRows =
+            this.props.widgetConfig.alignment === undefined || this.props.widgetConfig.alignment === 'auto' || this.props.widgetConfig.alignment === 'vertical';
         return (
             <div
-                className={`survey-question__input-radio-group-container${
-                    this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''
-                }`}
+                className={`${
+                    shouldDisplayAsRows
+                        ? 'survey-question__input-radio-group-container'
+                        : 'survey-question__input-radio-group-container-column'
+                }${this.props.widgetConfig.sameLine === false ? ' no-wrap' : ''}`}
             >
                 {columnedChoiceInputs}
             </div>
