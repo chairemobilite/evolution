@@ -36,6 +36,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
                 'i.uuid',
                 knex.raw('responses->\'home\' as home'),
                 'i.is_completed',
+                'i.is_questionable',
                 'i.is_valid',
                 'participant.email',
                 'participant.username',
@@ -68,6 +69,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
             uuid: interview.uuid,
             home: interview.home === null ? {} : interview.home,
             isCompleted: interview.is_completed === null ? undefined : interview.is_completed,
+            isQuestionable: interview.is_questionable,
             isValid: interview.is_valid === null ? undefined : interview.is_valid,
             email: interview.email === null ? undefined : interview.email,
             username: interview.username === null ? undefined : interview.username,
@@ -137,7 +139,8 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
                 'validations',
                 'participant_id',
                 'is_valid',
-                'is_completed'
+                'is_completed',
+                'is_questionable'
             )
             .from('sv_interviews')
             .whereRaw('sv_interviews.is_active IS TRUE')
@@ -162,18 +165,27 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
     }
 };
 
-// Arrays cannot be inserted as is, otherwise they throw an error, so logs need to be converted to string
-const stringifyJsonArray = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+/**
+ * Arrays cannot be inserted as is, otherwise they throw an error, so logs need
+ * to be converted to string. Also null unicode character \u0000 is not valid in a
+ * json string, replace with a space
+ * @param object
+ * @returns An object with the json data sanitized
+ */
+const sanitizeJsonData = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     object: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
 ) => {
-    if (object.logs) {
-        const { logs, ...rest } = object;
-        return {
-            ...rest,
-            logs: JSON.stringify(logs)
-        };
-    }
-    return object;
+    const { logs, responses, validated_data, ...rest } = object;
+    const newResponses = responses !== undefined ? JSON.stringify(responses).replaceAll('\\u0000', '') : undefined;
+    const newLogs = logs !== undefined ? JSON.stringify(logs).replaceAll('\\u0000', '') : undefined;
+    const newValidatedData =
+        validated_data !== undefined ? JSON.stringify(validated_data).replaceAll('\\u0000', '') : undefined;
+    return {
+        ...rest,
+        responses: newResponses,
+        logs: newLogs,
+        validated_data: newValidatedData
+    };
 };
 
 const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
@@ -181,7 +193,7 @@ const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     returning: string | string[] = 'id'
 ): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
     try {
-        const returningArray = await knex(tableName).insert(stringifyJsonArray(newObject)).returning(returning);
+        const returningArray = await knex(tableName).insert(sanitizeJsonData(newObject)).returning(returning);
         if (returningArray.length === 1) {
             return returningArray[0];
         }
@@ -202,7 +214,7 @@ const update = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
 ): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
     try {
         const returningArray = await knex(tableName)
-            .update(stringifyJsonArray(updatedInterview))
+            .update(sanitizeJsonData(updatedInterview))
             .where('uuid', uuid)
             .returning(returning);
         if (returningArray.length === 1) {
@@ -225,6 +237,7 @@ export type OperatorSigns = {
     gte: string;
     lte: string;
     not: string;
+    like: string;
 };
 const operatorSigns = {
     eq: '=',
@@ -232,7 +245,8 @@ const operatorSigns = {
     lt: '<',
     gte: '>=',
     lte: '<=',
-    not: '!='
+    not: '!=',
+    like: 'like'
 };
 
 // Even if it is typed, in reality, this data comes from the universe and can be anything. Make sure we don't inject sql
@@ -282,6 +296,9 @@ const addOrderByClause = (
     }
 };
 
+const addLikeBinding = (operator: keyof OperatorSigns | undefined, binding: string | boolean | number) =>
+    operator === 'like' && typeof binding === 'string' ? `%${binding}%` : binding;
+
 /**
  * Create a raw where clause from a filter
  *
@@ -321,16 +338,29 @@ const getRawWhereClause = (
         return `${fieldName} IS ${notStr} null`;
     };
     switch (field) {
+    // For created_at and updated_at, we also accept a date range as an array two unix timestamps.
+    // Note that dates in the database are saved with time zones.
+    // In such a case, the filter operation parmeter is ignored (>= and <= are used).
     case 'created_at':
-        return `extract(epoch from ${tblAlias}.created_at) ${
-            filter.op ? operatorSigns[filter.op] : operatorSigns.eq
-        } ${filter.value} `;
+        if (Array.isArray(filter.value) && filter.value.length === 2) {
+            return `${tblAlias}.created_at >= to_timestamp(${filter.value[0]}) AND ${tblAlias}.created_at <= to_timestamp(${filter.value[1]}) `;
+        } else {
+            return `${tblAlias}.created_at ${
+                filter.op ? operatorSigns[filter.op] : operatorSigns.eq
+            } to_timestamp(${filter.value}) `;
+        }
     case 'updated_at':
-        return `extract(epoch from ${tblAlias}.updated_at) ${
-            filter.op ? operatorSigns[filter.op] : operatorSigns.eq
-        } ${filter.value} `;
+        if (Array.isArray(filter.value) && filter.value.length === 2) {
+            return `${tblAlias}.updated_at >= to_timestamp(${filter.value[0]}) AND ${tblAlias}.updated_at <= to_timestamp(${filter.value[1]}) `;
+        } else {
+            return `${tblAlias}.updated_at ${
+                filter.op ? operatorSigns[filter.op] : operatorSigns.eq
+            } to_timestamp(${filter.value}) `;
+        }
     case 'is_valid':
         return getBooleanFilter(`${tblAlias}.is_valid`, filter);
+    case 'is_questionable':
+        return getBooleanFilter(`${tblAlias}.is_questionable`, filter);
     case 'uuid':
         return `${tblAlias}.${field} ${filter.op ? operatorSigns[filter.op] : operatorSigns.eq} '${filter.value}'`;
     case 'audits':
@@ -360,7 +390,7 @@ const getRawWhereClause = (
                         ? `${operatorSigns[filter.op] || operatorSigns.eq} ?`
                         : `${operatorSigns.eq} ?`
                 }`,
-                filter.value
+                addLikeBinding(filter.op, filter.value)
             ];
     }
     return undefined;
@@ -454,6 +484,7 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
                 'i.is_valid',
                 'i.is_completed',
                 'i.is_validated',
+                'i.is_questionable',
                 'i.audits',
                 'participant.username',
                 knex.raw('case when participant.facebook_id is null then false else true end facebook'),
@@ -522,25 +553,71 @@ const getValidationErrors = async (params: {
     }
 };
 
+/**
+ * Streams the interviews instead of returning them all together. Useful for
+ * tasks and operations that require parsing a possibly large number of
+ * interviews, like exports or global audits.
+ *
+ * Note: When processing a row involves writing data back to the database, it is
+ * necessary to pause the stream to avoid deadlocks and resume after the
+ * updates. Use `queryStream.pause()` and `queryStream.resume()` to do so.
+ *
+ * @param {({ filters: { [key: string]: { value: string | boolean | number, op:
+ * keyof OperatorSigns } }; select: { includeAudits?: boolean, responses?:
+ * ('none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable') };
+ * sort?: (string | { field: string; order: 'asc' | 'desc' })[] })} params
+ * filters specifies the fields on which to filter the interviews to stream,
+ * select allows to fine-tune the fields to return, including or excluding
+ * audits, and some combination or responses and validated_data, sort specifies
+ * which field to sort the interviews by
+ * @returns An interview stream
+ */
 const getInterviewsStream = function (params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
+    select?: {
+        includeAudits?: boolean;
+        responses?: 'none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable';
+    };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }) {
     const baseRawFilter = 'participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
     const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
     const sortFields = params.sort || [];
+    const selectFields = params.select || { includeAudits: true, responses: 'both' };
+    const responseType = selectFields.responses || 'both';
+    const select = [
+        'i.id',
+        'i.uuid',
+        'i.updated_at',
+        'i.is_valid',
+        'i.is_completed',
+        'i.is_validated',
+        knex.raw('case when validated_data is null then false else true end as validated_data_available')
+    ];
+    if (selectFields.includeAudits || selectFields.includeAudits === undefined) {
+        select.push('i.audits');
+    }
+    switch (responseType) {
+    case 'participant':
+        select.push('i.responses');
+        break;
+    case 'validated':
+        select.push('i.validated_data');
+        break;
+    case 'both':
+        select.push('i.responses');
+        select.push('i.validated_data');
+        break;
+    case 'validatedIfAvailable':
+        select.push(
+            knex.raw('case when validated_data is null then responses else validated_data end as responses')
+        );
+        break;
+    case 'none':
+        break;
+    }
     const interviewsQuery = knex
-        .select(
-            'i.id',
-            'i.uuid',
-            'i.updated_at',
-            'i.responses',
-            'i.validated_data',
-            'i.is_valid',
-            'i.is_completed',
-            'i.is_validated',
-            'i.audits'
-        )
+        .select(...select)
         .from(`${tableName} as i`)
         .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
         .whereRaw(rawFilter, bindings);

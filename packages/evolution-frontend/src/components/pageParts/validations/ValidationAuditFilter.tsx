@@ -7,7 +7,7 @@
 import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FilterProps } from 'react-table';
-import _truncate from 'lodash.truncate';
+import _truncate from 'lodash/truncate';
 
 import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
 
@@ -79,7 +79,7 @@ export const ValidationAuditFilter = <CustomSurvey, CustomHousehold, CustomHome,
     }, [filters]);
 
     return (
-        <div>
+        <div style={{ display: 'flex', margin: '2px 0' }}>
             <label htmlFor={'surveyValidation-filter-audit'}>{t('admin:auditErrorFilter:title')}</label>
             <select
                 id={'surveyValidation-filter-audit'}

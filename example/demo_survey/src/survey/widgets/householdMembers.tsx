@@ -40,6 +40,7 @@ export const personAge = {
   type: "question",
   path: "age",
   inputType: "string",
+  inputFilter: (input: string) => input.replace(/\D/g, ''), // Remove everything but numbers
   datatype: "integer",
   twoColumns: true,
   containsHtml: true,

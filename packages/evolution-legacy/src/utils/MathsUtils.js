@@ -4,8 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _isFinite from 'lodash.isfinite';
-import _padStart from 'lodash.padstart';
+import _isFinite from 'lodash/isFinite';
+import _padStart from 'lodash/padStart';
 
 const strictOr = function(...values) {
   values = values.length === 1 && Array.isArray(values[0]) ? values[0] : [...values];

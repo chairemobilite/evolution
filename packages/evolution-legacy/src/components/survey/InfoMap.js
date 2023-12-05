@@ -9,7 +9,7 @@ import { withTranslation }                                  from 'react-i18next'
 import { Map, Marker, GoogleApiWrapper, Polyline, Polygon } from 'google-maps-react';
 import { point as turfPoint }                               from '@turf/turf';
 import Markdown                                             from 'react-markdown';
-import _get                                                 from 'lodash.get';
+import _get                                                 from 'lodash/get';
 
 import googleConfig from 'evolution-frontend/lib/config/googleMaps.config';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';

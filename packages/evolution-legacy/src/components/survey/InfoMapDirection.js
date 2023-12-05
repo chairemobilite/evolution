@@ -7,7 +7,7 @@
 import React from 'react';
 import { withTranslation }  from 'react-i18next';
 import ReactMapboxGl, { Popup, Layer, Feature, GeoJSONLayer } from 'react-mapbox-gl';
-import _get from 'lodash.get';
+import _get from 'lodash/get';
 import  {
     bbox as turfBbox,
     length as turfLength,

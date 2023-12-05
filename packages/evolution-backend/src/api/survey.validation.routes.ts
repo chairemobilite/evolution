@@ -10,13 +10,15 @@
 import express, { Request, Response } from 'express';
 import moment from 'moment';
 import Interviews from '../services/interviews/interviews';
-import { updateInterview } from '../services/interviews/interview';
+import { updateInterview, copyResponsesToValidatedData } from '../services/interviews/interview';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import projectConfig from '../config/projectConfig';
 import { mapResponsesToValidatedData } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
+import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { Audits } from '../services/audits/Audits';
 
 const router = express.Router();
 
@@ -30,11 +32,28 @@ router.get(
             try {
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
                 if (interview) {
-                    // TODO Here, the responses field should not make it to frontend, it should freeze the survey and initialize the validated_data here. But make sure there are no side effect in the frontend, where the _responses is used or checked.
+                    const forceCopy = _booleish(req.query.reset) === true;
+                    // Copy the responses in the validated_data
+                    if (forceCopy || _isBlank(interview.validated_data)) {
+                        await copyResponsesToValidatedData(interview);
+                    }
+                    // Run audits on the validated_data
+                    const audits = await Audits.runAndSaveInterviewAudits(interview);
+                    // TODO Here, the responses field should not make it to frontend. But make sure there are no side effect in the frontend, where the _responses is used or checked.
                     const { responses, validated_data, ...rest } = interview;
                     return res.status(200).json({
                         status: 'success',
-                        interview: { responses: validated_data, _responses: responses, ...rest }
+                        interview: {
+                            responses: validated_data,
+                            _responses: responses,
+                            auditsV2: audits,
+                            ...rest,
+                            validationDataDirty:
+                                responses._updatedAt !== undefined &&
+                                interview.is_frozen !== true &&
+                                (validated_data?._validatedDataCopiedAt === undefined ||
+                                    validated_data._validatedDataCopiedAt < responses._updatedAt)
+                        }
                     });
                 } else {
                     return res.status(500).json({ status: 'failed', interview: null });
@@ -82,7 +101,7 @@ router.post(
                     'audits',
                     'is_valid',
                     'is_completed',
-                    'is_frozen'
+                    'is_questionable'
                 ];
                 interview.responses._updatedAt = timestamp;
                 const retInterview = await updateInterview<unknown, unknown, unknown, unknown>(interview, {
@@ -196,6 +215,24 @@ router.post('/validation/errors', async (req: Request, res: Response) => {
         });
     } catch (error) {
         console.log('error getting interview list:', error);
+        return res.status(500).json({ status: 'Error' });
+    }
+});
+
+router.post('/validation/updateAudits/:uuid', async (req, res, next) => {
+    try {
+        const audits = req.body.audits;
+        const interview = await Interviews.getInterviewByUuid(req.params.uuid);
+        if (!interview) {
+            throw 'Interview does not exist';
+        }
+        Audits.updateAudits(interview.id, audits);
+
+        return res.status(200).json({
+            status: 'ok'
+        });
+    } catch (error) {
+        console.log('error updating audits for interview:', error);
         return res.status(500).json({ status: 'Error' });
     }
 });

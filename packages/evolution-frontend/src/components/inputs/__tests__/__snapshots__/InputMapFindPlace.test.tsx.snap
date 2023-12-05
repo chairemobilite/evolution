@@ -24,6 +24,7 @@ exports[`Render InputMapPoint with various parameters Test with all parameters 1
     <button
       className="button refresh-geocode green large"
       id="test_refresh"
+      onKeyDown={[Function]}
       onMouseDown={[Function]}
       onMouseUp={[Function]}
       type="button"

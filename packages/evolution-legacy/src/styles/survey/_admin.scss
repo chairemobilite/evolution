@@ -20,7 +20,33 @@
     }
     
   }
-  
+
+  ._member-survey-keeper {
+    display: flex;
+    gap: 2rem;
+
+    margin: 0.25rem 0;
+
+    button {
+      flex: 1;
+      max-width: 10rem;
+
+      align-items: center;
+      padding: 0.15rem;
+
+      &._member-survey-keeper-left {
+        justify-content: flex-start;
+      }
+
+      &._member-survey-keeper-center {
+        justify-content: center;
+      }
+
+      &._member-survey-keeper-right {
+        justify-content: flex-end;
+      }
+    }
+  }
 }
 
 .admin-widget-container._full-width {
@@ -114,11 +140,11 @@
 .admin__interview-map-and-stats-container {
   display: flex;
   .admin__interview-map-container {
-    width: 70%;
+    width: 50%;
     
   }
   .admin__stats-container {
-    width: 30%;
+    width: 50%;
     padding: 1rem;
   }
 }

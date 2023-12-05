@@ -149,8 +149,6 @@ const customVertical = function <Value>(arr: Value[], custom: number[]): Value[]
  * console.log(customHorizontal([0,1,2,3,4,5], [3,2,1]));
  */
 const customHorizontal = function <Value>(arr: Value[], custom: number[]): Value[][] {
-    console.log(custom);
-
     const len = arr.length;
     const out: any[] = [];
     let index = 0;
@@ -168,7 +166,6 @@ const customHorizontal = function <Value>(arr: Value[], custom: number[]): Value
         }
         newColumn.push(arr[index]);
         index += custom[rowIndex];
-        console.log(custom[rowIndex]);
         rowIndex++;
         if (index >= len || rowIndex >= custom[columnIndex]) {
             columnIndex++;

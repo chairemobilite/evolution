@@ -58,6 +58,19 @@ export const accessCode: SurveyWidgetConfig = {
   inputType: "string",
   datatype: "string",
   containsHtml: true,
+  keyboardInputMode: 'numeric',
+  placeholder: "ex. 1234-5678",
+  inputFilter: (input: string) => {
+    input = input.replace("_", "-"); // change _ to -
+    input = input.replace(/[^-\d]/g, ''); // Remove everything but numbers and -
+    // Get only the digits. If we have 8, we can automatically format the access code.
+    const digits = input.replace(/\D+/g, '');
+    if (digits.length === 8) {
+        return digits.slice(0, 4) + "-" + digits.slice(4);
+    }
+    // Prevent entering more than 9 characters (8 digit access code and a dash)
+    return input.slice(0, 9);
+  },
   label: (t: TFunction) => t('survey:AccessCode')
 }
 
@@ -136,6 +149,7 @@ export const householdCarNumber: SurveyWidgetConfig = {
   twoColumns: true,
   inputType: "string",
   datatype: "integer",
+  keyboardInputMode: 'numeric',
   containsHtml: true,
   label: {
     fr: `Combien de véhicules sont à la disposition d'un ou des membres de votre ménage?<br /><span class="_pale _oblique">Inscrivez "0" si aucun véhicule dans le ménage</span>`,

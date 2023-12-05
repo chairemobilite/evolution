@@ -7,11 +7,11 @@
 import bowser     from 'bowser';
 //import 'whatwg-fetch';
 //import 'promise-polyfill/src/polyfill';
-import _get       from 'lodash.get';
-import _set       from 'lodash.set';
-import _cloneDeep from 'lodash.clonedeep';
-import isEqual    from 'lodash.isequal';
-import _unset     from 'lodash.unset';
+import _get       from 'lodash/get';
+import _set       from 'lodash/set';
+import _cloneDeep from 'lodash/cloneDeep';
+import isEqual    from 'lodash/isEqual';
+import _unset     from 'lodash/unset';
 
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
 // TODO Default options for retry are as high as 15 seconds, during which the
@@ -47,6 +47,13 @@ export const updateSection = updateSectionTs;
 export const startUpdateInterview = startUpdateInterviewTs;
 export const updateInterview = updateInterviewTs;
 
+/**
+ * Fetch an interview from server and set it for edition in validation mode.
+ * 
+ * @param {*} interviewUuid The uuid of the interview to open
+ * @param {*} callback 
+ * @returns 
+ */
 export const startSetSurveyValidateInterview = (interviewUuid, callback = function() {}) => {
   return (dispatch, getState) => {
     return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
@@ -59,18 +66,7 @@ export const startSetSurveyValidateInterview = (interviewUuid, callback = functi
           if (body.interview)
           {
             const interview = body.interview;
-            if (interview.is_frozen !== true) // we put validated_data into responses and responses into _responses
-            {
-              interview.responses = _cloneDeep(interview._responses);
-              dispatch(startUpdateSurveyValidateInterview('home', {
-                responses: _cloneDeep(interview._responses),
-                is_frozen: true
-              }, null, interview, callback));
-            }
-            else
-            {
-              dispatch(startUpdateSurveyValidateInterview('home', {}, null, interview, callback));
-            }
+            dispatch(startUpdateSurveyValidateInterview('home', {}, null, interview, callback));
 
           }
         });
@@ -82,33 +78,15 @@ export const startSetSurveyValidateInterview = (interviewUuid, callback = functi
   };
 };
 
-export const startResetSurveyValidateInterview = (interviewUuid, callback = function() {}) => {
-  return (dispatch, getState) => {
-    return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
-      credentials: 'include'
-    })
-    .then((response) => {
-
-      if (response.status === 200) {
-        response.json().then((body) => {
-          if (body.interview)
-          {
-            const interview     = body.interview;
-            interview.responses = _cloneDeep(interview._responses);
-            dispatch(startUpdateSurveyValidateInterview('home', {
-              responses: _cloneDeep(interview._responses),
-              is_frozen: true
-            }, null, interview, callback));
-          }
-        });
-      }
-    })
-    .catch((err) => {
-      surveyHelperNew.devLog('Error fetching interview to reset.', err);
-    });
-  };
-};
-
+/**
+ * Fetch an interview from server and set it for display in a one page summary.
+ * 
+ * TODO Only the section ('home', 'validationOnePager') is different from 'startSetSurveyValidateInterview' Re-use
+ * 
+ * @param {*} interviewUuid The uuid of the interview to open
+ * @param {*} callback 
+ * @returns 
+ */
 export const startSetValidateInterview = (interviewUuid, callback = function() {}) => {
   return (dispatch, getState) => {
     return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
@@ -121,18 +99,7 @@ export const startSetValidateInterview = (interviewUuid, callback = function() {
           if (body.interview)
           {
             const interview = body.interview;
-            if (interview.is_frozen !== true) // we put validated_data into responses and responses into _responses
-            {
-              interview.responses = _cloneDeep(interview._responses);
-              dispatch(startUpdateValidateInterview('validationOnePager', {
-                responses: _cloneDeep(interview._responses),
-                is_frozen: true
-              }, null, interview, callback));
-            }
-            else
-            {
-              dispatch(startUpdateValidateInterview('validationOnePager', {}, null, interview, callback));
-            }
+            dispatch(startUpdateValidateInterview('validationOnePager', {}, null, interview, callback));
 
           }
         });
@@ -144,9 +111,17 @@ export const startSetValidateInterview = (interviewUuid, callback = function() {
   };
 };
 
+/**
+ * Fetch an interview from server and re-initialize the validated_data to the
+ * participant's responses, but keeping the validation comments.
+ *
+ * @param {*} interviewUuid The uuid of the interview to open
+ * @param {*} callback 
+ * @returns 
+ */
 export const startResetValidateInterview = (interviewUuid, callback = function() {}) => {
   return (dispatch, getState) => {
-    return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
+    return fetch(`/api/survey/validateInterview/${interviewUuid}?reset=true`, {
       credentials: 'include'
     })
     .then((response) => {
@@ -156,17 +131,7 @@ export const startResetValidateInterview = (interviewUuid, callback = function()
           if (body.interview)
           {
             const interview     = body.interview;
-            // TODO This should be done server side and the copy to validated_data should include the audit
-            // Keep the _validationComment from current responses, then copy original responses
-            const validationComment = interview.responses ? interview.responses._validationComment : undefined;
-            interview.responses = _cloneDeep(interview._responses);
-            if (validationComment) {
-                interview.responses._validationComment = validationComment;
-            }
-            dispatch(startUpdateValidateInterview('validationOnePager', {
-              responses: _cloneDeep(interview.responses),
-              is_frozen: true
-            }, null, interview, callback));
+            dispatch(startUpdateValidateInterview('validationOnePager', {}, null, interview, callback));
           }
         });
       }
@@ -517,6 +482,14 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
           }
           return null;
         }
+
+        const updateBody = {
+          id          : interview.id,
+          participant_id: interview.participant_id,
+          valuesByPath: valuesByPath,
+          unsetPaths  : unsetPaths,
+        }
+
         const response = await fetch(`/api/survey/updateValidateInterview/${interview.uuid}`, {
           headers: {
             'Accept': 'application/json',
@@ -524,16 +497,12 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
           },
           credentials: 'include',
           method: "POST",
-          body: JSON.stringify({
-            id          : interview.id,
-            participant_id: interview.participant_id,
-            valuesByPath: valuesByPath,
-            unsetPaths  : unsetPaths,
-          })
+          body: JSON.stringify(updateBody)
         })
 
         if (response.status === 200) {
           const body = await response.json();
+
           if (body.status === 'success' && body.interviewId === interview.uuid)
           {
             //surveyHelperNew.devLog('Interview saved to db');

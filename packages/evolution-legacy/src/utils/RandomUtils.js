@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import random     from 'random';
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { randomFromDistribution } from 'chaire-lib-common/lib/utils/RandomUtils';

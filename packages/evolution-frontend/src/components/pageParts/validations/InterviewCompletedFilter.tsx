@@ -7,7 +7,7 @@
 import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FilterProps } from 'react-table';
-import _isEqual from 'lodash.isequal';
+import _isEqual from 'lodash/isEqual';
 
 import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
 
@@ -25,7 +25,7 @@ export const InterviewCompletedFilter = <CustomSurvey, CustomHousehold, CustomHo
     const currentSelection = Object.keys(options).find((key) => _isEqual(filterValue, options[key]));
 
     return (
-        <div>
+        <div style={{ display: 'flex', margin: '2px 0' }}>
             <label htmlFor={'surveyValidation-filter-completed'}>{t('admin:interviewCompletedFilter:title')}</label>
             <select
                 id={'surveyValidation-filter-completed'}

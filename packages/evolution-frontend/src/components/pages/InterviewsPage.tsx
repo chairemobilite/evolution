@@ -6,13 +6,22 @@
  */
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, RouteComponentProps } from 'react-router-dom';
+import InterviewsCreateLink from '../pageParts/interviews/InterviewsCreateLink';
 
-export const InterviewsPage: React.FunctionComponent<WithTranslation> = (props: WithTranslation) => (
-    <div className="admin">
-        {props.t('admin:interviewers:InterviewersPage')} -{' '}
-        <Link to={'/interviews/byCode'}>{props.t('admin:interviewSearch:SearchByCode')}</Link>
-    </div>
-);
+export const InterviewsPage: React.FunctionComponent<WithTranslation & RouteComponentProps> = (
+    props: WithTranslation & RouteComponentProps
+) => {
+    const urlSearch = new URLSearchParams(props.location.search);
+    return (
+        <div className="admin">
+            <div className="survey-section__content apptr__form-container">
+                <h1>{props.t('admin:interviewers:InterviewsSearchAndEdit')}</h1>
+                <Link to={'/interviews/byCode'}>{props.t('admin:interviewSearch:SearchByCode')}</Link>
+                <InterviewsCreateLink queryData={urlSearch} />
+            </div>
+        </div>
+    );
+};
 
 export default withTranslation(['admin'])(InterviewsPage);

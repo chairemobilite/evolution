@@ -1,7 +1,7 @@
-import _set from 'lodash.set';
-import sortBy from 'lodash.sortby';
-import isEqual from 'lodash.isequal';
-import _cloneDeep from 'lodash.clonedeep';
+import _set from 'lodash/set';
+import sortBy from 'lodash/sortBy';
+import isEqual from 'lodash/isEqual';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -41,7 +41,7 @@ const prepareGroupedWidgets = <CustomSurvey, CustomHousehold, CustomHome, Custom
     path: string
 ) => {
     const allGroupedObjects = surveyHelper.getResponse(data.interview, path, {});
-    const groupedObjects =
+    const groupedObjects: { _uuid: string; _sequence: number }[] =
         typeof widgetConfig.filter === 'function'
             ? widgetConfig.filter(data.interview, allGroupedObjects)
             : allGroupedObjects;
@@ -159,7 +159,10 @@ const prepareSimpleWidget = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
             value === undefined ||
             (widgetConfig.updateDefaultValueWhenResponded === true && !pointHasMoved))
     ) {
-        const defaultValue = surveyHelper.parse(widgetConfig.defaultValue, data.interview, path, data.user);
+        const defaultValue =
+            widgetConfig.useAssignedValueOnHide && !_isBlank(assignedValue)
+                ? assignedValue
+                : surveyHelper.parse(widgetConfig.defaultValue, data.interview, path, data.user);
         if (value !== defaultValue) {
             surveyHelper.setResponse(data.interview, path, defaultValue);
             data.valuesByPath['responses.' + path] = defaultValue;

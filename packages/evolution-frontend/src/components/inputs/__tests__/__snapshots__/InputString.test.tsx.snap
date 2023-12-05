@@ -24,10 +24,12 @@ exports[`Should correctly render InputString with all parameters 1`] = `
   autoComplete="none"
   className="apptr__form-input apptr__input-string input-medium"
   id="test"
+  inputMode="decimal"
   maxLength={20}
   name="test"
   onBlur={[Function]}
   onChange={[Function]}
+  placeholder="example placeholder"
   style={
     Object {
       "textTransform": "lowercase",

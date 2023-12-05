@@ -6,6 +6,7 @@
  */
 import serverValidation from '../serverValidation';
 import each from 'jest-each';
+import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 
 const validations = {
     testField: {
@@ -21,6 +22,19 @@ const validations = {
     }
 };
 
+const interviewAttributes: InterviewAttributes<unknown, unknown, unknown, unknown> = {
+    uuid: 'arbitrary',
+    id: 4,
+    participant_id: 4,
+    is_valid: true,
+    is_active: true,
+    is_completed: false,
+    is_questionable: false,
+    responses: {},
+    validations: {},
+    logs: []
+};
+
 describe('With validation testField', () => {
     each([
         ['Not validated field', { 'responses.someField': 'abc'}, true],
@@ -29,10 +43,10 @@ describe('With validation testField', () => {
         ['Invalid client side', { 'validations.testField': false, 'responses.testField': '122'}, true],
         ['No data', { }, true],
     ]).test('%s', async (_description, valuesByPath, result) => {
-        expect(await serverValidation(validations, valuesByPath, [])).toEqual(result);
+        expect(await serverValidation(interviewAttributes, validations, valuesByPath, [])).toEqual(result);
     });
 });
 
 test('No server validation', async () => {
-    expect(await serverValidation(undefined, { someField: 'abc' }, [])).toEqual(true);
+    expect(await serverValidation(interviewAttributes, undefined, { someField: 'abc' }, [])).toEqual(true);
 });

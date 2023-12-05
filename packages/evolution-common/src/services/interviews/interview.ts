@@ -4,10 +4,10 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _get from 'lodash.get';
-import _set from 'lodash.set';
-import _isEqual from 'lodash.isequal';
-import _cloneDeep from 'lodash.clonedeep';
+import _get from 'lodash/get';
+import _set from 'lodash/set';
+import _isEqual from 'lodash/isEqual';
+import _cloneDeep from 'lodash/cloneDeep';
 
 type Required<T> = { [P in keyof T]-?: T[P] };
 // This recursive generic type is taken from this stack overflow question:
@@ -102,6 +102,7 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
     _updatedAt?: number;
     _language?: string;
     _isCompleted?: boolean;
+    _completedAt?: number;
 
     _sections?: {
         [sectionName: string]: SectionStatus & {
@@ -129,6 +130,7 @@ type ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     CustomHome,
     CustomPerson
 > & {
+    _validatedDataCopiedAt?: number;
     _validationComment?: string;
 };
 
@@ -151,6 +153,7 @@ export interface UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHo
     responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     validations: InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     is_valid: boolean;
+    is_questionable?: boolean;
     userRoles?: string[];
 }
 
@@ -169,6 +172,7 @@ export interface InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, 
     validated_data?: ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     audits?: InterviewAudits;
     is_validated?: boolean;
+    is_questionable?: boolean;
     is_frozen?: boolean;
     // TODO Type the following fields to date times
     start_at?: string;
@@ -186,6 +190,7 @@ export interface InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHo
     is_valid?: boolean;
     is_completed?: boolean;
     is_validated?: boolean;
+    is_questionable?: boolean;
     username: string;
     facebook: boolean;
     google: boolean;

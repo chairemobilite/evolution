@@ -8,8 +8,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import moment from 'moment-business-days';
-import _get from 'lodash.get';
-import isEqual from 'lodash.isequal';
+import _get from 'lodash/get';
+import isEqual from 'lodash/isEqual';
 import {
     lineString as turfLineString,
     distance as turfDistance,
@@ -26,7 +26,7 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import Section from '../../survey/Section';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import ConfirmModal from '../../survey/modal/ConfirmModal';
+import FormErrors from 'chaire-lib-frontend/lib/components/pageParts/FormErrors';
 import LoadingPage from '../../shared/LoadingPage';
 import ValidationLinks from './ValidationLinks';
 import { startSetValidateInterview, startUpdateValidateInterview, startResetValidateInterview, startValidateAddGroupedObjects, startValidateRemoveGroupedObjects } from '../../../actions/survey/survey';
@@ -48,7 +48,7 @@ if (InterviewMap === undefined) {
 let validations = appConfig.getAdminValidations();
 console.log('validations', validations);
 
-export class ValidationSurvey extends React.Component {
+export class ValidationOnePageSummary extends React.Component {
     static contextType = InterviewContext;
 
     constructor(props) {
@@ -554,6 +554,7 @@ export class ValidationSurvey extends React.Component {
                                     handleInterviewSummaryChange={this.props.handleInterviewSummaryChange}
                                     updateValuesByPath={this.updateValuesByPath}
                                     interviewIsValid={this.props.interview.is_valid}
+                                    interviewIsQuestionable={this.props.interview.is_questionable}
                                     interviewIsComplete={this.props.interview.is_completed}
                                     interviewIsValidated={this.props.interview.is_validated}
                                     interviewUuid={this.props.interview.uuid}
@@ -564,6 +565,10 @@ export class ValidationSurvey extends React.Component {
                                     user={this.props.user}
                                     t={this.props.t}
                                 />
+                                { this.props.interview.validationDataDirty && <FormErrors
+                                    errors={[this.props.t(['admin:ValidationDataDirty'])]}
+                                    errorType="Warning"
+                                />}
                                 {household && <InterviewStats
                                     key={this.props.interview.id}
                                     selectPlace={this.selectPlace}
@@ -611,4 +616,4 @@ const mapDispatchToProps = (dispatch, props) => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withTranslation()(withSurveyContext(ValidationSurvey)));
+)(withTranslation()(withSurveyContext(ValidationOnePageSummary)));

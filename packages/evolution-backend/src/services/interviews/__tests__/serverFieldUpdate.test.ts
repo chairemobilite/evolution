@@ -17,6 +17,7 @@ const interviewAttributes = {
     is_valid: true,
     is_active: true,
     is_completed: false,
+    is_questionable: false,
     responses: {
         accessCode: '11111',
         testFields: {

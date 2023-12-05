@@ -6,7 +6,7 @@
  */
 import each from 'jest-each';
 import i18n from 'i18next';
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 import { Person, UserInterviewAttributes } from '../../services/interviews/interview';
 
 import * as Helpers from '../helpers';
@@ -32,6 +32,7 @@ const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknow
     uuid: 'arbitrary uuid',
     participant_id: 1,
     is_completed: false,
+    is_questionable: false,
     responses: {
         section1: {
             q1: 'abc',
@@ -70,6 +71,7 @@ const interviewAttributes2: UserInterviewAttributes<any, any, any, any> = {
     uuid: 'arbitrary uuid',
     participant_id: 1,
     is_completed: false,
+    is_questionable: false,
     responses: {
         section1: {
             q1: 'abc',

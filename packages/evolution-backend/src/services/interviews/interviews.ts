@@ -20,7 +20,7 @@ import {
 import { UserInterviewAccesses } from '../logging/loggingTypes';
 
 const getFiltersForDb = (
-    filter: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
+    filter: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'questionable' | 'all' } & {
         [key: string]: string | { value: string | boolean | number | null; op?: keyof OperatorSigns };
     }
 ): {
@@ -45,6 +45,9 @@ const getFiltersForDb = (
         break;
     case 'notValidated':
         actualFilters.is_valid = { value: null, op: 'eq' };
+        break;
+    case 'questionable':
+        actualFilters.is_questionable = { value: true, op: 'eq' };
         break;
     default:
         // No filter required

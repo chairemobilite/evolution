@@ -4,8 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _set from 'lodash.set';
-import _unset from 'lodash.unset';
+import _set from 'lodash/set';
+import _unset from 'lodash/unset';
+import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import serverValidate, { ServerValidation } from '../validations/serverValidation';
@@ -14,6 +15,7 @@ import config from 'chaire-lib-backend/lib/config/server.config';
 import interviewsDbQueries from '../../models/interviews.db.queries';
 import { UserInterviewAttributes, InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import projectConfig from '../../config/projectConfig';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 export const addRolesToInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
@@ -75,7 +77,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
         logDatabaseUpdates?: boolean;
         valuesByPath: { [key: string]: unknown };
         unsetPaths?: string[];
-        serverValidations?: ServerValidation;
+        serverValidations?: ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
         fieldsToUpdate?: (keyof InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)[];
         logData?: { [key: string]: unknown };
     }
@@ -93,6 +95,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
     const fieldsToUpdate = options.fieldsToUpdate || ['responses', 'validations'];
     const logData = options.logData || {};
     const serverValidations = await serverValidate(
+        interview,
         options.serverValidations,
         options.valuesByPath,
         options.unsetPaths || []
@@ -151,6 +154,25 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
         databaseUpdateJson.logs = interview.logs;
     }
 
+    // Freeze the interviews when they are marked validated or completed (the participant won't be able to change the answers anymore)
+    if (!_isBlank(databaseUpdateJson.is_valid) || !_isBlank(databaseUpdateJson.is_completed)) {
+        databaseUpdateJson.is_frozen = true;
+    }
     const retInterview = await interviewsDbQueries.update(interview.uuid, databaseUpdateJson);
     return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath };
+};
+
+export const copyResponsesToValidatedData = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => {
+    // TODO The frontend code that was replaced by this method said: // TODO The copy to validated_data should include the audit
+
+    // Keep the _validationComment from current validated_data, then copy original responses
+    const validationComment = interview.validated_data ? interview.validated_data._validationComment : undefined;
+    interview.validated_data = _cloneDeep(interview.responses);
+    interview.validated_data._validatedDataCopiedAt = moment().unix();
+    if (validationComment) {
+        interview.validated_data._validationComment = validationComment;
+    }
+    await interviewsDbQueries.update(interview.uuid, { validated_data: interview.validated_data });
 };

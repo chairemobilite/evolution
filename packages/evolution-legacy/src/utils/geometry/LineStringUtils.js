@@ -9,7 +9,7 @@ import {
     buffer as turfBuffer,
     bearing, destination, lineIntersect, lineSlice
 } from '@turf/turf';
-import _cloneDeep                       from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 
 const offset = function(lineString, offsetMeters) {
   const coordinatesCount                      = lineString.geometry.coordinates.length;

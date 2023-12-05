@@ -7,7 +7,7 @@
 import React                          from 'react';
 import { withTranslation }            from 'react-i18next';
 import moment                         from 'moment-business-days';
-import _get                           from 'lodash.get';
+import _get                           from 'lodash/get';
 import { FontAwesomeIcon }            from '@fortawesome/react-fontawesome';
 import { faCheck }                    from '@fortawesome/free-solid-svg-icons/faCheck';
 import { faTimes }                    from '@fortawesome/free-solid-svg-icons/faTimes';
@@ -36,6 +36,7 @@ import demoSurveyHelper from '../../../helpers/survey/helper';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationErrors from './ValidationErrors';
+import KeepDiscard from './KeepDiscard';
 
 class InterviewStats extends React.Component {
 
@@ -45,6 +46,12 @@ class InterviewStats extends React.Component {
     //  parsed: false
     //};
     this.validations = appConfig.getAdminValidations();
+
+    this.keepDiscard = ({ choice, personId }) => {
+        const valuesByPath = {};
+        valuesByPath[`responses.household.persons.${personId}.keepDiscard`] = choice;
+        this.props.startUpdateInterview(undefined, valuesByPath, null, null);
+    }
   }
 
   componentDidMount() {
@@ -75,7 +82,6 @@ class InterviewStats extends React.Component {
     const personsStats = [];
     for (const personId in persons)
     {
-
       const person       = persons[personId];
       const personErrors = demoSurveyHelper.validatePerson(this.validations.person, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person);
       
@@ -184,9 +190,10 @@ class InterviewStats extends React.Component {
         tripsStats.push(tripStats);
       }
       
-
-      const personStats = (
-        <div className="_widget_container" key={personId}>
+      const personStats = (        
+        <details open={household.persons[personId].keepDiscard !== KeepDiscard.DISCARD} className="_widget_container" key={personId}>
+          <KeepDiscard personId={personId} choice={household.persons[personId].keepDiscard} onChange={this.keepDiscard} />
+          <summary>{person.gender} {person.age} ans</summary>
           <span className="_widget"><FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />{person.age} ans</span>
           <span className="_widget">{person.gender}</span>
           <span className="_widget">{person.occupation}</span>
@@ -229,7 +236,7 @@ class InterviewStats extends React.Component {
 
           {tripsStats}
 
-        </div>
+        </details>
       );
       personsStats.push(personStats);
     }
@@ -286,14 +293,8 @@ class InterviewStats extends React.Component {
           <p className="_scrollable _oblique _small">{household.commentsOnSurvey || "Aucun commentaire"}</p>
         </div>
       </React.Fragment>
-    );
-    
+    ); 
   }
-
 }
 
-
-
-
-
-export default withTranslation()(withSurveyContext(InterviewStats))
+export default withTranslation()(withSurveyContext(InterviewStats));

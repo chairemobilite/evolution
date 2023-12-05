@@ -38,7 +38,7 @@ export type InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, Cu
     widgetConfig: InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 };
 
-interface InputMapFindPlaceState {
+interface InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     geocoding: boolean;
     geocodingQueryString?: string;
     defaultCenter: any;
@@ -64,7 +64,7 @@ interface InputMapFindPlaceState {
  */
 export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
     InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
-    InputMapFindPlaceState
+    InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
 > {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
     private autoConfirmIfSingleResult: boolean;
@@ -79,6 +79,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
 
         this.onSearchPlaceButtonMouseDown = this.onSearchPlaceButtonMouseDown.bind(this);
         this.onSearchPlaceButtonMouseUp = this.onSearchPlaceButtonMouseUp.bind(this);
+        this.onSearchPlaceButtonKeyDown = this.onSearchPlaceButtonKeyDown.bind(this);
 
         // get initial map center from current value or widget config (can be a function)
         const defaultCenter = props.value
@@ -124,6 +125,13 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
         e.preventDefault();
         if (this.props.loadingState === 0) {
             this.setState({ searchPlaceButtonWasMouseDowned: false }, this.onButtonFindPlaceClick);
+        }
+    }
+
+    onSearchPlaceButtonKeyDown(e) {
+        e.preventDefault();
+        if (e.key === 'enter' || e.key === 'space' || e.which === 13 || e.which === 32) {
+            this.onButtonFindPlaceClick();
         }
     }
 
@@ -314,6 +322,24 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
         const maxZoom = this.props.widgetConfig.maxZoom || 18;
         const places = this.state.places;
 
+        const showSearchPlaceButton = this.props.widgetConfig.showSearchPlaceButton
+            ? surveyHelper.parseBoolean(
+                this.props.widgetConfig.showSearchPlaceButton,
+                this.props.interview,
+                this.props.path,
+                this.props.user
+            )
+            : true;
+
+        const searchPlaceButtonColor = this.props.widgetConfig.searchPlaceButtonColor
+            ? surveyHelper.parseString(
+                this.props.widgetConfig.searchPlaceButtonColor,
+                this.props.interview,
+                this.props.path,
+                this.props.user
+            )
+            : 'green';
+
         const placesIconUrl = this.props.widgetConfig.placesIcon
             ? surveyHelper.parseString(
                 this.props.widgetConfig.placesIcon.url,
@@ -409,7 +435,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                     readOnly={true}
                     ref={this.props.inputRef}
                 />
-                {this.props.widgetConfig.refreshGeocodingLabel && (
+                {this.props.widgetConfig.refreshGeocodingLabel && showSearchPlaceButton !== false && (
                     <div
                         style={{
                             display: 'flex',
@@ -421,9 +447,10 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                         <button
                             id={`${this.props.id}_refresh`}
                             type="button"
-                            className="button refresh-geocode green large"
+                            className={`button refresh-geocode ${searchPlaceButtonColor} large`}
                             onMouseDown={this.onSearchPlaceButtonMouseDown}
                             onMouseUp={this.onSearchPlaceButtonMouseUp}
+                            onKeyDown={this.onSearchPlaceButtonKeyDown}
                             ref={this.geocodeButtonRef}
                         >
                             <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />

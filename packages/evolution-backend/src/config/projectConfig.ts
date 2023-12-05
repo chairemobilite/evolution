@@ -4,7 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import {
+    InterviewAttributes,
     InterviewListAttributes,
     InterviewStatusAttributesBase
 } from 'evolution-common/lib/services/interviews/interview';
@@ -20,8 +22,16 @@ interface ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomP
         interview: InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     ) => InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     serverUpdateCallbacks: ServerFieldUpdateCallback[];
-    serverValidations: ServerValidation;
+    serverValidations: ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     roleDefinitions: (() => void) | undefined;
+    /**
+     * This function is provided by surveys to validate and audit the complete responses.
+     * It will receive the content of the validated_data and should return the
+     * individual audits. It is optional. If the survey does not require auditing, just leave blank.
+     */
+    auditInterview?: (
+        attributes: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+    ) => Promise<AuditForObject[]>;
 }
 
 export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unknown> = {
@@ -29,9 +39,11 @@ export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unkno
         const {
             id,
             uuid,
+            created_at,
             is_valid,
             is_completed,
             is_validated,
+            is_questionable,
             username,
             facebook,
             google,
@@ -42,9 +54,11 @@ export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unkno
         return {
             id,
             uuid,
+            created_at,
             is_valid,
             is_completed,
             is_validated,
+            is_questionable,
             username,
             facebook,
             google,
@@ -58,7 +72,8 @@ export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unkno
     },
     serverUpdateCallbacks: [],
     serverValidations: undefined,
-    roleDefinitions: undefined
+    roleDefinitions: undefined,
+    auditInterview: undefined
 };
 
 const projectConfig = Object.assign({}, defaultConfig);

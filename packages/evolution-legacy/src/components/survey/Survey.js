@@ -8,7 +8,7 @@ import React               from 'react';
 import { connect }         from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import moment              from 'moment-business-days';
-import _get                from 'lodash.get';
+import _get                from 'lodash/get';
 
 import config                                                                                         from 'chaire-lib-common/lib/config/shared/project.config';
 import Preferences from 'chaire-lib-common/lib/config/Preferences';
@@ -43,7 +43,6 @@ export class Survey extends React.Component {
     this.openConfirmModal  = this.openConfirmModal.bind(this);
     this.closeConfirmModal = this.closeConfirmModal.bind(this);
     this.onChangeSection   = this.onChangeSection.bind(this);
-    this.onKeyPress        = this.onKeyPress.bind(this);
   }
 
   openConfirmModal(confirmModalShortname, e) {
@@ -72,13 +71,6 @@ export class Survey extends React.Component {
     Preferences.load().then(() => {
         this.setState({ preferencesLoaded: true })
     });
-  }
-
-  onKeyPress(e) {
-    if (e.which === 13 && e.target.tagName.toLowerCase() !== 'textarea' /* Enter */)
-    {
-      e.preventDefault();
-    }
   }
 
   onChangeSection(parentSection, activeSection, allWidgetsValid, e) {
@@ -181,7 +173,7 @@ export class Survey extends React.Component {
                   containsHtml       = {false}
                 />
               </div>)}
-              <form onKeyPress={this.onKeyPress} className="apptr__form" id="survey_form" style={customStyle} autoComplete="off">
+              <form onSubmit={(e) => e.preventDefault() } className="apptr__form" id="survey_form" style={customStyle} autocomplete="off">
                 <SectionComponent
                   key                         = {sectionShortname}
                   loadingState                = {this.props.loadingState}

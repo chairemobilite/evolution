@@ -8,9 +8,9 @@ import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
 import Interview from './InterviewSearchResult';
-import InterviewsCreateNew from './InterviewsCreateNew';
 import { InterviewContext } from '../../../contexts/InterviewContext';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import InterviewsCreateLink from './InterviewsCreateLink';
 
 type InterviewSearchListProps = {
     autoCreateIfNoData: boolean;
@@ -85,25 +85,7 @@ const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & Wi
             {data.map((interview) => (
                 <Interview key={interview.uuid} interview={interview} />
             ))}
-            {state.status !== 'creating' && (
-                <a
-                    href=""
-                    id={'interviewByResponseList_new'}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        dispatch({
-                            type: 'createNew',
-                            username: `telephone_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`,
-                            queryData: props.queryData
-                        });
-                    }}
-                >
-                    {props.t('admin:interviewSearch:CreateNew')}
-                </a>
-            )}
-            {state.status === 'creating' && <InterviewsCreateNew />}
+            <InterviewsCreateLink queryData={props.queryData} />
         </ul>
     );
 };

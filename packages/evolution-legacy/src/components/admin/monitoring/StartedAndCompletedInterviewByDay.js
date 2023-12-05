@@ -7,7 +7,7 @@
 import React               from 'react';
 import { withTranslation } from 'react-i18next';
 import ReactHighcharts     from 'react-highcharts';
-import _max                from 'lodash.max';
+import _max                from 'lodash/max';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 
@@ -168,7 +168,7 @@ class StartedAndCompletedInterviewsByDay extends React.Component {
     const completionRate = this.state.data.startedCount > 0 ? this.state.data.completedCount / this.state.data.startedCount : null;
 
     return (
-      <div className="admin-widget-container" style={{width: `${Math.max(250, this.state.data.dates.length * 30 + 150)}px`}}>
+      <div className="admin-widget-container" style={{width: `${Math.min(1600, Math.max(250, this.state.data.dates.length * 30 + 150))}px`}}>
         <ReactHighcharts 
 
           config   = {chartOptions}

@@ -8,7 +8,7 @@ import React               from 'react';
 import { withTranslation } from 'react-i18next';
 import Loadable            from 'react-loadable';
 import Loader              from 'react-spinners/HashLoader';
-import _get                from 'lodash.get';
+import _get                from 'lodash/get';
 
 //import config from 'chaire-lib-common/lib/config/shared/project.config';
 

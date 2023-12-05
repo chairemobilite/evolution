@@ -29,7 +29,12 @@ export type ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, Custom
     path: string,
     customPath?: string,
     user?: CliUser
-) => { validation: boolean; errorMessage: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> }[];
+) => {
+    validation: boolean;
+    errorCode?: string;
+    errorMessage: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    isWarning?: boolean; // For now, used only in admin validations and auditing. Will be displayed differently in audits.
+}[];
 
 export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
     inputType: 'string';
@@ -38,6 +43,10 @@ export type InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPer
     datatype?: 'string' | 'integer' | 'float';
     size?: 'large' | 'small' | 'medium';
     textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+    placeholder?: string;
+    inputFilter?: (input: string) => string;
+    // See https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode for the effect of the different options.
+    keyboardInputMode?: 'none' | 'text' | 'numeric' | 'decimal' | 'tel' | 'search' | 'email' | 'url';
 };
 
 export type InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
@@ -284,6 +293,7 @@ export type InputMapPointType<CustomSurvey, CustomHousehold, CustomHome, CustomP
     CustomPerson
 > & {
     inputType: 'mapPoint';
+    showSearchPlaceButton?: boolean | ParsingFunction<boolean, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 };
 
 export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = InputMapType<
@@ -293,6 +303,8 @@ export type InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, Cus
     CustomPerson
 > & {
     inputType: 'mapFindPlace';
+    showSearchPlaceButton?: boolean | ParsingFunction<boolean, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    searchPlaceButtonColor?: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     placesIcon?: {
         url: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
         size?: [number, number];
@@ -319,6 +331,14 @@ export type QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, Cust
     path: InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
     containsHtml?: boolean;
     label: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+
+    /**
+     * When the conditional triggers a hide status and then a show status later on,
+     * instead of reverting to default or empty value, use the assigned value of the conditional:
+     * this is useful when we want to hide a widget but keep its assigned value intact after hide/show toggle.
+     */
+    useAssignedValueOnHide?: boolean;
+
     helpPopup?: {
         title: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
         content: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;

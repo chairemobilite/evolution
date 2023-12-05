@@ -47,12 +47,20 @@ export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             style={{ textTransform: props.widgetConfig.textTransform || ('none' as any) }}
             autoComplete="none"
             type="text"
+            placeholder={props.widgetConfig.placeholder}
+            inputMode={props.widgetConfig.keyboardInputMode}
             className={`apptr__form-input apptr__input-string input-${props.widgetConfig.size || 'large'}`}
             name={props.id}
             id={props.id}
             value={value}
             onBlur={props.onValueChange}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) =>
+                setValue(
+                    !_isBlank(props.widgetConfig.inputFilter)
+                        ? props.widgetConfig.inputFilter!(e.target.value)
+                        : e.target.value
+                )
+            }
             ref={props.inputRef}
             maxLength={props.widgetConfig.maxLength ? props.widgetConfig.maxLength : 255}
         />

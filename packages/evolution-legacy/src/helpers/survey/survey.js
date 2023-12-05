@@ -5,9 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { v4 as uuidV4 } from 'uuid';
-import _get from 'lodash.get';
-import _set from 'lodash.set';
-import sortBy from 'lodash.sortby';
+import _get from 'lodash/get';
+import sortBy from 'lodash/sortBy';
 
 import sharedHelper from '../shared/shared';
 import * as Helpers from 'evolution-common/lib/utils/helpers';
@@ -125,12 +124,11 @@ export default {
         changedValuesByPath[`responses.${path}.${groupedObject._uuid}._sequence`] = seq + newObjectsCount;
       }
     }
-    for (let i = 0; i < newObjectsCount; i++)
+    for (let i = 0; i < newObjectsCount; i++)
     {
       const uniqueId            = uuidV4();
       const newSequence         = insertSequence + i;
       const newObjectAttributes = attributes[i] ? attributes[i] : {};
-      changedValuesByPath[`responses.${path}.${uniqueId}`] = {'_sequence': newSequence, '_uuid': uniqueId, ...newObjectAttributes};
       changedValuesByPath[`responses.${path}.${uniqueId}`] = {'_sequence': newSequence, '_uuid': uniqueId, ...newObjectAttributes};
       changedValuesByPath[`validations.${path}.${uniqueId}`] = {};
     }

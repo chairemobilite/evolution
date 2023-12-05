@@ -1,4 +1,6 @@
 {
+  "ShowInterviewList": "Afficher la liste des entrevues",
+  "HideInterviewList": "Cacher la liste des entrevues",
   "StartedFem": "Débutées",
   "Started": "Débutés",
   "CompletedFem": "Complétées",
@@ -20,6 +22,8 @@
   "SetIncomplete": "Rendre incomplète",
   "SetIsValidated": "Rendre validé et confirmé",
   "SetIsValidatedEmpty": "Désactiver validé et confirmé",
+  "SetQuestionable": "Rendre questionable",
+  "UnsetQuestionable": "Enlever questionable",
   "ShowMore": "Montrer plus",
   "ReloadCache": "Rafraîchir",
   "household": "ménage",
@@ -46,6 +50,8 @@
   "nextInterview": "Voir prochaine entrevue",
   "validatorComment": "Commentaire de validation",
   "refreshValidationList": "Rafraîchir la liste",
+  "unauthorized": "Vous n'êtes pas autorisé à accéder à ces données",
+  "ValidationDataDirty": "Les réponses du participant ont été modifiées depuis la copie pour validation. Vous pouvez cliquer sur l'icône de réinitialisation pour re-copier les données de l'enquête du participant.",
   "user": {
     "Username": "Nom d'utilisateur",
     "Email": "Courriel",
@@ -64,8 +70,7 @@
     "SearchByCode": "Chercher par code d'accès"
   },
   "interviewers": {
-    "InterviewersPage": "Page des intervieweurs",
-    "NothingToDo": "Aucune fonctionnalité disponible présentement"
+    "InterviewsSearchAndEdit": "Recherche et édition d'enquêtes"
   },
   "validationFilters": {
     "title": "Valides?",
@@ -73,7 +78,8 @@
     "invalid": "Invalides seulement",
     "valid": "Valides seulement",
     "notValidated": "Non validées seulement",
-    "notInvalid": "Cacher invalides"
+    "notInvalid": "Cacher invalides",
+    "questionable": "Montrer seulement questionables"
   },
   "interviewCompletedFilter": {
     "title": "Complètes?",
@@ -81,7 +87,23 @@
     "true": "Complètes",
     "false": "Incomplètes"
   },
+  "interviewByCodeFilter": {
+    "title": "Code d'accès",
+    "button": "Filtrer par code d'accès"
+  },
+  "interviewByDateFilter": {
+    "title": "Date d'entrevue",
+    "placeholder": "Sélectionner une période"
+  },
   "auditErrorFilter": {
     "title": "Erreurs"
+  },
+  "interviewer": {
+    "refreshInterviewerCache": "Rafraîchir la cache interviewer",
+    "error": "Une erreur s'est produite en rafraîchissant la cache"
+  },
+  "interviewMember": {
+    "Keep": "Garder",
+    "Discard": "Écarter"
   }
 }

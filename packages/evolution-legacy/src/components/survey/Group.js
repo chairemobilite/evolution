@@ -8,9 +8,9 @@ import React               from 'react';
 import { withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle }    from '@fortawesome/free-solid-svg-icons/faPlusCircle';
-import _get                from 'lodash.get';
-import sortBy              from 'lodash.sortby';
-import _cloneDeep          from 'lodash.clonedeep';
+import _get                from 'lodash/get';
+import sortBy              from 'lodash/sortBy';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
@@ -109,7 +109,7 @@ export class Group extends React.Component {
     }, this);
     
     const showTitle         = surveyHelper.parseBoolean(this.props.groupConfig.showTitle, this.props.interview, this.props.path, this.props.user);
-    const showAddButton     = surveyHelper.parseBoolean(this.props.groupConfig.showGroupedObjectAddButton, this.props.interview, this.props.path, this.props.user);
+    const showAddButton     = this.props.loadingState === 0 && surveyHelper.parseBoolean(this.props.groupConfig.showGroupedObjectAddButton, this.props.interview, this.props.path, this.props.user);
     const addButtonLabel    = surveyHelper.parseString(this.props.groupConfig.groupedObjectAddButtonLabel ? (this.props.groupConfig.groupedObjectAddButtonLabel[this.props.i18n.language] || this.props.groupConfig.groupedObjectAddButtonLabel) : null, this.props.interview, this.props.path) || this.props.t(`survey:${widgetConfig.shortname}:addGroupedObject`);
     const addButtonLocation = this.props.groupConfig.addButtonLocation || 'bottom';
     const addButtonSize     = this.props.groupConfig.addButtonSize     || 'large';

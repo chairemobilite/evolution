@@ -4,9 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const isObject  = require('lodash.isobject');
-const isEqual   = require('lodash.isequal');
-const transform = require('lodash.transform');
+const isObject  = require('lodash/isObject');
+const isEqual   = require('lodash/isEqual');
+const transform = require('lodash/transform');
 import * as Helpers from 'evolution-common/lib/utils/helpers';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as DateTimeUtils from 'chaire-lib-common/lib/utils/DateTimeUtils';

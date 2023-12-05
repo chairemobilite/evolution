@@ -21,6 +21,7 @@ import Survey from '../../../components/survey/Survey';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
 import ResetPasswordPage from 'chaire-lib-frontend/lib/components/pages/ResetPasswordPage';
 import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute';
+import ConsentedRoute from 'evolution-frontend/lib/components/routers/ConsentedRoute';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import ConsentFormPage from '../../../components/survey/ConsentFormPage';
 import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
@@ -35,8 +36,8 @@ const SurveyRouter = () => (
     <PublicRoute   path="/" component={HomePage} exact={true} />
     <PublicRoute   path={`${localesString}`} component={HomePage} exact={true} />
     <PublicRoute   path="/home" component={HomePage} />
-    <PublicRoute   path="/register" component={RegisterWithPasswordPage} />
-    <PublicRoute   path="/login" component={LoginPage} />
+    <ConsentedRoute   path="/register" component={RegisterWithPasswordPage} />
+    <ConsentedRoute   path="/login" component={LoginPage} />
     <PublicRoute   path="/forgot" component={ForgotPasswordPage} />
     <PublicRoute   path="/reset/:token" component={ResetPasswordPage} />
     <PublicRoute   path="/consent_form" component={config.consentFormPage === true ? ConsentFormPage : NotFoundPage}/>

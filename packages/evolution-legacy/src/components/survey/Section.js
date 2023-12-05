@@ -7,8 +7,8 @@
 import { withTranslation }      from 'react-i18next';
 import React                    from 'react';
 import { createBrowserHistory } from 'history';
-import _get                     from 'lodash.get';
-import _shuffle                 from 'lodash.shuffle';
+import _get                     from 'lodash/get';
+import _shuffle                 from 'lodash/shuffle';
 
 import sectionTemplate  from './SectionTemplateHOC';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -56,7 +56,7 @@ export class Section extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!this.props.allWidgetsValid && this.props.submitted)
+    if (!this.props.allWidgetsValid && this.props.submitted && this.props.loadingState === 0)
     {
       const invalidInputs = document.querySelectorAll('.question-invalid input');
       if (invalidInputs.length > 0) {

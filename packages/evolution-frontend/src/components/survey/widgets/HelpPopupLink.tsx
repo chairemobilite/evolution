@@ -31,12 +31,7 @@ export const HelpPopupLink = (props: HelpPopupLinkProps) => {
                     containsHtml={props.containsHtml}
                 />
             )}
-            <button
-                type="button"
-                className="button helper-popup blue small"
-                onClick={() => setModalIsOpened(true)}
-                tabIndex={-1}
-            >
+            <button type="button" className="button helper-popup blue small" onClick={() => setModalIsOpened(true)}>
                 <FontAwesomeIcon icon={faQuestionCircle} className="faIconLeft" />
                 {props.title}
             </button>

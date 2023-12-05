@@ -22,7 +22,7 @@ label strong, .apptr__form__label-standalone strong {
 
 .apptr__form-input-container {
   
-  input[type=text], input[type=password], input[type=email] {
+  input[type=text], input[type=password], input[type=email], input[type=number] {
     font-size: $font-size-medium-large;
     color: $input;
     font-weight: 700;

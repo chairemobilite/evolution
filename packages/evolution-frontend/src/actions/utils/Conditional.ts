@@ -1,4 +1,4 @@
-import _cloneDeep from 'lodash.clonedeep';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';

@@ -1,4 +1,6 @@
 {
+  "ShowInterviewList": "Open interview list",
+  "HideInterviewList": "Hide interview list",
   "StartedFem": "Started",
   "Started": "Started",
   "CompletedFem": "Completed",
@@ -22,6 +24,8 @@
   "SetIncomplete": "Set as incomplete",
   "SetIsValidated": "Set as validated and confirmed",
   "SetIsValidatedEmpty": "Disable validated and confirmed",
+  "SetQuestionable": "Flag as questionable",
+  "UnsetQuestionable": "Unflag as questionable",
   "household": "household",
   "person": "person",
   "trip": "trip",
@@ -46,6 +50,8 @@
   "nextInterview": "View next survey",
   "validatorComment": "Validator comment",
   "refreshValidationList": "Refresh list",
+  "unauthorized": "You are not authorized to access these data",
+  "ValidationDataDirty": "Respondent data was modified since copied for validation. You may click the reset button to fetch the respondent's responses again.",
   "user": {
     "Username": "Username",
     "Email": "Email",
@@ -64,8 +70,7 @@
     "SearchByCode": "Search by access code"
   },
   "interviewers": {
-    "InterviewersPage": "Interviewer's page",
-    "NothingToDo": "No functionnality available yet"
+    "InterviewsSearchAndEdit": "Search And Edit Surveys"
   },
   "validationFilters": {
     "title": "Valid?",
@@ -73,7 +78,8 @@
     "invalid": "Show only invalid",
     "valid": "Show only valid",
     "notValidated": "Show unvalidated",
-    "notInvalid": "Hide invalid"
+    "notInvalid": "Hide invalid",
+    "questionable": "Show only questionables"
   },
   "interviewCompletedFilter": {
     "title": "Completed?",
@@ -81,7 +87,23 @@
     "true": "Completed",
     "false": "Incomplete"
   },
+  "interviewByCodeFilter": {
+    "title": "Access Code",
+    "button": "Filter by access code"
+  },
+  "interviewByDateFilter": {
+    "title": "Interview date",
+    "placeholder": "Select a period"
+  },
   "auditErrorFilter": {
     "title": "Errors"
+  },
+  "interviewer": {
+    "refreshInterviewerCache": "Refresh interviewer cache",
+    "error": "Error while refreshing the cache"
+  },
+  "interviewMember": {
+    "Keep": "Keep",
+    "Discard": "Discard"
   }
 }

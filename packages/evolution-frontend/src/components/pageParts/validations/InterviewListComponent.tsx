@@ -11,6 +11,8 @@ import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/int
 import InterviewList from './InterviewList';
 import ValidityColumnFilter from './ValidityColumnFilter';
 import InterviewCompletedFilter from './InterviewCompletedFilter';
+import InterviewByCodeFilter from './InterviewByCodeFilter';
+import InterviewByDateFilter from './InterviewByDateFilter';
 import ValidationAuditFilter from './ValidationAuditFilter';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
@@ -20,6 +22,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 interface InterviewListComponentProps extends WithTranslation {
     onInterviewSummaryChanged: (uuid: string, prevUuid?: string, nextUuid?: string) => void;
     initialSortBy: { id: string; desc?: boolean }[];
+    interviewListChange: (show: boolean) => void;
+    showInterviewList: boolean;
+    validationInterview: any;
 }
 
 const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = <
@@ -125,7 +130,15 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             {
                 // TODO, this column is specific to projects, it should come as props from the project
                 id: 'responses.accessCode',
-                accessor: 'responses.accessCode'
+                accessor: 'responses.accessCode',
+                Filter: InterviewByCodeFilter
+            },
+            {
+                id: 'created_at',
+                accessor: 'created_at',
+                Cell: ({ value }) =>
+                    !_isBlank(value) ? new Date(value).toISOString().split('T')[0].replace('/', '-') : '?', // Converts to YYYY-MM-DD format
+                Filter: InterviewByDateFilter
             },
             {
                 accessor: 'responses._isCompleted',
@@ -208,6 +221,9 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
 
     return (
         <InterviewList
+            showInterviewList={props.showInterviewList}
+            validationInterview={props.validationInterview}
+            interviewListChange={props.interviewListChange}
             columns={columns}
             data={data}
             fetchData={fetchData}
