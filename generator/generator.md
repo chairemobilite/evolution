@@ -132,11 +132,11 @@ In this example, we define a widget for the question `end_email`. This widget is
 ```typescript
 // end/widgets.tsx
 export const end_email: inputTypes.InputString = {
-    ...defaultInputBase.inputStringBase,
-    path: 'end.email',
-    label: (t: TFunction) => t('end:end.email'),
-    conditional: customConditionals.hasAcceptGivingEmailConditional,
-    validations: validations.emailValidation
+  ...defaultInputBase.inputStringBase,
+  path: "end.email",
+  label: (t: TFunction) => t("end:end.email"),
+  conditional: customConditionals.hasAcceptGivingEmailConditional,
+  validations: validations.emailValidation,
 };
 ```
 
@@ -148,16 +148,16 @@ In your survey logic, conditionals play a key role in determining if the widget 
 
 ### Conditionals Fields
 
-| Field                       | Description                                 | Type                    |
-| --------------------------- | ------------------------------------------- | ----------------------- |
-| conditionalName             | Name of the conditional                     | string                  |
-| logicalOperator             | Logical operator (optional)                 | && or \|\|              |
-| path                        | Path to the responses object for comparison | string                  |
-| [comparisonOperator](#comp) | Operator for comparison                     | ===, ==, >, <, >= or <= |
-| value                       | Value for the comparison                    | number or string        |
-| [parentheses](#par)         | Parentheses (optional)                      | ( or )                  |
+| Field                        | Description                                 | Type                    |
+| ---------------------------- | ------------------------------------------- | ----------------------- |
+| conditional_name             | Name of the conditional                     | string                  |
+| logical_operator             | Logical operator (optional)                 | && or \|\|              |
+| path                         | Path to the responses object for comparison | string                  |
+| [comparison_operator](#comp) | Operator for comparison                     | ===, ==, >, <, >= or <= |
+| value                        | Value for the comparison                    | number or string        |
+| [parentheses](#par)          | Parentheses (optional)                      | ( or )                  |
 
-> <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent responses with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path responses is greater than or equal to the value.
+> <span id="comp">**Note:**</span> The `comparison_operator` field helps compare respondent responses with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path responses is greater than or equal to the value.
 
 > <span id="par">**Note:**</span> The `parentheses` field is optional and allows you to add priority to the conditional logic by using opening and closing parentheses. This is useful for specifying the order in which conditions should be evaluated. For example, you can use parentheses to create complex conditions like `conditional1 || (conditional2 && conditional3)`, where `conditional2 && conditional3` is evaluated first due to the parentheses.
 
@@ -165,10 +165,10 @@ In your survey logic, conditionals play a key role in determining if the widget 
 
 In this example, we are creating a conditional named `hasDrivingLicenseConditional`. This conditional checks if the age of the person is 16 or older and if the person has a driving license. The table below shows the fields and their corresponding values for this conditional.
 
-| conditionalName              | logicalOperator | path                                   | comparisonOperator | value | parentheses |
-| ---------------------------- | --------------- | -------------------------------------- | ------------------ | ----- | ----------- |
-| hasDrivingLicenseConditional |                 | [${relativePath}](#rel).age            | >=                 | 16    |             |
-| hasDrivingLicenseConditional | &&              | [${relativePath}](#rel).drivingLicense | ===                | yes   |             |
+| conditional_name             | logical_operator | path                                   | comparison_operator | value | parentheses |
+| ---------------------------- | ---------------- | -------------------------------------- | ------------------- | ----- | ----------- |
+| hasDrivingLicenseConditional |                  | [${relativePath}](#rel).age            | >=                  | 16    |             |
+| hasDrivingLicenseConditional | &&               | [${relativePath}](#rel).drivingLicense | ===                 | yes   |             |
 
 > <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, facilitating the reference to responses object that share a common parent or group with the current widget.
 
