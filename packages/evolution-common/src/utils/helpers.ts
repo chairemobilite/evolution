@@ -7,7 +7,9 @@
 import _get from 'lodash/get';
 import _set from 'lodash/set';
 import { i18n, TFunction } from 'i18next';
+import moment from 'moment';
 
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
 import {
@@ -522,4 +524,35 @@ export const replaceVisitedPlaceShortcuts = <CustomSurvey, CustomHousehold, Cust
         );
 
     return { updatedValuesByPath, unsetPaths };
+};
+
+const startDateGreaterEqual = (startDate: number | undefined, compare: string | undefined): boolean | null => {
+    const interviewStart = startDate ? moment.unix(startDate) : undefined;
+    const dateCompare = compare ? moment(compare) : undefined;
+    const surveyStartDate = dateCompare && dateCompare.isValid() ? dateCompare : undefined;
+    if (interviewStart !== undefined && surveyStartDate !== undefined) {
+        return interviewStart >= surveyStartDate;
+    }
+    return null;
+};
+
+export const surveyStarted = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => {
+    const isSurveyStarted = startDateGreaterEqual(interview.responses._startedAt, config.surveyStart);
+    return isSurveyStarted === null ? true : isSurveyStarted;
+};
+
+export const surveyEnded = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => {
+    const isSurveyEnded = startDateGreaterEqual(interview.responses._startedAt, config.surveyEnd);
+    return isSurveyEnded === null ? true : isSurveyEnded;
+};
+
+export const interviewOnOrAfter = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+    date: string,
+    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+) => {
+    return startDateGreaterEqual(interview.responses._startedAt, date);
 };
