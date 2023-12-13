@@ -6,8 +6,10 @@
  */
 import each from 'jest-each';
 import i18n from 'i18next';
+import moment from 'moment';
 import _cloneDeep from 'lodash/cloneDeep';
 import { Person, UserInterviewAttributes } from '../../services/interviews/interview';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 
 import * as Helpers from '../helpers';
 
@@ -650,4 +652,51 @@ describe('replaceVisitedPlaceShortcuts', () => {
             unsetPaths: ['responses.household.persons.person2.visitedPlaces.isAShortcut.shortcut']
         });
     });
-})
+});
+
+each([
+    [undefined, undefined, true],
+    [undefined, moment('2023-12-13').unix(), true],
+    [undefined, 'notadate', true],
+    ['notadate', undefined, true],
+    ['notadate', moment('2023-12-13').unix(), true],
+    ['2023-12-13', moment('2023-12-13').unix(), true],
+    ['2023-12-13', moment('2023-12-12').unix(), false],
+    ['2023-12-13', moment('2023-12-14').unix(), true]
+]).test('survey start: %s %s', (configValue, surveyStart, expected) => {
+    config.surveyStart = configValue;
+    const interview = _cloneDeep(interviewAttributes);
+    interview.responses._startedAt = surveyStart;
+    expect(Helpers.surveyStarted(interview)).toEqual(expected);
+});
+
+each([
+    [undefined, undefined, true],
+    [undefined, moment('2023-12-13').unix(), true],
+    [undefined, 'notadate', true],
+    ['notadate', undefined, true],
+    ['notadate', moment('2023-12-13').unix(), true],
+    ['2023-12-13', moment('2023-12-13').unix(), true],
+    ['2023-12-13', moment('2023-12-12').unix(), false],
+    ['2023-12-13', moment('2023-12-14').unix(), true]
+]).test('survey ended: %s %s', (configValue, surveyStart, expected) => {
+    config.surveyEnd = configValue;
+    const interview = _cloneDeep(interviewAttributes);
+    interview.responses._startedAt = surveyStart;
+    expect(Helpers.surveyEnded(interview)).toEqual(expected);
+});
+
+each([
+    [undefined, undefined, null],
+    [undefined, moment('2023-12-13').unix(), null],
+    [undefined, 'notadate', null],
+    ['notadate', undefined, null],
+    ['notadate', moment('2023-12-13').unix(), null],
+    ['2023-12-13', moment('2023-12-13').unix(), true],
+    ['2023-12-13', moment('2023-12-12').unix(), false],
+    ['2023-12-13', moment('2023-12-14').unix(), true]
+]).test('survey start: %s %s', (dateCompare, surveyStart, expected) => {
+    const interview = _cloneDeep(interviewAttributes);
+    interview.responses._startedAt = surveyStart;
+    expect(Helpers.interviewOnOrAfter(dateCompare, interview)).toEqual(expected);
+});
