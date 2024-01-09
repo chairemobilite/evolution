@@ -6,5 +6,7 @@
     "resetPasswordEmailSubject": "Mot de passe oublié",
     "resetPasswordEmailText": "Bonjour {{name}},\n\nVous recevez ce courriel car vous avez demandé de recréer un mot de passe pour votre compte.\n\nPour compléter la demande, veuillez cliquer sur le lien suivant:\n\n{{resetPasswordUrl}}\n\nSi vous n'avez pas effectué cette requête de changement de mot de passe, ignorez ce message et votre mot de passe demeurera inchangé.\n\nMerci",
     "magicLinkEmailText": "Bienvenue!\n\nPour vous connecter à l'enquête, cliquer sur le lien suivant: {{magicLinkUrl}}.\n\nMerci",
-    "magicLinkEmailSubject": "Connexion à l'enquête mobilité [ne pas répondre]"
+    "magicLinkEmailSubject": "Connexion à l'enquête mobilité [ne pas répondre]",
+    "welcomeEmailText": "Bonjour,\n\nVous avez demandé l'accès à cette enquête.\n\nMerci pour votre participation.",
+    "welcomeEmailSubject": "Bienvenue à l'enquête [ne pas répondre]"
 }

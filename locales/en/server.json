@@ -6,5 +6,7 @@
     "resetPasswordEmailSubject": "Forgotten password",
     "resetPasswordEmailText": "Hi {{name}},\n\nYou are receiving this because you have requested the reset of the password for your account.\n\nPlease click on the following link, or paste this into your browser to complete the process\n\n{{resetPasswordUrl}}\n\nIf you did not request this, please ignore this email and your password will remain unchanged.\n\nThank you",
     "magicLinkEmailText": "Welcome!\n\nTo connect to your questionnaire, click on the following link: {{magicLinkUrl}}.\n\nThank you",
-    "magicLinkEmailSubject": "Connection to survey [do not respond]"
+    "magicLinkEmailSubject": "Connection to survey [do not respond]",
+    "welcomeEmailText": "Hello,\n\nYou have requested access to this survey.\n\nThank you for your participation.",
+    "welcomeEmailSubject": "Welcome to the survey [do not respond]"
 }

@@ -8,6 +8,8 @@ import { BaseUser } from 'chaire-lib-common/lib/services/user/userType';
 import dbQueries from '../../models/participants.db.queries';
 import { ParticipantAttributes } from '../participants/participant';
 import { AuthModelBase, NewUserParams, UserModelBase } from 'chaire-lib-backend/lib/services/auth/authModel';
+import { sendWelcomeEmail } from 'chaire-lib-backend/lib/services/auth/userEmailNotifications';
+import config from 'chaire-lib-backend/lib/config/server.config';
 
 export const sanitizeUserAttributes = (attributes: ParticipantAttributes): BaseUser => ({
     id: attributes.id,
@@ -43,6 +45,11 @@ class ParticipantAuthModel extends AuthModelBase<ParticipantModel> {
             is_test: userData.isTest === true
         });
         const user = this.newUser(userAttribs);
+
+        // Send a welcome email to the new user if the server is configured to do so
+        if (config.auth?.welcomeEmail) {
+            await sendWelcomeEmail(user);
+        }
 
         return user;
     };
