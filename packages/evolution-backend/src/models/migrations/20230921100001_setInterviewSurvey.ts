@@ -23,39 +23,47 @@ export async function up(knex: Knex): Promise<unknown> {
         .select('*')
         .from(surveyTable);
 
-    const surveys : SurveyAttributes[] = [];
+    const surveys: SurveyAttributes[] = [];
     for (let i = 0; i < existingSurveys.length; i++) {
         const survey = existingSurveys[i] as SurveyAttributes;
         surveys.push(survey);
     }
 
     // this is the survey id to which we will assign all interviews:
-    let assignedSurveyId : number | undefined = undefined;
+    let assignedSurveyId: number | undefined = undefined;
 
-    // If only one survey exist, use this one
     if (surveys.length === 1) {
+        // if only one survey exists, use it:
         assignedSurveyId = surveys[0].id;
-    } else {
-        // if more then 1 survey or no survey in db, create a default one using the project shortname or set to string "default":
+    } else if (surveys.length > 1) {
+        // else use a survey with the same shortname as the project:
+        const matchingSurvey = surveys.find((survey) => survey.shortname === config.projectShortname);
+        if (matchingSurvey) {
+            assignedSurveyId = matchingSurvey.id;
+        }
+    }
+
+    if (!assignedSurveyId) {
+        // if no matching survey or no survey at all, create a new one using the project shortname:
         const returning = await knex(surveyTable)
             .insert({
-                shortname: config.projectShortname || 'default'
+                shortname: config.projectShortname
             })
             .returning('id');
         assignedSurveyId = returning[0].id;
     }
 
     if (assignedSurveyId === undefined) {
-        throw('Cannot find or generate survey to assign to the interviews');
+        throw ('Cannot find or generate survey to assign to the interviews');
     }
 
     await knex(interviewTable)
         .update({ survey_id: assignedSurveyId });
 
-    // Add foreign key to participant table and index + set unique on survey_id and id
+    // Add foreign key to interview table and index + set unique on survey_id and id
     return knex.schema.alterTable(interviewTable, (table: Knex.TableBuilder) => {
         table.integer('survey_id').notNullable().index().alter();
-        table.foreign('survey_id').references(`${surveyTable}.id`).onDelete('RESTRICT');
+        table.foreign('survey_id').references(`${surveyTable}.id`).onDelete('RESTRICT').onUpdate('CASCADE');
         table.unique(['survey_id', 'participant_id']);
     });
 }

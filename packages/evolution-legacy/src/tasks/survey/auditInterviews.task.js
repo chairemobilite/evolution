@@ -10,10 +10,11 @@ import Interviews from 'evolution-backend/lib/services/interviews/interviews';
 import appConfig from 'evolution-frontend/lib/config/application.config';
 
 
-const run = function () {
-    Interviews.auditInterviews(appConfig.getAdminValidations(), appConfig.projectHelpers, appConfig.getParsers()).then(function() {
-        console.log('complete!');
-    });
+const run = async function () {
+    await Interviews.auditInterviews(appConfig.getAdminValidations(), appConfig.projectHelpers, appConfig.getParsers());
 };
 
-run();
+run().then(function() {
+  console.log('complete');
+  process.exit();
+});

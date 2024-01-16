@@ -45,7 +45,8 @@ const allInterviews = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
     validations: {},
     logs: [],
     is_completed: false,
-    is_questionable: false
+    is_questionable: false,
+    survey_id: 1
 }));
 const returnedInterview = allInterviews[3];
 (interviewsQueries.findByResponse as any).mockResolvedValue(allInterviews);
@@ -54,7 +55,7 @@ mockDbGetByUuid.mockResolvedValue(returnedInterview as InterviewAttributes<unkno
 mockDbCreate.mockImplementation(async (newObject: Partial<InterviewAttributes<unknown, unknown, unknown, unknown>>, returning: string | string[] = 'id') => {
     const returnFields = typeof returning === 'string' ? [returning] : returning;
     const ret: Partial<InterviewAttributes<unknown, unknown, unknown, unknown>> = {};
-    returnFields.forEach(field => ret[field] = newObject[field] || returnedInterview[field]);
+    returnFields.forEach((field) => ret[field] = newObject[field] || returnedInterview[field]);
     return ret;
 });
 (interviewsQueries.getList as any).mockResolvedValue({ interviews: allInterviews, totalCount: allInterviews.length });
@@ -69,7 +70,7 @@ describe('Find by access code', () => {
     });
 
     test('Get all users', async() => {
-        
+
         const response = await Interviews.findByAccessCode(validCode);
         expect(interviewsQueries.findByResponse).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.findByResponse).toHaveBeenCalledWith({ accessCode: validCode });
@@ -103,19 +104,19 @@ describe('Get interview by interview ID', () => {
         const interviewUserId = await Interviews.getInterviewByUuid(interviewId);
         expect(interviewsQueries.getInterviewByUuid).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.getInterviewByUuid).toHaveBeenCalledWith(interviewId);
-        expect(interviewUserId).toBeUndefined()
+        expect(interviewUserId).toBeUndefined();
     });
 
     test('Invalid uuid', async() => {
         const interviewUserId = await Interviews.getInterviewByUuid('not a valid uuid');
         expect(interviewsQueries.getInterviewByUuid).not.toHaveBeenCalled();
-        expect(interviewUserId).toBeUndefined()
+        expect(interviewUserId).toBeUndefined();
     });
 
     test('Invalid data', async() => {
         const interviewUserId = await Interviews.getInterviewByUuid({ foo: 'bar' } as any);
         expect(interviewsQueries.getInterviewByUuid).not.toHaveBeenCalled();
-        expect(interviewUserId).toBeUndefined()
+        expect(interviewUserId).toBeUndefined();
     });
 
 });
@@ -139,7 +140,7 @@ describe('Get interview by userId', () => {
         const interview = await Interviews.getUserInterview(userId);
         expect(interviewsQueries.getUserInterview).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.getUserInterview).toHaveBeenCalledWith(userId);
-        expect(interview).toBeUndefined()
+        expect(interview).toBeUndefined();
     });
 
     test('Exception thrown by db query', async() => {
@@ -160,7 +161,7 @@ describe('Get interview by userId', () => {
 describe('Create interviews', () => {
 
     const participantId = 20;
-    let createdInterview: InterviewAttributes<unknown, unknown, unknown, unknown> | undefined = undefined 
+    let createdInterview: InterviewAttributes<unknown, unknown, unknown, unknown> | undefined = undefined;
 
     beforeEach(() => {
         mockDbCreate.mockClear();
@@ -201,7 +202,7 @@ describe('Create interviews', () => {
             fooObj: {
                 baz: 'test'
             }
-        }
+        };
         const newInterview = await Interviews.createInterviewForUser(participantId, responses);
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
@@ -214,9 +215,9 @@ describe('Create interviews', () => {
         expect(newInterview).toEqual({ uuid: expect.anything() });
         expect(mockDbGetByUuid).toHaveBeenCalledTimes(1);
         expect(mockDbGetByUuid).toHaveBeenCalledWith(newInterview.uuid);
-        expect(mockInterviewUpdate).toHaveBeenCalledWith(createdInterview, { 
+        expect(mockInterviewUpdate).toHaveBeenCalledWith(createdInterview, {
             valuesByPath: { 'responses.foo': responses.foo, 'responses.fooObj': responses.fooObj },
-            fieldsToUpdate: ['responses'] 
+            fieldsToUpdate: ['responses']
         });
     });
 
@@ -291,7 +292,7 @@ describe('Get all matching', () => {
         });
         expect(interviewsQueries.getList).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.getList).toHaveBeenCalledWith({
-            filters: { updated_at: { value: updatedAt, op: 'gte' }},
+            filters: { updated_at: { value: updatedAt, op: 'gte' } },
             pageIndex: 0,
             pageSize: -1
         });
@@ -319,7 +320,7 @@ describe('Get all matching', () => {
         });
         expect(interviewsQueries.getList).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.getList).toHaveBeenCalledWith({
-            filters: { is_valid: { value: true, op: 'eq' }},
+            filters: { is_valid: { value: true, op: 'eq' } },
             pageIndex,
             pageSize
         });
@@ -343,7 +344,7 @@ describe('Get all matching', () => {
         });
         expect(interviewsQueries.getList).toHaveBeenCalledTimes(3);
         expect(interviewsQueries.getList).toHaveBeenLastCalledWith({
-            filters: { is_valid: { value: false, op: 'eq' }},
+            filters: { is_valid: { value: false, op: 'eq' } },
             pageIndex: 0,
             pageSize: -1
         });
@@ -354,7 +355,7 @@ describe('Get all matching', () => {
         });
         expect(interviewsQueries.getList).toHaveBeenCalledTimes(4);
         expect(interviewsQueries.getList).toHaveBeenLastCalledWith({
-            filters: { is_valid: { value: null, op: 'eq' }},
+            filters: { is_valid: { value: null, op: 'eq' } },
             pageIndex: 0,
             pageSize: -1
         });
@@ -365,7 +366,7 @@ describe('Get all matching', () => {
         });
         expect(interviewsQueries.getList).toHaveBeenCalledTimes(5);
         expect(interviewsQueries.getList).toHaveBeenLastCalledWith({
-            filters: { is_valid: { value: false, op: 'not' }},
+            filters: { is_valid: { value: false, op: 'not' } },
             pageIndex: 0,
             pageSize: -1
         });
@@ -438,7 +439,7 @@ describe('Get Validation errors', () => {
         });
         expect(interviewsQueries.getValidationErrors).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.getValidationErrors).toHaveBeenCalledWith({
-            filters: { is_valid: { value: true, op: 'eq' }}
+            filters: { is_valid: { value: true, op: 'eq' } }
         });
 
         // isValid: all
@@ -458,7 +459,7 @@ describe('Get Validation errors', () => {
         });
         expect(interviewsQueries.getValidationErrors).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.getValidationErrors).toHaveBeenCalledWith({
-            filters: { test: { value: 'foo' }}
+            filters: { test: { value: 'foo' } }
         });
 
         // Updated_at is 0, should not be sent to the query
@@ -490,13 +491,13 @@ describe('Stat editing users', () => {
 
     beforeEach(() => {
         mockStatEditingUsers.mockClear();
-    })
+    });
 
     test('Test with correct answer', async () => {
         const userStats = [
             { email: 'foo@bar.com', interview_id: 12, user_id: 3, for_validation: false, update_count: 10, created_at: '2023-06-28', updated_at: '2023-06-28' },
             { email: 'a@b.c', interview_id: 12, user_id: 3, for_validation: false, update_count: 2, created_at: '2023-06-28', updated_at: '2023-06-28' }
-        ]
+        ];
         mockStatEditingUsers.mockResolvedValueOnce(userStats);
         const stats = await Interviews.statEditingUsers();
         expect(stats).toEqual(userStats);
@@ -507,7 +508,7 @@ describe('Stat editing users', () => {
         const userStats = [
             { email: 'foo@bar.com', interview_id: 12, user_id: 3, for_validation: false, update_count: 10, created_at: '2023-06-28', updated_at: '2023-06-28' },
             { email: 'a@b.c', interview_id: 12, user_id: 3, for_validation: false, update_count: 2, created_at: '2023-06-28', updated_at: '2023-06-28' }
-        ]
+        ];
         mockStatEditingUsers.mockResolvedValueOnce(userStats);
         const stats = await Interviews.statEditingUsers({ permissions: [ 'role1', 'role2' ] });
         expect(stats).toEqual(userStats);

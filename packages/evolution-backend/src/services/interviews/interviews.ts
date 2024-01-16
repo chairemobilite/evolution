@@ -161,8 +161,8 @@ export default class Interviews {
         return await interviewsDbQueries.getValidationErrors({ filters: actualFilters });
     };
 
-    static auditInterviews(validations, surveyProjectHelper, parsers): Promise<void> {
-        const queryStream = interviewsDbQueries.getInterviewsStream({ filters: {} });
+    static async auditInterviews(validations, surveyProjectHelper, parsers): Promise<void> {
+        const queryStream = await interviewsDbQueries.getInterviewsStream({ filters: {} });
         let i = 0;
         return new Promise((resolve, reject) => {
             queryStream
@@ -216,13 +216,13 @@ export default class Interviews {
         });
     }
 
-    static resetInterviews(confirm: string): Promise<void> {
+    static async resetInterviews(confirm: string): Promise<void> {
         if (confirm !== 'I WANT TO DELETE ALL VALIDATION WORK') {
             return new Promise((_resolve, reject) => {
                 reject('The confirm string should be \'I WANT TO DELETE ALL VALIDATION WORK\'');
             });
         }
-        const queryStream = interviewsDbQueries.getInterviewsStream({ filters: {} });
+        const queryStream = await interviewsDbQueries.getInterviewsStream({ filters: {} });
         let i = 0;
         return new Promise((resolve, reject) => {
             queryStream
