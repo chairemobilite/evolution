@@ -132,7 +132,7 @@ const getRenamedPaths = async (): Promise<{ attributes: string[]; objectPaths: s
         objectPaths: [],
         arrayPaths: []
     };
-    const queryStream = interviewsDbQueries.getInterviewsStream({
+    const queryStream = await interviewsDbQueries.getInterviewsStream({
         filters: {},
         select: { includeAudits: false, responses: 'validatedIfAvailable' }
     });
@@ -249,7 +249,7 @@ const exportAllToCsvByObject = async function () {
 
     console.log('reading interview data...');
 
-    const queryStream = interviewsDbQueries.getInterviewsStream({
+    const queryStream = await interviewsDbQueries.getInterviewsStream({
         filters: {},
         select: { includeAudits: false, responses: 'validatedIfAvailable' }
     });
