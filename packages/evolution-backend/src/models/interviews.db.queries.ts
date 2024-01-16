@@ -12,9 +12,13 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/interviews/interview';
 import { _booleish, _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 
 const tableName = 'sv_interviews';
 const participantTable = 'sv_participants';
+const surveyTable = 'sv_surveys';
+
+let _surveyId: number | undefined = undefined;
 
 export interface InterviewSearchAttributes {
     id: number;
@@ -26,10 +30,52 @@ export interface InterviewSearchAttributes {
     username?: string | undefined;
     facebook: boolean;
     google: boolean;
+    surveyId?: number;
 }
+
+/** this will return the survey id or create a new survey in
+ * table sv_surveys if no existing survey shortname matches
+ * the project shortname
+ * TODO: this should be run during server startup preparation
+ * so it is always available here and can be used from config
+ */
+const getSurveyId = async (): Promise<number> => {
+    // Here we repeat check for _surveyId multiple time to make
+    // sure another thread didn't create it in the meantime:
+    if (_surveyId) {
+        return _surveyId;
+    }
+
+    // check in survey table if at least one matches the project shortname:
+    const matchingSurvey = await knex.select('*').from(surveyTable).where('shortname', config.projectShortname);
+
+    if (matchingSurvey.length === 1) {
+        return matchingSurvey[0].id;
+    }
+
+    // no match: create a new survey using upsert (onConflict) for race conditions:
+    if (!_surveyId) {
+        await knex(surveyTable)
+            .insert({
+                shortname: config.projectShortname
+            })
+            .onConflict('shortname')
+            .ignore();
+        const newSurvey = await knex.select('*').from(surveyTable).where('shortname', config.projectShortname);
+        if (!_surveyId && newSurvey && newSurvey[0] && newSurvey[0].id) {
+            _surveyId = newSurvey[0].id;
+        }
+    }
+
+    if (!_surveyId) {
+        throw 'Cannot generate survey to assign to the interviews. There may be a race condtion trying to create the survey in another thread.';
+    }
+    return _surveyId;
+};
 
 const findByResponse = async (searchObject: { [key: string]: any }): Promise<InterviewSearchAttributes[]> => {
     try {
+        const surveyId = await getSurveyId();
         const interviewsQuery = knex
             .select(
                 'i.id',
@@ -38,6 +84,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
                 'i.is_completed',
                 'i.is_questionable',
                 'i.is_valid',
+                'i.survey_id',
                 'participant.email',
                 'participant.username',
                 knex.raw('case when participant.facebook_id is null then false else true end facebook'),
@@ -46,7 +93,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
             .from(`${tableName} as i`)
             .join(`${participantTable} as participant`, 'i.participant_id', 'participant.id');
         // Create the where query
-        const whereRawString: string[] = [];
+        const whereRawString: string[] = [`survey_id = ${surveyId}`];
         const bindings: string[] = [];
         const whereBuilder = (prefix: string, object: { [key: string]: any }) => {
             Object.keys(object).forEach((key) => {
@@ -74,7 +121,8 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
             email: interview.email === null ? undefined : interview.email,
             username: interview.username === null ? undefined : interview.username,
             facebook: interview.facebook,
-            google: interview.google
+            google: interview.google,
+            surveyId: interview.survey_id
         }));
     } catch (error) {
         console.error(error);
@@ -93,7 +141,12 @@ const getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, Cus
         // specify which fields, it will depend on the calling context. Maybe an
         // array of strings keyof InterviewAttributes which will map to sql
         // fields
-        const interviews = await knex.select('i.*').from(`${tableName} as i`).where('uuid', interviewUuid);
+        const surveyId = await getSurveyId();
+        const interviews = await knex
+            .select('i.*')
+            .from(`${tableName} as i`)
+            .where('survey_id', surveyId)
+            .andWhere('uuid', interviewUuid);
         if (interviews.length !== 1) {
             return undefined;
         }
@@ -116,7 +169,12 @@ const getInterviewIdByUuid = async <CustomSurvey, CustomHousehold, CustomHome, C
     interviewUuid: string
 ): Promise<number | undefined> => {
     try {
-        const interviews = await knex.select('id').from(tableName).where('uuid', interviewUuid);
+        const surveyId = await getSurveyId();
+        const interviews = await knex
+            .select('id')
+            .from(tableName)
+            .where('survey_id', surveyId)
+            .andWhere('uuid', interviewUuid);
         return interviews.length === 1 ? interviews[0].id : undefined;
     } catch (error) {
         console.error(error);
@@ -131,6 +189,7 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
     participantId: number
 ): Promise<UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
     try {
+        const surveyId = await getSurveyId();
         const interviews = await knex
             .select(
                 'sv_interviews.id',
@@ -140,10 +199,12 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
                 'participant_id',
                 'is_valid',
                 'is_completed',
-                'is_questionable'
+                'is_questionable',
+                'sv_interviews.survey_id'
             )
             .from('sv_interviews')
             .whereRaw('sv_interviews.is_active IS TRUE')
+            .andWhere('sv_interviews.survey_id', surveyId)
             .andWhere('sv_interviews.participant_id', participantId);
         if (interviews.length === 0) {
             return undefined;
@@ -193,6 +254,8 @@ const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     returning: string | string[] = 'id'
 ): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
     try {
+        const surveyId = await getSurveyId();
+        newObject.survey_id = surveyId;
         const returningArray = await knex(tableName).insert(sanitizeJsonData(newObject)).returning(returning);
         if (returningArray.length === 1) {
             return returningArray[0];
@@ -409,6 +472,7 @@ const getRawWhereClause = (
  * and the second element is the array of bindings
  */
 const updateRawWhereClause = (
+    surveyId: number,
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } },
     baseFilter: string
 ): [string, (string | boolean | number)[]] => {
@@ -423,6 +487,7 @@ const updateRawWhereClause = (
             bindings.push(whereClause[1]);
         }
     });
+    rawFilter += ` AND i.survey_id = ${surveyId}`;
     return [rawFilter, bindings];
 };
 
@@ -449,9 +514,10 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     totalCount: number;
 }> => {
     try {
+        const surveyId = await getSurveyId();
         const baseRawFilter =
             'i.is_active IS TRUE AND participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
-        const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
+        const [rawFilter, bindings] = await updateRawWhereClause(surveyId, params.filters, baseRawFilter);
         // Get the total count for that query and filter
         const countResult = await knex
             .count('i.id')
@@ -486,6 +552,7 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
                 'i.is_validated',
                 'i.is_questionable',
                 'i.audits',
+                'i.survey_id',
                 'participant.username',
                 knex.raw('case when participant.facebook_id is null then false else true end facebook'),
                 knex.raw('case when participant.google_id is null then false else true end google')
@@ -528,9 +595,10 @@ const getValidationErrors = async (params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
 }): Promise<{ errors: { key: string; cnt: string }[] }> => {
     try {
+        const surveyId = await getSurveyId();
         const baseRawFilter =
             'i.is_active IS TRUE AND participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
-        const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
+        const [rawFilter, bindings] = updateRawWhereClause(surveyId, params.filters, baseRawFilter);
 
         const validationErrorsQuery = knex
             .select('key', knex.raw('sum(value::numeric) cnt'))
@@ -572,7 +640,7 @@ const getValidationErrors = async (params: {
  * which field to sort the interviews by
  * @returns An interview stream
  */
-const getInterviewsStream = function (params: {
+const getInterviewsStream = async function (params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
     select?: {
         includeAudits?: boolean;
@@ -580,8 +648,9 @@ const getInterviewsStream = function (params: {
     };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }) {
+    const surveyId = await getSurveyId();
     const baseRawFilter = 'participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
-    const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
+    const [rawFilter, bindings] = updateRawWhereClause(surveyId, params.filters, baseRawFilter);
     const sortFields = params.sort || [];
     const selectFields = params.select || { includeAudits: true, responses: 'both' };
     const responseType = selectFields.responses || 'both';
@@ -592,6 +661,7 @@ const getInterviewsStream = function (params: {
         'i.is_valid',
         'i.is_completed',
         'i.is_validated',
+        'i.survey_id',
         knex.raw('case when validated_data is null then false else true end as validated_data_available')
     ];
     if (selectFields.includeAudits || selectFields.includeAudits === undefined) {

@@ -1,7 +1,7 @@
 import { v4 as uuidV4 } from 'uuid';
 import each from 'jest-each';
 import updateServerFields, { getPreFilledResponsesByPath, setPreFilledResponses } from '../serverFieldUpdate';
-import prefilledDbQueries from '../../../models/interviewsPreFill.db.queries'; 
+import prefilledDbQueries from '../../../models/interviewsPreFill.db.queries';
 
 jest.mock('../../../models/interviewsPreFill.db.queries', ()  => ({
     getByReferenceValue: jest.fn(),
@@ -26,7 +26,8 @@ const interviewAttributes = {
         }
     },
     validations: {},
-    logs: []
+    logs: [],
+    survey_id: 1
 };
 
 const updateCallbacks = [
@@ -34,16 +35,16 @@ const updateCallbacks = [
         field: 'testFields.fieldA',
         callback: jest.fn().mockImplementation((interview, fieldValue) =>
             fieldValue === 'foo'
-            ? { 'testFields.fieldB': 'bar' }
-            : fieldValue === 'same'
-                ?  { 'testFields.fieldB': interviewAttributes.responses.testFields.fieldB }
-                : {})
+                ? { 'testFields.fieldB': 'bar' }
+                : fieldValue === 'same'
+                    ?  { 'testFields.fieldB': interviewAttributes.responses.testFields.fieldB }
+                    : {})
     },
     {
         field: { regex: 'household\.persons\.*\.origin' },
         callback: jest.fn().mockImplementation((interview, fieldValue, fieldPath: string) => {
             const newFieldPath = fieldPath.substring(0, fieldPath.length - '.origin'.length) + '.new';
-            return { [newFieldPath]: 'FOO' }
+            return { [newFieldPath]: 'FOO' };
         })
     }
 ];
@@ -51,22 +52,22 @@ const updateCallbacks = [
 beforeEach(() => {
     updateCallbacks[0].callback.mockClear();
     updateCallbacks[1].callback.mockClear();
-})
+});
 
 describe('Simple field update', () => {
     each([
-        ['Values by path, but field not updated', { 'responses.testFields.fieldB': 'abc'}, []],
+        ['Values by path, but field not updated', { 'responses.testFields.fieldB': 'abc' }, []],
         ['Unset path, but field not updated', { }, ['responses.testFields.fieldB']],
-        ['Field set, should return empty', { 'responses.testFields.fieldA': '121'}, [], true, {}],
-        ['Field set to specific value, should return an update', { 'responses.testFields.fieldA': 'foo'}, [], true, { 'responses.testFields.fieldB': 'bar'}],
-        ['Field updated to same value, should not be returned', { 'responses.testFields.fieldA': 'same'}, [], true, {}],
+        ['Field set, should return empty', { 'responses.testFields.fieldA': '121' }, [], true, {}],
+        ['Field set to specific value, should return an update', { 'responses.testFields.fieldA': 'foo' }, [], true, { 'responses.testFields.fieldB': 'bar' }],
+        ['Field updated to same value, should not be returned', { 'responses.testFields.fieldA': 'same' }, [], true, {}],
         ['Field unset, should return empty', { 'responses.testFields.fieldB': 'abc' }, ['responses.testFields.fieldA'], true, {}],
         ['No data', { }, undefined],
-    ]).test('%s', async (_description, valuesByPath, unsetPath, called: boolean = false, expected: { [path: string]: unknown } = {}) => {
+    ]).test('%s', async (_description, valuesByPath, unsetPath, called = false, expected: { [path: string]: unknown } = {}) => {
         expect(await updateServerFields(interviewAttributes, updateCallbacks, valuesByPath, unsetPath)).toEqual(expected);
         if (called) {
             expect(updateCallbacks[0].callback).toHaveBeenCalledTimes(1);
-            expect(updateCallbacks[0].callback).toHaveBeenCalledWith(interviewAttributes, valuesByPath['responses.testFields.fieldA'], 'testFields.fieldA')
+            expect(updateCallbacks[0].callback).toHaveBeenCalledWith(interviewAttributes, valuesByPath['responses.testFields.fieldA'], 'testFields.fieldA');
         } else {
             expect(updateCallbacks[0].callback).not.toHaveBeenCalled();
         }
@@ -76,14 +77,14 @@ describe('Simple field update', () => {
 describe('Field with placeholder and regex', () => {
     test('Field in valuesByPath, should return updated value', async () => {
         const valuesByPath = { 'responses.household.persons.1.origin': 'foo' };
-        expect(await updateServerFields(interviewAttributes, updateCallbacks, valuesByPath, [])).toEqual({ 'responses.household.persons.1.new': 'FOO'});
-        expect(updateCallbacks[1].callback).toHaveBeenCalledWith(interviewAttributes, valuesByPath['responses.household.persons.1.origin'], 'household.persons.1.origin')
+        expect(await updateServerFields(interviewAttributes, updateCallbacks, valuesByPath, [])).toEqual({ 'responses.household.persons.1.new': 'FOO' });
+        expect(updateCallbacks[1].callback).toHaveBeenCalledWith(interviewAttributes, valuesByPath['responses.household.persons.1.origin'], 'household.persons.1.origin');
     });
 
     test('Field in unsetPath, should return updated value', async() => {
         const unsetPath = [ 'responses.household.persons.2.origin' ];
-        expect(await updateServerFields(interviewAttributes, updateCallbacks, {}, unsetPath)).toEqual({ 'responses.household.persons.2.new': 'FOO'});
-        expect(updateCallbacks[1].callback).toHaveBeenCalledWith(interviewAttributes, undefined, 'household.persons.2.origin')
+        expect(await updateServerFields(interviewAttributes, updateCallbacks, {}, unsetPath)).toEqual({ 'responses.household.persons.2.new': 'FOO' });
+        expect(updateCallbacks[1].callback).toHaveBeenCalledWith(interviewAttributes, undefined, 'household.persons.2.origin');
 
     });
 });
@@ -113,13 +114,13 @@ describe('getPreFilledValuesByPath', () => {
     });
 
     test('Return fields that are not in the interview', async () => {
-        const preFilledResponse = { 
+        const preFilledResponse = {
             'testFields.fieldC': { value: 'abc' },
             'otherField': { value: 3 }
         };
         mockGetByReferenceValue.mockResolvedValueOnce(preFilledResponse);
         const preFilledValuesByPath = await getPreFilledResponsesByPath('test', interviewAttributes);
-        expect(preFilledValuesByPath).toEqual({ 
+        expect(preFilledValuesByPath).toEqual({
             'testFields.fieldC': preFilledResponse['testFields.fieldC'].value,
             'otherField': preFilledResponse['otherField'].value
         });
@@ -127,14 +128,14 @@ describe('getPreFilledValuesByPath', () => {
     });
 
     test('Return values that are in the interview, that should be forced', async() => {
-        const preFilledResponse = { 
+        const preFilledResponse = {
             'testFields.fieldB': { value: 'abc', actionIfPresent: 'force' as const },
             'accessCode': { value: '2222' },
             'otherField': { value: 4 }
         };
         mockGetByReferenceValue.mockResolvedValueOnce(preFilledResponse);
         const preFilledValuesByPath = await getPreFilledResponsesByPath('test', interviewAttributes);
-        expect(preFilledValuesByPath).toEqual({ 
+        expect(preFilledValuesByPath).toEqual({
             'testFields.fieldB': preFilledResponse['testFields.fieldB'].value,
             'otherField': preFilledResponse['otherField'].value
         });
@@ -142,7 +143,7 @@ describe('getPreFilledValuesByPath', () => {
     });
 
     test('Return values that are in the interview, don\'t update', async() => {
-        const preFilledResponse = { 
+        const preFilledResponse = {
             'testFields.fieldB': { value: 'abc', actionIfPresent: 'doNothing' as const },
             'accessCode': { value: '2222', actionIfPresent: 'doNothing' as const }
         };
@@ -162,7 +163,7 @@ describe('getPreFilledValuesByPath', () => {
 
 describe('setPreFilledResponses', () => {
 
-    const preFilledResponse = { 
+    const preFilledResponse = {
         'testFields.fieldC': { value: 'abc' },
         'otherField': { value: 3 }
     };
