@@ -11,7 +11,6 @@ import moment              from 'moment-business-days';
 import _get                from 'lodash/get';
 
 import config                                                                                         from 'chaire-lib-common/lib/config/shared/project.config';
-import Preferences from 'chaire-lib-common/lib/config/Preferences';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import Section                                                                                        from './Section';
 import SectionNav                                                                                     from './SectionNav';
@@ -21,6 +20,7 @@ import LoadingPage                                                              
 import { validateAllWidgets } from 'evolution-frontend/lib/actions/utils';
 import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewContext';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
+import { withPreferencesHOC } from 'evolution-frontend/lib/components/hoc/WithPreferencesHoc';
 
 export class Survey extends React.Component {
   static contextType = InterviewContext;
@@ -29,8 +29,7 @@ export class Survey extends React.Component {
     super(props);
     surveyHelperNew.devLog('params_survey', props.location.search)
     this.state = {
-      confirmModalOpenedShortname: null,
-      preferencesLoaded: false
+      confirmModalOpenedShortname: null
     };
     // set language if empty and change locale:
     if (!props.i18n.language || config.languages.indexOf(props.i18n.language) <= -1)
@@ -68,9 +67,6 @@ export class Survey extends React.Component {
     const pathSectionParentSection = pathSectionShortname && this.surveyContext.sections[pathSectionShortname] ? this.surveyContext.sections[pathSectionShortname].parentSection : null;
     const { state } = this.context;
     this.props.startSetInterview(existingActiveSection || pathSectionParentSection, surveyUuid, state.status === 'entering' && Object.keys(state.responses).length > 0 ? state.responses : undefined);
-    Preferences.load().then(() => {
-        this.setState({ preferencesLoaded: true })
-    });
   }
 
   onChangeSection(parentSection, activeSection, allWidgetsValid, e) {
@@ -229,4 +225,4 @@ const mapDispatchToProps = (dispatch, props) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withTranslation()(withSurveyContext(Survey)));
+)(withTranslation()(withSurveyContext(withPreferencesHOC(Survey))));
