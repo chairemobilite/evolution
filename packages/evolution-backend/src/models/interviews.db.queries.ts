@@ -141,12 +141,7 @@ const getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, Cus
         // specify which fields, it will depend on the calling context. Maybe an
         // array of strings keyof InterviewAttributes which will map to sql
         // fields
-        const surveyId = await getSurveyId();
-        const interviews = await knex
-            .select('i.*')
-            .from(`${tableName} as i`)
-            .where('survey_id', surveyId)
-            .andWhere('uuid', interviewUuid);
+        const interviews = await knex.select('i.*').from(`${tableName} as i`).andWhere('uuid', interviewUuid);
         if (interviews.length !== 1) {
             return undefined;
         }
@@ -169,12 +164,7 @@ const getInterviewIdByUuid = async <CustomSurvey, CustomHousehold, CustomHome, C
     interviewUuid: string
 ): Promise<number | undefined> => {
     try {
-        const surveyId = await getSurveyId();
-        const interviews = await knex
-            .select('id')
-            .from(tableName)
-            .where('survey_id', surveyId)
-            .andWhere('uuid', interviewUuid);
+        const interviews = await knex.select('id').from(tableName).andWhere('uuid', interviewUuid);
         return interviews.length === 1 ? interviews[0].id : undefined;
     } catch (error) {
         console.error(error);
@@ -472,7 +462,6 @@ const getRawWhereClause = (
  * and the second element is the array of bindings
  */
 const updateRawWhereClause = (
-    surveyId: number,
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } },
     baseFilter: string
 ): [string, (string | boolean | number)[]] => {
@@ -487,7 +476,6 @@ const updateRawWhereClause = (
             bindings.push(whereClause[1]);
         }
     });
-    rawFilter += ` AND i.survey_id = ${surveyId}`;
     return [rawFilter, bindings];
 };
 
@@ -514,10 +502,9 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     totalCount: number;
 }> => {
     try {
-        const surveyId = await getSurveyId();
         const baseRawFilter =
             'i.is_active IS TRUE AND participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
-        const [rawFilter, bindings] = await updateRawWhereClause(surveyId, params.filters, baseRawFilter);
+        const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
         // Get the total count for that query and filter
         const countResult = await knex
             .count('i.id')
@@ -595,10 +582,9 @@ const getValidationErrors = async (params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
 }): Promise<{ errors: { key: string; cnt: string }[] }> => {
     try {
-        const surveyId = await getSurveyId();
         const baseRawFilter =
             'i.is_active IS TRUE AND participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
-        const [rawFilter, bindings] = updateRawWhereClause(surveyId, params.filters, baseRawFilter);
+        const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
 
         const validationErrorsQuery = knex
             .select('key', knex.raw('sum(value::numeric) cnt'))
@@ -640,7 +626,7 @@ const getValidationErrors = async (params: {
  * which field to sort the interviews by
  * @returns An interview stream
  */
-const getInterviewsStream = async function (params: {
+const getInterviewsStream = function (params: {
     filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
     select?: {
         includeAudits?: boolean;
@@ -648,9 +634,8 @@ const getInterviewsStream = async function (params: {
     };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }) {
-    const surveyId = await getSurveyId();
     const baseRawFilter = 'participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
-    const [rawFilter, bindings] = updateRawWhereClause(surveyId, params.filters, baseRawFilter);
+    const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
     const sortFields = params.sort || [];
     const selectFields = params.select || { includeAudits: true, responses: 'both' };
     const responseType = selectFields.responses || 'both';

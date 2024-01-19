@@ -162,7 +162,7 @@ export default class Interviews {
     };
 
     static async auditInterviews(validations, surveyProjectHelper, parsers): Promise<void> {
-        const queryStream = await interviewsDbQueries.getInterviewsStream({ filters: {} });
+        const queryStream = interviewsDbQueries.getInterviewsStream({ filters: {} });
         let i = 0;
         return new Promise((resolve, reject) => {
             queryStream
@@ -222,7 +222,7 @@ export default class Interviews {
                 reject('The confirm string should be \'I WANT TO DELETE ALL VALIDATION WORK\'');
             });
         }
-        const queryStream = await interviewsDbQueries.getInterviewsStream({ filters: {} });
+        const queryStream = interviewsDbQueries.getInterviewsStream({ filters: {} });
         let i = 0;
         return new Promise((resolve, reject) => {
             queryStream
