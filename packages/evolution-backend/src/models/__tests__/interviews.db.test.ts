@@ -197,6 +197,7 @@ describe('find by response', () => {
             uuid: localUserInterviewAttributes.uuid,
             isCompleted: undefined,
             isValid: false,
+            surveyId: 1,
             home: {},
             isQuestionable: false,
             email: localUser.email,
@@ -222,6 +223,7 @@ describe('find by response', () => {
             uuid: facebookUserInterviewAttributes.uuid,
             isCompleted: facebookUserInterviewAttributes.is_completed,
             isValid: facebookUserInterviewAttributes.is_valid,
+            surveyId: 1,
             isQuestionable: false,
             home: facebookUserInterviewAttributes.responses.home,
             email: undefined,
@@ -234,6 +236,7 @@ describe('find by response', () => {
             uuid: googleUserInterviewAttributes.uuid,
             isCompleted: googleUserInterviewAttributes.is_completed,
             isValid: googleUserInterviewAttributes.is_valid,
+            surveyId: 1,
             isQuestionable: false,
             home: googleUserInterviewAttributes.responses.home,
             email: undefined,
@@ -253,6 +256,7 @@ describe('find by response', () => {
             uuid: facebookUserInterviewAttributes.uuid,
             isCompleted: facebookUserInterviewAttributes.is_completed,
             isValid: facebookUserInterviewAttributes.is_valid,
+            surveyId: 1,
             isQuestionable: false,
             home: facebookUserInterviewAttributes.responses.home,
             email: undefined,
@@ -306,6 +310,7 @@ describe('Get interview by user id', () => {
             participant_id: localUser.id,
             is_completed: localUserInterviewAttributes.is_completed,
             responses: localUserInterviewAttributes.responses,
+            survey_id: 1,
             is_valid: localUserInterviewAttributes.is_valid,
             is_questionable: false,
             validations: localUserInterviewAttributes.validations
@@ -713,7 +718,7 @@ describe('stream interviews query', () => {
     });
 
     test('Get the complete list', (done) => {
-        const queryStream = await dbQueries.getInterviewsStream({ filters: {} });
+        const queryStream = dbQueries.getInterviewsStream({ filters: {} });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
@@ -737,7 +742,7 @@ describe('stream interviews query', () => {
     });
 
     test('Stream without audits', (done) => {
-        const queryStream = await dbQueries.getInterviewsStream({ filters: {}, select: { includeAudits: false } });
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { includeAudits: false } });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
@@ -761,7 +766,7 @@ describe('stream interviews query', () => {
     });
 
     test('Stream with only responses', (done) => {
-        const queryStream = await dbQueries.getInterviewsStream({ filters: {}, select: { responses: 'participant' } });
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responses: 'participant' } });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
@@ -780,7 +785,7 @@ describe('stream interviews query', () => {
     });
 
     test('Stream with only validated_data', (done) => {
-        const queryStream = await dbQueries.getInterviewsStream({ filters: {}, select: { responses: 'validated' } });
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responses: 'validated' } });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
@@ -799,7 +804,7 @@ describe('stream interviews query', () => {
     });
 
     test('Stream without responses or validated_data or audits', (done) => {
-        const queryStream = await dbQueries.getInterviewsStream({ filters: {}, select: { includeAudits: false, responses: 'none' } });
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { includeAudits: false, responses: 'none' } });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
@@ -818,7 +823,7 @@ describe('stream interviews query', () => {
     });
 
     test('Stream with both responses and validated_data', (done) => {
-        const queryStream = await dbQueries.getInterviewsStream({ filters: {}, select: { responses: 'both' } });
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responses: 'both' } });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
@@ -837,7 +842,7 @@ describe('stream interviews query', () => {
     });
 
     test('Stream with validated_data if available', (done) => {
-        const queryStream = await dbQueries.getInterviewsStream({ filters: {}, select: { responses: 'validatedIfAvailable' } });
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responses: 'validatedIfAvailable' } });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
