@@ -11,7 +11,6 @@ import moment              from 'moment-business-days';
 import _get                from 'lodash/get';
 
 import config                 from 'chaire-lib-common/lib/config/shared/project.config';
-import Preferences from 'chaire-lib-common/lib/config/Preferences';
 import * as surveyHelperNew   from 'evolution-common/lib/utils/helpers';
 import Section                from '../survey/Section';
 import SectionNav             from '../survey/SectionNav';
@@ -19,6 +18,7 @@ import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSur
 import LoadingPage            from '../shared/LoadingPage';
 import { startSetSurveyValidateInterview, startUpdateSurveyValidateInterview, startSurveyValidateAddGroupedObjects, startSurveyValidateRemoveGroupedObjects } from '../../actions/survey/survey';
 import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewContext';
+import { withPreferencesHOC } from 'evolution-frontend/lib/components/hoc/WithPreferencesHoc';
 
 export class ValidateSurvey extends React.Component {
   static contextType = InterviewContext;
@@ -26,8 +26,7 @@ export class ValidateSurvey extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      confirmModalOpenedShortname: null,
-      preferencesLoaded: false
+      confirmModalOpenedShortname: null
     };
     // set language if empty and change locale:
     if (!props.i18n.language || config.languages.indexOf(props.i18n.language) <= -1)
@@ -62,9 +61,6 @@ export class ValidateSurvey extends React.Component {
   componentDidMount() {
     const interviewUuid = this.props.interviewUuid;
     this.props.startSetSurveyValidateInterview(interviewUuid);
-    Preferences.load().then(() => {
-        this.setState({ preferencesLoaded: true })
-    })
   }
 
   onKeyPress(e) {
@@ -215,4 +211,4 @@ const mapDispatchToProps = (dispatch, props) => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(withTranslation()(withSurveyContext(ValidateSurvey)));
+)(withTranslation()(withSurveyContext(withPreferencesHOC(ValidateSurvey))));
