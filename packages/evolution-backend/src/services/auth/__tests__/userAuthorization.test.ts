@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { NextFunction, Request, Response } from 'express';
-import { v4 as uuidV4 } from 'uuid'
+import { v4 as uuidV4 } from 'uuid';
 import isAuthorized,  { isUserAllowed } from '../userAuthorization';
 import each from 'jest-each';
 import Interviews from '../../interviews/interviews';
@@ -15,9 +15,9 @@ defineDefaultRoles();
 
 let mockRequest: Partial<Request>;
 let mockResponse: Partial<Response>;
-let nextFunction: NextFunction = jest.fn();
-let mockUser = { id: 3, username: 'notAdmin', is_admin: false };
-let mockAdmin = { id: 4, username: 'admin', is_admin: true };
+const nextFunction: NextFunction = jest.fn();
+const mockUser = { id: 3, username: 'notAdmin', is_admin: false };
+const mockAdmin = { id: 4, username: 'admin', is_admin: true };
 
 const mockGetInterviewByUuid = Interviews.getInterviewByUuid = jest.fn();
 
@@ -35,8 +35,8 @@ beforeEach(() => {
 
 describe('User interview access', () => {
     const defaultPermissions = ['update', 'read'];
-    const defaultGetParams = { params: { interviewId }};
-    const defaultPostParams = { body: { interviewId }};
+    const defaultGetParams = { params: { interviewId } };
+    const defaultPostParams = { body: { interviewId } };
 
     each([
         ['No authenticated user', undefined, defaultGetParams, defaultPermissions, undefined, 401],
@@ -55,7 +55,7 @@ describe('User interview access', () => {
         ['Post and get params, not identical, not ok', mockAdmin, { ...defaultGetParams, body: { interviewId: uuidV4() } }, defaultPermissions, true, 400]
     ]).test('%s', async (_title, user, reqParams, requestedPermissions, retUndefined, expectedNextOrCode, is_active = true) => {
         mockRequest.user = user;
-        const request = {...mockRequest, ...reqParams };
+        const request = { ...mockRequest, ...reqParams };
         mockGetInterviewByUuid.mockResolvedValue(retUndefined ? { id: 1, participant_id: 1, is_active } : undefined);
         await isAuthorized(requestedPermissions)(request as Request, mockResponse as Response, nextFunction);
         if (typeof expectedNextOrCode === 'number') {
@@ -87,6 +87,7 @@ describe('is User allowed', () => {
             validations: {},
             is_valid: true,
             is_active,
+            survey_id: 1,
             logs: []
         };
         expect(isUserAllowed(user, interview, requestedPermissions)).toEqual(expectedResult);

@@ -17,11 +17,11 @@ if (confirm !== 'I WANT TO DELETE ALL VALIDATION WORK') {
     process.exit();
 }
 
-const run = function () {
-    Interviews.resetInterviews(confirm).then(function() {
-        console.log('complete!');
-        process.exit();
-    });
+const run = async function () {
+    await Interviews.resetInterviews(confirm);
 };
 
-run();
+run().then(function() {
+    console.log('complete');
+    process.exit();
+});

@@ -179,6 +179,7 @@ export interface InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, 
     end_at?: string;
     created_at?: string;
     updated_at?: string;
+    survey_id?: number;
 }
 
 export interface InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
