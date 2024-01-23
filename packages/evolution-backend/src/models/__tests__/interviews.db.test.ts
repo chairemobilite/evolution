@@ -41,6 +41,24 @@ const googleParticipant = {
     is_valid: true
 };
 
+const googleParticipant2 = {
+    id: 300,
+    google_id: 'googleId2',
+    is_valid: true
+};
+
+const googleParticipant3 = {
+    id: 310,
+    google_id: 'googleId3',
+    is_valid: true
+};
+
+const googleParticipant4 = {
+    id: 320,
+    google_id: 'googleId4',
+    is_valid: true
+};
+
 const localUser2 = {
     id: 4,
     email: 'test2@transition.city',
@@ -122,6 +140,9 @@ beforeAll(async () => {
     await create(knex, 'sv_participants', undefined, localUser as any);
     await create(knex, 'sv_participants', undefined, facebookParticipant as any);
     await create(knex, 'sv_participants', undefined, googleParticipant as any);
+    await create(knex, 'sv_participants', undefined, googleParticipant2 as any);
+    await create(knex, 'sv_participants', undefined, googleParticipant3 as any);
+    await create(knex, 'sv_participants', undefined, googleParticipant4 as any);
     await create(knex, 'sv_participants', undefined, localUser2 as any);
     await truncate(knex, 'users');
     await create(knex, 'users', undefined, localUserWithPermission as any);
@@ -141,7 +162,7 @@ describe('create new interviews', () => {
 
     test('create new interview, default returning fields', async () => {
         const newInterviewAttributes = {
-            participant_id: googleParticipant.id,
+            participant_id: googleParticipant4.id,
             responses: {},
             validations: {},
             logs: [],
@@ -155,7 +176,7 @@ describe('create new interviews', () => {
 
     test('create new interview, returning a few fields', async () => {
         const newInterviewAttributes = {
-            participant_id: googleParticipant.id,
+            participant_id: googleParticipant2.id,
             responses: {},
             validations: {},
             logs: [],
@@ -172,7 +193,7 @@ describe('create new interviews', () => {
 
     test('create new interview, returning single field', async () => {
         const newInterviewAttributes = {
-            participant_id: googleParticipant.id,
+            participant_id: googleParticipant3.id,
             responses: { foo: 'bar' },
             validations: {},
             logs: [],

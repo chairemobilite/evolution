@@ -141,7 +141,7 @@ describe('registerView', () => {
             is_valid: localUserInterviewAttributes.is_valid,
             is_completed: null,
             auth_method: 'email'
-        }])
+        }]);
     });
 
     test('Register an existing view, with a different query', async() => {
@@ -200,7 +200,7 @@ describe('registerView', () => {
             view_query: defaultViewQuery,
             unique_field: 'id',
         })]);
-        
+
     });
 
     test('Register an existing view, with multiple unique fields', async() => {
@@ -232,7 +232,7 @@ describe('registerView', () => {
             view_query: defaultViewQuery,
             unique_field: 'id, uuid'
         })]);
-        
+
     });
 
 });
@@ -266,13 +266,13 @@ test('Update database view', async () => {
         participant_id: participant3.id,
         is_completed: true
     });
-    await interviewsDbQueries.create(newInterview);
+    await interviewsDbQueries.create(newInterview2);
 
     // Update the view with the refreshAllViews function, then make sure the new interview is now included
     await dbQueries.refreshAllViews();
     const data4 = await knex(viewName).select('*');
     expect(data4.length).toEqual(originalCount + 2);
-    
+
 });
 
 describe('Query view', () => {
@@ -299,7 +299,7 @@ describe('Query view', () => {
         expect(data[0]).toEqual({
             id: expect.anything(),
             auth: 'email'
-        })
+        });
     });
 
     test('Query an unexisting view', async() => {
@@ -324,7 +324,7 @@ describe('Count by', () => {
         expect(data).toEqual([{
             valid: localUserInterviewAttributes.is_valid,
             count: dataCount
-        }])
+        }]);
     });
 
     test('Count by 2 fields', async() => {
@@ -333,21 +333,21 @@ describe('Count by', () => {
         expect((data as any[]).length).toEqual(dataCount);
         for (let i = 0; i < (data as any[]).length; i++) {
             switch(data[i].auth) {
-                case 'email': expect(data[i]).toEqual({
-                    id: expect.anything(),
-                    auth: 'email',
-                    count: 1
-                });
+            case 'email': expect(data[i]).toEqual({
+                id: expect.anything(),
+                auth: 'email',
+                count: 1
+            });
                 break;
-                case 'google': expect(data[i]).toEqual({
-                    id: expect.anything(),
-                    auth: 'google',
-                    count: 1
-                });
+            case 'google': expect(data[i]).toEqual({
+                id: expect.anything(),
+                auth: 'google',
+                count: 1
+            });
                 break;
-                default:
-                    // Unexpected data
-                    expect(data[i]).toEqual(false);
+            default:
+                // Unexpected data
+                expect(data[i]).toEqual(false);
             }
         }
     });
@@ -362,4 +362,4 @@ describe('Count by', () => {
         expect(data).toEqual(false);
     });
 
-})
+});

@@ -48,7 +48,7 @@ afterAll(async() => {
 each([
     [{ email: participant1.email }, participant1 ],
     [{}, undefined],
-    [{ email: 'other'}, undefined],
+    [{ email: 'other' }, undefined],
     [{ email: participant1.email.toUpperCase() }, participant1 ],
     [{ usernameOrEmail: participant1.email }, participant1],
     [{ usernameOrEmail: participant1.username }, participant1],
@@ -97,7 +97,7 @@ test('Update participant', async () => {
 
     // Update the first name
     const newName = 'Newname';
-    const { id, first_name, ...origUser} = await dbQueries.getById(participant1.id) as ParticipantAttributes;
+    const { id, first_name, ...origUser } = await dbQueries.getById(participant1.id) as ParticipantAttributes;
     const updatedAttributes = _cloneDeep(origUser) as ParticipantAttributes;
     updatedAttributes.first_name = newName;
     expect(await dbQueries.update(participant1.id, updatedAttributes)).toEqual(true);
@@ -105,7 +105,7 @@ test('Update participant', async () => {
     expect(updatedUser.first_name).toEqual(newName);
 
     // Try to update id or email
-    expect(await dbQueries.update(participant1.id, { email: 'new@test.org', id: participant1.id + 10})).toEqual(false);
+    expect(await dbQueries.update(participant1.id, { email: 'new@test.org', id: participant1.id + 10 })).toEqual(false);
     const updatedUser2 = await dbQueries.getById(participant1.id) as ParticipantAttributes;
     expect(updatedUser2).toEqual(updatedUser);
 });
