@@ -19,9 +19,7 @@ export async function up(knex: Knex): Promise<unknown> {
     });
 
     // Get existing surveys:
-    const existingSurveys = await knex
-        .select('*')
-        .from(surveyTable);
+    const existingSurveys = await knex.select('*').from(surveyTable);
 
     const surveys: SurveyAttributes[] = [];
     for (let i = 0; i < existingSurveys.length; i++) {
@@ -54,11 +52,45 @@ export async function up(knex: Knex): Promise<unknown> {
     }
 
     if (assignedSurveyId === undefined) {
-        throw ('Cannot find or generate survey to assign to the interviews');
+        throw 'Cannot find or generate survey to assign to the interviews';
     }
 
-    await knex(interviewTable)
-        .update({ survey_id: assignedSurveyId });
+    await knex(interviewTable).update({ survey_id: assignedSurveyId });
+
+    // Remove duplicate survey_id/participant_id interviews before setting
+    // unique constraint. We keep the interview with the longest responses
+    const responses = await knex
+        .from(
+            knex(interviewTable)
+                .select('survey_id', 'participant_id')
+                .count()
+                .groupBy('survey_id', 'participant_id')
+                .as('counts')
+        )
+        .where(knex.raw('count > 1'));
+    let totalCount = 0;
+    for (let i = 0; i < responses.length; i++) {
+        const responseLengths = await knex(interviewTable)
+            .select('id', knex.raw('LENGTH(responses::text) as rlength'))
+            .where('survey_id', responses[i]['survey_id'])
+            .andWhere('participant_id', responses[i]['participant_id'])
+            .orderBy('rlength', 'desc');
+        // Delete interviews from the second to the end
+        for (let interviewIdx = 1; interviewIdx < responseLengths.length; interviewIdx++) {
+            const deleteCnt = await knex(interviewTable).where('id', responseLengths[interviewIdx]['id']).del();
+            if (deleteCnt > 1) {
+                console.log(
+                    'Unexpected delete count for interview and participant: ',
+                    responseLengths[interviewIdx]['id'],
+                    responses[i]['participant_id'],
+                    deleteCnt
+                );
+                throw new Error('Unexpected delete count');
+            }
+            totalCount += deleteCnt;
+        }
+    }
+    console.log('Number of deleted duplicate interviews: ', totalCount);
 
     // Add foreign key to interview table and index + set unique on survey_id and id
     return knex.schema.alterTable(interviewTable, (table: Knex.TableBuilder) => {
