@@ -90,7 +90,7 @@ export const ValidationAuditFilter = <CustomSurvey, CustomHousehold, CustomHome,
             >
                 {options.map((key, i) => (
                     <option key={`validationError_${key}`} value={key}>
-                        {key ? _truncate(t(`survey:validations:${key}`), { length: 70 }) : ''}
+                        {key ? _truncate(t([`survey:validations:${key}`, `surveyAdmin:${key}`]), { length: 70 }) : ''}
                     </option>
                 ))}
             </select>

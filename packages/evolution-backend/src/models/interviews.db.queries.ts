@@ -416,8 +416,10 @@ const getRawWhereClause = (
         return getBooleanFilter(`${tblAlias}.is_questionable`, filter);
     case 'uuid':
         return `${tblAlias}.${field} ${filter.op ? operatorSigns[filter.op] : operatorSigns.eq} '${filter.value}'`;
-    case 'audits':
-        if (typeof filter.value === 'string') {
+    case 'audits': {
+            if (typeof filter.value !== 'string') {
+                return undefined;
+            }
             const match = filter.value.match(dotSeparatedStringRegex);
             if (match === null) {
                 throw new TrError(
@@ -426,9 +428,10 @@ const getRawWhereClause = (
                     'DatabaseInvalidWhereClauseUserEntry'
                 );
             }
+            // Add subquery to audits table
+            const auditSubQuery = knex('sv_audits').select('interview_id').distinct().where('error_code', filter.value);
+            return [`${tblAlias}.id in (${auditSubQuery.toSQL().sql})`, filter.value];
         }
-        // Query whether the value exists
-        return `${tblAlias}.${field}->>'${filter.value}' is not null`;
     }
     const jsonObject = field.split('.');
     // TODO only responses field order by is supported
@@ -525,6 +528,16 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
 
         const sortFields = params.sort || [];
 
+        const auditsCountQuery = knex('sv_audits')
+            .select('interview_id', 'error_code')
+            .count()
+            .groupBy('interview_id', 'error_code')
+            .orderBy('count')
+            .as('audits_cnt');
+        const auditsQuery = knex(auditsCountQuery)
+            .select('interview_id', knex.raw('json_agg(json_build_object(error_code, count)) as audits'))
+            .groupBy('interview_id')
+            .as('audits');
         const interviewsQuery = knex
             .select(
                 'i.id',
@@ -533,12 +546,11 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
                 'i.created_at',
                 'i.responses',
                 'i.validated_data',
-                'i.audits',
+                'audits.audits',
                 'i.is_valid',
                 'i.is_completed',
                 'i.is_validated',
                 'i.is_questionable',
-                'i.audits',
                 'i.survey_id',
                 'participant.username',
                 knex.raw('case when participant.facebook_id is null then false else true end facebook'),
@@ -546,6 +558,7 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
             )
             .from(`${tableName} as i`)
             .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
+            .leftJoin(auditsQuery, 'i.id', 'audits.interview_id')
             .whereRaw(rawFilter, bindings);
         // Add sort fields
         sortFields.forEach((field) => {
@@ -558,7 +571,21 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
         }
         const interviews = await interviewsQuery;
 
-        return { interviews: interviews.map((interview) => _removeBlankFields(interview)), totalCount };
+        // TODO For backward compatibility, the type of the audits is an object with key => count. When we only use the new audits, this can be udpated
+        const auditsToObject = ({ audits, ...rest }) => {
+            const newAudits =
+                audits === undefined
+                    ? undefined
+                    : (audits as { [auditKey: string]: number }[]).reduce(
+                        (accumulator, currentValue) => ({ ...accumulator, ...currentValue }),
+                        {}
+                    );
+            return {
+                ...rest,
+                audits: newAudits
+            } as InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+        };
+        return { interviews: interviews.map((interview) => auditsToObject(_removeBlankFields(interview))), totalCount };
     } catch (error) {
         throw new TrError(
             `Cannot get interview list in table ${tableName} database (knex error: ${error})`,
@@ -587,12 +614,12 @@ const getValidationErrors = async (params: {
         const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
 
         const validationErrorsQuery = knex
-            .select('key', knex.raw('sum(value::numeric) cnt'))
+            .select('error_code as key', knex.raw('count(error_code) cnt'))
             .from(`${tableName} as i`)
-            .joinRaw('inner join lateral json_each_text(audits) on TRUE')
+            .innerJoin('sv_audits', 'id', 'interview_id')
             .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
             .whereRaw(rawFilter, bindings)
-            .groupBy('key')
+            .groupBy('error_code')
             .orderBy('cnt', 'desc');
 
         const errors = await validationErrorsQuery;

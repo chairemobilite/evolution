@@ -86,7 +86,6 @@ const localUserInterviewAttributes = {
     },
     validations: {},
     logs: [],
-    audits: { errorOne: 3, errorThree: 1 }
 };
 
 const facebookUserInterviewAttributes = {
@@ -122,7 +121,6 @@ const googleUserInterviewAttributes = {
     },
     validations: {},
     logs: [],
-    audits: { errorOne: 3, errorTwo: 1 },
     validated_data: {
         accessCode: '2222',
         home: {
@@ -135,6 +133,7 @@ const googleUserInterviewAttributes = {
 
 beforeAll(async () => {
     jest.setTimeout(10000);
+    await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'sv_participants');
     await create(knex, 'sv_participants', undefined, localUser as any);
@@ -153,6 +152,7 @@ beforeAll(async () => {
 });
 
 afterAll(async() => {
+    await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'users');
     await truncate(knex, 'sv_participants');
@@ -579,13 +579,6 @@ describe('list interviews', () => {
         expect(filterResponsesBoolean.length).toEqual(1);
         expect((filterResponsesBoolean[0].responses as any).booleanField).toBeTruthy();
 
-        // Query by audit
-        const { interviews: filterAudit, totalCount: countAudit } =
-            await dbQueries.getList({ filters: { 'audits': { value: 'errorThree' } }, pageIndex: 0, pageSize: -1 });
-        expect(countAudit).toEqual(1);
-        expect(filterAudit.length).toEqual(1);
-        expect(filterAudit[0].uuid).toEqual(localUserInterviewAttributes.uuid);
-
     });
 
     test('Combine filter and paging', async () => {
@@ -707,9 +700,40 @@ describe('list interviews', () => {
 
 });
 
-describe('get validation errors', () => {
+describe('Queries with audits', () => {
 
-    test('Get the complete list of errors', async () => {
+    const errorOneCode = 'errorOne';
+    const errorTwoCode = 'errorTwo';
+    const errorThreeCode = 'errorThree';
+
+    beforeAll(async () => {
+        // Add 3 errors per of type one, and one of type three for one of the interviews
+        const firstInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid);
+        if (firstInterview === undefined) {
+            throw 'error getting interview 1 for audits';
+        }
+        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
+        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
+        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
+        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorThreeCode, object_type: 'interview', object_uuid: firstInterview.uuid, version: 2 } as any, 'interview_id');
+
+        // Add 3 errors per of type one, and one of type two for another interview
+        const secondInterview = await dbQueries.getInterviewByUuid(googleUserInterviewAttributes.uuid);
+        if (secondInterview === undefined) {
+            throw 'error getting interview 2 for audits';
+        }
+        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
+        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
+        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
+        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorTwoCode, object_type: 'household', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
+
+    });
+
+    afterAll(async() => {
+        await truncate(knex, 'sv_audits');
+    });
+
+    test('Get the complete list of validation errors', async () => {
         const { errors } = await dbQueries.getValidationErrors({ filters: {} });
         expect(errors.length).toEqual(3);
         expect(errors).toEqual([
@@ -719,7 +743,7 @@ describe('get validation errors', () => {
         ]);
     });
 
-    test('Use a validity filter', async () => {
+    test('Get validation errors with a validity filter', async () => {
         const { errors } = await dbQueries.getValidationErrors({ filters: { is_valid: { value: true } } });
         expect(errors.length).toEqual(2);
         expect(errors).toEqual([
@@ -727,6 +751,59 @@ describe('get validation errors', () => {
             { key: 'errorTwo', cnt: '1' }
         ]);
     });
+
+    test('List interviews with audit filter', async () => {
+
+        // Query by audit
+        const { interviews: filterAudit, totalCount: countAudit } =
+            await dbQueries.getList({ filters: { 'audits': { value: 'errorThree' } }, pageIndex: 0, pageSize: -1 });
+        expect(countAudit).toEqual(1);
+        expect(filterAudit.length).toEqual(1);
+        expect(filterAudit[0].uuid).toEqual(localUserInterviewAttributes.uuid);
+
+    });
+
+    test('List interviews with audit filter, no result', async () => {
+
+        // Query by audit
+        const { interviews: filterAudit, totalCount: countAudit } =
+            await dbQueries.getList({ filters: { 'audits': { value: 'errorFour' } }, pageIndex: 0, pageSize: -1 });
+        expect(countAudit).toEqual(0);
+        expect(filterAudit.length).toEqual(0);
+
+    });
+
+    test('List interviews, validate audits', async () => {
+
+        // Query by audit
+        const { interviews, totalCount } = await dbQueries.getList({ filters: { }, pageIndex: 0, pageSize: -1 });
+        expect(totalCount).toEqual(5);
+        expect(interviews.length).toEqual(5);
+        for (let interview of interviews) {
+            if (interview.uuid === localUserInterviewAttributes.uuid) {
+                const audits = interview.audits;
+                expect(audits).toBeDefined();
+                expect(Object.keys(audits as any).length).toEqual(2);
+                expect(audits).toMatchObject({
+                    [errorOneCode]: 3,
+                    [errorThreeCode]: 1
+                });
+            } else if (interview.uuid === googleUserInterviewAttributes.uuid) {
+                const audits = interview.audits;
+                expect(audits).toBeDefined();
+                expect(Object.keys(audits as any).length).toEqual(2);
+                expect(audits).toMatchObject({
+                    [errorOneCode]: 3,
+                    [errorTwoCode]: 1
+                });
+            } else {
+                const audits = interview.audits;
+                expect(audits).toBeUndefined();
+            }
+        }
+
+    });
+
 });
 
 describe('stream interviews query', () => {
