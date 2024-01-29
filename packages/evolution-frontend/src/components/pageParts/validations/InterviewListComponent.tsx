@@ -179,7 +179,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                             icon={faExclamationTriangle}
                             className="faIconNoMargin _error _red"
                             title={Object.keys(value)
-                                .map((error: any) => props.t(`survey:validations:${error}`))
+                                .map((error: any) => props.t([`survey:validations:${error}`, `surveyAdmin:${error}`]))
                                 .join('\n')}
                         />
                     ),
