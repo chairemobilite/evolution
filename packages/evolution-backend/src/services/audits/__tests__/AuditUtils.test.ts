@@ -24,7 +24,7 @@ describe('convertParamsErrorsToAudits', () => {
             message: errors[0].message,
             version: 1,
             ignore: false,
-            isWarning: false
+            level: 'error'
         });
         expect(result[1]).toEqual({
             errorCode: slugify('Error message 2'),
@@ -33,7 +33,7 @@ describe('convertParamsErrorsToAudits', () => {
             message: errors[1].message,
             version: 1,
             ignore: false,
-            isWarning: false
+            level: 'error'
         });
     });
 });
@@ -45,21 +45,21 @@ describe('mergeWithExisting', () => {
                 version: 1,
                 errorCode: 'test-error',
                 message: 'Test error message',
-                isWarning: false,
+                level: 'error',
                 ignore: true,
             },
             'outdated-error': {
                 version: 1,
                 errorCode: 'oudated-error',
                 message: 'Outdated error message',
-                isWarning: false,
+                level: 'error',
                 ignore: true,
             },
             'version-changed-error': {
                 version: 1,
                 errorCode: 'oudated-error',
                 message: 'Outdated error message',
-                isWarning: false,
+                level: 'error',
                 ignore: true,
             },
         };
@@ -69,14 +69,14 @@ describe('mergeWithExisting', () => {
                 version: 1,
                 errorCode: 'test-error',
                 message: 'Test error message updated',
-                isWarning: true,
+                level: 'warning',
                 ignore: false,
             },
             'version-changed-error': {
                 version: 2,
                 errorCode: 'oudated-error',
                 message: 'Outdated error message',
-                isWarning: false,
+                level: 'error',
                 ignore: false,
             },
         };
@@ -85,7 +85,7 @@ describe('mergeWithExisting', () => {
 
         expect(Object.keys(mergedAudits).length).toEqual(Object.keys(newAudits).length);
         expect(mergedAudits['test-error'].ignore).toBe(true);
-        expect(mergedAudits['test-error'].isWarning).toBe(true);
+        expect(mergedAudits['test-error'].level).toBe('warning');
         expect(mergedAudits['outdated-error']).toBeUndefined();
         expect(mergedAudits['version-changed-error'].version).toBe(2);
         expect(mergedAudits['version-changed-error'].ignore).toBe(false);

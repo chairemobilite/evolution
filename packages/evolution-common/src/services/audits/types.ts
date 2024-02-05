@@ -11,9 +11,9 @@ export type Audit = {
      */
     version: number;
     /**
-     * Whether this audit message is simply a warning or an error. Defaults to false
+     * audit level type
      */
-    isWarning?: boolean;
+    level?: 'error' | 'warning' | 'info'; // empty = error
     /**
      * The code of this validation. It should be unique per interview object.
      */

@@ -23,14 +23,14 @@ type DbObject = {
     ignore?: boolean;
     message: string | null;
     version: number;
-    is_warning: boolean | null;
+    level?: 'error' | 'warning' | 'info'; // empty = error
 };
 
 const dbObjectToAudit = (dbObject: DbObject): AuditForObject => ({
     objectType: dbObject.object_type,
     objectUuid: dbObject.object_uuid,
     version: dbObject.version,
-    isWarning: dbObject.is_warning === null ? undefined : dbObject.is_warning,
+    level: dbObject.level,
     errorCode: dbObject.error_code,
     message: dbObject.message === null ? undefined : dbObject.message,
     ignore: dbObject.ignore
@@ -41,7 +41,7 @@ const auditToDbObject = (interviewId: number, audit: AuditForObject): DbObject =
     object_type: audit.objectType,
     object_uuid: audit.objectUuid,
     version: audit.version,
-    is_warning: audit.isWarning || null,
+    level: audit.level,
     error_code: audit.errorCode,
     message: audit.message || null,
     ignore: audit.ignore
