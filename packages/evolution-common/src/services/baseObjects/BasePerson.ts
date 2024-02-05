@@ -52,7 +52,7 @@ type BasePersonAttributes = {
 type ExtendedPersonAttributes = BasePersonAttributes & { [key: string]: any };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface IBasePersonAttributes extends BasePersonAttributes { }
+interface IBasePersonAttributes extends BasePersonAttributes {}
 
 class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable {
     _isValid: OptionalValidity;
@@ -135,7 +135,6 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
 
         this.baseHome = params.baseHome;
     }
-
 
     /**
      * Factory that validates input from an interview and makes
