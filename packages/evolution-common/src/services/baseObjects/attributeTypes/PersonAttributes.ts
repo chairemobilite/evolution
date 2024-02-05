@@ -34,23 +34,17 @@ export const ageGroupValues = [
     '110-114',
     '115-119',
     '120-124',
-    '125-129',
+    '125-129'
 ];
 
-export type AgeGroup = typeof ageGroupValues[number];
+export type AgeGroup = (typeof ageGroupValues)[number];
 // Most of the time at least age OR age group must be defined
 
-export const genderValues = [
-    'female',
-    'male',
-    'custom',
-];
-export type Gender = typeof genderValues[number];
-
+export const genderValues = ['female', 'male', 'custom'];
+export type Gender = (typeof genderValues)[number];
 
 export const yesNoDontKnowNonApplicableValues = ['yes', 'no', 'dontKnow', 'nonApplicable'];
-export type YesNoDontKnowNonApplicable = typeof yesNoDontKnowNonApplicableValues[number];
-
+export type YesNoDontKnowNonApplicable = (typeof yesNoDontKnowNonApplicableValues)[number];
 
 export type DrivingLicenseOwnership = YesNoDontKnowNonApplicable;
 
@@ -86,9 +80,9 @@ export const occupationValues = [
     'unemployed',
     'other',
     'nonApplicable',
-    'preferNotToAnswer',
+    'preferNotToAnswer'
 ];
-export type Occupation = typeof occupationValues[number];
+export type Occupation = (typeof occupationValues)[number];
 
 export type JobCategory = string | 'dontKnow' | 'nonApplicable'; // TODO: add job categories from official source if possible and document it
 export type JobName = string;

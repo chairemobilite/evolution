@@ -417,21 +417,21 @@ const getRawWhereClause = (
     case 'uuid':
         return `${tblAlias}.${field} ${filter.op ? operatorSigns[filter.op] : operatorSigns.eq} '${filter.value}'`;
     case 'audits': {
-            if (typeof filter.value !== 'string') {
-                return undefined;
-            }
-            const match = filter.value.match(dotSeparatedStringRegex);
-            if (match === null) {
-                throw new TrError(
-                    `Invalid value for where clause in ${tableName} database`,
-                    'DBQCR0006',
-                    'DatabaseInvalidWhereClauseUserEntry'
-                );
-            }
-            // Add subquery to audits table
-            const auditSubQuery = knex('sv_audits').select('interview_id').distinct().where('error_code', filter.value);
-            return [`${tblAlias}.id in (${auditSubQuery.toSQL().sql})`, filter.value];
+        if (typeof filter.value !== 'string') {
+            return undefined;
         }
+        const match = filter.value.match(dotSeparatedStringRegex);
+        if (match === null) {
+            throw new TrError(
+                `Invalid value for where clause in ${tableName} database`,
+                'DBQCR0006',
+                'DatabaseInvalidWhereClauseUserEntry'
+            );
+        }
+        // Add subquery to audits table
+        const auditSubQuery = knex('sv_audits').select('interview_id').distinct().where('error_code', filter.value);
+        return [`${tblAlias}.id in (${auditSubQuery.toSQL().sql})`, filter.value];
+    }
     }
     const jsonObject = field.split('.');
     // TODO only responses field order by is supported
