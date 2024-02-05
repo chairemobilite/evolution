@@ -15,6 +15,10 @@ export type Audit = {
      */
     isWarning?: boolean;
     /**
+     * Whether this audit message is simply an info (no error or warning, but useful to keep infos inside audits). Defaults to false
+     */
+    isInfo?: boolean;
+    /**
      * The code of this validation. It should be unique per interview object.
      */
     errorCode: string;

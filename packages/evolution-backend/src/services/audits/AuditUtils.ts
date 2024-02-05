@@ -20,6 +20,7 @@ export const convertParamsErrorsToAudits = (
             errorCode,
             message: error.message,
             isWarning: false,
+            isInfo: false,
             ignore: false, // params errors should never be ignored
             ...objectData
         });

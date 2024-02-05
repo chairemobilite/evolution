@@ -24,6 +24,7 @@ type DbObject = {
     message: string | null;
     version: number;
     is_warning: boolean | null;
+    is_info: boolean | null;
 };
 
 const dbObjectToAudit = (dbObject: DbObject): AuditForObject => ({
@@ -31,6 +32,7 @@ const dbObjectToAudit = (dbObject: DbObject): AuditForObject => ({
     objectUuid: dbObject.object_uuid,
     version: dbObject.version,
     isWarning: dbObject.is_warning === null ? undefined : dbObject.is_warning,
+    isInfo: dbObject.is_info === null ? undefined : dbObject.is_info,
     errorCode: dbObject.error_code,
     message: dbObject.message === null ? undefined : dbObject.message,
     ignore: dbObject.ignore
@@ -42,6 +44,7 @@ const auditToDbObject = (interviewId: number, audit: AuditForObject): DbObject =
     object_uuid: audit.objectUuid,
     version: audit.version,
     is_warning: audit.isWarning || null,
+    is_info: audit.isInfo || null,
     error_code: audit.errorCode,
     message: audit.message || null,
     ignore: audit.ignore

@@ -21,6 +21,7 @@ describe('auditArrayToAudits', () => {
             errorCode: 'test-error',
             message: 'Test error message',
             isWarning: false,
+            isInfo: false,
             ignore: true,
             objectType: 'interview',
             objectUuid: arbitraryUuid
@@ -29,6 +30,7 @@ describe('auditArrayToAudits', () => {
             errorCode: 'test-error-2',
             message: 'Test error message',
             isWarning: false,
+            isInfo: false,
             ignore: true,
             objectType: 'interview',
             objectUuid: arbitraryUuid
@@ -37,6 +39,7 @@ describe('auditArrayToAudits', () => {
             errorCode: 'test-error',
             message: 'Test error message',
             isWarning: false,
+            isInfo: false,
             ignore: true,
             objectType: 'person',
             objectUuid: arbitraryUuid
@@ -45,16 +48,17 @@ describe('auditArrayToAudits', () => {
             errorCode: 'test-error',
             message: 'Test error message',
             isWarning: false,
+            isInfo: false,
             ignore: true,
             objectType: 'person',
             objectUuid: arbitraryUuid2
-        }]
+        }];
 
         const perObjectAudits = auditArrayToAudits(audits);
 
         expect(Object.keys(perObjectAudits).length).toEqual(3);
         expect(perObjectAudits[`interview.${arbitraryUuid}`]).toEqual({
-            'test-error': _omit(audits[0], ['objectUuid', 'objectType']), 
+            'test-error': _omit(audits[0], ['objectUuid', 'objectType']),
             'test-error-2': _omit(audits[1], ['objectUuid', 'objectType'])
         });
         expect(perObjectAudits[`person.${arbitraryUuid}`]).toEqual({
@@ -62,7 +66,7 @@ describe('auditArrayToAudits', () => {
         });
         expect(perObjectAudits[`person.${arbitraryUuid}`]).toEqual({
             'test-error': _omit(audits[3], ['objectUuid', 'objectType'])
-        })
+        });
     });
 });
 
@@ -75,20 +79,23 @@ describe('auditsToAuditArray', () => {
                 errorCode: 'test-error',
                 message: 'Test error message',
                 isWarning: false,
+                isInfo: false,
                 ignore: true
             }, 'test-error-2': {
                 version: 1,
                 errorCode: 'test-error-2',
                 message: 'Test error message',
                 isWarning: false,
+                isInfo: false,
                 ignore: true
             }
-        }
+        };
         const expectedAudits = [{
             version: 1,
             errorCode: 'test-error',
             message: 'Test error message',
             isWarning: false,
+            isInfo: false,
             ignore: true,
             objectType: 'interview',
             objectUuid: arbitraryUuid
@@ -97,12 +104,13 @@ describe('auditsToAuditArray', () => {
             errorCode: 'test-error-2',
             message: 'Test error message',
             isWarning: false,
+            isInfo: false,
             ignore: true,
             objectType: 'interview',
             objectUuid: arbitraryUuid
         }];
 
-        const auditsArr = auditsToAuditArray(auditObject, { objectType: 'interview', objectUuid: arbitraryUuid});
+        const auditsArr = auditsToAuditArray(auditObject, { objectType: 'interview', objectUuid: arbitraryUuid });
 
         expect(auditsArr.length).toEqual(2);
         expect(auditsArr).toEqual(expectedAudits);

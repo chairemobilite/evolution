@@ -70,13 +70,13 @@ afterAll(async() => {
 });
 
 const removeUndefined = (obj) => {
-    Object.keys(obj).forEach(key => {
+    Object.keys(obj).forEach((key) => {
         if (obj[key] === undefined) {
             delete obj[key];
         }
     });
     return obj;
-}
+};
 
 const person1Uuid = uuidV4();
 const person2Uuid = uuidV4();
@@ -86,6 +86,7 @@ const audits = [{
     objectUuid: localUserInterviewAttributes.uuid,
     version: 2,
     isWarning: true,
+    isInfo: true,
     errorCode: 'InterviewErrorCode1',
     message: 'ThisOneHasAMessage',
     ignore: false
@@ -120,20 +121,20 @@ const expected = [
 ];
 
 const newAudits = [{
-        objectType: 'person',
-        objectUuid: person1Uuid,
-        version: 2,
-        errorCode: 'NewPersonErrorCode1',
-        message: 'NewMessage1',
-        ignore: false
-    }, {
-        objectType: 'person',
-        objectUuid: person2Uuid,
-        version: 2,
-        errorCode: 'NewPersonErrorCode1',
-        message: 'NewMEssage2',
-        ignore: false
-    }]
+    objectType: 'person',
+    objectUuid: person1Uuid,
+    version: 2,
+    errorCode: 'NewPersonErrorCode1',
+    message: 'NewMessage1',
+    ignore: false
+}, {
+    objectType: 'person',
+    objectUuid: person2Uuid,
+    version: 2,
+    errorCode: 'NewPersonErrorCode1',
+    message: 'NewMEssage2',
+    ignore: false
+}];
 
 test('Set a few audits for an interview', async() => {
     const result = await dbQueries.setAuditsForInterview(localUserInterviewAttributes.id, audits);
@@ -142,10 +143,10 @@ test('Set a few audits for an interview', async() => {
 
 test('Get the audits for the previous interview', async() => {
     const dbAudits = await dbQueries.getAuditsForInterview(localUserInterviewAttributes.id);
-    
+
     expect(dbAudits.length).toEqual(audits.length);
     for (let i = 0; i < audits.length; i++) {
-        const findAudit = expected.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAudits[i])));
+        const findAudit = expected.find((audit) => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAudits[i])));
         expect(dbAudits[i]).toEqual(findAudit);
     }
 });
@@ -157,18 +158,18 @@ test('Add same audits to other interview', async() => {
 
 test('Get the audits for both interviews', async() => {
     const dbAuditsLocal = await dbQueries.getAuditsForInterview(localUserInterviewAttributes.id);
-    
+
     expect(dbAuditsLocal.length).toEqual(audits.length);
     for (let i = 0; i < audits.length; i++) {
-        const findAudit = expected.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsLocal[i])));
+        const findAudit = expected.find((audit) => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsLocal[i])));
         expect(dbAuditsLocal[i]).toEqual(findAudit);
     }
 
     const dbAuditsOther = await dbQueries.getAuditsForInterview(otherUserInterviewAttributes.id);
-    
+
     expect(dbAuditsOther.length).toEqual(audits.length);
     for (let i = 0; i < audits.length; i++) {
-        const findAudit = expected.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
+        const findAudit = expected.find((audit) => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
         expect(dbAuditsOther[i]).toEqual(findAudit);
     }
 });
@@ -179,10 +180,10 @@ test('Set new audits for interview', async() => {
 
     // Only the new audits should be set
     const dbAuditsOther = await dbQueries.getAuditsForInterview(otherUserInterviewAttributes.id);
-    
+
     expect(dbAuditsOther.length).toEqual(newAudits.length);
     for (let i = 0; i < newAudits.length; i++) {
-        const findAudit = newAudits.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
+        const findAudit = newAudits.find((audit) => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
         expect(dbAuditsOther[i]).toEqual(findAudit);
     }
 });
@@ -196,20 +197,20 @@ test('Set new audits for interview, with errors', async() => {
         errorCode: 'NewPersonErrorCode1',
         message: 'NewMessage1',
         ignore: false
-    }]
+    }];
 
     // The query should throw an error and the audits should not be modified
     await expect(dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, errorAudits))
         .rejects
         .toThrowError(expect.anything());
-    
+
     const dbAuditsOther = await dbQueries.getAuditsForInterview(otherUserInterviewAttributes.id);
     expect(dbAuditsOther.length).toEqual(newAudits.length);
     for (let i = 0; i < newAudits.length; i++) {
-        const findAudit = newAudits.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
+        const findAudit = newAudits.find((audit) => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
         expect(dbAuditsOther[i]).toEqual(findAudit);
     }
-    
+
 });
 
 test('Update audit', async() => {
@@ -231,7 +232,7 @@ test('Update audit', async() => {
     const dbAuditsOther = await dbQueries.getAuditsForInterview(otherUserInterviewAttributes.id);
     expect(dbAuditsOther.length).toEqual(expectedAudits.length);
     for (let i = 0; i < expectedAudits.length; i++) {
-        const findAudit = expectedAudits.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
+        const findAudit = expectedAudits.find((audit) => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
         expect(dbAuditsOther[i]).toEqual(findAudit);
     }
 });
@@ -260,7 +261,7 @@ test('Set new audits that will be updated', async() => {
     // The returned audit should be the updated ones
     expect(insertedAudits.length).toEqual(expectedAudits.length);
     for (let i = 0; i < expectedAudits.length; i++) {
-        const findAudit = expectedAudits.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(insertedAudits[i])));
+        const findAudit = expectedAudits.find((audit) => JSON.stringify(audit) === JSON.stringify(removeUndefined(insertedAudits[i])));
         expect(insertedAudits[i]).toEqual(findAudit);
     }
 
@@ -269,7 +270,7 @@ test('Set new audits that will be updated', async() => {
 
     expect(dbAuditsOther.length).toEqual(expectedAudits.length);
     for (let i = 0; i < expectedAudits.length; i++) {
-        const findAudit = expectedAudits.find(audit => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
+        const findAudit = expectedAudits.find((audit) => JSON.stringify(audit) === JSON.stringify(removeUndefined(dbAuditsOther[i])));
         expect(dbAuditsOther[i]).toEqual(findAudit);
     }
 });
