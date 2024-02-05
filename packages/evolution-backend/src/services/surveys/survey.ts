@@ -13,5 +13,5 @@ export type SurveyAttributes = {
     end_date?: Date;
     config?: {
         [key: string]: string;
-    }
+    };
 };
