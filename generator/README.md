@@ -29,7 +29,15 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 
 To run this script, follow these steps:
 
-1. Copy `generateSurveyExample.xlsx` to your project.
+1. Install all the Python dependencies from `requirements.txt`
+
+   ```bash
+   pip install -r <path/to/evolution>/generator/requirements.txt
+   ```
+
+<!-- TODO: Create a new section titled "Start your own survey" and move steps 2 and 3 into that section -->
+
+2. Copy `generateSurveyExample.xlsx` to your project.
 
    For Windows users:
 
@@ -45,7 +53,7 @@ To run this script, follow these steps:
    cp ./evolution/generator/example/generateSurveyExample.xlsx ./survey/src/survey/references/generateSurveyExample.xlsx
    ```
 
-2. Copy `generatorConfig.yaml` to your project.
+3. Copy `generatorConfig.yaml` to your project.
 
    For Windows users:
 
@@ -61,7 +69,7 @@ To run this script, follow these steps:
    cp ./evolution/generator/example/generatorConfig.yaml ./survey/src/survey/config/generatorConfig.yaml
    ```
 
-3. Navigate to the root folder of your project and run the following command:
+4. Navigate to the root folder of your project and run the following command:
 
    ```bash
    yarn generateSurvey
@@ -135,7 +143,7 @@ export const end_email: inputTypes.InputString = {
     ...defaultInputBase.inputStringBase,
     path: 'end.email',
     label: (t: TFunction) => t('end:end.email'),
-    conditional: customConditionals.hasAcceptGivingEmailConditional,
+    conditional: conditionals.hasAcceptGivingEmailConditional,
     validations: validations.emailValidation
 };
 ```
@@ -175,10 +183,10 @@ In this example, we are creating a conditional named `hasDrivingLicenseCondition
 The corresponding TypeScript code for this conditional is shown below:
 
 ```typescript
-// customConditionals.tsx
+// conditionals.tsx
 export const hasDrivingLicenseConditional: Conditional = (interview, path) => {
   const relativePath = path.substring(0, path.lastIndexOf(".")); // Remove the last key from the path
-  return checkConditionals({
+  return createConditionals({
     interview,
     conditionals: [
       {

@@ -1,0 +1,26 @@
+survey:
+    excel_file: generator/examples/Example_Generate_Survey.xlsx
+
+excel:
+    active_script: false
+
+widgets:
+    output_info_list:
+        - output_folder: generator/examples/survey/sections/home
+          section: home
+        - output_folder: generator/examples/survey/sections/end
+          section: end
+
+conditionals:
+    output_file: generator/examples/survey/common/conditionals.tsx
+
+choices:
+    output_file: generator/examples/survey/common/choices.tsx
+
+input_range:
+    output_file: generator/examples/survey/common/inputRange.tsx
+
+libelles:
+    output_folder: generator/examples/survey/locales
+    overwrite: true
+    section: null
