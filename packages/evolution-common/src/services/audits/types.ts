@@ -40,3 +40,13 @@ export type AuditForObject = Audit & {
 };
 
 export type Audits = { [key: string]: Audit };
+
+// used when running audits on backend, returning both audits and serialized survey objects for use in frontend:
+export type SurveyObjectsWithAudits = {
+    surveyShortname?: string;
+    interview?: any; // serialized, typed in survey
+    metadata?: any; // serialized, typed in survey
+    household?: any; // serialized, typed in survey
+    home?: any; // serialized, typed in survey
+    audits: AuditForObject[];
+};

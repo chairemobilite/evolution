@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _omit from 'lodash/omit';
+import _cloneDeep from 'lodash/cloneDeep';
 import auditsDbQueries from '../../../models/audits.db.queries';
 import { Audits } from '../Audits';
 import { setProjectConfig } from '../../../config/projectConfig';
@@ -109,23 +110,23 @@ describe('runAndSaveInterviewAudits', () => {
         // Unset the interview audit function
         setProjectConfig({ auditInterview: undefined });
 
-        const audits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
-        expect(audits).toEqual([]);
+        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
+        expect(objectsAndAudits.audits).toEqual([]);
         expect(mockInterviewAudits).not.toHaveBeenCalled();
     });
 
     test('validated_data not set in interview', async () => {
-        const audits = await Audits.runAndSaveInterviewAudits(_omit(interviewAttributes, 'validated_data'));
-        expect(audits).toEqual([]);
+        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(_omit(interviewAttributes, 'validated_data'));
+        expect(objectsAndAudits.audits).toEqual([]);
         expect(mockInterviewAudits).not.toHaveBeenCalled();
     });
 
     test('Function returns empty audits', async () => {
         // Return empty audit array
-        mockInterviewAudits.mockResolvedValueOnce([]);
+        mockInterviewAudits.mockResolvedValueOnce({ audits: [] });
 
-        const audits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
-        expect(audits).toEqual([]);
+        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
+        expect(objectsAndAudits.audits).toEqual([]);
         expect(mockInterviewAudits).toHaveBeenCalledTimes(1);
         expect(mockInterviewAudits).toHaveBeenCalledWith(interviewAttributes);
         expect(mockSetAudits).toHaveBeenCalledTimes(1);
@@ -134,34 +135,37 @@ describe('runAndSaveInterviewAudits', () => {
 
     test('Function returns some audits', async () => {
         // Return an array of audits
-        const auditsFromInterview = [{
-            version: 3,
-            objectType: 'person',
-            objectUuid: 'arbitrary',
-            errorCode: 'err-code'
-        }, {
-            version: 3,
-            objectType: 'interview',
-            objectUuid: 'arbitrary',
-            errorCode: 'err-code'
-        }, {
-            version: 3,
-            objectType: 'person',
-            objectUuid: 'arbitrary2',
-            errorCode: 'err-code'
-        }];
+        const auditsFromInterview = {
+            audits: [{
+                version: 3,
+                objectType: 'person',
+                objectUuid: 'arbitrary',
+                errorCode: 'err-code'
+            }, {
+                version: 3,
+                objectType: 'interview',
+                objectUuid: 'arbitrary',
+                errorCode: 'err-code'
+            }, {
+                version: 3,
+                objectType: 'person',
+                objectUuid: 'arbitrary2',
+                errorCode: 'err-code'
+            }]
+        };
+        const originalAudits = _cloneDeep(auditsFromInterview.audits);
         mockInterviewAudits.mockResolvedValueOnce(auditsFromInterview);
         // Add an ignore status to all audits when saving
         mockSetAudits.mockImplementationOnce(async (_interviewId, audits) => audits.map((audit) => ({ ...audit, ignore: true })));
 
-        const audits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
+        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
         expect(mockInterviewAudits).toHaveBeenCalledTimes(1);
         expect(mockInterviewAudits).toHaveBeenCalledWith(interviewAttributes);
         expect(mockSetAudits).toHaveBeenCalledTimes(1);
-        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, auditsFromInterview);
+        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, originalAudits);
 
         // Returned audits should be the updated ones from the database set
-        expect(audits).toEqual(audits.map((audit) => ({ ...audit, ignore: true })));
-    });    
+        expect(objectsAndAudits.audits).toEqual(objectsAndAudits.audits.map((audit) => ({ ...audit, ignore: true })));
+    });
 });
 

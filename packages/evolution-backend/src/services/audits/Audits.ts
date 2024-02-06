@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { AuditForObject, SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import auditsDbQueries from '../../models/audits.db.queries';
 import serverConfig from '../../config/projectConfig';
@@ -21,13 +21,17 @@ export class Audits {
 
     static runAndSaveInterviewAudits = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
         interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    ): Promise<AuditForObject[]> => {
+    ): Promise<SurveyObjectsWithAudits> => {
         if (!serverConfig.auditInterview || !interview.validated_data) {
-            return [];
+            return {
+                audits: []
+            };
         }
-        const audits = await serverConfig.auditInterview(
+        const surveyObjectsWithAudits = await serverConfig.auditInterview(
             interview as InterviewAttributes<unknown, unknown, unknown, unknown>
         );
-        return await auditsDbQueries.setAuditsForInterview(interview.id, audits);
+        const newAudits = await auditsDbQueries.setAuditsForInterview(interview.id, surveyObjectsWithAudits.audits);
+        surveyObjectsWithAudits.audits = newAudits;
+        return surveyObjectsWithAudits;
     };
 }

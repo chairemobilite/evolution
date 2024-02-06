@@ -38,7 +38,7 @@ router.get(
                         await copyResponsesToValidatedData(interview);
                     }
                     // Run audits on the validated_data
-                    const audits = await Audits.runAndSaveInterviewAudits(interview);
+                    const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interview);
                     // TODO Here, the responses field should not make it to frontend. But make sure there are no side effect in the frontend, where the _responses is used or checked.
                     const { responses, validated_data, ...rest } = interview;
                     return res.status(200).json({
@@ -46,7 +46,7 @@ router.get(
                         interview: {
                             responses: validated_data,
                             _responses: responses,
-                            auditsV2: audits,
+                            surveyObjectsAndAudits: objectsAndAudits,
                             ...rest,
                             validationDataDirty:
                                 responses._updatedAt !== undefined &&
