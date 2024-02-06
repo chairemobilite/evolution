@@ -67,9 +67,8 @@ describe('Sample Class', () => {
 
         // Missing required attributes:
         const missingRequired = Sample.validateParams({});
-        expect(missingRequired.length).toEqual(2);
-        expect(missingRequired[0].message).toEqual('Sample validateParams: name is required');
-        expect(missingRequired[1].message).toEqual('Sample validateParams: shortname is required');
+        expect(missingRequired.length).toEqual(1);
+        expect(missingRequired[0].message).toEqual('Sample validateParams: shortname is required');
     });
 
 });

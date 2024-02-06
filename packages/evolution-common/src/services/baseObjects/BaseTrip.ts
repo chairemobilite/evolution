@@ -11,16 +11,10 @@
 
 import { Uuidable } from './Uuidable';
 import { OptionalValidity, IValidatable } from './Validatable';
-import { BaseSegment } from './BaseSegment';
-import { BaseVisitedPlace } from './BaseVisitedPlace';
 import { Weightable, Weight, validateWeights } from './Weight';
 
 export type BaseTripAttributes = {
     _uuid?: string;
-
-    baseOrigin?: BaseVisitedPlace;
-    baseDestination?: BaseVisitedPlace;
-    baseSegments?: BaseSegment[];
 
     /**
      * Departure and arrival time must be calculated from visited places,
@@ -35,10 +29,6 @@ export class BaseTrip extends Uuidable implements IValidatable {
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
-    baseOrigin?: BaseVisitedPlace;
-    baseDestination?: BaseVisitedPlace;
-    baseSegments?: BaseSegment[];
-
     _confidentialAttributes: string[] = [
         // these attributes should be hidden when exporting
     ];
@@ -48,10 +38,11 @@ export class BaseTrip extends Uuidable implements IValidatable {
 
         this._isValid = undefined;
         this._weights = params._weights;
+    }
 
-        this.baseOrigin = params.baseOrigin;
-        this.baseDestination = params.baseDestination;
-        this.baseSegments = params.baseSegments || [];
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseTripAttributes): BaseTrip {
+        return new BaseTrip(params);
     }
 
     validate(): OptionalValidity {
@@ -99,32 +90,6 @@ export class BaseTrip extends Uuidable implements IValidatable {
         const weightsErrors = validateWeights(dirtyParams._weights);
         if (weightsErrors.length > 0) {
             errors.push(...weightsErrors);
-        }
-
-        // Validate baseOrigin (if provided)
-        if (dirtyParams.baseOrigin !== undefined && !(dirtyParams.baseOrigin instanceof BaseVisitedPlace)) {
-            errors.push(new Error('BaseTrip validateParams: baseOrigin should be an object'));
-        }
-
-        // Validate baseDestination (if provided)
-        if (dirtyParams.baseDestination !== undefined && !(dirtyParams.baseDestination instanceof BaseVisitedPlace)) {
-            errors.push(new Error('BaseTrip validateParams: baseDestination should be an object'));
-        }
-
-        // Validate baseSegments (if provided)
-        if (dirtyParams.baseSegments !== undefined && !Array.isArray(dirtyParams.baseSegments)) {
-            errors.push(new Error('BaseTrip validateParams: baseSegments should be an array'));
-        } else if (Array.isArray(dirtyParams.baseSegments)) {
-            // Validate each segment in baseSegments
-            dirtyParams.baseSegments.forEach((segment: any, index: number) => {
-                if (!(segment instanceof BaseSegment)) {
-                    errors.push(
-                        new Error(
-                            `BaseTrip validateParams: baseSegments at index ${index} should be an instance of BaseSegment`
-                        )
-                    );
-                }
-            });
         }
 
         return errors;

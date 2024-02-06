@@ -5,13 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { parsePhoneNumber } from 'libphonenumber-js';
 import { OptionalValidity, IValidatable } from './Validatable';
 import { Surveyable, SurveyableAttributes } from './Surveyable';
+import { Survey, SurveyAttributes } from './Survey';
+import { Sample, SampleAttributes } from './Sample';
 import { Uuidable } from './Uuidable';
-import { BasePerson } from './BasePerson';
-import { BaseHousehold } from './BaseHousehold';
-import { BaseOrganization } from './BaseOrganization';
+import { parseDate } from '../../utils/DateUtils';
 
 export const devices = ['tablet', 'mobile', 'desktop', 'other', 'unknown'] as const;
 
@@ -21,33 +20,25 @@ export type BaseInterviewAttributes = {
     _uuid?: string;
 
     accessCode?: string;
-    assignedDate?: Date; // date, the assigned date for the survey (trips date most of the time)
+    assignedDate?: Date | string; // date, the assigned date for the survey (trips date most of the time)
     contactPhoneNumber?: string; // phone number
     contactEmail?: string; // email
 
-    _startedAt?: Date;
-    _updatedAt?: Date;
-    _completedAt?: Date;
-
-    baseHousehold?: BaseHousehold; // for household-based surveys
-    basePerson?: BasePerson; // for person-based with no household data surveys
-    baseOrganization?: BaseOrganization; // for organization-based surveys
+    _startedAt?: Date | string;
+    _updatedAt?: Date | string;
+    _completedAt?: Date | string;
 
     _language?: string; // two-letter ISO 639-1 code
     _source?: string; // source for the interview (web, phone, social, etc.)
     _isCompleted?: boolean;
 
     _device?: Device;
-} & SurveyableAttributes;
+};
 
 export type ExtendedInterviewAttributes = BaseInterviewAttributes & { [key: string]: any };
 
 export class BaseInterview extends Surveyable implements IValidatable {
     _isValid: OptionalValidity;
-
-    baseHousehold?: BaseHousehold;
-    basePerson?: BasePerson;
-    baseOrganization?: BaseOrganization;
 
     accessCode?: string;
     assignedDate?: Date; // date, the assigned date for the survey (trips date most of the time)
@@ -71,27 +62,30 @@ export class BaseInterview extends Surveyable implements IValidatable {
         'accessCode'
     ];
 
-    constructor(params: BaseInterviewAttributes | ExtendedInterviewAttributes) {
+    constructor(params: (BaseInterviewAttributes | ExtendedInterviewAttributes) & SurveyableAttributes) {
         super(params.survey, params.sample, params.sampleBatchNumber, params._uuid);
 
-        this.baseHousehold = params.baseHousehold;
-        this.basePerson = params.basePerson;
-        this.baseOrganization = params.baseOrganization;
-
         this.accessCode = params.accessCode;
-        this.assignedDate = params.assignedDate;
+        this.assignedDate = parseDate(params.assignedDate);
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
 
-        this._startedAt = params._startedAt;
-        this._updatedAt = params._updatedAt;
-        this._completedAt = params._completedAt;
+        this._startedAt = parseDate(params._startedAt);
+        this._updatedAt = parseDate(params._updatedAt);
+        this._completedAt = parseDate(params._completedAt);
 
         this._language = params._language;
         this._source = params._source;
         this._isCompleted = params._isCompleted;
 
         this._device = params._device;
+    }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseInterviewAttributes & { survey: SurveyAttributes; sample: SampleAttributes, sampleBatchNumber?: number }): BaseInterview {
+        const survey = Survey.unserialize(params.survey);
+        const sample = Sample.unserialize(params.sample);
+        return new BaseInterview({ ...params, survey, sample, sampleBatchNumber: params.sampleBatchNumber });
     }
 
     validate(): OptionalValidity {
@@ -112,7 +106,7 @@ export class BaseInterview extends Surveyable implements IValidatable {
      */
     static create(dirtyParams: { [key: string]: any }): BaseInterview | Error[] {
         const errors = BaseInterview.validateParams(dirtyParams);
-        return errors.length > 0 ? errors : new BaseInterview(dirtyParams as ExtendedInterviewAttributes);
+        return errors.length > 0 ? errors : new BaseInterview(dirtyParams as (ExtendedInterviewAttributes & SurveyableAttributes));
     }
 
     /**
@@ -125,6 +119,11 @@ export class BaseInterview extends Surveyable implements IValidatable {
      */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
+
+        dirtyParams.assignedDate = parseDate(dirtyParams.assignedDate);
+        dirtyParams._startedAt = parseDate(dirtyParams._startedAt);
+        dirtyParams._updatedAt = parseDate(dirtyParams._updatedAt);
+        dirtyParams._completedAt = parseDate(dirtyParams._completedAt);
 
         // Validate params object:
         if (!dirtyParams || typeof dirtyParams !== 'object') {
@@ -191,25 +190,6 @@ export class BaseInterview extends Surveyable implements IValidatable {
             (!(dirtyParams._updatedAt instanceof Date) || isNaN(dirtyParams._updatedAt.getDate()))
         ) {
             errors.push(new Error('BaseInterview validateParams: invalid _updatedAt'));
-        }
-
-        // Validate baseHousehold (if provided)
-        if (dirtyParams.baseHousehold !== undefined && !(dirtyParams.baseHousehold instanceof BaseHousehold)) {
-            errors.push(
-                new Error('BaseInterview validateParams: baseHousehold should be an instance of BaseHousehold')
-            );
-        }
-
-        // Validate basePerson (if provided)
-        if (dirtyParams.basePerson !== undefined && !(dirtyParams.basePerson instanceof BasePerson)) {
-            errors.push(new Error('BaseInterview validateParams: basePerson should be an instance of BasePerson'));
-        }
-
-        // Validate baseOrganization (if provided)
-        if (dirtyParams.baseOrganization !== undefined && !(dirtyParams.baseOrganization instanceof BaseOrganization)) {
-            errors.push(
-                new Error('BaseInterview validateParams: baseOrganization should be an instance of BaseOrganization')
-            );
         }
 
         // Validate contactPhoneNumber (if provided):

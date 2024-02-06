@@ -17,10 +17,7 @@ const validUUID = uuidV4();
 
 describe('BaseTripChain', () => {
     const baseTripAttributes: BaseTripAttributes = {
-        _uuid: uuidV4(),
-        baseOrigin: undefined,
-        baseDestination: undefined,
-        baseSegments: [],
+        _uuid: uuidV4()
     };
 
     const weightMethodAttributes = {
@@ -33,7 +30,6 @@ describe('BaseTripChain', () => {
     const baseTripChainAttributes: BaseTripChainAttributes = {
         _uuid: validUUID,
         _weights: [{ weight: 0.0, method: new WeightMethod(weightMethodAttributes) }],
-        baseTrips: [new BaseTrip(baseTripAttributes)],
         isMultiloop: false,
         isConstrained: true,
         category: 'simple' as TCAttr.TripChainCategory,
@@ -45,12 +41,6 @@ describe('BaseTripChain', () => {
         const tripChain = new BaseTripChain(baseTripChainAttributes);
         expect(tripChain).toBeInstanceOf(BaseTripChain);
         expect(tripChain._uuid).toEqual(validUUID);
-        expect(tripChain.baseTrips?.length).toEqual(1);
-        expect(tripChain.baseTrips?.[0]).toBeInstanceOf(BaseTrip);
-        expect(tripChain.baseTrips?.[0]._uuid).toEqual(baseTripAttributes._uuid);
-        expect(tripChain.baseTrips?.[0].baseSegments?.length).toEqual(0);
-        expect(tripChain.baseTrips?.[0].baseOrigin).toBeUndefined();
-        expect(tripChain.baseTrips?.[0].baseDestination).toBeUndefined();
         expect(tripChain.isMultiloop).toEqual(false);
         expect(tripChain.isConstrained).toEqual(true);
         expect(tripChain.category).toEqual('simple');
@@ -61,7 +51,6 @@ describe('BaseTripChain', () => {
     it('should create a new BaseTripChain instance with minimal attributes', () => {
         const minimalAttributes: BaseTripChainAttributes = {
             _uuid: validUUID,
-            baseTrips: [],
             isMultiloop: true,
             isConstrained: false,
             category: 'complex' as TCAttr.TripChainCategory,
@@ -70,7 +59,6 @@ describe('BaseTripChain', () => {
         const tripChain = new BaseTripChain(minimalAttributes);
         expect(tripChain).toBeInstanceOf(BaseTripChain);
         expect(tripChain._uuid).toEqual(validUUID);
-        expect(tripChain.baseTrips).toEqual([]);
         expect(tripChain.isMultiloop).toEqual(true);
         expect(tripChain.isConstrained).toEqual(false);
         expect(tripChain.category).toEqual('complex');
@@ -115,7 +103,6 @@ describe('BaseTripChain', () => {
             category: 'category',
             mainActivityCategory: 'work',
             mainActivity: 'workUsual',
-            baseTrips: [],
             _weights: [{ weight: 1, method: new WeightMethod(weightMethodAttributes) }],
         };
 
@@ -131,7 +118,6 @@ describe('BaseTripChain', () => {
             category: 2355,
             mainActivityCategory: -324.5,
             mainActivity: {},
-            baseTrips: [{}, 'invalid trip'],
             _weights: [{ weight: 1, method: new WeightMethod(weightMethodAttributes) }],
         };
 
@@ -143,8 +129,6 @@ describe('BaseTripChain', () => {
             new Error('BaseTripChain validateParams: category should be a string'),
             new Error('BaseTripChain validateParams: mainActivityCategory should be a string'),
             new Error('BaseTripChain validateParams: mainActivity should be a string'),
-            new Error('BaseTripChain validateParams: baseTrips at index 0 should be an instance of BaseTrip'),
-            new Error('BaseTripChain validateParams: baseTrips at index 1 should be an instance of BaseTrip'),
         ]);
     });
 
@@ -152,6 +136,12 @@ describe('BaseTripChain', () => {
         const params = {};
         const errors = BaseTripChain.validateParams(params);
         expect(errors).toHaveLength(0);
+    });
+
+    it('should unserialize object', () => {
+        const instance = BaseTripChain.unserialize(baseTripChainAttributes);
+        expect(instance).toBeInstanceOf(BaseTripChain);
+        expect(instance.category).toEqual(baseTripChainAttributes.category);
     });
 
 });
