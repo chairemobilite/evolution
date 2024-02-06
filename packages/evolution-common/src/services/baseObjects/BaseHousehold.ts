@@ -6,19 +6,12 @@
  */
 
 import { OptionalValidity, IValidatable } from './Validatable';
-import { BasePerson } from './BasePerson';
-import { BasePlace } from './BasePlace';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as HAttr from './attributeTypes/HouseholdAttributes';
 import { Uuidable } from './Uuidable';
-import { Vehicleable } from './Vehicleable';
-import { BaseVehicle } from './BaseVehicle';
 
 type BaseHouseholdAttributes = {
     _uuid?: string;
-
-    baseMembers?: BasePerson[];
-    baseHome?: BasePlace;
 
     size?: number;
     carNumber?: number;
@@ -32,19 +25,13 @@ type BaseHouseholdAttributes = {
     // must be anonymized:
     contactPhoneNumber?: string; // TODO: normalize and/or validate phone numbers
     contactEmail?: string;
-} & Weightable &
-    Vehicleable;
+} & Weightable;
 
 type ExtendedHouseholdAttributes = BaseHouseholdAttributes & { [key: string]: any };
 
 class BaseHousehold extends Uuidable implements IValidatable {
     _isValid: OptionalValidity;
     _weights?: Weight[];
-
-    baseMembers?: BasePerson[];
-    baseHome?: BasePlace;
-
-    baseVehicles?: BaseVehicle[];
 
     /**
      * Here it would be better to just calculate from household members,
@@ -84,11 +71,6 @@ class BaseHousehold extends Uuidable implements IValidatable {
         this._isValid = undefined;
         this._weights = params._weights;
 
-        this.baseMembers = params.baseMembers || [];
-        this.baseHome = params.baseHome;
-
-        this.baseVehicles = params.baseVehicles || [];
-
         this.size = params.size;
         this.carNumber = params.carNumber;
         this.twoWheelNumber = params.twoWheelNumber;
@@ -99,6 +81,11 @@ class BaseHousehold extends Uuidable implements IValidatable {
         this.homeCarParkings = params.homeCarParkings;
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
+    }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseHouseholdAttributes): BaseHousehold {
+        return new BaseHousehold(params);
     }
 
     validate(): OptionalValidity {
@@ -146,43 +133,6 @@ class BaseHousehold extends Uuidable implements IValidatable {
         const weightsErrors = validateWeights(dirtyParams._weights);
         if (weightsErrors.length > 0) {
             errors.push(...weightsErrors);
-        }
-
-        // Validate baseMembers:
-        if (dirtyParams.baseMembers !== undefined && !Array.isArray(dirtyParams.baseMembers)) {
-            errors.push(new Error('BaseHousehold validateParams: baseMembers should be an array'));
-        } else if (dirtyParams.baseMembers !== undefined && dirtyParams.baseMembers.length > 0) {
-            for (let i = 0, countI = dirtyParams.baseMembers.length; i < countI; i++) {
-                if (!dirtyParams.baseMembers[i] || !(dirtyParams.baseMembers[i] instanceof BasePerson)) {
-                    errors.push(
-                        new Error(
-                            `BaseHousehold validateParams: baseMembers index ${i} is not an instance of BasePerson`
-                        )
-                    );
-                }
-            }
-        }
-
-        // Validate baseVehicles:
-        if (dirtyParams.baseVehicles !== undefined && !Array.isArray(dirtyParams.baseVehicles)) {
-            errors.push(new Error('BaseHousehold validateParams: baseVehicles should be an array'));
-        } else if (dirtyParams.baseVehicles !== undefined && dirtyParams.baseVehicles.length > 0) {
-            for (let i = 0, countI = dirtyParams.baseVehicles.length; i < countI; i++) {
-                if (!dirtyParams.baseVehicles[i] || !(dirtyParams.baseVehicles[i] instanceof BaseVehicle)) {
-                    errors.push(
-                        new Error(
-                            `BaseHousehold validateParams: baseVehicles index ${i} is not an instance of BaseVehicle`
-                        )
-                    );
-                }
-            }
-        }
-
-        // Validate baseHome:
-        if (dirtyParams.baseHome !== undefined) {
-            if (!(dirtyParams.baseHome instanceof BasePlace)) {
-                errors.push(new Error('BaseHousehold validateParams: baseHome is not an instance of BasePlace'));
-            }
         }
 
         // Validate size:

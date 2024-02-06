@@ -67,11 +67,8 @@ describe('Survey Class', () => {
 
         // Missing required attributes:
         const missingRequired = Survey.validateParams({ });
-        expect(missingRequired.length).toEqual(4);
-        expect(missingRequired[0].message).toEqual('Survey validateParams: name is required');
-        expect(missingRequired[1].message).toEqual('Survey validateParams: shortname is required');
-        expect(missingRequired[2].message).toEqual('Survey validateParams: startDate is required');
-        expect(missingRequired[3].message).toEqual('Survey validateParams: endDate is required');
+        expect(missingRequired.length).toEqual(1);
+        expect(missingRequired[0].message).toEqual('Survey validateParams: shortname is required');
 
     });
 });

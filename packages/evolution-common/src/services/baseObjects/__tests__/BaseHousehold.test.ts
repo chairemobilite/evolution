@@ -7,23 +7,9 @@
 
 import { v4 as uuidV4 } from 'uuid';
 import { BaseHousehold, BaseHouseholdAttributes, ExtendedHouseholdAttributes } from '../BaseHousehold';
-import { BasePerson } from '../BasePerson';
-import { BasePlace } from '../BasePlace';
 import * as HAttr from '../attributeTypes/HouseholdAttributes';
 import { Weight } from '../Weight';
 import { WeightMethod } from '../WeightMethod';
-import { BaseVehicle } from '../BaseVehicle';
-
-const baseMembers = [new BasePerson({}), new BasePerson({})];
-const homeGeography = {
-    type: 'Feature' as const,
-    geometry: {
-        type: 'Point' as const,
-        coordinates: [45.5, -75.5],
-    },
-    properties: {}
-};
-const baseHome = new BasePlace({ geography: homeGeography });
 
 const weightMethodAttributes = {
     _uuid: uuidV4(),
@@ -34,15 +20,12 @@ const weightMethodAttributes = {
 
 const baseHouseholdAttributes: BaseHouseholdAttributes = {
     _uuid: uuidV4(),
-    baseMembers: [new BasePerson({ _uuid: uuidV4() })],
-    baseHome: new BasePlace({ _uuid: uuidV4() }),
     size: 3,
     carNumber: 2,
     category: 'bar' as HAttr.HouseholdCategory,
     contactPhoneNumber: '123-456-7890',
     contactEmail: 'test@example.com',
     _weights: [{ weight: 5.5, method: new WeightMethod(weightMethodAttributes) }, { weight: 6.3, method: new WeightMethod(weightMethodAttributes) }],
-    baseVehicles: [new BaseVehicle({ _uuid: uuidV4() })],
 };
 
 const extendedHouseholdAttributes: ExtendedHouseholdAttributes = {
@@ -55,8 +38,6 @@ const baseHouseholdAttributes2: BaseHouseholdAttributes = {
     size: 2,
     carNumber: 1,
     twoWheelNumber: 1,
-    baseMembers: baseMembers,
-    baseHome: baseHome,
     category: 'foo' as HAttr.HouseholdCategory,
     wouldLikeToParticipateToOtherSurveys: true,
     homeCarParkings: ['bar', 'foo'] as HAttr.HomePrivateCarParkingType[],
@@ -113,18 +94,6 @@ describe('BaseHousehold Class Tests', () => {
 
 describe('BaseHousehold Class Additional Tests', () => {
 
-    it('should allow increasing the number of baseMembers after declaring the initial size', () => {
-        const householdInstance = new BaseHousehold(baseHouseholdAttributes2);
-        const newMember = new BasePerson({});
-        householdInstance.baseMembers?.push(newMember);
-        expect(householdInstance.baseMembers?.length).toBeGreaterThan(baseHouseholdAttributes2.size as number);
-    });
-
-    it('should correctly set baseHome property if provided', () => {
-        const householdInstance = new BaseHousehold(baseHouseholdAttributes2);
-        expect(householdInstance.baseHome).toEqual(baseHouseholdAttributes2.baseHome);
-    });
-
     it('should correctly set category property if provided', () => {
         const householdInstance = new BaseHousehold(baseHouseholdAttributes2);
         expect(householdInstance.category).toEqual(baseHouseholdAttributes2.category);
@@ -157,8 +126,6 @@ describe('BaseHousehold Class Additional Tests', () => {
     it('should return an empty array for valid params', () => {
         const validParams = {
             _uuid: uuidV4(),
-            baseMembers: [new BasePerson({}), new BasePerson({})],
-            baseHome: new BasePlace({}),
             size: 2,
             carNumber: 1,
             twoWheelNumber: 0,
@@ -179,8 +146,6 @@ describe('BaseHousehold Class Additional Tests', () => {
     it('should return an array of errors for invalid params', () => {
         const invalidParams = {
             _uuid: 12345, // Invalid UUID
-            baseMembers: 'not-an-array', // Should be an array of BasePerson objects
-            baseHome: 'not-a-BasePlace', // Should be a BasePlace object
             size: -1, // Should be a non-negative integer
             carNumber: 'invalid', // Should be a non-negative integer
             twoWheelNumber: 2.5, // Should be a non-negative integer
@@ -204,8 +169,6 @@ describe('BaseHousehold Class Additional Tests', () => {
             new Error('Weightable validateWeights: method at index 0 must be an instance of WeightMethod'),
             new Error('Weightable validateWeights: weight at index 1 must be a positive number'),
             new Error('Weightable validateWeights: weight at index 2 must be a positive number'),
-            new Error('BaseHousehold validateParams: baseMembers should be an array'),
-            new Error('BaseHousehold validateParams: baseHome is not an instance of BasePlace'),
             new Error('BaseHousehold validateParams: size should be a positive integer'),
             new Error('BaseHousehold validateParams: carNumber should be a positive integer'),
             new Error('BaseHousehold validateParams: twoWheelNumber should be a positive integer'),
@@ -225,20 +188,11 @@ describe('BaseHousehold Class Additional Tests', () => {
         expect(errors).toEqual([]);
     });
 
-    it('should return an array of errors for missing required params', () => {
-        const invalidMembersVehiclesAndHomeParams = {
-            baseMembers: [123,'aa'],
-            baseVehicles: ['foo','bar'],
-            baseHome: new Date('2000-01-01'),
-        };
-        const errors = BaseHousehold.validateParams(invalidMembersVehiclesAndHomeParams);
-        expect(errors).toEqual([
-            new Error('BaseHousehold validateParams: baseMembers index 0 is not an instance of BasePerson'),
-            new Error('BaseHousehold validateParams: baseMembers index 1 is not an instance of BasePerson'),
-            new Error('BaseHousehold validateParams: baseVehicles index 0 is not an instance of BaseVehicle'),
-            new Error('BaseHousehold validateParams: baseVehicles index 1 is not an instance of BaseVehicle'),
-            new Error('BaseHousehold validateParams: baseHome is not an instance of BasePlace'),
-        ]);
+    it('should unserialize object', () => {
+        const instance = BaseHousehold.unserialize(baseHouseholdAttributes);
+        expect(instance).toBeInstanceOf(BaseHousehold);
+        expect(instance.size).toEqual(baseHouseholdAttributes.size);
+        expect(instance.carNumber).toEqual(baseHouseholdAttributes.carNumber);
     });
 
 });

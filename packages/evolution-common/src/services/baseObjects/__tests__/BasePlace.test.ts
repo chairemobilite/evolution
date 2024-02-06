@@ -8,67 +8,67 @@
 import { v4 as uuidV4 } from 'uuid';
 import { BasePlace, BasePlaceAttributes } from '../BasePlace';
 import { GeocodingPrecisionCategory } from '../attributeTypes/PlaceAttributes';
-import { BaseAddress } from '../BaseAddress';
+import { BaseAddress, BaseAddressAttributes } from '../BaseAddress';
 
 const validUUID = uuidV4();
 const validUUID2 = uuidV4();
 
+const baseAddressAttributes: BaseAddressAttributes = {
+    _uuid: validUUID,
+    civicNumber: 123,
+    civicNumberSuffix: 'A',
+    unitNumber: 456,
+    streetName: 'Main St',
+    streetNameHomogenized: 'main street',
+    streetNameId: 'street123',
+    streetNameInternalId: 'internalStreet123',
+    municipalityName: 'Sample City',
+    municipalityCode: 'sampleCode',
+    postalMunicipalityName: 'Sample Postal City',
+    region: 'Sample State',
+    country: 'Sample Country',
+    postalCode: '12345',
+    addressId: 'address123',
+    internalId: 'internal123',
+};
 
+const geojson = {
+    type: 'Feature',
+    id: 112223,
+    geometry: {
+        type: 'Point',
+        coordinates: [45.5, -89.0033423],
+    },
+    properties: {
+        foo: 'boo',
+        bar: 'far'
+    },
+} as GeoJSON.Feature<GeoJSON.Point, { [key: string]: string }>;
+
+const basePlaceAttributes: BasePlaceAttributes = {
+    _uuid: validUUID2,
+    geography: geojson,
+    name: 'Sample Place',
+    shortname: 'Sample',
+    osmId: 'n1234',
+    landRoleId: 'land123',
+    postalId: 'postal123',
+    buildingId: 'building123',
+    internalId: 'internal123',
+    geocodingPrecisionCategory: 'high' as GeocodingPrecisionCategory,
+    geocodingPrecisionMeters: 100,
+    geocodingQueryString: 'Sample query',
+    lastAction: 'preGeocoded',
+    deviceUsed: 'tablet',
+    zoom: 14,
+};
+
+const baseAddress = new BaseAddress(baseAddressAttributes);
 
 describe('BasePlace', () => {
-    const baseAddress: BaseAddress = {
-        _uuid: validUUID,
-        civicNumber: 123,
-        civicNumberSuffix: 'A',
-        unitNumber: 456,
-        streetName: 'Main St',
-        streetNameHomogenized: 'main street',
-        streetNameId: 'street123',
-        streetNameInternalId: 'internalStreet123',
-        municipalityName: 'Sample City',
-        municipalityCode: 'sampleCode',
-        postalMunicipalityName: 'Sample Postal City',
-        region: 'Sample State',
-        country: 'Sample Country',
-        postalCode: '12345',
-        addressId: 'address123',
-        internalId: 'internal123',
-    };
-
-    const geojson = {
-        type: 'Feature',
-        id: 112223,
-        geometry: {
-            type: 'Point',
-            coordinates: [45.5, -89.0033423],
-        },
-        properties: {
-            foo: 'boo',
-            bar: 'far'
-        },
-    } as GeoJSON.Feature<GeoJSON.Point, { [key: string]: string }>;
-
-    const basePlaceAttributes: BasePlaceAttributes = {
-        _uuid: validUUID2,
-        geography: geojson,
-        name: 'Sample Place',
-        shortname: 'Sample',
-        address: baseAddress,
-        osmId: 'n1234',
-        landRoleId: 'land123',
-        postalId: 'postal123',
-        buildingId: 'building123',
-        internalId: 'internal123',
-        geocodingPrecisionCategory: 'high' as GeocodingPrecisionCategory,
-        geocodingPrecisionMeters: 100,
-        geocodingQueryString: 'Sample query',
-        lastAction: 'preGeocoded',
-        deviceUsed: 'tablet',
-        zoom: 14,
-    };
 
     it('should create a new BasePlace instance', () => {
-        const place = new BasePlace(basePlaceAttributes);
+        const place = new BasePlace({ ...basePlaceAttributes, address: baseAddress });
         expect(place).toBeInstanceOf(BasePlace);
         expect(place._uuid).toEqual(validUUID2);
         expect(place.name).toEqual('Sample Place');
@@ -276,6 +276,14 @@ describe('validateParams', () => {
         const params = {};
         const errors = BasePlace.validateParams(params);
         expect(errors.length).toBe(0);
+    });
+
+    it('should unserialize object', () => {
+        const instance = BasePlace.unserialize({ ...basePlaceAttributes, address: baseAddressAttributes });
+        expect(instance).toBeInstanceOf(BasePlace);
+        expect(instance.landRoleId).toEqual(basePlaceAttributes.landRoleId);
+        expect(instance.address).toBeInstanceOf(BaseAddress);
+        expect(instance.address?.civicNumber).toEqual(baseAddressAttributes.civicNumber);
     });
 
 });

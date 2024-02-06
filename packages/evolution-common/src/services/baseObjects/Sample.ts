@@ -13,12 +13,12 @@ import { Uuidable } from './Uuidable';
 export type SampleAttributes = {
     _uuid?: string;
 
-    name: string;
+    name?: string;
     shortname: string;
     description?: string;
 };
 export class Sample extends Uuidable {
-    name: string;
+    name?: string;
     shortname: string;
     description?: string;
 
@@ -27,6 +27,11 @@ export class Sample extends Uuidable {
         this.name = params.name;
         this.shortname = params.shortname;
         this.description = params.description;
+    }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: SampleAttributes): Sample {
+        return new Sample(params);
     }
 
     /**
@@ -52,8 +57,6 @@ export class Sample extends Uuidable {
         // Validate attributes
         if (dirtyParams.name !== undefined && typeof dirtyParams.name !== 'string') {
             errors.push(new Error('Sample validateParams: name should be a string'));
-        } else if (dirtyParams.name === undefined) {
-            errors.push(new Error('Sample validateParams: name is required'));
         }
         if (dirtyParams.shortname !== undefined && typeof dirtyParams.shortname !== 'string') {
             errors.push(new Error('Sample validateParams: shortname should be a string'));

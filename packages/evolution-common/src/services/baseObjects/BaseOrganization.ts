@@ -11,13 +11,10 @@
  */
 
 import { OptionalValidity, IValidatable } from './Validatable';
-import { BasePerson } from './BasePerson';
 import { BasePlace } from './BasePlace';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as OAttr from './attributeTypes/OrganizationAttributes';
 import { Uuidable } from './Uuidable';
-import { Vehicleable } from './Vehicleable';
-import { BaseVehicle } from './BaseVehicle';
 
 type BaseOrganizationAttributes = {
     _uuid?: string;
@@ -29,16 +26,9 @@ type BaseOrganizationAttributes = {
     vehicleNumber?: number;
     pluginHybridVehicleNumber?: number;
     electricVehicleNumber?: number;
-
-    basePersons?: BasePerson[]; // employees, clients or any person related to the organization
-    baseLocations?: BasePlace[]; // all the baseLocations related to the organization
-    baseHeadquarter?: BasePlace; // baseHeadquarter or the single location for this organization
-
-    contactPerson?: BasePerson;
     contactPhoneNumber?: string;
     contactEmail?: string;
-} & Weightable &
-    Vehicleable;
+} & Weightable;
 
 type ExtendedOrganizationAttributes = BaseOrganizationAttributes & { [key: string]: any };
 
@@ -53,14 +43,6 @@ class BaseOrganization extends Uuidable implements IValidatable {
     vehicleNumber?: number;
     pluginHybridVehicleNumber?: number;
     electricVehicleNumber?: number;
-
-    basePersons: BasePerson[];
-    baseLocations?: BasePlace[];
-    baseHeadquarter?: BasePlace;
-
-    baseVehicles?: BaseVehicle[];
-
-    contactPerson?: BasePerson;
     contactPhoneNumber?: string;
     contactEmail?: string;
 
@@ -84,16 +66,13 @@ class BaseOrganization extends Uuidable implements IValidatable {
         this.vehicleNumber = params.vehicleNumber;
         this.pluginHybridVehicleNumber = params.pluginHybridVehicleNumber;
         this.electricVehicleNumber = params.electricVehicleNumber;
-
-        this.basePersons = params.basePersons || [];
-        this.baseLocations = params.baseLocations || [];
-        this.baseHeadquarter = params.baseHeadquarter;
-
-        this.baseVehicles = params.baseVehicles || [];
-
-        this.contactPerson = params.contactPerson;
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
+    }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseOrganizationAttributes): BaseOrganization {
+        return new BaseOrganization(params);
     }
 
     validate(): OptionalValidity {
@@ -188,47 +167,6 @@ class BaseOrganization extends Uuidable implements IValidatable {
         ) {
             errors.push(
                 new Error('BaseOrganization validateParams: electricVehicleNumber should be a positive integer')
-            );
-        }
-
-        // Validate basePersons (if provided)
-        if (
-            dirtyParams.basePersons !== undefined &&
-            (!Array.isArray(dirtyParams.basePersons) ||
-                !dirtyParams.basePersons.every((person) => person instanceof BasePerson))
-        ) {
-            errors.push(new Error('BaseOrganization validateParams: basePersons should be an array of BasePerson'));
-        }
-
-        // Validate baseLocations (if provided)
-        if (
-            dirtyParams.baseLocations !== undefined &&
-            (!Array.isArray(dirtyParams.baseLocations) ||
-                !dirtyParams.baseLocations.every((location) => location instanceof BasePlace))
-        ) {
-            errors.push(new Error('BaseOrganization validateParams: baseLocations should be an array of BasePlace'));
-        }
-
-        // Validate baseHeadquarter (if provided)
-        if (dirtyParams.baseHeadquarter !== undefined && !(dirtyParams.baseHeadquarter instanceof BasePlace)) {
-            errors.push(
-                new Error('BaseOrganization validateParams: baseHeadquarter should be an instance of BasePlace')
-            );
-        }
-
-        // Validate baseVehicles (if provided)
-        if (
-            dirtyParams.baseVehicles !== undefined &&
-            (!Array.isArray(dirtyParams.baseVehicles) ||
-                !dirtyParams.baseVehicles.every((vehicle) => vehicle instanceof BaseVehicle))
-        ) {
-            errors.push(new Error('BaseOrganization validateParams: baseVehicles should be an array of BaseVehicle'));
-        }
-
-        // Validate contactPerson (if provided)
-        if (dirtyParams.contactPerson !== undefined && !(dirtyParams.contactPerson instanceof BasePerson)) {
-            errors.push(
-                new Error('BaseOrganization validateParams: contactPerson should be an instance of BasePerson')
             );
         }
 
