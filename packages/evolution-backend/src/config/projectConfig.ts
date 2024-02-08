@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { AuditForObject, SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import {
     InterviewAttributes,
     InterviewListAttributes,
@@ -31,7 +31,7 @@ interface ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomP
      */
     auditInterview?: (
         attributes: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    ) => Promise<AuditForObject[]>;
+    ) => Promise<SurveyObjectsWithAudits>;
 }
 
 export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unknown> = {
