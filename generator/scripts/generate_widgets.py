@@ -129,7 +129,7 @@ def generate_import_statements(has_choices_import, has_conditionals_import, has_
     input_range_import = ("// " if not has_input_range_import else "") + "import * as inputRange from '../../common/inputRange';\n"
     return f"import {{ TFunction }} from 'i18next';\n" \
             f"import * as defaultInputBase from '../../common/defaultInputBase';\n" \
-            f"import {{ defaultConditional }} from '../../common/defaultConditional';\n" \
+            f"import {{ defaultConditional }} from 'evolution-common/lib/services/surveyGenerator/common/defaultConditional';\n" \
             f"{choices_import}" \
             f"{conditionals_import}" \
             f"{custom_widgets_import}" \

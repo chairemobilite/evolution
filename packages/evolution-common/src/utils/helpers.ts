@@ -364,7 +364,11 @@ export const getCurrentPerson = <CustomSurvey, CustomHousehold, CustomHome, Cust
     } else {
         // Get first person
         const persons = Object.values(hh.persons || {});
-        return persons.length !== 0 ? persons[0] : {};
+        // TODO: Fix this type, it should be a Person<CustomPerson>[] or {}
+        // but I need it like that for now because it's not working with Generator
+        return persons.length !== 0
+            ? (persons[0] as Partial<Person<CustomPerson>>)
+            : ({} as Partial<Person<CustomPerson>>);
     }
 };
 

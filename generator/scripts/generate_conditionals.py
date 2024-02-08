@@ -6,13 +6,13 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 # We use importation without "/" to avoid problems when using the package.json script.
 from collections import defaultdict  # Group data by name
-from ..helpers.generator_helpers import get_data_from_excel  # Read data from Excel
-from ..helpers.generator_helpers import get_values_from_row  # Get values from the row
-from ..helpers.generator_helpers import (
+from helpers.generator_helpers import get_data_from_excel  # Read data from Excel
+from helpers.generator_helpers import get_values_from_row  # Get values from the row
+from helpers.generator_helpers import (
     error_when_missing_required_fields,
 )  # Error when any required fields are None
-from ..helpers.generator_helpers import generate_output_file  # Generate output file
-from ..helpers.generator_helpers import indent  # 4-space indentation
+from helpers.generator_helpers import generate_output_file  # Generate output file
+from helpers.generator_helpers import indent  # 4-space indentation
 
 
 # Extract conditionals and group them by name
@@ -34,8 +34,18 @@ def extract_conditionals_from_data(rows, headers) -> defaultdict:
 
             # Error when any required fields are None
             error_when_missing_required_fields(
-                required_fields_names=["conditional_name", "path", "comparison_operator", "value"],
-                required_fields_values=[conditional_name, path, comparison_operator, value],
+                required_fields_names=[
+                    "conditional_name",
+                    "path",
+                    "comparison_operator",
+                    "value",
+                ],
+                required_fields_values=[
+                    conditional_name,
+                    path,
+                    comparison_operator,
+                    value,
+                ],
                 row_number=row_number,
             )
 
@@ -65,7 +75,7 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
         ts_code = ""
 
         # Add imports
-        ts_code += f"import {{ createConditionals }} from 'evolution-common/lib/services/surveyGenerator/createConditionals';{NEWLINE}"
+        ts_code += f"import {{ createConditionals }} from 'evolution-common/lib/services/surveyGenerator/helpers/createConditionals';{NEWLINE}"
         ts_code += f"import {{ Conditional }} from 'evolution-common/lib/services/surveyGenerator/types/inputTypes';{NEWLINE}"
 
         # Create a TypeScript function for each conditional_name

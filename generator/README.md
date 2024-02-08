@@ -29,6 +29,19 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 
 To run this script, follow these steps:
 
+<!-- TODO: Add instruction for installing Poetry on Windows (Powershell) -->
+<!-- (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py - -->
+<!-- $Env:Path += ";C:\Users\<YourUserName>\AppData\Roaming\Python\Scripts"; setx PATH "$Env:Path" -->
+
+<!-- TODO: Add instruction for installing Poetry on Linux and Mac -->
+<!-- curl -sSL https://install.python-poetry.org | python3 - -->
+
+<!-- TODO: Verify the installation of Poetry -->
+<!-- poetry --version -->
+
+<!-- TODO: Install the Python dependencies with Poetry -->
+<!-- poetry install -->
+
 1. Install all the Python dependencies from `requirements.txt`
 
    ```bash

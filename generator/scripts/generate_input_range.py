@@ -4,7 +4,7 @@
 
 # Note: This script includes functions that generate the inputRange.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
-from generator.helpers.generator_helpers import (
+from helpers.generator_helpers import (
     is_excel_file,
     is_ts_file,
     get_workbook,
