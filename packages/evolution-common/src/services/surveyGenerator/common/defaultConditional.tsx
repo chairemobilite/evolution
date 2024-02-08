@@ -4,9 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { Conditional } from '../types/inputTypes';
+// FIXME: This type make the compilation fail, we should fix it at one point.
+// import { Conditional } from '../types/inputTypes';
 
 // Accept all the time
-const defaultConditional: Conditional = () => [true, null];
-
-export default defaultConditional;
+export const defaultConditional = (_interview) => [true, null];

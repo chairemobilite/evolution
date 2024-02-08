@@ -5,7 +5,7 @@
 # Note: This script includes functions that generate the choices.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 from collections import defaultdict
-from generator.helpers.generator_helpers import (
+from helpers.generator_helpers import (
     is_excel_file,
     is_ts_file,
     get_workbook,

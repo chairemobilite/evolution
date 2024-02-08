@@ -3,11 +3,6 @@
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
- /*
- * Copyright 2024, Polytechnique Montreal and contributors
- *
- * This file is licensed under the MIT License.
- * License text available at https://opensource.org/licenses/MIT
  */
 import * as surveyHelperNew from '../../../utils/helpers';
 
@@ -42,27 +37,27 @@ export const createConditionals = ({ interview, conditionals }: { interview; con
         if (value === 'null') {
             // For value 'null', check if the response is null
             switch (comparisonOperator) {
-            case '===':
-                if (Array.isArray(response)) {
-                    // For Array
-                    conditionMet = response.length === 0;
-                } else {
-                    // For String or Boolean
-                    conditionMet = response === null;
-                }
-                break;
-            case '!==':
-                if (Array.isArray(response)) {
-                    // For Array
-                    conditionMet = response.length !== 0;
-                } else {
-                    // For String or Boolean
-                    conditionMet = response !== null;
-                }
-                break;
-            default:
-                conditionMet = false;
-                break;
+                case '===':
+                    if (Array.isArray(response)) {
+                        // For Array
+                        conditionMet = response.length === 0;
+                    } else {
+                        // For String or Boolean
+                        conditionMet = response === null;
+                    }
+                    break;
+                case '!==':
+                    if (Array.isArray(response)) {
+                        // For Array
+                        conditionMet = response.length !== 0;
+                    } else {
+                        // For String or Boolean
+                        conditionMet = response !== null;
+                    }
+                    break;
+                default:
+                    conditionMet = false;
+                    break;
             }
         } else if (
             (typeof response === 'string' && typeof value === 'string') ||
@@ -70,53 +65,53 @@ export const createConditionals = ({ interview, conditionals }: { interview; con
         ) {
             // For String or Boolean
             switch (comparisonOperator) {
-            case '===':
-                conditionMet = response === value;
-                break;
-            case '!==':
-                conditionMet = response !== value;
-                break;
-            default:
-                conditionMet = false;
-                break;
+                case '===':
+                    conditionMet = response === value;
+                    break;
+                case '!==':
+                    conditionMet = response !== value;
+                    break;
+                default:
+                    conditionMet = false;
+                    break;
             }
         } else if (typeof value === 'number') {
             // For Number
             switch (comparisonOperator) {
-            case '===':
-                conditionMet = Number(response) === value;
-                break;
-            case '!==':
-                conditionMet = Number(response) !== value;
-                break;
-            case '>':
-                conditionMet = Number(response) > value;
-                break;
-            case '<':
-                conditionMet = Number(response) < value;
-                break;
-            case '>=':
-                conditionMet = Number(response) >= value;
-                break;
-            case '<=':
-                conditionMet = Number(response) <= value;
-                break;
-            default:
-                conditionMet = false;
-                break;
+                case '===':
+                    conditionMet = Number(response) === value;
+                    break;
+                case '!==':
+                    conditionMet = Number(response) !== value;
+                    break;
+                case '>':
+                    conditionMet = Number(response) > value;
+                    break;
+                case '<':
+                    conditionMet = Number(response) < value;
+                    break;
+                case '>=':
+                    conditionMet = Number(response) >= value;
+                    break;
+                case '<=':
+                    conditionMet = Number(response) <= value;
+                    break;
+                default:
+                    conditionMet = false;
+                    break;
             }
         } else if (Array.isArray(response)) {
             // For Array
             switch (comparisonOperator) {
-            case '===':
-                conditionMet = response.includes(value);
-                break;
-            case '!==':
-                conditionMet = !response.includes(value);
-                break;
-            default:
-                conditionMet = false;
-                break;
+                case '===':
+                    conditionMet = response.includes(value);
+                    break;
+                case '!==':
+                    conditionMet = !response.includes(value);
+                    break;
+                default:
+                    conditionMet = false;
+                    break;
             }
         } else {
             // Handle other response types if necessary

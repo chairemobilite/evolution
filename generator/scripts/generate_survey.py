@@ -8,12 +8,13 @@ import argparse  # For command-line arguments
 from dotenv import load_dotenv  # For environment variables
 import os  # For environment variables
 import yaml  # For reading the yaml file
-from .generate_excel import generate_excel
-from .generate_widgets import generate_widgets
-from .generate_conditionals import generate_conditionals
-from .generate_choices import generate_choices
-from .generate_input_range import generate_input_range
-from .generate_libelles import generate_libelles
+from scripts.generate_excel import generate_excel
+from scripts.generate_widgets import generate_widgets
+from scripts.generate_conditionals import generate_conditionals
+from scripts.generate_choices import generate_choices
+from scripts.generate_input_range import generate_input_range
+from scripts.generate_libelles import generate_libelles
+
 
 # TODO: Add some validation for the config file
 # Generate the survey from the config file
@@ -66,7 +67,7 @@ def generate_survey(config_path):
 
 
 # Call the generate_survey function with the config_path argument
-if __name__ == "__main__":
+def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument(

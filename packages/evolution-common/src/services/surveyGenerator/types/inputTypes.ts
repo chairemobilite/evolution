@@ -36,10 +36,10 @@ export type Choices = Choice[] | ChoiceFunction;
 export type Conditional = (interview: any, path?: Path) => boolean | (boolean | null)[];
 export type Validations = (
     value?: number | string,
-    customValue?,
-    interview?,
-    path?,
-    customPath?
+    customValue?: number | string,
+    interview?: any,
+    path?: Path,
+    customPath?: Path
 ) => {
     validation: boolean;
     errorMessage?: {
