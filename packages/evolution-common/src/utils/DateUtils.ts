@@ -9,8 +9,8 @@
  * */
 
 // can return invalid dates: use isNaN on date.getTime() to check if it's valid
-export const parseDate = function (date: string | Date | undefined, showErrorOnValidate = false): Date | undefined {
-    if (date === undefined) {
+export const parseDate = function (date: string | Date | undefined | null, showErrorOnValidate = false): Date | undefined {
+    if (date === undefined || date === '' || date === null) {
         return undefined;
     }
     if (date instanceof Date) {
