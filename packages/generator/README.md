@@ -29,28 +29,41 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 
 To run this script, follow these steps:
 
-<!-- TODO: Add instruction for installing Poetry on Windows (Powershell) -->
-<!-- (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py - -->
-<!-- $Env:Path += ";C:\Users\<YourUserName>\AppData\Roaming\Python\Scripts"; setx PATH "$Env:Path" -->
+1. Install Poetry.
 
-<!-- TODO: Add instruction for installing Poetry on Linux and Mac -->
-<!-- curl -sSL https://install.python-poetry.org | python3 - -->
-
-<!-- TODO: Verify the installation of Poetry -->
-<!-- poetry --version -->
-
-<!-- TODO: Install the Python dependencies with Poetry -->
-<!-- poetry install -->
-
-1. Install all the Python dependencies from `requirements.txt`
+    For windows users (with Powershell):
 
    ```bash
-   pip install -r <path/to/evolution>/generator/requirements.txt
+   <!-- Install Poetry -->
+   (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+
+   <!-- Add Poetry to the PATH -->
+   $Env:Path += ";C:\Users\<YourUserName>\AppData\Roaming\Python\Scripts"; setx PATH "$Env:Path"
    ```
 
-<!-- TODO: Create a new section titled "Start your own survey" and move steps 2 and 3 into that section -->
+    For Linux and Mac users:
+    
+    ```bash
+    <!-- Install Poetry -->
+    curl -sSL https://install.python-poetry.org | python3 -
+    ```
 
-2. Copy `generateSurveyExample.xlsx` to your project.
+    Verify the installation of Poetry
+    
+    ```bash
+    poetry --version
+    ```
+
+2. Install all the Python dependencies.
+
+    ```bash
+    cd packages/generator
+    poetry install
+    ```
+
+<!-- TODO: Create a new section titled "Start your own survey" and move steps 3 and 4 into that section -->
+
+3. Copy `generateSurveyExample.xlsx` to your project.
 
    For Windows users:
 
@@ -66,7 +79,7 @@ To run this script, follow these steps:
    cp ./evolution/generator/example/generateSurveyExample.xlsx ./survey/src/survey/references/generateSurveyExample.xlsx
    ```
 
-3. Copy `generatorConfig.yaml` to your project.
+4. Copy `generatorConfig.yaml` to your project.
 
    For Windows users:
 

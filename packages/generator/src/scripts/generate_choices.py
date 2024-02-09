@@ -82,7 +82,7 @@ def generate_choices(input_file: str, output_file: str):
         indentation: str = "    "  # 4-space indentation
 
         # Add imports
-        ts_code = f"import {{ Choices }} from 'evolution-common/lib/services/surveyGenerator/types/inputTypes';\n"
+        ts_code = f"import {{ Choices }} from 'generator/lib/types/inputTypes';\n"
         ts_code += f"import * as conditionals from './conditionals';\n\n"
 
         for choice_name, choices in choices_by_name.items():

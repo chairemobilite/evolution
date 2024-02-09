@@ -1,0 +1,30 @@
+{
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "name": "generator",
+  "version": "0.2.2",
+  "description": "Automates creation of transit surveys for Evolution.",
+  "repository": "github.com/chairemobilite/evolution",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rimraf lib/",
+    "cleanModules": "rimraf node_modules/",
+    "compile": "tsc",
+    "compile:dev": "tsc -w",
+    "test": "echo 'no tests to run for this workspace'",
+    "test:unit": "echo 'no tests to run for this workspace'",
+    "test:sequential": "echo 'no tests to run for this workspace'",
+    "test:ui": "echo 'no tests to run for this workspace'",
+    "lint": "eslint .",
+    "format": "prettier-eslint ./src/**/*.{ts,tsx} --write"
+  },
+  "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "chaire-lib-common": "^0.2.2",
+    "evolution-common": "^0.2.2",
+    "evolution-legacy": "^0.2.2",
+    "i18next": "^22.4.15"
+  },
+  "devDependencies": {}
+}
