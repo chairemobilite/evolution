@@ -1,0 +1,16 @@
+home.welcomeMessage: >-
+    Bienvenue à notre enquête qui montre quelques exemples de <strong>questions potentielles</strong>.
+home.email: <strong>Courriel</strong>
+home.postalCode: <strong>Code postal</strong>
+home.doYouHaveChild: Avez-vous un <strong>enfant</strong> ?
+home.ageYoungestChild: >-
+    <strong>Âge</strong> de votre enfant le plus jeune<br /><span class="_pale _oblique">Inscrire
+    0 pour les bébés de moins de 1an</span>
+home.transportModesUse: >-
+    Sélectionnez tous les <strong>modes de transports</strong> que vous utilisez fréquemment
+home.goodAnswers: >-
+    Êtes-vous <strong>confiant</strong> d'avoir répondu les <strong>bonnes réponses</strong>
+    aux questions ?
+home.comments: >-
+    <strong>Commentaires et suggestions</strong> sur la section domicile (facultatif)
+home.saveAndContinue: Sauvegarder et continuer

@@ -1,0 +1,14 @@
+home.welcomeMessage: >-
+    Welcome to our survey which shows some examples of <strong>potential questions</strong>.
+home.email: <strong>E-mail</strong>
+home.postalCode: <strong>Postal code</strong>
+home.doYouHaveChild: Do you have a <strong>child</strong>?
+home.ageYoungestChild: >-
+    <strong>Age</strong> of your youngest child<br /><span class="_pale _oblique">Enter
+    0 for babies under 1 year old</span>
+home.transportModesUse: Select all <strong>transport modes</strong> that you use frequently
+home.goodAnswers: >-
+    Are you <strong>confident</strong> that you answered the <strong>correct answers</strong>
+    to the questions?
+home.comments: <strong>Comments and suggestions</strong> on the home section (optional)
+home.saveAndContinue: Save and continue
