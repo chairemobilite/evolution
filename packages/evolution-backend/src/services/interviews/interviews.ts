@@ -5,11 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { auditInterview, getChangesAfterCleaningInterview } from 'evolution-common/lib/services/interviews/interview';
-import { updateInterview, setInterviewFields } from './interview';
+import { updateInterview, setInterviewFields, copyResponsesToValidatedData } from './interview';
 import { mapResponsesToValidatedData } from './interviewUtils';
-
 import { validateAccessCode } from '../accessCode';
 import { validate as validateUuid } from 'uuid';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import interviewsDbQueries, { InterviewSearchAttributes, OperatorSigns } from '../../models/interviews.db.queries';
 import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.queries';
 import {
@@ -18,6 +18,7 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/interviews/interview';
 import { UserInterviewAccesses } from '../logging/loggingTypes';
+import { Audits } from '../../services/audits/Audits';
 
 const getFiltersForDb = (
     filter: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'questionable' | 'all' } & {
@@ -160,6 +161,53 @@ export default class Interviews {
 
         return await interviewsDbQueries.getValidationErrors({ filters: actualFilters });
     };
+
+    static async auditInterviewsV2(disableConsoleLog = false): Promise<void> {
+        const oldConsoleLog = console.log;
+        if (disableConsoleLog) {
+            console.log = () => { return; };
+        }
+        const queryStream = interviewsDbQueries.getInterviewsStream({ filters: {} });
+        return new Promise((resolve, reject) => {
+            queryStream
+                .on('error', (error) => {
+                    console.error('queryStream failed', error);
+                    if (disableConsoleLog) {
+                        console.log = oldConsoleLog;
+                    }
+                    reject(error);
+                })
+                .on('data', (row) => {
+                    queryStream.pause();
+                    const interview = row;
+                    if (_isBlank(interview.validated_data)) {
+                        copyResponsesToValidatedData(interview).then(() => new Promise((res1, rej1) => {
+                            Audits.runAndSaveInterviewAudits(interview).then(() => {
+                                res1(true);
+                            }).catch((error) => {
+                                console.error('Error running and saving interview audits', error);
+                                res1(false);
+                            });
+                        })).catch((error) => { console.error('Error copying responses to validated data', error); }).finally(() => {
+                            queryStream.resume();
+                        });
+                    } else {
+                        Audits.runAndSaveInterviewAudits(interview).catch((error) => {
+                            console.error('Error running and saving interview audits', error);
+                        }).finally(() => {
+                            queryStream.resume();
+                        });
+                    }
+                })
+                .on('end', () => {
+                    console.log('all interviews audited successfully.');
+                    if (disableConsoleLog) {
+                        console.log = oldConsoleLog;
+                    }
+                    resolve();
+                });
+        });
+    }
 
     static async auditInterviews(validations, surveyProjectHelper, parsers): Promise<void> {
         const queryStream = interviewsDbQueries.getInterviewsStream({ filters: {} });
