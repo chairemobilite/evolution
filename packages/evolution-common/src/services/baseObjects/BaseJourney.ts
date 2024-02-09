@@ -15,21 +15,17 @@
 import { OptionalValidity, IValidatable } from './Validatable';
 import { Weightable, Weight, validateWeights } from './Weight';
 import { Uuidable } from './Uuidable';
-import { BaseVisitedPlace } from './BaseVisitedPlace';
-import { BaseTripChain } from './BaseTripChain';
-import { BaseTrip } from './BaseTrip';
+import { parseDate } from '../../utils/DateUtils';
 
 type BaseJourneyAttributes = {
     _uuid?: string;
 
-    startDate: Date;
-    startTime: number;
-    endDate: Date;
-    endTime: number;
+    startDate?: Date | string;
+    startTime?: number;
+    endDate?: Date | string;
+    endTime?: number;
     name?: string;
-    baseVisitedPlaces?: BaseVisitedPlace[];
-    baseTrips?: BaseTrip[];
-    baseTripChains?: BaseTripChain[];
+
 } & Weightable;
 
 type ExtendedJourneyAttributes = BaseJourneyAttributes & { [key: string]: any };
@@ -41,14 +37,11 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
-    startDate: Date;
-    startTime: number;
-    endDate: Date;
-    endTime: number;
+    startDate?: Date;
+    startTime?: number;
+    endDate?: Date;
+    endTime?: number;
     name?: string;
-    baseVisitedPlaces?: BaseVisitedPlace[];
-    baseTrips?: BaseTrip[];
-    baseTripChains?: BaseTripChain[];
 
     _confidentialAttributes: string[] = [
         // these attributes should be hidden when exporting
@@ -60,14 +53,16 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
         this._isValid = undefined;
         this._weights = params._weights;
 
-        this.startDate = params.startDate;
+        this.startDate = parseDate(params.startDate);
         this.startTime = params.startTime;
-        this.endDate = params.endDate;
+        this.endDate = parseDate(params.endDate);
         this.endTime = params.endTime;
         this.name = params.name;
-        this.baseVisitedPlaces = params.baseVisitedPlaces;
-        this.baseTripChains = params.baseTripChains;
-        this.baseTrips = params.baseTrips;
+    }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseJourneyAttributes): BaseJourney {
+        return new BaseJourney(params);
     }
 
     validate(): OptionalValidity {
@@ -98,6 +93,9 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
      */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
+
+        dirtyParams.startDate = parseDate(dirtyParams.startDate);
+        dirtyParams.endDate = parseDate(dirtyParams.endDate);
 
         // Validate params object:
         if (!dirtyParams || typeof dirtyParams !== 'object') {
@@ -153,34 +151,6 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
         // Validate name (if provided)
         if (dirtyParams.name !== undefined && typeof dirtyParams.name !== 'string') {
             errors.push(new Error('BaseJourney validateParams: name should be a string'));
-        }
-
-        // Validate baseVisitedPlaces (if provided)
-        if (
-            dirtyParams.baseVisitedPlaces !== undefined &&
-            (!Array.isArray(dirtyParams.baseVisitedPlaces) ||
-                !dirtyParams.baseVisitedPlaces.every((vp) => vp instanceof BaseVisitedPlace))
-        ) {
-            errors.push(
-                new Error('BaseJourney validateParams: baseVisitedPlaces should be an array of BaseVisitedPlace')
-            );
-        }
-
-        // Validate baseTrips (if provided)
-        if (
-            dirtyParams.baseTrips !== undefined &&
-            (!Array.isArray(dirtyParams.baseTrips) || !dirtyParams.baseTrips.every((trip) => trip instanceof BaseTrip))
-        ) {
-            errors.push(new Error('BaseJourney validateParams: baseTrips should be an array of BaseTrip'));
-        }
-
-        // Validate baseTripChains (if provided)
-        if (
-            dirtyParams.baseTripChains !== undefined &&
-            (!Array.isArray(dirtyParams.baseTripChains) ||
-                !dirtyParams.baseTripChains.every((tc) => tc instanceof BaseTripChain))
-        ) {
-            errors.push(new Error('BaseJourney validateParams: baseTripChains should be an array of BaseTripChain'));
         }
 
         return errors;

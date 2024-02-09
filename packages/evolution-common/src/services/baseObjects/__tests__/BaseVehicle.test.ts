@@ -129,4 +129,10 @@ describe('BaseVehicle', () => {
         expect(errors).toHaveLength(0);
     });
 
+    it('should unserialize object', () => {
+        const instance = BaseVehicle.unserialize(baseVehicleAttributes);
+        expect(instance).toBeInstanceOf(BaseVehicle);
+        expect(instance.make).toEqual(baseVehicleAttributes.make);
+    });
+
 });

@@ -7,51 +7,49 @@
 
 import { v4 as uuidV4 } from 'uuid';
 import { BaseInterview, BaseInterviewAttributes } from '../BaseInterview';
-import { BaseHousehold, BaseHouseholdAttributes } from '../BaseHousehold';
-import { BasePerson, BasePersonAttributes } from '../BasePerson';
-import { BaseOrganization, BaseOrganizationAttributes } from '../BaseOrganization';
-import { Survey } from '../Survey';
-import { Sample } from '../Sample';
+import { Survey, SurveyAttributes } from '../Survey';
+import { Sample, SampleAttributes } from '../Sample';
 import { SurveyableAttributes } from '../Surveyable';
 
 const validUUID = uuidV4();
 
 describe('BaseInterview', () => {
+
+    const surveyAttributes: SurveyAttributes = {
+        name: 'Survey name',
+        shortname: 'survey_shortname',
+        startDate: '2023-10-01',
+        endDate: '2023-10-31'
+    };
+
+    const sampleAttributes: SampleAttributes = {
+        name: 'Sample name',
+        shortname: 'sample_shortname'
+    };
+
     const surveyableAttributes: SurveyableAttributes = {
-        survey: new Survey({ name: 'Survey name', shortname: 'survey_shortname', startDate: new Date('2023-10-01'), endDate: new Date('2023-10-31') }),
-        sample: new Sample({ name: 'Sample name', shortname: 'sample_shortname' }),
+        survey: new Survey(surveyAttributes),
+        sample: new Sample(sampleAttributes),
         sampleBatchNumber: 123,
     };
 
-    const baseHouseholdAttributes: BaseHouseholdAttributes = {
-        _uuid: validUUID
-    };
-
-    const basePersonAttributes: BasePersonAttributes = {
-        _uuid: validUUID
-    };
-
-    const baseOrganizationAttributes: BaseOrganizationAttributes = {
-        _uuid: validUUID
-    };
-
-    const baseInterviewAttributes: BaseInterviewAttributes = {
-        ...surveyableAttributes,
+    const interviewAttributes: BaseInterviewAttributes = {
         _uuid: validUUID,
         accessCode: '0000-0000',
-        baseHousehold: new BaseHousehold(baseHouseholdAttributes),
-        basePerson: new BasePerson(basePersonAttributes),
-        baseOrganization: new BaseOrganization(baseOrganizationAttributes),
         _startedAt: new Date('2023-10-05 02:34:55'),
         _updatedAt: new Date('2023-10-06 07:00:23'),
-        _completedAt: new Date('2023-10-07 09:12:00'),
-        assignedDate: new Date('2023-10-03'),
+        _completedAt: '2023-10-07 09:12:00',
+        assignedDate: '2023-10-03',
         contactPhoneNumber: '+1 514-999-9999',
         contactEmail: 'test@test.test',
         _language: 'en',
         _source: 'web',
         _isCompleted: true,
-        _device: 'mobile',
+        _device: 'mobile'
+    };
+    const baseInterviewAttributes: BaseInterviewAttributes & SurveyableAttributes = {
+        ...surveyableAttributes,
+        ...interviewAttributes
     };
 
     it('should create a new BaseInterview instance', () => {
@@ -59,9 +57,6 @@ describe('BaseInterview', () => {
         expect(interview).toBeInstanceOf(BaseInterview);
         expect(interview._uuid).toEqual(validUUID);
         expect(interview.accessCode).toEqual('0000-0000');
-        expect(interview.baseHousehold).toBeInstanceOf(BaseHousehold);
-        expect(interview.basePerson).toBeInstanceOf(BasePerson);
-        expect(interview.baseOrganization).toBeInstanceOf(BaseOrganization);
         expect(interview._startedAt).toEqual(new Date('2023-10-05 02:34:55'));
         expect(interview._updatedAt).toEqual(new Date('2023-10-06 07:00:23'));
         expect(interview._completedAt).toEqual(new Date('2023-10-07 09:12:00'));
@@ -76,7 +71,7 @@ describe('BaseInterview', () => {
     });
 
     it('should create a new BaseInterview instance with minimal attributes', () => {
-        const minimalAttributes: BaseInterviewAttributes = {
+        const minimalAttributes: BaseInterviewAttributes & SurveyableAttributes = {
             _uuid: validUUID,
             survey: surveyableAttributes.survey,
             sample: surveyableAttributes.sample,
@@ -86,9 +81,6 @@ describe('BaseInterview', () => {
         expect(interview).toBeInstanceOf(BaseInterview);
         expect(interview._uuid).toEqual(validUUID);
         expect(interview.accessCode).toBeUndefined();
-        expect(interview.baseHousehold).toBeUndefined();
-        expect(interview.basePerson).toBeUndefined();
-        expect(interview.baseOrganization).toBeUndefined();
         expect(interview._startedAt).toBeUndefined();
         expect(interview._updatedAt).toBeUndefined();
         expect(interview._completedAt).toBeUndefined();
@@ -118,9 +110,6 @@ describe('BaseInterview', () => {
             _updatedAt: new Date(),
             _completedAt: new Date(),
             assignedDate: new Date(),
-            baseHousehold: new BaseHousehold({ _uuid: uuidV4() }),
-            basePerson: new BasePerson({ _uuid: uuidV4() }),
-            baseOrganization: new BaseOrganization({ _uuid: uuidV4() }),
             constactEmail: 'test@test.test',
             contactPhoneNumber: '514-999-9999 #999',
             _language: 'fr',
@@ -136,12 +125,9 @@ describe('BaseInterview', () => {
             _uuid: 'invalid-uuid',
             accessCode: {},
             _startedAt: 'invalid-date',
-            _updatedAt: 122,
-            assignedDate: -22.2,
+            _updatedAt: 'invalid-date',
+            assignedDate: {},
             _completedAt: {},
-            baseHousehold: 'invalid-household',
-            basePerson: 'invalid-person',
-            baseOrganization: 'invalid-organization',
             contactEmail: new Date(),
             contactPhoneNumber: Infinity,
             _language: 'aaa',
@@ -162,13 +148,25 @@ describe('BaseInterview', () => {
             new Error('BaseInterview validateParams: invalid _startedAt'),
             new Error('BaseInterview validateParams: invalid _completedAt'),
             new Error('BaseInterview validateParams: invalid _updatedAt'),
-            new Error('BaseInterview validateParams: baseHousehold should be an instance of BaseHousehold'),
-            new Error('BaseInterview validateParams: basePerson should be an instance of BasePerson'),
-            new Error('BaseInterview validateParams: baseOrganization should be an instance of BaseOrganization'),
             new Error('BaseInterview validateParams: contactPhoneNumber should be a string'),
             new Error('BaseInterview validateParams: contactEmail should be a string'),
             new Error('BaseInterview validateParams: _device is invalid'),
         ]);
+    });
+
+    it('should unserialize object', () => {
+        const instance = BaseInterview.unserialize({
+            ...interviewAttributes,
+            sample: sampleAttributes,
+            survey: surveyAttributes,
+            sampleBatchNumber: 123
+        });
+        expect(instance).toBeInstanceOf(BaseInterview);
+        expect(instance.accessCode).toEqual(baseInterviewAttributes.accessCode);
+        expect(instance.survey).toBeInstanceOf(Survey);
+        expect(instance.survey.name).toEqual(surveyAttributes.name);
+        expect(instance.sample).toBeInstanceOf(Sample);
+        expect(instance.sample.name).toEqual(sampleAttributes.name);
     });
 
 });

@@ -14,7 +14,7 @@
 import { isFeature, isPoint } from 'geojson-validation';
 import { Uuidable } from './Uuidable';
 import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
-import { BaseAddress } from './BaseAddress';
+import { BaseAddress, BaseAddressAttributes } from './BaseAddress';
 import { OptionalValidity, IValidatable } from './Validatable';
 import { Device } from './BaseInterview';
 
@@ -26,7 +26,6 @@ export type BasePlaceAttributes = {
     geography?: GeoJSON.Feature<GeoJSON.Point> | undefined;
     name?: string;
     shortname?: string;
-    address?: BaseAddress;
     osmId?: string;
     landRoleId?: string;
     postalId?: string;
@@ -65,7 +64,7 @@ export class BasePlace extends Uuidable implements IValidatable {
         // these attributes should be hidden when exporting
     ];
 
-    constructor(params: BasePlaceAttributes | ExtendedPlaceAttributes) {
+    constructor(params: (BasePlaceAttributes | ExtendedPlaceAttributes) & { address?: BaseAddress }) {
         super(params._uuid);
 
         this._isValid = undefined;
@@ -87,6 +86,13 @@ export class BasePlace extends Uuidable implements IValidatable {
         this.zoom = params.zoom;
     }
 
+    // params must be sanitized and must be valid:
+    static unserialize(params: BasePlaceAttributes & { address?: BaseAddressAttributes }): BasePlace {
+        const address = params.address ? BaseAddress.unserialize(params.address) : undefined;
+        const geography = params.geography ? params.geography as GeoJSON.Feature<GeoJSON.Point> : undefined;
+        return new BasePlace({ ...params, address, geography });
+    }
+
     validate(): OptionalValidity {
         // TODO: implement:
         this._isValid = true;
@@ -105,7 +111,7 @@ export class BasePlace extends Uuidable implements IValidatable {
      */
     static create(dirtyParams: { [key: string]: any }): BasePlace | Error[] {
         const errors = BasePlace.validateParams(dirtyParams);
-        return errors.length > 0 ? errors : new BasePlace(dirtyParams as ExtendedPlaceAttributes);
+        return errors.length > 0 ? errors : new BasePlace(dirtyParams as (ExtendedPlaceAttributes & { address: BaseAddress }));
     }
 
     /**

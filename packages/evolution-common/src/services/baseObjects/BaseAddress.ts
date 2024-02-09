@@ -76,4 +76,9 @@ export class BaseAddress extends Uuidable {
         this.addressId = params.addressId;
         this.internalId = params.internalId;
     }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseAddressAttributes): BaseAddress {
+        return new BaseAddress(params);
+    }
 }

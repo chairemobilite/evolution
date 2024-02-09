@@ -9,15 +9,13 @@
  * A segment is the part of a trip using a single mode of transport
  */
 
-import { BaseVehicle } from './BaseVehicle';
+import { BaseVehicle, BaseVehicleAttributes, ExtendedVehicleAttributes } from './BaseVehicle';
 import { Uuidable } from './Uuidable';
 import { OptionalValidity, IValidatable } from './Validatable';
 import * as SAttr from './attributeTypes/SegmentAttributes';
 
 export type BaseSegmentAttributes = {
     _uuid?: string;
-
-    baseVehicle?: BaseVehicle;
 
     modeCategory?: SAttr.ModeCategory; // TODO: remove this an include the mode category in the mode itself
     mode?: SAttr.Mode;
@@ -27,8 +25,6 @@ export type ExtendedSegmentAttributes = BaseSegmentAttributes & { [key: string]:
 
 export class BaseSegment extends Uuidable implements IValidatable {
     _isValid: OptionalValidity;
-
-    baseVehicle?: BaseVehicle;
 
     modeCategory?: SAttr.ModeCategory;
     mode?: SAttr.Mode;
@@ -44,7 +40,11 @@ export class BaseSegment extends Uuidable implements IValidatable {
 
         this.modeCategory = params.modeCategory;
         this.mode = params.mode;
-        this.baseVehicle = params.baseVehicle;
+    }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseSegmentAttributes): BaseSegment {
+        return new BaseSegment(params);
     }
 
     validate(): OptionalValidity {
@@ -97,11 +97,6 @@ export class BaseSegment extends Uuidable implements IValidatable {
         // Validate mode (if provided)
         if (dirtyParams.mode !== undefined && typeof dirtyParams.mode !== 'string') {
             errors.push(new Error('BaseSegment validateParams: mode should be a string'));
-        }
-
-        // Validate baseVehicle (if provided)
-        if (dirtyParams.baseVehicle !== undefined && !(dirtyParams.baseVehicle instanceof BaseVehicle)) {
-            errors.push(new Error('BaseSegment validateParams: baseVehicle should be an instance of BaseVehicle'));
         }
 
         return errors;

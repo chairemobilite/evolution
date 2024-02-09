@@ -12,17 +12,17 @@
 
 import { Uuidable } from './Uuidable';
 import { OptionalValidity, IValidatable } from './Validatable';
-import { BasePlace } from './BasePlace';
+import { BasePlace, BasePlaceAttributes } from './BasePlace';
+import { BaseAddressAttributes } from './BaseAddress';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
+import { parseDate } from '../../utils/DateUtils';
 
 export type BaseVisitedPlaceAttributes = {
     _uuid?: string;
 
-    basePlace?: BasePlace;
-
-    arrivalDate?: Date;
-    departureDate?: Date;
+    arrivalDate?: Date | string;
+    departureDate?: Date | string;
     arrivalTime?: number;
     departureTime?: number;
     activityCategory?: VPAttr.ActivityCategory;
@@ -54,19 +54,24 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
         // these attributes should be hidden when exporting
     ];
 
-    constructor(params: BaseVisitedPlaceAttributes | ExtendedVisitedPlaceAttributes) {
+    constructor(params: (BaseVisitedPlaceAttributes | ExtendedVisitedPlaceAttributes) & { basePlace: BasePlace }) {
         super(params._uuid);
 
         this._isValid = undefined;
         this._weights = params._weights;
 
         this.basePlace = params.basePlace;
-        this.arrivalDate = params.arrivalDate;
-        this.departureDate = params.departureDate;
+        this.arrivalDate = parseDate(params.arrivalDate);
+        this.departureDate = parseDate(params.departureDate);
         this.arrivalTime = params.arrivalTime;
         this.departureTime = params.departureTime;
         this.activityCategory = params.activityCategory;
         this.activity = params.activity;
+    }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseVisitedPlaceAttributes & { basePlace: BasePlaceAttributes & { address?: BaseAddressAttributes } }): BaseVisitedPlace {
+        return new BaseVisitedPlace({ ...params, basePlace: BasePlace.unserialize(params.basePlace) });
     }
 
     validate(): OptionalValidity {
@@ -86,8 +91,25 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
      * @returns BaseVisitedPlace | Error[]
      */
     static create(dirtyParams: { [key: string]: any }): BaseVisitedPlace | Error[] {
-        const errors = BaseVisitedPlace.validateParams(dirtyParams);
-        return errors.length > 0 ? errors : new BaseVisitedPlace(dirtyParams as ExtendedVisitedPlaceAttributes);
+
+        const basePlaceParams = {
+            ...dirtyParams,
+            geography: dirtyParams.geography,
+            geocodingQueryString: dirtyParams.geography?.properties?.geocodingQueryString,
+            lastAction: dirtyParams.geography?.properties?.lastAction,
+            deviceUsed: dirtyParams.geography?.properties?.platform,
+            zoom: dirtyParams.geography?.properties?.zoom
+        };
+
+        // validate params for both baseVisitedPlace and basePlace:
+        const errors = [...BasePlace.validateParams(basePlaceParams), ...BaseVisitedPlace.validateParams(dirtyParams)];
+        if (errors.length > 0) {
+            return errors;
+        } else {
+            const basePlace = BasePlace.create(basePlaceParams) as BasePlace;
+            const baseVisitedPlace = new BaseVisitedPlace({basePlace, ...dirtyParams} as ExtendedVisitedPlaceAttributes & { basePlace: BasePlace });
+            return baseVisitedPlace;
+        }
     }
 
     /**
@@ -97,6 +119,9 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
      */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
+
+        dirtyParams.arrivalDate = parseDate(dirtyParams.arrivalDate);
+        dirtyParams.departureDate = parseDate(dirtyParams.departureDate);
 
         // Validate params object:
         if (!dirtyParams || typeof dirtyParams !== 'object') {

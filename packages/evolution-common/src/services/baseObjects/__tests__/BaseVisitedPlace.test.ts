@@ -43,7 +43,6 @@ describe('BaseVisitedPlace', () => {
 
     const baseVisitedPlaceAttributes: BaseVisitedPlaceAttributes = {
         _uuid: validUUID,
-        basePlace: new BasePlace(basePlaceAttributes),
         arrivalDate: new Date('2023-10-05'),
         departureDate: new Date('2023-10-06'),
         arrivalTime: 36000, // 10:00 AM in seconds since midnight
@@ -54,7 +53,7 @@ describe('BaseVisitedPlace', () => {
     };
 
     it('should create a new BaseVisitedPlace instance', () => {
-        const visitedPlace = new BaseVisitedPlace(baseVisitedPlaceAttributes);
+        const visitedPlace = new BaseVisitedPlace({ ...baseVisitedPlaceAttributes, basePlace: new BasePlace(basePlaceAttributes) });
         expect(visitedPlace).toBeInstanceOf(BaseVisitedPlace);
         expect(visitedPlace._uuid).toEqual(validUUID);
         expect(visitedPlace.basePlace).toBeInstanceOf(BasePlace);
@@ -80,12 +79,11 @@ describe('BaseVisitedPlace', () => {
 
         const minimalVisitedPlaceAttributes: BaseVisitedPlaceAttributes = {
             _uuid: validUUID,
-            basePlace: new BasePlace(minimalBasePlaceAttributes),
             activityCategory: 'home' as VPAttr.ActivityCategory,
             activity: 'home' as VPAttr.Activity,
         };
 
-        const visitedPlace = new BaseVisitedPlace(minimalVisitedPlaceAttributes);
+        const visitedPlace = new BaseVisitedPlace({ ...minimalVisitedPlaceAttributes, basePlace: new BasePlace(minimalBasePlaceAttributes) });
         expect(visitedPlace).toBeInstanceOf(BaseVisitedPlace);
         expect(visitedPlace._uuid).toEqual(validUUID);
         expect(visitedPlace.basePlace).toBeInstanceOf(BasePlace);
@@ -100,7 +98,7 @@ describe('BaseVisitedPlace', () => {
     });
 
     it('should validate a BaseVisitedPlace instance', () => {
-        const visitedPlace = new BaseVisitedPlace(baseVisitedPlaceAttributes);
+        const visitedPlace = new BaseVisitedPlace({ ...baseVisitedPlaceAttributes, basePlace: new BasePlace(basePlaceAttributes) });
         expect(visitedPlace.isValid()).toBeUndefined();
         const validationResult = visitedPlace.validate();
         expect(validationResult).toBe(true);
@@ -113,12 +111,12 @@ describe('BaseVisitedPlace', () => {
             customAttribute: 'Custom Value',
         };
 
-        const visitedPlace = new BaseVisitedPlace(extendedVisitedPlaceAttributes);
+        const visitedPlace = new BaseVisitedPlace({ ...extendedVisitedPlaceAttributes, basePlace: new BasePlace(basePlaceAttributes) });
         expect(visitedPlace).toBeInstanceOf(BaseVisitedPlace);
     });
 
     it('should set weight and method correctly', () => {
-        const visitedPlace = new BaseVisitedPlace(baseVisitedPlaceAttributes);
+        const visitedPlace = new BaseVisitedPlace({ ...baseVisitedPlaceAttributes, basePlace: new BasePlace(basePlaceAttributes) });
         const weight: Weight = visitedPlace._weights?.[0] as Weight;
         expect(weight.weight).toBe(.9911);
         expect(weight.method).toBeInstanceOf(WeightMethod);
@@ -168,8 +166,8 @@ describe('BaseVisitedPlace', () => {
         const invalidParams = {
             _uuid: 'foo', // Invalid UUID
             //basePlace: new BasePlace({} as BasePlaceAttributes),
-            arrivalDate: '2023-01-15', // Invalid date string
-            departureDate: '2023-01-16', // Invalid date string
+            arrivalDate: {}, // Invalid date string
+            departureDate: [], // Invalid date string
             arrivalTime: -1, // Negative arrival time
             departureTime: '12:00 PM', // Invalid departure time string
             activityCategory: 44, // Invalid activity category
@@ -216,5 +214,11 @@ describe('BaseVisitedPlace', () => {
         expect(invalidResult).toBeInstanceOf(Array);
         expect(invalidResult[0]).toBeInstanceOf(Error);
         expect(validResult).toBeInstanceOf(BaseVisitedPlace);
+    });
+
+    it('should unserialize object', () => {
+        const instance = BaseVisitedPlace.unserialize({ ...baseVisitedPlaceAttributes, basePlace: BasePlace.unserialize(basePlaceAttributes) });
+        expect(instance).toBeInstanceOf(BaseVisitedPlace);
+        expect(instance.activity).toEqual(baseVisitedPlaceAttributes.activity);
     });
 });

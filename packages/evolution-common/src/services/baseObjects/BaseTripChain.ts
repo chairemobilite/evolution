@@ -66,7 +66,11 @@ export class BaseTripChain extends Uuidable implements IValidatable {
         this.mainActivityCategory = params.mainActivityCategory;
         this.mainActivity = params.mainActivity;
 
-        this.baseTrips = params.baseTrips || [];
+    }
+
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseTripChainAttributes): BaseTripChain {
+        return new BaseTripChain(params);
     }
 
     validate(): OptionalValidity {
@@ -139,21 +143,6 @@ export class BaseTripChain extends Uuidable implements IValidatable {
         // Validate mainActivity (if provided)
         if (dirtyParams.mainActivity !== undefined && typeof dirtyParams.mainActivity !== 'string') {
             errors.push(new Error('BaseTripChain validateParams: mainActivity should be a string'));
-        }
-
-        // Validate baseTrips (if provided)
-        if (dirtyParams.baseTrips !== undefined && !Array.isArray(dirtyParams.baseTrips)) {
-            errors.push(new Error('BaseTripChain validateParams: baseTrips should be an array'));
-        } else if (Array.isArray(dirtyParams.baseTrips)) {
-            dirtyParams.baseTrips.forEach((trip: any, index: number) => {
-                if (!(trip instanceof BaseTrip)) {
-                    errors.push(
-                        new Error(
-                            `BaseTripChain validateParams: baseTrips at index ${index} should be an instance of BaseTrip`
-                        )
-                    );
-                }
-            });
         }
 
         return errors;

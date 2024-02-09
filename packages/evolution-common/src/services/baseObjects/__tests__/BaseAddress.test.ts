@@ -58,5 +58,11 @@ describe('BaseAddress Class Tests', () => {
         expect(addressInstance.country).toEqual(addressParams.country);
     });
 
+    it('should unserialize object', () => {
+        const instance = BaseAddress.unserialize(addressParams);
+        expect(instance).toBeInstanceOf(BaseAddress);
+        expect(instance.region).toEqual(addressParams.region);
+        expect(instance.country).toEqual(addressParams.country);
+    });
 
 });

@@ -7,14 +7,8 @@
 
 import { OptionalValidity, IValidatable } from './Validatable';
 import { Weightable, Weight, validateWeights } from './Weight';
-import { Tripable } from './Tripable';
 import { Uuidable } from './Uuidable';
-import { BasePlace } from './BasePlace';
-import { BaseVisitedPlace } from './BaseVisitedPlace';
-import { BaseTrip } from './BaseTrip';
-import { BaseVehicle } from './BaseVehicle';
 import * as PAttr from './attributeTypes/PersonAttributes';
-import { Vehicleable } from './Vehicleable';
 
 type BasePersonAttributes = {
     _uuid?: string;
@@ -37,22 +31,16 @@ type BasePersonAttributes = {
     isJobTelecommuteCompatible?: PAttr.IsJobTelecommuteCompatible;
     educationalAttainment?: PAttr.EducationalAttainment;
 
-    baseWorkPlaces?: BasePlace[];
-    baseSchoolPlaces?: BasePlace[];
-    baseHome?: BasePlace;
-
     // must be anonymized:
     nickname?: string;
     contactPhoneNumber?: string;
     contactEmail?: string;
-} & Weightable &
-    Tripable &
-    Vehicleable;
+} & Weightable;
 
 type ExtendedPersonAttributes = BasePersonAttributes & { [key: string]: any };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface IBasePersonAttributes extends BasePersonAttributes {}
+interface IBasePersonAttributes extends BasePersonAttributes { }
 
 class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable {
     _isValid: OptionalValidity;
@@ -75,15 +63,6 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
     isOnTheRoadWorker?: PAttr.IsOnTheRoadWorker;
     isJobTelecommuteCompatible?: PAttr.IsJobTelecommuteCompatible;
     educationalAttainment?: PAttr.EducationalAttainment;
-
-    baseWorkPlaces?: BasePlace[];
-    baseSchoolPlaces?: BasePlace[];
-    baseHome?: BasePlace;
-
-    baseVisitedPlaces?: BaseVisitedPlace[];
-    baseTrips?: BaseTrip[];
-
-    baseVehicles?: BaseVehicle[];
 
     // must be anonymized:
     nickname?: string;
@@ -125,15 +104,11 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
 
-        this.baseWorkPlaces = params.baseWorkPlaces;
-        this.baseSchoolPlaces = params.baseSchoolPlaces;
+    }
 
-        this.baseVisitedPlaces = params.baseVisitedPlaces || [];
-        this.baseTrips = params.baseTrips || [];
-
-        this.baseVehicles = params.baseVehicles || [];
-
-        this.baseHome = params.baseHome;
+    // params must be sanitized and must be valid:
+    static unserialize(params: BasePersonAttributes): BasePerson {
+        return new BasePerson(params);
     }
 
     /**
@@ -272,57 +247,6 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         // Validate educationalAttainment (if provided)
         if (dirtyParams.educationalAttainment !== undefined && typeof dirtyParams.educationalAttainment !== 'string') {
             errors.push(new Error('BasePerson validateParams: educationalAttainment is not a valid value'));
-        }
-
-        // Validate baseWorkPlaces (if provided)
-        if (
-            dirtyParams.baseWorkPlaces !== undefined &&
-            (!Array.isArray(dirtyParams.baseWorkPlaces) ||
-                !dirtyParams.baseWorkPlaces.every((place) => place instanceof BasePlace))
-        ) {
-            errors.push(new Error('BasePerson validateParams: baseWorkPlaces should be an array of BasePlace'));
-        }
-
-        // Validate baseSchoolPlaces (if provided)
-        if (
-            dirtyParams.baseSchoolPlaces !== undefined &&
-            (!Array.isArray(dirtyParams.baseSchoolPlaces) ||
-                !dirtyParams.baseSchoolPlaces.every((place) => place instanceof BasePlace))
-        ) {
-            errors.push(new Error('BasePerson validateParams: baseSchoolPlaces should be an array of BasePlace'));
-        }
-
-        // Validate baseHome (if provided)
-        if (dirtyParams.baseHome !== undefined && !(dirtyParams.baseHome instanceof BasePlace)) {
-            errors.push(new Error('BasePerson validateParams: baseHome should be an instance of BasePlace'));
-        }
-
-        // Validate baseVisitedPlaces (if provided)
-        if (
-            dirtyParams.baseVisitedPlaces !== undefined &&
-            (!Array.isArray(dirtyParams.baseVisitedPlaces) ||
-                !dirtyParams.baseVisitedPlaces.every((place) => place instanceof BaseVisitedPlace))
-        ) {
-            errors.push(
-                new Error('BasePerson validateParams: baseVisitedPlaces should be an array of BaseVisitedPlace')
-            );
-        }
-
-        // Validate baseTrips (if provided)
-        if (
-            dirtyParams.baseTrips !== undefined &&
-            (!Array.isArray(dirtyParams.baseTrips) || !dirtyParams.baseTrips.every((trip) => trip instanceof BaseTrip))
-        ) {
-            errors.push(new Error('BasePerson validateParams: baseTrips should be an array of BaseTrip'));
-        }
-
-        // Validate baseVehicles (if provided)
-        if (
-            dirtyParams.baseVehicles !== undefined &&
-            (!Array.isArray(dirtyParams.baseVehicles) ||
-                !dirtyParams.baseVehicles.every((vehicle) => vehicle instanceof BaseVehicle))
-        ) {
-            errors.push(new Error('BasePerson validateParams: baseVehicles should be an array of BaseVehicle'));
         }
 
         // Validate nickname (if provided)

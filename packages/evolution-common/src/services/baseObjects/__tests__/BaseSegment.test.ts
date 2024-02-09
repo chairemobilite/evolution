@@ -14,18 +14,9 @@ import * as SAttr from '../attributeTypes/SegmentAttributes';
 const validUUID = uuidV4();
 
 describe('BaseSegment', () => {
-    const baseVehicleAttributes: BaseVehicleAttributes = {
-        _uuid: uuidV4(),
-        make: 'Toyota' as VAttr.Make,
-        model: 'Camry' as VAttr.Model,
-        licensePlateNumber: 'ABC123',
-        capacitySeated: 5,
-        capacityStanding: 2
-    };
 
     const baseSegmentAttributes: BaseSegmentAttributes = {
         _uuid: validUUID,
-        baseVehicle: new BaseVehicle(baseVehicleAttributes),
         modeCategory: 'car' as SAttr.ModeCategory,
         mode: 'carDriver' as SAttr.Mode,
     };
@@ -34,7 +25,6 @@ describe('BaseSegment', () => {
         const segment = new BaseSegment(baseSegmentAttributes);
         expect(segment).toBeInstanceOf(BaseSegment);
         expect(segment._uuid).toEqual(validUUID);
-        expect(segment.baseVehicle).toBeInstanceOf(BaseVehicle);
         expect(segment.modeCategory).toEqual('car');
         expect(segment.mode).toEqual('carDriver');
     });
@@ -47,7 +37,6 @@ describe('BaseSegment', () => {
         const segment = new BaseSegment(minimalAttributes);
         expect(segment).toBeInstanceOf(BaseSegment);
         expect(segment._uuid).toEqual(validUUID);
-        expect(segment.baseVehicle).toBeUndefined();
         expect(segment.modeCategory).toBeUndefined();
         expect(segment.mode).toBeUndefined();
     });
@@ -94,7 +83,6 @@ describe('BaseSegment', () => {
         const params = {
             modeCategory: 42, // Invalid type
             mode: new Date(), // Invalid type
-            baseVehicle: new BaseVehicle({}),
         };
 
         const result = BaseSegment.validateParams(params);
@@ -107,18 +95,9 @@ describe('BaseSegment', () => {
         ]);
     });
 
-    it('should return an array of errors for missing vehicleType in baseVehicle', () => {
-        const params = {
-            modeCategory: 'transit',
-            mode: 'tram',
-            baseVehicle: {}, // wrong vehicleType
-        };
-
-        const result = BaseSegment.validateParams(params);
-
-        expect(result).toHaveLength(1);
-        expect(result).toEqual([
-            new Error('BaseSegment validateParams: baseVehicle should be an instance of BaseVehicle'),
-        ]);
+    it('should unserialize object', () => {
+        const instance = BaseSegment.unserialize(baseSegmentAttributes);
+        expect(instance).toBeInstanceOf(BaseSegment);
+        expect(instance.mode).toEqual(baseSegmentAttributes.mode);
     });
 });

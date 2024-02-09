@@ -38,7 +38,7 @@ export const InterviewByCodeFilter = <CustomSurvey, CustomHousehold, CustomHome,
                 onValueUpdated={(newValue) => setCurrentValue(newValue.value)}
             />
             <InputButton
-                onClick={() => setFilter(!_isBlank(currentValue) ? { value: currentValue, op: 'like' } : currentValue)}
+                onClick={() => setFilter(!_isBlank(currentValue) ? { value: currentValue, op: 'eq' } : currentValue)}
                 icon={faCheckCircle}
                 label=""
                 size="small"

@@ -7,10 +7,6 @@
 import { BasePerson, BasePersonAttributes, ExtendedPersonAttributes } from '../BasePerson';
 import { v4 as uuidV4 } from 'uuid';
 import * as PAttr from '../attributeTypes/PersonAttributes';
-import { BaseTrip, BaseTripAttributes } from '../BaseTrip';
-import { BaseVisitedPlace, BaseVisitedPlaceAttributes } from '../BaseVisitedPlace';
-import { BasePlace, BasePlaceAttributes } from '../BasePlace';
-import { BaseVehicle, BaseVehicleAttributes } from '../BaseVehicle';
 import { Weight } from '../Weight';
 import { WeightMethod } from '../WeightMethod';
 
@@ -44,12 +40,6 @@ describe('BasePerson', () => {
         isOnTheRoadWorker: 'no' as PAttr.IsOnTheRoadWorker, // Valid on-the-road worker status
         isJobTelecommuteCompatible: 'yes' as PAttr.IsJobTelecommuteCompatible, // Valid telecommute compatibility status
         educationalAttainment: 'PhD' as PAttr.EducationalAttainment, // Valid educational attainment
-        baseTrips: [new BaseTrip({} as BaseTripAttributes), new BaseTrip({} as BaseTripAttributes)], // Valid trips
-        baseVisitedPlaces: [new BaseVisitedPlace({} as BaseVisitedPlaceAttributes)], // Valid visited places
-        baseVehicles: [new BaseVehicle({} as BaseVehicleAttributes)], // Empty baseVehicles
-        baseWorkPlaces: [new BasePlace({} as BasePlaceAttributes)], // Valid workPlaces
-        baseSchoolPlaces: [new BasePlace({} as BasePlaceAttributes)], // Valid schoolPlaces
-        baseHome: new BasePlace({} as BasePlaceAttributes), // Valid home
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         foo: 'bar', // extended attribute
     };
@@ -78,30 +68,16 @@ describe('BasePerson', () => {
         expect(person.isOnTheRoadWorker).toBe('no');
         expect(person.isJobTelecommuteCompatible).toBe('yes');
         expect(person.educationalAttainment).toBe('PhD');
-        expect(person.baseVisitedPlaces?.length).toEqual(1);
-        expect(person.baseTrips?.length).toEqual(2);
-        expect(person.baseVehicles?.length).toEqual(1);
     });
 
     it('should allow empty arrays and home', () => {
 
         const personAttributes2: ExtendedPersonAttributes = {
             _uuid: validUuid,
-            baseTrips: [], // Empty trips
-            baseVisitedPlaces: [], // Empty visited places
-            baseVehicles: [], // Empty vehicles
-            baseWorkPlaces: [], // Empty work places
-            baseSchoolPlaces: [], // Empty school places
-            baseHome: undefined,
             foo: 'bar', // extended attribute
         };
         const person2 = new BasePerson(personAttributes2);
-        expect(person2.baseVisitedPlaces?.length).toEqual(0);
-        expect(person2.baseTrips?.length).toEqual(0);
-        expect(person2.baseVehicles?.length).toEqual(0);
-        expect(person2.baseWorkPlaces?.length).toEqual(0);
-        expect(person2.baseSchoolPlaces?.length).toEqual(0);
-        expect(person2.baseHome).toBeUndefined();
+        expect(person2).toBeInstanceOf(BasePerson);
     });
 
     it('should validate a BasePerson instance', () => {
@@ -143,12 +119,6 @@ describe('BasePerson', () => {
             isOnTheRoadWorker: true,
             isJobTelecommuteCompatible: false,
             educationalAttainment: 'Ph.D',
-            baseWorkPlaces: [new BasePlace({})],
-            baseSchoolPlaces: [new BasePlace({})],
-            baseHome: new BasePlace({}),
-            baseVisitedPlaces: [new BaseVisitedPlace({})],
-            baseTrips: [new BaseTrip({})],
-            baseVehicles: [new BaseVehicle({})],
             nickname: 'John Doe',
             contactPhoneNumber: '123-456-7890',
             contactEmail: 'john.doe@example.com',
@@ -177,12 +147,6 @@ describe('BasePerson', () => {
             isOnTheRoadWorker: Infinity,
             isJobTelecommuteCompatible: 1234,
             educationalAttainment: 5678,
-            baseWorkPlaces: 'InvalidArray', // Invalid type
-            baseSchoolPlaces: [new BasePlace({}), 'InvalidPlace'], // Invalid type in array
-            baseHome: 'InvalidPlace', // Invalid type
-            baseVisitedPlaces: [new BaseVisitedPlace({}), 'InvalidPlace'], // Invalid type in array
-            baseTrips: [new BaseTrip({}), 'InvalidTrip'], // Invalid type in array
-            baseVehicles: [new BaseVehicle({}), 'InvalidVehicle'], // Invalid type in array
             contactPhoneNumber: 123, // Invalid type
             contactEmail: 43.4, // Invalid email format
         };
@@ -207,12 +171,6 @@ describe('BasePerson', () => {
             new Error('BasePerson validateParams: isOnTheRoadWorker should be a boolean'),
             new Error('BasePerson validateParams: isJobTelecommuteCompatible should be a boolean'),
             new Error('BasePerson validateParams: educationalAttainment is not a valid value'),
-            new Error('BasePerson validateParams: baseWorkPlaces should be an array of BasePlace'),
-            new Error('BasePerson validateParams: baseSchoolPlaces should be an array of BasePlace'),
-            new Error('BasePerson validateParams: baseHome should be an instance of BasePlace'),
-            new Error('BasePerson validateParams: baseVisitedPlaces should be an array of BaseVisitedPlace'),
-            new Error('BasePerson validateParams: baseTrips should be an array of BaseTrip'),
-            new Error('BasePerson validateParams: baseVehicles should be an array of BaseVehicle'),
             new Error('BasePerson validateParams: contactPhoneNumber should be a string'),
             new Error('BasePerson validateParams: contactEmail should be a string'),
         ]);
@@ -275,12 +233,6 @@ describe('BasePerson', () => {
             isOnTheRoadWorker: true,
             isJobTelecommuteCompatible: false,
             educationalAttainment: 'none',
-            baseWorkPlaces: [new BasePlace({})],
-            baseSchoolPlaces: [new BasePlace({})],
-            baseHome: new BasePlace({}),
-            baseVisitedPlaces: [new BaseVisitedPlace({})],
-            baseTrips: [new BaseTrip({})],
-            baseVehicles: [new BaseVehicle({})],
             nickname: 'John Doe',
             contactPhoneNumber: '123-456-7890',
             contactEmail: 'john.doe@example.com',
@@ -288,6 +240,12 @@ describe('BasePerson', () => {
 
         const errors = BasePerson.validateParams(params);
         expect(errors.length).toBe(0);
+    });
+
+    it('should unserialize object', () => {
+        const instance = BasePerson.unserialize(personAttributes);
+        expect(instance).toBeInstanceOf(BasePerson);
+        expect(instance.age).toEqual(personAttributes.age);
     });
 
 });

@@ -19,31 +19,6 @@ import * as TCAttr from '../attributeTypes/TripChainAttributes';
 const validUUID = uuidV4();
 
 describe('BaseJourney', () => {
-    const baseVisitedPlaceAttributes: BaseVisitedPlaceAttributes = {
-        _uuid: validUUID,
-        basePlace: new BasePlace({}),
-        arrivalDate: new Date('2023-10-05'),
-        departureDate: new Date('2023-10-06'),
-        arrivalTime: 36000, // 10 hours in seconds
-        departureTime: 72000, // 20 hours in seconds
-        activityCategory: 'work' as VPAttr.ActivityCategory,
-        activity: 'workUsual' as VPAttr.Activity,
-    };
-
-    const baseTripAttributes: BaseTripAttributes = {
-        _uuid: validUUID,
-        baseOrigin: new BaseVisitedPlace(baseVisitedPlaceAttributes),
-        baseDestination: new BaseVisitedPlace(baseVisitedPlaceAttributes),
-        baseSegments: [],
-    };
-
-    const baseTripChainAttributes: BaseTripChainAttributes = {
-        _uuid: validUUID,
-        baseTrips: [new BaseTrip(baseTripAttributes)],
-        isMultiloop: false,
-        isConstrained: true,
-        category: 'simple' as TCAttr.TripChainCategory,
-    };
 
     const weightMethodAttributes = {
         _uuid: uuidV4(),
@@ -59,9 +34,6 @@ describe('BaseJourney', () => {
         startTime: 36000, // 10 hours in seconds
         endTime: 72000, // 20 hours in seconds
         name: 'Journey name',
-        baseVisitedPlaces: [new BaseVisitedPlace(baseVisitedPlaceAttributes)],
-        baseTrips: [new BaseTrip(baseTripAttributes), new BaseTrip(baseTripAttributes)],
-        baseTripChains: [new BaseTripChain(baseTripChainAttributes)],
         _weights: [{ weight: 2.333, method: new WeightMethod(weightMethodAttributes) }],
         foo: 'bar'
     };
@@ -70,17 +42,11 @@ describe('BaseJourney', () => {
         const journey = new BaseJourney(baseJourneyAttributes);
         expect(journey).toBeInstanceOf(BaseJourney);
         expect(journey._uuid).toEqual(validUUID);
-        expect(journey.baseTripChains?.length).toEqual(1);
         expect(journey.name).toEqual('Journey name');
         expect(journey.startDate).toEqual(new Date('2023-10-05'));
         expect(journey.endDate).toEqual(new Date('2023-10-06'));
         expect(journey.startTime).toEqual(36000);
         expect(journey.endTime).toEqual(72000);
-        expect(journey.baseTripChains?.[0]).toBeInstanceOf(BaseTripChain);
-        expect(journey.baseVisitedPlaces?.length).toEqual(1);
-        expect(journey.baseVisitedPlaces?.[0]).toBeInstanceOf(BaseVisitedPlace);
-        expect(journey.baseTrips?.length).toEqual(2);
-        expect(journey.baseTrips?.[1]).toBeInstanceOf(BaseTrip);
         expect(journey._weights).toBeDefined();
     });
 
@@ -96,7 +62,6 @@ describe('BaseJourney', () => {
         const journey = new BaseJourney(minimalAttributes);
         expect(journey).toBeInstanceOf(BaseJourney);
         expect(journey._uuid).toEqual(validUUID);
-        expect(journey.baseTripChains).toBeUndefined();
     });
 
     it('should validate a BaseJourney instance', () => {
@@ -125,9 +90,6 @@ describe('BaseJourney', () => {
             endDate: new Date(),
             endTime: 7200,
             name: 'Valid Journey',
-            baseVisitedPlaces: [],
-            baseTrips: [],
-            baseTripChains: [],
             _weights: [],
         };
 
@@ -143,9 +105,6 @@ describe('BaseJourney', () => {
             endDate: 'invalid-date',
             endTime: 'invalid-time',
             name: 123,
-            baseVisitedPlaces: {},
-            baseTrips: 'not-an-array',
-            baseTripChains: 42
         };
 
         const errors = BaseJourney.validateParams(invalidParams);
@@ -157,10 +116,13 @@ describe('BaseJourney', () => {
             new Error('BaseJourney validateParams: endDate is required and should be a valid date'),
             new Error('BaseJourney validateParams: endTime is required and should be a non-negative number'),
             new Error('BaseJourney validateParams: name should be a string'),
-            new Error('BaseJourney validateParams: baseVisitedPlaces should be an array of BaseVisitedPlace'),
-            new Error('BaseJourney validateParams: baseTrips should be an array of BaseTrip'),
-            new Error('BaseJourney validateParams: baseTripChains should be an array of BaseTripChain'),
         ]);
+    });
+
+    it('should unserialize object', () => {
+        const instance = BaseJourney.unserialize(baseJourneyAttributes);
+        expect(instance).toBeInstanceOf(BaseJourney);
+        expect(instance.name).toEqual(baseJourneyAttributes.name);
     });
 
 

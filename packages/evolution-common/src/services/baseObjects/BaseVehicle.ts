@@ -58,6 +58,11 @@ export class BaseVehicle extends Uuidable implements IValidatable {
         this.capacityStanding = params.capacityStanding;
     }
 
+    // params must be sanitized and must be valid:
+    static unserialize(params: BaseVehicleAttributes): BaseVehicle {
+        return new BaseVehicle(params);
+    }
+
     validate(): OptionalValidity {
         // TODO: implement:
         this._isValid = true;
