@@ -166,7 +166,9 @@ export default class Interviews {
         const oldConsoleLog = console.log;
         if (disableConsoleLog) {
             console.log = () => { return; };
+            console.info = oldConsoleLog;
         }
+        let i = 1;
         const queryStream = interviewsDbQueries.getInterviewsStream({ filters: {} });
         return new Promise((resolve, reject) => {
             queryStream
@@ -180,6 +182,10 @@ export default class Interviews {
                 .on('data', (row) => {
                     queryStream.pause();
                     const interview = row;
+                    if (i % 1000 === 0 || i === 1) {
+                        console.info(`Auditing interview ${i}`);
+                    }
+                    i++;
                     if (_isBlank(interview.validated_data)) {
                         copyResponsesToValidatedData(interview).then(() => new Promise((res1, rej1) => {
                             Audits.runAndSaveInterviewAudits(interview).then(() => {
