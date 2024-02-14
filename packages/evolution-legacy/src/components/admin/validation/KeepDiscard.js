@@ -22,9 +22,15 @@ class KeepDiscard extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.props.onChange) return;
-    if ((prevState.choice === this.state.choice) && (prevState.personId === this.state.personId)) return;
-    this.props.onChange({ choice: this.state.choice, personId: this.props.personId });
+    if (prevProps.choice !== this.props.choice) {
+      this.setState({ choice: this.props.choice });
+    } else if (!this.props.onChange) {
+      return;
+    } else if ((prevState.choice === this.state.choice) && (prevState.personId === this.state.personId)) {
+      return;
+    } else {
+      this.props.onChange({ choice: this.state.choice, personId: this.props.personId });
+    }
   }
 
   render () {
