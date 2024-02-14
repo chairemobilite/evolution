@@ -576,6 +576,7 @@ export class ValidationOnePageSummary extends React.Component {
                                     activeTripUuid={this.state.activeTripUuid}
                                     interview={this.props.interview}
                                     user={this.props.user}
+                                    refreshInterview={this.refreshInterview}
                                     startUpdateInterview={this.props.startUpdateInterview}
                                 />}
                                 <ValidationCommentForm
