@@ -130,19 +130,24 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             {
                 // TODO, this column is specific to projects, it should come as props from the project
                 id: 'responses.accessCode',
+                label: props.t('admin:interviewByCodeFilter:title'),
                 accessor: 'responses.accessCode',
-                Filter: InterviewByCodeFilter
+                Filter: InterviewByCodeFilter,
+                enableSortBy: true
             },
             {
                 id: 'created_at',
                 accessor: 'created_at',
+                label: props.t('admin:interviewByDateFilter:title'),
                 Cell: ({ value }) =>
                     !_isBlank(value) ? new Date(value).toISOString().split('T')[0].replace('/', '-') : '?', // Converts to YYYY-MM-DD format
-                Filter: InterviewByDateFilter
+                Filter: InterviewByDateFilter,
+                enableSortBy: true
             },
             {
                 accessor: 'responses._isCompleted',
                 Filter: InterviewCompletedFilter,
+                enableSortBy: false,
                 Cell: ({ value }) =>
                     value ? props.t('admin:CompletedFemSingular') : props.t('admin:NotCompletedFemSingular')
             },

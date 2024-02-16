@@ -47,7 +47,8 @@ const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
         previousPage,
         setPageSize,
         // Get the state from the instance
-        state: { pageIndex, pageSize, filters, sortBy }
+        state: { pageIndex, pageSize, filters, sortBy },
+        setSortBy
     } = useTable(
         {
             columns: props.columns,
@@ -70,6 +71,16 @@ const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     React.useEffect(() => {
         props.fetchData({ pageIndex, pageSize, filters, sortBy });
     }, [props.fetchData, pageIndex, pageSize, filters, sortBy]);
+
+    const handleSortingChange = (accessor) => {
+        const currentSortIdx = sortBy.findIndex((rule) => rule.id === accessor);
+        const sortOrder = currentSortIdx === -1 ? 'asc' : sortBy[currentSortIdx].desc === true ? 'asc' : 'desc';
+        const newSort = [{ id: accessor, desc: sortOrder === 'desc' }];
+        if (currentSortIdx !== -1) {
+            sortBy.splice(currentSortIdx, 1);
+        }
+        setSortBy(newSort);
+    };
 
     return props.loading ? (
         <div className="admin-widget-container">
@@ -107,6 +118,17 @@ const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
                         )}
                     </div>
                 ))}
+                <ul className="_small" {...getTableProps()}>
+                    {props.columns.map((column: any, j) =>
+                        (column as any).enableSortBy === true ? (
+                            <li key={`columnHeaderSort_${j}`}>
+                                <div key={`columnHeaderSort_${j}`} onClick={() => handleSortingChange(column.accessor)}>
+                                    {column.label}
+                                </div>
+                            </li>
+                        ) : null
+                    )}
+                </ul>
                 <ul className="_small" {...getTableProps()}>
                     {page.map((row) => {
                         prepareRow(row);
