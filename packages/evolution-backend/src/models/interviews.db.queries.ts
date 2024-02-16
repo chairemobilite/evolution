@@ -336,6 +336,16 @@ const addOrderByClause = (
     const order = typeof sortField === 'string' ? 'asc' : sanitizeOrderDirection(sortField.order);
     const field = typeof sortField === 'string' ? sortField : sortField.field;
     const jsonObject = field.split('.');
+    if (jsonObject.length > 1) {
+        // this means it is a nested json field and we must convert dots to arrow (->>, ->)
+        const lastAttribute = jsonObject.pop();
+        const firstAttribute = jsonObject.shift();
+        knexQuery.orderBy(
+            knex.raw(`"${firstAttribute}"->${jsonObject.map((attribute) => `'${attribute}'->`)}>'${lastAttribute}'`),
+            order
+        );
+        return;
+    }
     if (jsonObject.length === 1) {
         knexQuery.orderBy(field, order);
         return;
@@ -527,6 +537,7 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
         }
 
         const sortFields = params.sort || [];
+        let hasSortByField = false;
 
         const auditsCountQuery = knex('sv_audits')
             .select('interview_id', 'error_code')
@@ -562,9 +573,13 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
             .whereRaw(rawFilter, bindings);
         // Add sort fields
         sortFields.forEach((field) => {
+            hasSortByField = true;
             addOrderByClause(interviewsQuery, field, 'i');
         });
-        interviewsQuery.orderBy('i.id');
+        if (!hasSortByField) {
+            // sort by id by default if no other sort is specified.
+            interviewsQuery.orderBy('i.id');
+        }
         // Add pagination
         if (params.pageSize > 0) {
             interviewsQuery.limit(params.pageSize).offset(params.pageIndex * params.pageSize);

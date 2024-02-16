@@ -105,5 +105,7 @@
   "interviewMember": {
     "Keep": "Garder",
     "Discard": "Écarter"
-  }
+  },
+  "InterviewId": "ID d'entrevue",
+  "HouseholdSize": "Taille du ménage"
 }

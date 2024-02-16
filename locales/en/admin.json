@@ -105,5 +105,7 @@
   "interviewMember": {
     "Keep": "Keep",
     "Discard": "Discard"
-  }
+  },
+  "InterviewId": "interview ID",
+  "HouseholdSize": "Household size"
 }
