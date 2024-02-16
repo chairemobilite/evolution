@@ -2,7 +2,7 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "name": "generator",
+  "name": "evolution-generator",
   "version": "0.2.2",
   "description": "Automates creation of transit surveys for Evolution.",
   "repository": "github.com/chairemobilite/evolution",
@@ -17,7 +17,8 @@
     "test:sequential": "echo 'no tests to run for this workspace'",
     "test:ui": "echo 'no tests to run for this workspace'",
     "lint": "eslint .",
-    "format": "prettier-eslint ./src/**/*.{ts,tsx} --write"
+    "format": "prettier-eslint ./src/**/*.{ts,tsx} --write",
+    "generateSurvey": "poetry run generateSurvey"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^5.15.2",

@@ -128,15 +128,15 @@ def generate_import_statements(has_choices_import, has_conditionals_import, has_
     help_popup_import = ("// " if not has_help_popup_import else "") + "import * as helpPopup from '../../common/helpPopup';\n"
     input_range_import = ("// " if not has_input_range_import else "") + "import * as inputRange from '../../common/inputRange';\n"
     return f"import {{ TFunction }} from 'i18next';\n" \
-            f"import * as defaultInputBase from 'generator/lib/common/defaultInputBase';\n" \
-            f"import {{ defaultConditional }} from 'generator/lib/common/defaultConditional';\n" \
+            f"import * as defaultInputBase from 'evolution-generator/lib/common/defaultInputBase';\n" \
+            f"import {{ defaultConditional }} from 'evolution-generator/lib/common/defaultConditional';\n" \
             f"{choices_import}" \
             f"{conditionals_import}" \
             f"{custom_widgets_import}" \
             f"{help_popup_import}" \
-            f"import * as inputTypes from 'generator/lib/types/inputTypes';\n" \
+            f"import * as inputTypes from 'evolution-generator/lib/types/inputTypes';\n" \
             f"{input_range_import}" \
-            f"import * as validations from 'generator/lib/common/validations';\n"
+            f"import * as validations from 'evolution-generator/lib/common/validations';\n"
 
 # Generate widgetsNames
 def generate_widget_name(row, is_last_row=False):
