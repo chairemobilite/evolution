@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { Validations } from "evolution-common/lib/services/surveyGenerator/types/inputTypes";
+import { Validations } from '../types/inputTypes';
 
 // Make sure the question is answered
 export const requiredValidation: Validations = (value) => {
@@ -90,7 +90,7 @@ export const emailValidation: Validations = (value) => {
         {
             validation:
                 !_isBlank(value) &&
-                !/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+                !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
                     String(value)
                 ),
             errorMessage: {

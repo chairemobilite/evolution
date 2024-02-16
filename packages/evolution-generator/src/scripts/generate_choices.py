@@ -5,7 +5,7 @@
 # Note: This script includes functions that generate the choices.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 from collections import defaultdict
-from generator.helpers.generator_helpers import (
+from helpers.generator_helpers import (
     is_excel_file,
     is_ts_file,
     get_workbook,
@@ -82,7 +82,7 @@ def generate_choices(input_file: str, output_file: str):
         indentation: str = "    "  # 4-space indentation
 
         # Add imports
-        ts_code = f"import {{ Choices }} from 'evolution-common/lib/services/surveyGenerator/types/inputTypes';\n"
+        ts_code = f"import {{ Choices }} from 'evolution-generator/lib/types/inputTypes';\n"
         ts_code += f"import * as conditionals from './conditionals';\n\n"
 
         for choice_name, choices in choices_by_name.items():

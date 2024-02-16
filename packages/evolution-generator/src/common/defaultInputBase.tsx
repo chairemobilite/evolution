@@ -8,9 +8,9 @@ import { TFunction } from 'i18next';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
+import * as surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import * as inputTypes from "evolution-common/lib/services/surveyGenerator/types/inputTypes";
+import * as inputTypes from '../types/inputTypes';
 
 // TODO: Make sure to add tests for these default inputs
 
@@ -62,7 +62,7 @@ export const inputRangeBase: inputTypes.InputRangeBase = {
     containsHtml: true,
     twoColumns: false,
     initValue: null,
-    trackClassName: 'input-slider-blue',
+    trackClassName: 'input-slider-blue'
 };
 
 // Checkbox default params
@@ -122,7 +122,7 @@ export const inputMapFindPlaceBase: inputTypes.InputMapFindPlaceBase = {
     showSearchPlaceButton: () => true,
     afterRefreshButtonText: (t: TFunction) => t('customLibelle:GeographyAfterRefresh'),
     validations: (value, _customValue, interview, path) => {
-        const geography: any = surveyHelperNew.getResponse(interview, path, null);
+        const geography: any = surveyHelperNew.getResponse(interview, path as string, null);
         return [
             {
                 validation: _isBlank(value),

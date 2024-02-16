@@ -4,7 +4,7 @@
 
 # Note: This script includes functions that generate the inputRange.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
-from generator.helpers.generator_helpers import (
+from helpers.generator_helpers import (
     is_excel_file,
     is_ts_file,
     get_workbook,
@@ -51,7 +51,7 @@ def generate_input_range(input_file: str, output_file: str):
         indentation: str = "    "  # 4-space indentation
 
         # Add imports
-        ts_code += "import { InputRangeConfig } from 'evolution-common/lib/services/surveyGenerator/types/inputTypes';\n\n"
+        ts_code += f"import {{ InputRangeConfig }} from 'evolution-generator/lib/types/inputTypes';\n\n"
 
         # Iterate through each row in the sheet, starting from the second row
         for row in list(sheet.rows)[1:]:

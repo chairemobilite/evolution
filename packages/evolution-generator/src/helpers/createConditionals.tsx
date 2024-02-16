@@ -3,13 +3,8 @@
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
- /*
- * Copyright 2024, Polytechnique Montreal and contributors
- *
- * This file is licensed under the MIT License.
- * License text available at https://opensource.org/licenses/MIT
  */
-import * as surveyHelperNew from '../../../utils/helpers';
+import * as surveyHelperNew from 'evolution-common/src/utils/helpers';
 
 // Type definitions for conditionals, logical operators and comparison operators
 type PathType = string;
