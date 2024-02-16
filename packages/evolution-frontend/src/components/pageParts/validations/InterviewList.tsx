@@ -14,6 +14,8 @@ import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/int
 import { LoadingPage } from 'chaire-lib-frontend/lib/components/pages';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
+import { faSortAmountDown } from '@fortawesome/free-solid-svg-icons/faSortAmountDown';
+import { faSortAmountDownAlt } from '@fortawesome/free-solid-svg-icons/faSortAmountDownAlt';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface UsersTableProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends WithTranslation {
@@ -72,13 +74,9 @@ const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
         props.fetchData({ pageIndex, pageSize, filters, sortBy });
     }, [props.fetchData, pageIndex, pageSize, filters, sortBy]);
 
-    const handleSortingChange = (accessor) => {
-        const currentSortIdx = sortBy.findIndex((rule) => rule.id === accessor);
-        const sortOrder = currentSortIdx === -1 ? 'asc' : sortBy[currentSortIdx].desc === true ? 'asc' : 'desc';
-        const newSort = [{ id: accessor, desc: sortOrder === 'desc' }];
-        if (currentSortIdx !== -1) {
-            sortBy.splice(currentSortIdx, 1);
-        }
+    const handleSortingChange = (columnId: string, sortOrder = 'asc') => {
+        // TODO: handle multi-cooumns sorting
+        const newSort = [{ id: columnId, desc: sortOrder === 'desc' }];
         setSortBy(newSort);
     };
 
@@ -122,9 +120,45 @@ const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
                     {props.columns.map((column: any, j) =>
                         (column as any).enableSortBy === true ? (
                             <li key={`columnHeaderSort_${j}`}>
-                                <div key={`columnHeaderSort_${j}`} onClick={() => handleSortingChange(column.accessor)}>
+                                <span className="" key="sortColumnLabel">
                                     {column.label}
-                                </div>
+                                </span>
+                                <a
+                                    className={`faIconRight${
+                                        sortBy.length === 1 &&
+                                        sortBy[0].id === column.accessor.toString() &&
+                                        sortBy[0].desc !== true
+                                            ? ' _active-background _blue'
+                                            : ''
+                                    }`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (column.accessor.toString() !== sortBy[0].id || sortBy[0].desc === true) {
+                                            handleSortingChange(column.accessor.toString(), 'asc');
+                                        }
+                                    }}
+                                    key="sortAsc"
+                                >
+                                    <FontAwesomeIcon icon={faSortAmountDownAlt} />
+                                </a>
+                                <a
+                                    className={`faIconRight${
+                                        sortBy.length === 1 &&
+                                        sortBy[0].id === column.accessor.toString() &&
+                                        sortBy[0].desc === true
+                                            ? ' _active-background _blue'
+                                            : ''
+                                    }`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (column.accessor.toString() !== sortBy[0].id || sortBy[0].desc !== true) {
+                                            handleSortingChange(column.accessor.toString(), 'desc');
+                                        }
+                                    }}
+                                    key="sortDesc"
+                                >
+                                    <FontAwesomeIcon icon={faSortAmountDown} />
+                                </a>
                             </li>
                         ) : null
                     )}

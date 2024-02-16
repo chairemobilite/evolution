@@ -125,7 +125,9 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
         const columns = [
             {
                 accessor: 'id',
-                Cell: ({ value }) => `#${value}`
+                label: props.t('admin:InterviewId'),
+                Cell: ({ value }) => `#${value}`,
+                enableSortBy: true
             },
             {
                 // TODO, this column is specific to projects, it should come as props from the project
@@ -172,7 +174,9 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                             title={props.t('admin:persons')}
                         />
                     </React.Fragment>
-                )
+                ),
+                label: props.t('admin:HouseholdSize'),
+                enableSortBy: true
             },
             {
                 accessor: 'audits',
