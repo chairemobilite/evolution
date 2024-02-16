@@ -121,4 +121,4 @@ profilingData*
 __pycache__/
 
 # Generator survey example
-packages/generator/src/examples/survey/
+/example/demo_survey_generator
