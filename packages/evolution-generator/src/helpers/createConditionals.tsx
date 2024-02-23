@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import * as surveyHelperNew from 'evolution-common/src/utils/helpers';
+import { getResponse } from 'evolution-common/lib/utils/helpers';
 
 // Type definitions for conditionals, logical operators and comparison operators
 type PathType = string;
@@ -30,7 +30,7 @@ export const createConditionals = ({ interview, conditionals }: { interview; con
     conditionals.forEach((conditional, index) => {
         // Extract components of the conditional
         const { logicalOperator, path, comparisonOperator, value, parentheses } = conditional;
-        const response = surveyHelperNew.getResponse(interview, path, null);
+        const response = getResponse(interview, path, null);
         let conditionMet: boolean;
 
         // Evaluate if the condition is met
