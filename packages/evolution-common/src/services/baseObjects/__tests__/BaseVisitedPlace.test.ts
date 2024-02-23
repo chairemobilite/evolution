@@ -43,8 +43,8 @@ describe('BaseVisitedPlace', () => {
 
     const baseVisitedPlaceAttributes: BaseVisitedPlaceAttributes = {
         _uuid: validUUID,
-        arrivalDate: new Date('2023-10-05'),
-        departureDate: new Date('2023-10-06'),
+        arrivalDate: '2023-10-05',
+        departureDate: '2023-10-06',
         arrivalTime: 36000, // 10:00 AM in seconds since midnight
         departureTime: 45000, // 12:30 PM in seconds since midnight
         activityCategory: 'school' as VPAttr.ActivityCategory,
@@ -62,8 +62,8 @@ describe('BaseVisitedPlace', () => {
         expect(visitedPlace.basePlace?.geography?.geometry?.coordinates).toEqual([23.5, -11.0033423]);
         expect(visitedPlace.basePlace?.geography?.properties).toEqual({ foo: 'boo2', bar: 'far2' });
         expect(visitedPlace.basePlace?.geography?.id).toEqual(444);
-        expect(visitedPlace.arrivalDate).toEqual(new Date('2023-10-05'));
-        expect(visitedPlace.departureDate).toEqual(new Date('2023-10-06'));
+        expect(visitedPlace.arrivalDate).toEqual('2023-10-05');
+        expect(visitedPlace.departureDate).toEqual('2023-10-06');
         expect(visitedPlace.arrivalTime).toEqual(36000);
         expect(visitedPlace.departureTime).toEqual(45000);
         expect(visitedPlace.activityCategory).toEqual('school');
@@ -129,8 +129,8 @@ describe('BaseVisitedPlace', () => {
         const validParams = {
             _uuid: uuidV4(),
             basePlace: new BasePlace({} as BasePlaceAttributes),
-            arrivalDate: new Date('2023-01-15'),
-            departureDate: new Date('2023-01-16'),
+            arrivalDate: '2023-01-15',
+            departureDate: '2023-01-16',
             arrivalTime: 36000, // 10:00 AM in seconds since midnight
             departureTime: 43200, // 12:00 PM in seconds since midnight
             activityCategory: 'work' as VPAttr.ActivityCategory,
@@ -150,8 +150,8 @@ describe('BaseVisitedPlace', () => {
         const validParams = {
             _uuid: uuidV4(),
             basePlace: new BasePlace({} as BasePlaceAttributes),
-            arrivalDate: new Date('2023-01-15'),
-            departureDate: new Date('2023-01-16'),
+            arrivalDate: '2023-01-15',
+            departureDate: '2023-01-16',
             arrivalTime: 36000,
             departureTime: 43200,
             activityCategory: 'other' as VPAttr.ActivityCategory,
@@ -177,8 +177,8 @@ describe('BaseVisitedPlace', () => {
         const errors = BaseVisitedPlace.validateParams(invalidParams);
         expect(errors).toHaveLength(7);
         expect(errors[0].message).toEqual('Uuidable validateParams: invalid uuid');
-        expect(errors[1].message).toEqual('BaseVisitedPlace validateParams: arrivalDate should be a valid Date');
-        expect(errors[2].message).toEqual('BaseVisitedPlace validateParams: departureDate should be a valid Date');
+        expect(errors[1].message).toEqual('BaseVisitedPlace validateParams: arrivalDate should be a valid date string');
+        expect(errors[2].message).toEqual('BaseVisitedPlace validateParams: departureDate should be a valid date string');
         expect(errors[3].message).toEqual('BaseVisitedPlace validateParams: arrivalTime should be a positive integer');
         expect(errors[4].message).toEqual('BaseVisitedPlace validateParams: departureTime should be a positive integer');
         expect(errors[5].message).toEqual('BaseVisitedPlace validateParams: activityCategory should be a string');
@@ -199,8 +199,8 @@ describe('BaseVisitedPlace', () => {
         const validParams = {
             _uuid: uuidV4(), // Invalid UUID
             basePlace: new BasePlace({} as BasePlaceAttributes),
-            arrivalDate: new Date('2023-01-15'),
-            departureDate: new Date('2023-01-16'),
+            arrivalDate: '2023-01-15',
+            departureDate: '2023-01-16',
             arrivalTime: 36000,
             departureTime: 43200,
             activityCategory: 'other' as VPAttr.ActivityCategory,

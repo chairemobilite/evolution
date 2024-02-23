@@ -29,8 +29,8 @@ describe('BaseJourney', () => {
 
     const baseJourneyAttributes: ExtendedJourneyAttributes = {
         _uuid: validUUID,
-        startDate: new Date('2023-10-05'),
-        endDate: new Date('2023-10-06'),
+        startDate: '2023-10-05',
+        endDate: '2023-10-06',
         startTime: 36000, // 10 hours in seconds
         endTime: 72000, // 20 hours in seconds
         name: 'Journey name',
@@ -43,8 +43,8 @@ describe('BaseJourney', () => {
         expect(journey).toBeInstanceOf(BaseJourney);
         expect(journey._uuid).toEqual(validUUID);
         expect(journey.name).toEqual('Journey name');
-        expect(journey.startDate).toEqual(new Date('2023-10-05'));
-        expect(journey.endDate).toEqual(new Date('2023-10-06'));
+        expect(journey.startDate).toEqual('2023-10-05');
+        expect(journey.endDate).toEqual('2023-10-06');
         expect(journey.startTime).toEqual(36000);
         expect(journey.endTime).toEqual(72000);
         expect(journey._weights).toBeDefined();
@@ -53,8 +53,8 @@ describe('BaseJourney', () => {
     it('should create a new BaseJourney instance with minimal attributes', () => {
         const minimalAttributes: BaseJourneyAttributes = {
             _uuid: validUUID,
-            startDate: new Date('2023-10-07'),
-            endDate: new Date('2023-10-08'),
+            startDate: '2023-10-07',
+            endDate: '2023-10-08',
             startTime: 36100, // 10 hours in seconds
             endTime: 72100, // 20 hours in seconds
         };
@@ -85,9 +85,9 @@ describe('BaseJourney', () => {
     it('should validate params with valid values', () => {
         const validParams = {
             _uuid: uuidV4(),
-            startDate: new Date(),
+            startDate: '2023-01-06',
             startTime: 3600,
-            endDate: new Date(),
+            endDate: '2023-10-06',
             endTime: 7200,
             name: 'Valid Journey',
             _weights: [],
@@ -111,9 +111,9 @@ describe('BaseJourney', () => {
         expect(errors.length).toBeGreaterThan(0);
         expect(errors).toEqual([
             new Error('Uuidable validateParams: invalid uuid'),
-            new Error('BaseJourney validateParams: startDate is required and should be a valid date'),
+            new Error('BaseJourney validateParams: startDate is required and should be a valid date string'),
             new Error('BaseJourney validateParams: startTime is required and should be a non-negative number'),
-            new Error('BaseJourney validateParams: endDate is required and should be a valid date'),
+            new Error('BaseJourney validateParams: endDate is required and should be a valid date string'),
             new Error('BaseJourney validateParams: endTime is required and should be a non-negative number'),
             new Error('BaseJourney validateParams: name should be a string'),
         ]);

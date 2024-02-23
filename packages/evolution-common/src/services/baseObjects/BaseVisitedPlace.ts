@@ -21,8 +21,8 @@ import { parseDate } from '../../utils/DateUtils';
 export type BaseVisitedPlaceAttributes = {
     _uuid?: string;
 
-    arrivalDate?: Date | string;
-    departureDate?: Date | string;
+    arrivalDate?: string;
+    departureDate?: string;
     arrivalTime?: number;
     departureTime?: number;
     activityCategory?: VPAttr.ActivityCategory;
@@ -43,8 +43,8 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
 
     basePlace?: BasePlace;
 
-    arrivalDate?: Date;
-    departureDate?: Date;
+    arrivalDate?: string; // string, YYYY-MM-DD
+    departureDate?: string; // string, YYYY-MM-DD
     arrivalTime?: number; // seconds since midnight
     departureTime?: number; // seconds since midnight
     activityCategory?: VPAttr.ActivityCategory; // TODO: This should maybe removed and included in the activity object
@@ -61,8 +61,8 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
         this._weights = params._weights;
 
         this.basePlace = params.basePlace;
-        this.arrivalDate = parseDate(params.arrivalDate);
-        this.departureDate = parseDate(params.departureDate);
+        this.arrivalDate = params.arrivalDate;
+        this.departureDate = params.departureDate;
         this.arrivalTime = params.arrivalTime;
         this.departureTime = params.departureTime;
         this.activityCategory = params.activityCategory;
@@ -120,8 +120,8 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
 
-        dirtyParams.arrivalDate = parseDate(dirtyParams.arrivalDate);
-        dirtyParams.departureDate = parseDate(dirtyParams.departureDate);
+        const arrivalDateObj = parseDate(dirtyParams.arrivalDate);
+        const departureDateObj = parseDate(dirtyParams.departureDate);
 
         // Validate params object:
         if (!dirtyParams || typeof dirtyParams !== 'object') {
@@ -152,17 +152,17 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
         // Validate arrivalDate (if provided):
         if (
             dirtyParams.arrivalDate !== undefined &&
-            (!(dirtyParams.arrivalDate instanceof Date) || isNaN(dirtyParams.arrivalDate.getDate()))
+            (!(arrivalDateObj instanceof Date) || (arrivalDateObj !== undefined && isNaN(arrivalDateObj.getDate())))
         ) {
-            errors.push(new Error('BaseVisitedPlace validateParams: arrivalDate should be a valid Date'));
+            errors.push(new Error('BaseVisitedPlace validateParams: arrivalDate should be a valid date string'));
         }
 
         // Validate departureDate (if provided):
         if (
             dirtyParams.departureDate !== undefined &&
-            (!(dirtyParams.departureDate instanceof Date) || isNaN(dirtyParams.departureDate.getDate()))
+            (!(departureDateObj instanceof Date) || (departureDateObj !== undefined && isNaN(departureDateObj.getDate())))
         ) {
-            errors.push(new Error('BaseVisitedPlace validateParams: departureDate should be a valid Date'));
+            errors.push(new Error('BaseVisitedPlace validateParams: departureDate should be a valid date string'));
         }
 
         // Validate arrivalTime (if provided):

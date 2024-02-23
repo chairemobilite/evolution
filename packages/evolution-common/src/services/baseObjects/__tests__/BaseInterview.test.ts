@@ -60,7 +60,7 @@ describe('BaseInterview', () => {
         expect(interview._startedAt).toEqual(new Date('2023-10-05 02:34:55'));
         expect(interview._updatedAt).toEqual(new Date('2023-10-06 07:00:23'));
         expect(interview._completedAt).toEqual(new Date('2023-10-07 09:12:00'));
-        expect(interview.assignedDate).toEqual(new Date('2023-10-03'));
+        expect(interview.assignedDate).toEqual('2023-10-03');
         expect(interview.contactPhoneNumber).toEqual('+1 514-999-9999');
         expect(interview.contactEmail).toEqual('test@test.test');
         expect(interview._language).toEqual('en');
@@ -109,7 +109,7 @@ describe('BaseInterview', () => {
             _startedAt: new Date(),
             _updatedAt: new Date(),
             _completedAt: new Date(),
-            assignedDate: new Date(),
+            assignedDate: '2023-01-01',
             constactEmail: 'test@test.test',
             contactPhoneNumber: '514-999-9999 #999',
             _language: 'fr',
@@ -144,7 +144,7 @@ describe('BaseInterview', () => {
             new Error('BaseInterview validateParams: _language should be a string of two letters'),
             new Error('BaseInterview validateParams: _source should be a string'),
             new Error('BaseInterview validateParams: _isCompleted should be a boolean'),
-            new Error('BaseInterview validateParams: invalid assignedDate'),
+            new Error('BaseInterview validateParams: assignedDate should be a valid date string'),
             new Error('BaseInterview validateParams: invalid _startedAt'),
             new Error('BaseInterview validateParams: invalid _completedAt'),
             new Error('BaseInterview validateParams: invalid _updatedAt'),
