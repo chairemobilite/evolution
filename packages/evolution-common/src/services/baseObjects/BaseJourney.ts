@@ -20,9 +20,9 @@ import { parseDate } from '../../utils/DateUtils';
 type BaseJourneyAttributes = {
     _uuid?: string;
 
-    startDate?: Date | string;
+    startDate?: string; // string, YYYY-MM-DD
     startTime?: number;
-    endDate?: Date | string;
+    endDate?: string; // string, YYYY-MM-DD
     endTime?: number;
     name?: string;
 
@@ -37,9 +37,9 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
     _isValid: OptionalValidity;
     _weights?: Weight[];
 
-    startDate?: Date;
+    startDate?: string; // string, YYYY-MM-DD
     startTime?: number;
-    endDate?: Date;
+    endDate?: string; // string, YYYY-MM-DD
     endTime?: number;
     name?: string;
 
@@ -53,9 +53,9 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
         this._isValid = undefined;
         this._weights = params._weights;
 
-        this.startDate = parseDate(params.startDate);
+        this.startDate = params.startDate;
         this.startTime = params.startTime;
-        this.endDate = parseDate(params.endDate);
+        this.endDate = params.endDate;
         this.endTime = params.endTime;
         this.name = params.name;
     }
@@ -94,8 +94,8 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
 
-        dirtyParams.startDate = parseDate(dirtyParams.startDate);
-        dirtyParams.endDate = parseDate(dirtyParams.endDate);
+        const startDateObj = parseDate(dirtyParams.startDate);
+        const endDateObj = parseDate(dirtyParams.endDate);
 
         // Validate params object:
         if (!dirtyParams || typeof dirtyParams !== 'object') {
@@ -118,9 +118,9 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
         // Validate startDate
         if (
             dirtyParams.startDate !== undefined &&
-            (!(dirtyParams.startDate instanceof Date) || isNaN(dirtyParams.startDate.getDate()))
+            (!(startDateObj instanceof Date) || (startDateObj !== undefined && isNaN(startDateObj.getDate())))
         ) {
-            errors.push(new Error('BaseJourney validateParams: startDate is required and should be a valid date'));
+            errors.push(new Error('BaseJourney validateParams: startDate is required and should be a valid date string'));
         }
 
         // Validate startTime
@@ -136,9 +136,9 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
         // Validate endDate
         if (
             dirtyParams.endDate !== undefined &&
-            (!(dirtyParams.endDate instanceof Date) || isNaN(dirtyParams.endDate.getDate()))
+            (!(endDateObj instanceof Date) || (endDateObj !== undefined && isNaN(endDateObj.getDate())))
         ) {
-            errors.push(new Error('BaseJourney validateParams: endDate is required and should be a valid date'));
+            errors.push(new Error('BaseJourney validateParams: endDate is required and should be a valid date string'));
         }
 
         // Validate endTime

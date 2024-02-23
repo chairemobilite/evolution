@@ -20,7 +20,7 @@ export type BaseInterviewAttributes = {
     _uuid?: string;
 
     accessCode?: string;
-    assignedDate?: Date | string; // date, the assigned date for the survey (trips date most of the time)
+    assignedDate?: string; // string, YYYY-MM-DD, the assigned date for the survey (trips date most of the time)
     contactPhoneNumber?: string; // phone number
     contactEmail?: string; // email
 
@@ -41,7 +41,7 @@ export class BaseInterview extends Surveyable implements IValidatable {
     _isValid: OptionalValidity;
 
     accessCode?: string;
-    assignedDate?: Date; // date, the assigned date for the survey (trips date most of the time)
+    assignedDate?: string; // string YYYY-MM-DD, the assigned date for the survey (trips date most of the time)
     contactPhoneNumber?: string; // phone number
     contactEmail?: string; // email
 
@@ -66,7 +66,7 @@ export class BaseInterview extends Surveyable implements IValidatable {
         super(params.survey, params.sample, params.sampleBatchNumber, params._uuid);
 
         this.accessCode = params.accessCode;
-        this.assignedDate = parseDate(params.assignedDate);
+        this.assignedDate = params.assignedDate; // parseDate(params.assignedDate);
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
 
@@ -120,7 +120,6 @@ export class BaseInterview extends Surveyable implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
         const errors: Error[] = [];
 
-        dirtyParams.assignedDate = parseDate(dirtyParams.assignedDate);
         dirtyParams._startedAt = parseDate(dirtyParams._startedAt);
         dirtyParams._updatedAt = parseDate(dirtyParams._updatedAt);
         dirtyParams._completedAt = parseDate(dirtyParams._completedAt);
@@ -160,12 +159,12 @@ export class BaseInterview extends Surveyable implements IValidatable {
             errors.push(new Error('BaseInterview validateParams: _isCompleted should be a boolean'));
         }
 
+        const assignedDateObj = parseDate(dirtyParams.assignedDate);
         // Validate assignedDate (if provided)
         if (
-            dirtyParams.assignedDate !== undefined &&
-            (!(dirtyParams.assignedDate instanceof Date) || isNaN(dirtyParams.assignedDate.getDate()))
+            dirtyParams.assignedDate !== undefined && (!(assignedDateObj instanceof Date) || (assignedDateObj !== undefined && isNaN(assignedDateObj.getDate())))
         ) {
-            errors.push(new Error('BaseInterview validateParams: invalid assignedDate'));
+            errors.push(new Error('BaseInterview validateParams: assignedDate should be a valid date string'));
         }
 
         // Validate _startedAt (if provided)
