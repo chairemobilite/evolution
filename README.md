@@ -2,22 +2,54 @@
 
 Evolution is a survey platform for travel survey. Its originality resides in the support of travel diaries, where participants in the survey can enter all the trips they did in a day for example. But it allows to develop flexible questionnaires, in multiple arbitrary sections, with complex conditions, validations, labels and choices, which can all be scripted to use any of the previous answers.
 
-Surveys that use this platform are complete applications. They are scripted: questions and sections are defined in javascript or typescript.
+Surveys that use this platform are complete applications. They are scripted: questions and sections are defined in Typescript.
 
 Typically, a survey application is split in 2 separate websites, one where participants can fill the questionnaire directly and another one for administering, monitoring, validating surveys, as well as for technical support to participants and phone interviewers.
 
 This repo contains an example travel survey, in the `example/demo_survey` folder. It is possible to copy-paste this directory and start editing the survey.
 
-## Install dependencies for Linux
+## Install dependencies on Linux
 
-The following instructions explain how to install dependencies for Linux. 
+### Install Node.js on Linux
 
-For Ubuntu 20.04 or 22.04 users, use:
+Skip this step if Node.js (version 18.x or 20.x) is already installed on your Linux system.
+
+```bash
+    sudo apt update
+    sudo apt install nodejs curl
+    node -v
+    curl --version
+    curl -sL https://deb.nodesource.com/setup_20.x -o /tmp/nodesource_setup.sh
+    sudo bash /tmp/nodesource_setup.sh
+    sudo apt install nodejs
+    node -v
 ```
-sudo apt-get install postgresql postgis lua5.3 liblua5.3-dev postgresql-postgis postgresql-postgis-scripts
+
+### Install Yarn on Linux
+
+Skip this step if Yarn is already installed on your Linux system.
+
+    ```bash
+    sudo npm install -g yarn
+    yarn -v
+    ```
+
+### Install PostgreSQL and PostGIS on Linux
+
+For Linux users, follow these instructions to install dependencies.
+
+```bash
+    sudo apt update
+    sudo apt install postgresql postgis
+    psql --version
+
+    # Create a password for the postgres user (optional)
+    sudo -u postgres psql -c "ALTER USER postgres PASSWORD '<Password>'"
 ```
 
-## Install dependencies for Windows
+## Install dependencies on Windows
+
+<!-- TODO: Install Node.js and Yarn on Windows -->
 
 The following instructions explain how to install dependencies for Windows. 
 
@@ -31,9 +63,10 @@ The following instructions explain how to prepare and compile the application
 
 * Create a `.env` file in the project root directory (you can copy the `.env.example` file) and setup the project
 * Update the `.env` with the Postgres connection string and create a new Google map API key if you need the Google map in the project
-``` 
-PG_CONNECTION_STRING_PREFIX=postgres://postgres:<Password>@localhost:5432/ 
-GOOGLE_API_KEY= MyGoogleApiKey
+
+```env 
+    PG_CONNECTION_STRING_PREFIX = "postgres://postgres:<Password>@localhost:5432/" 
+    GOOGLE_API_KEY = "<MyGoogleApiKey>"
 ```
 * `git submodule init && git submodule update` will get the Transition repository
 * `yarn install` or just `yarn`: Will download the packages required by the application
