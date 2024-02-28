@@ -12,8 +12,8 @@ describe('Survey Class', () => {
 
     const surveyName = 'Sample Survey';
     const surveyShortname = 'SS';
-    const surveyStartDate = new Date(2023, 4, 15); // May 15, 2023
-    const surveyEndDate = new Date(2023, 5, 15); // June 15, 2023
+    const surveyStartDate = '2023-04-15'; // April 15, 2023
+    const surveyEndDate = '2023-05-15'; // May 15, 2023
 
     it('should instantiate with the provided UUID', () => {
         const validUuid = uuidV4();
@@ -57,13 +57,13 @@ describe('Survey Class', () => {
         // Invalid dates:
         const invalidStartDate = Survey.validateParams({ name: 'bar', shortname: 'foo', startDate: 'foo', endDate: surveyEndDate });
         expect(invalidStartDate.length).toEqual(1);
-        expect(invalidStartDate[0].message).toEqual('Survey validateParams: invalid startDate');
-        const invalidEndDate = Survey.validateParams({ name: 'bar', shortname: 'foo', startDate: surveyStartDate, endDate: new Date('bar') });
+        expect(invalidStartDate[0].message).toEqual('Survey validateParams: startDate should be a valid date string');
+        const invalidEndDate = Survey.validateParams({ name: 'bar', shortname: 'foo', startDate: surveyStartDate, endDate: 'bar' });
         expect(invalidEndDate.length).toEqual(1);
-        expect(invalidEndDate[0].message).toEqual('Survey validateParams: invalid endDate');
-        const invalidEndDate2 = Survey.validateParams({ name: 'bar', shortname: 'foo', startDate: surveyStartDate, endDate: new Date('2021/34/45') });
+        expect(invalidEndDate[0].message).toEqual('Survey validateParams: endDate should be a valid date string');
+        const invalidEndDate2 = Survey.validateParams({ name: 'bar', shortname: 'foo', startDate: surveyStartDate, endDate: '2021-34-45' });
         expect(invalidEndDate2.length).toEqual(1);
-        expect(invalidEndDate2[0].message).toEqual('Survey validateParams: invalid endDate');
+        expect(invalidEndDate2[0].message).toEqual('Survey validateParams: endDate should be a valid date string');
 
         // Missing required attributes:
         const missingRequired = Survey.validateParams({ });
