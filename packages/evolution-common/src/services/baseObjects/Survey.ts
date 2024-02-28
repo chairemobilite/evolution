@@ -18,8 +18,8 @@ type SurveyAttributes = {
     name?: string;
     shortname: string;
     description?: string;
-    startDate?: Date | string;
-    endDate?: Date | string;
+    startDate?: string; // string, YYYY-MM-DD
+    endDate?: string; // string, YYYY-MM-DD
 };
 
 type ExtendedSurveyAttributes = SurveyAttributes & { [key: string]: any };
@@ -28,8 +28,8 @@ class Survey extends Uuidable {
     name?: string;
     shortname: string;
     description?: string;
-    startDate?: Date;
-    endDate?: Date;
+    startDate?: string; // string, YYYY-MM-DD
+    endDate?: string; // string, YYYY-MM-DD
 
     constructor(params: SurveyAttributes | ExtendedSurveyAttributes) {
         super(params._uuid);
@@ -37,8 +37,8 @@ class Survey extends Uuidable {
         this.name = params.name;
         this.shortname = params.shortname;
         this.description = params.description;
-        this.startDate = parseDate(params.startDate);
-        this.endDate = parseDate(params.endDate);
+        this.startDate = params.startDate;
+        this.endDate = params.endDate;
     }
 
     // params must be sanitized and must be valid:
@@ -56,7 +56,7 @@ class Survey extends Uuidable {
 
         // Validate params object:
         if (!dirtyParams || typeof dirtyParams !== 'object') {
-            errors.push(new Error('Surevy validateParams: params is undefined or invalid'));
+            errors.push(new Error('Survey validateParams: params is undefined or invalid'));
             return errors; // stop now otherwise it will crash because params are not valid
         }
 
@@ -66,8 +66,8 @@ class Survey extends Uuidable {
             errors.push(...uuidErrors);
         }
 
-        dirtyParams.startDate = parseDate(dirtyParams.startDate);
-        dirtyParams.endDate = parseDate(dirtyParams.endDate);
+        const startDateObj = parseDate(dirtyParams.startDate);
+        const endDateObj = parseDate(dirtyParams.endDate);
 
         // validate attributes:
         if (dirtyParams.name !== undefined && typeof dirtyParams.name !== 'string') {
@@ -81,17 +81,18 @@ class Survey extends Uuidable {
         if (dirtyParams.description !== undefined && typeof dirtyParams.description !== 'string') {
             errors.push(new Error('Survey validateParams: description should be a string'));
         }
+        // Validate dates (if provided):
         if (
             dirtyParams.startDate !== undefined &&
-            (!(dirtyParams.startDate instanceof Date) || isNaN(dirtyParams.startDate.getTime()))
+            (!(startDateObj instanceof Date) || (startDateObj !== undefined && isNaN(startDateObj.getDate())))
         ) {
-            errors.push(new Error('Survey validateParams: invalid startDate'));
+            errors.push(new Error('Survey validateParams: startDate should be a valid date string'));
         }
         if (
             dirtyParams.endDate !== undefined &&
-            (!(dirtyParams.endDate instanceof Date) || isNaN(dirtyParams.endDate.getTime()))
+            (!(endDateObj instanceof Date) || (endDateObj !== undefined && isNaN(endDateObj.getDate())))
         ) {
-            errors.push(new Error('Survey validateParams: invalid endDate'));
+            errors.push(new Error('Survey validateParams: endDate should be a valid date string'));
         }
 
         return errors;
