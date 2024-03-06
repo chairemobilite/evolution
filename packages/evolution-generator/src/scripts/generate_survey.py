@@ -9,6 +9,8 @@ from dotenv import load_dotenv  # For environment variables
 import os  # For environment variables
 import yaml  # For reading the yaml file
 from scripts.generate_excel import generate_excel
+from scripts.generate_sections import generate_sections
+from scripts.generate_widgets_config import generate_widgets_config
 from scripts.generate_widgets import generate_widgets
 from scripts.generate_conditionals import generate_conditionals
 from scripts.generate_choices import generate_choices
@@ -29,6 +31,7 @@ def generate_survey(config_path):
     # Get the data from the YAML file
     survey = surveyGenerator["survey"]
     excel = surveyGenerator["excel"]
+    sections = surveyGenerator["sections"]
     widgets = surveyGenerator["widgets"]
     conditionals = surveyGenerator["conditionals"]
     choices = surveyGenerator["choices"]
@@ -44,6 +47,12 @@ def generate_survey(config_path):
             os.getenv("OFFICE365_USERNAME_EMAIL"),
             os.getenv("OFFICE365_PASSWORD"),
         )
+
+    # Call the generate_sections function to generate sections.tsx
+    generate_sections(sections["output_file"], sections["sections"])
+
+    # Call the generate_widgets_config function to generate widgetsConfig.tsx
+    generate_widgets_config(widgets["output_file"], sections["sections"])
 
     # Call the generate_widgets function to generate widgets.tsx for each section
     generate_widgets(survey["excel_file"], widgets["output_info_list"])

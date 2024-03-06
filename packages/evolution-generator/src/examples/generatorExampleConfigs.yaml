@@ -4,7 +4,14 @@ survey:
 excel:
     active_script: false
 
+sections:
+    output_file: ../../../survey/src/survey/sections.ts
+    sections:
+        - home
+        - end
+
 widgets:
+    output_file: ../../../survey/src/survey/widgetsConfig.tsx
     output_info_list:
         - output_folder: ../../example/demo_survey_generator/sections/home
           section: home

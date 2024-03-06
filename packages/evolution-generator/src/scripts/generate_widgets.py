@@ -71,12 +71,12 @@ def generate_widgets(input_path, output_info_list):
             # Write the transformed content to the widgets output file
             with open(output_info['output_folder'] + '/widgets.tsx', mode='w', encoding='utf-8', newline='\n') as f:
                 f.write(transformed_content['widgetsStatements'])
-                print(f"Generate {output_info['output_folder']}widgets.tsx successfully")
+                print(f"Generate {output_info['output_folder']}/widgets.tsx successfully")
 
             # Write the transformed content to the widgetsNames output file
             with open(output_info['output_folder'] + '/widgetsNames.ts', mode='w', encoding='utf-8', newline='\n') as f:
                 f.write(transformed_content['widgetsNamesStatements'])
-                print(f"Generate {output_info['output_folder']}widgetsNames.ts successfully")
+                print(f"Generate {output_info['output_folder']}/widgetsNames.ts successfully")
     
     except Exception as e:
         print(f"Error with widgets: {e}")
