@@ -14,7 +14,7 @@ export const isSectionComplete = ({
     interview: any;
     sectionName: string;
 }): boolean | null => {
-    const isSectionComplete: boolean = getResponse(interview, `_sections.${sectionName}._isCompleted`, false);
+    const isSectionComplete = getResponse(interview, `_sections.${sectionName}._isCompleted`, null) as boolean | null;
 
     return isSectionComplete;
 };
