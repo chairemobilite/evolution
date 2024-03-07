@@ -96,6 +96,7 @@ export type InputStringBase = {
 export type InputString = InputStringBase & {
     path: Path;
     label: Label;
+    helpPopup?: HelpPopup;
     conditional: Conditional;
     validations?: Validations;
     textTransform?: 'uppercase' | 'lowercase' | 'capitalize';

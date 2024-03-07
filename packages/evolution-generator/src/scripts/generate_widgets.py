@@ -102,9 +102,9 @@ def generate_widget_statement(row):
     elif input_type == 'Select':
         widget = generate_select_widget(question_name, section, path, choices, conditional, validation)
     elif input_type == 'String':
-        widget = generate_string_widget(question_name, section, path, conditional, validation)
+        widget = generate_string_widget(question_name, section, path, help_popup, conditional, validation)
     elif input_type == 'Number':
-        widget = generate_number_widget(question_name, section, path, conditional, validation)
+        widget = generate_number_widget(question_name, section, path, help_popup, conditional, validation)
     elif input_type == 'Text':
         widget = generate_text_widget(question_name, section, path, conditional)
     elif input_type == 'Range':
@@ -197,21 +197,23 @@ def generate_select_widget(question_name, section, path, choices, conditional, v
             f"}};"
 
 # Generate InputString widget
-def generate_string_widget(question_name, section, path, conditional, validation):
+def generate_string_widget(question_name, section, path, help_popup, conditional, validation):
     return f"{generate_constExport(question_name, 'InputString')}\n" \
             f"{generate_defaultInputBase('inputStringBase')},\n" \
             f"{generate_path(path)},\n" \
             f"{generate_label(section, path)},\n" \
+            f"{generate_help_popup(help_popup)}" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"
 
 # Generate InputNumber widget
-def generate_number_widget(question_name, section, path, conditional, validation):
+def generate_number_widget(question_name, section, path, help_popup, conditional, validation):
     return f"{generate_constExport(question_name, 'InputString')}\n" \
             f"{generate_defaultInputBase('inputNumberBase')},\n" \
             f"{generate_path(path)},\n" \
             f"{generate_label(section, path)},\n" \
+        f"{generate_help_popup(help_popup)}" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"
