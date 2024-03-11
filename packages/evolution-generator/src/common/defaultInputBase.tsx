@@ -110,7 +110,7 @@ export const inputMapFindPlaceBase: inputTypes.InputMapFindPlaceBase = {
     type: 'question',
     inputType: 'mapFindPlace',
     datatype: 'geojson',
-    height: '20rem',
+    height: '32rem',
     containsHtml: true,
     autoConfirmIfSingleResult: true,
     placesIcon: {
@@ -127,8 +127,8 @@ export const inputMapFindPlaceBase: inputTypes.InputMapFindPlaceBase = {
             {
                 validation: _isBlank(value),
                 errorMessage: {
-                    fr: 'Le positionnement du domicile est requis.',
-                    en: 'Home location is required.'
+                    fr: 'Le positionnement du lieu est requis.',
+                    en: 'Positioning of the place is required.'
                 }
             },
             {
