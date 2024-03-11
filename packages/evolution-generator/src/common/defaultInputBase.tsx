@@ -8,7 +8,7 @@ import { TFunction } from 'i18next';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import * as surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
+import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import * as inputTypes from '../types/inputTypes';
 
