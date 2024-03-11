@@ -38,10 +38,14 @@ def generate_widgets(input_path, output_info_list):
             has_conditionals_import = False
             has_input_range_import = False
             has_custom_widgets_import = False
+            has_custom_validations_import = False
             has_help_popup_import = False
             for row in section_rows:
                 if row['choices']:
                     has_choices_import = True
+                if row['conditional'].endswith('CustomValidation'):
+                    # Check to see if the validation finish with 'CustomConditional'
+                    has_custom_validations_import = True
                 if row['conditional']:
                     has_conditionals_import = True
                 if row['inputRange']:
@@ -52,7 +56,7 @@ def generate_widgets(input_path, output_info_list):
                     has_help_popup_import = True
 
             # Generate import statements
-            import_statements = generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_help_popup_import)
+            import_statements = generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import)
 
             # Generate widgets statements
             widgets_statements = [generate_widget_statement(row) for row in section_rows]
@@ -121,10 +125,11 @@ def generate_widget_statement(row):
     return widget
 
 # Generate import statement if needed
-def generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_help_popup_import):
+def generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import):
     choices_import = ("// " if not has_choices_import else "") + "import * as choices from '../../common/choices';\n"
     conditionals_import = ("// " if not has_conditionals_import else "") + "import * as conditionals from '../../common/conditionals';\n"
     custom_widgets_import = ("// " if not has_custom_widgets_import else "") + "import * as customWidgets from '../../common/customWidgets';\n"
+    custom_validations_import = ("// " if not has_custom_widgets_import else "") + "import * as customValidations from '../../common/customValidations';\n"
     help_popup_import = ("// " if not has_help_popup_import else "") + "import * as helpPopup from '../../common/helpPopup';\n"
     input_range_import = ("// " if not has_input_range_import else "") + "import * as inputRange from '../../common/inputRange';\n"
     return f"import {{ TFunction }} from 'i18next';\n" \
@@ -136,6 +141,7 @@ def generate_import_statements(has_choices_import, has_conditionals_import, has_
             f"{help_popup_import}" \
             f"import * as inputTypes from 'evolution-generator/lib/types/inputTypes';\n" \
             f"{input_range_import}" \
+            f"{custom_validations_import}" \
             f"import * as validations from 'evolution-generator/lib/common/validations';\n"
 
 # Generate widgetsNames
@@ -170,8 +176,16 @@ def generate_text(section, path): return f"{indentation}text: (t: TFunction) => 
 def generate_choices(choices): return f"{indentation}choices: choices.{choices}"
 def generate_conditional(conditional): 
     return f"{indentation}{"conditional: conditionals." + conditional if conditional else "conditional: defaultConditional"}"
-def generate_validation(validation): 
-    return f"{indentation}validations: validations.{validation if validation else "requiredValidation"}"
+def generate_validation(validation):
+    if not validation:
+        # If validation is empty, use 'requiredValidation'
+        return f"{indentation}validations: validations.requiredValidation"
+    elif validation.endswith('CustomValidation'):
+        # If validation ends with 'CustomValidation', use 'customValidation'
+        return f"{indentation}validations: customValidations.{validation}"
+    else:
+        # Otherwise, use the provided validation
+        return f"{indentation}validations: validations.{validation}"
 
 # Generate InputRadio widget
 def generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation):
