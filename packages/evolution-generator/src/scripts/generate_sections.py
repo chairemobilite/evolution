@@ -14,17 +14,19 @@ def generate_sections(output_file: str, sections: List[str]):
         indentation: str = "    "  # 4-space indentation
 
         # Generate the import statements
+        ts_code += "import { SectionsConfigs } from 'evolution-generator/lib/types/sectionsTypes';\n"
         # Loop through each section and generate an import statement
         for section in sections:
             ts_code += f"import {section}Configs from './sections/{section}/configs';\n"
 
         # Generate the export statement
         ts_code += "\n// Export all the sections configs\n"
-        ts_code += "export default {\n"
+        ts_code += "const sectionsConfigs: SectionsConfigs = {\n"
         # Loop through each section and generate an export statement
         for section in sections:
             ts_code += f"{indentation}{section}: {section}Configs,\n"
         ts_code += "};\n"
+        ts_code += "export default sectionsConfigs;\n"
 
         # Write TypeScript code to a file
         with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:

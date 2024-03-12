@@ -11,13 +11,15 @@ import { TFunction } from 'i18next';
 type ContainsHtml = boolean;
 type TwoColumns = boolean;
 type AddCustom = boolean;
+type Multiple = boolean;
 type Columns = 1 | 2;
 type Path = string;
 type Placeholder = string;
+type Title = { fr: string; en: string };
 type Text = (t: TFunction) => string;
 export type InputFilter = (value) => string | number;
 type LabelFunction = (t: TFunction, interview?, path?) => string;
-type LabelNotFunction = { en: string; fr: string };
+type LabelNotFunction = { en: string | ((interview?, path?) => string); fr: string | ((interview?, path?) => string) };
 type Label = LabelFunction | LabelNotFunction;
 export type Labels = {
     fr: string;
@@ -50,15 +52,19 @@ export type Validations = (
 export type NameFunction = (groupedObject, sequence, interview) => string;
 export type HelpPopup = {
     containsHtml?: ContainsHtml;
-    title: { fr: string; en: string };
+    title: Title;
     content: { fr: string; en: string };
     // TODO: This is the correct type, but it doesn't work with the current implementation
     // title: (t: TFunction) => string;
     // content: (t: TFunction) => string;
 };
+type DefaultCenter = {
+    lat: number;
+    lon: number;
+};
+type Polygons = { type: 'FeatureCollection'; features: any[] };
+type Geojsons = (interview?: any, path?: Path, activeUuid?: any) => { polygons: Polygons };
 
-// TODO: Place all the correct types in Evolution typescript files
-// TODO: Add the correct types for all the different input types
 // TODO: Add some missing types for the different input types
 
 /* InputRadio widgetConfig Type */
@@ -143,7 +149,7 @@ export type InputCheckboxBase = {
     datatype: 'string' | 'integer';
     containsHtml: ContainsHtml;
     twoColumns: TwoColumns;
-    multiple: true;
+    multiple: Multiple;
     columns: Columns;
 };
 export type InputCheckbox = InputCheckboxBase & {
@@ -168,6 +174,21 @@ export type InputSelect = InputSelectBase & {
     path: Path;
     label: Label;
     choices: Choices;
+    conditional: Conditional;
+    validations?: Validations;
+};
+
+/* InputMultiselect widgetConfig Type */
+export type InputMultiselect = {
+    type: 'question';
+    path: Path;
+    inputType: 'multiselect';
+    multiple: Multiple;
+    datatype: 'string';
+    twoColumns: TwoColumns;
+    containsHtml: ContainsHtml;
+    choices: Choices;
+    label: Label;
     conditional: Conditional;
     validations?: Validations;
 };
@@ -243,4 +264,14 @@ export type InputMapFindPlace = InputMapFindPlaceBase & {
     icon: { url: string; size: [number, number] };
     geocodingQueryString: (interview, path?) => void;
     conditional: Conditional;
+};
+
+/* InfoMap widgetConfig Type */
+export type InfoMap = {
+    type: 'infoMap';
+    defaultCenter: DefaultCenter;
+    title: Title;
+    linestringColor: string;
+    conditional: Conditional;
+    geojsons: Geojsons;
 };
