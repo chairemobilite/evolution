@@ -236,7 +236,6 @@ def generate_number_widget(question_name, section, path, help_popup, conditional
 def generate_text_widget(question_name, section, path, conditional):
     return f"{generate_constExport(question_name, 'InputText')}\n" \
             f"{generate_defaultInputBase('inputTextBase')},\n" \
-            f"{generate_path(path)},\n" \
             f"{generate_text(section, path)},\n" \
             f"{generate_conditional(conditional)}\n" \
             f"}};"

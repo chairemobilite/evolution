@@ -15,12 +15,13 @@ type Multiple = boolean;
 type Columns = 1 | 2;
 type Path = string;
 type Placeholder = string;
+type Align = 'left' | 'right' | 'center';
 type Title = { fr: string; en: string };
-type Text = (t: TFunction) => string;
 export type InputFilter = (value) => string | number;
 type LabelFunction = (t: TFunction, interview?, path?) => string;
 type LabelNotFunction = { en: string | ((interview?, path?) => string); fr: string | ((interview?, path?) => string) };
 type Label = LabelFunction | LabelNotFunction;
+type Text = LabelFunction | LabelNotFunction;
 export type Labels = {
     fr: string;
     en: string;
@@ -111,10 +112,10 @@ export type InputString = InputStringBase & {
 /* InputText widgetConfig Type */
 export type InputTextBase = {
     type: 'text';
+    align?: Align;
     containsHtml: ContainsHtml;
 };
 export type InputText = InputTextBase & {
-    path: Path;
     text: Text;
     conditional: Conditional;
 };
@@ -199,7 +200,7 @@ export type InputButtonBase = {
     color: 'green';
     hideWhenRefreshing: boolean;
     icon: any; // icon: IconDefinition;
-    align: 'left' | 'right' | 'center';
+    align: Align;
     action: () => void;
 };
 export type InputButton = InputButtonBase & {
