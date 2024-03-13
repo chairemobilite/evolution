@@ -62,7 +62,7 @@ type DefaultCenter = {
     lat: number;
     lon: number;
 };
-type Polygons = { type: 'FeatureCollection'; features: any[] };
+type Polygons = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
 type Geojsons = (interview?: any, path?: Path, activeUuid?: any) => { polygons: Polygons };
 
 // TODO: Add some missing types for the different input types

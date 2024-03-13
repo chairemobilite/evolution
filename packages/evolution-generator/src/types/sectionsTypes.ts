@@ -14,7 +14,7 @@ export type SectionConfig = {
     parentSection?: string;
     widgets: string[];
     groups?: {
-        [key: string]: {
+        [groupName: string]: {
             showGroupedObjectDeleteButton: (interview: any, path: string) => boolean;
             showGroupedObjectAddButton: (interview: any, path: string) => boolean;
             groupedObjectAddButtonLabel: {
@@ -38,5 +38,5 @@ export type SectionConfig = {
 
 // Configs for the sections configs
 export type SectionsConfigs = {
-    [key: string]: SectionConfig;
+    [sectionName: string]: SectionConfig;
 };
