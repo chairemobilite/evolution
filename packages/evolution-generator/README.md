@@ -145,7 +145,7 @@ Widgets are the building blocks of your survey. They define the structure and in
 | [inputRange](#range) | Input range name for InputRange (optional)              | string? |
 | comments             | Additional comments for the question (optional)         | string? |
 
-> <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Checkbox, Custom, NextButton, Number, Radio, Range, String, Text, or TextArea.
+> <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Custom, Radio, Select, String, Number, InfoText, Range, Checkbox, NextButton,  or Text
 
 > <span id="cond">**Note:**</span> The `conditional` field allows you to define conditional logic for displaying the widget based on other responses. For example, you can specify a condition like `nbPersonnesSeptPlusConditional` to show the widget only if the number of people is 7 or more.
 

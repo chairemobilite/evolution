@@ -109,16 +109,16 @@ def generate_widget_statement(row):
         widget = generate_string_widget(question_name, section, path, help_popup, conditional, validation)
     elif input_type == 'Number':
         widget = generate_number_widget(question_name, section, path, help_popup, conditional, validation)
-    elif input_type == 'Text':
-        widget = generate_text_widget(question_name, section, path, conditional)
+    elif input_type == 'InfoText':
+        widget = generate_info_text_widget(question_name, section, path, conditional)
     elif input_type == 'Range':
         widget = generate_range_widget(question_name, section, path, input_range, conditional, validation)
     elif input_type == 'Checkbox':
         widget = generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation)
     elif input_type == 'NextButton':
         widget = generate_next_button_widget(question_name, section, path)
-    elif input_type == 'TextArea':
-        widget = generate_text_area_widget(question_name, section, path, conditional, validation)
+    elif input_type == 'Text':
+        widget = generate_text_widget(question_name, section, path, conditional, validation)
     else:
         widget = f"// {question_name}"
 
@@ -232,11 +232,10 @@ def generate_number_widget(question_name, section, path, help_popup, conditional
             f"{generate_validation(validation)}\n" \
             f"}};"
 
-# Generate Text widget
-def generate_text_widget(question_name, section, path, conditional):
-    return f"{generate_constExport(question_name, 'InputText')}\n" \
-            f"{generate_defaultInputBase('inputTextBase')},\n" \
-            f"{generate_path(path)},\n" \
+# Generate InfoText widget
+def generate_info_text_widget(question_name, section, path, conditional):
+    return f"{generate_constExport(question_name, 'InfoText')}\n" \
+            f"{generate_defaultInputBase('infoTextBase')},\n" \
             f"{generate_text(section, path)},\n" \
             f"{generate_conditional(conditional)}\n" \
             f"}};"
@@ -272,10 +271,10 @@ def generate_next_button_widget(question_name, section, path):
             f"{generate_label(section, path)}\n" \
             f"}};"
 
-# Generate TextArea widget
-def generate_text_area_widget(question_name, section, path, conditional, validation):
-    return f"{generate_constExport(question_name, 'TextArea')}\n" \
-            f"{generate_defaultInputBase('textAreaBase')},\n" \
+# Generate Text textarea widget
+def generate_text_widget(question_name, section, path, conditional, validation):
+    return f"{generate_constExport(question_name, 'Text')}\n" \
+            f"{generate_defaultInputBase('textBase')},\n" \
             f"{generate_path(path)},\n" \
             f"{generate_label(section, path)},\n" \
             f"{generate_conditional(conditional)},\n" \

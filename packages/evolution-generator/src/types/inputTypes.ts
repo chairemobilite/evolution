@@ -15,12 +15,13 @@ type Multiple = boolean;
 type Columns = 1 | 2;
 type Path = string;
 type Placeholder = string;
+type Align = 'left' | 'right' | 'center';
 type Title = { fr: string; en: string };
-type Text = (t: TFunction) => string;
 export type InputFilter = (value) => string | number;
 type LabelFunction = (t: TFunction, interview?, path?) => string;
 type LabelNotFunction = { en: string | ((interview?, path?) => string); fr: string | ((interview?, path?) => string) };
 type Label = LabelFunction | LabelNotFunction;
+type TextKey = LabelFunction | LabelNotFunction;
 export type Labels = {
     fr: string;
     en: string;
@@ -108,14 +109,14 @@ export type InputString = InputStringBase & {
     textTransform?: 'uppercase' | 'lowercase' | 'capitalize';
 };
 
-/* InputText widgetConfig Type */
-export type InputTextBase = {
+/* Text widgetConfig Type */
+export type InfoTextBase = {
     type: 'text';
+    align?: Align;
     containsHtml: ContainsHtml;
 };
-export type InputText = InputTextBase & {
-    path: Path;
-    text: Text;
+export type InfoText = InfoTextBase & {
+    text: TextKey;
     conditional: Conditional;
 };
 
@@ -199,7 +200,7 @@ export type InputButtonBase = {
     color: 'green';
     hideWhenRefreshing: boolean;
     icon: any; // icon: IconDefinition;
-    align: 'left' | 'right' | 'center';
+    align: Align;
     action: () => void;
 };
 export type InputButton = InputButtonBase & {
@@ -216,15 +217,15 @@ export type InputButton = InputButtonBase & {
     saveCallback?: () => void;
 };
 
-/* InputText textArea widgetConfig Type */
-export type TextAreaBase = {
+/* InputText widgetConfig Type */
+export type TextBase = {
     type: 'question';
     inputType: 'text';
     datatype: 'text';
     containsHtml?: ContainsHtml;
     twoColumns: false;
 };
-export type TextArea = TextAreaBase & {
+export type Text = TextBase & {
     path: Path;
     label: Label;
     conditional: Conditional;
@@ -255,7 +256,7 @@ export type InputMapFindPlaceBase = {
     defaultCenter: { lat: number; lon: number };
     refreshGeocodingLabel: Label;
     showSearchPlaceButton: (interview?, path?) => boolean;
-    afterRefreshButtonText: Text;
+    afterRefreshButtonText: TextKey;
     validations?: Validations;
 };
 export type InputMapFindPlace = InputMapFindPlaceBase & {
