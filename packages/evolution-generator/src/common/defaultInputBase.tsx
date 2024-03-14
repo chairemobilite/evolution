@@ -49,8 +49,8 @@ export const inputNumberBase: inputTypes.InputStringBase = {
     numericKeyboard: true
 };
 
-// Text default params
-export const inputTextBase: inputTypes.InputTextBase = {
+// InfoText default params
+export const infoTextBase: inputTypes.InfoTextBase = {
     type: 'text',
     containsHtml: true
 };
@@ -96,8 +96,8 @@ export const buttonNextBase: inputTypes.InputButtonBase = {
     action: surveyHelper.validateButtonActionWithCompleteSection
 };
 
-// TextArea default params
-export const textAreaBase: inputTypes.TextAreaBase = {
+// Text textarea default params
+export const textBase: inputTypes.TextBase = {
     type: 'question',
     inputType: 'text',
     datatype: 'text',
