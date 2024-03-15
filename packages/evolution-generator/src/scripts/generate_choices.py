@@ -6,6 +6,7 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 from collections import defaultdict
 from helpers.generator_helpers import (
+    add_generator_comment,
     is_excel_file,
     is_ts_file,
     get_workbook,
@@ -81,8 +82,11 @@ def generate_choices(input_file: str, output_file: str):
         ts_code: str = ""  # TypeScript code to be written to file
         indentation: str = "    "  # 4-space indentation
 
+        # Add Generator comment at the start of the file
+        ts_code += add_generator_comment()
+
         # Add imports
-        ts_code = f"import {{ Choices }} from 'evolution-generator/lib/types/inputTypes';\n"
+        ts_code += f"import {{ Choices }} from 'evolution-generator/lib/types/inputTypes';\n"
         ts_code += f"import * as conditionals from './conditionals';\n\n"
 
         for choice_name, choices in choices_by_name.items():
