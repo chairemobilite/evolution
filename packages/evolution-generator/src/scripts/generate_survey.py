@@ -9,6 +9,7 @@ from dotenv import load_dotenv  # For environment variables
 import os  # For environment variables
 import yaml  # For reading the yaml file
 from scripts.generate_excel import generate_excel
+from scripts.generate_section_configs import generate_section_configs
 from scripts.generate_sections import generate_sections
 from scripts.generate_widgets_config import generate_widgets_config
 from scripts.generate_widgets import generate_widgets
@@ -47,6 +48,9 @@ def generate_survey(config_path):
             os.getenv("OFFICE365_USERNAME_EMAIL"),
             os.getenv("OFFICE365_PASSWORD"),
         )
+
+    # Call the generate_section_configs function to generate sectionConfigs.ts
+    generate_section_configs(survey["excel_file"])
 
     # Call the generate_sections function to generate sections.tsx
     generate_sections(sections["output_file"], sections["sections"])

@@ -5,6 +5,7 @@
 # Note: This script includes functions that generate the inputRange.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 from helpers.generator_helpers import (
+    INDENT,
     add_generator_comment,
     is_excel_file,
     is_ts_file,
@@ -49,7 +50,6 @@ def generate_input_range(input_file: str, output_file: str):
 
         # Generate TypeScript codedict
         ts_code: str = ""  # TypeScript code to be written to file
-        indentation: str = "    "  # 4-space indentation
 
         # Add Generator comment at the start of the file
         ts_code += add_generator_comment()
@@ -89,22 +89,22 @@ def generate_input_range(input_file: str, output_file: str):
 
             # Generate TypeScript code
             ts_code += f"export const {input_range_name}: InputRangeConfig = {{\n"
-            ts_code += f"{indentation}labels: [\n"
-            ts_code += f"{indentation}{indentation}{{\n"
-            ts_code += f"{indentation}{indentation}{indentation}fr: '{label_fr_min}',\n"
-            ts_code += f"{indentation}{indentation}{indentation}en: '{label_en_min}'\n"
-            ts_code += f"{indentation}{indentation}}},\n"
-            ts_code += f"{indentation}{indentation}{{\n"
-            ts_code += f"{indentation}{indentation}{indentation}fr: '{label_fr_max}',\n"
-            ts_code += f"{indentation}{indentation}{indentation}en: '{label_en_max}'\n"
-            ts_code += f"{indentation}{indentation}}}\n"
-            ts_code += f"{indentation}],\n"
-            ts_code += f"{indentation}minValue: {min_value},\n"
-            ts_code += f"{indentation}maxValue: {max_value},\n"
-            ts_code += f"{indentation}formatLabel: (value, language) => {{\n"
-            ts_code += f"{indentation}{indentation}return value < 0 ? '' : `${{value}} ${{language === 'fr' ? '{unit_fr}' : language === 'en' ? '{unit_en}' : ''}}`;\n"
-            # ts_code += f"{indentation}{indentation}return value + ' ' + (language === 'fr' ? '{unit_fr}' : '{unit_en}');\n"
-            ts_code += f"{indentation}}}\n"
+            ts_code += f"{INDENT}labels: [\n"
+            ts_code += f"{INDENT}{INDENT}{{\n"
+            ts_code += f"{INDENT}{INDENT}{INDENT}fr: '{label_fr_min}',\n"
+            ts_code += f"{INDENT}{INDENT}{INDENT}en: '{label_en_min}'\n"
+            ts_code += f"{INDENT}{INDENT}}},\n"
+            ts_code += f"{INDENT}{INDENT}{{\n"
+            ts_code += f"{INDENT}{INDENT}{INDENT}fr: '{label_fr_max}',\n"
+            ts_code += f"{INDENT}{INDENT}{INDENT}en: '{label_en_max}'\n"
+            ts_code += f"{INDENT}{INDENT}}}\n"
+            ts_code += f"{INDENT}],\n"
+            ts_code += f"{INDENT}minValue: {min_value},\n"
+            ts_code += f"{INDENT}maxValue: {max_value},\n"
+            ts_code += f"{INDENT}formatLabel: (value, language) => {{\n"
+            ts_code += f"{INDENT}{INDENT}return value < 0 ? '' : `${{value}} ${{language === 'fr' ? '{unit_fr}' : language === 'en' ? '{unit_en}' : ''}}`;\n"
+            # ts_code += f"{INDENT}{INDENT}return value + ' ' + (language === 'fr' ? '{unit_fr}' : '{unit_en}');\n"
+            ts_code += f"{INDENT}}}\n"
             ts_code += "};\n\n"
 
         # Write TypeScript code to a file

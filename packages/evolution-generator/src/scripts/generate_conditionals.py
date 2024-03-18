@@ -7,12 +7,12 @@
 # We use importation without "/" to avoid problems when using the package.json script.
 from collections import defaultdict  # Group data by name
 from helpers.generator_helpers import (
+    INDENT, # 4-space indentation
     add_generator_comment,  # Add Generator comment at the start of the file
     get_data_from_excel,  # Read data from Excel
     get_values_from_row,  # Get values from the row
     error_when_missing_required_fields,  # Error when any required fields are None
     generate_output_file,  # Generate output file
-    indent,  # 4-space indentation
 )
 
 
@@ -88,13 +88,13 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
             conditionals_has_path = any(
                 "${relativePath}" in conditional["path"] for conditional in conditionals
             )
-            declare_relative_path = f"{indent(1)}const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path{NEWLINE}"
+            declare_relative_path = f"{INDENT}const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path{NEWLINE}"
 
             ts_code += f"\nexport const {conditional_name}: Conditional = (interview{', path' if conditionals_has_path else ''}) => {{{NEWLINE}"
             ts_code += declare_relative_path if conditionals_has_path else ""
-            ts_code += indent(1) + "return createConditionals({" + NEWLINE
-            ts_code += indent(2) + "interview," + NEWLINE
-            ts_code += indent(2) + "conditionals: [" + NEWLINE
+            ts_code += INDENT + "return createConditionals({" + NEWLINE
+            ts_code += INDENT + INDENT + "interview," + NEWLINE
+            ts_code += INDENT + INDENT + "conditionals: [" + NEWLINE
 
             # Add conditionals
             for index, conditional in enumerate(conditionals):
@@ -106,22 +106,22 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
                 conditional_has_path = "${relativePath}" in conditional["path"]
                 quote = "`" if conditional_has_path else "'"
 
-                ts_code += f"{indent(3)}{{{NEWLINE}"
+                ts_code += f"{INDENT}{INDENT}{INDENT}{{{NEWLINE}"
                 if conditional["logical_operator"]:
-                    ts_code += f"{indent(4)}logicalOperator: '{conditional['logical_operator']}',{NEWLINE}"
+                    ts_code += f"{INDENT}{INDENT}{INDENT}{INDENT}logicalOperator: '{conditional['logical_operator']}',{NEWLINE}"
+                ts_code += f"{INDENT}{INDENT}{INDENT}{INDENT}path: {quote}{conditional['path']}{quote},{NEWLINE}"
+                ts_code += f"{INDENT}{INDENT}{INDENT}{INDENT}comparisonOperator: '{conditional['comparison_operator']}',{NEWLINE}"
                 ts_code += (
-                    f"{indent(4)}path: {quote}{conditional['path']}{quote},{NEWLINE}"
+                    f"{INDENT}{INDENT}{INDENT}{INDENT}value: {new_value},{NEWLINE}"
                 )
-                ts_code += f"{indent(4)}comparisonOperator: '{conditional['comparison_operator']}',{NEWLINE}"
-                ts_code += f"{indent(4)}value: {new_value},{NEWLINE}"
                 if conditional["parentheses"]:
-                    ts_code += f"{indent(4)}parentheses: '{conditional['parentheses']}',{NEWLINE}"
-                ts_code += f"{indent(3)}}}"
+                    ts_code += f"{INDENT}{INDENT}{INDENT}{INDENT}parentheses: '{conditional['parentheses']}',{NEWLINE}"
+                ts_code += f"{INDENT}{INDENT}{INDENT}}}"
                 ts_code += "," if index < len(conditionals) - 1 else ""
                 ts_code += f"{NEWLINE}"
 
-            ts_code += f"{indent(2)}]{NEWLINE}"
-            ts_code += f"{indent(1)}}});{NEWLINE}"
+            ts_code += f"{INDENT}{INDENT}]{NEWLINE}"
+            ts_code += f"{INDENT}}});{NEWLINE}"
             ts_code += f"}};{NEWLINE}"
 
     except Exception as e:

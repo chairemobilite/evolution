@@ -10,6 +10,7 @@ from typing import List, Union  # Types for Python
 
 # Define constants
 MOCKER_EXCEL_FILE = "generator/examples/test.xlsx"
+INDENT = "    "  # 4-space indentation
 
 
 # Add Generator comment at the start of the file
@@ -93,11 +94,6 @@ def generate_output_file(ts_code: str, output_file: str):
     except Exception as e:
         print(f"Error generating {output_file}: {e}")
         raise e
-
-
-# 4-space indentation
-def indent(level: int) -> str:
-    return " " * 4 * level
 
 
 # Create mocked Excel data for testing

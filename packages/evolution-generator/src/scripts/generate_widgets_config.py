@@ -6,14 +6,13 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 
 from typing import List
-from helpers.generator_helpers import add_generator_comment
+from helpers.generator_helpers import INDENT, add_generator_comment
 
 
 # Function to generate widgetsConfig.tsx
 def generate_widgets_config(output_file: str, sections: List[str]):
     try:
         ts_code: str = ""  # TypeScript code to be written to file
-        indentation: str = "    "  # 4-space indentation
 
         # Add Generator comment at the start of the file
         ts_code += add_generator_comment()
@@ -21,7 +20,9 @@ def generate_widgets_config(output_file: str, sections: List[str]):
         # Generate the import statements
         # Loop through each section and generate an import statement
         for section in sections:
-            ts_code += f"import * as {section}Widgets from './sections/{section}/widgets';\n"
+            ts_code += (
+                f"import * as {section}Widgets from './sections/{section}/widgets';\n"
+            )
 
         # Generate the widgets
         ts_code += "\n// Define all the widgets\n"
@@ -30,15 +31,17 @@ def generate_widgets_config(output_file: str, sections: List[str]):
         ts_code += "const sectionsWidgets = [\n"
         # Loop through each section and generate a sectionWidgets array
         for section in sections:
-            ts_code += f"{indentation}{section}Widgets,\n"
+            ts_code += f"{INDENT}{section}Widgets,\n"
         ts_code += "];\n"
 
         # Generate the loop to add all the widgets to the widgets object
-        ts_code += "\n// Loop all sections and add their widgets to the widgets object\n"
+        ts_code += (
+            "\n// Loop all sections and add their widgets to the widgets object\n"
+        )
         ts_code += "sectionsWidgets.forEach((section) => {\n"
-        ts_code += f"{indentation}for (const widget in section) {{\n"
-        ts_code += f"{indentation}{indentation}widgets[widget] = section[widget];\n"
-        ts_code += f"{indentation}}}\n"
+        ts_code += f"{INDENT}for (const widget in section) {{\n"
+        ts_code += f"{INDENT}{INDENT}widgets[widget] = section[widget];\n"
+        ts_code += f"{INDENT}}}\n"
         ts_code += "});\n"
 
         # // Loop all sections and add their widgets to the widgets object
