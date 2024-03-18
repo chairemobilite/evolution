@@ -1,7 +1,28 @@
+/*
+ * Copyright 2024, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
+// Note: This file includes types for all the different sections types used in the evolution-generator
+
+
+export type SectionName = string | null;
+export type WidgetsNames = string[];
+// TODO: Add better types for Preload
+export type Preload = (
+    interview: any,
+    startUpdateInterview: any,
+    startAddGroupedObjects: any,
+    startRemoveGroupedObjects: any,
+    callback: any
+) => null;
+
 // Config for the section
 export type SectionConfig = {
-    previousSection: string | null;
-    nextSection: string | null;
+    previousSection: SectionName;
+    nextSection: SectionName;
     hiddenInNav?: boolean;
     title?: {
         fr: string;
@@ -12,7 +33,7 @@ export type SectionConfig = {
         en: string;
     };
     parentSection?: string;
-    widgets: string[];
+    widgets: WidgetsNames;
     groups?: {
         [groupName: string]: {
             showGroupedObjectDeleteButton: (interview: any, path: string) => boolean;
@@ -25,13 +46,7 @@ export type SectionConfig = {
             widgets: string[];
         };
     };
-    preload?: (
-        interview: any,
-        startUpdateInterview: any,
-        startAddGroupedObjects: any,
-        startRemoveGroupedObjects: any,
-        callback: any
-    ) => null;
+    preload?: Preload;
     enableConditional: ((interview: any) => boolean) | boolean;
     completionConditional: ((interview: any) => boolean) | boolean;
 };

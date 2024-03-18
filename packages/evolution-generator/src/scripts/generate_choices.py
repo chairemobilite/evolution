@@ -6,6 +6,7 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 from collections import defaultdict
 from helpers.generator_helpers import (
+    INDENT,
     add_generator_comment,
     is_excel_file,
     is_ts_file,
@@ -80,13 +81,14 @@ def generate_choices(input_file: str, output_file: str):
         # TODO: Separate the following code into a separate function
         # Generate TypeScript code
         ts_code: str = ""  # TypeScript code to be written to file
-        indentation: str = "    "  # 4-space indentation
 
         # Add Generator comment at the start of the file
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += f"import {{ Choices }} from 'evolution-generator/lib/types/inputTypes';\n"
+        ts_code += (
+            f"import {{ Choices }} from 'evolution-generator/lib/types/inputTypes';\n"
+        )
         ts_code += f"import * as conditionals from './conditionals';\n\n"
 
         for choice_name, choices in choices_by_name.items():
@@ -95,21 +97,21 @@ def generate_choices(input_file: str, output_file: str):
             for index, choice in enumerate(choices):
                 if choice["spread_choices_name"] is not None:
                     # Spread choices from another choiceName when spread_choices_name is not None
-                    ts_code += f"{indentation}...{choice['spread_choices_name']}"
+                    ts_code += f"{INDENT}...{choice['spread_choices_name']}"
                 else:
                     ts_code += (
-                        f"{indentation}{{\n"
-                        f"{indentation}{indentation}value: '{choice['value']}',\n"
-                        f"{indentation}{indentation}label: {{\n"
-                        f"{indentation}{indentation}{indentation}fr: '{choice['label']['fr']}',\n"
-                        f"{indentation}{indentation}{indentation}en: '{choice['label']['en']}'\n"
-                        f"{indentation}{indentation}}}{',' if choice['conditional'] else ''}\n"
+                        f"{INDENT}{{\n"
+                        f"{INDENT}{INDENT}value: '{choice['value']}',\n"
+                        f"{INDENT}{INDENT}label: {{\n"
+                        f"{INDENT}{INDENT}{INDENT}fr: '{choice['label']['fr']}',\n"
+                        f"{INDENT}{INDENT}{INDENT}en: '{choice['label']['en']}'\n"
+                        f"{INDENT}{INDENT}}}{',' if choice['conditional'] else ''}\n"
                     )
                     # Add the 'conditional' field only if it exists
                     if "conditional" in choice and choice["conditional"] is not None:
-                        ts_code += f"{indentation}{indentation}conditional: conditionals.{choice['conditional']},\n"
+                        ts_code += f"{INDENT}{INDENT}conditional: conditionals.{choice['conditional']},\n"
 
-                    ts_code += f"{indentation}}}"
+                    ts_code += f"{INDENT}}}"
                 if index < len(choices) - 1:
                     # Add a comma for each choice except the last one
                     ts_code += ","

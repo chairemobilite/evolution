@@ -6,14 +6,13 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 
 from typing import List
-from helpers.generator_helpers import add_generator_comment
+from helpers.generator_helpers import INDENT, add_generator_comment
 
 
 # Function to generate sections.ts
 def generate_sections(output_file: str, sections: List[str]):
     try:
         ts_code: str = ""  # TypeScript code to be written to file
-        indentation: str = "    "  # 4-space indentation
 
         # Add Generator comment at the start of the file
         ts_code += add_generator_comment()
@@ -29,7 +28,7 @@ def generate_sections(output_file: str, sections: List[str]):
         ts_code += "const sectionsConfigs: SectionsConfigs = {\n"
         # Loop through each section and generate an export statement
         for section in sections:
-            ts_code += f"{indentation}{section}: {section}Configs,\n"
+            ts_code += f"{INDENT}{section}: {section}Configs,\n"
         ts_code += "};\n"
         ts_code += "export default sectionsConfigs;\n"
 

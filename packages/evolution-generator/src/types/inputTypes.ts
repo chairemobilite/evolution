@@ -4,6 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+
+// Note: This file includes types for all the different input and widgets types used in the evolution-generator
+
 import { TFunction } from 'i18next';
 // import IconDefinition from '@fortawesome/fontawesome-svg-core/definitions/IconDefinition';
 

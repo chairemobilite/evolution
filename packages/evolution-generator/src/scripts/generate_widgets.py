@@ -5,9 +5,7 @@
 # Note: This script includes functions that generate the widgets.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 import openpyxl # Read data from Excel
-from helpers.generator_helpers import add_generator_comment
-
-indentation = "    " # Indentation of 4 spaces
+from helpers.generator_helpers import INDENT, add_generator_comment
 
 # Function to generate widgets.tsx for each section
 def generate_widgets(input_path, output_info_list):
@@ -65,7 +63,8 @@ def generate_widgets(input_path, output_info_list):
 
             # Generate widgets names
             widgets_names = '\n'.join([generate_widget_name(row, is_last_row=(index == len(section_rows) - 1)) for index, row in enumerate(section_rows)])
-            widgets_names_statements = f"export const widgetsNames = [\n{''.join(widgets_names)}\n];\n" 
+            widgets_names_import = "import { WidgetsNames } from 'evolution-generator/lib/types/sectionsTypes';\n\n"
+            widgets_names_statements = f"{widgets_names_import}export const widgetsNames: WidgetsNames = [\n{''.join(widgets_names)}\n];\n" 
 
             return {'widgetsStatements': widgets_statements, 'widgetsNamesStatements': widgets_names_statements}
 
@@ -156,9 +155,9 @@ def generate_widget_name(row, is_last_row=False):
     active = row['active']
 
     if active:
-        return f"{indentation}'{question_name}'" if is_last_row else f"{indentation}'{question_name}',"
+        return f"{INDENT}'{question_name}'" if is_last_row else f"{INDENT}'{question_name}',"
     else:
-        return f"{indentation}// '{question_name}'" if is_last_row else f"{indentation}// '{question_name}',"
+        return f"{INDENT}// '{question_name}'" if is_last_row else f"{INDENT}// '{question_name}',"
 
 # Generate Custom widget
 def generate_custom_widget(question_name):
@@ -170,28 +169,28 @@ def generate_skip_line(skip_line): return f"{'\n' if skip_line else ''}"
 
 # Generate all the widget parts
 def generate_constExport(question_name, input_type): return f"export const {question_name}: inputTypes.{input_type} = {{"
-def generate_defaultInputBase(defaultInputBase): return f"{indentation}...defaultInputBase.{defaultInputBase}"
-def generate_path(path): return f"{indentation}path: '{path}'"
-def generate_label(section, path): return f"{indentation}label: (t: TFunction) => t('{section}:{path}')"
+def generate_defaultInputBase(defaultInputBase): return f"{INDENT}...defaultInputBase.{defaultInputBase}"
+def generate_path(path): return f"{INDENT}path: '{path}'"
+def generate_label(section, path): return f"{INDENT}label: (t: TFunction) => t('{section}:{path}')"
 def generate_help_popup(help_popup, comma=True, skip_line=True):
     if help_popup:
-        return f"{indentation}helpPopup: helpPopup.{help_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
+        return f"{INDENT}helpPopup: helpPopup.{help_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
     else:
         return ""
-def generate_text(section, path): return f"{indentation}text: (t: TFunction) => `<p class=\"input-text\">${{t('{section}:{path}')}}</p>`"
-def generate_choices(choices): return f"{indentation}choices: choices.{choices}"
+def generate_text(section, path): return f"{INDENT}text: (t: TFunction) => `<p class=\"input-text\">${{t('{section}:{path}')}}</p>`"
+def generate_choices(choices): return f"{INDENT}choices: choices.{choices}"
 def generate_conditional(conditional): 
-    return f"{indentation}{"conditional: conditionals." + conditional if conditional else "conditional: defaultConditional"}"
+    return f"{INDENT}{"conditional: conditionals." + conditional if conditional else "conditional: defaultConditional"}"
 def generate_validation(validation):
     if not validation:
         # If validation is empty, use 'requiredValidation'
-        return f"{indentation}validations: validations.requiredValidation"
+        return f"{INDENT}validations: validations.requiredValidation"
     elif validation.endswith('CustomValidation'):
         # If validation ends with 'CustomValidation', use 'customValidation'
-        return f"{indentation}validations: customValidations.{validation}"
+        return f"{INDENT}validations: customValidations.{validation}"
     else:
         # Otherwise, use the provided validation
-        return f"{indentation}validations: validations.{validation}"
+        return f"{INDENT}validations: validations.{validation}"
 
 # Generate InputRadio widget
 def generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation):
@@ -250,7 +249,7 @@ def generate_info_text_widget(question_name, section, path, conditional):
 def generate_range_widget(question_name, section, path, input_range, conditional, validation):
     return f"{generate_constExport(question_name, 'InputRange')}\n" \
             f"{generate_defaultInputBase('inputRangeBase')},\n" \
-            f"{indentation}...inputRange.{input_range},\n" \
+            f"{INDENT}...inputRange.{input_range},\n" \
             f"{generate_path(path)},\n" \
             f"{generate_label(section, path)},\n" \
             f"{generate_conditional(conditional)},\n" \
