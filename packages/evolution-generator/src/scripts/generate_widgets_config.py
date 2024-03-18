@@ -6,6 +6,7 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 
 from typing import List
+from helpers.generator_helpers import add_generator_comment
 
 
 # Function to generate widgetsConfig.tsx
@@ -13,6 +14,9 @@ def generate_widgets_config(output_file: str, sections: List[str]):
     try:
         ts_code: str = ""  # TypeScript code to be written to file
         indentation: str = "    "  # 4-space indentation
+
+        # Add Generator comment at the start of the file
+        ts_code += add_generator_comment()
 
         # Generate the import statements
         # Loop through each section and generate an import statement

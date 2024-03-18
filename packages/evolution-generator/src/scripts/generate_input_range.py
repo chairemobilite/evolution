@@ -5,6 +5,7 @@
 # Note: This script includes functions that generate the inputRange.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 from helpers.generator_helpers import (
+    add_generator_comment,
     is_excel_file,
     is_ts_file,
     get_workbook,
@@ -49,6 +50,9 @@ def generate_input_range(input_file: str, output_file: str):
         # Generate TypeScript codedict
         ts_code: str = ""  # TypeScript code to be written to file
         indentation: str = "    "  # 4-space indentation
+
+        # Add Generator comment at the start of the file
+        ts_code += add_generator_comment()
 
         # Add imports
         ts_code += f"import {{ InputRangeConfig }} from 'evolution-generator/lib/types/inputTypes';\n\n"

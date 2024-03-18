@@ -5,6 +5,7 @@
 # Note: This script includes functions that generate the widgets.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 import openpyxl # Read data from Excel
+from helpers.generator_helpers import add_generator_comment
 
 indentation = "    " # Indentation of 4 spaces
 
@@ -72,13 +73,18 @@ def generate_widgets(input_path, output_info_list):
         for output_info in output_info_list:
             transformed_content = convert_excel_to_typescript(output_info['section'])
 
+            # Add Generator comment at the start of the file
+            ts_code = add_generator_comment() 
+
             # Write the transformed content to the widgets output file
             with open(output_info['output_folder'] + '/widgets.tsx', mode='w', encoding='utf-8', newline='\n') as f:
+                f.write(ts_code)
                 f.write(transformed_content['widgetsStatements'])
                 print(f"Generate {output_info['output_folder']}/widgets.tsx successfully")
 
             # Write the transformed content to the widgetsNames output file
             with open(output_info['output_folder'] + '/widgetsNames.ts', mode='w', encoding='utf-8', newline='\n') as f:
+                f.write(ts_code)
                 f.write(transformed_content['widgetsNamesStatements'])
                 print(f"Generate {output_info['output_folder']}/widgetsNames.ts successfully")
     

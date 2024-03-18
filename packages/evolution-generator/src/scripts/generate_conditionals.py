@@ -6,13 +6,14 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 # We use importation without "/" to avoid problems when using the package.json script.
 from collections import defaultdict  # Group data by name
-from helpers.generator_helpers import get_data_from_excel  # Read data from Excel
-from helpers.generator_helpers import get_values_from_row  # Get values from the row
 from helpers.generator_helpers import (
-    error_when_missing_required_fields,
-)  # Error when any required fields are None
-from helpers.generator_helpers import generate_output_file  # Generate output file
-from helpers.generator_helpers import indent  # 4-space indentation
+    add_generator_comment,  # Add Generator comment at the start of the file
+    get_data_from_excel,  # Read data from Excel
+    get_values_from_row,  # Get values from the row
+    error_when_missing_required_fields,  # Error when any required fields are None
+    generate_output_file,  # Generate output file
+    indent,  # 4-space indentation
+)
 
 
 # Extract conditionals and group them by name
@@ -73,6 +74,9 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
     try:
         NEWLINE = "\n"
         ts_code = ""
+
+        # Add Generator comment at the start of the file
+        ts_code += add_generator_comment()
 
         # Add imports
         ts_code += f"import {{ createConditionals }} from 'evolution-generator/lib/helpers/createConditionals';{NEWLINE}"
