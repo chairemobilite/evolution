@@ -206,10 +206,11 @@ class FillLocalesTranslations:
             sheet = workbook["Widgets"]  # Get Widgets sheet
 
             for row in sheet.iter_rows(min_row=2, values_only=True):
+                # TODO: Take row value with header name instead of index
                 section = row[3]
-                path = row[4]
-                fr = row[5]
-                en = row[6]
+                path = row[5]
+                fr = row[6]
+                en = row[7]
                 # keepMarkdown = row[11]
                 keepMarkdown = False
 
