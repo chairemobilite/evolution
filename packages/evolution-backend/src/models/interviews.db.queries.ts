@@ -376,12 +376,18 @@ const getRawWhereClause = (
 ): string | [string, string | boolean | number] | undefined => {
     // Make sure the field is a legitimate field to avoid sql injection. Field
     // is either the name of a field, or a dot-separated path in a json object
-    // of the 'responses' field. We should not accept anything else.
+    // of the 'responses' field, or an audit name for validateParams,
+    // which includes "-" and ":". We should not accept anything else.
     // TODO Once the individual surveys are typed and the expected
     // responses are known in advance, try to completely type the responses
     // object and make sure the field here matches an actual path
-    const dotSeparatedStringRegex = /^[\w\.]*$/g;
-    const match = field.match(dotSeparatedStringRegex);
+    let regex: RegExp;
+    if (field === 'audits') {
+        regex = /^[\w\:\-\.]*$/g;
+    } else {
+        regex = /^[\w\.]*$/g;
+    }
+    const match = field.match(regex);
     if (match === null) {
         throw new TrError(
             `Invalid field for where clause in ${tableName} database`,
@@ -430,7 +436,7 @@ const getRawWhereClause = (
         if (typeof filter.value !== 'string') {
             return undefined;
         }
-        const match = filter.value.match(dotSeparatedStringRegex);
+        const match = filter.value.match(regex);
         if (match === null) {
             throw new TrError(
                 `Invalid value for where clause in ${tableName} database`,
