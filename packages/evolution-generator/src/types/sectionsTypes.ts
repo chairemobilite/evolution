@@ -7,9 +7,30 @@
 
 // Note: This file includes types for all the different sections types used in the evolution-generator
 
-
 export type SectionName = string | null;
 export type WidgetsNames = string[];
+export type InterviewPathFunction = (interview: any, path: string) => boolean;
+export type Group = {
+    showTitle?: boolean;
+    showGroupedObjectDeleteButton: InterviewPathFunction | boolean;
+    deleteConfirmPopup?: {
+        content: {
+            fr: ((interview?, path?) => string) | string;
+            en: ((interview?, path?) => string) | string;
+        };
+    };
+    showGroupedObjectAddButton: InterviewPathFunction | boolean;
+    groupedObjectAddButtonLabel?: {
+        fr: ((interview?, path?) => string) | string;
+        en: ((interview?, path?) => string) | string;
+    };
+    addButtonLocation?: 'bottom' | 'both';
+    addButtonSize?: string;
+    widgets: string[];
+};
+export type Groups = {
+    [groupName: string]: Group;
+};
 // TODO: Add better types for Preload
 export type Preload = (
     interview: any,
@@ -34,21 +55,10 @@ export type SectionConfig = {
     };
     parentSection?: string;
     widgets: WidgetsNames;
-    groups?: {
-        [groupName: string]: {
-            showGroupedObjectDeleteButton: (interview: any, path: string) => boolean;
-            showGroupedObjectAddButton: (interview: any, path: string) => boolean;
-            groupedObjectAddButtonLabel: {
-                fr: string;
-                en: string;
-            };
-            addButtonSize: string;
-            widgets: string[];
-        };
-    };
+    groups?: Groups;
     preload?: Preload;
-    enableConditional: ((interview: any) => boolean) | boolean;
-    completionConditional: ((interview: any) => boolean) | boolean;
+    enableConditional: InterviewPathFunction | boolean;
+    completionConditional: InterviewPathFunction | boolean;
 };
 
 // Configs for the sections configs
