@@ -62,9 +62,7 @@ def generate_widgets(input_path, output_info_list):
             widgets_statements = f"{import_statements}\n{'\n\n'.join(widgets_statements)}\n"
 
             # Generate widgets names
-            widgets_names = '\n'.join([generate_widget_name(row, is_last_row=(index == len(section_rows) - 1)) for index, row in enumerate(section_rows)])
-            widgets_names_import = "import { WidgetsNames } from 'evolution-generator/lib/types/sectionsTypes';\n\n"
-            widgets_names_statements = f"{widgets_names_import}export const widgetsNames: WidgetsNames = [\n{''.join(widgets_names)}\n];\n" 
+            widgets_names_statements = generate_widgets_names_statements(section_rows)
 
             return {'widgetsStatements': widgets_statements, 'widgetsNamesStatements': widgets_names_statements}
 
@@ -128,6 +126,55 @@ def generate_widget_statement(row):
         widget = f"// {question_name}"
 
     return widget
+
+# Define a function to generate the widget name for a given row and group
+def generate_widget_name(row, group, is_last):
+    question_name = row['questionName']
+    active = row['active']
+    rowGroup = row['group']       
+
+    # Return the question_name commented if not active
+    if group == rowGroup:
+        if active:
+            return f"{INDENT}'{question_name}'" + ("," if not is_last else "")
+        else:
+            return f"{INDENT}// '{question_name}'" + ("," if not is_last else "")
+
+
+# Define a function to generate the widgets names statements
+def generate_widgets_names_statements(section_rows):
+    # Generate the widget name for each row in the group and add it to the widgets names statements
+    group_question_dict = {}
+
+    # Populate the dictionary with groups and their corresponding rows
+    for row in section_rows:
+        group = row['group'] if row['group'] else ''
+        if group not in group_question_dict:
+            group_question_dict[group] = []
+        group_question_dict[group].append(row)
+
+    # Start the widgets names statements with the import statement
+    widgets_names_statements = "import { WidgetsNames } from 'evolution-generator/lib/types/sectionsTypes';\n"
+
+    # For each group in the dictionary, generate the widgets names
+    for group, rows in group_question_dict.items():
+        # If the group is an empty string, use 'widgetsNames' as the variable name
+        # Otherwise, append 'WidgetsNames' to the group name to create the variable name
+        if (group == ''):
+            widgets_names_statements += "\nexport const widgetsNames: WidgetsNames = [\n"
+        else:
+            widgets_names_statements += f"\nexport const {group}WidgetsNames: WidgetsNames = [\n"
+        
+        # For each row in the group, generate the widget name and add it to the widgets names statements
+        for i, row in enumerate(rows):
+            is_last = i == len(rows) - 1  # Check if this is the last row in the group
+            widgets_names = '\n'.join([generate_widget_name(row, group, is_last)])
+            widgets_names_statements += f"{widgets_names}\n"
+
+        widgets_names_statements += "];\n"
+
+    return widgets_names_statements
+
 
 # Generate import statement if needed
 def generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import):
