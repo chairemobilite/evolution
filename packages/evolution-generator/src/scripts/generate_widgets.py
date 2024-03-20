@@ -196,16 +196,6 @@ def generate_import_statements(has_choices_import, has_conditionals_import, has_
             f"{custom_validations_import}" \
             f"import * as validations from 'evolution-generator/lib/common/validations';\n"
 
-# Generate widgetsNames
-def generate_widget_name(row, is_last_row=False):
-    question_name = row['questionName']
-    active = row['active']
-
-    if active:
-        return f"{INDENT}'{question_name}'" if is_last_row else f"{INDENT}'{question_name}',"
-    else:
-        return f"{INDENT}// '{question_name}'" if is_last_row else f"{INDENT}// '{question_name}',"
-
 # Generate Custom widget
 def generate_custom_widget(question_name):
     return f"export const {question_name} = customWidgets.{question_name};"
