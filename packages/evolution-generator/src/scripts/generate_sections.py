@@ -21,7 +21,7 @@ def generate_sections(output_file: str, sections: List[str]):
         ts_code += "import { SectionsConfigs } from 'evolution-generator/lib/types/sectionsTypes';\n"
         # Loop through each section and generate an import statement
         for section in sections:
-            ts_code += f"import {section}Configs from './sections/{section}/configs';\n"
+            ts_code += f"import {section}Configs from './sections/{section}/sectionConfigs';\n"
 
         # Generate the export statement
         ts_code += "\n// Export all the sections configs\n"

@@ -53,7 +53,7 @@ def generate_section_configs(input_file: str):
         ts_code += f"import {{ isSectionComplete }} from 'evolution-generator/lib/helpers/configsHelpers';\n"
         ts_code += f"import {{ SectionConfig, SectionName }} from 'evolution-generator/lib/types/sectionsTypes';\n"
         ts_code += f"import {{ widgetsNames }} from './widgetsNames';\n"
-        ts_code += f"import {{ preload }} from './preload';\n\n"
+        ts_code += f"import {{ preload }} from './preload';\n"
 
         # Iterate through each row in the sheet, starting from the second row
         for row_number, row in enumerate(rows[1:], start=2):
@@ -69,15 +69,24 @@ def generate_section_configs(input_file: str):
 
             # Generate code for section
             def generate_section_code(previousSection, nextSection):
+                ts_section_code = ""  # TypeScript code for the section
+
                 # TODO: Do this with survey_folder_path
                 # Get section output file
                 section_output_file = (
                     f"../../../survey/src/survey/sections/{section}/sectionConfigs.ts"
                 )
 
+                # Check if the section has groups
+                has_groups = groups is not None and groups != ""
+
+                # Add imports for groups if the section has groups
+                if has_groups:
+                    ts_section_code += f"import * as groups from './groups';\n"
+
                 # Generate currentSectionName
-                ts_section_code = (
-                    f"export const currentSectionName: SectionName = '{section}';\n"
+                ts_section_code += (
+                    f"\nexport const currentSectionName: SectionName = '{section}';\n"
                 )
 
                 # Generate previousSectionName
@@ -129,7 +138,6 @@ def generate_section_configs(input_file: str):
                     f"{INDENT}// Do some actions before the section is loaded\n"
                 )
                 ts_section_code += f"{INDENT}preload: preload,\n"
-
                 ts_section_code += f"{INDENT}// Allow to click on the section menu\n"
                 if previousSection is None:
                     ts_section_code += f"{INDENT}enableConditional:true,\n"
@@ -144,8 +152,15 @@ def generate_section_configs(input_file: str):
                     f"{INDENT}completionConditional: function (interview) {{\n"
                 )
                 ts_section_code += f"{INDENT}{INDENT}return isSectionComplete({{ interview, sectionName: currentSectionName }});\n"
-                ts_section_code += f"{INDENT}}}\n"
-                ts_section_code += f"}};\n\n"
+                ts_section_code += f"{INDENT}}}"
+                if has_groups:
+                    # Split the groups string into a list of group names
+                    group_names = groups.split(",")
+                    ts_section_code += f",\n{INDENT}groups: {{\n"
+                    for group_name in group_names:
+                        ts_section_code += f"{INDENT}{INDENT}{group_name}: groups.{group_name},\n"
+                    ts_section_code += f"{INDENT}}},\n"
+                ts_section_code += f"\n}};\n\n"
                 ts_section_code += f"export default sectionConfig;\n"
 
                 # Write TypeScript code to a file
@@ -159,12 +174,12 @@ def generate_section_configs(input_file: str):
 
                 print(f"Generate {section_output_file} successfully")
 
-                previousSection = (
-                    section  # Update previousSection with the current section
-                )
-
             # Generate section code
             generate_section_code(previousSection, nextSection)
+
+            # Update previousSection with the current section
+            previousSection = section
+            print(previousSection)
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution
