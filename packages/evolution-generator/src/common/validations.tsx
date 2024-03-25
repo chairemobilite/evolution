@@ -6,6 +6,7 @@
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Validations } from '../types/inputTypes';
+import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 
 // Make sure the question is answered
 export const requiredValidation: Validations = (value) => {
@@ -38,6 +39,86 @@ export const inputRangeValidation: Validations = (value) => {
             errorMessage: {
                 fr: 'Cette réponse est requise.',
                 en: 'This answer is required.'
+            }
+        }
+    ];
+};
+
+// Verify if the value is a valid household size
+export const householdSizeValidation: Validations = (value) => {
+    return [
+        {
+            validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
+            errorMessage: {
+                fr: 'La taille du ménage est invalide.',
+                en: 'Household size is invalid.'
+            }
+        },
+        {
+            validation: _isBlank(value),
+            errorMessage: {
+                fr: 'La taille du ménage est requise.',
+                en: 'Household size is required.'
+            }
+        },
+        {
+            validation: Number(value) > 18,
+            errorMessage: {
+                fr: 'La taille du ménage doit être au maximum 18.',
+                en: 'Household size must be less than or equal to 18.'
+            }
+        },
+        {
+            validation: Number(value) <= 0,
+            errorMessage: {
+                fr: 'La taille du ménage doit être au moins de 1 (vous devez vous inclure).',
+                en: 'Household size must be at least 1 (you need to include yourself).'
+            }
+        }
+    ];
+};
+
+// Verify if the value is a valid number of cars
+export const carNumberValidation: Validations = (value, _customValue, interview, _path, _customPath) => {
+    const householdSize = surveyHelper.get(interview, 'household.size', null);
+
+    return [
+        {
+            validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
+            errorMessage: {
+                fr: 'Le nombre de véhicules est invalide.',
+                en: 'The number of vehicles is invalid.'
+            }
+        },
+        {
+            validation: surveyHelper.isBlank(value),
+            errorMessage: {
+                fr: 'Le nombre de véhicules est requis.',
+                en: 'The number of vehicles is required.'
+            }
+        },
+        {
+            validation: Number(value) > 13,
+            errorMessage: {
+                fr: 'Le nombre de véhicules doit être au maximum 13.',
+                en: 'The number of vehicles must be less than or equal to 13.'
+            }
+        },
+        {
+            validation: Number(value) < 0,
+            errorMessage: {
+                fr: 'Le nombre de véhicules doit être au moins de 0.',
+                en: 'The number of vehicles must be at least 0.'
+            }
+        },
+        {
+            validation:
+                !surveyHelper.isBlank(householdSize) &&
+                !isNaN(Number(householdSize)) &&
+                Number(value) / householdSize > 3,
+            errorMessage: {
+                fr: 'Le nombre de véhicules est trop élevé pour le nombre de personnes dans le ménage. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.',
+                en: 'The number of vehicles is too high for the number of people in the household. Do not include collection vehicles or vehicles that are not used on a regular basis.'
             }
         }
     ];

@@ -19,7 +19,7 @@ type Columns = 1 | 2;
 type Path = string;
 type Placeholder = string;
 type Align = 'left' | 'right' | 'center';
-type Title = { fr: string; en: string };
+type Title = { fr: string | ((interview?, path?) => string); en: string | ((interview?, path?) => string) };
 export type InputFilter = (value) => string | number;
 type LabelFunction = (t: TFunction, interview?, path?) => string;
 type LabelNotFunction = { en: string | ((interview?, path?) => string); fr: string | ((interview?, path?) => string) };
@@ -58,16 +58,19 @@ export type HelpPopup = {
     containsHtml?: ContainsHtml;
     title: Title;
     content: { fr: string; en: string };
-    // TODO: This is the correct type, but it doesn't work with the current implementation
-    // title: (t: TFunction) => string;
-    // content: (t: TFunction) => string;
 };
 type DefaultCenter = {
     lat: number;
     lon: number;
 };
+type Points = GeoJSON.FeatureCollection<GeoJSON.Point>;
+type Linestrings = GeoJSON.FeatureCollection<GeoJSON.LineString | GeoJSON.MultiLineString>;
 type Polygons = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
-type Geojsons = (interview?: any, path?: Path, activeUuid?: any) => { polygons: Polygons };
+type Geojsons = (
+    interview?: any,
+    path?: Path,
+    activeUuid?: any
+) => { points?: Points; linestrings?: Linestrings; polygons?: Polygons };
 
 // TODO: Add some missing types for the different input types
 
@@ -110,6 +113,7 @@ export type InputString = InputStringBase & {
     conditional: Conditional;
     validations?: Validations;
     textTransform?: 'uppercase' | 'lowercase' | 'capitalize';
+    defaultValue?: string;
 };
 
 /* Text widgetConfig Type */
@@ -243,6 +247,7 @@ export type Group = {
     shortname: string;
     groupName: { fr: string; en: string };
     name: { fr: NameFunction; en: NameFunction };
+    filter?: (interview, groupedObjects) => any;
     conditional?: Conditional;
 };
 
