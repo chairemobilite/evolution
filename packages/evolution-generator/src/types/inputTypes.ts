@@ -8,7 +8,6 @@
 // Note: This file includes types for all the different input and widgets types used in the evolution-generator
 
 import { TFunction } from 'i18next';
-// import IconDefinition from '@fortawesome/fontawesome-svg-core/definitions/IconDefinition';
 
 /* Define types for all the different input types */
 type ContainsHtml = boolean;
@@ -18,11 +17,13 @@ type Multiple = boolean;
 type Columns = 1 | 2;
 type Path = string;
 type Placeholder = string;
+type DefaultValue = string | ((interview, path) => string | void);
 type Align = 'left' | 'right' | 'center';
-type Title = { fr: string | ((interview?, path?) => string); en: string | ((interview?, path?) => string) };
+type Size = 'small' | 'large';
+type Title = { fr: string | ((interview, path) => string); en: string | ((interview, path) => string) };
 export type InputFilter = (value) => string | number;
-type LabelFunction = (t: TFunction, interview?, path?) => string;
-type LabelNotFunction = { en: string | ((interview?, path?) => string); fr: string | ((interview?, path?) => string) };
+type LabelFunction = (t: TFunction, interview, path) => string;
+type LabelNotFunction = { en: string | ((interview, path) => string); fr: string | ((interview, path) => string) };
 type Label = LabelFunction | LabelNotFunction;
 type TextKey = LabelFunction | LabelNotFunction;
 export type Labels = {
@@ -30,22 +31,23 @@ export type Labels = {
     en: string;
 }[];
 type Choice = {
-    value: string | number;
+    value: string | number | boolean;
     label: {
         fr: string;
         en: string;
     };
+    iconPath?: string;
     conditional?: Conditional;
 };
 type ChoiceFunction = (interview, path?: Path) => Choice[];
 export type Choices = Choice[] | ChoiceFunction;
 export type Conditional = (interview: any, path?: Path) => boolean | (boolean | null)[];
 export type Validations = (
-    value?: number | string,
-    customValue?: number | string,
-    interview?: any,
-    path?: Path,
-    customPath?: Path
+    value: number | string,
+    customValue: number | string,
+    interview: any,
+    path: Path,
+    customPath: Path
 ) => {
     validation: boolean;
     errorMessage?: {
@@ -67,9 +69,9 @@ type Points = GeoJSON.FeatureCollection<GeoJSON.Point>;
 type Linestrings = GeoJSON.FeatureCollection<GeoJSON.LineString | GeoJSON.MultiLineString>;
 type Polygons = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
 type Geojsons = (
-    interview?: any,
-    path?: Path,
-    activeUuid?: any
+    interview: any,
+    path: Path,
+    activeUuid: any
 ) => { points?: Points; linestrings?: Linestrings; polygons?: Polygons };
 
 // TODO: Add some missing types for the different input types
@@ -78,7 +80,7 @@ type Geojsons = (
 export type InputRadioBase = {
     type: 'question';
     inputType: 'radio';
-    datatype: 'string' | 'integer';
+    datatype: 'string' | 'integer' | 'boolean';
     containsHtml: ContainsHtml;
     twoColumns: TwoColumns;
     columns: Columns;
@@ -100,7 +102,7 @@ export type InputStringBase = {
     datatype: 'string' | 'integer';
     containsHtml: ContainsHtml;
     twoColumns: TwoColumns;
-    size?: 'small' | 'large';
+    size?: Size;
     inputFilter?: InputFilter;
     numericKeyboard?: boolean;
     maxLength?: number;
@@ -113,7 +115,7 @@ export type InputString = InputStringBase & {
     conditional: Conditional;
     validations?: Validations;
     textTransform?: 'uppercase' | 'lowercase' | 'capitalize';
-    defaultValue?: string;
+    defaultValue?: DefaultValue;
 };
 
 /* Text widgetConfig Type */
@@ -204,11 +206,13 @@ export type InputMultiselect = {
 /* InputButton widgetConfig Type */
 export type InputButtonBase = {
     type: 'button';
-    color: 'green';
+    color: 'green' | 'red';
     hideWhenRefreshing: boolean;
-    icon: any; // icon: IconDefinition;
+    icon: any;
+    // icon: IconProp | IconDefinition;
+    // icon: IconDefinition;
     align: Align;
-    action: () => void;
+    action: (interview, section, sections, saveCallback) => void;
 };
 export type InputButton = InputButtonBase & {
     path: Path;
@@ -216,12 +220,14 @@ export type InputButton = InputButtonBase & {
     confirmPopup?: {
         shortname: string;
         content: { fr: (interview, path) => string; en: (interview, path) => string };
-        showConfirmButton: boolean;
-        cancelButtonColor: 'blue' | 'green';
-        cancelButtonLabel: { fr: string; en: string };
-        conditional: Conditional;
+        showConfirmButton?: boolean;
+        cancelButtonColor?: 'blue' | 'green';
+        cancelButtonLabel?: { fr: string; en: string };
+        conditional?: Conditional;
     };
+    size?: Size;
     saveCallback?: () => void;
+    conditional?: Conditional;
 };
 
 /* InputText widgetConfig Type */
@@ -259,11 +265,11 @@ export type InputMapFindPlaceBase = {
     height: string;
     containsHtml: ContainsHtml;
     autoConfirmIfSingleResult: boolean;
-    placesIcon: { url: (interview?, path?) => string; size: [number, number] };
-    defaultValue?: (interview) => void;
+    placesIcon: { url: (interview, path) => string; size: [number, number] };
+    defaultValue?: DefaultValue;
     defaultCenter: { lat: number; lon: number };
     refreshGeocodingLabel: Label;
-    showSearchPlaceButton: (interview?, path?) => boolean;
+    showSearchPlaceButton: (interview, path) => boolean;
     afterRefreshButtonText: TextKey;
     validations?: Validations;
 };
