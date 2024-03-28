@@ -2,17 +2,20 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: This script includes functions that generate the widgets.tsx file.
+# Note: This script includes functions that generate the widgets.tsx and widgetsNames.ts files.
 # These functions are intended to be invoked from the generate_survey.py script.
-import openpyxl # Read data from Excel
-from helpers.generator_helpers import INDENT, add_generator_comment
+from helpers.generator_helpers import INDENT, get_data_from_excel, add_generator_comment
 
 # Function to generate widgets.tsx for each section
-def generate_widgets(input_path, output_info_list):
+def generate_widgets(excel_file_path: str, widgets_output_folder: str):
     try: 
-        workbook = openpyxl.load_workbook(input_path, data_only=True)
-        sheet = workbook['Widgets'] # Get Widgets sheet
-        rows = list(sheet.rows)
+        # Read data from Excel and return rows and headers
+        rows, headers = get_data_from_excel(excel_file_path, sheet_name="Widgets")
+
+        # Find the index of 'section' in headers
+        section_index = headers.index("section")
+        # Get all unique section names
+        section_names = set(row[section_index].value for row in rows[1:])
 
         # Transform Excel content into TypeScript code
         def convert_excel_to_typescript(section):
@@ -67,23 +70,24 @@ def generate_widgets(input_path, output_info_list):
             return {'widgetsStatements': widgets_statements, 'widgetsNamesStatements': widgets_names_statements}
 
         # Process the output files based on sections
-        for output_info in output_info_list:
-            transformed_content = convert_excel_to_typescript(output_info['section'])
+        for section in section_names:
+            transformed_content = convert_excel_to_typescript(section)
+            widgets_output_path = widgets_output_folder + '/' + section
 
             # Add Generator comment at the start of the file
             ts_code = add_generator_comment() 
 
             # Write the transformed content to the widgets output file
-            with open(output_info['output_folder'] + '/widgets.tsx', mode='w', encoding='utf-8', newline='\n') as f:
+            with open(widgets_output_path + '/widgets.tsx', mode='w', encoding='utf-8', newline='\n') as f:
                 f.write(ts_code)
                 f.write(transformed_content['widgetsStatements'])
-                print(f"Generate {output_info['output_folder']}/widgets.tsx successfully")
+                print(f"Generate {widgets_output_path}/widgets.tsx successfully")
 
             # Write the transformed content to the widgetsNames output file
-            with open(output_info['output_folder'] + '/widgetsNames.ts', mode='w', encoding='utf-8', newline='\n') as f:
+            with open(widgets_output_path + '/widgetsNames.ts', mode='w', encoding='utf-8', newline='\n') as f:
                 f.write(ts_code)
                 f.write(transformed_content['widgetsNamesStatements'])
-                print(f"Generate {output_info['output_folder']}/widgetsNames.ts successfully")
+                print(f"Generate {widgets_output_path}/widgetsNames.ts successfully")
     
     except Exception as e:
         print(f"Error with widgets: {e}")

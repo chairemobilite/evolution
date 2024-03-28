@@ -23,10 +23,10 @@ def add_generator_comment() -> str:
 
 # TODO: Add types for rows and headers
 # Read data from Excel and return rows and headers
-def get_data_from_excel(input_file: str, sheet_name: str) -> tuple:
+def get_data_from_excel(excel_file_path: str, sheet_name: str) -> tuple:
     try:
         # Load Excel file
-        workbook: Workbook = openpyxl.load_workbook(input_file, data_only=True)
+        workbook: Workbook = openpyxl.load_workbook(excel_file_path, data_only=True)
         sheet = workbook[sheet_name]  # Get InputRange sheet
         rows = list(sheet.rows)  # Get all rows in the sheet
         headers = [cell.value for cell in rows[0]]  # Get headers from the first row
