@@ -21,15 +21,30 @@ def add_generator_comment() -> str:
     return ts_code
 
 
-# TODO: Add types for rows and headers
+# Get sections names of Sections sheet
+def get_sections_names(rows: List, headers: List) -> List[str]:
+    # Find the index of 'section' in headers
+    section_index = headers.index("section")
+
+    # Get all unique section names
+    sections_names = []
+    for row in rows[1:]:
+        section_name = row[section_index].value
+        if section_name not in sections_names:
+            sections_names.append(section_name)
+    return sections_names
+
+
 # Read data from Excel and return rows and headers
 def get_data_from_excel(excel_file_path: str, sheet_name: str) -> tuple:
     try:
         # Load Excel file
         workbook: Workbook = openpyxl.load_workbook(excel_file_path, data_only=True)
         sheet = workbook[sheet_name]  # Get InputRange sheet
-        rows = list(sheet.rows)  # Get all rows in the sheet
-        headers = [cell.value for cell in rows[0]]  # Get headers from the first row
+        rows: List = list(sheet.rows)  # Get all rows in the sheet
+        headers: List = [
+            cell.value for cell in rows[0]
+        ]  # Get headers from the first row
 
         # Error when header has spaces
         if any(" " in header for header in headers):
