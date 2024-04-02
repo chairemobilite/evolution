@@ -5,19 +5,24 @@
 # Note: This script includes functions that generate the widgetsConfigs.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 
-from helpers.generator_helpers import INDENT, get_data_from_excel, add_generator_comment
+from helpers.generator_helpers import (
+    INDENT,
+    get_data_from_excel,
+    get_sections_names,
+    add_generator_comment,
+)
 
 
 # Function to generate widgetsConfigs.tsx
-def generate_widgets_configs(excel_file_path: str, widgets_configs_output_file_path: str):
+def generate_widgets_configs(
+    excel_file_path: str, widgets_configs_output_file_path: str
+):
     try:
         # Read data from Excel and return rows and headers
         rows, headers = get_data_from_excel(excel_file_path, sheet_name="Sections")
 
-        # Find the index of 'section' in headers
-        section_index = headers.index("section")
-        # Get all unique section names
-        section_names = set(row[section_index].value for row in rows[1:])
+        # Get sections names of Sections sheet
+        sections_names = get_sections_names(rows, headers)
 
         ts_code: str = ""  # TypeScript code to be written to file
 
@@ -26,7 +31,7 @@ def generate_widgets_configs(excel_file_path: str, widgets_configs_output_file_p
 
         # Generate the import statements
         # Loop through each section and generate an import statement
-        for section in section_names:
+        for section in sections_names:
             ts_code += (
                 f"import * as {section}Widgets from './sections/{section}/widgets';\n"
             )
@@ -37,7 +42,7 @@ def generate_widgets_configs(excel_file_path: str, widgets_configs_output_file_p
         ts_code += "\n// Define all the sections widgets\n"
         ts_code += "const sectionsWidgets = [\n"
         # Loop through each section and generate a sectionWidgets array
-        for section in section_names:
+        for section in sections_names:
             ts_code += f"{INDENT}{section}Widgets,\n"
         ts_code += "];\n"
 
