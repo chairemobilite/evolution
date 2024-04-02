@@ -579,6 +579,19 @@ describe('list interviews', () => {
         expect(filterResponsesBoolean.length).toEqual(1);
         expect((filterResponsesBoolean[0].responses as any).booleanField).toBeTruthy();
 
+        // Query with array of values without results
+        const { interviews: filterAccessCodeArray, totalCount: countAccessCodeArray } =
+            await dbQueries.getList({ filters: { 'responses.accessCode': { value: [localUserInterviewAttributes.responses.accessCode.substring(0, 3), '222'], op: 'like' } }, pageIndex: 0, pageSize: -1 });
+        expect(countAccessCodeArray).toEqual(0);
+        expect(filterAccessCodeArray.length).toEqual(0);
+
+        // Query with array of values with results
+        const { interviews: filterAccessCodeArrayRes, totalCount: countAccessCodeArrayRes } =
+            await dbQueries.getList({ filters: { 'responses.accessCode': { value: [localUserInterviewAttributes.responses.accessCode.substring(0, 3), localUserInterviewAttributes.responses.accessCode.substring(0, 3)], op: 'like' } }, pageIndex: 0, pageSize: -1 });
+        expect(countAccessCodeArrayRes).toEqual(1);
+        expect(filterAccessCodeArrayRes.length).toEqual(1);
+        expect((filterAccessCodeArrayRes[0].responses as any).accessCode).toEqual(localUserInterviewAttributes.responses.accessCode);
+
     });
 
     test('Combine filter and paging', async () => {
@@ -707,7 +720,7 @@ describe('Queries with audits', () => {
     const errorThreeCode = 'errorThree';
 
     beforeAll(async () => {
-        // Add 3 errors per of type one, and one of type three for one of the interviews
+        // Add 3 errors per person of type one, and one of type three for one of the interviews
         const firstInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid);
         if (firstInterview === undefined) {
             throw 'error getting interview 1 for audits';
@@ -736,11 +749,9 @@ describe('Queries with audits', () => {
     test('Get the complete list of validation errors', async () => {
         const { errors } = await dbQueries.getValidationErrors({ filters: {} });
         expect(errors.length).toEqual(3);
-        expect(errors).toEqual([
-            { key: 'errorOne', cnt: '6' },
-            { key: 'errorTwo', cnt: '1' },
-            { key: 'errorThree', cnt: '1' }
-        ]);
+        expect(errors.find(error => error.key === 'errorOne' && error.cnt === '6')).toBeDefined();
+        expect(errors.find(error => error.key === 'errorTwo' && error.cnt === '1')).toBeDefined();
+        expect(errors.find(error => error.key === 'errorThree' && error.cnt === '1')).toBeDefined();
     });
 
     test('Get validation errors with a validity filter', async () => {
@@ -770,6 +781,23 @@ describe('Queries with audits', () => {
             await dbQueries.getList({ filters: { 'audits': { value: 'errorFour' } }, pageIndex: 0, pageSize: -1 });
         expect(countAudit).toEqual(0);
         expect(filterAudit.length).toEqual(0);
+
+    });
+
+    test('List interviews with multiple audit filters', async () => {
+
+        // Query for errorThree and errorOne
+        const { interviews: filterAudit, totalCount: countAudit } =
+            await dbQueries.getList({ filters: { 'audits': { value: ['errorThree', 'errorOne'] } }, pageIndex: 0, pageSize: -1 });
+        expect(countAudit).toEqual(1);
+        expect(filterAudit.length).toEqual(1);
+        expect(filterAudit[0].uuid).toEqual(localUserInterviewAttributes.uuid);
+
+        // Query for errorThree and errorTwo, no result expected
+        const { interviews: filterAudit2, totalCount: countAudit2 } =
+            await dbQueries.getList({ filters: { 'audits': { value: ['errorThree', 'errorTwo'] } }, pageIndex: 0, pageSize: -1 });
+        expect(countAudit2).toEqual(0);
+        expect(filterAudit2.length).toEqual(0);
 
     });
 
