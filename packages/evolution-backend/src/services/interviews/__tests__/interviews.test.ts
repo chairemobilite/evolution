@@ -416,6 +416,42 @@ describe('Get all matching', () => {
         });
     });
 
+    test('Filters: various filters', async() => {
+        // string audit
+        await Interviews.getAllMatching({
+            filter: { audits: 'myAudit' }
+        });
+        expect(interviewsQueries.getList).toHaveBeenCalledTimes(1);
+        expect(interviewsQueries.getList).toHaveBeenCalledWith({
+            filters: { audits: { value: 'myAudit' } },
+            pageIndex: 0,
+            pageSize: -1
+        });
+
+        // array of string audit
+        await Interviews.getAllMatching({
+            filter: { audits: ['myAudit1', 'myAudit2'] }
+        });
+        expect(interviewsQueries.getList).toHaveBeenCalledTimes(2);
+        expect(interviewsQueries.getList).toHaveBeenCalledWith({
+            filters: { audits: { value: ['myAudit1', 'myAudit2'] } },
+            pageIndex: 0,
+            pageSize: -1
+        });
+
+        // object filter
+        await Interviews.getAllMatching({
+            filter: { audits: { value: 'myAudit', op: 'like' } }
+        });
+        expect(interviewsQueries.getList).toHaveBeenCalledTimes(3);
+        expect(interviewsQueries.getList).toHaveBeenCalledWith({
+            filters: { audits: { value: 'myAudit', op: 'like' } },
+            pageIndex: 0,
+            pageSize: -1
+        });
+
+    });
+
 });
 
 describe('Get Validation errors', () => {

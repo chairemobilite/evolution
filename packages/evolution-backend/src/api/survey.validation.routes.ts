@@ -9,7 +9,7 @@
  * */
 import express, { Request, Response } from 'express';
 import moment from 'moment';
-import Interviews from '../services/interviews/interviews';
+import Interviews, { FilterType } from '../services/interviews/interviews';
 import { updateInterview, copyResponsesToValidatedData } from '../services/interviews/interview';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import projectConfig from '../config/projectConfig';
@@ -141,10 +141,10 @@ router.post('/validationList', async (req, res) => {
             typeof pageIndex === 'number' ? pageSize : typeof pageSize === 'string' ? parseInt(pageSize) : -1;
         const updatedAtNb = typeof updatedAt === 'string' ? parseInt(updatedAt) : 0;
 
-        const actualFilters: { [key: string]: string } = {};
+        const actualFilters: { [key: string]: FilterType } = {};
         Object.keys(filters).forEach((key) => {
-            if (typeof filters[key] === 'string') {
-                actualFilters[key] = filters[key] as string;
+            if (typeof filters[key] === 'string' || Array.isArray(filters[key])) {
+                actualFilters[key] = filters[key];
             } else if (typeof filters[key] === 'object' && filters[key].value !== undefined) {
                 actualFilters[key] = filters[key];
             }

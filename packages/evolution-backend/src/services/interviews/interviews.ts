@@ -10,7 +10,11 @@ import { mapResponsesToValidatedData } from './interviewUtils';
 import { validateAccessCode } from '../accessCode';
 import { validate as validateUuid } from 'uuid';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import interviewsDbQueries, { InterviewSearchAttributes, OperatorSigns } from '../../models/interviews.db.queries';
+import interviewsDbQueries, {
+    InterviewSearchAttributes,
+    OperatorSigns,
+    ValueFilterType
+} from '../../models/interviews.db.queries';
 import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.queries';
 import {
     InterviewAttributes,
@@ -20,17 +24,19 @@ import {
 import { UserInterviewAccesses } from '../logging/loggingTypes';
 import { Audits } from '../../services/audits/Audits';
 
+export type FilterType = string | string[] | ValueFilterType;
+
 const getFiltersForDb = (
     filter: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'questionable' | 'all' } & {
-        [key: string]: string | { value: string | boolean | number | null; op?: keyof OperatorSigns };
+        [key: string]: FilterType;
     }
 ): {
-    [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns };
+    [key: string]: ValueFilterType;
 } => {
     const { is_valid, ...filters } = filter;
 
     const actualFilters: {
-        [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns };
+        [key: string]: ValueFilterType;
     } = {};
 
     // Add the desired validity query
@@ -57,7 +63,7 @@ const getFiltersForDb = (
 
     Object.keys(filters).forEach((key) => {
         const filter = filters[key];
-        if (typeof filter === 'string') {
+        if (typeof filter === 'string' || Array.isArray(filter)) {
             actualFilters[key] = { value: filter };
         } else {
             actualFilters[key] = filter;
@@ -126,7 +132,7 @@ export default class Interviews {
     static getAllMatching = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
         params: {
             filter?: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
-                [key: string]: string | { value: string | boolean | number | null; op?: keyof OperatorSigns };
+                [key: string]: FilterType;
             };
             pageIndex?: number;
             pageSize?: number;
@@ -165,7 +171,9 @@ export default class Interviews {
     static async auditInterviewsV2(disableConsoleLog = false): Promise<void> {
         const oldConsoleLog = console.log;
         if (disableConsoleLog) {
-            console.log = () => { return; };
+            console.log = () => {
+                return;
+            };
             console.info = oldConsoleLog;
         }
         let i = 1;
@@ -187,22 +195,34 @@ export default class Interviews {
                     }
                     i++;
                     if (_isBlank(interview.validated_data)) {
-                        copyResponsesToValidatedData(interview).then(() => new Promise((res1, rej1) => {
-                            Audits.runAndSaveInterviewAudits(interview).then(() => {
-                                res1(true);
-                            }).catch((error) => {
-                                console.error('Error running and saving interview audits', error);
-                                res1(false);
+                        copyResponsesToValidatedData(interview)
+                            .then(
+                                () =>
+                                    new Promise((res1, rej1) => {
+                                        Audits.runAndSaveInterviewAudits(interview)
+                                            .then(() => {
+                                                res1(true);
+                                            })
+                                            .catch((error) => {
+                                                console.error('Error running and saving interview audits', error);
+                                                res1(false);
+                                            });
+                                    })
+                            )
+                            .catch((error) => {
+                                console.error('Error copying responses to validated data', error);
+                            })
+                            .finally(() => {
+                                queryStream.resume();
                             });
-                        })).catch((error) => { console.error('Error copying responses to validated data', error); }).finally(() => {
-                            queryStream.resume();
-                        });
                     } else {
-                        Audits.runAndSaveInterviewAudits(interview).catch((error) => {
-                            console.error('Error running and saving interview audits', error);
-                        }).finally(() => {
-                            queryStream.resume();
-                        });
+                        Audits.runAndSaveInterviewAudits(interview)
+                            .catch((error) => {
+                                console.error('Error running and saving interview audits', error);
+                            })
+                            .finally(() => {
+                                queryStream.resume();
+                            });
                     }
                 })
                 .on('end', () => {

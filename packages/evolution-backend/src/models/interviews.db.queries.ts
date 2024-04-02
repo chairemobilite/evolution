@@ -33,6 +33,8 @@ export interface InterviewSearchAttributes {
     surveyId?: number;
 }
 
+export type ValueFilterType = { value: string | string[] | boolean | number | null; op?: keyof OperatorSigns };
+
 /** this will return the survey id or create a new survey in
  * table sv_surveys if no existing survey shortname matches
  * the project shortname
@@ -371,9 +373,9 @@ const addLikeBinding = (operator: keyof OperatorSigns | undefined, binding: stri
  */
 const getRawWhereClause = (
     field: string,
-    filter: { value: string | boolean | number | null; op?: keyof OperatorSigns },
+    filter: ValueFilterType,
     tblAlias: string
-): string | [string, string | boolean | number] | undefined => {
+): (string | [string, string | boolean | number] | undefined)[] => {
     // Make sure the field is a legitimate field to avoid sql injection. Field
     // is either the name of a field, or a dot-separated path in a json object
     // of the 'responses' field. We should not accept anything else.
@@ -389,16 +391,13 @@ const getRawWhereClause = (
             'DatabaseInvalidWhereClauseUserEntry'
         );
     }
-    const getBooleanFilter = (
-        fieldName: string,
-        filter: { value: string | boolean | number | null; op?: keyof OperatorSigns }
-    ) => {
+    const getBooleanFilter = (fieldName: string, filter: ValueFilterType) => {
         const validityValue = _booleish(filter.value);
         const notStr = filter.op === 'not' ? ' NOT ' : '';
         if (validityValue !== null) {
-            return `${fieldName} IS ${notStr} ${validityValue ? 'TRUE' : 'FALSE'} `;
+            return [`${fieldName} IS ${notStr} ${validityValue ? 'TRUE' : 'FALSE'} `];
         }
-        return `${fieldName} IS ${notStr} null`;
+        return [`${fieldName} IS ${notStr} null`];
     };
     switch (field) {
     // For created_at and updated_at, we also accept a date range as an array two unix timestamps.
@@ -406,32 +405,43 @@ const getRawWhereClause = (
     // In such a case, the filter operation parmeter is ignored (>= and <= are used).
     case 'created_at':
         if (Array.isArray(filter.value) && filter.value.length === 2) {
-            return `${tblAlias}.created_at >= to_timestamp(${filter.value[0]}) AND ${tblAlias}.created_at <= to_timestamp(${filter.value[1]}) `;
+            return [
+                `${tblAlias}.created_at >= to_timestamp(${filter.value[0]}) AND ${tblAlias}.created_at <= to_timestamp(${filter.value[1]}) `
+            ];
         } else {
-            return `${tblAlias}.created_at ${
-                filter.op ? operatorSigns[filter.op] : operatorSigns.eq
-            } to_timestamp(${filter.value}) `;
+            return [
+                `${tblAlias}.created_at ${filter.op ? operatorSigns[filter.op] : operatorSigns.eq} to_timestamp(${
+                    filter.value
+                }) `
+            ];
         }
     case 'updated_at':
         if (Array.isArray(filter.value) && filter.value.length === 2) {
-            return `${tblAlias}.updated_at >= to_timestamp(${filter.value[0]}) AND ${tblAlias}.updated_at <= to_timestamp(${filter.value[1]}) `;
+            return [
+                `${tblAlias}.updated_at >= to_timestamp(${filter.value[0]}) AND ${tblAlias}.updated_at <= to_timestamp(${filter.value[1]}) `
+            ];
         } else {
-            return `${tblAlias}.updated_at ${
-                filter.op ? operatorSigns[filter.op] : operatorSigns.eq
-            } to_timestamp(${filter.value}) `;
+            return [
+                `${tblAlias}.updated_at ${filter.op ? operatorSigns[filter.op] : operatorSigns.eq} to_timestamp(${
+                    filter.value
+                }) `
+            ];
         }
     case 'is_valid':
         return getBooleanFilter(`${tblAlias}.is_valid`, filter);
     case 'is_questionable':
         return getBooleanFilter(`${tblAlias}.is_questionable`, filter);
     case 'uuid':
-        return `${tblAlias}.${field} ${filter.op ? operatorSigns[filter.op] : operatorSigns.eq} '${filter.value}'`;
+        return [
+            `${tblAlias}.${field} ${filter.op ? operatorSigns[filter.op] : operatorSigns.eq} '${filter.value}'`
+        ];
     case 'audits': {
-        if (typeof filter.value !== 'string') {
-            return undefined;
+        if (typeof filter.value !== 'string' && !Array.isArray(filter.value)) {
+            return [undefined];
         }
-        const match = filter.value.match(dotSeparatedStringRegex);
-        if (match === null) {
+        const values = typeof filter.value === 'string' ? [filter.value] : filter.value;
+        const matches = values.map((value) => value.match(dotSeparatedStringRegex));
+        if (matches.find((m) => m === null) !== undefined) {
             throw new TrError(
                 `Invalid value for where clause in ${tableName} database`,
                 'DBQCR0006',
@@ -439,8 +449,12 @@ const getRawWhereClause = (
             );
         }
         // Add subquery to audits table
-        const auditSubQuery = knex('sv_audits').select('interview_id').distinct().where('error_code', filter.value);
-        return [`${tblAlias}.id in (${auditSubQuery.toSQL().sql})`, filter.value];
+        return values.map((value) => [
+            `${tblAlias}.id in (${
+                knex('sv_audits').select('interview_id').distinct().where('error_code', value).toSQL().sql
+            })`,
+            value
+        ]);
     }
     }
     const jsonObject = field.split('.');
@@ -449,17 +463,28 @@ const getRawWhereClause = (
     if (prefix !== undefined) {
         const field = jsonObject.slice(1).join('.');
         return filter.value === null
-            ? `${prefix}->>'${field}' ${filter.op === 'not' ? ' IS NOT NULL' : ' IS NULL'}`
-            : [
-                `${prefix}->>'${field}' ${
-                    filter.op !== undefined
-                        ? `${operatorSigns[filter.op] || operatorSigns.eq} ?`
-                        : `${operatorSigns.eq} ?`
-                }`,
-                addLikeBinding(filter.op, filter.value)
-            ];
+            ? [`${prefix}->>'${field}' ${filter.op === 'not' ? ' IS NOT NULL' : ' IS NULL'}`]
+            : Array.isArray(filter.value)
+                ? filter.value.map((value) => [
+                    `${prefix}->>'${field}' ${
+                        filter.op !== undefined
+                            ? `${operatorSigns[filter.op] || operatorSigns.eq} ?`
+                            : `${operatorSigns.eq} ?`
+                    }`,
+                    addLikeBinding(filter.op, value)
+                ])
+                : [
+                    [
+                        `${prefix}->>'${field}' ${
+                            filter.op !== undefined
+                                ? `${operatorSigns[filter.op] || operatorSigns.eq} ?`
+                                : `${operatorSigns.eq} ?`
+                        }`,
+                        addLikeBinding(filter.op, filter.value)
+                    ]
+                ];
     }
-    return undefined;
+    return [undefined];
 };
 
 /**
@@ -475,19 +500,21 @@ const getRawWhereClause = (
  * and the second element is the array of bindings
  */
 const updateRawWhereClause = (
-    filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } },
+    filters: { [key: string]: ValueFilterType },
     baseFilter: string
 ): [string, (string | boolean | number)[]] => {
     let rawFilter = baseFilter;
     const bindings: (string | number | boolean)[] = [];
     Object.keys(filters).forEach((key) => {
-        const whereClause = getRawWhereClause(key, filters[key], 'i');
-        if (typeof whereClause === 'string') {
-            rawFilter += ` AND ${whereClause}`;
-        } else if (Array.isArray(whereClause)) {
-            rawFilter += ` AND ${whereClause[0]}`;
-            bindings.push(whereClause[1]);
-        }
+        const whereClauses = getRawWhereClause(key, filters[key], 'i');
+        whereClauses.forEach((whereClause) => {
+            if (typeof whereClause === 'string') {
+                rawFilter += ` AND ${whereClause}`;
+            } else if (Array.isArray(whereClause)) {
+                rawFilter += ` AND ${whereClause[0]}`;
+                bindings.push(whereClause[1]);
+            }
+        });
     });
     return [rawFilter, bindings];
 };
@@ -506,7 +533,7 @@ const updateRawWhereClause = (
  * corresponding to the query
  */
 const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(params: {
-    filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
+    filters: { [key: string]: ValueFilterType };
     pageIndex: number;
     pageSize: number;
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
@@ -621,7 +648,7 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
  * interviews
  */
 const getValidationErrors = async (params: {
-    filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
+    filters: { [key: string]: ValueFilterType };
 }): Promise<{ errors: { key: string; cnt: string }[] }> => {
     try {
         const baseRawFilter =
@@ -669,7 +696,7 @@ const getValidationErrors = async (params: {
  * @returns An interview stream
  */
 const getInterviewsStream = function (params: {
-    filters: { [key: string]: { value: string | boolean | number | null; op?: keyof OperatorSigns } };
+    filters: { [key: string]: ValueFilterType };
     select?: {
         includeAudits?: boolean;
         responses?: 'none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable';
