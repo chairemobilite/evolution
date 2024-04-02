@@ -17,17 +17,17 @@ from helpers.generator_helpers import (
 
 
 # Function to generate sectionConfigs.ts for each section
-def generate_section_configs(input_file: str):
+def generate_section_configs(excel_file_path: str):
     try:
-        is_excel_file(input_file)  # Check if the input file is an Excel file
-        workbook = get_workbook(input_file)  # Get workbook from Excel file
+        is_excel_file(excel_file_path)  # Check if the input file path is an Excel file
+        workbook = get_workbook(excel_file_path)  # Get workbook from Excel file
         sheet_exists(workbook, "Sections")  # Check if the sheet exists
         sheet = workbook["Sections"]  # Get Sections sheet
         previousSection = None  # Initialize previousSection as None
         nextSection = None  # Initialize nextSection as None
 
         # Read data from Excel and return rows and headers
-        rows, headers = get_data_from_excel(input_file, sheet_name="Sections")
+        rows, headers = get_data_from_excel(excel_file_path, sheet_name="Sections")
 
         # Test headers
         get_headers(

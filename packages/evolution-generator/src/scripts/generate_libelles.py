@@ -82,10 +82,10 @@ class ValueReplacer:
 
 # Class for managing translations in a specific language and section
 class TranslationLangNs:
-    def __init__(self, inputFile):
+    def __init__(self, excel_file_path):
         self.modified = False
         self.data = {}
-        self.file = inputFile
+        self.file = excel_file_path
         self.startBoldHtml = "<strong>"
         self.endBoldHtml = "</strong>"
 
@@ -140,9 +140,9 @@ class TranslationLangNs:
 
 # Class for managing translations for all languages and sections
 class TranslationData:
-    def __init__(self, localesPath):
+    def __init__(self, libelles_output_folder_path):
         self.translations = {}  # Dictionary to store translations
-        self.localesPath = localesPath  # Path to the locales directory
+        self.libelles_output_folder_path = libelles_output_folder_path  # Path to the locales directory
 
     # Add translations for a specific language and section
     def addTranslations(self, lang, section, translations):
@@ -163,7 +163,7 @@ class TranslationData:
                 self.translations[lang] = {}
             if not section in self.translations[lang]:
                 self.translations[lang][section] = TranslationLangNs(
-                    os.path.join(self.localesPath, lang, section + ".yml")
+                    os.path.join(self.libelles_output_folder_path, lang, section + ".yml")
                 )
             self.translations[lang][section].addTranslation(
                 path, value, overwrite, keepMarkdown
@@ -175,17 +175,17 @@ class TranslationData:
 
 # Class for managing the overall translation process
 class FillLocalesTranslations:
-    def __init__(self, inputFile, localesPath, overwrite, section):
-        self.inputFile = inputFile
-        self.localesPath = localesPath
+    def __init__(self, excel_file_path, libelles_output_folder_path, overwrite, section):
+        self.excel_file_path = excel_file_path
+        self.libelles_output_folder_path = libelles_output_folder_path
         self.overwrite = overwrite
         self.section = section
-        self.allTranslations = TranslationData(localesPath)
+        self.allTranslations = TranslationData(libelles_output_folder_path)
         super().__init__()
 
     # Load existing translations from YAML files
     def loadCurrentTranslations(self):
-        ymlFiles = glob(escape(self.localesPath) + "/**/*.yml")
+        ymlFiles = glob(escape(self.libelles_output_folder_path) + "/**/*.yml")
         for translationFile in ymlFiles:
             path = os.path.normpath(os.path.dirname(translationFile))
             paths = path.split(os.sep)
@@ -202,7 +202,7 @@ class FillLocalesTranslations:
     # Function to add translations from Excel input file to the translations data
     def addTranslationsFromExcel(self):
         try:
-            workbook = openpyxl.load_workbook(self.inputFile, data_only=True)
+            workbook = openpyxl.load_workbook(self.excel_file_path, data_only=True)
             sheet = workbook["Widgets"]  # Get Widgets sheet
 
             for row in sheet.iter_rows(min_row=2, values_only=True):
@@ -229,14 +229,17 @@ class FillLocalesTranslations:
 
 
 # Function to generate the libelles locales files
-def generate_libelles(inputFile, localesPath, overwrite=False, section=None):
+def generate_libelles(
+    excel_file_path, libelles_output_folder_path, overwrite=False, section=None
+):
     try:
         # Initialize the FillLocalesTranslations task with provided parameters
-        task = FillLocalesTranslations(inputFile, localesPath, overwrite, section)
+        task = FillLocalesTranslations(
+            excel_file_path, libelles_output_folder_path, overwrite, section
+        )
         task.loadCurrentTranslations()
         task.addTranslationsFromExcel()
         task.saveAllTranslations()
-        print("Generate translations successfully")
     except Exception as e:
         print(f"An error occurred: {e}")
         raise e

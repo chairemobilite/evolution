@@ -2,16 +2,23 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: This script includes functions that generate the widgetsConfig.tsx file.
+# Note: This script includes functions that generate the widgetsConfigs.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 
-from typing import List
-from helpers.generator_helpers import INDENT, add_generator_comment
+from helpers.generator_helpers import INDENT, get_data_from_excel, add_generator_comment
 
 
-# Function to generate widgetsConfig.tsx
-def generate_widgets_config(output_file: str, sections: List[str]):
+# Function to generate widgetsConfigs.tsx
+def generate_widgets_configs(excel_file_path: str, widgets_configs_output_file_path: str):
     try:
+        # Read data from Excel and return rows and headers
+        rows, headers = get_data_from_excel(excel_file_path, sheet_name="Sections")
+
+        # Find the index of 'section' in headers
+        section_index = headers.index("section")
+        # Get all unique section names
+        section_names = set(row[section_index].value for row in rows[1:])
+
         ts_code: str = ""  # TypeScript code to be written to file
 
         # Add Generator comment at the start of the file
@@ -19,7 +26,7 @@ def generate_widgets_config(output_file: str, sections: List[str]):
 
         # Generate the import statements
         # Loop through each section and generate an import statement
-        for section in sections:
+        for section in section_names:
             ts_code += (
                 f"import * as {section}Widgets from './sections/{section}/widgets';\n"
             )
@@ -30,7 +37,7 @@ def generate_widgets_config(output_file: str, sections: List[str]):
         ts_code += "\n// Define all the sections widgets\n"
         ts_code += "const sectionsWidgets = [\n"
         # Loop through each section and generate a sectionWidgets array
-        for section in sections:
+        for section in section_names:
             ts_code += f"{INDENT}{section}Widgets,\n"
         ts_code += "];\n"
 
@@ -56,12 +63,14 @@ def generate_widgets_config(output_file: str, sections: List[str]):
         ts_code += "export { widgets };\n"
 
         # Write TypeScript code to a file
-        with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:
+        with open(
+            widgets_configs_output_file_path, mode="w", encoding="utf-8", newline="\n"
+        ) as ts_file:
             ts_file.write(ts_code)
 
-        print(f"Generate {output_file} successfully")
+        print(f"Generate {widgets_configs_output_file_path} successfully")
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution
-        print(f"Error with widgetsConfig.tsx: {e}")
+        print(f"Error with widgetsConfigs.tsx: {e}")
         raise e
