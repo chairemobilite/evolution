@@ -19,7 +19,7 @@ jest.mock('../../../models/interviews.db.queries', () => ({
     create: jest.fn(),
     getUserInterview: jest.fn(),
     getList: jest.fn(),
-    getValidationErrors: jest.fn()
+    getValidationAuditStats: jest.fn()
 }));
 
 jest.mock('../../../models/interviewsAccesses.db.queries', () => ({
@@ -59,7 +59,7 @@ mockDbCreate.mockImplementation(async (newObject: Partial<InterviewAttributes<un
     return ret;
 });
 (interviewsQueries.getList as any).mockResolvedValue({ interviews: allInterviews, totalCount: allInterviews.length });
-(interviewsQueries.getValidationErrors as any).mockResolvedValue({ errors: [] });
+(interviewsQueries.getValidationAuditStats as any).mockResolvedValue({ audits: [] });
 
 describe('Find by access code', () => {
     const validCode = '7145328';
@@ -457,53 +457,52 @@ describe('Get all matching', () => {
 describe('Get Validation errors', () => {
 
     beforeEach(() => {
-        (interviewsQueries.getValidationErrors as any).mockClear();
+        (interviewsQueries.getValidationAuditStats as any).mockClear();
     });
 
     test('Empty parameters', async() => {
-        await Interviews.getValidationErrors();
-        expect(interviewsQueries.getValidationErrors).toHaveBeenCalledTimes(1);
-        expect(interviewsQueries.getValidationErrors).toHaveBeenCalledWith({
+        await Interviews.getValidationAuditStats();
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledTimes(1);
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledWith({
             filters: {}
         });
     });
 
     test('Various isValid filter values', async() => {
         // isValid: valid
-        await Interviews.getValidationErrors({
+        await Interviews.getValidationAuditStats({
             filter: { is_valid: 'valid' }
         });
-        expect(interviewsQueries.getValidationErrors).toHaveBeenCalledTimes(1);
-        expect(interviewsQueries.getValidationErrors).toHaveBeenCalledWith({
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledTimes(1);
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledWith({
             filters: { is_valid: { value: true, op: 'eq' } }
         });
 
         // isValid: all
-        await Interviews.getValidationErrors({
+        await Interviews.getValidationAuditStats({
             filter: { is_valid: 'all' }
         });
-        expect(interviewsQueries.getValidationErrors).toHaveBeenCalledTimes(2);
-        expect(interviewsQueries.getValidationErrors).toHaveBeenLastCalledWith({
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledTimes(2);
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenLastCalledWith({
             filters: { }
         });
     });
 
     test('Filters: various filters', async() => {
-        const updatedAt = 12300000;
-        await Interviews.getValidationErrors({
+        await Interviews.getValidationAuditStats({
             filter: { test: 'foo' }
         });
-        expect(interviewsQueries.getValidationErrors).toHaveBeenCalledTimes(1);
-        expect(interviewsQueries.getValidationErrors).toHaveBeenCalledWith({
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledTimes(1);
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledWith({
             filters: { test: { value: 'foo' } }
         });
 
         // Updated_at is 0, should not be sent to the query
-        await Interviews.getValidationErrors({
+        await Interviews.getValidationAuditStats({
             filter: { test: 'foo', other: { value: 'bar', op: 'gte' } }
         });
-        expect(interviewsQueries.getValidationErrors).toHaveBeenCalledTimes(2);
-        expect(interviewsQueries.getValidationErrors).toHaveBeenLastCalledWith({
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledTimes(2);
+        expect(interviewsQueries.getValidationAuditStats).toHaveBeenLastCalledWith({
             filters: { test: { value: 'foo' }, other: { value: 'bar', op: 'gte' } }
         });
     });

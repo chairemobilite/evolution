@@ -196,22 +196,23 @@ router.get('/interviewSummary/:interviewUuid', async (req: Request, res: Respons
     }
 });
 
-router.post('/validation/errors', async (req: Request, res: Response) => {
+router.post('/validation/auditStats', async (req: Request, res: Response) => {
     try {
         const { ...filters } = req.body;
-
-        const actualFilters: { [key: string]: string } = {};
+        const actualFilters: { [key: string]: string | string[] } = {};
         Object.keys(filters).forEach((key) => {
-            if (typeof filters[key] === 'string') {
+            if (Array.isArray(filters[key])) {
+                actualFilters[key] = filters[key] as string[];
+            } else if (typeof filters[key] === 'string') {
                 actualFilters[key] = filters[key] as string;
             } else if (typeof filters[key] === 'object' && filters[key].value !== undefined) {
                 actualFilters[key] = filters[key];
             }
         });
-        const response = await Interviews.getValidationErrors({ filter: actualFilters });
+        const response = await Interviews.getValidationAuditStats({ filter: actualFilters });
         return res.status(200).json({
             status: 'success',
-            errors: response.errors
+            auditStats: response.auditStats
         });
     } catch (error) {
         console.log('error getting interview list:', error);

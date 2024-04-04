@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { NextFunction, Request, Response } from 'express';
-import { v4 as uuidV4 } from 'uuid'
+import { v4 as uuidV4 } from 'uuid';
 import isAuthorized from '../participantAuthorization';
 import each from 'jest-each';
 import Interviews from '../../interviews/interviews';
