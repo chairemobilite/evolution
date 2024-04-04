@@ -53,6 +53,7 @@ export type SectionConfig = {
         fr: string;
         en: string;
     };
+    template?: any;
     parentSection?: string;
     widgets: WidgetsNames;
     groups?: Groups;
