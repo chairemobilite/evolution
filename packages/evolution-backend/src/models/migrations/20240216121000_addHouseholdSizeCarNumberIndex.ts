@@ -19,7 +19,7 @@ export async function up(knex: Knex): Promise<unknown> {
 
 export async function down(knex: Knex): Promise<unknown> {
     return knex.schema.table(interviewsTbl, (table: Knex.TableBuilder) => {
-        table.dropIndex(indexNameSize);
-        table.dropIndex(indexNameCarNumber);
+        table.dropIndex([knex.raw('("responses"->\'household\'->>\'size\')')], indexNameSize);
+        table.dropIndex([knex.raw('("responses"->\'household\'->>\'carNumber\')')], indexNameCarNumber);
     });
 }
