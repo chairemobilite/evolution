@@ -151,7 +151,7 @@ beforeAll(async () => {
     await dbQueries.create(googleUserInterviewAttributes);
 });
 
-afterAll(async() => {
+afterAll(async () => {
     await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'users');
@@ -356,7 +356,8 @@ describe('Update Interview', () => {
         const addAttributes = { responses: { foo: 'test' }, validations: { accessCode: true, other: 'data' } };
         const newAttributes = {
             responses: Object.assign({}, localUserInterviewAttributes.responses, addAttributes.responses),
-            validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations) };
+            validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations)
+        };
         const interview = await dbQueries.update(localUserInterviewAttributes.uuid, newAttributes, 'uuid');
         expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
 
@@ -370,7 +371,8 @@ describe('Update Interview', () => {
         const addAttributes = { responses: { foo: 'test' }, validations: { accessCode: true, other: 'data' } };
         const newAttributes = {
             responses: Object.assign({}, localUserInterviewAttributes.responses, addAttributes.responses),
-            validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations) };
+            validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations)
+        };
         await expect(dbQueries.update('not a uuid', newAttributes, 'uuid'))
             .rejects
             .toThrow(expect.anything());
@@ -381,7 +383,7 @@ describe('Update Interview', () => {
         const newAttributes = {
             responses: Object.assign({}, localUserInterviewAttributes.responses, addAttributes.responses),
             validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations),
-            logs: [ { timestamp: 1234, valuesByPath: { 'responses.some': 'foo' } } ]
+            logs: [{ timestamp: 1234, valuesByPath: { 'responses.some': 'foo' } }]
         };
         const interview = await dbQueries.update(localUserInterviewAttributes.uuid, newAttributes, 'uuid');
         expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
@@ -631,7 +633,8 @@ describe('list interviews', () => {
             filters: {},
             pageIndex: 0,
             pageSize: -1,
-            sort: ['is_valid'] });
+            sort: ['is_valid']
+        });
         expect(totalCount).toEqual(nbActiveInterviews);
         expect(page.length).toEqual(nbActiveInterviews);
 
@@ -640,7 +643,8 @@ describe('list interviews', () => {
             filters: {},
             pageIndex: 0,
             pageSize: -1,
-            sort: ['responses.accessCode'] });
+            sort: ['responses.accessCode']
+        });
         expect(totalCountAsc).toEqual(nbActiveInterviews);
         expect(pageAsc.length).toEqual(nbActiveInterviews);
 
@@ -649,7 +653,8 @@ describe('list interviews', () => {
             filters: {},
             pageIndex: 0,
             pageSize: -1,
-            sort: [{ field: 'responses.accessCode', order: 'desc' }] });
+            sort: [{ field: 'responses.accessCode', order: 'desc' }]
+        });
         expect(totalCountDesc).toEqual(nbActiveInterviews);
         expect(pageDesc.length).toEqual(nbActiveInterviews);
         // Only the first 2 have values, first is now last
@@ -666,20 +671,21 @@ describe('list interviews', () => {
             filters: {},
             pageIndex: 0,
             pageSize: -1,
-            sort: ['is_valid', { field: 'responses.home.someField', order: 'desc' } ] });
+            sort: ['is_valid', { field: 'responses.home.someField', order: 'desc' }]
+        });
         expect(totalCount3).toEqual(nbActiveInterviews);
         expect(page3.length).toEqual(nbActiveInterviews);
 
     });
 
     // Parameters for list come from external, we cannot guarantee the types
-    test('inject bad data', async() => {
+    test('inject bad data', async () => {
         // Add invalid order by, should throw an error
         await expect(dbQueries.getList({
             filters: {},
             pageIndex: 0,
             pageSize: -1,
-            sort: [ { field: 'responses.accessCode', order: 'desc; select * from sv_interviews' as any } ]
+            sort: [{ field: 'responses.accessCode', order: 'desc; select * from sv_interviews' as any }]
         }))
             .rejects
             .toThrowError('Cannot get interview list in table sv_interviews database (knex error: Invalid sort order for interview query: desc; select * from sv_interviews (DBINTO0001))');
@@ -742,25 +748,61 @@ describe('Queries with audits', () => {
 
     });
 
-    afterAll(async() => {
+    afterAll(async () => {
         await truncate(knex, 'sv_audits');
     });
 
     test('Get the complete list of validation errors', async () => {
-        const { errors } = await dbQueries.getValidationErrors({ filters: {} });
-        expect(errors.length).toEqual(3);
-        expect(errors.find(error => error.key === 'errorOne' && error.cnt === '6')).toBeDefined();
-        expect(errors.find(error => error.key === 'errorTwo' && error.cnt === '1')).toBeDefined();
-        expect(errors.find(error => error.key === 'errorThree' && error.cnt === '1')).toBeDefined();
+        const { auditStats } = await dbQueries.getValidationAuditStats({ filters: {} });
+        expect(auditStats.error).toEqual({
+            person: [
+                {
+                    key: 'errorOne',
+                    cnt: '6',
+                    level: 'error',
+                    object_type: 'person'
+                }
+            ],
+            interview: [
+                {
+                    key: 'errorThree',
+                    cnt: '1',
+                    level: 'error',
+                    object_type: 'interview'
+                }
+            ],
+            household: [
+                {
+                    key: 'errorTwo',
+                    cnt: '1',
+                    level: 'error',
+                    object_type: 'household'
+                }
+            ]
+        });
     });
 
     test('Get validation errors with a validity filter', async () => {
-        const { errors } = await dbQueries.getValidationErrors({ filters: { is_valid: { value: true } } });
-        expect(errors.length).toEqual(2);
-        expect(errors).toEqual([
-            { key: 'errorOne', cnt: '3' },
-            { key: 'errorTwo', cnt: '1' }
-        ]);
+        const { auditStats } = await dbQueries.getValidationAuditStats({ filters: { is_valid: { value: true } } });
+        console.dir(auditStats, { depth: null });
+        expect(auditStats.error).toEqual({
+            person: [
+                {
+                    key: 'errorOne',
+                    cnt: '3',
+                    level: 'error',
+                    object_type: 'person'
+                }
+            ],
+            household: [
+                {
+                    key: 'errorTwo',
+                    cnt: '1',
+                    level: 'error',
+                    object_type: 'household'
+                }
+            ]
+        });
     });
 
     test('List interviews with audit filter', async () => {
@@ -804,10 +846,10 @@ describe('Queries with audits', () => {
     test('List interviews, validate audits', async () => {
 
         // Query by audit
-        const { interviews, totalCount } = await dbQueries.getList({ filters: { }, pageIndex: 0, pageSize: -1 });
+        const { interviews, totalCount } = await dbQueries.getList({ filters: {}, pageIndex: 0, pageSize: -1 });
         expect(totalCount).toEqual(5);
         expect(interviews.length).toEqual(5);
-        for (let interview of interviews) {
+        for (const interview of interviews) {
             if (interview.uuid === localUserInterviewAttributes.uuid) {
                 const audits = interview.audits;
                 expect(audits).toBeDefined();

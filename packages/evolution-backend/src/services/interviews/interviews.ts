@@ -23,6 +23,7 @@ import {
 } from 'evolution-common/lib/services/interviews/interview';
 import { UserInterviewAccesses } from '../logging/loggingTypes';
 import { Audits } from '../../services/audits/Audits';
+import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 
 export type FilterType = string | string[] | ValueFilterType;
 
@@ -156,16 +157,16 @@ export default class Interviews {
         return await interviewsDbQueries.getList({ filters: actualFilters, pageIndex, pageSize, sort: params.sort });
     };
 
-    static getValidationErrors = async (
+    static getValidationAuditStats = async (
         params: {
             filter?: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
-                [key: string]: string | { value: string | boolean | number | null; op?: keyof OperatorSigns };
+                [key: string]: string | string[] | { value: string | string[] | boolean | number | null; op?: keyof OperatorSigns };
             };
         } = {}
-    ): Promise<{ errors: { key: string; cnt: string }[] }> => {
+    ): Promise<{ auditStats: AuditsByLevelAndObjectType }> => {
         const actualFilters = getFiltersForDb(params.filter || {});
 
-        return await interviewsDbQueries.getValidationErrors({ filters: actualFilters });
+        return interviewsDbQueries.getValidationAuditStats({ filters: actualFilters });
     };
 
     static async auditInterviewsV2(disableConsoleLog = false): Promise<void> {

@@ -13,6 +13,7 @@ import {
 } from 'evolution-common/lib/services/interviews/interview';
 import { _booleish, _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
+import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 
 const tableName = 'sv_interviews';
 const participantTable = 'sv_participants';
@@ -647,29 +648,39 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
  * list of errors with the error code and the total number of errors in
  * interviews
  */
-const getValidationErrors = async (params: {
+const getValidationAuditStats = async (params: {
     filters: { [key: string]: ValueFilterType };
-}): Promise<{ errors: { key: string; cnt: string }[] }> => {
+}): Promise<{ auditStats: AuditsByLevelAndObjectType }> => {
     try {
         const baseRawFilter =
             'i.is_active IS TRUE AND participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
         const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
-
-        const validationErrorsQuery = knex
-            .select('error_code as key', knex.raw('count(error_code) cnt'))
+        const validationAuditStatsQuery = knex
+            .select('error_code as key', knex.raw('count(error_code) cnt'), 'level', 'object_type')
             .from(`${tableName} as i`)
             .innerJoin('sv_audits', 'id', 'interview_id')
             .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
             .whereRaw(rawFilter, bindings)
-            .groupBy('error_code')
+            .groupBy('error_code', 'level', 'object_type')
             .orderBy('cnt', 'desc');
 
-        const errors = await validationErrorsQuery;
+        const audits = await validationAuditStatsQuery;
 
-        return { errors };
+        const auditStats: AuditsByLevelAndObjectType = {};
+        audits.forEach((audit) => {
+            if (!auditStats[audit.level]) {
+                auditStats[audit.level] = {};
+            }
+            if (!auditStats[audit.level][audit.object_type]) {
+                auditStats[audit.level][audit.object_type] = [];
+            }
+            auditStats[audit.level][audit.object_type].push({ cnt: audit.cnt, key: audit.key });
+        });
+
+        return { auditStats };
     } catch (error) {
         throw new TrError(
-            `Cannot get list of validation errors in table ${tableName} database (knex error: ${error})`,
+            `Cannot get list of validation audit stats in table ${tableName} database (knex error: ${error})`,
             'DBQCR0004',
             'DatabaseCannotListBecauseDatabaseError'
         );
@@ -760,6 +771,6 @@ export default {
     create,
     update,
     getList,
-    getValidationErrors,
+    getValidationAuditStats,
     getInterviewsStream
 };

@@ -70,7 +70,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
         // Make a query string from the filters
         const dataFilters = {};
         (filters || []).forEach((filter) => {
-            if (typeof filter.value === 'string') {
+            if (typeof filter.value === 'string' || Array.isArray(filter.value)) {
                 dataFilters[filter.id] = filter.value;
             } else if (typeof filter.value === 'object' && filter.value.value !== undefined) {
                 const { value, op } = filter.value;

@@ -50,3 +50,13 @@ export type SurveyObjectsWithAudits = {
     home?: any; // serialized, typed in survey
     audits: AuditForObject[];
 };
+
+
+export type AuditsByLevelAndObjectType = {
+    [level: string]: {
+        [object_type: string]: {
+            key: string;
+            cnt: string;
+        }[];
+    };
+};
