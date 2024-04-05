@@ -189,7 +189,6 @@ def generate_section_configs(excel_file_path: str):
 
             # Update previousSection with the current section
             previousSection = section
-            print(previousSection)
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution
