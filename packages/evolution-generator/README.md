@@ -8,6 +8,7 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 
 -   [Why Generator?](#why-generator)
 -   [How to Run?](#how-to-run)
+-   [Project Structure](#project-structure)
 -   [Start your own survey](#start-your-own-survey)
 -   [Generate Excel](#generate-excel)
 -   [Generate Widgets](#generate-widgets)
@@ -71,6 +72,42 @@ To run this script, follow these steps:
     ```bash
     yarn generateSurvey
     ```
+
+## Project Structure
+
+The Generator is designed to facilitate both manual and automated survey generation. It is capable of generating many files automatically, but some files require manual coding to meet specific survey requirements. The project is organized into key directories and files, each serving a specific role in the survey creation process. Here's a brief overview of the project's layout:
+
+```plaintext
+survey/
+├─ common/ - Contains common files used across the survey.
+│  ├─ choices.tsx - Contains the choices for the InputRadio and InputCheckbox widgets. (Generator)
+│  ├─ conditionals.tsx - Contains the conditional logic for displaying widgets. (Generator)
+│  ├─ customValidations.tsx - Contains custom validation functions for widgets. (Manual)
+│  ├─ customWidgets.tsx - Contains custom widgets for the survey. (Manual)
+│  ├─ helpPopup.tsx - Contains the help popups for the survey. (Manual)
+│  ├─ inputRange.tsx - Contains the input range configurations for the InputRange widget. (Generator)
+├─ sections/ - Contains all the sections for the survey.
+│  ├─ sectionName/
+│  |  ├─ groups.ts - Contains the groups for the section. (Manual)
+│  |  ├─ preload.ts - Contains the preload function for the section. (Manual)
+│  |  ├─ sectionConfigs.ts - Contains the configuration for the section. (Generator)
+│  |  ├─ template.tsx - Contains the template for the section. (Manual)
+│  |  ├─ widgets.tsx - Contains the widgets for the section. (Generator)
+│  |  ├─ widgetsNames.ts - Contains the names of the widgets for the section. (Generator)
+├─ sections.ts - Contains the configurations for all the sections. (Generator)
+├─ widgetsConfigs.tsx - Contains the configurations for all the widgets. (Generator)
+
+references/
+├─ generateSurveyExample.xlsx - Contains the example Excel file for generating the survey. (Generator)
+
+locales/
+├─ en/
+│  ├─ sectionName.yml - Contains the English libelles for the section. (Generator)
+├─ fr/
+│  ├─ sectionName.yml - Contains the French libelles for the section. (Generator)
+```
+
+> **Note:** For sections that utilize template, `template.tsx` should be implemented as a React component.
 
 ## Start your own survey
 

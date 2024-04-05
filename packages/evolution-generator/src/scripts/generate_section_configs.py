@@ -37,6 +37,7 @@ def generate_section_configs(excel_file_path: str):
                 "title_fr",
                 "title_en",
                 "in_nav",
+                "template",
                 "parent_section",
                 "groups",
             ],
@@ -63,6 +64,7 @@ def generate_section_configs(excel_file_path: str):
                 title_fr,
                 title_en,
                 in_nav,
+                template,
                 parent_section,
                 groups,
             ) = get_values_from_row(row, headers)
@@ -79,10 +81,16 @@ def generate_section_configs(excel_file_path: str):
 
                 # Check if the section has groups
                 has_groups = groups is not None and groups != ""
+                # Check if the sections has template
+                has_template = template is not None and template == True 
 
                 # Add imports for groups if the section has groups
                 if has_groups:
                     ts_section_code += f"import * as groups from './groups';\n"
+
+                # Add imports for template if the section has template
+                if has_template:
+                    ts_section_code += f"import * as template from './template';\n"
 
                 # Generate currentSectionName
                 ts_section_code += (
@@ -133,6 +141,8 @@ def generate_section_configs(excel_file_path: str):
                     ts_section_code += f"{INDENT}{INDENT}fr: '{title_fr}',\n"
                     ts_section_code += f"{INDENT}{INDENT}en: '{title_en}'\n"
                     ts_section_code += f"{INDENT}}},\n"
+                if has_template:
+                    ts_section_code += f"{INDENT}template: template,\n"
                 ts_section_code += f"{INDENT}widgets: widgetsNames,\n"
                 ts_section_code += (
                     f"{INDENT}// Do some actions before the section is loaded\n"
