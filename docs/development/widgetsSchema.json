@@ -1,0 +1,1649 @@
+{
+  "introTextBeforeStartButton": {
+    "surveyObject": "Interview",
+    "sections": [
+      "intro"
+    ],
+    "paths": [
+      "interview.introTextBeforeStartButton"
+    ],
+    "inputTypes": [
+      "InfoText"
+    ],
+    "datatype": "text",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Introductory text displayed before the start button"
+  },
+  "startButton": {
+    "surveyObject": "Interview",
+    "sections": [
+      "intro"
+    ],
+    "paths": [
+      "interview.startButton"
+    ],
+    "inputTypes": [
+      "Button"
+    ],
+    "datatype": "boolean",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Start button to begin the survey"
+  },
+  "consentCheckbox": {
+    "surveyObject": "Interview",
+    "sections": [
+      "intro"
+    ],
+    "paths": [
+      "interview.consentCheckbox"
+    ],
+    "inputTypes": [
+      "InputCheckbox"
+    ],
+    "datatype": "boolean",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Checkbox for user to provide consent"
+  },
+  "consentPDFLink": {
+    "surveyObject": "Interview",
+    "sections": [
+      "intro"
+    ],
+    "paths": [
+      "interview.consentPDFLink"
+    ],
+    "inputTypes": [
+      "InfoText"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Link to PDF file explaining the survey and data collection"
+  },
+  "introTextAfterStartButton": {
+    "surveyObject": "Interview",
+    "sections": [
+      "intro"
+    ],
+    "paths": [
+      "interview.introTextAfterStartButton"
+    ],
+    "inputTypes": [
+      "InfoText"
+    ],
+    "datatype": "text",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Additional introductory text displayed after the start button"
+  },
+  "introFooterLinks": {
+    "surveyObject": "Interview",
+    "sections": [
+      "intro"
+    ],
+    "paths": [
+      "interview.introFooterLinks"
+    ],
+    "inputTypes": [
+      "InfoText"
+    ],
+    "datatype": "string[]",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Links and contact information in the intro footer"
+  },
+  "accessCode": {
+    "surveyObject": "Interview",
+    "sections": [
+      "intro",
+      "home"
+    ],
+    "paths": [
+      "interview.accessCode"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [
+      {
+        "type": "regex"
+      }
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Access code provided to participants to access the survey"
+  },
+  "householdSize": {
+    "surveyObject": "Household",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.size"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [],
+    "validations": [
+      "min",
+      "max",
+      "positiveInteger"
+    ],
+    "relatedSurveyObjects": [
+      "Person"
+    ],
+    "relatedPaths": [
+      "household.members[]"
+    ],
+    "comments": "Number of people in the household, always compare to household.members[] length"
+  },
+  "householdCarNumber": {
+    "surveyObject": "Household",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.carNumber"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [],
+    "validations": [
+      "min",
+      "max",
+      "positiveInteger"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Number of cars in the household"
+  },
+  "householdTwoWheelNumber": {
+    "surveyObject": "Household",
+    "sections": [
+      "home",
+      "end"
+    ],
+    "paths": [
+      "household.twoWheelNumber"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [],
+    "validations": [
+      "min",
+      "max",
+      "positiveInteger"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Number of two-wheelers in the household"
+  },
+  "homeAddress": {
+    "surveyObject": "Home",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.home.address"
+    ],
+    "inputTypes": [
+      "InputString",
+      "InputStringAutocomplete"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Household"
+    ],
+    "relatedPaths": [
+      "household.home"
+    ],
+    "comments": "Civic number and street address of the household"
+  },
+  "homeMunicipality": {
+    "surveyObject": "Home",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.home.municipality"
+    ],
+    "inputTypes": [
+      "InputSelect",
+      "InputStringAutocomplete",
+      "InputSelectAutocomplete",
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Household"
+    ],
+    "relatedPaths": [
+      "household.home"
+    ],
+    "comments": "Municipality of the household"
+  },
+  "homeRegion": {
+    "surveyObject": "Home",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.home.region"
+    ],
+    "inputTypes": [
+      "InputSelect",
+      "InputStringAutocomplete",
+      "InputSelectAutocomplete",
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Household"
+    ],
+    "relatedPaths": [
+      "household.home"
+    ],
+    "comments": "Region of the household"
+  },
+  "homeCountry": {
+    "surveyObject": "Home",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.home.country"
+    ],
+    "inputTypes": [
+      "InputSelect",
+      "InputStringAutocomplete",
+      "InputSelectAutocomplete",
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Household"
+    ],
+    "relatedPaths": [
+      "household.home"
+    ],
+    "comments": "Country of the household"
+  },
+  "homePostalCode": {
+    "surveyObject": "Home",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.home.postalCode"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [
+      "regex"
+    ],
+    "relatedSurveyObjects": [
+      "Household"
+    ],
+    "relatedPaths": [
+      "household.home",
+      "household.home.country",
+      "household.home.region"
+    ],
+    "comments": "Postal code of the household (format depends on country/region)"
+  },
+  "homeGeography": {
+    "surveyObject": "Home",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.home.geography"
+    ],
+    "inputTypes": [
+      "InputMapFindPlace",
+      "InputMapPoint"
+    ],
+    "datatype": "geojson",
+    "conditionals": [
+      "household.home.address",
+      "household.home.municipality",
+      "household.home.region",
+      "household.home.country",
+      "household.home.postalCode"
+    ],
+    "validations": [
+      "outsideWater",
+      "validGeojson",
+      "inSurveyTerritory",
+      "landRoleOrOSMMatch"
+    ],
+    "relatedSurveyObjects": [
+      "Household"
+    ],
+    "relatedPaths": [
+      "household.home",
+      "household.home.address",
+      "household.home.municipality",
+      "household.home.region",
+      "household.home.country",
+      "household.home.postalCode"
+    ],
+    "comments": "Geographic location of the household"
+  },
+  "homeCarNumberElectric": {
+    "surveyObject": "Household",
+    "sections": [
+      "home",
+      "end"
+    ],
+    "paths": [
+      "household.carNumberElectric",
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [],
+    "validations": [
+      "min",
+      "max",
+      "positiveInteger"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "household.carNumber",
+      "household.carNumberPluginHybrid"
+    ],
+    "comments": "Number of electric cars in the household"
+  },
+  "homeCarNumberPluginHybrid": {
+    "surveyObject": "Household",
+    "sections": [
+      "home",
+      "end"
+    ],
+    "paths": [
+      "household.carNumberPluginHybrid"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [
+      "household.carNumber",
+      "household.carNumberElectric"
+    ],
+    "validations": [
+      "min",
+      "max",
+      "positiveInteger"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "household.carNumber"
+    ],
+    "comments": "Number of plug-in hybrid cars in the household"
+  },
+  "homeEbikeNumber": {
+    "surveyObject": "Household",
+    "sections": [
+      "home",
+      "end"
+    ],
+    "paths": [
+      "household.home.ebikeNumber"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [],
+    "validations": [
+      "min",
+      "max",
+      "positiveInteger"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Number of e-bikes in the household"
+  },
+  "homeCarParkings": {
+    "surveyObject": "Household",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.home.carParkings"
+    ],
+    "inputTypes": [
+      "InputMultiselect"
+    ],
+    "datatype": "string[]",
+    "conditionals": [
+      "household.carNumber"
+    ],
+    "validations": [
+      "carNumberMin1"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "household.carNumber"
+    ],
+    "comments": "Types of car parkings available at the household"
+  },
+  "householdAtLeastOnePersonWithDisability": {
+    "surveyObject": "Household",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.atLeastOnePersonWithDisability"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person"
+    ],
+    "relatedPaths": [
+      "person.hasDisability"
+    ],
+    "comments": "Indicates if at least one person in the household has a disability, needed to know if we ask for each person later on"
+  },
+  "householdAtLeastOneCarSharingMember": {
+    "surveyObject": "Household",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.atLeastOneCarSharingMember"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "atLeastOneDrivingLicenseInHousehold"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person"
+    ],
+    "relatedPaths": [
+      "person.carSharingMember"
+    ],
+    "comments": "Indicates if at least one person in the household is a member of a carsharing service, used to know if we ask for each person later on"
+  },
+  "householdAtLeastOneCarSharingUser": {
+    "surveyObject": "Household",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.atLeastOneCarSharingUser"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "atLeastOneDrivingLicenseInHousehold"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person"
+    ],
+    "relatedPaths": [
+      "person.carSharingUser"
+    ],
+    "comments": "Indicates if at least one person in the household is a user of a carsharing service, used to know if we ask for each person later on"
+  },
+  "householdAtLeastOneBikesharingUser": {
+    "surveyObject": "Household",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.atLeastOneBikesharingUser"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person"
+    ],
+    "relatedPaths": [
+      "person.bikesharingUser"
+    ],
+    "comments": "Indicates if at least one person in the household uses a bikesharing service"
+  },
+  "householdAtLeastOneBikesharingMember": {
+    "surveyObject": "Household",
+    "sections": [
+      "home"
+    ],
+    "paths": [
+      "household.atLeastOneBikesharingMember"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person"
+    ],
+    "relatedPaths": [
+      "person.bikesharingMember"
+    ],
+    "comments": "Indicates if at least one person in the household is a member of a bikesharing service"
+  },
+  "personNickname": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.nickname"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "household.members.length"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "VisitedPlace",
+      "WorkPlace",
+      "SchoolPlace",
+      "Trip",
+      "Journey",
+      "Segment"
+    ],
+    "relatedPaths": [
+      "household.size",
+      "household.members[]"
+    ],
+    "comments": "Nickname for the person (only if more than 1 person in household)"
+  },
+  "personAge": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.age"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [],
+    "validations": [
+      "min",
+      "max",
+      "integer"
+    ],
+    "relatedSurveyObjects": [
+      "VisitedPlace",
+      "WorkPlace",
+      "SchoolPlace",
+      "Trip",
+      "Journey",
+      "Segment"
+    ],
+    "relatedPaths": [
+      "person.occupation",
+      "person.carSharingMember",
+      "person.carSharingUser",
+      "person.bikesharingUser",
+      "person.bikesharingMember",
+      "person.workType",
+      "person.studentType",
+      "person.schoolType",
+      "person.drivingLicenseOwner",
+      "person.transitPassOwner"
+    ],
+    "comments": "Age of the person"
+  },
+  "personGender": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.gender"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "VisitedPlace",
+      "WorkPlace",
+      "SchoolPlace",
+      "Trip",
+      "Journey",
+      "Segment"
+    ],
+    "relatedPaths": [],
+    "comments": "Gender of the person"
+  },
+  "personOccupation": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.occupation"
+    ],
+    "inputTypes": [
+      "InputRadio",
+      "InputSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Occupation of the person (only for non-worker, non-student)"
+  },
+  "personOccupationSpecify": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.occupationSpecify"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.occupation"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.occupation"
+    ],
+    "comments": "Specify occupation if 'Other' is selected"
+  },
+  "personWorkerType": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.workerType"
+    ],
+    "inputTypes": [
+      "InputRadio",
+      "InputSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Type of worker (old version: jobType)"
+  },
+  "personJobName": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.jobName"
+    ],
+    "inputTypes": [
+      "InputString",
+      "InputStringAutocomplete"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.workType"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workType"
+    ],
+    "comments": "Job name of the person"
+  },
+  "personStudentType": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.studentType"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Type of student"
+  },
+  "personSchoolType": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.schoolType"
+    ],
+    "inputTypes": [
+      "InputRadio",
+      "InputSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [
+      "ageMax16"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Type of school (old version: enrolledInSchool) (only for age 16-), subject to discussion for max age"
+  },
+  "personDrivingLicenseOwner": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.drivingLicenseOwner"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [
+      "ageMin16"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Indicates if the person owns a driving license (only for age 16+)"
+  },
+  "personTransitPassOwner": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.transitPassOwner"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Indicates if the person owns a transit pass"
+  },
+  "personTransitPasses": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.transitPasses"
+    ],
+    "inputTypes": [
+      "InputMultiselect"
+    ],
+    "datatype": "string[]",
+    "conditionals": [
+      "person.transitPassOwner"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.transitPassOwner"
+    ],
+    "comments": "Types of transit passes owned by the person"
+  },
+  "personCarsharingUser": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.carsharingUser"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age",
+      "person.drivingLicenseOwner"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age",
+      "person.drivingLicenseOwner"
+    ],
+    "comments": "Indicates if the person uses carsharing services"
+  },
+  "personCarsharingMember": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.carsharingMember"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age",
+      "person.drivingLicenseOwner"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age",
+      "person.drivingLicenseOwner"
+    ],
+    "comments": "Indicates if the person is a member of a car-sharing service"
+  },
+  "personBikesharingUser": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.bikesharingUser"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Indicates if the person uses bike-sharing services"
+  },
+  "personBikesharingMember": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.bikesharingMember"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Indicates if the person is a member of a bike-sharing service"
+  },
+  "personHasDisability": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.hasDisability"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "household.atLeastOnePersonWithDisability"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "household.atLeastOnePersonWithDisability"
+    ],
+    "comments": "Indicates if the person has a disability"
+  },
+  "personIsParatransitUser": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.isParatransitUser"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.hasDisability"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.hasDisability"
+    ],
+    "comments": "Indicates if the person is a user of paratransit services"
+  },
+  "personIsParatransitMember": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.isParatransitMember"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.hasDisability"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.hasDisability"
+    ],
+    "comments": "Indicates if the person is a member of paratransit services"
+  },
+  "personStudiesFromFixedLocation": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.studiesFromFixedLocation"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.studentType"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.studentType"
+    ],
+    "comments": "Indicates if the person studies from a fixed location"
+  },
+  "personWorksFromFixedLocation": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.worksFromFixedLocation"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.workerType"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType"
+    ],
+    "comments": "Indicates if the person works from a fixed location"
+  },
+  "personWorkOnTheRoad": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.worksOnTheRoad"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.workerType"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType"
+    ],
+    "comments": "Indicates if the person works on the road"
+  },
+  "personJobCompatibleWithRemoteWork": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.jobCompatibleWithRemoteWork"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.workerType"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType"
+    ],
+    "comments": "Indicates if the person's job is compatible with remote work"
+  },
+  "personWorkPlaceName": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.workPlaceName"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.workerType",
+      "person.worksFromFixedLocation"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType",
+      "person.worksFromFixedLocation"
+    ],
+    "comments": "Name of the person's work place"
+  },
+  "personWorkPlaceNameQueryString": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.workPlaceNameQueryString"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.workPlaceName"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.workPlaceName"
+    ],
+    "comments": "Query string used to geolocate the person's work place"
+  },
+  "personWorkPlaceGeography": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.workPlaceGeography"
+    ],
+    "inputTypes": [
+      "InputMapFindPlace",
+      "InputMapPoint"
+    ],
+    "datatype": "geojson",
+    "conditionals": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.workPlaceName",
+      "person.workPlaceNameQueryString"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.workPlaceName",
+      "person.workPlaceNameQueryString"
+    ],
+    "comments": "Geographic location of the person's work place"
+  },
+  "personWorkPlaceParking": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.workPlaceParking"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.workPlaceGeography"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.workPlaceGeography"
+    ],
+    "comments": "Parking availability at the person's work place"
+  },
+  "personSchoolPlaceName": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.schoolPlaceName"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.studentType",
+      "person.studiesFromFixedLocation"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.studentType",
+      "person.studiesFromFixedLocation"
+    ],
+    "comments": "Name of the person's school place"
+  },
+  "personSchoolPlaceQueryString": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.schoolPlaceQueryString"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.studentType",
+      "person.studiesFromFixedLocation",
+      "person.schoolPlaceName"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.studentType",
+      "person.studiesFromFixedLocation",
+      "person.schoolPlaceName"
+    ],
+    "comments": "Query string used to geolocate the person's school place"
+  },
+  "personSchoolPlaceGeography": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.schoolPlaceGeography"
+    ],
+    "inputTypes": [
+      "InputMapFindPlace",
+      "InputMapPoint"
+    ],
+    "datatype": "geojson",
+    "conditionals": [
+      "person.studentType",
+      "person.studiesFromFixedLocation",
+      "person.schoolPlaceName",
+      "person.schoolPlaceQueryString"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.studentType",
+      "person.studiesFromFixedLocation",
+      "person.schoolPlaceName",
+      "person.schoolPlaceQueryString"
+    ],
+    "comments": "Geographic location of the person's school place"
+  },
+  "personSchoolPlaceParking": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.schoolPlaceParking"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.studentType",
+      "person.studiesFromFixedLocation",
+      "person.schoolPlaceGeography"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.studentType",
+      "person.studiesFromFixedLocation",
+      "person.schoolPlaceGeography"
+    ],
+    "comments": "Parking availability at the person's school place"
+  },
+  "personDaysAtWorkPerWeek": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.daysAtWorkPerWeek"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.worksOnTheRoad"
+    ],
+    "validations": [
+      "min",
+      "max",
+      "integer"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.worksOnTheRoad"
+    ],
+    "comments": "Number of days per week the person works at their work place"
+  },
+  "personDaysRemoteWorkPerWeek": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.daysRemoteWorkPerWeek"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.worksOnTheRoad",
+      "person.jobCompatibleWithRemoteWork",
+      "person.daysAtWorkPerWeek"
+    ],
+    "validations": [
+      "min",
+      "max",
+      "integer"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.worksOnTheRoad",
+      "person.jobCompatibleWithRemoteWork",
+      "person.daysAtWorkPerWeek"
+    ],
+    "comments": "Number of days per week the person works remotely"
+  },
+  "personDaysAtSchoolPerWeek": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.daysAtSchoolPerWeek"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [
+      "person.studentType",
+      "person.studiesFromFixedLocation"
+    ],
+    "validations": [
+      "min",
+      "max",
+      "integer"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.studentType",
+      "person.studiesFromFixedLocation"
+    ],
+    "comments": "Number of days per week the person attends school at their school place"
+  },
+  "personDaysRemoteSchoolPerWeek": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.daysRemoteSchoolPerWeek"
+    ],
+    "inputTypes": [
+      "InputRadioInteger",
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [
+      "person.studentType",
+      "person.studiesFromFixedLocation",
+      "person.daysAtSchoolPerWeek"
+    ],
+    "validations": [
+      "min",
+      "max",
+      "integer"
+    ],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.studentType",
+      "person.studiesFromFixedLocation",
+      "person.daysAtSchoolPerWeek"
+    ],
+    "comments": "Number of days per week the person attends school remotely"
+  },
+  "personEducationalAttainment": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.educationalAttainment"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.age"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.age"
+    ],
+    "comments": "Educational attainment level of the person"
+  },
+  "personDidTripsOnTripsDate": {
+    "surveyObject": "Person",
+    "sections": [
+      "household",
+      "visitedPlaces"
+    ],
+    "paths": [
+      "person.didTripsOnTripsDate"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Indicates if the person made trips on the specified trips date"
+  },
+  "personNoWorkTripOnTripsDateReason": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.noWorkTripOnTripsDateReason"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.didTripsOnTripsDate",
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.worksOnTheRoad",
+      "person.jobCompatibleWithRemoteWork",
+      "person.daysAtWorkPerWeek",
+      "person.daysRemoteWorkPerWeek"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.didTripsOnTripsDate",
+      "person.workerType",
+      "person.worksFromFixedLocation",
+      "person.worksOnTheRoad",
+      "person.jobCompatibleWithRemoteWork",
+      "person.daysAtWorkPerWeek",
+      "person.daysRemoteWorkPerWeek"
+    ],
+    "comments": "Reason for not making work trips on the specified trips date"
+  },
+  "personNoSchoolTripOnTripsDateReason": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.noSchoolTripOnTripsDateReason"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.didTripsOnTripsDate",
+      "person.studentType",
+      "person.schoolType",
+      "person.daysAtSchoolPerWeek",
+      "person.daysRemoteSchoolPerWeek"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.didTripsOnTripsDate",
+      "person.studentType",
+      "person.schoolType",
+      "person.daysAtSchoolPerWeek",
+      "person.daysRemoteSchoolPerWeek"
+    ],
+    "comments": "Reason for not making school trips on the specified trips date"
+  },
+  "personNoWorkTripOnTripsDateReasonSpecify": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.noWorkTripOnTripsDateReasonSpecify"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.noWorkTripOnTripsDateReason"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.noWorkTripOnTripsDateReason"
+    ],
+    "comments": "Specification of the reason for not making work trips if 'Other' is selected"
+  },
+  "personNoSchoolTripOnTripsDateReasonSpecify": {
+    "surveyObject": "Person",
+    "sections": [
+      "household"
+    ],
+    "paths": [
+      "person.noSchoolTripOnTripsDateReasonSpecify"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.noSchoolTripOnTripsDateReason"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.noSchoolTripOnTripsDateReason"
+    ],
+    "comments": "Specification of the reason for not making school trips if 'Other' is selected"
+  },
+  "personHasOmittedTrips": {
+    "surveyObject": "Person",
+    "sections": [
+      "household",
+      "visitedPlaces",
+      "trips",
+      "end"
+    ],
+    "paths": [
+      "person.hasOmittedTrips"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "person.didTripsOnTripsDate"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "VisitedPlace",
+      "Trip",
+      "Journey"
+    ],
+    "relatedPaths": [
+      "person.didTripsOnTripsDate"
+    ],
+    "comments": "Indicates if the person has omitted trips in their reporting"
+  }
+}
