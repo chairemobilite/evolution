@@ -24,6 +24,17 @@ export const inputRadioBase: inputTypes.InputRadioBase = {
     columns: 1
 };
 
+// Input Radio Number default params
+export const inputRadioNumberBase: inputTypes.InputRadioNumberBase = {
+    type: 'question',
+    inputType: 'radioNumber',
+    datatype: 'integer',
+    containsHtml: true,
+    twoColumns: false,
+    columns: 1,
+    sameLine: true,
+};
+
 // Input String default params
 export const inputStringBase: inputTypes.InputStringBase = {
     type: 'question',

@@ -95,6 +95,29 @@ export type InputRadio = InputRadioBase & {
     addCustom?: AddCustom;
 };
 
+/* InputRadioNumber widgetConfig Type */
+export type InputRadioNumberBase = {
+    type: 'question';
+    inputType: 'radioNumber';
+    datatype: 'integer';
+    containsHtml: ContainsHtml;
+    twoColumns: TwoColumns;
+    columns: Columns;
+    sameLine?: boolean;
+};
+export type InputRadioNumber = InputRadioNumberBase & {
+    path: Path;
+    label: Label;
+    valueRange: {
+        min: number;
+        max: number;
+    };
+    overMaxAllowed: boolean,
+    helpPopup?: HelpPopup;
+    conditional: Conditional;
+    validations?: Validations;
+};
+
 /* InputString widgetConfig Type */
 export type InputStringBase = {
     type: 'question';
