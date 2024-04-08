@@ -72,7 +72,6 @@ def generate_section_configs(excel_file_path: str):
             # Generate code for section
             def generate_section_code(previousSection, nextSection):
                 ts_section_code = ""  # TypeScript code for the section
-
                 # TODO: Do this with survey_folder_path
                 # Get section output file
                 section_output_file = (
@@ -107,7 +106,7 @@ def generate_section_configs(excel_file_path: str):
 
                 # Generate nextSectionName
                 # Check if there is a next row
-                if row_number < len(rows) - 1:
+                if row_number <= len(rows) - 1:
                     next_row = rows[row_number]  # Get the next row
                     # Get the next section from the next row
                     nextSection = get_values_from_row(next_row, headers)[0]
