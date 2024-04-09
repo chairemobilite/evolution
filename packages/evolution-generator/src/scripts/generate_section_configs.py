@@ -89,7 +89,7 @@ def generate_section_configs(excel_file_path: str):
 
                 # Add imports for template if the section has template
                 if has_template:
-                    ts_section_code += f"import * as template from './template';\n"
+                    ts_section_code += f"import SectionTemplate from './template';\n"
 
                 # Generate currentSectionName
                 ts_section_code += (
@@ -141,7 +141,7 @@ def generate_section_configs(excel_file_path: str):
                     ts_section_code += f"{INDENT}{INDENT}en: '{title_en}'\n"
                     ts_section_code += f"{INDENT}}},\n"
                 if has_template:
-                    ts_section_code += f"{INDENT}template: template,\n"
+                    ts_section_code += f"{INDENT}template: SectionTemplate,\n"
                 ts_section_code += f"{INDENT}widgets: widgetsNames,\n"
                 ts_section_code += (
                     f"{INDENT}// Do some actions before the section is loaded\n"
