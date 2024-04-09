@@ -54,7 +54,7 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                     has_input_range_import = True
                 if row['inputType'] == 'Custom':
                     has_custom_widgets_import = True
-                if row['help_popup']:
+                if row['help_popup'] or row['confirm_popup']:
                     has_help_popup_import = True
 
             # Generate import statements
@@ -104,6 +104,7 @@ def generate_widget_statement(row):
     input_range = row['inputRange']
     help_popup = row['help_popup']
     choices = row['choices']
+    confirm_popup = row['confirm_popup']
 
     widget : str = ''
     if input_type == 'Custom':
@@ -123,7 +124,7 @@ def generate_widget_statement(row):
     elif input_type == 'Checkbox':
         widget = generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation)
     elif input_type == 'NextButton':
-        widget = generate_next_button_widget(question_name, section, path)
+        widget = generate_next_button_widget(question_name, section, path, confirm_popup)
     elif input_type == 'Text':
         widget = generate_text_widget(question_name, section, path, conditional, validation)
     else:
@@ -218,6 +219,11 @@ def generate_help_popup(help_popup, comma=True, skip_line=True):
         return f"{INDENT}helpPopup: helpPopup.{help_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
     else:
         return ""
+def generate_confirm_popup(confirm_popup, comma=True, skip_line=True):
+    if confirm_popup:
+        return f"{INDENT}confirmPopup: helpPopup.{confirm_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
+    else:
+        return ""
 def generate_text(section, path): return f"{INDENT}text: (t: TFunction) => `<p class=\"input-text\">${{t('{section}:{path}')}}</p>`"
 def generate_choices(choices): return f"{INDENT}choices: choices.{choices}"
 def generate_conditional(conditional): 
@@ -310,10 +316,11 @@ def generate_checkbox_widget(question_name, section, path, choices, help_popup, 
             f"}};"
 
 # Generate NextButton widget
-def generate_next_button_widget(question_name, section, path):
+def generate_next_button_widget(question_name, section, path, confirm_popup):
     return f"{generate_constExport(question_name, 'InputButton')}\n" \
             f"{generate_defaultInputBase('buttonNextBase')},\n" \
             f"{generate_path(path)},\n" \
+            f"{generate_confirm_popup(confirm_popup)}" \
             f"{generate_label(section, path)}\n" \
             f"}};"
 
