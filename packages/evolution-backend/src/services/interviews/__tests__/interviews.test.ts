@@ -12,6 +12,7 @@ import interviewsQueries from '../../../models/interviews.db.queries';
 import interviewsAccessesQueries from '../../../models/interviewsAccesses.db.queries';
 import { registerAccessCodeValidationFunction } from '../../accessCode';
 import { updateInterview } from '../interview';
+import moment from 'moment';
 
 jest.mock('../../../models/interviews.db.queries', () => ({
     findByResponse: jest.fn(),
@@ -181,11 +182,12 @@ describe('Create interviews', () => {
     });
 
     test('Create with empty responses', async() => {
+
         const newInterview = await Interviews.createInterviewForUser(participantId, {});
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            responses: {},
+            responses: { _startedAt: expect.anything() },
             is_active: true,
             validations: {},
             logs: []
@@ -207,7 +209,7 @@ describe('Create interviews', () => {
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            responses,
+            responses: { ...responses, _startedAt: expect.anything() },
             is_active: true,
             validations: {},
             logs: []
@@ -226,7 +228,7 @@ describe('Create interviews', () => {
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            responses: {},
+            responses: { _startedAt: expect.anything() },
             is_active: true,
             validations: {},
             logs: []
@@ -237,19 +239,23 @@ describe('Create interviews', () => {
     });
 
     test('Create and return many other field', async() => {
+        const initialTimeStamp = moment().unix();
         const returningFields = ['participant_id', 'responses', 'uuid'];
         const newInterview = await Interviews.createInterviewForUser(participantId, {}, returningFields);
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            responses: {},
+            responses: { _startedAt: expect.anything() },
             is_active: true,
             validations: {},
             logs: []
         }, returningFields);
-        expect(newInterview).toEqual({ participant_id: participantId, uuid: expect.anything(), responses: {} });
+        expect(newInterview).toEqual({ participant_id: participantId, uuid: expect.anything(), responses: { _startedAt: expect.anything() } });
         expect(mockDbGetByUuid).not.toHaveBeenCalled();
         expect(mockInterviewUpdate).not.toHaveBeenCalled();
+
+        // Make sure timestamp in response is higher than the one at the beginning of the test
+        expect((newInterview.responses as any)._startedAt).toBeGreaterThanOrEqual(initialTimeStamp);
     });
 
 });
