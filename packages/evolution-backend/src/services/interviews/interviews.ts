@@ -4,6 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import _cloneDeep from 'lodash/cloneDeep';
+import moment from 'moment';
 import { auditInterview, getChangesAfterCleaningInterview } from 'evolution-common/lib/services/interviews/interview';
 import { updateInterview, setInterviewFields, copyResponsesToValidatedData } from './interview';
 import { mapResponsesToValidatedData } from './interviewUtils';
@@ -105,9 +107,13 @@ export default class Interviews {
     ): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
         // TODO Make sure there is no active interview for this user already?
 
-        // Create the interview for this user
+        // Create the interview for this user, make sure the start time is set
+        const responses = _cloneDeep(initialResponses);
+        if (responses._startedAt === undefined) {
+            responses._startedAt = moment().unix();
+        }
         const interview = await interviewsDbQueries.create(
-            { participant_id: participantId, responses: initialResponses, is_active: true, validations: {}, logs: [] },
+            { participant_id: participantId, responses, is_active: true, validations: {}, logs: [] },
             returning
         );
         if (!interview.uuid || Object.keys(initialResponses).length === 0) {
@@ -160,7 +166,10 @@ export default class Interviews {
     static getValidationAuditStats = async (
         params: {
             filter?: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
-                [key: string]: string | string[] | { value: string | string[] | boolean | number | null; op?: keyof OperatorSigns };
+                [key: string]:
+                    | string
+                    | string[]
+                    | { value: string | string[] | boolean | number | null; op?: keyof OperatorSigns };
             };
         } = {}
     ): Promise<{ auditStats: AuditsByLevelAndObjectType }> => {
