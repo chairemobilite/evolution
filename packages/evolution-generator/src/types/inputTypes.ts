@@ -32,10 +32,7 @@ export type Labels = {
 }[];
 type Choice = {
     value: string | number | boolean;
-    label: {
-        fr: string;
-        en: string;
-    };
+    label: Label;
     iconPath?: string;
     conditional?: Conditional;
 };
@@ -59,7 +56,7 @@ export type NameFunction = (groupedObject, sequence, interview) => string;
 export type HelpPopup = {
     containsHtml?: ContainsHtml;
     title: Title;
-    content: { fr: string; en: string };
+    content: Label;
 };
 type DefaultCenter = {
     lat: number;
@@ -242,10 +239,10 @@ export type InputButton = InputButtonBase & {
     label: Label;
     confirmPopup?: {
         shortname: string;
-        content: { fr: (interview, path) => string; en: (interview, path) => string };
+        content: Label;
         showConfirmButton?: boolean;
         cancelButtonColor?: 'blue' | 'green';
-        cancelButtonLabel?: { fr: string; en: string };
+        cancelButtonLabel?: Label;
         conditional?: Conditional;
     };
     size?: Size;
@@ -274,7 +271,7 @@ export type Group = {
     path: Path;
     groupShortname: string;
     shortname: string;
-    groupName: { fr: string; en: string };
+    groupName: Label;
     name: { fr: NameFunction; en: NameFunction };
     filter?: (interview, groupedObjects) => any;
     conditional?: Conditional;
