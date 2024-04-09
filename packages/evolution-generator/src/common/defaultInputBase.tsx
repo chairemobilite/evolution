@@ -103,7 +103,7 @@ export const buttonNextBase: inputTypes.InputButtonBase = {
     hideWhenRefreshing: true,
     // FIXME: Fix import icon
     icon: faCheckCircle,
-    align: 'left',
+    align: 'center',
     action: surveyHelper.validateButtonActionWithCompleteSection
 };
 
