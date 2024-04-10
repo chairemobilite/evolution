@@ -114,8 +114,8 @@ export class Button extends React.Component {
                 cancelAction                = {widgetConfig.confirmPopup.cancelAction}
                 showCancelButton            = {widgetConfig.confirmPopup.showCancelButton !== false}
                 showConfirmButton           = {widgetConfig.confirmPopup.showConfirmButton !== false}
-                cancelButtonLabel           = {widgetConfig.confirmPopup.cancelButtonLabel}
-                confirmButtonLabel          = {widgetConfig.confirmPopup.confirmButtonLabel}
+                cancelButtonLabel           = {widgetConfig.confirmPopup.cancelButtonLabel ? surveyHelper.translateString(widgetConfig.confirmPopup.cancelButtonLabel, this.props.i18n, this.props.interview, this.props.path) : undefined}
+                confirmButtonLabel          = {widgetConfig.confirmPopup.confirmButtonLabel ? surveyHelper.translateString(widgetConfig.confirmPopup.confirmButtonLabel, this.props.i18n, this.props.interview, this.props.path) : undefined}
                 cancelButtonColor           = {widgetConfig.confirmPopup.cancelButtonColor}
                 confirmButtonColor          = {widgetConfig.confirmPopup.confirmButtonColor}
                 containsHtml                = {widgetConfig.containsHtml}
