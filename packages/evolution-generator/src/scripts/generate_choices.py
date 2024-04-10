@@ -64,6 +64,9 @@ def generate_choices(input_file: str, output_file: str):
             spread_choices_name = row_dict["spreadChoicesName"]
             conditional = row_dict["conditional"]
 
+            if choice_name is None or (value is None and spread_choices_name is None):
+                continue
+
             # Create choice object with value and language-specific labels
             choice = {
                 "value": value,
