@@ -158,7 +158,7 @@ def is_ts_file(file: str) -> None:
 # Check if the sheet exists
 def sheet_exists(workbook: Workbook, sheet_name: str) -> None:
     if sheet_name not in workbook.sheetnames:
-        raise Exception(f"Invalid sheet name in {sheet_name} sheet")
+        raise Exception(f"Sheet with name {sheet_name} does not exist")
 
 
 # Get workbook from Excel file
@@ -172,12 +172,13 @@ def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str
     # Get headers from the first row
     current_headers = [cell.value for cell in list(sheet.rows)[0]]
 
-    # Check if the good numbers of headers
-    if len(current_headers) != len(expected_headers):
-        raise Exception(f"Invalid number of column in {sheet_name} sheet")
+    # Check if the right numbers of headers
+    if len(current_headers) < len(expected_headers):
+        raise Exception(f"Too few columns in {sheet_name} sheet")
 
     # Check if the headers are valid
-    if current_headers != expected_headers:
-        raise Exception(f"Invalid headers in {sheet_name} sheet")
+    for expected in expected_headers:
+        if not expected in current_headers:
+            raise Exception(f"Missing expected header in {sheet_name} sheet: {expected}")
 
     return current_headers
