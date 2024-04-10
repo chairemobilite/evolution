@@ -42,6 +42,8 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
             has_custom_widgets_import = False
             has_custom_validations_import = False
             has_help_popup_import = False
+            has_persons_cnt_label = False
+            has_gendered_suffix_label = False
             for row in section_rows:
                 if row['choices']:
                     has_choices_import = True
@@ -56,9 +58,13 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                     has_custom_widgets_import = True
                 if row['help_popup'] or row['confirm_popup']:
                     has_help_popup_import = True
+                if 'hasPersonsCntLabel' in row and row['hasPersonsCntLabel'] == True:
+                    has_persons_cnt_label = True
+                if 'hasGenderedSuffixLabel' in row and row['hasGenderedSuffixLabel'] == True:
+                    has_gendered_suffix_label = True
 
             # Generate import statements
-            import_statements = generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import)
+            import_statements = generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import, has_persons_cnt_label, has_gendered_suffix_label)
 
             # Generate widgets statements
             widgets_statements = [generate_widget_statement(row) for row in section_rows]
@@ -104,29 +110,32 @@ def generate_widget_statement(row):
     input_range = row['inputRange']
     help_popup = row['help_popup']
     choices = row['choices']
-    confirm_popup = row['confirm_popup']
+    confirm_popup = row['confirm_popup'] if 'confirm_popup' in row else None
+    has_persons_cnt_label = row['hasPersonsCntLabel'] if 'hasPersonsCntLabel' in row else False
+    has_gendered_suffix_label = row['hasGenderedSuffixLabel'] if 'hasGenderedSuffixLabel' in row else False
+    widget_label = generate_label(section, path, has_persons_cnt_label, has_gendered_suffix_label)
 
     widget : str = ''
     if input_type == 'Custom':
         widget = generate_custom_widget(question_name)
     elif input_type == 'Radio':
-        widget = generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation)
+        widget = generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label)
     elif input_type == 'Select':
-        widget = generate_select_widget(question_name, section, path, choices, conditional, validation)
+        widget = generate_select_widget(question_name, section, path, choices, conditional, validation, widget_label)
     elif input_type == 'String':
-        widget = generate_string_widget(question_name, section, path, help_popup, conditional, validation)
+        widget = generate_string_widget(question_name, section, path, help_popup, conditional, validation, widget_label)
     elif input_type == 'Number':
-        widget = generate_number_widget(question_name, section, path, help_popup, conditional, validation)
+        widget = generate_number_widget(question_name, section, path, help_popup, conditional, validation, widget_label)
     elif input_type == 'InfoText':
         widget = generate_info_text_widget(question_name, section, path, conditional)
     elif input_type == 'Range':
-        widget = generate_range_widget(question_name, section, path, input_range, conditional, validation)
+        widget = generate_range_widget(question_name, section, path, input_range, conditional, validation, widget_label)
     elif input_type == 'Checkbox':
-        widget = generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation)
+        widget = generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label)
     elif input_type == 'NextButton':
-        widget = generate_next_button_widget(question_name, section, path, confirm_popup)
+        widget = generate_next_button_widget(question_name, section, path, confirm_popup, widget_label)
     elif input_type == 'Text':
-        widget = generate_text_widget(question_name, section, path, conditional, validation)
+        widget = generate_text_widget(question_name, section, path, conditional, validation, widget_label)
     else:
         widget = f"// {question_name}"
 
@@ -182,13 +191,15 @@ def generate_widgets_names_statements(section_rows):
 
 
 # Generate import statement if needed
-def generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import):
+def generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import, has_persons_cnt_label, has_gendered_suffix_label):
     choices_import = ("// " if not has_choices_import else "") + "import * as choices from '../../common/choices';\n"
     conditionals_import = ("// " if not has_conditionals_import else "") + "import * as conditionals from '../../common/conditionals';\n"
     custom_widgets_import = ("// " if not has_custom_widgets_import else "") + "import * as customWidgets from '../../common/customWidgets';\n"
     custom_validations_import = ("// " if not has_custom_widgets_import else "") + "import * as customValidations from '../../common/customValidations';\n"
     help_popup_import = ("// " if not has_help_popup_import else "") + "import * as helpPopup from '../../common/helpPopup';\n"
     input_range_import = ("// " if not has_input_range_import else "") + "import * as inputRange from '../../common/inputRange';\n"
+    cnt_person_import = "import { countPersons, getPerson } from '../../helperFunctions/helper';\n" if has_persons_cnt_label == True or has_gendered_suffix_label == True else ""
+    gendered_suffix_import = "import { getGenderedSuffixes } from '../../helperFunctions/frontendHelper';\n" if has_gendered_suffix_label == True else ""
     return f"import {{ TFunction }} from 'i18next';\n" \
             f"import * as defaultInputBase from 'evolution-generator/lib/common/defaultInputBase';\n" \
             f"import {{ defaultConditional }} from 'evolution-generator/lib/common/defaultConditional';\n" \
@@ -199,7 +210,9 @@ def generate_import_statements(has_choices_import, has_conditionals_import, has_
             f"import * as inputTypes from 'evolution-generator/lib/types/inputTypes';\n" \
             f"{input_range_import}" \
             f"{custom_validations_import}" \
-            f"import * as validations from 'evolution-generator/lib/common/validations';\n"
+            f"import * as validations from 'evolution-generator/lib/common/validations';\n" \
+            f"{cnt_person_import}" \
+            f"{gendered_suffix_import}"
 
 # Generate Custom widget
 def generate_custom_widget(question_name):
@@ -213,7 +226,22 @@ def generate_skip_line(skip_line): return f"{'\n' if skip_line else ''}"
 def generate_constExport(question_name, input_type): return f"export const {question_name}: inputTypes.{input_type} = {{"
 def generate_defaultInputBase(defaultInputBase): return f"{INDENT}...defaultInputBase.{defaultInputBase}"
 def generate_path(path): return f"{INDENT}path: '{path}'"
-def generate_label(section, path): return f"{INDENT}label: (t: TFunction) => t('{section}:{path}')"
+def generate_label(section, path, has_persons_cnt_label = False, has_gendered_suffix_label = False):
+    if not (has_persons_cnt_label == True or has_gendered_suffix_label == True): 
+        return f"{INDENT}label: (t: TFunction) => t('{section}:{path}')"
+    additional_t_context = f"{INDENT}{INDENT}{INDENT}nickname: person.nickname,\n"
+    initial_assignations = f"{INDENT}{INDENT}const person = getPerson(interview)\n"
+    if has_persons_cnt_label == True:
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}count: countPersons(interview),\n"
+    if has_gendered_suffix_label == True:
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}...getGenderedSuffixes(person, t)\n"
+    widget_label = f"{INDENT}label: (t: TFunction, interview, path) => {{\n" \
+        f"{initial_assignations}" \
+        f"{INDENT}{INDENT}return t('{section}:{path}', {{\n" \
+        f"{additional_t_context}" \
+        f"{INDENT}{INDENT}}});\n" \
+        f"{INDENT}}}"
+    return widget_label
 def generate_help_popup(help_popup, comma=True, skip_line=True):
     if help_popup:
         return f"{INDENT}helpPopup: helpPopup.{help_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
@@ -240,11 +268,11 @@ def generate_validation(validation):
         return f"{INDENT}validations: validations.{validation}"
 
 # Generate InputRadio widget
-def generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation):
+def generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label):
     return f"{generate_constExport(question_name, 'InputRadio')}\n" \
             f"{generate_defaultInputBase('inputRadioBase')},\n" \
             f"{generate_path(path)},\n" \
-            f"{generate_label(section, path)},\n" \
+            f"{widget_label},\n" \
             f"{generate_help_popup(help_popup)}" \
             f"{generate_choices(choices)},\n" \
             f"{generate_conditional(conditional)},\n" \
@@ -252,34 +280,34 @@ def generate_radio_widget(question_name, section, path, choices, help_popup, con
             f"}};"
 
 # Generate Select widget
-def generate_select_widget(question_name, section, path, choices, conditional, validation):
+def generate_select_widget(question_name, section, path, choices, conditional, validation, widget_label):
     return f"{generate_constExport(question_name, 'InputSelect')}\n" \
             f"{generate_defaultInputBase('inputSelectBase')},\n" \
             f"{generate_path(path)},\n" \
-            f"{generate_label(section, path)},\n" \
+            f"{widget_label},\n" \
             f"{generate_choices(choices)},\n" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"
 
 # Generate InputString widget
-def generate_string_widget(question_name, section, path, help_popup, conditional, validation):
+def generate_string_widget(question_name, section, path, help_popup, conditional, validation, widget_label):
     return f"{generate_constExport(question_name, 'InputString')}\n" \
             f"{generate_defaultInputBase('inputStringBase')},\n" \
             f"{generate_path(path)},\n" \
-            f"{generate_label(section, path)},\n" \
+            f"{widget_label},\n" \
             f"{generate_help_popup(help_popup)}" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"
 
 # Generate InputNumber widget
-def generate_number_widget(question_name, section, path, help_popup, conditional, validation):
+def generate_number_widget(question_name, section, path, help_popup, conditional, validation, widget_label):
     return f"{generate_constExport(question_name, 'InputString')}\n" \
             f"{generate_defaultInputBase('inputNumberBase')},\n" \
             f"{generate_path(path)},\n" \
-            f"{generate_label(section, path)},\n" \
-        f"{generate_help_popup(help_popup)}" \
+            f"{widget_label},\n" \
+            f"{generate_help_popup(help_popup)}" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"
@@ -293,22 +321,22 @@ def generate_info_text_widget(question_name, section, path, conditional):
             f"}};"
 
 # Generate InputRange widget
-def generate_range_widget(question_name, section, path, input_range, conditional, validation):
+def generate_range_widget(question_name, section, path, input_range, conditional, validation, widget_label):
     return f"{generate_constExport(question_name, 'InputRange')}\n" \
             f"{generate_defaultInputBase('inputRangeBase')},\n" \
             f"{INDENT}...inputRange.{input_range},\n" \
             f"{generate_path(path)},\n" \
-            f"{generate_label(section, path)},\n" \
+            f"{widget_label},\n" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"
 
 # Generate InputCheckbox widget
-def generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation):
+def generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label):
     return f"{generate_constExport(question_name, 'InputCheckbox')}\n" \
             f"{generate_defaultInputBase('inputCheckboxBase')},\n" \
             f"{generate_path(path)},\n" \
-            f"{generate_label(section, path)},\n" \
+            f"{widget_label},\n" \
             f"{generate_help_popup(help_popup)}" \
             f"{generate_choices(choices)},\n" \
             f"{generate_conditional(conditional)},\n" \
@@ -316,20 +344,20 @@ def generate_checkbox_widget(question_name, section, path, choices, help_popup, 
             f"}};"
 
 # Generate NextButton widget
-def generate_next_button_widget(question_name, section, path, confirm_popup):
+def generate_next_button_widget(question_name, section, path, confirm_popup, widget_label):
     return f"{generate_constExport(question_name, 'InputButton')}\n" \
             f"{generate_defaultInputBase('buttonNextBase')},\n" \
             f"{generate_path(path)},\n" \
             f"{generate_confirm_popup(confirm_popup)}" \
-            f"{generate_label(section, path)}\n" \
+            f"{widget_label}\n" \
             f"}};"
 
 # Generate Text textarea widget
-def generate_text_widget(question_name, section, path, conditional, validation):
+def generate_text_widget(question_name, section, path, conditional, validation, widget_label):
     return f"{generate_constExport(question_name, 'Text')}\n" \
             f"{generate_defaultInputBase('textBase')},\n" \
             f"{generate_path(path)},\n" \
-            f"{generate_label(section, path)},\n" \
+            f"{widget_label},\n" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"
