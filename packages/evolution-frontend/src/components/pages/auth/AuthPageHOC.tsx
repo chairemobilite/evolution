@@ -6,6 +6,7 @@ import { History, Location } from 'history';
 import appConfiguration from 'chaire-lib-frontend/lib/config/application.config';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import AnonymousLogin from 'chaire-lib-frontend/lib/components/forms/auth/anonymous/AnonymousLogin';
+import DirectTokenLogin from './DirectTokenLogin';
 
 export interface InjectedProps {
     isAuthenticated?: boolean;
@@ -17,6 +18,9 @@ export interface AuthPageProps extends InjectedProps {
     authMethod: string;
     translatableButtonText?: string;
 }
+
+// These authentication methods are managed differently and not in the wrapped component
+const unmanagedAuthMethods = ['facebook', 'google', 'anonymous', 'directToken'];
 
 /**
  * TODO Fix and type this class. Look at react hooks which are supposed to be
@@ -33,10 +37,7 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
         const authMethods = React.useMemo(
             () =>
                 config.auth
-                    ? Object.keys(config.auth).filter(
-                        (authMethod) =>
-                            authMethod !== 'facebook' && authMethod !== 'google' && authMethod !== 'anonymous'
-                    )
+                    ? Object.keys(config.auth).filter((authMethod) => !unmanagedAuthMethods.includes(authMethod))
                     : ['localLogin'],
             []
         );
@@ -211,6 +212,9 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
                                         </div>
                                     ))}
                             </div>
+                        )}
+                        {config.auth.directToken !== false && config.auth.directToken !== undefined && (
+                            <DirectTokenLogin {...props} />
                         )}
                     </div>
                     <div
