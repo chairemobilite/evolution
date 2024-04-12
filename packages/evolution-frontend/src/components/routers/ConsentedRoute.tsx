@@ -23,7 +23,8 @@ export const ConsentedRoute = ({ isAuthenticated, hasConsented, component: Compo
                 <Redirect
                     to={{
                         pathname: '/',
-                        state: { referrer: props.location }
+                        state: { referrer: props.location },
+                        search: props.location.search
                     }}
                 />
             );
