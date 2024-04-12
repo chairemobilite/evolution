@@ -226,7 +226,7 @@ export type InputMultiselect = {
 /* InputButton widgetConfig Type */
 export type InputButtonBase = {
     type: 'button';
-    color: 'green' | 'red';
+    color: 'green' | 'red' | 'blue' | 'grey';
     hideWhenRefreshing: boolean;
     icon: any;
     // icon: IconProp | IconDefinition;
@@ -241,7 +241,7 @@ export type InputButton = InputButtonBase & {
         shortname: string;
         content: Label;
         showConfirmButton?: boolean;
-        cancelButtonColor?: 'blue' | 'green';
+        cancelButtonColor?: 'green' | 'red' | 'blue' | 'grey';
         cancelButtonLabel?: Label;
         conditional?: Conditional;
     };
