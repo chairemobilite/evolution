@@ -18,6 +18,7 @@ const morgan           = require('morgan') // http logger
 import trRoutingRouter from 'chaire-lib-backend/lib/api/trRouting.routes';
 import { userAuthModel } from 'chaire-lib-backend/lib/services/auth/userAuthModel';
 import adminRoutes from '../../../routes/admin/admin.routes';
+import configurePassport from 'chaire-lib-backend/lib/config/auth';
 
 //const WebSocket        = require('ws');
 const requestIp        = require('request-ip');
@@ -58,6 +59,7 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
         saveUninitialized: false,
         store: sessionStore
     });
+    const passport = configurePassport(userAuthModel);
 
     app.use(morgan('combined', {
         // do not log if nolog=true is part of the url params:
@@ -68,9 +70,11 @@ export const setupServerApp = (app, serverSetupFct = undefined) => {
     app.use(session);
     app.use(requestIp.mw()); // to get users ip addresses
     app.use(favicon(path.join(publicDirectory, 'favicon.ico')));
+    app.use(passport.initialize());
+    app.use(passport.session());
 
     // TODO: move all routes to socket routes:
-    authRoutes(app, userAuthModel);
+    authRoutes(app, userAuthModel, passport);
 
     app.set('trust proxy',true); // allow nginx or other proxy server to send request ip address
 

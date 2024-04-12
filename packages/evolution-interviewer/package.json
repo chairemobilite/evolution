@@ -33,7 +33,7 @@
         "evolution-legacy": "0.2.2",
         "express": "^4.17.1",
         "i18next": "^22.4.15",
-        "knex": "^2.4.2",
+        "knex": "^3.1.0",
         "lodash": "^4.17.21",
         "moment": "^2.29.4",
         "papaparse": "^5.3.0",
