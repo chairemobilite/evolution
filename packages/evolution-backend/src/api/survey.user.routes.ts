@@ -122,11 +122,17 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                         fieldsToUpdate: ['responses', 'validations']
                     });
                     if (retInterview.serverValidations === true) {
-                        return res.status(200).json({
-                            status: 'success',
-                            interviewId: retInterview.interviewId,
-                            updatedValuesByPath: retInterview.serverValuesByPath
-                        });
+                        // TODO See if we can do a `res.redirect`. It does not work with a local server, as the browser gets CORS Missing Allow Origin messages
+                        return retInterview.redirectUrl === undefined
+                            ? res.status(200).json({
+                                status: 'success',
+                                interviewId: retInterview.interviewId,
+                                updatedValuesByPath: retInterview.serverValuesByPath
+                            })
+                            : res.status(200).json({
+                                status: 'redirect',
+                                redirectUrl: retInterview.redirectUrl
+                            });
                     }
                     return res.status(200).json({
                         status: 'invalid',

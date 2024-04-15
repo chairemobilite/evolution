@@ -3,9 +3,22 @@ import { getResponse } from 'evolution-common/lib/utils/helpers';
 import prefilledDbQueries from '../../models/interviewsPreFill.db.queries';
 
 /**
- * Type for callbacks when a response field gets updated. They key is the
- * complete path in the 'responses' field and the value is an object with the
- * corresponding fields that need to be updated.
+ * Return type of the values to update in the responses. The keys is the
+ * complete path in the 'responses' field and the value is the new value for
+ * this field.
+ */
+type FieldUpdateCallbackResponseCallbackType = { [affectedResponseFieldPath: string]: unknown };
+/**
+ * Return type of the callback. Either an object with the fields in the
+ * 'responses' to update, or an array with the field sto update, as well as a
+ * URL to which to redirect.
+ */
+type FieldUpdateCallbackReturnType =
+    | FieldUpdateCallbackResponseCallbackType
+    | [FieldUpdateCallbackResponseCallbackType, string];
+
+/**
+ * Type for callbacks when a response field gets updated.
  */
 export type ServerFieldUpdateCallback = {
     field: string | { regex: string };
@@ -13,25 +26,28 @@ export type ServerFieldUpdateCallback = {
         interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
         newValue: unknown | undefined,
         path: string
-    ) => Promise<{ [affectedResponseFieldPath: string]: unknown }>;
+    ) => Promise<FieldUpdateCallbackReturnType>;
 };
 
 const waitExecuteCallback = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    callbackPromise: Promise<{ [affectedResponseFieldPath: string]: unknown }>
-): Promise<{ [affectedResponseFieldPath: string]: unknown }> => {
+    callbackPromise: Promise<FieldUpdateCallbackReturnType>
+): Promise<[{ [affectedResponseFieldPath: string]: unknown }, string | undefined]> => {
     try {
         const serverValuesByPath = {};
-        const updatedValuesByPath = await callbackPromise;
+        const callbackResponse = await callbackPromise;
+        const [updatedValuesByPath, redirectUrl] = Array.isArray(callbackResponse)
+            ? callbackResponse
+            : [callbackResponse, undefined];
         Object.keys(updatedValuesByPath).forEach((key) => {
             if (getResponse(interview, key as any, undefined) !== updatedValuesByPath[key]) {
                 serverValuesByPath[`responses.${key}`] = updatedValuesByPath[key];
             }
         });
-        return serverValuesByPath;
+        return [serverValuesByPath, redirectUrl];
     } catch (error) {
         console.error(`Error executing field update callback: ${error}`);
-        return {};
+        return [{}, undefined];
     }
 };
 
@@ -71,23 +87,27 @@ const updateFields = async <CustomSurvey, CustomHousehold, CustomHome, CustomPer
     serverUpdateCallbacks: ServerFieldUpdateCallback[],
     valuesByPath: { [key: string]: unknown },
     unsetValues?: string[]
-): Promise<{ [key: string]: any }> => {
+): Promise<[{ [key: string]: any }, string | undefined]> => {
     if (serverUpdateCallbacks.length === 0) {
-        return {};
+        return [{}, undefined];
     }
 
     const serverValuesByPath = {};
+    let redirectUrl: string | undefined = undefined;
 
     const callbacks = Object.keys(valuesByPath)
         .map((path) => getUpdateCallbackForPath(serverUpdateCallbacks, path))
         .filter((callbackPair) => callbackPair !== undefined);
     for (let i = 0; i < callbacks.length; i++) {
         const [path, serverCallback] = callbacks[i] as [string, ServerFieldUpdateCallback];
-        const updatedValuesByPath = await waitExecuteCallback(
+        const [updatedValuesByPath, callbackUrl] = await waitExecuteCallback(
             interview,
             serverCallback.callback(interview, valuesByPath[`responses.${path}`], path)
         );
         Object.assign(serverValuesByPath, updatedValuesByPath);
+        if (callbackUrl !== undefined) {
+            redirectUrl = callbackUrl;
+        }
     }
     if (unsetValues) {
         const callbacks = unsetValues
@@ -95,15 +115,18 @@ const updateFields = async <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             .filter((callbackPair) => callbackPair !== undefined);
         for (let i = 0; i < callbacks.length; i++) {
             const [path, serverCallback] = callbacks[i] as [string, ServerFieldUpdateCallback];
-            const updatedValuesByPath = await waitExecuteCallback(
+            const [updatedValuesByPath, callbackUrl] = await waitExecuteCallback(
                 interview,
                 serverCallback.callback(interview, undefined, path)
             );
             Object.assign(serverValuesByPath, updatedValuesByPath);
+            if (callbackUrl !== undefined) {
+                redirectUrl = callbackUrl;
+            }
         }
     }
 
-    return serverValuesByPath;
+    return [serverValuesByPath, redirectUrl];
 };
 
 export type PreFillResponses = {

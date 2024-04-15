@@ -91,6 +91,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
               };
           };
     serverValuesByPath: { [key: string]: unknown };
+    redirectUrl: string | undefined;
 }> => {
     const fieldsToUpdate = options.fieldsToUpdate || ['responses', 'validations'];
     const logData = options.logData || {};
@@ -102,7 +103,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
     );
     // Update values by path with caller provided values
     setInterviewFields(interview, { valuesByPath: options.valuesByPath, unsetPaths: options.unsetPaths });
-    const serverValuesByPath = await serverUpdateField(
+    const [serverValuesByPath, redirectUrl] = await serverUpdateField(
         interview,
         projectConfig.serverUpdateCallbacks,
         options.valuesByPath,
@@ -159,7 +160,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
         databaseUpdateJson.is_frozen = true;
     }
     const retInterview = await interviewsDbQueries.update(interview.uuid, databaseUpdateJson);
-    return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath };
+    return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath, redirectUrl };
 };
 
 export const copyResponsesToValidatedData = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
