@@ -213,6 +213,9 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
                 if (typeof callback === 'function') {
                     callback(updatedInterview);
                 }
+            } else if (body.status === 'redirect') {
+                // Redirect to the specified URL
+                window.location.href = body.redirectUrl;
             } else {
                 // we need to do something if no interview is returned (error)
             }
