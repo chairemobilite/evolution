@@ -16,13 +16,16 @@ import config from 'chaire-lib-backend/lib/config/server.config';
 import { registerServerUpdateCallbacks } from '../../../config/projectConfig';
 
 jest.mock('../../validations/serverValidation', () =>
-    jest.fn().mockResolvedValue(true)
+    jest.fn()
 );
 const mockedServerValidate = serverValidate as jest.MockedFunction<typeof serverValidate>;
+mockedServerValidate.mockResolvedValue(true);
+
 jest.mock('../serverFieldUpdate', () =>
-    jest.fn().mockResolvedValue({})
+    jest.fn()
 );
 const mockedServerUpdate = serverUpdate as jest.MockedFunction<typeof serverUpdate>;
+mockedServerUpdate.mockResolvedValue([{}, undefined]);
 
 jest.mock('../../../models/interviews.db.queries', () => ({
     update: jest.fn()
@@ -359,12 +362,52 @@ describe('Update Interview', () => {
         ];
         registerServerUpdateCallbacks(updateCallbacks);
         const updatedValuesByPath = { 'responses.testFields.fieldB': 'newVal' };
-        mockedServerUpdate.mockResolvedValueOnce(updatedValuesByPath);
+        mockedServerUpdate.mockResolvedValueOnce([updatedValuesByPath, undefined]);
         const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths });
         registerServerUpdateCallbacks([]);
-        expect(interview.interviewId).toEqual(testAttributes.uuid);
-        expect(interview.serverValidations).toEqual(true);
-        expect(interview.serverValuesByPath).toEqual(updatedValuesByPath);
+        expect(interview).toEqual({
+            interviewId: testAttributes.uuid,
+            serverValidations: true,
+            serverValuesByPath: updatedValuesByPath,
+            redirectUrl: undefined
+        });
+
+        expect(mockedServerValidate).toHaveBeenCalledTimes(1);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
+        expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, updateCallbacks, valuesByPath, unsetPaths);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+        const expectedUpdatedValues = {
+            responses: _cloneDeep(interviewAttributes.responses) as any,
+            validations: _cloneDeep(interviewAttributes.validations) as any
+        };
+        expectedUpdatedValues.responses.testFields.fieldB = updatedValuesByPath['responses.testFields.fieldB'];
+        expectedUpdatedValues.responses.testFields.fieldA = valuesByPath['responses.testFields.fieldA'];
+        delete expectedUpdatedValues.responses.accessCode;
+        expectedUpdatedValues.validations = { testFields: { fieldA: valuesByPath['validations.testFields.fieldA'] } };
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+    });
+
+    test('With server field updates and redirect URL', async() => {
+        const testRedirectURL = 'http://localhost:8080/test';
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const valuesByPath = { 'responses.testFields.fieldB': 'abc', 'responses.testFields.fieldA': 'clientVal', 'validations.testFields.fieldA': true };
+        const unsetPaths = ['responses.accessCode'];
+        // Prepare server update responses, callbacks won't be called, but we need an object
+        const updateCallbacks = [
+            { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
+        ];
+        registerServerUpdateCallbacks(updateCallbacks);
+        const updatedValuesByPath = { 'responses.testFields.fieldB': 'newVal' };
+        mockedServerUpdate.mockResolvedValueOnce([updatedValuesByPath, testRedirectURL]);
+        const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths });
+        registerServerUpdateCallbacks([]);
+        expect(interview).toEqual({
+            interviewId: testAttributes.uuid,
+            serverValidations: true,
+            serverValuesByPath: updatedValuesByPath,
+            redirectUrl: testRedirectURL
+        });
 
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
