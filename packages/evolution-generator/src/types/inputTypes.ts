@@ -78,8 +78,6 @@ export type InputRadioBase = {
     type: 'question';
     inputType: 'radio';
     datatype: 'string' | 'integer' | 'boolean';
-    containsHtml: ContainsHtml;
-    twoColumns: TwoColumns;
     columns: Columns;
 };
 export type InputRadio = InputRadioBase & {
@@ -90,6 +88,8 @@ export type InputRadio = InputRadioBase & {
     conditional: Conditional;
     validations?: Validations;
     addCustom?: AddCustom;
+    containsHtml: ContainsHtml;
+    twoColumns: TwoColumns;
 };
 
 /* InputRadioNumber widgetConfig Type */
@@ -97,8 +97,6 @@ export type InputRadioNumberBase = {
     type: 'question';
     inputType: 'radioNumber';
     datatype: 'integer';
-    containsHtml: ContainsHtml;
-    twoColumns: TwoColumns;
     columns: Columns;
     sameLine?: boolean;
 };
@@ -113,6 +111,8 @@ export type InputRadioNumber = InputRadioNumberBase & {
     helpPopup?: HelpPopup;
     conditional: Conditional;
     validations?: Validations;
+    containsHtml: ContainsHtml;
+    twoColumns: TwoColumns;
 };
 
 /* InputString widgetConfig Type */
@@ -120,8 +120,6 @@ export type InputStringBase = {
     type: 'question';
     inputType: 'string';
     datatype: 'string' | 'integer';
-    containsHtml: ContainsHtml;
-    twoColumns: TwoColumns;
     size?: Size;
     inputFilter?: InputFilter;
     numericKeyboard?: boolean;
@@ -136,25 +134,25 @@ export type InputString = InputStringBase & {
     validations?: Validations;
     textTransform?: 'uppercase' | 'lowercase' | 'capitalize';
     defaultValue?: DefaultValue;
+    containsHtml: ContainsHtml;
+    twoColumns: TwoColumns;
 };
 
 /* Text widgetConfig Type */
 export type InfoTextBase = {
     type: 'text';
     align?: Align;
-    containsHtml: ContainsHtml;
 };
 export type InfoText = InfoTextBase & {
     text: TextKey;
     conditional: Conditional;
+    containsHtml: ContainsHtml;
 };
 
 /* InputRange widgetConfig Type */
 export type InputRangeBase = {
     type: 'question';
     inputType: 'slider';
-    containsHtml: ContainsHtml;
-    twoColumns: TwoColumns;
     initValue: null;
     trackClassName: string;
 };
@@ -169,6 +167,8 @@ export type InputRange = InputRangeBase &
         path: Path;
         label: Label;
         conditional: Conditional;
+        containsHtml: ContainsHtml;
+        twoColumns: TwoColumns;
         validations?: Validations;
     };
 
@@ -177,8 +177,6 @@ export type InputCheckboxBase = {
     type: 'question';
     inputType: 'checkbox';
     datatype: 'string' | 'integer';
-    containsHtml: ContainsHtml;
-    twoColumns: TwoColumns;
     multiple: Multiple;
     columns: Columns;
 };
@@ -190,6 +188,8 @@ export type InputCheckbox = InputCheckboxBase & {
     conditional: Conditional;
     validations?: Validations;
     addCustom?: AddCustom;
+    containsHtml: ContainsHtml;
+    twoColumns: TwoColumns;
 };
 
 /* InputSelect widgetConfig Type */
@@ -197,7 +197,6 @@ export type InputSelectBase = {
     type: 'question';
     inputType: 'select';
     datatype: 'string';
-    twoColumns: TwoColumns;
     hasGroups: boolean;
 };
 export type InputSelect = InputSelectBase & {
@@ -206,6 +205,8 @@ export type InputSelect = InputSelectBase & {
     choices: Choices;
     conditional: Conditional;
     validations?: Validations;
+    twoColumns: TwoColumns;
+    containsHtml: ContainsHtml;
 };
 
 /* InputMultiselect widgetConfig Type */
@@ -255,14 +256,14 @@ export type TextBase = {
     type: 'question';
     inputType: 'text';
     datatype: 'text';
-    containsHtml?: ContainsHtml;
-    twoColumns: false;
 };
 export type Text = TextBase & {
     path: Path;
     label: Label;
     conditional: Conditional;
     validations?: Validations;
+    containsHtml?: ContainsHtml;
+    twoColumns: false;
 };
 
 /* Group type */

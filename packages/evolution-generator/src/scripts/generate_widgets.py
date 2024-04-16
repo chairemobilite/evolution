@@ -77,6 +77,8 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
 
         # Process the output files based on sections
         for section in section_names:
+            if section is None:
+                continue
             transformed_content = convert_excel_to_typescript(section)
             widgets_output_path = widgets_output_folder + '/' + section
 
@@ -119,23 +121,23 @@ def generate_widget_statement(row):
     if input_type == 'Custom':
         widget = generate_custom_widget(question_name)
     elif input_type == 'Radio':
-        widget = generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label)
+        widget = generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label, row)
     elif input_type == 'Select':
-        widget = generate_select_widget(question_name, section, path, choices, conditional, validation, widget_label)
+        widget = generate_select_widget(question_name, section, path, choices, conditional, validation, widget_label, row)
     elif input_type == 'String':
-        widget = generate_string_widget(question_name, section, path, help_popup, conditional, validation, widget_label)
+        widget = generate_string_widget(question_name, section, path, help_popup, conditional, validation, widget_label, row)
     elif input_type == 'Number':
-        widget = generate_number_widget(question_name, section, path, help_popup, conditional, validation, widget_label)
+        widget = generate_number_widget(question_name, section, path, help_popup, conditional, validation, widget_label, row)
     elif input_type == 'InfoText':
-        widget = generate_info_text_widget(question_name, section, path, conditional)
+        widget = generate_info_text_widget(question_name, section, path, conditional, row)
     elif input_type == 'Range':
-        widget = generate_range_widget(question_name, section, path, input_range, conditional, validation, widget_label)
+        widget = generate_range_widget(question_name, section, path, input_range, conditional, validation, widget_label, row)
     elif input_type == 'Checkbox':
-        widget = generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label)
+        widget = generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label, row)
     elif input_type == 'NextButton':
-        widget = generate_next_button_widget(question_name, section, path, confirm_popup, widget_label)
+        widget = generate_next_button_widget(question_name, section, path, confirm_popup, widget_label, row)
     elif input_type == 'Text':
-        widget = generate_text_widget(question_name, section, path, conditional, validation, widget_label)
+        widget = generate_text_widget(question_name, section, path, conditional, validation, widget_label, row)
     else:
         widget = f"// {question_name}"
 
@@ -266,12 +268,29 @@ def generate_validation(validation):
     else:
         # Otherwise, use the provided validation
         return f"{INDENT}validations: validations.{validation}"
+def generate_two_columns(twoColumns, shouldAddTwoColumns):
+    if shouldAddTwoColumns:
+        return f"{INDENT}twoColumns: {'true' if twoColumns else 'false'},\n"
+    else:
+        return ""
+def generate_contains_html(containsHtml, shouldAddContainsHtml):
+    if shouldAddContainsHtml:
+        return f"{INDENT}containsHtml: {'true' if containsHtml else 'false'},\n"
+    else:
+        return ""
+def generate_common_properties(row, shouldAddTwoColumns = True, shouldAddContainsHtml = True):
+    twoColumns = row['twoColumns'] if 'twoColumns' in row else False
+    containsHtml = row['containsHtml'] if 'containsHtml' in row else False
+    return f"{generate_two_columns(twoColumns, shouldAddTwoColumns)}" \
+            f"{generate_contains_html(containsHtml, shouldAddContainsHtml)}"
+
 
 # Generate InputRadio widget
-def generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label):
+def generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label, row):
     return f"{generate_constExport(question_name, 'InputRadio')}\n" \
             f"{generate_defaultInputBase('inputRadioBase')},\n" \
             f"{generate_path(path)},\n" \
+            f"{generate_common_properties(row)}" \
             f"{widget_label},\n" \
             f"{generate_help_popup(help_popup)}" \
             f"{generate_choices(choices)},\n" \
@@ -280,10 +299,11 @@ def generate_radio_widget(question_name, section, path, choices, help_popup, con
             f"}};"
 
 # Generate Select widget
-def generate_select_widget(question_name, section, path, choices, conditional, validation, widget_label):
+def generate_select_widget(question_name, section, path, choices, conditional, validation, widget_label, row):
     return f"{generate_constExport(question_name, 'InputSelect')}\n" \
             f"{generate_defaultInputBase('inputSelectBase')},\n" \
             f"{generate_path(path)},\n" \
+            f"{generate_common_properties(row)}" \
             f"{widget_label},\n" \
             f"{generate_choices(choices)},\n" \
             f"{generate_conditional(conditional)},\n" \
@@ -291,10 +311,11 @@ def generate_select_widget(question_name, section, path, choices, conditional, v
             f"}};"
 
 # Generate InputString widget
-def generate_string_widget(question_name, section, path, help_popup, conditional, validation, widget_label):
+def generate_string_widget(question_name, section, path, help_popup, conditional, validation, widget_label, row):
     return f"{generate_constExport(question_name, 'InputString')}\n" \
             f"{generate_defaultInputBase('inputStringBase')},\n" \
             f"{generate_path(path)},\n" \
+            f"{generate_common_properties(row)}" \
             f"{widget_label},\n" \
             f"{generate_help_popup(help_popup)}" \
             f"{generate_conditional(conditional)},\n" \
@@ -302,10 +323,11 @@ def generate_string_widget(question_name, section, path, help_popup, conditional
             f"}};"
 
 # Generate InputNumber widget
-def generate_number_widget(question_name, section, path, help_popup, conditional, validation, widget_label):
+def generate_number_widget(question_name, section, path, help_popup, conditional, validation, widget_label, row):
     return f"{generate_constExport(question_name, 'InputString')}\n" \
             f"{generate_defaultInputBase('inputNumberBase')},\n" \
             f"{generate_path(path)},\n" \
+            f"{generate_common_properties(row)}" \
             f"{widget_label},\n" \
             f"{generate_help_popup(help_popup)}" \
             f"{generate_conditional(conditional)},\n" \
@@ -313,29 +335,32 @@ def generate_number_widget(question_name, section, path, help_popup, conditional
             f"}};"
 
 # Generate InfoText widget
-def generate_info_text_widget(question_name, section, path, conditional):
+def generate_info_text_widget(question_name, section, path, conditional, row):
     return f"{generate_constExport(question_name, 'InfoText')}\n" \
             f"{generate_defaultInputBase('infoTextBase')},\n" \
+            f"{generate_common_properties(row, shouldAddTwoColumns = False)}" \
             f"{generate_text(section, path)},\n" \
             f"{generate_conditional(conditional)}\n" \
             f"}};"
 
 # Generate InputRange widget
-def generate_range_widget(question_name, section, path, input_range, conditional, validation, widget_label):
+def generate_range_widget(question_name, section, path, input_range, conditional, validation, widget_label, row):
     return f"{generate_constExport(question_name, 'InputRange')}\n" \
             f"{generate_defaultInputBase('inputRangeBase')},\n" \
             f"{INDENT}...inputRange.{input_range},\n" \
             f"{generate_path(path)},\n" \
+            f"{generate_common_properties(row)}" \
             f"{widget_label},\n" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"
 
 # Generate InputCheckbox widget
-def generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label):
+def generate_checkbox_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label, row):
     return f"{generate_constExport(question_name, 'InputCheckbox')}\n" \
             f"{generate_defaultInputBase('inputCheckboxBase')},\n" \
             f"{generate_path(path)},\n" \
+            f"{generate_common_properties(row)}" \
             f"{widget_label},\n" \
             f"{generate_help_popup(help_popup)}" \
             f"{generate_choices(choices)},\n" \
@@ -344,7 +369,7 @@ def generate_checkbox_widget(question_name, section, path, choices, help_popup, 
             f"}};"
 
 # Generate NextButton widget
-def generate_next_button_widget(question_name, section, path, confirm_popup, widget_label):
+def generate_next_button_widget(question_name, section, path, confirm_popup, widget_label, row):
     return f"{generate_constExport(question_name, 'InputButton')}\n" \
             f"{generate_defaultInputBase('buttonNextBase')},\n" \
             f"{generate_path(path)},\n" \
@@ -353,10 +378,11 @@ def generate_next_button_widget(question_name, section, path, confirm_popup, wid
             f"}};"
 
 # Generate Text textarea widget
-def generate_text_widget(question_name, section, path, conditional, validation, widget_label):
+def generate_text_widget(question_name, section, path, conditional, validation, widget_label, row):
     return f"{generate_constExport(question_name, 'Text')}\n" \
             f"{generate_defaultInputBase('textBase')},\n" \
             f"{generate_path(path)},\n" \
+            f"{generate_common_properties(row)}" \
             f"{widget_label},\n" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
