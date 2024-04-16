@@ -19,8 +19,6 @@ export const inputRadioBase: inputTypes.InputRadioBase = {
     type: 'question',
     inputType: 'radio',
     datatype: 'string',
-    containsHtml: true,
-    twoColumns: false,
     columns: 1
 };
 
@@ -29,8 +27,6 @@ export const inputRadioNumberBase: inputTypes.InputRadioNumberBase = {
     type: 'question',
     inputType: 'radioNumber',
     datatype: 'integer',
-    containsHtml: true,
-    twoColumns: false,
     columns: 1,
     sameLine: true,
 };
@@ -40,8 +36,6 @@ export const inputStringBase: inputTypes.InputStringBase = {
     type: 'question',
     inputType: 'string',
     datatype: 'string',
-    containsHtml: true,
-    twoColumns: false
 };
 
 // Input Number default params
@@ -49,8 +43,6 @@ export const inputNumberBase: inputTypes.InputStringBase = {
     type: 'question',
     inputType: 'string',
     datatype: 'integer',
-    containsHtml: true,
-    twoColumns: false,
     size: 'small',
     inputFilter: (value) => {
         // Remove all non-numeric characters
@@ -62,16 +54,13 @@ export const inputNumberBase: inputTypes.InputStringBase = {
 
 // InfoText default params
 export const infoTextBase: inputTypes.InfoTextBase = {
-    type: 'text',
-    containsHtml: true
+    type: 'text'
 };
 
 // InputRange default params
 export const inputRangeBase: inputTypes.InputRangeBase = {
     type: 'question',
     inputType: 'slider',
-    containsHtml: true,
-    twoColumns: false,
     initValue: null,
     trackClassName: 'input-slider-blue'
 };
@@ -81,8 +70,6 @@ export const inputCheckboxBase: inputTypes.InputCheckboxBase = {
     type: 'question',
     inputType: 'checkbox',
     datatype: 'string',
-    containsHtml: true,
-    twoColumns: false,
     multiple: true,
     columns: 1
 };
@@ -92,7 +79,6 @@ export const inputSelectBase: inputTypes.InputSelectBase = {
     type: 'question',
     inputType: 'select',
     datatype: 'string',
-    twoColumns: false,
     hasGroups: true
 };
 
@@ -112,8 +98,6 @@ export const textBase: inputTypes.TextBase = {
     type: 'question',
     inputType: 'text',
     datatype: 'text',
-    containsHtml: true,
-    twoColumns: false
 };
 
 // Find map place default params
