@@ -99,7 +99,11 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
             # Add conditionals
             for index, conditional in enumerate(conditionals):
                 new_value = (
-                    int(conditional["value"])
+                    "true"
+                    if conditional["value"] is True
+                    else "false"
+                    if conditional["value"] is False
+                    else int(conditional["value"])
                     if str(conditional["value"]).isdigit()
                     else f"'{conditional['value']}'"
                 )
