@@ -206,7 +206,7 @@ export const postalCodeValidation: Validations = (value) => {
             }
         },
         {
-            validation: !/^[GHJKghjk][0-9][A-Za-z]( )?[0-9][A-Za-z][0-9]\s*$/.test(String(value)),
+            validation: !/^[A-Za-z][0-9][A-Za-z]( )?[0-9][A-Za-z][0-9]\s*$/.test(String(value)),
             errorMessage: {
                 fr: 'Le code postal est invalide. Vous devez résider au Canada pour compléter ce questionnaire.',
                 en: 'Postal code is invalid. You must live in Canada to fill this questionnaire.'
