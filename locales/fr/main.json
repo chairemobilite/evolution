@@ -35,5 +35,7 @@
   "AgreementText": "",
   "ErrorNotAgreed": "Vous devez accepter l'utilisation de vos données pour continuer vers l'enquête",
   "InterviewerMode": "Mode intervieweur",
-  "ParticipantMode": "Mode participant"
+  "ParticipantMode": "Mode participant",
+  "InputMapGeocodeNoResult": "La recherche n'a retourné aucun résultat",
+  "InputMapGeocodeError": "La recherche a produit une erreur, veuillez ré-essayer de géolocaliser le lieu ou localisez-le en cliquant sur la carte"
 }

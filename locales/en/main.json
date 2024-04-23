@@ -35,5 +35,7 @@
   "AgreementText": "",
   "ErrorNotAgreed": "You must accept usage of your date to continue to the survey",
   "InterviewerMode": "Interviewer mode",
-  "ParticipantMode": "Participant mode"
+  "ParticipantMode": "Participant mode",
+  "InputMapGeocodeNoResult": "The search did not return any result",
+  "InputMapGeocodeError": "The search returned an error, please try again to locate the location or click on the map to select the location"
 }
