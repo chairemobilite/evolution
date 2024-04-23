@@ -28,7 +28,7 @@ router.get('/interviewByCode', async (req, res) => {
             interviews
         });
     } catch (error) {
-        console.error(`Error getting interviews: ${error}`);
+        console.error(`Error getting interviews by code: ${error}`);
         return res.status(500).json({ status: 'Error' });
     }
 });
