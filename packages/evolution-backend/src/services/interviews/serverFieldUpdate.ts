@@ -31,7 +31,8 @@ export type ServerFieldUpdateCallback = {
 
 const waitExecuteCallback = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    callbackPromise: Promise<FieldUpdateCallbackReturnType>
+    callbackPromise: Promise<FieldUpdateCallbackReturnType>,
+    path: string
 ): Promise<[{ [affectedResponseFieldPath: string]: unknown }, string | undefined]> => {
     try {
         const serverValuesByPath = {};
@@ -46,7 +47,7 @@ const waitExecuteCallback = async <CustomSurvey, CustomHousehold, CustomHome, Cu
         });
         return [serverValuesByPath, redirectUrl];
     } catch (error) {
-        console.error(`Error executing field update callback: ${error}`);
+        console.error(`Error executing field update callback for path ${path}: ${error}`);
         return [{}, undefined];
     }
 };
@@ -102,7 +103,8 @@ const updateFields = async <CustomSurvey, CustomHousehold, CustomHome, CustomPer
         const [path, serverCallback] = callbacks[i] as [string, ServerFieldUpdateCallback];
         const [updatedValuesByPath, callbackUrl] = await waitExecuteCallback(
             interview,
-            serverCallback.callback(interview, valuesByPath[`responses.${path}`], path)
+            serverCallback.callback(interview, valuesByPath[`responses.${path}`], path),
+            path
         );
         Object.assign(serverValuesByPath, updatedValuesByPath);
         if (callbackUrl !== undefined) {
@@ -117,7 +119,8 @@ const updateFields = async <CustomSurvey, CustomHousehold, CustomHome, CustomPer
             const [path, serverCallback] = callbacks[i] as [string, ServerFieldUpdateCallback];
             const [updatedValuesByPath, callbackUrl] = await waitExecuteCallback(
                 interview,
-                serverCallback.callback(interview, undefined, path)
+                serverCallback.callback(interview, undefined, path),
+                path
             );
             Object.assign(serverValuesByPath, updatedValuesByPath);
             if (callbackUrl !== undefined) {
