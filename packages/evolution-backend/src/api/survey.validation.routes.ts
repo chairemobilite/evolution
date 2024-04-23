@@ -126,7 +126,7 @@ router.post(
             }
             return res.status(200).json({ status: 'failed', interviewId: null });
         } catch (error) {
-            console.error(`Error getting interviews: ${error}`);
+            console.error(`Error updating interview in validation mode: ${error}`);
             return res.status(500).json({ status: 'failed', interviewId: null });
         }
     }

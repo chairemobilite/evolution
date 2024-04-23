@@ -70,7 +70,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
             try {
                 activateInterview(req, res, (req) => Interviews.getUserInterview((req.user as UserAttributes).id));
             } catch (error) {
-                console.error(`Error getting interviews: ${error}`);
+                console.error(`Error opening participant's interview: ${error}`);
                 return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });
             }
         }
@@ -84,7 +84,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
             try {
                 activateInterview(req, res, (req) => Interviews.getInterviewByUuid(req.params.interviewId));
             } catch (error) {
-                console.error(`Error getting interviews: ${error}`);
+                console.error(`Error opening interview by id: ${error}`);
                 return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });
             }
         }
@@ -143,7 +143,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                 }
                 return res.status(200).json({ status: 'failed', interviewId: null });
             } catch (error) {
-                console.error(`Error getting interviews: ${error}`);
+                console.error(`Error updating interview: ${error}`);
                 return res.status(500).json({ status: 'failed', interviewId: null });
             }
         }
