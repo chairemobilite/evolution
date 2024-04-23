@@ -21,6 +21,7 @@ import { FeatureGeocodedProperties, MarkerData, defaultIconSize, PlaceGeocodedPr
 import InputSelect from './InputSelect';
 import { CommonInputProps } from './CommonInputProps';
 import Loader from 'react-spinners/HashLoader';
+import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
 
 // TODO Allow to support multiple maps and geocoders
 import InputMapGoogle from './maps/google/InputMapGoogle';
@@ -49,6 +50,7 @@ interface InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, Cust
      * geocoder. Some geocoders do not need any additional information, but some
      * need to match a map (for instance Google) */
     geocodingSpecificOptions: { [key: string]: unknown };
+    displayMessage?: string;
 }
 
 /**
@@ -223,7 +225,8 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                     {
                         places: features,
                         selectedPlace: isSingleResult ? features[0] : undefined,
-                        geocodingQueryString
+                        geocodingQueryString,
+                        displayMessage: features.length === 0 ? 'main:InputMapGeocodeNoResult' : undefined
                     },
                     () => {
                         // FIXME: In order to directly show the "geocoding is imprecise" warning if there is a *single* result
@@ -248,7 +251,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                 }
             } catch (error) {
                 surveyHelper.devLog(`Error geocoding places: ${error}`);
-                this.setState({ places: [], selectedPlace: undefined });
+                this.setState({ places: [], selectedPlace: undefined, displayMessage: 'main:InputMapGeocodeError' });
             } finally {
                 this.setState({ geocoding: false });
             }
@@ -466,6 +469,9 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                             <Loader size={30} color={'#aaaaaa'} loading={this.state.geocoding} />
                         </div>
                     </div>
+                )}
+                {this.state.displayMessage && (
+                    <SurveyErrorMessage containsHtml={false} text={this.props.t(this.state.displayMessage)} />
                 )}
 
                 {places.length > 0 && (

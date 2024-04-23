@@ -41,6 +41,9 @@ export const geocodeSinglePoint = (
                     feature.properties.geocodingQueryString = addressQueryString;
                 }
                 resolve(feature);
+            } else if (status === google.maps.GeocoderStatus.ZERO_RESULTS) {
+                // No result
+                resolve(undefined);
             } else {
                 reject(`Geocoding failed for ${addressQueryString}`);
             }
@@ -105,6 +108,12 @@ export const geocodeMultiplePlaces = (
                     >[];
 
                     resolve(places);
+                } else if (
+                    status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS ||
+                    status === google.maps.places.PlacesServiceStatus.NOT_FOUND
+                ) {
+                    // No result
+                    resolve([]);
                 } else {
                     reject(`Geocoding failed for ${geocodingQueryString}`);
                 }

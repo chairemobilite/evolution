@@ -20,6 +20,7 @@ import { CommonInputProps } from './CommonInputProps';
 // TODO Allow to support multiple maps and geocoders
 import InputMapGoogle from './maps/google/InputMapGoogle';
 import { geocodeSinglePoint } from './maps/google/GoogleGeocoder';
+import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
 
 export type InputMapPointProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
     CustomSurvey,
@@ -36,6 +37,7 @@ interface InputMapPointState {
     defaultCenter: any;
     currentBounds?: [number, number, number, number];
     markers: MarkerData[];
+    displayMessage?: string;
 }
 
 /**
@@ -136,8 +138,10 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
             try {
                 const feature = await geocodeSinglePoint(geocodingQueryString, { bbox });
                 this.onValueChange(feature);
+                this.setState({ displayMessage: feature === undefined ? 'main:InputMapGeocodeNoResult' : undefined });
             } catch (error) {
                 this.onValueChange(undefined);
+                this.setState({ displayMessage: 'main:InputMapGeocodeError' });
             }
         }
     };
@@ -182,6 +186,9 @@ export class InputMapPoint<CustomSurvey, CustomHousehold, CustomHome, CustomPers
                             this.props.user
                         )}
                     </button>
+                )}
+                {this.state.displayMessage && (
+                    <SurveyErrorMessage containsHtml={false} text={this.props.t(this.state.displayMessage)} />
                 )}
                 <div aria-hidden="true" className="survey-question__input-map-container">
                     <InputMapGoogle
