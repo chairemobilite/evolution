@@ -48,8 +48,7 @@ export const inputNumberBase: inputTypes.InputStringBase = {
         // Remove all non-numeric characters
         return value.replace(/[^0-9]/g, '');
     },
-    // FIXME: numericKeyboard doesn't seem to work
-    numericKeyboard: true
+    keyboardInputMode: 'numeric'
 };
 
 // InfoText default params
