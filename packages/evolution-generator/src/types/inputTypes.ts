@@ -122,7 +122,7 @@ export type InputStringBase = {
     datatype: 'string' | 'integer';
     size?: Size;
     inputFilter?: InputFilter;
-    numericKeyboard?: boolean;
+    keyboardInputMode?: 'none' | 'text' | 'numeric' | 'decimal' | 'tel' | 'search' | 'email' | 'url';
     maxLength?: number;
     placeholder?: Placeholder;
 };
