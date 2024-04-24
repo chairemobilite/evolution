@@ -39,6 +39,10 @@ export type InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, Cu
     widgetConfig: InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
 };
 
+// Path to default icons
+const defaultMarkerUrl = '/dist/images/activities_icons/default_marker.svg';
+const defaultSelectedMarkerUrl = '/dist/images/activities_icons/default_selected_marker.svg';
+
 interface InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
     geocoding: boolean;
     geocodingQueryString?: string;
@@ -91,7 +95,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
 
         this.autoConfirmIfSingleResult = this.props.widgetConfig.autoConfirmIfSingleResult || false;
 
-        this.selectedIconUrl = '/dist/images/activities_icons/default_selected_marker.svg';
+        this.selectedIconUrl = defaultSelectedMarkerUrl;
 
         this.state = {
             geocoding: false,
@@ -349,8 +353,8 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                 this.props.interview,
                 this.props.path,
                 this.props.user
-            ) || '/dist/images/default_marker.svg'
-            : '/dist/images/default_marker.svg';
+            ) || defaultMarkerUrl
+            : defaultMarkerUrl;
 
         const placesIconSize =
             this.props.widgetConfig.placesIcon && this.props.widgetConfig.placesIcon.size
@@ -363,8 +367,8 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
                 this.props.interview,
                 this.props.path,
                 this.props.user
-            ) || '/dist/images/default_marker.svg'
-            : '/dist/images/default_marker.svg';
+            ) || defaultMarkerUrl
+            : defaultMarkerUrl;
 
         const iconSize =
             this.props.widgetConfig.icon && this.props.widgetConfig.icon.size
