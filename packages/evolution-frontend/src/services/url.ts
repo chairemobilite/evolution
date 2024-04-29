@@ -1,3 +1,10 @@
+/*
+ * Copyright 2023, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
 /**
  * Get the path in the URL for a given section
  * @param currentPath The current location path of the page
