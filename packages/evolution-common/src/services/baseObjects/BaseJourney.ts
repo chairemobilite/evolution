@@ -25,7 +25,6 @@ type BaseJourneyAttributes = {
     endDate?: string; // string, YYYY-MM-DD
     endTime?: number;
     name?: string;
-
 } & Weightable;
 
 type ExtendedJourneyAttributes = BaseJourneyAttributes & { [key: string]: any };
@@ -120,7 +119,9 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
             dirtyParams.startDate !== undefined &&
             (!(startDateObj instanceof Date) || (startDateObj !== undefined && isNaN(startDateObj.getDate())))
         ) {
-            errors.push(new Error('BaseJourney validateParams: startDate is required and should be a valid date string'));
+            errors.push(
+                new Error('BaseJourney validateParams: startDate is required and should be a valid date string')
+            );
         }
 
         // Validate startTime

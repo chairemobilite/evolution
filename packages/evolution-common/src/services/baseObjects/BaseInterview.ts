@@ -82,7 +82,13 @@ export class BaseInterview extends Surveyable implements IValidatable {
     }
 
     // params must be sanitized and must be valid:
-    static unserialize(params: BaseInterviewAttributes & { survey: SurveyAttributes; sample: SampleAttributes, sampleBatchNumber?: number }): BaseInterview {
+    static unserialize(
+        params: BaseInterviewAttributes & {
+            survey: SurveyAttributes;
+            sample: SampleAttributes;
+            sampleBatchNumber?: number;
+        }
+    ): BaseInterview {
         const survey = Survey.unserialize(params.survey);
         const sample = Sample.unserialize(params.sample);
         return new BaseInterview({ ...params, survey, sample, sampleBatchNumber: params.sampleBatchNumber });
@@ -106,7 +112,9 @@ export class BaseInterview extends Surveyable implements IValidatable {
      */
     static create(dirtyParams: { [key: string]: any }): BaseInterview | Error[] {
         const errors = BaseInterview.validateParams(dirtyParams);
-        return errors.length > 0 ? errors : new BaseInterview(dirtyParams as (ExtendedInterviewAttributes & SurveyableAttributes));
+        return errors.length > 0
+            ? errors
+            : new BaseInterview(dirtyParams as ExtendedInterviewAttributes & SurveyableAttributes);
     }
 
     /**
@@ -162,7 +170,8 @@ export class BaseInterview extends Surveyable implements IValidatable {
         const assignedDateObj = parseDate(dirtyParams.assignedDate);
         // Validate assignedDate (if provided)
         if (
-            dirtyParams.assignedDate !== undefined && (!(assignedDateObj instanceof Date) || (assignedDateObj !== undefined && isNaN(assignedDateObj.getDate())))
+            dirtyParams.assignedDate !== undefined &&
+            (!(assignedDateObj instanceof Date) || (assignedDateObj !== undefined && isNaN(assignedDateObj.getDate())))
         ) {
             errors.push(new Error('BaseInterview validateParams: assignedDate should be a valid date string'));
         }
