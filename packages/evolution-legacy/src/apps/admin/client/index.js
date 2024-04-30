@@ -15,13 +15,13 @@ import config from 'chaire-lib-frontend/lib/config/project.config';
 import i18n              from '../../../config/survey/i18n.config';
 import SurveyRouter      from './SurveyRouter';
 import configureStore    from '../../../store/survey/configureStore';
-import { login, logout } from '../../../actions/shared/auth';
 import LoadingPage       from '../../../components/shared/LoadingPage';
 import { InterviewContext, interviewReducer, initialState } from 'evolution-frontend/lib/contexts/InterviewContext';
 // TODO When the project is the root of the application (instead of evolution directly importing project files), this should go in the project
 import { SurveyContext, surveyReducer } from 'evolution-frontend/lib/contexts/SurveyContext';
 import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 import '../../../styles/survey/styles-survey.scss';
+import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
   
 // TODO This is a workaround to get the links to the user, until some more complete solution is implemented (see https://github.com/chairemobilite/transition/issues/1516)
 const pages = [
@@ -64,30 +64,5 @@ export default () => {
     
     ReactDOM.render(<LoadingPage />, document.getElementById('app'));
     
-    fetch('/verifyAuthentication', { credentials: 'include' }).then((response) => {
-      //console.log('verifying authentication');
-      if (response.status === 200) {
-        // authorized (user authentication succeeded)
-        response.json().then((body) => {
-          if (body.user)
-          {
-            store.dispatch(login(body.user, true));
-            renderApp();
-          }
-          else
-          {
-            store.dispatch(logout());
-            renderApp();
-          }
-        });
-      }
-      else if (response.status === 401) {
-        store.dispatch(logout());
-        renderApp();
-        //history.push('/home');
-      }
-    })
-    .catch((err) => {
-      console.log('Error logging in.', err);
-    });
+    verifyAuthentication(store.dispatch).finally(() => renderApp());
 }
