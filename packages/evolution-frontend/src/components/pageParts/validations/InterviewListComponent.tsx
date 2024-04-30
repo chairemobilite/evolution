@@ -6,6 +6,7 @@
  */
 import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
+import { connect } from 'react-redux';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/interviews/interview';
 import InterviewList from './InterviewList';
@@ -18,6 +19,8 @@ import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExcla
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
 import { faEnvelope as faValidationComment } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { handleHttpOtherResponseCode } from '../../../services/errorManagement/errorHandling';
+import { Dispatch } from 'redux';
 
 interface InterviewListComponentProps extends WithTranslation {
     onInterviewSummaryChanged: (uuid: string, prevUuid?: string, nextUuid?: string) => void;
@@ -25,6 +28,7 @@ interface InterviewListComponentProps extends WithTranslation {
     interviewListChange: (show: boolean) => void;
     showInterviewList: boolean;
     validationInterview: any;
+    dispatch: Dispatch;
 }
 
 const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = <
@@ -109,6 +113,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 setTotalCount(totalCount);
             } else {
                 console.error('Invalid response code from server: ', response.status);
+                handleHttpOtherResponseCode(response.status, props.dispatch);
             }
         } catch (error) {
             console.error(`Error fetching user data from server: ${error}`);
@@ -244,4 +249,8 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
     );
 };
 
-export default withTranslation(['admin', 'main'])(InterviewListComponent);
+const mapDispatchToProps = (dispatch, props: Omit<InterviewListComponentProps, 'dispatch'>) => ({
+    dispatch
+});
+
+export default connect(undefined, mapDispatchToProps)(withTranslation(['admin', 'main'])(InterviewListComponent));

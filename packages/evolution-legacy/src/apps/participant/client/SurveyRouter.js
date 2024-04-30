@@ -9,7 +9,7 @@ import { Route, Switch } from 'react-router-dom';
 
 import HomePage from '../../../components/survey/HomePage';
 import NotFoundPage from 'chaire-lib-frontend/lib/components/pages/NotFoundPage';
-import UnauthorizedPage from 'chaire-lib-frontend/lib/components/pages/UnauthorizedPage';
+import UnauthorizedPage from 'evolution-frontend/lib/components/pages/UnauthorizedPage';
 import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/MaintenancePage';
 import LoginPage from 'evolution-frontend/lib/components/pages/auth/LoginPage';
 import RegisterWithPasswordPage from 'evolution-frontend/lib/components/pages/auth/RegisterPage';

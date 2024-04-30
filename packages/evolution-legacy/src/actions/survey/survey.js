@@ -35,6 +35,7 @@ import * as surveyHelperNew                             from 'evolution-common/l
 import { incrementLoadingState, decrementLoadingState } from '../shared/loadingState.js';
 import config                                           from 'chaire-lib-common/lib/config/shared/project.config';
 import { updateSection as updateSectionTs, startUpdateInterview as startUpdateInterviewTs, updateInterview as updateInterviewTs } from 'evolution-frontend/lib/actions/Survey';
+import { handleHttpOtherResponseCode } from 'evolution-frontend/lib/services/errorManagement/errorHandling';
 
 //export const setInterview = (interview) => ({
 //  type: 'SET_INTERVIEW',
@@ -201,9 +202,7 @@ export const startSetInterview = (activeSection = null, surveyUuid = undefined, 
         });
       } else {
         console.log(`Get active interview: wrong responses status: ${response.status}`);
-        if (history && response.status === 401)  {
-          history.push('/unauthorized');
-        }
+        handleHttpOtherResponseCode(response.status, dispath);
       }
     })
     .catch((err) => {
@@ -255,6 +254,9 @@ export const startCreateInterview = (preFilledResponses = undefined) => {
             // we need to do something if no interview is returned (error)
           }
         });
+      } else {
+        console.log(`Creating interview: wrong responses status: ${response.status}`);
+        handleHttpOtherResponseCode(response.status, dispath);
       }
     })
     .catch((err) => {
@@ -377,7 +379,7 @@ export const startUpdateSurveyValidateInterview = function(sectionShortname, val
         });
         if (response.status === 200) {
           const body = await response.json();
-          if (body.status == 'success' && body.interviewId == interview.uuid)
+          if (body.status === 'success' && body.interviewId === interview.uuid)
           {
             //surveyHelperNew.devLog('Interview saved to db');
             //setTimeout(function() {
@@ -392,6 +394,9 @@ export const startUpdateSurveyValidateInterview = function(sectionShortname, val
           {
             // we need to do something if no interview is returned (error)
           }
+        } else {
+          console.log(`startUpdateSurveyValidateInterview: wrong responses status: ${response.status}`);
+          handleHttpOtherResponseCode(response.status, dispath);
         }
         // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
         dispatch(decrementLoadingState());
@@ -520,6 +525,9 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
             dispatch(decrementLoadingState());
             // we need to do something if no interview is returned (error)
           }
+        } else {
+          console.log(`startUpdateValidateInterview: wrong responses status: ${response.status}`);
+          handleHttpOtherResponseCode(response.status, dispath);
         }
       } catch(error) {
         console.log('Error updating interview', error);
