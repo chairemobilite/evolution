@@ -10,7 +10,7 @@ import { Route, Switch } from 'react-router-dom';
 import HomePage from '../../../components/survey/HomePage';
 import NotFoundPage from 'chaire-lib-frontend/lib/components/pages/NotFoundPage';
 import UnauthorizedPage from 'evolution-frontend/lib/components/pages/UnauthorizedPage';
-import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/MaintenancePage';
+import SurveyErrorPage from 'evolution-frontend/lib/components/pages/SurveyErrorPage';
 import LoginPage from 'evolution-frontend/lib/components/pages/auth/LoginPage';
 import RegisterWithPasswordPage from 'evolution-frontend/lib/components/pages/auth/RegisterPage';
 import ForgotPasswordPage from 'chaire-lib-frontend/lib/components/pages/ForgotPasswordPage';
@@ -42,7 +42,7 @@ const SurveyRouter = () => (
     <PublicRoute   path="/reset/:token" component={ResetPasswordPage} />
     <PublicRoute   path="/consent_form" component={config.consentFormPage === true ? ConsentFormPage : NotFoundPage}/>
     <PublicRoute   path="/unauthorized" component={UnauthorizedPage} />
-    <PublicRoute   path="/maintenance" component={() => <MaintenancePage linkPath={'/survey'}/>} />
+    <PublicRoute   path="/error" component={SurveyErrorPage} />
     <PublicRoute   path="/magic/verify" component={MagicLinkVerifyPage} />
     <PublicRoute   path="/checkMagicEmail" component={CheckMagicEmailPage} />
     <PrivateRoute  path="/survey/:sectionShortname" component={Survey} />

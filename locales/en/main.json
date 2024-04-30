@@ -37,5 +37,9 @@
   "InterviewerMode": "Interviewer mode",
   "ParticipantMode": "Participant mode",
   "InputMapGeocodeNoResult": "The search did not return any result",
-  "InputMapGeocodeError": "The search returned an error, please try again to locate the location or click on the map to select the location"
+  "InputMapGeocodeError": "The search returned an error, please try again to locate the location or click on the map to select the location",
+  "BackToSurveyPage": "Back to survey",
+  "AnErrorOccurred": "An error occurred.",
+  "MakeSureReliableConnection": "Make sure you have a reliable internet connection.",
+  "ErrorPersistsWhatToDo": "If the problem persists, please contact the survey administrators."
 }
