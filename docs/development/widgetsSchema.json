@@ -374,7 +374,7 @@
       "end"
     ],
     "paths": [
-      "household.carNumberElectric",
+      "household.carNumberElectric"
     ],
     "inputTypes": [
       "InputRadioInteger",
@@ -1645,5 +1645,1427 @@
       "person.didTripsOnTripsDate"
     ],
     "comments": "Indicates if the person has omitted trips in their reporting"
+  },
+  "selectPerson": {
+    "surveyObject": "Person",
+    "sections": [
+      "selectPerson"
+    ],
+    "paths": [
+      "person._activePersonId"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "household.members.length"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Household"
+    ],
+    "relatedPaths": [
+      "household.members[]",
+      "person.nickname",
+      "person.age",
+      "person.gender"
+    ],
+    "comments": "Allows selecting a specific person from the next section"
+  },
+  "activePersonTitle": {
+    "surveyObject": "Person",
+    "sections": [
+      "household",
+      "tripsIntro",
+      "visitedPlaces",
+      "trips",
+      "end"
+    ],
+    "paths": [
+      "person._activePerson"
+    ],
+    "inputTypes": [
+      "InfoText"
+    ],
+    "datatype": "text",
+    "conditionals": [
+      "person.nickname"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "person.nickname"
+    ],
+    "comments": "Displays the title for the active person, including their nickname"
+  },
+  "personWhoWillAnswerForThisPerson": {
+    "surveyObject": "Person",
+    "sections": [
+      "tripsIntro",
+      "profile"
+    ],
+    "paths": [
+      "person.whoWillAnswerForThisPerson"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "household.members.length"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "household.members[]",
+      "person.nickname"
+    ],
+    "comments": "Indicates who will answer the section for the selected person"
+  },
+  "visitedPlacesIntro": {
+    "surveyObject": "Journey",
+    "sections": [
+      "tripsIntro"
+    ],
+    "paths": [
+      "journey.visitedPlacesIntro"
+    ],
+    "inputTypes": [
+      "InfoText"
+    ],
+    "datatype": "text",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Introductory text for the visited places section"
+  },
+  "journeyDeparturePlaceIsHome": {
+    "surveyObject": "Journey",
+    "sections": [
+      "tripsIntro",
+      "visitedPlaces"
+    ],
+    "paths": [
+      "journey.departurePlaceIsHome"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "boolean",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "VisitedPlace"
+    ],
+    "relatedPaths": [
+      "journey.departurePlaceOther",
+      "journey.visitedPlaces[]"
+    ],
+    "comments": "Indicates if the departure place for the journey is home"
+  },
+  "journeyDeparturePlaceOther": {
+    "surveyObject": "Journey",
+    "sections": [
+      "tripsIntro",
+      "visitedPlaces"
+    ],
+    "paths": [
+      "journey.departurePlaceType"
+    ],
+    "inputTypes": [
+      "inputRadio",
+      "inputSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "journey.departurePlaceIsHome"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "VisitedPlace"
+    ],
+    "relatedPaths": [
+      "journey.departurePlaceIsHome",
+      "journey.VisitedPlaces[]"
+    ],
+    "comments": "Type of the departure place if it is not home"
+  },
+  "visitedPlaceActivityCategory": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.activityCategory"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "visitedPlace.activity",
+      "visitedPlace.activityPre"
+    ],
+    "comments": "Category of the activity performed at the visited place, usually not asked, but infered from activity"
+  },
+  "visitedPlaceActivityPre": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.activityPre"
+    ],
+    "inputTypes": [
+      "InputRadio",
+      "InputSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person",
+      "Journey"
+    ],
+    "relatedPaths": [
+      "person.age",
+      "person.workerType",
+      "person.studentType",
+      "journey.departurePlaceIsHome",
+      "journey.departurePlaceOther"
+    ],
+    "comments": "Pre choice for activity selection (to reduce number of choices)"
+  },
+  "visitedPlaceActivity": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.activity"
+    ],
+    "inputTypes": [
+      "InputRadio",
+      "InputSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "visitedPlace.activityPre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person",
+      "Journey"
+    ],
+    "relatedPaths": [
+      "visitedPlace.activityPre",
+      "person.age",
+      "person.workerType",
+      "person.studentType",
+      "journey.departurePlaceIsHome",
+      "journey.departurePlaceOther"
+    ],
+    "comments": "Specific activity performed at the visited place"
+  },
+  "visitedPlaceActivitySpecify": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.activitySpecify"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "visitedPlace.activity"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "visitedPlace.activity"
+    ],
+    "comments": "Specification of the activity if 'Other' is selected"
+  },
+  "visitedPlaceOnTheRoadDepartureType": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.onTheRoadDepartureType"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "visitedPlace.activityPre",
+      "visitedPlace.activity"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person",
+      "Journey"
+    ],
+    "relatedPaths": [
+      "visitedPlace.activityPre",
+      "visitedPlace.activity",
+      "person.workerType"
+    ],
+    "comments": "Type of on-the-road departure for the visited place"
+  },
+  "visitedPlaceOnTheRoadArrivalType": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.onTheRoadArrivalType"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "visitedPlace.activityCategory",
+      "visitedPlace.activity"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person",
+      "Journey"
+    ],
+    "relatedPaths": [
+      "visitedPlace.activityCategory",
+      "visitedPlace.activity",
+      "person.workerType"
+    ],
+    "comments": "Type of on-the-road arrival for the visited place"
+  },
+  "visitedPlaceAlreadyVisited": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.alreadyVisited"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "boolean",
+    "conditionals": [
+      "visitedPlace.activity",
+      "visitedPlace.activityPre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "visitedPlace.activity",
+      "visitedPlace.activityPre"
+    ],
+    "comments": "Indicates if the place has already been visited during the journey"
+  },
+  "visitedPlaceShortcut": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.shortcut"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "visitedPlace.alreadyVisited"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person",
+      "Household",
+      "Journey"
+    ],
+    "relatedPaths": [
+      "visitedPlace.alreadyVisited",
+      "household.members[].journeys[].visitedPlaces[]",
+      "person.journeys[].visitedPlaces[]",
+      "journey.visitedPlaces[]"
+    ],
+    "comments": "Shortcut to select a previously visited place, by same person or another household member"
+  },
+  "visitedPlaceName": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.name"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "visitedPlace.activity",
+      "visitedPlace.activityPre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "visitedPlace.activity",
+      "visitedPlace.activityPre"
+    ],
+    "comments": "Name of the visited place"
+  },
+  "visitedPlaceQueryString": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.queryString"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "visitedPlace.activity",
+      "visitedPlace.activityPre",
+      "visitedPlace.name"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "visitedPlace.name",
+      "visitedPlace.activity",
+      "visitedPlace.activityPre"
+    ],
+    "comments": "Name of the visited place"
+  },
+  "visitedPlaceGeography": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.geography"
+    ],
+    "inputTypes": [
+      "InputMapFindPlace",
+      "InputMapPoint"
+    ],
+    "datatype": "geojson",
+    "conditionals": [
+      "visitedPlace.queryString",
+      "visitedPlace.name",
+      "visitedPlace.activity",
+      "visitedPlace.activityPre"
+    ],
+    "validations": [
+      "outsideWater"
+    ],
+    "relatedSurveyObjects": [
+      "Home"
+    ],
+    "relatedPaths": [
+      "visitedPlace.queryString",
+      "visitedPlace.name",
+      "visitedPlace.activity",
+      "visitedPlace.activityPre",
+      "household.home.geography"
+    ],
+    "comments": "Geographic location of the visited place"
+  },
+  "visitedPlacePreviousPreviousDepartureTime": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.previousPreviousDepartureTime"
+    ],
+    "inputTypes": [
+      "InputTime"
+    ],
+    "datatype": "time",
+    "conditionals": [
+      "isFirstOrSecondAfterDeparture"
+    ],
+    "validations": [
+      "timeSequences"
+    ],
+    "relatedSurveyObjects": [
+      "Journey",
+      "VisitedPlace"
+    ],
+    "relatedPaths": [
+      "journey.VisitedPlaces[]",
+      "journey"
+    ],
+    "comments": "Departure time from the place before the previous visited place"
+  },
+  "visitedPlacePreviousArrivalTime": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.previousArrivalTime"
+    ],
+    "inputTypes": [
+      "InputTime"
+    ],
+    "datatype": "time",
+    "conditionals": [
+      "isFirstOrSecondAfterDeparture"
+    ],
+    "validations": [
+      "timeSequences"
+    ],
+    "relatedSurveyObjects": [
+      "Journey",
+      "VisitedPlace"
+    ],
+    "relatedPaths": [
+      "journey.VisitedPlaces[]",
+      "journey"
+    ],
+    "comments": "Arrival time at the previous visited place"
+  },
+  "visitedPlacePreviousDepartureTime": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.previousDepartureTime"
+    ],
+    "inputTypes": [
+      "InputTime"
+    ],
+    "datatype": "time",
+    "conditionals": [
+      "isFirstOrSecondAfterDeparture"
+    ],
+    "validations": [
+      "timeSequences"
+    ],
+    "relatedSurveyObjects": [
+      "Journey",
+      "VisitedPlace"
+    ],
+    "relatedPaths": [
+      "journey.VisitedPlaces[]",
+      "journey"
+    ],
+    "comments": "Departure time from the previous visited place"
+  },
+  "visitedPlaceArrivalTime": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.arrivalTime"
+    ],
+    "inputTypes": [
+      "InputTime"
+    ],
+    "datatype": "time",
+    "conditionals": [
+      "isNotLast"
+    ],
+    "validations": [
+      "timeSequences"
+    ],
+    "relatedSurveyObjects": [
+      "VisitedPlace",
+      "Journey"
+    ],
+    "relatedPaths": [
+      "visitedPlace.departureTime",
+      "journey.VisitedPlaces[]",
+      "journey"
+    ],
+    "comments": "Arrival time at the current visited place"
+  },
+  "visitedPlaceNextPlaceCategory": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.nextPlaceCategory"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "isLast"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "VisitedPlace",
+      "Journey"
+    ],
+    "relatedPaths": [],
+    "comments": "Category of the next place to visit"
+  },
+  "visitedPlaceDepartureTime": {
+    "surveyObject": "VisitedPlace",
+    "sections": [
+      "visitedPlaces"
+    ],
+    "paths": [
+      "visitedPlace.departureTime"
+    ],
+    "inputTypes": [
+      "InputTime"
+    ],
+    "datatype": "time",
+    "conditionals": [
+      "isNotLast"
+    ],
+    "validations": [
+      "timeSequences"
+    ],
+    "relatedSurveyObjects": [
+      "VisitedPlace",
+      "Journey"
+    ],
+    "relatedPaths": [
+      "visitedPlace.arrivalTime",
+      "journey.VisitedPlaces[]",
+      "journey"
+    ],
+    "comments": "Departure time from the current visited place"
+  },
+  "segmentModePre": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.modePre"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Pre-selection of mode group to reduce choices for segment mode"
+  },
+  "segmentModeCategory": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.modeCategory"
+    ],
+    "inputTypes": [],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode"
+    ],
+    "comments": "Category of the segment mode, inferred from the selected mode"
+  },
+  "segmentMode": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.mode"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.modePre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.modePre"
+    ],
+    "comments": "Mode of transportation for the segment"
+  },
+  "segmentVehicleOccupancy": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.vehicleOccupancy"
+    ],
+    "inputTypes": [
+      "InputRadioInteger"
+    ],
+    "datatype": "integer",
+    "conditionals": [
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode"
+    ],
+    "comments": "Number of people in the vehicle for the segment"
+  },
+  "segmentJunctionName": {
+    "surveyObject": "SegmentJunction",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segmentJunction.name"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Segment"
+    ],
+    "relatedPaths": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "comments": "Name of the junction or interchange point for the segment"
+  },
+  "segmentJunctionQueryString": {
+    "surveyObject": "SegmentJunction",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segmentJunction.queryString"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segmentJunction.name",
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Segment"
+    ],
+    "relatedPaths": [
+      "segmentJunction.name",
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "comments": "Query string used to search for the junction or interchange point"
+  },
+  "segmentJunctionGeography": {
+    "surveyObject": "SegmentJunction",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segmentJunction.geography"
+    ],
+    "inputTypes": [
+      "InputMapFindPlace",
+      "InputMapPoint"
+    ],
+    "datatype": "geojson",
+    "conditionals": [
+      "segmentJunction.queryString",
+      "segmentJunction.name",
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Segment"
+    ],
+    "relatedPaths": [
+      "segmentJunction.name",
+      "segmentJunction.queryString"
+    ],
+    "comments": "Geographic location of the junction or interchange point"
+  },
+  "segmentJunctionParkingType": {
+    "surveyObject": "SegmentJunction",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segmentJunction.parkingType"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "comments": "Type of parking at the junction or interchange point"
+  },
+  "segmentJunctionParkingPaymentType": {
+    "surveyObject": "SegmentJunction",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segmentJunction.parkingPaymentType"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segmentJunction.parkingPaymentType"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segmentJunction.parkingType"
+    ],
+    "comments": "Type of payment for parking at the junction or interchange point"
+  },
+  "segmentBridgesTunnels": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.bridgesTunnels"
+    ],
+    "inputTypes": [
+      "InputStringAutocomplete",
+      "InputMultiselect",
+      "InputMapMultiselect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "comments": "Indicates if bridges or tunnels were used during the segment"
+  },
+  "segmentMotorways": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.motorways"
+    ],
+    "inputTypes": [
+      "InputMultiselect",
+      "InputStringAutocomplete",
+      "InputMapMultiselect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "comments": "Indicates if motorways were used during the segment"
+  },
+  "segmentIsNotLast": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.isNotLast"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "boolean",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Trip"
+    ],
+    "relatedPaths": [
+      "trip.segments[]"
+    ],
+    "comments": "Indicates if the segment is not the last one in the trip"
+  },
+  "segmentBusLines": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.busLines"
+    ],
+    "inputTypes": [
+      "InputString",
+      "InputMultiselect",
+      "InputMapMultiselect"
+    ],
+    "datatype": "string[]",
+    "conditionals": [
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode"
+    ],
+    "comments": "Bus lines used during the segment"
+  },
+  "segmentJunctionSubwayStation": {
+    "surveyObject": "SegmentJunction",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segmentJunction.SubwayStation"
+    ],
+    "inputTypes": [
+      "InputString",
+      "InputAutocomplete",
+      "InputMapSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode"
+    ],
+    "comments": "Subway station at the junction or interchange point, was startStation and endStation and transferStations in previous surveys, must be moved to junction"
+  },
+  "segmentTrainLines": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.trainLines"
+    ],
+    "inputTypes": [
+      "InputString",
+      "InputMultiselect",
+      "InputMapSelect"
+    ],
+    "datatype": "string[]",
+    "conditionals": [
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode"
+    ],
+    "comments": "Train lines used during the segment, was not asked in previous surveys"
+  },
+  "segmentSubwayLines": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.subwayLines"
+    ],
+    "inputTypes": [
+      "InputString",
+      "InputMultiselect"
+    ],
+    "datatype": "string[]",
+    "conditionals": [
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode"
+    ],
+    "comments": "Subway lines used during the segment"
+  },
+  "segmentJunctionTrainStation": {
+    "surveyObject": "SegmentJunction",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segmentJunction.TrainStation"
+    ],
+    "inputTypes": [
+      "InputString",
+      "InputAutocomplete",
+      "InputMapSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode"
+    ],
+    "comments": "Train station at the junction or interchange point, was startStation and endStation in previous surveys, must be moved to junction"
+  },
+  "segmentJunctionREMStation": {
+    "surveyObject": "SegmentJunction",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segmentJunction.REMStation"
+    ],
+    "inputTypes": [
+      "InputString",
+      "InputAutocomplete",
+      "InputMapSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.mode"
+    ],
+    "comments": "REM station at the junction or interchange point, was startStation and endStation in previous surveys, must be moved to junction"
+  },
+  "segmentDriver": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.driver"
+    ],
+    "inputTypes": [
+      "InputRadio",
+      "InputSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "segment.mode",
+      "segment.modePre"
+    ],
+    "validations": [
+      "matchingTripsInDriverVisitedPlaces"
+    ],
+    "relatedSurveyObjects": [
+      "Person",
+      "Household"
+    ],
+    "relatedPaths": [
+      "segment.mode",
+      "segment.modePre",
+      "household.members[]",
+      "person.drivingLicenseOwner"
+    ],
+    "comments": "Driver of the vehicle for the segment (if applicable)"
+  },
+  "segmentSameModeAsReverseTrip": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.sameModeAsReverseTrip"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "boolean",
+    "conditionals": [
+      "mode",
+      "modePre"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Trip",
+      "Segment"
+    ],
+    "relatedPaths": [
+      "mode",
+      "modePre",
+      "trip.segments[]"
+    ],
+    "comments": "Indicates if the same mode was used for the reverse trip"
+  },
+  "segmentBusLinesWarning": {
+    "surveyObject": "Segment",
+    "sections": [
+      "trips",
+      "segments"
+    ],
+    "paths": [
+      "segment.busLinesWarning"
+    ],
+    "inputTypes": [
+      "InfoText"
+    ],
+    "datatype": "text",
+    "conditionals": [
+      "segment.busLines",
+      "segment.mode"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "segment.busLines",
+      "segment.mode"
+    ],
+    "comments": "Warning message related to bus lines, needs trRouting/transition running"
+  },
+  "householdincomeLevel": {
+    "surveyObject": "Household",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "household.incomeLevel"
+    ],
+    "inputTypes": [
+      "InputRadio",
+      "InputSelect"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Household income"
+  },
+  "householdOwnership": {
+    "surveyObject": "Household",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "household.ownership"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "string",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Household ownership status (tenant or owner)"
+  },
+  "householdHasAtLeastOneChildInSharedCustody": {
+    "surveyObject": "Household",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "household.hasAtLeastOneChildInSharedCustody"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "boolean",
+    "conditionals": [
+      "household.members.length"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [
+      "Person"
+    ],
+    "relatedPaths": [
+      "household.members[]"
+    ],
+    "comments": "Indicates if the household has at least one child in shared custody"
+  },
+  "didRespondForCorrectAssignedDate": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.didRespondForCorrectAssignedDate"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "boolean",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Indicates if the respondent answered for the correct assigned date"
+  },
+  "didNotRespondForCorrectAssignedDateReasons": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.didNotRespondForCorrectAssignedDateReasons"
+    ],
+    "inputTypes": [
+      "InputMultiselect",
+      "InputCheckboxes"
+    ],
+    "datatype": "string[]",
+    "conditionals": [
+      "interview.didRespondForCorrectAssignedDate"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "interview.didRespondForCorrectAssignedDate"
+    ],
+    "comments": "Reasons for not responding for the correct assigned date"
+  },
+  "didNotRespondForCorrectAssignedDateReasonsOtherSpecify": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.didNotRespondForCorrectAssignedDateReasonsOtherSpecify"
+    ],
+    "inputTypes": [
+      "InputText"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "interview.didNotRespondForCorrectAssignedDateReasons"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "interview.didNotRespondForCorrectAssignedDateReasons"
+    ],
+    "comments": "Specification of other reasons for not responding for the correct assigned date"
+  },
+  "wouldLikeToParticipateInOtherSurveys": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.wouldLikeToParticipateInOtherSurveys"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "boolean",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Indicates if the respondent would like to participate in other surveys"
+  },
+  "wouldLikeToParticipateInOtherSurveysContactEmail": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.wouldLikeToParticipateInOtherSurveysContactEmail"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "string",
+    "conditionals": [
+      "interview.wouldLikeToParticipateInOtherSurveys"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "interview.wouldLikeToParticipateInOtherSurveys"
+    ],
+    "comments": "Contact email for participating in other surveys"
+  },
+  "commentsOnSurvey": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.commentsOnSurvey"
+    ],
+    "inputTypes": [
+      "InputText"
+    ],
+    "datatype": "text",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Comments on the survey"
+  },
+  "complexityOfTheSurvey": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.complexityOfTheSurvey"
+    ],
+    "inputTypes": [
+      "InputRange",
+      "InputRadio",
+      "InputSelect"
+    ],
+    "datatype": "integer",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Complexity of the survey rated on a scale"
+  },
+  "timeSpentAnswering": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.timeSpentAnswering"
+    ],
+    "inputTypes": [
+      "InputString"
+    ],
+    "datatype": "integer",
+    "conditionals": [],
+    "validations": ["positiveInteger"],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Perception of time spent answering the survey (in minutes)"
+  },
+  "inclinedToAbandonSurvey": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.inclinedToAbandonSurvey"
+    ],
+    "inputTypes": [
+      "InputRadio"
+    ],
+    "datatype": "boolean",
+    "conditionals": [],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [],
+    "comments": "Indicates if the respondent was inclined to abandon the survey"
+  },
+  "inclinedToAbandonSurveySections": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.inclinedToAbandonSurveySections"
+    ],
+    "inputTypes": [
+      "InputMultiselect",
+      "InputCheckboxes"
+    ],
+    "datatype": "string[]",
+    "conditionals": [
+      "interview.inclinedToAbandonSurvey"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "interview.inclinedToAbandonSurvey"
+    ],
+    "comments": "Sections where the respondent was inclined to abandon the survey"
+  },
+  "inclinedToAbandonSurveyReasons": {
+    "surveyObject": "Interview",
+    "sections": [
+      "end"
+    ],
+    "paths": [
+      "interview.inclinedToAbandonSurveyReasons"
+    ],
+    "inputTypes": [
+      "InputText"
+    ],
+    "datatype": "text",
+    "conditionals": [
+      "interview.inclinedToAbandonSurvey"
+    ],
+    "validations": [],
+    "relatedSurveyObjects": [],
+    "relatedPaths": [
+      "interview.inclinedToAbandonSurvey"
+    ],
+    "comments": "Reasons why the respondent was inclined to abandon the survey"
   }
 }
