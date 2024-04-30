@@ -37,5 +37,9 @@
   "InterviewerMode": "Mode intervieweur",
   "ParticipantMode": "Mode participant",
   "InputMapGeocodeNoResult": "La recherche n'a retourné aucun résultat",
-  "InputMapGeocodeError": "La recherche a produit une erreur, veuillez ré-essayer de géolocaliser le lieu ou localisez-le en cliquant sur la carte"
+  "InputMapGeocodeError": "La recherche a produit une erreur, veuillez ré-essayer de géolocaliser le lieu ou localisez-le en cliquant sur la carte",
+  "BackToSurveyPage": "Retour à l'enquête",
+  "AnErrorOccurred": "Une erreur est survenue.",
+  "MakeSureReliableConnection": "Assurez-vous d'avoir une connection internet fiable.",
+  "ErrorPersistsWhatToDo": "Si le problème persiste, veuillez contacter les administrateurs de l'enquête."
 }
