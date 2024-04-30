@@ -25,6 +25,7 @@ import { UserFrontendInterviewAttributes } from '../services/interviews/intervie
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
+import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 
 // called whenever an update occurs in interview responses or when section is switched to
 export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
@@ -221,9 +222,7 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
             }
         } else {
             console.log(`Update interview: wrong responses status: ${response.status}`);
-            if (history && response.status === 401) {
-                history.push('/unauthorized');
-            }
+            await handleHttpOtherResponseCode(response.status, dispatch, history);
         }
         // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
         dispatch(decrementLoadingState());
@@ -232,9 +231,7 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
         // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
         // TODO Put in the finally block if we are sure there are no side effect in the code path that returns before the fetch
         dispatch(decrementLoadingState());
-        if (history) {
-            history.push('/maintenance');
-        }
+        await handleHttpOtherResponseCode(500, dispatch, history);
     } finally {
         next();
     }
