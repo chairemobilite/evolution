@@ -65,7 +65,6 @@ export class BaseTripChain extends Uuidable implements IValidatable {
         this.isConstrained = params.isConstrained;
         this.mainActivityCategory = params.mainActivityCategory;
         this.mainActivity = params.mainActivity;
-
     }
 
     // params must be sanitized and must be valid:

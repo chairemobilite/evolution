@@ -89,7 +89,7 @@ export class BasePlace extends Uuidable implements IValidatable {
     // params must be sanitized and must be valid:
     static unserialize(params: BasePlaceAttributes & { address?: BaseAddressAttributes }): BasePlace {
         const address = params.address ? BaseAddress.unserialize(params.address) : undefined;
-        const geography = params.geography ? params.geography as GeoJSON.Feature<GeoJSON.Point> : undefined;
+        const geography = params.geography ? (params.geography as GeoJSON.Feature<GeoJSON.Point>) : undefined;
         return new BasePlace({ ...params, address, geography });
     }
 
@@ -111,7 +111,9 @@ export class BasePlace extends Uuidable implements IValidatable {
      */
     static create(dirtyParams: { [key: string]: any }): BasePlace | Error[] {
         const errors = BasePlace.validateParams(dirtyParams);
-        return errors.length > 0 ? errors : new BasePlace(dirtyParams as (ExtendedPlaceAttributes & { address: BaseAddress }));
+        return errors.length > 0
+            ? errors
+            : new BasePlace(dirtyParams as ExtendedPlaceAttributes & { address: BaseAddress });
     }
 
     /**

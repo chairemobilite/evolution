@@ -51,7 +51,6 @@ export type SurveyObjectsWithAudits = {
     audits: AuditForObject[];
 };
 
-
 export type AuditsByLevelAndObjectType = {
     [level: string]: {
         [object_type: string]: {

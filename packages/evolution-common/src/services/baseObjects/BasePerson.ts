@@ -40,7 +40,7 @@ type BasePersonAttributes = {
 type ExtendedPersonAttributes = BasePersonAttributes & { [key: string]: any };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface IBasePersonAttributes extends BasePersonAttributes { }
+interface IBasePersonAttributes extends BasePersonAttributes {}
 
 class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable {
     _isValid: OptionalValidity;
@@ -103,7 +103,6 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         this.nickname = params.nickname;
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
-
     }
 
     // params must be sanitized and must be valid:

@@ -70,7 +70,9 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
     }
 
     // params must be sanitized and must be valid:
-    static unserialize(params: BaseVisitedPlaceAttributes & { basePlace: BasePlaceAttributes & { address?: BaseAddressAttributes } }): BaseVisitedPlace {
+    static unserialize(
+        params: BaseVisitedPlaceAttributes & { basePlace: BasePlaceAttributes & { address?: BaseAddressAttributes } }
+    ): BaseVisitedPlace {
         return new BaseVisitedPlace({ ...params, basePlace: BasePlace.unserialize(params.basePlace) });
     }
 
@@ -91,7 +93,6 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
      * @returns BaseVisitedPlace | Error[]
      */
     static create(dirtyParams: { [key: string]: any }): BaseVisitedPlace | Error[] {
-
         const basePlaceParams = {
             ...dirtyParams,
             geography: dirtyParams.geography,
@@ -107,7 +108,10 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
             return errors;
         } else {
             const basePlace = BasePlace.create(basePlaceParams) as BasePlace;
-            const baseVisitedPlace = new BaseVisitedPlace({basePlace, ...dirtyParams} as ExtendedVisitedPlaceAttributes & { basePlace: BasePlace });
+            const baseVisitedPlace = new BaseVisitedPlace({
+                basePlace,
+                ...dirtyParams
+            } as ExtendedVisitedPlaceAttributes & { basePlace: BasePlace });
             return baseVisitedPlace;
         }
     }
@@ -160,7 +164,8 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
         // Validate departureDate (if provided):
         if (
             dirtyParams.departureDate !== undefined &&
-            (!(departureDateObj instanceof Date) || (departureDateObj !== undefined && isNaN(departureDateObj.getDate())))
+            (!(departureDateObj instanceof Date) ||
+                (departureDateObj !== undefined && isNaN(departureDateObj.getDate())))
         ) {
             errors.push(new Error('BaseVisitedPlace validateParams: departureDate should be a valid date string'));
         }
