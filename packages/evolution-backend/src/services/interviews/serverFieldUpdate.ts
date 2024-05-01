@@ -10,8 +10,9 @@ import prefilledDbQueries from '../../models/interviewsPreFill.db.queries';
 type FieldUpdateCallbackResponseCallbackType = { [affectedResponseFieldPath: string]: unknown };
 /**
  * Return type of the callback. Either an object with the fields in the
- * 'responses' to update, or an array with the field sto update, as well as a
- * URL to which to redirect.
+ * 'responses' to update, or an array with the fields to update, as well as an
+ * external URL to which to redirect. Redirecting to an external URL will
+ * terminate the interview for the user.
  */
 type FieldUpdateCallbackReturnType =
     | FieldUpdateCallbackResponseCallbackType

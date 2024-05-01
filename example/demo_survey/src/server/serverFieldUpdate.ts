@@ -4,10 +4,10 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const { getResponse } = require('evolution-common/lib/utils/helpers');
-const { _isBlank } = require('chaire-lib-common/lib/utils/LodashExtensions');
+import { getResponse } from 'evolution-common/lib/utils/helpers';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
-module.exports = [
+export default [
     {
         field: 'accessCode',
         callback: (interview, value, path) => {
@@ -25,6 +25,9 @@ module.exports = [
                     'home.city': 'London',
                     'home.region': 'Ontario'
                 };
+            } else if (value === '1133-1133') {
+                // Special access code to test url redirection
+                return [{}, 'https://github.com/chairemobilite/evolution/']
             }
             return {};
         }

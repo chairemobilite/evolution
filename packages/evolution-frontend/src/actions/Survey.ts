@@ -215,7 +215,11 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
                     callback(updatedInterview);
                 }
             } else if (body.status === 'redirect') {
-                // Redirect to the specified URL
+                // Logout from the application and redirect to the specified URL
+                // TODO Can't use the dispatch action, as the startLogout
+                // requires the history and here it is optional. This fetch
+                // logout should be in a helper.
+                fetch('/logout', { credentials: 'include' });
                 window.location.href = body.redirectUrl;
             } else {
                 // we need to do something if no interview is returned (error)
