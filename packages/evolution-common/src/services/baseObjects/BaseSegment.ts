@@ -9,9 +9,10 @@
  * A segment is the part of a trip using a single mode of transport
  */
 
+import { Optional } from '../../types/Optional.type';
 import { BaseVehicle, BaseVehicleAttributes, ExtendedVehicleAttributes } from './BaseVehicle';
 import { Uuidable } from './Uuidable';
-import { OptionalValidity, IValidatable } from './Validatable';
+import { IValidatable } from './IValidatable';
 import * as SAttr from './attributeTypes/SegmentAttributes';
 
 export type BaseSegmentAttributes = {
@@ -24,7 +25,7 @@ export type BaseSegmentAttributes = {
 export type ExtendedSegmentAttributes = BaseSegmentAttributes & { [key: string]: any };
 
 export class BaseSegment extends Uuidable implements IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
 
     modeCategory?: SAttr.ModeCategory;
     mode?: SAttr.Mode;
@@ -47,13 +48,13 @@ export class BaseSegment extends Uuidable implements IValidatable {
         return new BaseSegment(params);
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

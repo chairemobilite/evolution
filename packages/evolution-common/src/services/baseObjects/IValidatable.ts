@@ -5,12 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-export type OptionalValidity = boolean | undefined;
-
+import { Optional } from '../../types/Optional.type';
 export interface IValidatable {
-    _isValid: OptionalValidity; // undefined means not yet validated
+    _isValid: Optional<boolean>; // undefined means not yet validated
 
-    validate(): OptionalValidity;
+    validate(): Optional<boolean>;
 
-    isValid(): OptionalValidity;
+    isValid(): Optional<boolean>;
 }
+

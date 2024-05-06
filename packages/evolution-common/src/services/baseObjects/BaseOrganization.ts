@@ -10,7 +10,8 @@
  * a government entity, or any group of people that can be surveyed.
  */
 
-import { OptionalValidity, IValidatable } from './Validatable';
+import { Optional } from '../../types/Optional.type';
+import { IValidatable } from './IValidatable';
 import { BasePlace } from './BasePlace';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as OAttr from './attributeTypes/OrganizationAttributes';
@@ -33,7 +34,7 @@ type BaseOrganizationAttributes = {
 type ExtendedOrganizationAttributes = BaseOrganizationAttributes & { [key: string]: any };
 
 class BaseOrganization extends Uuidable implements IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
     _weights?: Weight[];
 
     name?: string;
@@ -75,13 +76,13 @@ class BaseOrganization extends Uuidable implements IValidatable {
         return new BaseOrganization(params);
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

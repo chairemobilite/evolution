@@ -1,13 +1,14 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright 2024, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
 
 /**
- * A visited place is a place visited by a person during a journey or specific day
- * Usually, visited places are used as origin and/or destination for trips
+ * A junction is a place used to transfer between segments/modes by a person during a trip
+ * Usually, junctions are used as origin and/or destination for segments
+ * Junctions are optional in most surveys
  */
 
 import { Optional } from '../../types/Optional.type';
@@ -16,24 +17,22 @@ import { IValidatable } from './IValidatable';
 import { BasePlace, BasePlaceAttributes } from './BasePlace';
 import { BaseAddressAttributes } from './BaseAddress';
 import { Weightable, Weight, validateWeights } from './Weight';
-import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
 import { parseDate } from '../../utils/DateUtils';
 
-export type BaseVisitedPlaceAttributes = {
+export type BaseJunctionAttributes = {
     _uuid?: string;
 
     arrivalDate?: string;
     departureDate?: string;
     arrivalTime?: number;
     departureTime?: number;
-    activityCategory?: VPAttr.ActivityCategory;
-    activity?: VPAttr.Activity;
+    // TODO: add parking attributes, transit station attributes, etc.
 
 } & Weightable;
 
-export type ExtendedVisitedPlaceAttributes = BaseVisitedPlaceAttributes & { [key: string]: any };
+export type ExtendedJunctionAttributes = BaseJunctionAttributes & { [key: string]: any };
 
-export class BaseVisitedPlace extends Uuidable implements IValidatable {
+export class BaseJunction extends Uuidable implements IValidatable {
     _isValid: Optional<boolean>;
     _weights?: Weight[];
 
@@ -43,14 +42,12 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
     departureDate?: string; // string, YYYY-MM-DD
     arrivalTime?: number; // seconds since midnight
     departureTime?: number; // seconds since midnight
-    activityCategory?: VPAttr.ActivityCategory; // TODO: This should maybe removed and included in the activity object
-    activity?: VPAttr.Activity;
 
     _confidentialAttributes: string[] = [
         // these attributes should be hidden when exporting
     ];
 
-    constructor(params: (BaseVisitedPlaceAttributes | ExtendedVisitedPlaceAttributes) & { basePlace: BasePlace }) {
+    constructor(params: (BaseJunctionAttributes | ExtendedJunctionAttributes) & { basePlace: BasePlace }) {
         super(params._uuid);
 
         this._isValid = undefined;
@@ -61,15 +58,13 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
         this.departureDate = params.departureDate;
         this.arrivalTime = params.arrivalTime;
         this.departureTime = params.departureTime;
-        this.activityCategory = params.activityCategory;
-        this.activity = params.activity;
     }
 
     // params must be sanitized and must be valid:
     static unserialize(
-        params: BaseVisitedPlaceAttributes & { basePlace: BasePlaceAttributes & { address?: BaseAddressAttributes } }
-    ): BaseVisitedPlace {
-        return new BaseVisitedPlace({ ...params, basePlace: BasePlace.unserialize(params.basePlace) });
+        params: BaseJunctionAttributes & { basePlace: BasePlaceAttributes & { address?: BaseAddressAttributes } }
+    ): BaseJunction {
+        return new BaseJunction({ ...params, basePlace: BasePlace.unserialize(params.basePlace) });
     }
 
     validate(): Optional<boolean> {
@@ -86,9 +81,9 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
      * Factory that validates input from an interview and makes
      * sure types and required fields are valid before returning a new object
      * @param dirtyParams
-     * @returns BaseVisitedPlace | Error[]
+     * @returns BaseJunction | Error[]
      */
-    static create(dirtyParams: { [key: string]: any }): BaseVisitedPlace | Error[] {
+    static create(dirtyParams: { [key: string]: any }): BaseJunction | Error[] {
         const basePlaceParams = {
             ...dirtyParams,
             geography: dirtyParams.geography,
@@ -98,22 +93,22 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
             zoom: dirtyParams.geography?.properties?.zoom
         };
 
-        // validate params for both baseVisitedPlace and basePlace:
-        const errors = [...BasePlace.validateParams(basePlaceParams), ...BaseVisitedPlace.validateParams(dirtyParams)];
+        // validate params for both baseJunction and basePlace:
+        const errors = [...BasePlace.validateParams(basePlaceParams), ...BaseJunction.validateParams(dirtyParams)];
         if (errors.length > 0) {
             return errors;
         } else {
             const basePlace = BasePlace.create(basePlaceParams) as BasePlace;
-            const baseVisitedPlace = new BaseVisitedPlace({
+            const baseJunction = new BaseJunction({
                 basePlace,
                 ...dirtyParams
-            } as ExtendedVisitedPlaceAttributes & { basePlace: BasePlace });
-            return baseVisitedPlace;
+            } as ExtendedJunctionAttributes & { basePlace: BasePlace });
+            return baseJunction;
         }
     }
 
     /**
-     * Validates attributes types for BaseVisitedPlace
+     * Validates attributes types for BaseJunction
      * @param dirtyParams The params input
      * @returns Error[] TODO: specialize this error class
      */
@@ -125,7 +120,7 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
 
         // Validate params object:
         if (!dirtyParams || typeof dirtyParams !== 'object') {
-            errors.push(new Error('BaseVisitedPlace validateParams: params is undefined or invalid'));
+            errors.push(new Error('BaseJunction validateParams: params is undefined or invalid'));
             return errors; // stop now otherwise it will crash because params are not valid
         }
 
@@ -154,7 +149,7 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
             dirtyParams.arrivalDate !== undefined &&
             (!(arrivalDateObj instanceof Date) || (arrivalDateObj !== undefined && isNaN(arrivalDateObj.getDate())))
         ) {
-            errors.push(new Error('BaseVisitedPlace validateParams: arrivalDate should be a valid date string'));
+            errors.push(new Error('BaseJunction validateParams: arrivalDate should be a valid date string'));
         }
 
         // Validate departureDate (if provided):
@@ -163,7 +158,7 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
             (!(departureDateObj instanceof Date) ||
                 (departureDateObj !== undefined && isNaN(departureDateObj.getDate())))
         ) {
-            errors.push(new Error('BaseVisitedPlace validateParams: departureDate should be a valid date string'));
+            errors.push(new Error('BaseJunction validateParams: departureDate should be a valid date string'));
         }
 
         // Validate arrivalTime (if provided):
@@ -171,7 +166,7 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
             dirtyParams.arrivalTime !== undefined &&
             (!Number.isInteger(dirtyParams.arrivalTime) || dirtyParams.arrivalTime < 0)
         ) {
-            errors.push(new Error('BaseVisitedPlace validateParams: arrivalTime should be a positive integer'));
+            errors.push(new Error('BaseJunction validateParams: arrivalTime should be a positive integer'));
         }
 
         // Validate departureTime (if provided):
@@ -179,18 +174,7 @@ export class BaseVisitedPlace extends Uuidable implements IValidatable {
             dirtyParams.departureTime !== undefined &&
             (!Number.isInteger(dirtyParams.departureTime) || dirtyParams.departureTime < 0)
         ) {
-            errors.push(new Error('BaseVisitedPlace validateParams: departureTime should be a positive integer'));
-        }
-
-        // TODO: use updated activity categories to test from list of possible values:
-        // Validate activityCategory (if provided):
-        if (dirtyParams.activityCategory !== undefined && typeof dirtyParams.activityCategory !== 'string') {
-            errors.push(new Error('BaseVisitedPlace validateParams: activityCategory should be a string'));
-        }
-        // TODO: use updated activites to test from list of possible values:
-        // Validate activity (if provided):
-        if (dirtyParams.activity !== undefined && typeof dirtyParams.activity !== 'string') {
-            errors.push(new Error('BaseVisitedPlace validateParams: activity should be a string'));
+            errors.push(new Error('BaseJunction validateParams: departureTime should be a positive integer'));
         }
 
         return errors;
