@@ -5,7 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { OptionalValidity, IValidatable } from './Validatable';
+import { Optional } from '../../types/Optional.type';
+import { IValidatable } from './IValidatable';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as HAttr from './attributeTypes/HouseholdAttributes';
 import { Uuidable } from './Uuidable';
@@ -30,7 +31,7 @@ type BaseHouseholdAttributes = {
 type ExtendedHouseholdAttributes = BaseHouseholdAttributes & { [key: string]: any };
 
 class BaseHousehold extends Uuidable implements IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
     _weights?: Weight[];
 
     /**
@@ -88,13 +89,13 @@ class BaseHousehold extends Uuidable implements IValidatable {
         return new BaseHousehold(params);
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

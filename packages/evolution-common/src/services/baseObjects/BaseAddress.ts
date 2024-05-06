@@ -6,6 +6,8 @@
  */
 
 import { Uuidable } from './Uuidable';
+import { Optional } from '../../types/Optional.type';
+import { IValidatable } from './IValidatable';
 
 export type BaseAddressAttributes = {
     _uuid?: string;
@@ -29,7 +31,10 @@ export type BaseAddressAttributes = {
 
 export type ExtendendAddressAttributes = BaseAddressAttributes & { [key: string]: any };
 
-export class BaseAddress extends Uuidable {
+export class BaseAddress extends Uuidable implements IValidatable {
+
+    _isValid: Optional<boolean>;
+
     civicNumber: number;
     civicNumberSuffix?: string; // A, B, C, etc.
     unitNumber?: number; // appartment number, office number, etc.
@@ -80,5 +85,15 @@ export class BaseAddress extends Uuidable {
     // params must be sanitized and must be valid:
     static unserialize(params: BaseAddressAttributes): BaseAddress {
         return new BaseAddress(params);
+    }
+
+    validate(): Optional<boolean> {
+        // TODO: implement:
+        this._isValid = true;
+        return true;
+    }
+
+    isValid(): Optional<boolean> {
+        return this._isValid;
     }
 }

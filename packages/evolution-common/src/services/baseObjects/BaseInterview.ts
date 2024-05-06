@@ -5,7 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { OptionalValidity, IValidatable } from './Validatable';
+import { Optional } from '../../types/Optional.type';
+import { IValidatable } from './IValidatable';
 import { Surveyable, SurveyableAttributes } from './Surveyable';
 import { Survey, SurveyAttributes } from './Survey';
 import { Sample, SampleAttributes } from './Sample';
@@ -38,7 +39,7 @@ export type BaseInterviewAttributes = {
 export type ExtendedInterviewAttributes = BaseInterviewAttributes & { [key: string]: any };
 
 export class BaseInterview extends Surveyable implements IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
 
     accessCode?: string;
     assignedDate?: string; // string YYYY-MM-DD, the assigned date for the survey (trips date most of the time)
@@ -94,13 +95,13 @@ export class BaseInterview extends Surveyable implements IValidatable {
         return new BaseInterview({ ...params, survey, sample, sampleBatchNumber: params.sampleBatchNumber });
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

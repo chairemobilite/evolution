@@ -11,11 +11,12 @@
  * like postal data, landrole data or OpenStreetMap ids.
  */
 
+import { Optional } from '../../types/Optional.type';
 import { isFeature, isPoint } from 'geojson-validation';
 import { Uuidable } from './Uuidable';
 import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
 import { BaseAddress, BaseAddressAttributes } from './BaseAddress';
-import { OptionalValidity, IValidatable } from './Validatable';
+import { IValidatable } from './IValidatable';
 import { Device } from './BaseInterview';
 
 // TODO: move these to chaire-lib
@@ -42,7 +43,7 @@ export type BasePlaceAttributes = {
 export type ExtendedPlaceAttributes = BasePlaceAttributes & { [key: string]: any };
 
 export class BasePlace extends Uuidable implements IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
 
     geography?: GeoJSON.Feature<GeoJSON.Point>;
     name?: string;
@@ -93,13 +94,13 @@ export class BasePlace extends Uuidable implements IValidatable {
         return new BasePlace({ ...params, address, geography });
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

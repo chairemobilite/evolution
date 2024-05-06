@@ -13,8 +13,9 @@
  * Examples of open-loop: Home-Leisure (staying there until the next day), Work-Home (worked a night shift), etc.
  */
 
+import { Optional } from '../../types/Optional.type';
 import { Uuidable } from './Uuidable';
-import { OptionalValidity, IValidatable } from './Validatable';
+import { IValidatable } from './IValidatable';
 import { BaseTrip } from './BaseTrip';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as TCAttr from './attributeTypes/TripChainAttributes';
@@ -39,7 +40,7 @@ export type BaseTripChainAttributes = {
 export type ExtendedTripChainAttributes = BaseTripChainAttributes & { [key: string]: any };
 
 export class BaseTripChain extends Uuidable implements IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
     _weights?: Weight[];
 
     category?: TCAttr.TripChainCategory;
@@ -72,13 +73,13 @@ export class BaseTripChain extends Uuidable implements IValidatable {
         return new BaseTripChain(params);
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

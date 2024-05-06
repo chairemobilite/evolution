@@ -9,8 +9,9 @@
  * A vehicle can be used to make trips or can be surveyed for a specific household or a specific company.
  */
 
+import { Optional } from '../../types/Optional.type';
 import { Uuidable } from './Uuidable';
-import { OptionalValidity, IValidatable } from './Validatable';
+import { IValidatable } from './IValidatable';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as VAttr from './attributeTypes/VehicleAttributes';
 
@@ -31,7 +32,7 @@ export type BaseVehicleAttributes = {
 export type ExtendedVehicleAttributes = BaseVehicleAttributes & { [key: string]: any };
 
 export class BaseVehicle extends Uuidable implements IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
     _weights?: Weight[];
 
     make?: VAttr.Make;
@@ -63,13 +64,13 @@ export class BaseVehicle extends Uuidable implements IValidatable {
         return new BaseVehicle(params);
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

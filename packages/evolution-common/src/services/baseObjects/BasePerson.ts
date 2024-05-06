@@ -5,7 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { OptionalValidity, IValidatable } from './Validatable';
+import { Optional } from '../../types/Optional.type';
+import { IValidatable } from './IValidatable';
 import { Weightable, Weight, validateWeights } from './Weight';
 import { Uuidable } from './Uuidable';
 import * as PAttr from './attributeTypes/PersonAttributes';
@@ -43,7 +44,7 @@ type ExtendedPersonAttributes = BasePersonAttributes & { [key: string]: any };
 interface IBasePersonAttributes extends BasePersonAttributes {}
 
 class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
     _weights?: Weight[];
 
     age?: PAttr.Age;
@@ -121,13 +122,13 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
         return errors.length > 0 ? errors : new BasePerson(dirtyParams as ExtendedPersonAttributes);
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

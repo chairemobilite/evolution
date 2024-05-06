@@ -9,8 +9,9 @@
  * A trip is has an origin and a destination, which are visited places, and is made by a person
  */
 
+import { Optional } from '../../types/Optional.type';
 import { Uuidable } from './Uuidable';
-import { OptionalValidity, IValidatable } from './Validatable';
+import { IValidatable } from './IValidatable';
 import { Weightable, Weight, validateWeights } from './Weight';
 
 export type BaseTripAttributes = {
@@ -26,7 +27,7 @@ export type BaseTripAttributes = {
 export type ExtendedTripAttributes = BaseTripAttributes & { [key: string]: any };
 
 export class BaseTrip extends Uuidable implements IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
     _weights?: Weight[];
 
     _confidentialAttributes: string[] = [
@@ -45,13 +46,13 @@ export class BaseTrip extends Uuidable implements IValidatable {
         return new BaseTrip(params);
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 

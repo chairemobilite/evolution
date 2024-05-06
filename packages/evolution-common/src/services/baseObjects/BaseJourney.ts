@@ -12,7 +12,8 @@
  * for trips made on mutiple distinct days.
  */
 
-import { OptionalValidity, IValidatable } from './Validatable';
+import { Optional } from '../../types/Optional.type';
+import { IValidatable } from './IValidatable';
 import { Weightable, Weight, validateWeights } from './Weight';
 import { Uuidable } from './Uuidable';
 import { parseDate } from '../../utils/DateUtils';
@@ -33,7 +34,7 @@ type ExtendedJourneyAttributes = BaseJourneyAttributes & { [key: string]: any };
 interface IBaseJourneyAttributes extends BaseJourneyAttributes {}
 
 class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatable {
-    _isValid: OptionalValidity;
+    _isValid: Optional<boolean>;
     _weights?: Weight[];
 
     startDate?: string; // string, YYYY-MM-DD
@@ -64,13 +65,13 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
         return new BaseJourney(params);
     }
 
-    validate(): OptionalValidity {
+    validate(): Optional<boolean> {
         // TODO: implement:
         this._isValid = true;
         return true;
     }
 
-    isValid(): OptionalValidity {
+    isValid(): Optional<boolean> {
         return this._isValid;
     }
 
