@@ -41,16 +41,20 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
             has_input_range_import = False
             has_custom_widgets_import = False
             has_custom_validations_import = False
+            has_custom_conditionals_import = False
             has_help_popup_import = False
             has_persons_cnt_label = False
             has_gendered_suffix_label = False
             for row in section_rows:
                 if row['choices']:
                     has_choices_import = True
-                if row['conditional'].endswith('CustomValidation'):
-                    # Check to see if the validation finish with 'CustomConditional'
+                if row['validation'].endswith('CustomValidation'):
+                    # Check to see if the validation finish with 'CustomValidation'
                     has_custom_validations_import = True
-                if row['conditional']:
+                if row['conditional'] and row['conditional'].endswith('CustomConditional'):
+                    # Check to see if the conditional finish with 'CustomConditional'
+                    has_custom_conditionals_import = True
+                elif row['conditional']:
                     has_conditionals_import = True
                 if row['inputRange']:
                     has_input_range_import = True
@@ -64,7 +68,7 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                     has_gendered_suffix_label = True
 
             # Generate import statements
-            import_statements = generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import, has_persons_cnt_label, has_gendered_suffix_label)
+            import_statements = generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import, has_persons_cnt_label, has_gendered_suffix_label, has_custom_conditionals_import)
 
             # Generate widgets statements
             widgets_statements = [generate_widget_statement(row) for row in section_rows]
@@ -193,11 +197,12 @@ def generate_widgets_names_statements(section_rows):
 
 
 # Generate import statement if needed
-def generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import, has_persons_cnt_label, has_gendered_suffix_label):
+def generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import, has_persons_cnt_label, has_gendered_suffix_label, has_custom_conditionals_import):
     choices_import = ("// " if not has_choices_import else "") + "import * as choices from '../../common/choices';\n"
     conditionals_import = ("// " if not has_conditionals_import else "") + "import * as conditionals from '../../common/conditionals';\n"
     custom_widgets_import = ("// " if not has_custom_widgets_import else "") + "import * as customWidgets from '../../common/customWidgets';\n"
-    custom_validations_import = ("// " if not has_custom_widgets_import else "") + "import * as customValidations from '../../common/customValidations';\n"
+    custom_validations_import = ("// " if not has_custom_validations_import else "") + "import * as customValidations from '../../common/customValidations';\n"
+    custom_conditionals_import = ("// " if not has_custom_conditionals_import else "") + "import * as customConditionals from '../../common/customConditionals';\n"
     help_popup_import = ("// " if not has_help_popup_import else "") + "import * as helpPopup from '../../common/helpPopup';\n"
     input_range_import = ("// " if not has_input_range_import else "") + "import * as inputRange from '../../common/inputRange';\n"
     cnt_person_import = "import { countPersons, getPerson } from '../../helperFunctions/helper';\n" if has_persons_cnt_label == True or has_gendered_suffix_label == True else ""
@@ -207,6 +212,7 @@ def generate_import_statements(has_choices_import, has_conditionals_import, has_
             f"import {{ defaultConditional }} from 'evolution-generator/lib/common/defaultConditional';\n" \
             f"{choices_import}" \
             f"{conditionals_import}" \
+            f"{custom_conditionals_import}" \
             f"{custom_widgets_import}" \
             f"{help_popup_import}" \
             f"import * as inputTypes from 'evolution-generator/lib/types/inputTypes';\n" \
@@ -256,8 +262,12 @@ def generate_confirm_popup(confirm_popup, comma=True, skip_line=True):
         return ""
 def generate_text(section, path): return f"{INDENT}text: (t: TFunction) => `<p class=\"input-text\">${{t('{section}:{path}')}}</p>`"
 def generate_choices(choices): return f"{INDENT}choices: choices.{choices}"
-def generate_conditional(conditional): 
-    return f"{INDENT}{"conditional: conditionals." + conditional if conditional else "conditional: defaultConditional"}"
+def generate_conditional(conditional):
+    if not conditional:
+        return f"{INDENT}conditional: defaultConditional"
+    elif conditional.endswith('CustomConditional'):
+        return f"{INDENT}conditional: customConditionals.{conditional}"
+    return f"{INDENT}conditional: conditionals.{conditional}"
 def generate_validation(validation):
     if not validation:
         # If validation is empty, use 'requiredValidation'
