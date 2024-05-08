@@ -43,7 +43,11 @@ class HomePage extends React.Component {
 
   afterClick = () => this.props.history.push({ pathname: '/login', search: this.props.location.search });
 
-  render = () => (
+  render = () => {
+    const logoWidth = config.logoWidth || '100%'; // Set the logo width value as needed
+    const logoBorderRadius = config.logoBorderRadius || '0'; // Set the logo border radius value as needed
+
+    return (
       <div className="survey">
         <div style={{width: '100%', margin: '0 auto', maxWidth: '60em',}}>
         {config.introBanner && config.bannerPaths && <div className="main-logo center"><img src={config.bannerPaths[this.props.i18n.language]} style={{width: '100%'}} alt="Banner" /></div>}
@@ -54,12 +58,12 @@ class HomePage extends React.Component {
               id        = "survey_form"
               //onSubmit  = {this.onSubmit}
             >
-              {!config.introLogoAfterStartButton && config.logoPaths && <div className="main-logo center"><img src={config.logoPaths[this.props.i18n.language]} style={{width: '100%'}} alt="Logo" /></div>}
+              {!config.introLogoAfterStartButton && config.logoPaths && <div className="main-logo center"><img src={config.logoPaths[this.props.i18n.language]} style={{width: logoWidth, borderRadius: logoBorderRadius}} alt="Logo" /></div>}
               {config.isPartTwo === true ? <div dangerouslySetInnerHTML={{__html: this.props.t(`survey:homepage:pageTwoIntroduction`)}} /> : <div dangerouslySetInnerHTML={{__html: this.props.t(`survey:homepage:introduction`)}} /> }
               {config.hideStartButtonOnHomePage !== true && <ConsentAndStartForm
                 afterClicked = {this.afterClick}
               />}
-              {config.introLogoAfterStartButton && config.logoPaths && <div className="main-logo center"><img src={config.logoPaths[this.props.i18n.language]} style={{width: '100%'}} alt="Logo" /></div>}
+              {config.introLogoAfterStartButton && config.logoPaths && <div className="main-logo center"><img src={config.logoPaths[this.props.i18n.language]} style={{width: logoWidth, borderRadius: logoBorderRadius}} alt="Logo" /></div>}
               {config.introductionTwoParagraph && <div dangerouslySetInnerHTML={{__html: this.props.t(`survey:homepage:introductionParagraphTwo`)}} />}
               <div className="center">{ config.languages.map((language) => {
                   return this.props.i18n.language !== language ? (<a 
@@ -81,7 +85,7 @@ class HomePage extends React.Component {
         </div>
       </div>
     );
-  
+  }
 }
 
 const mapStateToProps = (state, props) => {
