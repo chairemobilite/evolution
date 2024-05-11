@@ -37,8 +37,9 @@ export const ageGroupValues = [
     '125-129'
 ];
 
+// age group must be generated. It is a pain to not have exact age.
+// not having exact age implies a lot of conditional and validation ambiguities
 export type AgeGroup = (typeof ageGroupValues)[number];
-// Most of the time at least age OR age group must be defined
 
 export const genderValues = ['female', 'male', 'custom'];
 export type Gender = (typeof genderValues)[number];
@@ -46,9 +47,14 @@ export type Gender = (typeof genderValues)[number];
 export const yesNoDontKnowNonApplicableValues = ['yes', 'no', 'dontKnow', 'nonApplicable'];
 export type YesNoDontKnowNonApplicable = (typeof yesNoDontKnowNonApplicableValues)[number];
 
+export const yesNoDontKnowPreferNotToAnswerValues = ['yes', 'no', 'dontKnow', 'preferNotToAnswer'];
+export type YesNoDontKnowPreferNotToAnswer = (typeof yesNoDontKnowPreferNotToAnswerValues)[number];
+
 export type DrivingLicenseOwnership = YesNoDontKnowNonApplicable;
 
 export type TransitPassOwnership = YesNoDontKnowNonApplicable;
+
+export type HasDisability = YesNoDontKnowPreferNotToAnswer;
 
 export type CarsharingMember = YesNoDontKnowNonApplicable;
 
@@ -70,19 +76,69 @@ export type RidesharingUser = YesNoDontKnowNonApplicable;
 
 // A person can have multiple occupations, like fullTimeStudent + partTimeWorker:
 export const occupationValues = [
-    'fullTimeWorker',
-    'partTimeWorker',
-    'fullTimeStudent',
-    'partTimeStudent',
-    'workerAndStudent',
+    'fullTimeWorker', // should be assigned from WorkerType
+    'partTimeWorker', // should be assigned from WorkerType
+    'fullTimeStudent', // should be assigned from StudentType
+    'partTimeStudent', // should be assigned from StudentType
+    'workerAndStudent', // deprecated, not precise enough, see below:
+    'workerFullTimeAndStudentFullTime', // should be assigned from WorkerType && StudentType
+    'workerFullTimeAndStudentPartTime', // should be assigned from WorkerType && StudentType
+    'workerPartTimeAndStudentFullTime', // should be assigned from WorkerType && StudentType
+    'workerPartTimeAndStudentPartTime', // should be assigned from WorkerType && StudentType
     'retired',
+    'parentalOrSickLeave', // should be assigned from WorkerType, label must be clear
     'atHome',
     'unemployed',
     'other',
-    'nonApplicable',
-    'preferNotToAnswer'
+    'dontKnow', // not always available
+    'nonApplicable', // assign automatically, not shown in choices
+    'preferNotToAnswer' // not always available
 ];
 export type Occupation = (typeof occupationValues)[number];
+
+export const schoolTypeValues = [
+    'childcare',
+    'kindergarten',
+    'primarySchool',
+    'secondarySchool',
+    'kindergartenFor4YearsOld',
+    'collegeProfessional', // includes CEGEP, DEP, AEP or other professional diploma
+    'university',
+    'schoolAtHome',
+    'noSchool',
+    'other',
+    'dontKnow', // not always available
+    'nonApplicable', // assign automatically, not shown in choices
+    'preferNotToAnswer' // not always available
+];
+export type SchoolType = (typeof schoolTypeValues)[number];
+
+export const fullTimePartTimeTypeNoValue = [
+    'fullTime',
+    'partTime',
+    'no',
+    'dontKnow',
+    'nonApplicable'
+];
+export type StudentType = (typeof fullTimePartTimeTypeNoValue)[number];
+
+export const schoolPlaceTypeValues = [
+    'onLocation',
+    'hybrid',
+    'remote'
+];
+export type SchoolPlaceType = (typeof schoolPlaceTypeValues)[number];
+
+export type WorkerType = (typeof fullTimePartTimeTypeNoValue)[number] | 'parentalOrSickLeave';
+
+export const workPlaceTypeValues = [
+    'onLocation',
+    'hybrid',
+    'onTheRoadWithUsualPlace',
+    'onTheRoadWithoutUsualPlace',
+    'remote'
+];
+export type WorkPlaceType = (typeof workPlaceTypeValues)[number];
 
 export type JobCategory = string | 'dontKnow' | 'nonApplicable'; // TODO: add job categories from official source if possible and document it
 export type JobName = string;
@@ -91,4 +147,27 @@ export type IsOnTheRoadWorker = YesNoDontKnowNonApplicable;
 // Whether the job is compatible with telecommute:
 export type IsJobTelecommuteCompatible = YesNoDontKnowNonApplicable;
 
-export type EducationalAttainment = string | 'dontKnow' | 'nonApplicable'; // TODO: add educational attainments from official source if possible and document it
+// todo: update with more normalized/standardized values
+export const educationalAttainmentValues = [
+    'noneOrPrimaryEducation',
+    'secondaryEducation',
+    'postSecondaryNonTertiaryEducation',
+    'shortCycleTertiaryEducation',
+    'diplomaBelowBachelor',
+    'bachelorOrHigher',
+    'bachelor', // not always available, can be replaced by bachelorOrHigher
+    'master', // not always available, can be replaced by bachelorOrHigher
+    'phd', // not always available, can be replaced by bachelorOrHigher
+    'dontKnow', // not always available
+    'nonApplicable', // assign automatically, not shown in choices
+    'preferNotToAnswer' // not always available
+];
+export type EducationalAttainment = (typeof educationalAttainmentValues)[number];
+
+export const noUsualSchoolPlaceReasonValues = [
+    'remoteLearning',
+    'internshipWorkStudyApprenticeship',
+    'multipleLocationsWithoutMainLocation',
+    'other'
+];
+export type NoUsualSchoolPlaceReason = (typeof noUsualSchoolPlaceReasonValues)[number];
