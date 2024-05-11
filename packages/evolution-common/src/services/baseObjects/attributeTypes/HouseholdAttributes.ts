@@ -8,3 +8,5 @@
 export type HouseholdCategory = string; // TODO: use normalized household categories
 
 export type HomePrivateCarParkingType = string; // TODO: use normalized car parking categories
+
+export type IncomeLevel = string; // TODO: use normalized income levels
