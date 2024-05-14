@@ -85,6 +85,7 @@
     "jest-each": "^27.3.1",
     "jest-fetch-mock": "^3.0.3",
     "mockdate": "^3.0.2",
+    "@playwright/test": "^1.41.2",
     "prettier-eslint-cli": "^7.1.0",
     "react-test-renderer": "^16.13.1",
     "ts-jest": "^27.0.7"
