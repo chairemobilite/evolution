@@ -1,32 +1,15 @@
 import {
-    hasTitleTest,
-    hasFrenchTest,
-    hasConsentTest,
-    hasUserTest,
-    inputMapFindPlaceTest,
     inputNextButtonTest,
     inputRadioTest,
-    inputRangeTest,
     inputSelectTest,
-    inputStringTest,
-    registerWithoutEmailTest,
-    startSurveyTest,
-    switchToEnglishTest
+    inputStringTest
 } from 'evolution-frontend/tests/ui-testing/testHelpers';
+import * as surveyTestHelpers from 'evolution-frontend/tests/ui-testing/surveyTestHelpers';
 
 /* Test the survey with a one-person household */
+surveyTestHelpers.startAndLoginAnonymously({ title: 'Démo' });
+
 // Test the home page
-hasTitleTest({ title: 'Démo' });
-hasFrenchTest();
-switchToEnglishTest();
-hasConsentTest();
-startSurveyTest();
-
-// Test the login page
-registerWithoutEmailTest();
-
-// Test the home section page
-hasUserTest();
 inputStringTest({ path: 'accessCode', value: '1111-2222' });
 inputRadioTest({ path: 'household.size', value: '1' });
 inputStringTest({ path: 'household.carNumber', value: '2' });
@@ -40,20 +23,20 @@ inputSelectTest({ path: 'home.dwellingType', value: 'tenantSingleDetachedHouse' 
 inputNextButtonTest({ text: 'Save and continue', nextPageUrl: '/survey/householdMembers' });
 
 // Test the household page
-inputStringTest({ path: 'household.persons.${personId}.age', value: '30' });
-inputRadioTest({ path: 'household.persons.${personId}.gender', value: 'male' });
-inputSelectTest({ path: 'household.persons.${personId}.occupation', value: 'fullTimeWorker' });
-inputRadioTest({ path: 'household.persons.${personId}.drivingLicenseOwner', value: 'no' });
-inputRadioTest({ path: 'household.persons.${personId}.transitPassOwner', value: 'no' });
-inputRadioTest({ path: 'household.persons.${personId}.bikesharingMember', value: 'yes' });
-inputRadioTest({ path: 'household.persons.${personId}.hasDisability', value: 'no' });
-inputRadioTest({ path: 'household.persons.${personId}.cellphoneOwner', value: 'yes' });
-inputRadioTest({ path: 'household.persons.${personId}.didTripsOnTripsDate', value: 'no' });
+inputStringTest({ path: 'household.persons.${personId[0]}.age', value: '30' });
+inputRadioTest({ path: 'household.persons.${personId[0]}.gender', value: 'male' });
+inputSelectTest({ path: 'household.persons.${personId[0]}.occupation', value: 'fullTimeWorker' });
+inputRadioTest({ path: 'household.persons.${personId[0]}.drivingLicenseOwner', value: 'no' });
+inputRadioTest({ path: 'household.persons.${personId[0]}.transitPassOwner', value: 'no' });
+inputRadioTest({ path: 'household.persons.${personId[0]}.bikesharingMember', value: 'yes' });
+inputRadioTest({ path: 'household.persons.${personId[0]}.hasDisability', value: 'no' });
+inputRadioTest({ path: 'household.persons.${personId[0]}.cellphoneOwner', value: 'yes' });
+inputRadioTest({ path: 'household.persons.${personId[0]}.didTripsOnTripsDate', value: 'no' });
 inputNextButtonTest({ text: 'Save and continue', nextPageUrl: '/survey/profile' });
 
 // Test the profile page
-inputRadioTest({ path: 'household.persons.${personId}.workOnTheRoad', value: false });
-inputRadioTest({ path: 'household.persons.${personId}.usualWorkPlaceIsHome', value: true });
+inputRadioTest({ path: 'household.persons.${personId[0]}.workOnTheRoad', value: false });
+inputRadioTest({ path: 'household.persons.${personId[0]}.usualWorkPlaceIsHome', value: true });
 inputNextButtonTest({ text: 'Save and continue', nextPageUrl: '/survey/end' });
 
 // Test the end page
@@ -63,4 +46,4 @@ inputRadioTest({ path: 'household.wouldLikeToParticipateInOtherSurveys', value: 
 inputSelectTest({ path: 'household.income', value: '060000_089999' });
 inputNextButtonTest({ text: 'Complete interview', nextPageUrl: '/survey/completed' });
 
-// TODO: Add more tests
+surveyTestHelpers.logout();
