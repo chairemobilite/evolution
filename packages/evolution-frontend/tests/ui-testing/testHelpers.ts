@@ -35,16 +35,20 @@ type HasConsentTest = () => void;
 type StartSurveyTest = () => void;
 type RegisterWithoutEmailTest = () => void;
 type HasUserTest = () => void;
+type SimpleAction = () => void;
 type InputRadioTest = ({ path, value }: PathAndValueBoolOrStr) => void;
 type InputSelectTest = ({ path, value }: PathAndValue) => void;
 type InputStringTest = ({ path, value }: PathAndValue) => void;
 type InputRangeTest = ({ path, value }: {path: Path, value: number}) => void;
 type InputMapFindPlaceTest = ({ path }: { path: Path }) => void;
 type InputNextButtonTest = ({ text, nextPageUrl }: { text: Text; nextPageUrl: Url }) => void;
+type InputPopupButtonTest = ({ text, popupText }: { text: Text; popupText: Text }) => void;
+
+const personObjectKeyRegex = /^responses\.household\.persons\.([0-9a-f-]{36})$/
 
 let page: Page;
 let context: BrowserContext;
-let personId: string;
+let personIds: string[] = [];
 const savedLabels: { [key: string]: number } = {}; // Get all the saved labels
 
 // Configure the tests to run in serial mode (one after the other)
@@ -56,12 +60,27 @@ test.beforeAll(async ({ browser }) => {
     page = await context.newPage();
     await page.goto('/');
 
-    // Listen to console logs to get the personId
-    // FIXME Find a better way to get the personId, like listen to the network requests
-    page.on('console', (msg) => {
-        if (msg.text().includes('rendering person')) {
-            const parts = msg.text().split(' ');
-            personId = parts[3]; // The personId is the fourth part of the split string
+    page.on('request', request => {
+        // Listen to requests to survey update to get the objects' uuid
+        if (request.url().includes('survey/updateInterview')) {
+            const postData = request.postData();
+            if (postData === null) {
+                return;
+            }
+            const data = JSON.parse(postData)['valuesByPath'];
+            if (data === undefined) {
+                return;
+            }
+            // Get the person objects and store the person ids
+            const personObjects = Object.keys(data).filter(key => key.match(personObjectKeyRegex) !== null);
+            if (personObjects.length > 0) {
+                // FIXME _sequence and _uuid may not be set, or they may come differently, for example when adding a person manually ?
+                personIds = Array(personObjects.length);
+                personObjects.forEach(key => {
+                    const personData = data[key];
+                    personIds[personData['_sequence'] - 1] = personData['_uuid'];
+                });
+            }
         }
     });
 });
@@ -71,13 +90,16 @@ test.afterAll(async ({ browser }) => {
     browser.close;
 });
 
-// Replace ${personId} with the actual personId
-const replacePathWithPersonId = ({ path }): Path => {
-    let newPath: Path = path;
-    if (path.includes('${personId}')) {
-        newPath = path.replace('${personId}', personId);
+// Replace ${personId[n]} with the actual personId
+const replaceWithPersonId = (str: string): string => {
+    let newString = str;
+    const personIdRegex = /\$\{personId\[(\d+)\]\}/g;
+    const matchGroups = str.match(personIdRegex);
+    if (matchGroups !== null) {
+        const personIndex = Number((matchGroups[0].match(/\d+/g)as any)[0]);
+        newString = str.replace(personIdRegex, personIds[personIndex]);
     }
-    return newPath;
+    return newString;
 };
 
 // Click outside to remove focus, just fake a click on the app's outer div
@@ -85,6 +107,8 @@ const focusOut = async () => {
     const header = page.locator('id=item-nav-title');
     await header.click();
 };
+
+export const getPersonIds = () => personIds;
 
 // Test if the page has a title
 export const hasTitleTest: HasTitleTest = ({ title }) => {
@@ -141,6 +165,18 @@ export const registerWithoutEmailTest: RegisterWithoutEmailTest = () => {
     });
 };
 
+// Test if the page has a register without email button
+export const logoutTest: SimpleAction = () => {
+    test('Logout from survey', async () => {
+        const logoutButton = page.getByRole('button', { name: i18n.t([
+            'survey:auth:Logout',
+            'auth:Logout'
+        ]) as string });
+        await logoutButton.click();
+        await expect(page).toHaveURL('/');
+    });
+};
+
 // Test if the page has a user
 export const hasUserTest: HasUserTest = () => {
     test('Has anonym user', async () => {
@@ -152,8 +188,9 @@ export const hasUserTest: HasUserTest = () => {
 // Test input radio widget
 export const inputRadioTest: InputRadioTest = ({ path, value }) => {
     test(`Check ${value} for ${path}`, async () => {
-        const newPath = replacePathWithPersonId({ path });
-        const radio = page.locator(`id=survey-question__${newPath}_${value}__input-radio__${value}`);
+        const newPath = replaceWithPersonId(path);
+        const newValue = typeof value === 'string' ? replaceWithPersonId(value) : value;
+        const radio = page.locator(`id=survey-question__${newPath}_${newValue}__input-radio__${newValue}`);
         await radio.click();
         await expect(radio).toBeChecked();
         await focusOut();
@@ -163,7 +200,7 @@ export const inputRadioTest: InputRadioTest = ({ path, value }) => {
 // Test input select widget
 export const inputSelectTest: InputSelectTest = ({ path, value }) => {
     test(`Select ${value} for ${path}`, async () => {
-        const newPath = replacePathWithPersonId({ path });
+        const newPath = replaceWithPersonId(path);
         const option = page.locator(`id=survey-question__${newPath}`);
         option.selectOption(value);
         await expect(option).toHaveValue(value);
@@ -174,7 +211,7 @@ export const inputSelectTest: InputSelectTest = ({ path, value }) => {
 // Test input string widget
 export const inputStringTest: InputStringTest = ({ path, value }) => {
     test(`Fill ${value} for ${path}`, async () => {
-        const newPath = replacePathWithPersonId({ path });
+        const newPath = replaceWithPersonId(path);
         const inputText = page.locator(`id=survey-question__${newPath}`);
         await inputText.fill(value);
         await expect(inputText).toHaveValue(value);
@@ -186,7 +223,7 @@ export const inputStringTest: InputStringTest = ({ path, value }) => {
 // Test input range widget
 export const inputRangeTest: InputRangeTest = ({ path, value }) => {
     test(`Drag ${value} for ${path}`, async () => {
-        const newPath = replacePathWithPersonId({ path });
+        const newPath = replaceWithPersonId(path);
         const resultDiv = page.locator(`div[aria-labelledby='survey-question__${newPath}_label']`);
         const questionLabelDiv = page.locator(`id=survey-question__${newPath}_label`);
         const min = Number(await resultDiv.getAttribute('aria-valuemin')); // Get the min value of the range
@@ -236,9 +273,11 @@ export const inputRangeTest: InputRangeTest = ({ path, value }) => {
 };
 
 // Test input mapFindPlace widget
+let mapFindPlaceCounter = 0;
 export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ path }) => {
-    test('Find place on map', async () => {
-        const newPath = replacePathWithPersonId({ path });
+    mapFindPlaceCounter++;
+    test(`Find place on map ${mapFindPlaceCounter}`, async () => {
+        const newPath = replaceWithPersonId(path);
         // Refresh map result
         const refreshButton = page.locator(`id=survey-question__${newPath}_refresh`);
         await refreshButton.click();
@@ -256,10 +295,27 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ path }) => {
 };
 
 // Test input button widget that go to the next page
+const buttonClickTestIndexes: { [testKey: string]: number } = {};
 export const inputNextButtonTest: InputNextButtonTest = ({ text, nextPageUrl }) => {
-    test(`Click ${text} and go to ${nextPageUrl}`, async () => {
+    const testKey = `${text} - ${nextPageUrl}`;
+    const testIdx = buttonClickTestIndexes[testKey] || 0;
+    buttonClickTestIndexes[testKey] = testIdx + 1;
+    test(`Click ${text} and go to ${nextPageUrl} ${buttonClickTestIndexes[testKey]}`, async () => {
         const button = page.getByRole('button', { name: text });
         await button.click();
         await expect(page).toHaveURL(nextPageUrl);
     });
 };
+
+// Test clicking on the button in a popup dialog
+let inputButtonCounter = 0;
+export const inputPopupButtonTest: InputPopupButtonTest = ({ text, popupText }) => {
+    inputButtonCounter++;
+    test(`Click on popup button ${text} ${inputButtonCounter}`, async () => {
+        const dialog = page.getByRole('dialog');
+        await expect(dialog).toBeVisible();
+        await expect(dialog).toContainText(popupText);
+        const popupButton = dialog.getByRole('button', { name: text });
+        await popupButton.click();
+    });
+}

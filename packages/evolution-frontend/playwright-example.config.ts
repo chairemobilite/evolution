@@ -8,7 +8,8 @@ export default defineConfig({
     // Look for test files in the "todo-tests" directory.
     // testMatch: '*todo-tests/*.spec.ts',
     // Run all tests in parallel.
-    fullyParallel: true,
+    // Should be set to false if there are more than one tests case, otherwise they seem to run concurrently
+    fullyParallel: false,
     // Fail the build on CI if you accidentally left test.only in the source code.
     forbidOnly: !!process.env.CI,
     // Retry on CI only.
