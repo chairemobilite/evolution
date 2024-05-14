@@ -21,11 +21,13 @@ const i18n = configureI18n(['en', 'fr']);
 
 // Types for the tests
 type Value = string;
+type StringOrBoolean = string | boolean;
 type Text = string;
 type Url = string;
 type Title = string;
 type Path = string;
 type PathAndValue = { path: Path; value: Value };
+type PathAndValueBoolOrStr = { path: Path; value: StringOrBoolean };
 type HasTitleTest = ({ title }: { title: Title }) => void;
 type HasFrenchTest = () => void;
 type SwitchToEnglishTest = () => void;
@@ -33,7 +35,7 @@ type HasConsentTest = () => void;
 type StartSurveyTest = () => void;
 type RegisterWithoutEmailTest = () => void;
 type HasUserTest = () => void;
-type InputRadioTest = ({ path, value }: PathAndValue) => void;
+type InputRadioTest = ({ path, value }: PathAndValueBoolOrStr) => void;
 type InputSelectTest = ({ path, value }: PathAndValue) => void;
 type InputStringTest = ({ path, value }: PathAndValue) => void;
 type InputRangeTest = ({ path, value }: {path: Path, value: number}) => void;
