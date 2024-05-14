@@ -73,3 +73,42 @@ yarn
 yarn compile
 yarn migrate
 ```
+
+## Run UI tests for the application
+
+Evolution supports running UI tests with playwright. Surveys need to implement their own tests, but `evolution-frontend` provider a library in the `tests/ui-testing` folder.
+
+See the `examples/demo_survey/tests` folder for examples UI testing
+
+To run the tests for the demo_survey application, follow the following steps:
+
+Copy the configuration file in the repository to test and change the build to your needs
+
+```
+cp packages/evolution-frontend/playwright-example.config.ts survey/playwright.config.ts
+```
+
+Install the dependencies and browsers to use for playwright by running `yarn test:ui:install-dependencies`. This will install all playwright browsers and dependencies. It is possible to fine-tune the browsers to install. See the playwright documentation for more information (https://playwright.dev/docs/browsers).
+
+For example, to run the tests on firefox, use
+```
+npx playwright install --with-deps firefox
+```
+
+You need to start the application as you would to run it:
+
+```
+yarn build:dev or yarn build:prod
+yarn start
+```
+
+Run the UI tests
+```
+yarn test:survey
+```
+
+*Notes:* In the `test:survey` script to define in the project, add the `LOCALE_DIR` environment variable, to register the translations for the current project. For example, in the `demo_survey` project, the script is defined as follows:
+
+```
+"test:survey": "LOCALE_DIR=$(pwd)/locales npx playwright test"
+```

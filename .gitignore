@@ -122,3 +122,8 @@ __pycache__/
 
 # Generator survey example
 /example/demo_survey_generator
+
+# playwright test output
+**/playwright-report/
+**/test-results/
+**/playwright.config.ts

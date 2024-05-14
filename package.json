@@ -35,6 +35,8 @@
         "test:unit": "yarn workspace evolution-common run test:unit && yarn workspace evolution-backend run test:unit && yarn workspace evolution-frontend run test:unit && yarn workspace evolution-legacy run test:unit && yarn workspace evolution-interviewer run test:unit",
         "test:sequential": "yarn workspace evolution-common run test:sequential && yarn workspace evolution-backend run test:sequential && yarn workspace evolution-frontend run test:sequential && yarn workspace evolution-interviewer run test:sequential",
         "test:generator": "python -m pytest -s -W ignore packages/evolution-generator/src/tests/",
+        "test:survey": "yarn workspace demo_survey run test:survey",
+        "test:ui:install-dependencies": "yarn workspace demo_survey run playwright install-deps && yarn workspace demo_survey run playwright install",
         "lint": "yarn workspace evolution-common run lint && yarn workspace evolution-backend run lint && yarn workspace evolution-frontend run lint && yarn workspace evolution-interviewer run lint",
         "format": "yarn workspace evolution-common run format && yarn workspace evolution-backend run format && yarn workspace evolution-frontend run format && yarn workspace evolution-interviewer run format",
         "list-tasks": "yarn workspace evolution-legacy run list-tasks",
