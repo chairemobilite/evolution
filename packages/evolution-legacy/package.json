@@ -66,7 +66,7 @@
     "evolution-backend": "0.2.2",
     "evolution-common": "0.2.2",
     "evolution-frontend": "0.2.2",
-    "express": "^4.17.3",
+    "express": "^4.19.2",
     "express-session": "^1.17.1",
     "glob": "^7.2.3",
     "google-maps-react": "^2.0.6",
