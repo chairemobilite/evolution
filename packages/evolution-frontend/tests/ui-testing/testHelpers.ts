@@ -319,3 +319,24 @@ export const inputPopupButtonTest: InputPopupButtonTest = ({ text, popupText }) 
         await popupButton.click();
     });
 }
+
+const inputInvisibleCounters: { [testKey: string]: number } = {};
+/**
+ * Test whether a widget is visible or not
+ *
+ * @param { path, isVisible = true } - The path of the widget and whether it should be visible or not
+ */
+export const inputVisibleTest = ({ path, isVisible = true }: { path: Path, isVisible?: boolean }) => {
+    const testKey = `${path} - ${isVisible}`;
+    const testIdx = inputInvisibleCounters[testKey] || 0;
+    inputInvisibleCounters[testKey] = testIdx + 1;
+    test(`Check input visibility ${path} - ${isVisible} - ${inputInvisibleCounters[testKey]}`, async () => {
+        const newPath = replaceWithPersonId(path);
+        const input = page.locator(`id=survey-question__${newPath}`);
+        if (isVisible) {
+            await expect(input).toBeVisible();
+        } else {
+            await expect(input).toBeHidden();
+        }
+    });
+}
