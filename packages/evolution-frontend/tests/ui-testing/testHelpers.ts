@@ -39,7 +39,7 @@ type SimpleAction = () => void;
 type InputRadioTest = ({ path, value }: PathAndValueBoolOrStr) => void;
 type InputSelectTest = ({ path, value }: PathAndValue) => void;
 type InputStringTest = ({ path, value }: PathAndValue) => void;
-type InputRangeTest = ({ path, value }: {path: Path, value: number}) => void;
+type InputRangeTest = ({ path, value, sliderColor }: {path: Path, value: number, sliderColor?: string}) => void;
 type InputMapFindPlaceTest = ({ path }: { path: Path }) => void;
 type InputNextButtonTest = ({ text, nextPageUrl }: { text: Text; nextPageUrl: Url }) => void;
 type InputPopupButtonTest = ({ text, popupText }: { text: Text; popupText: Text }) => void;
@@ -49,7 +49,6 @@ const personObjectKeyRegex = /^responses\.household\.persons\.([0-9a-f-]{36})$/
 let page: Page;
 let context: BrowserContext;
 let personIds: string[] = [];
-const savedLabels: { [key: string]: number } = {}; // Get all the saved labels
 
 // Configure the tests to run in serial mode (one after the other)
 test.describe.configure({ mode: 'serial' });
@@ -219,31 +218,36 @@ export const inputStringTest: InputStringTest = ({ path, value }) => {
     });
 };
 
-// TODO: Change the id to get all the locator correctly.
-// Test input range widget
-export const inputRangeTest: InputRangeTest = ({ path, value }) => {
+/**
+ * Helper function to set a value and test the input range widget.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.path - The path of the widget.
+ * @param {number} options.value - The value to set.
+ * @param {string} [options.sliderColor='blue'] - The color of the slider.
+ * Default is 'blue'.
+ */
+export const inputRangeTest: InputRangeTest = ({ path, value, sliderColor = 'blue' }) => {
     test(`Drag ${value} for ${path}`, async () => {
         const newPath = replaceWithPersonId(path);
-        const resultDiv = page.locator(`div[aria-labelledby='survey-question__${newPath}_label']`);
+
+        // `sliderResultDiv` is the div that contains the value of the range, the range itself and is represented by the round thumb
+        const sliderResultDiv = page.locator(`div[aria-labelledby='survey-question__${newPath}_label']`);
+        const min = Number(await sliderResultDiv.getAttribute('aria-valuemin')); // Get the min value of the range
+        const max = Number(await sliderResultDiv.getAttribute('aria-valuemax')); // Get the max value of the range
+
+        // Get the question label div. The second parent is the question container div
         const questionLabelDiv = page.locator(`id=survey-question__${newPath}_label`);
-        const min = Number(await resultDiv.getAttribute('aria-valuemin')); // Get the min value of the range
-        const max = Number(await resultDiv.getAttribute('aria-valuemax')); // Get the max value of the range
-        const rangeLabel = String(await questionLabelDiv.textContent()); // Get the label of the range widget
+        const questionDiv = questionLabelDiv.locator('..').locator('..');
 
-        // Get the label of the range widget only if it hasn't been retrieved before
-        if (!savedLabels[rangeLabel]) {
-            savedLabels[rangeLabel] = 0;
-        }
-        const slider = page.getByLabel(rangeLabel).nth(savedLabels[rangeLabel]);
-        savedLabels[rangeLabel]++;
+        // Get the range div. It is the horizontal line of the widget, identified by its class name, based on the widget color
+        const sliderRangeDiv = questionDiv.locator(`css=.input-slider-${sliderColor}`);
+        const sliderRangeBoundingBox = await sliderRangeDiv.boundingBox();
+        const sliderRangePercentage = (Number(value) + Math.abs(min)) / (Math.abs(max) + Math.abs(min)); // Calculate the percentage of the value in the range
 
-        const sliderBoundingBox = await slider.boundingBox();
-        const container = page.locator('css=.input-slider-blue').first();
-        const containerBoudingBox = await container.boundingBox();
-        const containerPercentage = (Number(value) + Math.abs(min)) / (Math.abs(max) + Math.abs(min)); // Calculate the percentage of the value in the range
-
-        // If the slider or the container are not visible, we can't test the slider
-        if (sliderBoundingBox === null || containerBoudingBox === null) {
+        // Bounding box for the thumb
+        const sliderBoundingBox = await sliderResultDiv.boundingBox();
+        if (sliderBoundingBox === null || sliderRangeBoundingBox === null) {
             return;
         }
 
@@ -255,8 +259,8 @@ export const inputRangeTest: InputRangeTest = ({ path, value }) => {
 
         // Slide it to some endpoint determined by the target percentage
         const endPoint = {
-            x: sliderBoundingBox.x + sliderBoundingBox.width / 2 + containerBoudingBox.width * containerPercentage,
-            y: sliderBoundingBox.y + sliderBoundingBox.height / 2
+            x: startPoint.x + sliderRangeBoundingBox.width * sliderRangePercentage,
+            y: startPoint.y
         };
 
         // Drag and drop the slider
@@ -266,7 +270,7 @@ export const inputRangeTest: InputRangeTest = ({ path, value }) => {
         await page.mouse.up();
 
         // Get the current value of the range
-        const ariaValuenow = await resultDiv.getAttribute('aria-valuenow');
+        const ariaValuenow = await sliderResultDiv.getAttribute('aria-valuenow');
         expect(Number(ariaValuenow)).toBe(value);
         await focusOut();
     });
