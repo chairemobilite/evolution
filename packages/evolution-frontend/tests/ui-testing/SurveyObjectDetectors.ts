@@ -10,20 +10,26 @@
 // Regexes for specific survey objects
 const uuidRegex = /[0-9a-f-]{36}/g
 const personObjectKeyRegex = /^responses\.household\.persons\.([0-9a-f-]{36})$/
-const activePersonKeyRegex = /^responses\._activePersonId$/
 const journeyObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}$/
-const activeJourneyKeyRegex = /^responses\._activeJourneyId$/
 const visitedPlaceObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.visitedPlaces.[0-9a-f-]{36}$/
-const activeVisitedPlaceKeyRegex = /^responses\._activeVisitedPlaceId$/
+const tripObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}$/
+const segmentObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}.segments.[0-9a-f-]{36}$/
+const activePersonKeyRegex = /^responses\._activePersonId$/;
+const activeJourneyKeyRegex = /^responses\._activeJourneyId$/;
+const activeVisitedPlaceKeyRegex = /^responses\._activeVisitedPlaceId$/;
+const activeTripKeyRegex = /^responses\._activeTripId$/;
 
 // Store the survey object IDs
 let personIds: string[] = [];
 let journeys: { [personId: string]: string[] } = {};
 let visitedPlaces: { [journeyId: string]: string[] } = {};
+let trips: { [journeyId: string]: string[] } = {};
+let segments: { [tripId: string]: string[] } = {};
 // Store the active object IDs
 let activePersonId: string | undefined = undefined;
 let activeJourneyId: string | undefined = undefined;
 let activeVisitedPlaceId: string | undefined = undefined;
+let activeTripId: string | undefined = undefined;
 
 // Replace ${personId[n]} with the actual personId
 const replaceWithPersonId = (str: string): string => {
@@ -37,21 +43,25 @@ const replaceWithPersonId = (str: string): string => {
     return newString;
 };
 
-const replaceWithActivePersonId = (str: string): string => {
-    const activePersonStr = '${activePersonId}';
-    return str.includes(activePersonStr) && typeof activePersonId === 'string' ? str.replace(activePersonStr, activePersonId) : str;
-}
+const replaceWithActiveObjectId = (str: string, activeObjectStr: string, activeObjectId: string | undefined): string =>
+    str.includes(activeObjectStr) && typeof activeObjectId === 'string' ? str.replace(activeObjectStr, activeObjectId) : str;
 
-const replaceWithActiveJourneyId = (str: string): string => {
-    const activeJourneyStr = '${activeJourneyId}';
-    return str.includes(activeJourneyStr) && typeof activeJourneyId === 'string' ? str.replace(activeJourneyStr, activeJourneyId) : str;
-}
+// Replace ${segmentId[n]} with the actual segment ID. The segment is supposed to be for the active trip (there is no activeSegment property)
+const replaceWithSegmentId = (str: string): string => {
+    let newString = str;
+    const segmentIdRegex = /\$\{segmentId\[(\d+)\]\}/g;
+    const matchGroups = str.match(segmentIdRegex);
+    if (matchGroups !== null && typeof activeTripId === 'string') {
+        const segmentIndex = Number((matchGroups[0].match(/\d+/g)as any)[0]);
+        newString = str.replace(segmentIdRegex, segments[activeTripId][segmentIndex]);
+    }
+    return newString;
+};
 
-const replaceWithActiveVisitedPlaceId = (str: string): string => {
-    const activeVisitedPlaceStr = '${activeVisitedPlaceId}';
-    return str.includes(activeVisitedPlaceStr) && typeof activeVisitedPlaceId === 'string' ? str.replace(activeVisitedPlaceStr, activeVisitedPlaceId) : str;
-}
-
+const activePersonStr = '${activePersonId}';
+const activeJourneyStr = '${activeJourneyId}';
+const activeVisitedPlaceStr = '${activeVisitedPlaceId}';
+const activeTripStr = '${activeTripId}';
 /**
  * Replace any object ID in ${objectId[n]} or ${objectPath} format with the actual object ID
  * 
@@ -60,9 +70,11 @@ const replaceWithActiveVisitedPlaceId = (str: string): string => {
  */
 export const replaceWithIds = (str: string): string => {
     let newString = replaceWithPersonId(str);
-    newString = replaceWithActivePersonId(newString);
-    newString = replaceWithActiveJourneyId(newString);
-    newString = replaceWithActiveVisitedPlaceId(newString);
+    newString = replaceWithActiveObjectId(newString, activePersonStr, activePersonId);
+    newString = replaceWithActiveObjectId(newString, activeJourneyStr, activeJourneyId);
+    newString = replaceWithActiveObjectId(newString, activeVisitedPlaceStr, activeVisitedPlaceId);
+    newString = replaceWithActiveObjectId(newString, activeTripStr, activeTripId);
+    newString = replaceWithSegmentId(newString);
     return newString;
 }
 
@@ -80,17 +92,16 @@ const detectPersonIds = (data: any) => {
     }
 };
 
-// Detect the active person id from the survey update data
-const detectActivePerson = (data: any) => {
+const detectActiveObject = (data: any, activeObjectKeyRegex: RegExp, setter: (str: string) => void) => {
     // Get the person objects and store the person ids
-    const activePersonKey = Object.keys(data).find(key => key.match(activePersonKeyRegex) !== null);
-    if (activePersonKey !== undefined) {
-        activePersonId = data[activePersonKey];
+    const activeObjectKey = Object.keys(data).find(key => key.match(activeObjectKeyRegex) !== null);
+    if (activeObjectKey !== undefined) {
+        setter(data[activeObjectKey]);
     }
-};
+}
 
 function detectJourneys(data: any) {
-    // Get the person objects and store the person ids
+    // Get the journey objects and store the journey ids
     const journeyObjectsKeys = Object.keys(data).filter(key => key.match(journeyObjectKeyRegex) !== null);
     if (journeyObjectsKeys.length > 0) {
         journeyObjectsKeys.map(key => {
@@ -109,7 +120,7 @@ function detectJourneys(data: any) {
 }
 
 function detectVisitedPlaces(data: any) {
-    // Get the person objects and store the person ids
+    // Get the visited place objects and store the visited places ids
     const visitedPlaceObjectKeys = Object.keys(data).filter(key => key.match(visitedPlaceObjectKeyRegex) !== null);
     if (visitedPlaceObjectKeys.length > 0) {
         visitedPlaceObjectKeys.map(key => {
@@ -127,28 +138,53 @@ function detectVisitedPlaces(data: any) {
     }
 }
 
-// Detect the active journey id from the survey update data
-const detectActiveJourney = (data: any) => {
-    const activeJourneyKey = Object.keys(data).find(key => key.match(activeJourneyKeyRegex) !== null);
-    if (activeJourneyKey !== undefined) {
-        activeJourneyId = data[activeJourneyKey];
+function detectTrips(data: any) {
+    // Get the trip objects and store the trip ids
+    const tripObjectKeys = Object.keys(data).filter(key => key.match(tripObjectKeyRegex) !== null);
+    if (tripObjectKeys.length > 0) {
+        tripObjectKeys.map(key => {
+            const matchGroups = key.match(uuidRegex);
+            if (matchGroups !== null && matchGroups.length === 3) {
+                return { journeyId: matchGroups[1], tripId: matchGroups[2], data: data[key] };
+            }
+            throw `Invalid trip found: ${key}`;
+        }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach(journeyTrip => {
+            if (!trips[journeyTrip.journeyId]) {
+                trips[journeyTrip.journeyId] = [];
+            }
+            trips[journeyTrip.journeyId].push(journeyTrip.tripId);
+        });
     }
-};
+}
 
-// Detect the active visited place id from the survey update data
-const detectActiveVisitedPlace = (data: any) => {
-    const activeVisitedPlaceKy = Object.keys(data).find(key => key.match(activeVisitedPlaceKeyRegex) !== null);
-    if (activeVisitedPlaceKy !== undefined) {
-        activeVisitedPlaceId = data[activeVisitedPlaceKy];
+function detectSegments(data: any) {
+    // Get the segment objects and store their ids
+    const segmentObjectKeys = Object.keys(data).filter(key => key.match(segmentObjectKeyRegex) !== null);
+    if (segmentObjectKeys.length > 0) {
+        segmentObjectKeys.map(key => {
+            const matchGroups = key.match(uuidRegex);
+            if (matchGroups !== null && matchGroups.length === 4) {
+                return { tripId: matchGroups[2], segmentId: matchGroups[3], data: data[key] };
+            }
+            throw `Invalid segment found: ${key}`;
+        }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach(segmentTrip => {
+            if (!segments[segmentTrip.tripId]) {
+                segments[segmentTrip.tripId] = [];
+            }
+            segments[segmentTrip.tripId].push(segmentTrip.segmentId);
+        });
     }
-};
+}
 
 export const detectSurveyObjects = (data: any) => {
     detectPersonIds(data);
-    detectActivePerson(data);
     detectJourneys(data);
     detectVisitedPlaces(data);
-    detectActiveJourney(data);
-    detectActiveVisitedPlace(data);
+    detectTrips(data);
+    detectSegments(data);
+    detectActiveObject(data, activePersonKeyRegex, (activeId) => activePersonId = activeId);
+    detectActiveObject(data, activeJourneyKeyRegex, (activeId) => activeJourneyId = activeId);
+    detectActiveObject(data, activeVisitedPlaceKeyRegex, (activeId) => activeVisitedPlaceId = activeId);
+    detectActiveObject(data, activeTripKeyRegex, (activeId) => activeTripId = activeId);
 };
 
