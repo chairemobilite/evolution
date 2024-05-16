@@ -321,3 +321,19 @@ export const inputVisibleTest = ({ path, isVisible = true }: { path: Path, isVis
         }
     });
 }
+
+const textVisibilityCounters: { [testKey: string]: number } = {};
+/**
+ * Test that a text is visible on the page
+ *
+ * @param { text } string The text to display
+ */
+export const waitTextVisible = ({ text }: { text: Path }) => {
+    const testKey = `${text}`;
+    const testIdx = textVisibilityCounters[testKey] || 0;
+    textVisibilityCounters[testKey] = testIdx + 1;
+    test(`Check text visibility ${text} - ${textVisibilityCounters[testKey]}`, async () => {
+        const input = page.getByText(text);
+        await expect(input).toBeVisible();
+    });
+}
