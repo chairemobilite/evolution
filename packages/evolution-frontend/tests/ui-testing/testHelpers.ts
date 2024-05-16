@@ -173,6 +173,48 @@ export const inputRadioTest: InputRadioTest = ({ path, value }) => {
     });
 };
 
+
+const radioOptionTestCounters: { [testKey: string]: number } = {};
+/**
+ * Validates the presence of options for a specific radio input question.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.path - The path of the radio input question.
+ * @param {string[]} options.options - The expected options for the radio input
+ * question.
+ */
+export const expectInputRadioOptionsTest = ({ path, options }: { path: Path, options: string[] }) => {
+    const testIdx = radioOptionTestCounters[path] || 0;
+    radioOptionTestCounters[path] = testIdx + 1;
+    test(`Validate presence of radio options for ${path} - ${radioOptionTestCounters[path]}`, async () => {
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
+
+        // Find the first option and make sure it exists
+        const resolvedOptions = options.map(option => typeof option === 'string' ? SurveyObjectDetector.replaceWithIds(option) : option);
+        const firstRadioOption = page.locator(`id=survey-question__${newPath}_${resolvedOptions[0]}__input-radio__${resolvedOptions[0]}`);
+        await expect(firstRadioOption).toBeVisible();
+
+        // Find the radio options container (3 levels higher up)
+        const radioOptionsContainer = firstRadioOption.locator('..').locator('..').locator('..');
+
+        // Make sure all the radio options exist
+        for (const option of resolvedOptions) {
+            const radioOption = radioOptionsContainer.locator(`id=survey-question__${newPath}_${option}__input-radio__${option}`);
+            await expect(radioOption, `Missing radio option: ${option}`).toBeVisible();
+        }
+
+        // Make sure the options present are the only ones.
+        // Check with their values instead of count, to give a better error message in case of failure
+        const radioOptions = await radioOptionsContainer.locator('input[type="radio"]').all();
+        for (const radioOption of radioOptions) {
+            const radioOptionId = await radioOption.getAttribute('id');
+            expect(radioOptionId).not.toBeNull();
+            const optionValue = (radioOptionId as string).split('__')[3];
+            expect(options.includes(optionValue), `Unexpected option: ${optionValue}`).toBeTruthy();
+        }
+    });
+};
+
 // Test input select widget
 export const inputSelectTest: InputSelectTest = ({ path, value }) => {
     test(`Select ${value} for ${path}`, async () => {
@@ -181,6 +223,48 @@ export const inputSelectTest: InputSelectTest = ({ path, value }) => {
         option.selectOption(value);
         await expect(option).toHaveValue(value);
         await focusOut();
+    });
+};
+
+const selectOptionTestCounters: { [testKey: string]: number } = {};
+/**
+ * Validates the presence of options for a specific select input question.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.path - The path of the select input question.
+ * @param {string[]} options.options - The expected options for the select input
+ * question.
+ */
+export const expectInputSelectOptionsTest = ({ path, options }: { path: Path, options: string[] }) => {
+    const testIdx = selectOptionTestCounters[path] || 0;
+    selectOptionTestCounters[path] = testIdx + 1;
+    test(`Validate presence of select options for ${path} - ${selectOptionTestCounters[path]}`, async () => {
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
+        const resolvedOptions = options.map(option => typeof option === 'string' ? SurveyObjectDetector.replaceWithIds(option) : option);
+
+        // Find the select widget
+        const selectWidget = page.locator(`id=survey-question__${newPath}`);
+
+        // Make sure all the select options exist
+        for (const option of resolvedOptions) {
+            const selectOption = selectWidget.locator(`option[value="${option}"]`);
+            // Use the counts as only the selected option is visible
+            await expect(selectOption, `Missing select option: ${option}`).toHaveCount(1);
+        }
+
+        // Make sure the options present are the only ones.
+        // Check with their values instead of count, to give a better error message in case of failure
+        const selectOptions = await selectWidget.locator('option').all();
+        for (const selectOption of selectOptions) {
+            const selectOptionValue = await selectOption.getAttribute('value');
+            expect(selectOptionValue).not.toBeNull();
+            if (selectOptionValue === '') {
+                // Empty option always there
+                continue;
+            }
+            expect(options.includes(selectOptionValue as string), `Unexpected option: ${selectOptionValue}`).toBeTruthy();
+        }
+        expect(selectOptions.length).toEqual(options.length + 1);
     });
 };
 
