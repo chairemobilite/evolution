@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-
+import moment from 'moment';
 import { test, expect, Page, BrowserContext } from '@playwright/test';
 import configureI18n, { registerTranslationDir } from './configurei18n';
 import * as SurveyObjectDetector from './SurveyObjectDetectors';
@@ -390,6 +390,77 @@ export const inputPopupButtonTest: InputPopupButtonTest = ({ text, popupText }) 
         await expect(dialog).toContainText(popupText);
         const popupButton = dialog.getByRole('button', { name: text });
         await popupButton.click();
+    });
+};
+
+/**
+ * Test input date picker widget.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.path - The path of the date picker question.
+ * @param {string} options.value - The date value to select in the datepicker, in the format 'YYYY-MM-DD'.
+ */
+export const inputDatePickerTest = ({ path, value }: PathAndValue) => {
+    test(`Pick date ${value} for ${path}`, async () => {
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
+
+        // Find date picker and click in the middle of it to have the calendar show up
+        // For this widget, we need to click on the proper day in the calendar so that the callbacks are triggered, otherwise, we may get timezones errors.
+        const datePickerInput = page.locator(`id=survey-question__${newPath}`);
+        await expect(datePickerInput).toBeVisible();
+        await datePickerInput.scrollIntoViewIfNeeded();
+        const datePickerBoundingBox = await datePickerInput.boundingBox();
+        if (datePickerBoundingBox !== null) {
+            // Click in the middle of the bounding box
+            page.mouse.click(datePickerBoundingBox.x + datePickerBoundingBox.width / 2, datePickerBoundingBox.y + datePickerBoundingBox.height / 2);
+        }
+
+        // Find the date picker container (3 levels higher up)
+        const datePickerContainer = datePickerInput.locator('..').locator('..').locator('..');
+
+        // Prepare the values to select
+        const desiredDate = moment(value, 'YYYY-MM-DD')
+        const desiredMonth = desiredDate.format('MMMM');
+        const desiredDay = desiredDate.format('D');
+        const desiredYear = desiredDate.format('YYYY');
+
+        // Select the desired month
+        const getCurrentlySelectedMonthYear = async() => {
+            const monthSelector = datePickerContainer.locator('.react-datepicker__current-month');
+            await expect(monthSelector).toBeVisible();
+            const currentMonthYearText = await monthSelector.allInnerTexts();
+            return moment(currentMonthYearText[0], 'MMMM YYYY');
+        }
+
+        // Select the desired month, either by clicking previous or next month buttons
+        // FIXME This approach to selecting month was tested with the od_longue_distance survey, but it may not work for all surveys
+        const desiredMonthYear = moment(`${desiredMonth} ${desiredYear}`, `MMMM YYYY`);
+        let currentMonthYear = await getCurrentlySelectedMonthYear();
+        if (desiredMonthYear.isBefore(currentMonthYear)) {
+            const previousMonthButton = datePickerContainer.locator('.react-datepicker__navigation--previous');
+            while (desiredMonthYear.isBefore(currentMonthYear)) {
+                await previousMonthButton.click();
+                currentMonthYear = await getCurrentlySelectedMonthYear();
+            }
+        } else if (desiredMonthYear.isAfter(currentMonthYear)) {
+            const nextMonthButton = datePickerContainer.locator('.react-datepicker__navigation--next');
+            while (desiredMonthYear.isAfter(currentMonthYear)) {
+                await nextMonthButton.click();
+                currentMonthYear = await getCurrentlySelectedMonthYear();
+            }
+        }
+
+        // Select the desired day, by getting the element with the day as exact text
+        const desiredDayOption = datePickerContainer.getByText(desiredDay, { exact: true });
+        await desiredDayOption.click();
+
+        // The month selector should be hidden before reading the value
+        const monthSelector = datePickerContainer.locator('.react-datepicker__current-month');
+        await expect(monthSelector).toBeHidden();
+
+        // Get the selected date value
+        const selectedDateValue = await datePickerInput.getAttribute('value');
+        expect(selectedDateValue).toBe(desiredDate.format('DD/MM/YYYY'));
     });
 }
 
