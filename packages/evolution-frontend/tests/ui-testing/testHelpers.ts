@@ -48,6 +48,9 @@ type InputPopupButtonTest = ({ text, popupText }: { text: Text; popupText: Text 
 let page: Page;
 let context: BrowserContext;
 
+// Store a counter for test names, to avoid duplicate test names. We have many objects to test and they may result in identical test names.
+const widgetTestCounters: { [testKey: string]: number } = {};
+
 // Configure the tests to run in serial mode (one after the other)
 test.describe.configure({ mode: 'serial' });
 
@@ -165,7 +168,10 @@ export const hasUserTest: HasUserTest = () => {
 
 // Test input radio widget
 export const inputRadioTest: InputRadioTest = ({ path, value }) => {
-    test(`Check ${value} for ${path}`, async () => {
+    const testKey = `${path} - ${value}`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Check ${value} for ${path} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         const newValue = typeof value === 'string' ? SurveyObjectDetector.replaceWithIds(value) : value;
         const radio = page.locator(`id=survey-question__${newPath}_${newValue}__input-radio__${newValue}`);
@@ -176,8 +182,6 @@ export const inputRadioTest: InputRadioTest = ({ path, value }) => {
     });
 };
 
-
-const radioOptionTestCounters: { [testKey: string]: number } = {};
 /**
  * Validates the presence of options for a specific radio input question.
  *
@@ -187,9 +191,10 @@ const radioOptionTestCounters: { [testKey: string]: number } = {};
  * question.
  */
 export const expectInputRadioOptionsTest = ({ path, options }: { path: Path, options: string[] }) => {
-    const testIdx = radioOptionTestCounters[path] || 0;
-    radioOptionTestCounters[path] = testIdx + 1;
-    test(`Validate presence of radio options for ${path} - ${radioOptionTestCounters[path]}`, async () => {
+    const testKey = `${path} - options`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Validate presence of radio options for ${path} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
 
         // Find the first option and make sure it exists
@@ -220,7 +225,10 @@ export const expectInputRadioOptionsTest = ({ path, options }: { path: Path, opt
 
 // Test input select widget
 export const inputSelectTest: InputSelectTest = ({ path, value }) => {
-    test(`Select ${value} for ${path}`, async () => {
+    const testKey = `${path} - ${value}`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Select ${value} for ${path} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         const option = page.locator(`id=survey-question__${newPath}`);
         await option.scrollIntoViewIfNeeded();
@@ -230,7 +238,6 @@ export const inputSelectTest: InputSelectTest = ({ path, value }) => {
     });
 };
 
-const selectOptionTestCounters: { [testKey: string]: number } = {};
 /**
  * Validates the presence of options for a specific select input question.
  *
@@ -240,9 +247,10 @@ const selectOptionTestCounters: { [testKey: string]: number } = {};
  * question.
  */
 export const expectInputSelectOptionsTest = ({ path, options }: { path: Path, options: string[] }) => {
-    const testIdx = selectOptionTestCounters[path] || 0;
-    selectOptionTestCounters[path] = testIdx + 1;
-    test(`Validate presence of select options for ${path} - ${selectOptionTestCounters[path]}`, async () => {
+    const testKey = `${path} - options`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Validate presence of select options for ${path} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         const resolvedOptions = options.map(option => typeof option === 'string' ? SurveyObjectDetector.replaceWithIds(option) : option);
 
@@ -274,7 +282,10 @@ export const expectInputSelectOptionsTest = ({ path, options }: { path: Path, op
 
 // Test input string widget
 export const inputStringTest: InputStringTest = ({ path, value }) => {
-    test(`Fill ${value} for ${path}`, async () => {
+    const testKey = `${path} - ${value}`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Fill ${value} for ${path} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         const inputText = page.locator(`id=survey-question__${newPath}`);
         await inputText.scrollIntoViewIfNeeded();
@@ -294,7 +305,10 @@ export const inputStringTest: InputStringTest = ({ path, value }) => {
  * Default is 'blue'.
  */
 export const inputRangeTest: InputRangeTest = ({ path, value, sliderColor = 'blue' }) => {
-    test(`Drag ${value} for ${path}`, async () => {
+    const testKey = `${path} - ${value}`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Drag ${value} for ${path} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
 
         // `sliderResultDiv` is the div that contains the value of the range, the range itself and is represented by the round thumb
@@ -344,10 +358,11 @@ export const inputRangeTest: InputRangeTest = ({ path, value, sliderColor = 'blu
 };
 
 // Test input mapFindPlace widget
-let mapFindPlaceCounter = 0;
 export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ path }) => {
-    mapFindPlaceCounter++;
-    test(`Find place on map ${mapFindPlaceCounter}`, async () => {
+    const testKey = `${path}`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Find place on map ${path} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         // Refresh map result
         const refreshButton = page.locator(`id=survey-question__${newPath}_refresh`);
@@ -367,12 +382,11 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ path }) => {
 };
 
 // Test input button widget that go to the next page
-const buttonClickTestIndexes: { [testKey: string]: number } = {};
 export const inputNextButtonTest: InputNextButtonTest = ({ text, nextPageUrl }) => {
     const testKey = `${text} - ${nextPageUrl}`;
-    const testIdx = buttonClickTestIndexes[testKey] || 0;
-    buttonClickTestIndexes[testKey] = testIdx + 1;
-    test(`Click ${text} and go to ${nextPageUrl} ${buttonClickTestIndexes[testKey]}`, async () => {
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Click ${text} and go to ${nextPageUrl} ${widgetTestCounters[testKey]}`, async () => {
         const button = page.getByRole('button', { name: text });
         await button.scrollIntoViewIfNeeded();
         await button.click();
@@ -381,10 +395,11 @@ export const inputNextButtonTest: InputNextButtonTest = ({ text, nextPageUrl }) 
 };
 
 // Test clicking on the button in a popup dialog
-let inputButtonCounter = 0;
 export const inputPopupButtonTest: InputPopupButtonTest = ({ text, popupText }) => {
-    inputButtonCounter++;
-    test(`Click on popup button ${text} ${inputButtonCounter}`, async () => {
+    const testKey = `${text} - popup`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Click on popup button ${text} - ${widgetTestCounters[testKey]}`, async () => {
         const dialog = page.getByRole('dialog');
         await expect(dialog).toBeVisible();
         await expect(dialog).toContainText(popupText);
@@ -401,7 +416,10 @@ export const inputPopupButtonTest: InputPopupButtonTest = ({ text, popupText }) 
  * @param {string} options.value - The date value to select in the datepicker, in the format 'YYYY-MM-DD'.
  */
 export const inputDatePickerTest = ({ path, value }: PathAndValue) => {
-    test(`Pick date ${value} for ${path}`, async () => {
+    const testKey = `${path} - ${value}`;
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Pick date ${value} for ${path} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
 
         // Find date picker and click in the middle of it to have the calendar show up
@@ -464,7 +482,6 @@ export const inputDatePickerTest = ({ path, value }: PathAndValue) => {
     });
 }
 
-const inputInvisibleCounters: { [testKey: string]: number } = {};
 /**
  * Test whether a widget is visible or not
  *
@@ -472,9 +489,9 @@ const inputInvisibleCounters: { [testKey: string]: number } = {};
  */
 export const inputVisibleTest = ({ path, isVisible = true }: { path: Path, isVisible?: boolean }) => {
     const testKey = `${path} - ${isVisible}`;
-    const testIdx = inputInvisibleCounters[testKey] || 0;
-    inputInvisibleCounters[testKey] = testIdx + 1;
-    test(`Check input visibility ${path} - ${isVisible} - ${inputInvisibleCounters[testKey]}`, async () => {
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Check input visibility ${path} - ${isVisible} - ${widgetTestCounters[testKey]}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         const input = page.locator(`id=survey-question__${newPath}`);
         if (isVisible) {
@@ -485,7 +502,6 @@ export const inputVisibleTest = ({ path, isVisible = true }: { path: Path, isVis
     });
 }
 
-const textVisibilityCounters: { [testKey: string]: number } = {};
 /**
  * Test that a text is visible on the page
  *
@@ -493,9 +509,9 @@ const textVisibilityCounters: { [testKey: string]: number } = {};
  */
 export const waitTextVisible = ({ text }: { text: Path }) => {
     const testKey = `${text}`;
-    const testIdx = textVisibilityCounters[testKey] || 0;
-    textVisibilityCounters[testKey] = testIdx + 1;
-    test(`Check text visibility ${text} - ${textVisibilityCounters[testKey]}`, async () => {
+    const testIdx = widgetTestCounters[testKey] || 0;
+    widgetTestCounters[testKey] = testIdx + 1;
+    test(`Check text visibility ${text} - ${widgetTestCounters[testKey]}`, async () => {
         const input = page.getByText(text);
         await expect(input).toBeVisible();
     });
