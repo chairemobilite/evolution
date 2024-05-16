@@ -78,12 +78,14 @@ test.afterAll(async ({ browser }) => {
     browser.close;
 });
 
-
-
-// Click outside to remove focus, just fake a click on the app's outer div
+// Click outside to remove focus, fake a click on the left of the screen, to avoid the page scrolling out of current viewport
 const focusOut = async () => {
-    const header = page.locator('id=item-nav-title');
-    await header.click();
+    const viewportSize = page.viewportSize();
+    if (viewportSize === null) {
+        return;
+    }
+    // Click on the left, halfway down the viewport
+    await page.mouse.click(0, viewportSize.height / 2);
 };
 
 // Test if the page has a title
@@ -167,6 +169,7 @@ export const inputRadioTest: InputRadioTest = ({ path, value }) => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         const newValue = typeof value === 'string' ? SurveyObjectDetector.replaceWithIds(value) : value;
         const radio = page.locator(`id=survey-question__${newPath}_${newValue}__input-radio__${newValue}`);
+        await radio.scrollIntoViewIfNeeded();
         await radio.click();
         await expect(radio).toBeChecked();
         await focusOut();
@@ -220,6 +223,7 @@ export const inputSelectTest: InputSelectTest = ({ path, value }) => {
     test(`Select ${value} for ${path}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         const option = page.locator(`id=survey-question__${newPath}`);
+        await option.scrollIntoViewIfNeeded();
         option.selectOption(value);
         await expect(option).toHaveValue(value);
         await focusOut();
@@ -273,6 +277,7 @@ export const inputStringTest: InputStringTest = ({ path, value }) => {
     test(`Fill ${value} for ${path}`, async () => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         const inputText = page.locator(`id=survey-question__${newPath}`);
+        await inputText.scrollIntoViewIfNeeded();
         await inputText.fill(value);
         await expect(inputText).toHaveValue(value);
         await focusOut();
@@ -294,6 +299,7 @@ export const inputRangeTest: InputRangeTest = ({ path, value, sliderColor = 'blu
 
         // `sliderResultDiv` is the div that contains the value of the range, the range itself and is represented by the round thumb
         const sliderResultDiv = page.locator(`div[aria-labelledby='survey-question__${newPath}_label']`);
+        await sliderResultDiv.scrollIntoViewIfNeeded();
         const min = Number(await sliderResultDiv.getAttribute('aria-valuemin')); // Get the min value of the range
         const max = Number(await sliderResultDiv.getAttribute('aria-valuemax')); // Get the max value of the range
 
@@ -345,6 +351,7 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ path }) => {
         const newPath = SurveyObjectDetector.replaceWithIds(path);
         // Refresh map result
         const refreshButton = page.locator(`id=survey-question__${newPath}_refresh`);
+        await refreshButton.scrollIntoViewIfNeeded();
         await refreshButton.click();
 
         // Select option from select
@@ -367,6 +374,7 @@ export const inputNextButtonTest: InputNextButtonTest = ({ text, nextPageUrl }) 
     buttonClickTestIndexes[testKey] = testIdx + 1;
     test(`Click ${text} and go to ${nextPageUrl} ${buttonClickTestIndexes[testKey]}`, async () => {
         const button = page.getByRole('button', { name: text });
+        await button.scrollIntoViewIfNeeded();
         await button.click();
         await expect(page).toHaveURL(nextPageUrl);
     });
