@@ -7,6 +7,7 @@
 
 import { test, expect, Page, BrowserContext } from '@playwright/test';
 import configureI18n, { registerTranslationDir } from './configurei18n';
+import * as SurveyObjectDetector from './SurveyObjectDetectors';
 
 if (process.env.LOCALE_DIR) {
     registerTranslationDir(process.env.LOCALE_DIR);
@@ -44,11 +45,8 @@ type InputMapFindPlaceTest = ({ path }: { path: Path }) => void;
 type InputNextButtonTest = ({ text, nextPageUrl }: { text: Text; nextPageUrl: Url }) => void;
 type InputPopupButtonTest = ({ text, popupText }: { text: Text; popupText: Text }) => void;
 
-const personObjectKeyRegex = /^responses\.household\.persons\.([0-9a-f-]{36})$/
-
 let page: Page;
 let context: BrowserContext;
-let personIds: string[] = [];
 
 // Configure the tests to run in serial mode (one after the other)
 test.describe.configure({ mode: 'serial' });
@@ -70,16 +68,7 @@ test.beforeAll(async ({ browser }) => {
             if (data === undefined) {
                 return;
             }
-            // Get the person objects and store the person ids
-            const personObjects = Object.keys(data).filter(key => key.match(personObjectKeyRegex) !== null);
-            if (personObjects.length > 0) {
-                // FIXME _sequence and _uuid may not be set, or they may come differently, for example when adding a person manually ?
-                personIds = Array(personObjects.length);
-                personObjects.forEach(key => {
-                    const personData = data[key];
-                    personIds[personData['_sequence'] - 1] = personData['_uuid'];
-                });
-            }
+            SurveyObjectDetector.detectSurveyObjects(data);
         }
     });
 });
@@ -89,25 +78,13 @@ test.afterAll(async ({ browser }) => {
     browser.close;
 });
 
-// Replace ${personId[n]} with the actual personId
-const replaceWithPersonId = (str: string): string => {
-    let newString = str;
-    const personIdRegex = /\$\{personId\[(\d+)\]\}/g;
-    const matchGroups = str.match(personIdRegex);
-    if (matchGroups !== null) {
-        const personIndex = Number((matchGroups[0].match(/\d+/g)as any)[0]);
-        newString = str.replace(personIdRegex, personIds[personIndex]);
-    }
-    return newString;
-};
+
 
 // Click outside to remove focus, just fake a click on the app's outer div
 const focusOut = async () => {
     const header = page.locator('id=item-nav-title');
     await header.click();
 };
-
-export const getPersonIds = () => personIds;
 
 // Test if the page has a title
 export const hasTitleTest: HasTitleTest = ({ title }) => {
@@ -187,8 +164,8 @@ export const hasUserTest: HasUserTest = () => {
 // Test input radio widget
 export const inputRadioTest: InputRadioTest = ({ path, value }) => {
     test(`Check ${value} for ${path}`, async () => {
-        const newPath = replaceWithPersonId(path);
-        const newValue = typeof value === 'string' ? replaceWithPersonId(value) : value;
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
+        const newValue = typeof value === 'string' ? SurveyObjectDetector.replaceWithIds(value) : value;
         const radio = page.locator(`id=survey-question__${newPath}_${newValue}__input-radio__${newValue}`);
         await radio.click();
         await expect(radio).toBeChecked();
@@ -199,7 +176,7 @@ export const inputRadioTest: InputRadioTest = ({ path, value }) => {
 // Test input select widget
 export const inputSelectTest: InputSelectTest = ({ path, value }) => {
     test(`Select ${value} for ${path}`, async () => {
-        const newPath = replaceWithPersonId(path);
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
         const option = page.locator(`id=survey-question__${newPath}`);
         option.selectOption(value);
         await expect(option).toHaveValue(value);
@@ -210,7 +187,7 @@ export const inputSelectTest: InputSelectTest = ({ path, value }) => {
 // Test input string widget
 export const inputStringTest: InputStringTest = ({ path, value }) => {
     test(`Fill ${value} for ${path}`, async () => {
-        const newPath = replaceWithPersonId(path);
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
         const inputText = page.locator(`id=survey-question__${newPath}`);
         await inputText.fill(value);
         await expect(inputText).toHaveValue(value);
@@ -229,7 +206,7 @@ export const inputStringTest: InputStringTest = ({ path, value }) => {
  */
 export const inputRangeTest: InputRangeTest = ({ path, value, sliderColor = 'blue' }) => {
     test(`Drag ${value} for ${path}`, async () => {
-        const newPath = replaceWithPersonId(path);
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
 
         // `sliderResultDiv` is the div that contains the value of the range, the range itself and is represented by the round thumb
         const sliderResultDiv = page.locator(`div[aria-labelledby='survey-question__${newPath}_label']`);
@@ -281,7 +258,7 @@ let mapFindPlaceCounter = 0;
 export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ path }) => {
     mapFindPlaceCounter++;
     test(`Find place on map ${mapFindPlaceCounter}`, async () => {
-        const newPath = replaceWithPersonId(path);
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
         // Refresh map result
         const refreshButton = page.locator(`id=survey-question__${newPath}_refresh`);
         await refreshButton.click();
@@ -335,7 +312,7 @@ export const inputVisibleTest = ({ path, isVisible = true }: { path: Path, isVis
     const testIdx = inputInvisibleCounters[testKey] || 0;
     inputInvisibleCounters[testKey] = testIdx + 1;
     test(`Check input visibility ${path} - ${isVisible} - ${inputInvisibleCounters[testKey]}`, async () => {
-        const newPath = replaceWithPersonId(path);
+        const newPath = SurveyObjectDetector.replaceWithIds(path);
         const input = page.locator(`id=survey-question__${newPath}`);
         if (isVisible) {
             await expect(input).toBeVisible();
