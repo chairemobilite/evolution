@@ -112,3 +112,36 @@ yarn test:survey
 ```
 "test:survey": "LOCALE_DIR=$(pwd)/locales npx playwright test"
 ```
+
+Each test defined needs to get its own context for the test execution. The following gives and example of how to start a UI test for an application:
+
+```js
+import { test } from '@playwright/test';
+import * as testHelpers from 'evolution-frontend/tests/ui-testing/testHelpers';
+import * as surveyTestHelpers from 'evolution-frontend/tests/ui-testing/surveyTestHelpers';
+import { SurveyObjectDetector } from 'evolution-frontend/tests/ui-testing/SurveyObjectDetectors';
+
+const context = {
+    page: null as any,
+    objectDetector: new SurveyObjectDetector(),
+    title: '',
+    widgetTestCounters: {}
+}
+
+// Configure the tests to run in serial mode (one after the other)
+test.describe.configure({ mode: 'serial' });
+
+// Initialize the test page and add it to the context
+test.beforeAll(async ({ browser }) => {
+    context.page = await testHelpers.initializeTestPage(browser, context.objectDetector);
+});
+
+// Open the page and login
+surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Déplacements de longue distance au Québec', hasUser: false });
+
+// TODO Add tests here
+
+// Logout from the survey at the end
+surveyTestHelpers.logout({ context });
+
+```
