@@ -288,6 +288,26 @@ def generate_contains_html(containsHtml, shouldAddContainsHtml):
         return f"{INDENT}containsHtml: {'true' if containsHtml else 'false'},\n"
     else:
         return ""
+def generate_custom_path(row):
+    custom_path = row["customPath"]
+    if custom_path:
+        return f"{INDENT}customPath: '{custom_path}',\n"
+    else:
+        return ""
+def generate_custom_choice(row):
+    custom_choice = row["customChoice"]
+    if custom_choice:
+        return f"{INDENT}customChoice: '{custom_choice}',\n"
+    else:
+        return ""
+def generate_default_value(row):
+    default_value = row["defaultValue"]
+    if default_value:
+        return f"{INDENT}defaultValue: '{default_value}',\n"
+    else:
+        return ""
+
+
 def generate_common_properties(row, shouldAddTwoColumns = True, shouldAddContainsHtml = True):
     twoColumns = row['twoColumns'] if 'twoColumns' in row else False
     containsHtml = row['containsHtml'] if 'containsHtml' in row else False
@@ -297,16 +317,20 @@ def generate_common_properties(row, shouldAddTwoColumns = True, shouldAddContain
 
 # Generate InputRadio widget
 def generate_radio_widget(question_name, section, path, choices, help_popup, conditional, validation, widget_label, row):
-    return f"{generate_constExport(question_name, 'InputRadio')}\n" \
-            f"{generate_defaultInputBase('inputRadioBase')},\n" \
-            f"{generate_path(path)},\n" \
-            f"{generate_common_properties(row)}" \
-            f"{widget_label},\n" \
-            f"{generate_help_popup(help_popup)}" \
-            f"{generate_choices(choices)},\n" \
-            f"{generate_conditional(conditional)},\n" \
-            f"{generate_validation(validation)}\n" \
-            f"}};"
+    return (
+        f"{generate_constExport(question_name, 'InputRadio')}\n"
+        f"{generate_defaultInputBase('inputRadioBase')},\n"
+        f"{generate_path(path)},\n"
+        f"{generate_common_properties(row)}"
+        f"{generate_custom_path(row)}"
+        f"{generate_custom_choice(row)}"
+        f"{widget_label},\n"
+        f"{generate_help_popup(help_popup)}"
+        f"{generate_choices(choices)},\n"
+        f"{generate_conditional(conditional)},\n"
+        f"{generate_validation(validation)}\n"
+        f"}};"
+    )
 
 # Generate Select widget
 def generate_select_widget(question_name, section, path, choices, conditional, validation, widget_label, row):
@@ -322,15 +346,18 @@ def generate_select_widget(question_name, section, path, choices, conditional, v
 
 # Generate InputString widget
 def generate_string_widget(question_name, section, path, help_popup, conditional, validation, widget_label, row):
-    return f"{generate_constExport(question_name, 'InputString')}\n" \
-            f"{generate_defaultInputBase('inputStringBase')},\n" \
-            f"{generate_path(path)},\n" \
-            f"{generate_common_properties(row)}" \
-            f"{widget_label},\n" \
-            f"{generate_help_popup(help_popup)}" \
-            f"{generate_conditional(conditional)},\n" \
-            f"{generate_validation(validation)}\n" \
-            f"}};"
+    return (
+        f"{generate_constExport(question_name, 'InputString')}\n"
+        f"{generate_defaultInputBase('inputStringBase')},\n"
+        f"{generate_path(path)},\n"
+        f"{generate_common_properties(row)}"
+        f"{generate_default_value(row)}"
+        f"{widget_label},\n"
+        f"{generate_help_popup(help_popup)}"
+        f"{generate_conditional(conditional)},\n"
+        f"{generate_validation(validation)}\n"
+        f"}};"
+    )
 
 # Generate InputNumber widget
 def generate_number_widget(question_name, section, path, help_popup, conditional, validation, widget_label, row):
