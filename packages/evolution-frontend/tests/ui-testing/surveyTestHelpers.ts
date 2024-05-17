@@ -11,24 +11,24 @@ import * as testHelpers from './testHelpers';
  * opened
  * @param {string} title - The title of the survey
  */
-export const startAndLoginAnonymously = ({ title, hasUser = true }) => {
+export const startAndLoginAnonymously = ({ context, title, hasUser = true }: { title: string, hasUser: boolean } & testHelpers.CommonTestParameters) => {
     // Test the survey landing page
-    testHelpers.hasTitleTest({ title });
-    testHelpers.hasFrenchTest();
-    testHelpers.switchToEnglishTest();
-    testHelpers.hasConsentTest();
-    testHelpers.startSurveyTest();
+    testHelpers.hasTitleTest({ title, context });
+    testHelpers.hasFrenchTest({ context });
+    testHelpers.switchToEnglishTest({ context });
+    testHelpers.hasConsentTest({ context });
+    testHelpers.startSurveyTest({ context });
     
     // Test the login page
-    testHelpers.registerWithoutEmailTest();
+    testHelpers.registerWithoutEmailTest({ context });
     
     // Test the home section page
     if (hasUser) {
-        testHelpers.hasUserTest();
+        testHelpers.hasUserTest({ context });
     }
 }
 
-export const logout = () => {
+export const logout = ({ context }: testHelpers.CommonTestParameters) => {
     // Test the survey logout page
-    testHelpers.logoutTest();
+    testHelpers.logoutTest({ context });
 }
