@@ -13,6 +13,8 @@ import { TFunction } from 'i18next';
 type ContainsHtml = boolean;
 type TwoColumns = boolean;
 type AddCustom = boolean;
+type CustomPath = string;
+type CustomChoice = string;
 type Multiple = boolean;
 type Columns = 1 | 2;
 type Path = string;
@@ -88,6 +90,8 @@ export type InputRadio = InputRadioBase & {
     conditional: Conditional;
     validations?: Validations;
     addCustom?: AddCustom;
+    customPath?: CustomPath;
+    customChoice?: CustomChoice;
     containsHtml: ContainsHtml;
     twoColumns: TwoColumns;
 };
