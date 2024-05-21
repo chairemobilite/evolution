@@ -124,5 +124,14 @@
   },
   "InterviewId": "ID d'entrevue",
   "HouseholdSize": "Taille du ménage",
-  "Select": "Sélectionner"
+  "Select": "Sélectionner",
+  "export": {
+    "PrepareCsvExportFiles": "Préparer les fichiers CSV pour exportation par objet",
+    "RefreshExportFiles": "Rafraîchir la liste des fichiers d'export",
+    "ServerErrorForExport": "Erreur de serveur pendant la préparation des fichiers d'export",
+    "ServerExportForbidden": "Vous n'êtes pas autorisé à exporter les données d'enquête",
+    "PrepareDataError": "Erreur inattendue en préparant les fichiers d'export",
+    "UpdateOrWaitError": "Erreur lors de la mise à jour des fichiers d'export. Veuillez ré-essayer plus tard.",
+    "WaitForFileError": "Erreur en attendant la fin de la préparation des fichiers d'export"
+  }
 }
