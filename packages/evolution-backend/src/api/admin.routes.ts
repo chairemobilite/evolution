@@ -8,6 +8,10 @@ import moment from 'moment';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 
 import router from 'chaire-lib-backend/lib/api/admin.routes';
+// Add export routes from admin/exports.routes
+import { addExportRoutes } from './admin/exports.routes';
+
+addExportRoutes();
 
 router.all('/data/widgets/:widget/', (req, res, next) => {
     const widgetName = req.params.widget;

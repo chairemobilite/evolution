@@ -124,5 +124,14 @@
   },
   "InterviewId": "interview ID",
   "HouseholdSize": "Household size",
-  "Select": "Select"
+  "Select": "Select",
+  "export": {
+    "PrepareCsvExportFiles": "Prepare CSV files for export by object",
+    "RefreshExportFiles": "Refresh export file list",
+    "ServerErrorForExport": "Server error while preparing export files",
+    "ServerExportForbidden": "You are not authorized to export data",
+    "PrepareDataError": "Unexpected error while preparing data for export",
+    "UpdateOrWaitError": "Error while updating export files. Please wait a few seconds and try again",
+    "WaitForFileError": "Error getting the files to export from server"
+  }
 }
