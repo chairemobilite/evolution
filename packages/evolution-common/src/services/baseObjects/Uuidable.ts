@@ -6,32 +6,44 @@
  */
 
 import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
+import { Optional } from '../../types/Optional.type';
+import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
+
+export type UuidableAttributes = {
+    _uuid?: Optional<string>; // UUID v4
+};
 
 export class Uuidable {
-    _uuid: string;
+    _uuid?: Optional<string>; // UUID v4 // required, will be generated if undefined in constructor
 
-    constructor(_uuid?: string) {
+    constructor(_uuid?: Optional<string>) {
+        this._uuid = Uuidable.getUuid(_uuid);
+    }
+
+    static getUuid(_uuid?: Optional<string>) {
         if (_uuid && !uuidValidate(_uuid)) {
             throw new Error('Uuidable: invalid uuid');
         } else if (_uuid) {
-            this._uuid = _uuid;
+            return _uuid;
         } else {
-            this._uuid = uuidV4();
+            return uuidV4();
         }
     }
 
     /**
      * validates provided _uuid in params
      * @param dirtyParams the params input
-     * @returns Error[] TODO: specialize this error class
+     * @returns Error[]
      */
     static validateParams(dirtyParams: { [key: string]: any }): Error[] {
-        if (dirtyParams === undefined || typeof dirtyParams !== 'object') {
-            return [new Error('Uuidable validateParams: params is undefined or invalid')];
-        } else if (dirtyParams._uuid === undefined || uuidValidate(dirtyParams._uuid)) {
-            return [];
-        } else {
-            return [new Error('Uuidable validateParams: invalid uuid')];
-        }
+        const errors: Error[] = [];
+        errors.push(
+            ...ParamsValidatorUtils.isUuid(
+                '_uuid',
+                dirtyParams._uuid,
+                'Uuidable'
+            )
+        );
+        return errors;
     }
 }

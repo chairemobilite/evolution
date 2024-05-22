@@ -94,9 +94,9 @@ describe('BasePerson', () => {
         const weight: Weight = person._weights?.[0] as Weight;
         expect(weight.weight).toBe(1.5);
         expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname');
-        expect(weight.method.name).toEqual('Sample Weight Method');
-        expect(weight.method.description).toEqual('Sample weight method description');
+        expect(weight.method?.shortname).toEqual('sample-shortname');
+        expect(weight.method?.name).toEqual('Sample Weight Method');
+        expect(weight.method?.description).toEqual('Sample weight method description');
     });
 
     test('validateParams with valid parameters', () => {
@@ -154,7 +154,7 @@ describe('BasePerson', () => {
         const errors = BasePerson.validateParams(params);
         expect(errors.length).toBeGreaterThan(0);
         expect(errors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('BasePerson validateParams: age must be a positive integer'),
             new Error('BasePerson validateParams: gender is not a valid value'),
             new Error('BasePerson validateParams: drivingLicenseOwnership is not a valid value'),

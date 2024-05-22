@@ -16,34 +16,24 @@ import { Uuidable } from './Uuidable';
 import { IValidatable } from './IValidatable';
 import { BasePlace, BasePlaceAttributes } from './BasePlace';
 import { BaseAddressAttributes } from './BaseAddress';
-import { Weightable, Weight, validateWeights } from './Weight';
+import { ExcludeFunctionPropertyNames } from '../../utils/TypeUtils';
 import { parseDate } from '../../utils/DateUtils';
+import { UuidableAttributes } from './Uuidable';
 
-export type BaseJunctionAttributes = {
-    _uuid?: string;
-
-    arrivalDate?: string;
-    departureDate?: string;
-    arrivalTime?: number;
-    departureTime?: number;
-    // TODO: add parking attributes, transit station attributes, etc.
-
-} & Weightable;
-
-export type ExtendedJunctionAttributes = BaseJunctionAttributes & { [key: string]: any };
+export type BaseJunctionAttributes = ExcludeFunctionPropertyNames<BaseJunction> & UuidableAttributes;
+export type ExtendedJunctionAttributes = BaseJunctionAttributes & { [key: string]: unknown };
 
 export class BaseJunction extends Uuidable implements IValidatable {
-    _isValid: Optional<boolean>;
-    _weights?: Weight[];
+    _isValid?: Optional<boolean>;
 
     basePlace?: BasePlace;
 
-    arrivalDate?: string; // string, YYYY-MM-DD
-    departureDate?: string; // string, YYYY-MM-DD
-    arrivalTime?: number; // seconds since midnight
-    departureTime?: number; // seconds since midnight
+    arrivalDate?: Optional<string>; // string, YYYY-MM-DD
+    departureDate?: Optional<string>; // string, YYYY-MM-DD
+    arrivalTime?: Optional<number>; // seconds since midnight
+    departureTime?: Optional<number>; // seconds since midnight
 
-    _confidentialAttributes: string[] = [
+    static _confidentialAttributes: string[] = [
         // these attributes should be hidden when exporting
     ];
 
@@ -51,7 +41,6 @@ export class BaseJunction extends Uuidable implements IValidatable {
         super(params._uuid);
 
         this._isValid = undefined;
-        this._weights = params._weights;
 
         this.basePlace = params.basePlace;
         this.arrivalDate = params.arrivalDate;
@@ -62,7 +51,7 @@ export class BaseJunction extends Uuidable implements IValidatable {
 
     // params must be sanitized and must be valid:
     static unserialize(
-        params: BaseJunctionAttributes & { basePlace: BasePlaceAttributes & { address?: BaseAddressAttributes } }
+        params: BaseJunctionAttributes & { basePlace: BasePlaceAttributes & { address?: Optional<BaseAddressAttributes> } }
     ): BaseJunction {
         return new BaseJunction({ ...params, basePlace: BasePlace.unserialize(params.basePlace) });
     }
@@ -128,12 +117,6 @@ export class BaseJunction extends Uuidable implements IValidatable {
         const uuidErrors = Uuidable.validateParams(dirtyParams);
         if (uuidErrors.length > 0) {
             errors.push(...uuidErrors);
-        }
-
-        // Validate weights:
-        const weightsErrors = validateWeights(dirtyParams._weights);
-        if (weightsErrors.length > 0) {
-            errors.push(...weightsErrors);
         }
 
         // Validate base place:

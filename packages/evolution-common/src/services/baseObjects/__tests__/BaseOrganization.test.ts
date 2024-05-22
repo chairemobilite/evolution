@@ -90,9 +90,9 @@ describe('BaseOrganization', () => {
         const weight: Weight = organization._weights?.[0] as Weight;
         expect(weight.weight).toBe(0.1);
         expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname');
-        expect(weight.method.name).toEqual('Sample Weight Method');
-        expect(weight.method.description).toEqual('Sample weight method description');
+        expect(weight.method?.shortname).toEqual('sample-shortname');
+        expect(weight.method?.name).toEqual('Sample Weight Method');
+        expect(weight.method?.description).toEqual('Sample weight method description');
     });
 
     it('should validate params with valid values', () => {
@@ -132,7 +132,7 @@ describe('BaseOrganization', () => {
         const errors = BaseOrganization.validateParams(invalidParams);
         expect(errors.length).toBeGreaterThan(0);
         expect(errors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('Weightable validateWeights: _weights should be an array'),
             new Error('BaseOrganization validateParams: name should be a string'),
             new Error('BaseOrganization validateParams: shortname should be a string'),

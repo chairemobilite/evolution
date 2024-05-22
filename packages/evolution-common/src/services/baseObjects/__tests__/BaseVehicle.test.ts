@@ -83,9 +83,9 @@ describe('BaseVehicle', () => {
         const weight: Weight = vehicle._weights?.[0] as Weight;
         expect(weight.weight).toBe(.0001);
         expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname4');
-        expect(weight.method.name).toEqual('Sample Weight Method4');
-        expect(weight.method.description).toEqual('Sample weight method description4');
+        expect(weight.method?.shortname).toEqual('sample-shortname4');
+        expect(weight.method?.name).toEqual('Sample Weight Method4');
+        expect(weight.method?.description).toEqual('Sample weight method description4');
     });
 
     it('should return an empty array for valid params', () => {
@@ -114,7 +114,7 @@ describe('BaseVehicle', () => {
 
         const errors = BaseVehicle.validateParams(params);
         expect(errors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('BaseVehicle validateParams: make should be a string'),
             new Error('BaseVehicle validateParams: model should be a string'),
             new Error('BaseVehicle validateParams: licensePlateNumber should be a string'),

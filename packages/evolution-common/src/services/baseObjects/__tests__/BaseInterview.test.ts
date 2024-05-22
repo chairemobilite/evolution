@@ -139,7 +139,7 @@ describe('BaseInterview', () => {
         const invalidErrors = BaseInterview.validateParams(invalidParams);
         expect(invalidErrors.length).toBeGreaterThan(0);
         expect(invalidErrors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('BaseInterview validateParams: accessCode should be a string'),
             new Error('BaseInterview validateParams: _language should be a string of two letters'),
             new Error('BaseInterview validateParams: _source should be a string'),

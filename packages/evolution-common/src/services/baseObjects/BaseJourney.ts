@@ -14,36 +14,25 @@
 
 import { Optional } from '../../types/Optional.type';
 import { IValidatable } from './IValidatable';
-import { Weightable, Weight, validateWeights } from './Weight';
-import { Uuidable } from './Uuidable';
+import { WeightableAttributes, Weight, validateWeights } from './Weight';
+import { Uuidable, UuidableAttributes } from './Uuidable';
+import { ExcludeFunctionPropertyNames } from '../../utils/TypeUtils';
 import { parseDate } from '../../utils/DateUtils';
 
-type BaseJourneyAttributes = {
-    _uuid?: string;
+export type BaseJourneyAttributes = ExcludeFunctionPropertyNames<BaseJourney> & WeightableAttributes & UuidableAttributes;
+export type ExtendedJourneyAttributes = BaseJourneyAttributes & { [key: string]: unknown };
 
-    startDate?: string; // string, YYYY-MM-DD
-    startTime?: number;
-    endDate?: string; // string, YYYY-MM-DD
-    endTime?: number;
-    name?: string;
-} & Weightable;
+export class BaseJourney extends Uuidable implements IValidatable {
+    _isValid?: Optional<boolean>;
+    _weights?: Optional<Weight[]>;
 
-type ExtendedJourneyAttributes = BaseJourneyAttributes & { [key: string]: any };
+    startDate?: Optional<string>; // string, YYYY-MM-DD
+    startTime?: Optional<number>;
+    endDate?: Optional<string>; // string, YYYY-MM-DD
+    endTime?: Optional<number>;
+    name?: Optional<string>;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface IBaseJourneyAttributes extends BaseJourneyAttributes {}
-
-class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatable {
-    _isValid: Optional<boolean>;
-    _weights?: Weight[];
-
-    startDate?: string; // string, YYYY-MM-DD
-    startTime?: number;
-    endDate?: string; // string, YYYY-MM-DD
-    endTime?: number;
-    name?: string;
-
-    _confidentialAttributes: string[] = [
+    static _confidentialAttributes: string[] = [
         // these attributes should be hidden when exporting
     ];
 
@@ -158,5 +147,3 @@ class BaseJourney extends Uuidable implements IBaseJourneyAttributes, IValidatab
         return errors;
     }
 }
-
-export { BaseJourney, BaseJourneyAttributes, ExtendedJourneyAttributes };

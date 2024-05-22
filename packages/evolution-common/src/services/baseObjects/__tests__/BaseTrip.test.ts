@@ -7,9 +7,8 @@
 
 import { v4 as uuidV4 } from 'uuid';
 import { BaseTrip, BaseTripAttributes, ExtendedTripAttributes } from '../BaseTrip';
-import * as VPAttr from '../attributeTypes/VisitedPlaceAttributes';
-import { BaseVisitedPlace, BaseVisitedPlaceAttributes } from '../BaseVisitedPlace';
-import { BasePlace } from '../BasePlace';
+import { BaseVisitedPlace } from '../BaseVisitedPlace';
+import { BasePlace, BasePlaceAttributes } from '../BasePlace';
 import { BaseSegment, BaseSegmentAttributes } from '../BaseSegment';
 import { Weight } from '../Weight';
 import { WeightMethod } from '../WeightMethod';
@@ -69,20 +68,20 @@ describe('BaseTrip', () => {
         const weight: Weight = trip._weights?.[0] as Weight;
         expect(weight.weight).toBe(34.444);
         expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname2');
-        expect(weight.method.name).toEqual('Sample Weight Method2');
-        expect(weight.method.description).toEqual('Sample weight method description2');
+        expect(weight.method?.shortname).toEqual('sample-shortname2');
+        expect(weight.method?.name).toEqual('Sample Weight Method2');
+        expect(weight.method?.description).toEqual('Sample weight method description2');
     });
 
     it('should return an empty array for valid parameters', () => {
         const params = {
             _uuid: uuidV4(),
 
-            baseOrigin: new BaseVisitedPlace({ basePlace: new BasePlace({}) }),
-            baseDestination: new BaseVisitedPlace({ basePlace: new BasePlace({}) }),
+            baseOrigin: new BaseVisitedPlace({ basePlace: new BasePlace({} as BasePlaceAttributes) }),
+            baseDestination: new BaseVisitedPlace({ basePlace: new BasePlace({} as BasePlaceAttributes) }),
             baseSegments: [
-                new BaseSegment({}),
-                new BaseSegment({}),
+                new BaseSegment({} as BaseSegmentAttributes),
+                new BaseSegment({} as BaseSegmentAttributes),
             ],
         };
 
@@ -98,7 +97,7 @@ describe('BaseTrip', () => {
         const errors = BaseTrip.validateParams(params);
         expect(errors).toHaveLength(1); // Two errors expected
         expect(errors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
         ]);
     });
 

@@ -52,7 +52,7 @@ describe('Survey Class', () => {
         // Invalid UUID
         const invalidUuid = Survey.validateParams({ name: 'bar', shortname: 'foo', _uuid: 'foo', startDate: surveyStartDate, endDate: surveyEndDate });
         expect(invalidUuid.length).toEqual(1);
-        expect(invalidUuid[0].message).toEqual('Uuidable validateParams: invalid uuid');
+        expect(invalidUuid[0].message).toEqual('Uuidable validateParams: _uuid should be a valid uuid');
 
         // Invalid dates:
         const invalidStartDate = Survey.validateParams({ name: 'bar', shortname: 'foo', startDate: 'foo', endDate: surveyEndDate });
