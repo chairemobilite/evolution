@@ -200,7 +200,7 @@ def generate_widgets_names_statements(section_rows):
 def generate_import_statements(has_choices_import, has_conditionals_import, has_input_range_import, has_custom_widgets_import, has_custom_validations_import, has_help_popup_import, has_persons_cnt_label, has_gendered_suffix_label, has_custom_conditionals_import):
     choices_import = ("// " if not has_choices_import else "") + "import * as choices from '../../common/choices';\n"
     conditionals_import = ("// " if not has_conditionals_import else "") + "import * as conditionals from '../../common/conditionals';\n"
-    custom_widgets_import = ("// " if not has_custom_widgets_import else "") + "import * as customWidgets from '../../common/customWidgets';\n"
+    custom_widgets_import = ("// " if not has_custom_widgets_import else "") + "import * as customWidgets from './customWidgets';\n"
     custom_validations_import = ("// " if not has_custom_validations_import else "") + "import * as customValidations from '../../common/customValidations';\n"
     custom_conditionals_import = ("// " if not has_custom_conditionals_import else "") + "import * as customConditionals from '../../common/customConditionals';\n"
     help_popup_import = ("// " if not has_help_popup_import else "") + "import * as helpPopup from '../../common/helpPopup';\n"
