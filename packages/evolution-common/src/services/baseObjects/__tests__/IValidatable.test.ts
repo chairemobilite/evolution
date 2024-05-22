@@ -9,7 +9,7 @@ import { IValidatable } from '../IValidatable';
 import { Optional } from '../../../types/Optional.type';
 
 class MockValidatable implements IValidatable {
-    _isValid: Optional<boolean>;
+    _isValid?: Optional<boolean>;
 
     constructor(isValid?: Optional<boolean>) {
         this._isValid = isValid;

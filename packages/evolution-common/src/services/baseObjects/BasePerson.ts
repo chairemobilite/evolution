@@ -7,7 +7,7 @@
 
 import { Optional } from '../../types/Optional.type';
 import { IValidatable } from './IValidatable';
-import { Weightable, Weight, validateWeights } from './Weight';
+import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable } from './Uuidable';
 import * as PAttr from './attributeTypes/PersonAttributes';
 
@@ -36,7 +36,7 @@ type BasePersonAttributes = {
     nickname?: string;
     contactPhoneNumber?: string;
     contactEmail?: string;
-} & Weightable;
+} & WeightableAttributes;
 
 type ExtendedPersonAttributes = BasePersonAttributes & { [key: string]: any };
 

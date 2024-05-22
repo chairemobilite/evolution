@@ -86,9 +86,9 @@ describe('BaseHousehold Class Tests', () => {
         const weight: Weight = household._weights?.[0] as Weight;
         expect(weight.weight).toBe(5.5);
         expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname');
-        expect(weight.method.name).toEqual('Sample Weight Method');
-        expect(weight.method.description).toEqual('Sample weight method description');
+        expect(weight.method?.shortname).toEqual('sample-shortname');
+        expect(weight.method?.name).toEqual('Sample Weight Method');
+        expect(weight.method?.description).toEqual('Sample weight method description');
     });
 });
 
@@ -165,7 +165,7 @@ describe('BaseHousehold Class Additional Tests', () => {
         const errors = BaseHousehold.validateParams(invalidParams);
 
         expect(errors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('Weightable validateWeights: method at index 0 must be an instance of WeightMethod'),
             new Error('Weightable validateWeights: weight at index 1 must be a positive number'),
             new Error('Weightable validateWeights: weight at index 2 must be a positive number'),

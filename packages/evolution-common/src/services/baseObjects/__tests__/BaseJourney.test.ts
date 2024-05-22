@@ -77,9 +77,9 @@ describe('BaseJourney', () => {
         const weight: Weight = journey._weights?.[0] as Weight;
         expect(weight.weight).toBe(2.333);
         expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname');
-        expect(weight.method.name).toEqual('Sample Weight Method');
-        expect(weight.method.description).toEqual('Sample weight method description');
+        expect(weight.method?.shortname).toEqual('sample-shortname');
+        expect(weight.method?.name).toEqual('Sample Weight Method');
+        expect(weight.method?.description).toEqual('Sample weight method description');
     });
 
     it('should validate params with valid values', () => {
@@ -110,7 +110,7 @@ describe('BaseJourney', () => {
         const errors = BaseJourney.validateParams(invalidParams);
         expect(errors.length).toBeGreaterThan(0);
         expect(errors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('BaseJourney validateParams: startDate is required and should be a valid date string'),
             new Error('BaseJourney validateParams: startTime is required and should be a non-negative number'),
             new Error('BaseJourney validateParams: endDate is required and should be a valid date string'),

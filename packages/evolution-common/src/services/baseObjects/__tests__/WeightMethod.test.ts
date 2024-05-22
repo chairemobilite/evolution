@@ -69,7 +69,7 @@ describe('WeightMethod validateParams', () => {
         const errors = WeightMethod.validateParams(invalidParams);
 
         expect(errors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('WeightMethod validateParams: name should be a string'),
             new Error('WeightMethod validateParams: shortname should be a string'),
             new Error('WeightMethod validateParams: description should be a string'),

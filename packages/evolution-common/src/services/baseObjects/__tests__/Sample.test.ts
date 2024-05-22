@@ -63,7 +63,7 @@ describe('Sample Class', () => {
         // Invalid UUID
         const invalidUuid = Sample.validateParams({ _uuid: 'foo', name: 'Sample Name', shortname: 'SN' });
         expect(invalidUuid.length).toEqual(1);
-        expect(invalidUuid[0].message).toEqual('Uuidable validateParams: invalid uuid');
+        expect(invalidUuid[0].message).toEqual('Uuidable validateParams: _uuid should be a valid uuid');
 
         // Missing required attributes:
         const missingRequired = Sample.validateParams({});

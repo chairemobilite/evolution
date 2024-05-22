@@ -120,9 +120,9 @@ describe('BaseVisitedPlace', () => {
         const weight: Weight = visitedPlace._weights?.[0] as Weight;
         expect(weight.weight).toBe(.9911);
         expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname5');
-        expect(weight.method.name).toEqual('Sample Weight Method5');
-        expect(weight.method.description).toEqual('Sample weight method description5');
+        expect(weight.method?.shortname).toEqual('sample-shortname5');
+        expect(weight.method?.name).toEqual('Sample Weight Method5');
+        expect(weight.method?.description).toEqual('Sample weight method description5');
     });
 
     it('should validate valid parameters', () => {
@@ -176,7 +176,7 @@ describe('BaseVisitedPlace', () => {
 
         const errors = BaseVisitedPlace.validateParams(invalidParams);
         expect(errors).toHaveLength(7);
-        expect(errors[0].message).toEqual('Uuidable validateParams: invalid uuid');
+        expect(errors[0].message).toEqual('Uuidable validateParams: _uuid should be a valid uuid');
         expect(errors[1].message).toEqual('BaseVisitedPlace validateParams: arrivalDate should be a valid date string');
         expect(errors[2].message).toEqual('BaseVisitedPlace validateParams: departureDate should be a valid date string');
         expect(errors[3].message).toEqual('BaseVisitedPlace validateParams: arrivalTime should be a positive integer');

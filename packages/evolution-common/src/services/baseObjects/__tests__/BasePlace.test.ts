@@ -279,7 +279,7 @@ describe('validateParams', () => {
     });
 
     it('should unserialize object', () => {
-        const instance = BasePlace.unserialize({ ...basePlaceAttributes, address: baseAddressAttributes });
+        const instance = BasePlace.unserialize({ ...basePlaceAttributes, address: new BaseAddress(baseAddressAttributes) });
         expect(instance).toBeInstanceOf(BasePlace);
         expect(instance.landRoleId).toEqual(basePlaceAttributes.landRoleId);
         expect(instance.address).toBeInstanceOf(BaseAddress);

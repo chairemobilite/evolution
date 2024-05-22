@@ -8,8 +8,6 @@
 import { v4 as uuidV4 } from 'uuid';
 import { BaseJunction, BaseJunctionAttributes, ExtendedJunctionAttributes } from '../BaseJunction';
 import { BasePlace, BasePlaceAttributes } from '../BasePlace';
-import { Weight } from '../Weight';
-import { WeightMethod } from '../WeightMethod';
 
 const validUUID = uuidV4();
 
@@ -28,13 +26,6 @@ describe('BaseJunction', () => {
         },
     } as GeoJSON.Feature<GeoJSON.Point, { [key: string]: string }>;
 
-    const weightMethodAttributes = {
-        _uuid: uuidV4(),
-        shortname: 'sample-shortname5',
-        name: 'Sample Weight Method5',
-        description: 'Sample weight method description5',
-    };
-
     const basePlaceAttributes: BasePlaceAttributes = {
         geography: geojson,
         _uuid: validUUID,
@@ -46,7 +37,6 @@ describe('BaseJunction', () => {
         departureDate: '2023-10-06',
         arrivalTime: 36000, // 10:00 AM in seconds since midnight
         departureTime: 45000, // 12:30 PM in seconds since midnight
-        _weights: [{ weight: 0.9911, method: new WeightMethod(weightMethodAttributes) }],
     };
 
     it('should create a new BaseJunction instance', () => {
@@ -106,16 +96,6 @@ describe('BaseJunction', () => {
         expect(junction).toBeInstanceOf(BaseJunction);
     });
 
-    it('should set weight and method correctly', () => {
-        const junction = new BaseJunction({ ...baseJunctionAttributes, basePlace: new BasePlace(basePlaceAttributes) });
-        const weight: Weight = junction._weights?.[0] as Weight;
-        expect(weight.weight).toBe(.9911);
-        expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname5');
-        expect(weight.method.name).toEqual('Sample Weight Method5');
-        expect(weight.method.description).toEqual('Sample weight method description5');
-    });
-
     it('should validate valid parameters', () => {
         const validParams = {
             _uuid: uuidV4(),
@@ -163,7 +143,7 @@ describe('BaseJunction', () => {
 
         const errors = BaseJunction.validateParams(invalidParams);
         expect(errors).toHaveLength(5);
-        expect(errors[0].message).toEqual('Uuidable validateParams: invalid uuid');
+        expect(errors[0].message).toEqual('Uuidable validateParams: _uuid should be a valid uuid');
         expect(errors[1].message).toEqual('BaseJunction validateParams: arrivalDate should be a valid date string');
         expect(errors[2].message).toEqual('BaseJunction validateParams: departureDate should be a valid date string');
         expect(errors[3].message).toEqual('BaseJunction validateParams: arrivalTime should be a positive integer');

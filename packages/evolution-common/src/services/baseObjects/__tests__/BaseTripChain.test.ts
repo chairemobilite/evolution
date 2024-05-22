@@ -90,9 +90,9 @@ describe('BaseTripChain', () => {
         const weight: Weight = tripChain._weights?.[0] as Weight;
         expect(weight.weight).toBe(0);
         expect(weight.method).toBeInstanceOf(WeightMethod);
-        expect(weight.method.shortname).toEqual('sample-shortname3');
-        expect(weight.method.name).toEqual('Sample Weight Method3');
-        expect(weight.method.description).toEqual('Sample weight method description3');
+        expect(weight.method?.shortname).toEqual('sample-shortname3');
+        expect(weight.method?.name).toEqual('Sample Weight Method3');
+        expect(weight.method?.description).toEqual('Sample weight method description3');
     });
 
     it('should return an empty array for valid parameters', () => {
@@ -123,7 +123,7 @@ describe('BaseTripChain', () => {
 
         const errors = BaseTripChain.validateParams(params);
         expect(errors).toEqual([
-            new Error('Uuidable validateParams: invalid uuid'),
+            new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('BaseTripChain validateParams: isMultiloop should be a boolean'),
             new Error('BaseTripChain validateParams: isConstrained should be a boolean'),
             new Error('BaseTripChain validateParams: category should be a string'),

@@ -6,7 +6,7 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
-import { Weight, Weightable, validateWeights } from '../Weight';
+import { Weight, WeightableAttributes, validateWeights } from '../Weight';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 
 const weightMethodAttributes: WeightMethodAttributes = {
@@ -30,7 +30,7 @@ describe('Weight', () => {
 
 describe('Weightable', () => {
     test('should have an optional _weights property of type Weight[]', () => {
-        const weightable: Weightable = { _weights: [{ weight: 1, method: new WeightMethod(weightMethodAttributes) }] };
+        const weightable: WeightableAttributes = { _weights: [{ weight: 1, method: new WeightMethod(weightMethodAttributes) }] };
         expect(Array.isArray(weightable._weights)).toBe(true);
         expect(weightable._weights?.[0]).toHaveProperty('weight');
         expect(weightable._weights?.[0]).toHaveProperty('method');

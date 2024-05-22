@@ -6,8 +6,13 @@
  */
 
 import { Optional } from '../../types/Optional.type';
+
+export type ValidatebleAttributes = {
+    _isValid?: Optional<boolean>; // undefined means not yet validated
+};
+
 export interface IValidatable {
-    _isValid: Optional<boolean>; // undefined means not yet validated
+    _isValid?: Optional<boolean>; // undefined means not yet validated
 
     validate(): Optional<boolean>;
 
