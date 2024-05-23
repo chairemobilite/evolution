@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { Optional } from '../types/Optional.type';
+
 export class ConstructorUtils {
     /**
      * Initializes the attributes and custom attributes of an object based on the provided parameters.
@@ -34,26 +36,24 @@ export class ConstructorUtils {
     /**
      * Initializes a composed attribute of an object based on the provided parameters.
      *
-     * @template T - The type of the parameters object.
      * @template U - The type of the unserialized attribute item.
      * @template P - The type of the attribute item parameters.
-     * @param params - The parameters object containing the composed attribute values.
-     * @param attributeKey - The key of the composed attribute in the parameters object.
+     * @param params - The parameters object containing the composed attribute values. Undefined array elements are allowed but will be ignored
      * @param unserializeFunc - The function used to unserialize each attribute item.
      * @returns An array of unserialized attribute items.
      */
-    static initializeComposedArrayAttributes<T, U, P>(
-        params: T,
-        attributeKey: keyof T,
+    static initializeComposedArrayAttributes<U, P>(
+        attributeParams: Optional<P[]>,
         unserializeFunc: (params: P) => U
     ): U[] {
-        const attributeParams = params[attributeKey] as P[] | undefined;
         const attributeList: U[] = [];
 
         if (attributeParams) {
             for (const itemParams of attributeParams) {
-                // Unserialize each attribute item using the provided unserialize function
-                attributeList.push(unserializeFunc(itemParams));
+                if (itemParams !== undefined) {
+                    // Unserialize each attribute item using the provided unserialize function
+                    attributeList.push(unserializeFunc(itemParams));
+                }
             }
         }
 
@@ -63,22 +63,15 @@ export class ConstructorUtils {
     /**
      * Initializes a composed attribute of an object based on the provided parameters.
      *
-     * @template T - The type of the parameters object.
      * @template U - The type of the unserialized attribute item.
-     * @param params - The parameters object containing the composed attribute values.
-     * @param attributeKey - The key of the composed attribute in the parameters object.
+     * @template P - The type of the attribute item parameters.
+     * @param params - The composed parameters values.
      * @param unserializeFunc - The function used to unserialize each attribute item.
      * @returns the unserialized attribute items.
      */
-    static initializeComposedAttribute<T, U, P>(
-        params: T,
-        attributeKey: keyof T,
-        unserializeFunc: (params: P) => U
-    ): U | undefined {
-        const attributeParams = params[attributeKey] as P | undefined;
-
-        if (attributeParams) {
-            return unserializeFunc(attributeParams);
+    static initializeComposedAttribute<U, P>(params: Optional<P>, unserializeFunc: (params: P) => U): Optional<U> {
+        if (params !== undefined) {
+            return unserializeFunc(params);
         } else {
             return undefined;
         }

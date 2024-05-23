@@ -30,8 +30,7 @@ describe('ConstructorUtils', () => {
             };
             const unserializeFunc = (item) => ({ id: item.id, name: `Item ${item.id}` });
             const composedAttributes = ConstructorUtils.initializeComposedArrayAttributes(
-                params,
-                'composedAttr',
+                params.composedAttr,
                 unserializeFunc
             );
             expect(composedAttributes).toEqual([
@@ -41,11 +40,20 @@ describe('ConstructorUtils', () => {
         });
 
         test('should return an empty array if composed array attribute is undefined', () => {
-            const params = {};
+            const params = undefined;
             const unserializeFunc = (item) => item;
             const composedAttributes = ConstructorUtils.initializeComposedArrayAttributes(
                 params,
-                'composedAttr' as keyof typeof params,
+                unserializeFunc
+            );
+            expect(composedAttributes).toEqual([]);
+        });
+
+        test('should return an empty array if at least on element of array attribute is undefined', () => {
+            const params = [undefined];
+            const unserializeFunc = (item) => item;
+            const composedAttributes = ConstructorUtils.initializeComposedArrayAttributes(
+                params,
                 unserializeFunc
             );
             expect(composedAttributes).toEqual([]);
@@ -59,19 +67,17 @@ describe('ConstructorUtils', () => {
             };
             const unserializeFunc = (item) => ({ id: item.id, name: `Item ${item.id}` });
             const composedAttributes = ConstructorUtils.initializeComposedAttribute(
-                params,
-                'composedAttr',
+                params.composedAttr,
                 unserializeFunc
             );
             expect(composedAttributes).toEqual({ id: 1, name: 'Item 1' });
         });
 
         test('should return an empty array if composed attribute is undefined', () => {
-            const params = {};
+            const params = undefined;
             const unserializeFunc = (item) => item;
             const composedAttributes = ConstructorUtils.initializeComposedAttribute(
                 params,
-                'composedAttr' as keyof typeof params,
                 unserializeFunc
             );
             expect(composedAttributes).toEqual(undefined);

@@ -12,6 +12,8 @@ import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 
+// TODO: make this class more international. For now, it fits Canadian addresses only.
+
 /**
  * Address objects are created from official data sources and are used
  * to match geolocations with a civic address.
@@ -63,7 +65,7 @@ export type AddressAttributes = {
     region: string;
     country: string;
     postalCode?: Optional<string>;
-    addressId?: Optional<string>; // official address id
+    addressId?: Optional<string>; // official address id, linking to governmental or postal data
 } & UuidableAttributes & ValidatebleAttributes;
 
 export type ExtendedAddressAttributes = AddressAttributes & { [key: string]: unknown };
