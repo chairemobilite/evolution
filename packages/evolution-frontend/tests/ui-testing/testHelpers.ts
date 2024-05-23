@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment';
-import { test, expect, Page, Browser } from '@playwright/test';
+import { test, expect, Page, Browser, Locator } from '@playwright/test';
 import configureI18n, { registerTranslationDir } from './configurei18n';
 import { SurveyObjectDetector } from './SurveyObjectDetectors';
 
@@ -28,9 +28,9 @@ export type CommonTestParameters = {
         // The object detector for the current test
         objectDetector: SurveyObjectDetector;
         // Store a counter for test names, to avoid duplicate test names. We have many objects to test and they may result in identical test names.
-        widgetTestCounters: { [testKey: string]: number }
+        widgetTestCounters: { [testKey: string]: number };
     };
-}
+};
 type Value = string;
 type StringOrBoolean = string | boolean;
 type Text = string;
@@ -50,18 +50,22 @@ type SimpleAction = (params: CommonTestParameters) => void;
 type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void;
 type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
 type InputStringTest = (params: PathAndValue & CommonTestParameters) => void;
-type InputRangeTest = (params: {path: Path, value: number, sliderColor?: string} & CommonTestParameters) => void;
+type InputRangeTest = (params: { path: Path; value: number; sliderColor?: string } & CommonTestParameters) => void;
+type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestParameters) => void;
 type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => void;
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
 type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
 
 // Open the browser before all the tests and go to the home page
-export const initializeTestPage = async (browser: Browser, surveyObjectDetector: SurveyObjectDetector): Promise<Page> => {
+export const initializeTestPage = async (
+    browser: Browser,
+    surveyObjectDetector: SurveyObjectDetector
+): Promise<Page> => {
     const context = await browser.newContext();
     const page = await context.newPage();
     await page.goto('/');
 
-    page.on('request', request => {
+    page.on('request', (request) => {
         // Listen to requests to survey update to get the objects' uuid
         if (request.url().includes('survey/updateInterview')) {
             const postData = request.postData();
@@ -87,7 +91,7 @@ const getTestCounter = (context: CommonTestParameters['context'], testKey: strin
     const testIdx = context.widgetTestCounters[testKey] || 0;
     context.widgetTestCounters[testKey] = testIdx + 1;
     return context.widgetTestCounters[testKey];
-}
+};
 
 // Click outside to remove focus, fake a click on the left of the screen, to avoid the page scrolling out of current viewport
 const focusOut = async (page) => {
@@ -145,10 +149,9 @@ export const startSurveyTest: StartSurveyTest = ({ context }) => {
 // Test if the page has a register without email button
 export const registerWithoutEmailTest: RegisterWithoutEmailTest = ({ context }) => {
     test('Register without email', async () => {
-        const registerWithoutEmail = context.page.getByRole('button', { name: i18n.t([
-            'survey:auth:UseAnonymousLogin',
-            'auth:UseAnonymousLogin'
-        ]) as string });
+        const registerWithoutEmail = context.page.getByRole('button', {
+            name: i18n.t(['survey:auth:UseAnonymousLogin', 'auth:UseAnonymousLogin']) as string
+        });
         await registerWithoutEmail.click();
         await expect(context.page).toHaveURL('/survey/home');
     });
@@ -157,10 +160,9 @@ export const registerWithoutEmailTest: RegisterWithoutEmailTest = ({ context }) 
 // Test if the page has a register without email button
 export const logoutTest: SimpleAction = ({ context }) => {
     test('Logout from survey', async () => {
-        const logoutButton = context.page.getByRole('button', { name: i18n.t([
-            'survey:auth:Logout',
-            'auth:Logout'
-        ]) as string });
+        const logoutButton = context.page.getByRole('button', {
+            name: i18n.t(['survey:auth:Logout', 'auth:Logout']) as string
+        });
         await logoutButton.click();
         await expect(context.page).toHaveURL('/');
     });
@@ -195,13 +197,24 @@ export const inputRadioTest: InputRadioTest = ({ context, path, value }) => {
  * @param {string[]} options.options - The expected options for the radio input
  * question.
  */
-export const expectInputRadioOptionsTest = ({ context, path, options }: { path: Path, options: string[] } & CommonTestParameters) => {
-    test(`Validate presence of radio options for ${path} - ${getTestCounter(context, `${path} - options`)}`, async () => {
+export const expectInputRadioOptionsTest = ({
+    context,
+    path,
+    options
+}: { path: Path; options: string[] } & CommonTestParameters) => {
+    test(`Validate presence of radio options for ${path} - ${getTestCounter(
+        context,
+        `${path} - options`
+    )}`, async () => {
         const newPath = context.objectDetector.replaceWithIds(path);
 
         // Find the first option and make sure it exists
-        const resolvedOptions = options.map(option => typeof option === 'string' ? context.objectDetector.replaceWithIds(option) : option);
-        const firstRadioOption = context.page.locator(`id=survey-question__${newPath}_${resolvedOptions[0]}__input-radio__${resolvedOptions[0]}`);
+        const resolvedOptions = options.map((option) =>
+            typeof option === 'string' ? context.objectDetector.replaceWithIds(option) : option
+        );
+        const firstRadioOption = context.page.locator(
+            `id=survey-question__${newPath}_${resolvedOptions[0]}__input-radio__${resolvedOptions[0]}`
+        );
         await expect(firstRadioOption).toBeVisible();
 
         // Find the radio options container (3 levels higher up)
@@ -209,7 +222,9 @@ export const expectInputRadioOptionsTest = ({ context, path, options }: { path: 
 
         // Make sure all the radio options exist
         for (const option of resolvedOptions) {
-            const radioOption = radioOptionsContainer.locator(`id=survey-question__${newPath}_${option}__input-radio__${option}`);
+            const radioOption = radioOptionsContainer.locator(
+                `id=survey-question__${newPath}_${option}__input-radio__${option}`
+            );
             await expect(radioOption, `Missing radio option: ${option}`).toBeVisible();
         }
 
@@ -245,10 +260,19 @@ export const inputSelectTest: InputSelectTest = ({ context, path, value }) => {
  * @param {string[]} options.options - The expected options for the select input
  * question.
  */
-export const expectInputSelectOptionsTest = ({ context, path, options }: { path: Path, options: string[] } & CommonTestParameters) => {
-    test(`Validate presence of select options for ${path} - ${getTestCounter(context, `${path} - options`)}`, async () => {
+export const expectInputSelectOptionsTest = ({
+    context,
+    path,
+    options
+}: { path: Path; options: string[] } & CommonTestParameters) => {
+    test(`Validate presence of select options for ${path} - ${getTestCounter(
+        context,
+        `${path} - options`
+    )}`, async () => {
         const newPath = context.objectDetector.replaceWithIds(path);
-        const resolvedOptions = options.map(option => typeof option === 'string' ? context.objectDetector.replaceWithIds(option) : option);
+        const resolvedOptions = options.map((option) =>
+            typeof option === 'string' ? context.objectDetector.replaceWithIds(option) : option
+        );
 
         // Find the select widget
         const selectWidget = context.page.locator(`id=survey-question__${newPath}`);
@@ -270,7 +294,10 @@ export const expectInputSelectOptionsTest = ({ context, path, options }: { path:
                 // Empty option always there
                 continue;
             }
-            expect(options.includes(selectOptionValue as string), `Unexpected option: ${selectOptionValue}`).toBeTruthy();
+            expect(
+                options.includes(selectOptionValue as string),
+                `Unexpected option: ${selectOptionValue}`
+            ).toBeTruthy();
         }
         expect(selectOptions.length).toEqual(options.length + 1);
     });
@@ -347,6 +374,40 @@ export const inputRangeTest: InputRangeTest = ({ context, path, value, sliderCol
     });
 };
 
+/**
+ * Test to check if the checkboxes for a given path are working as expected.
+ * It iterates over the provided values, checks each checkbox, and verifies that it is checked.
+ *
+ * @param {object} params - The parameters for the test.
+ * @param {string} params.path - The path to the checkboxes to be tested.
+ * @param {(string|number)[]} params.values - The values to be checked in the checkboxes.
+ */
+export const inputCheckboxTest: InputCheckboxTest = ({ context, path, values }) => {
+    test(`Check ${values} for ${path} - ${getTestCounter(context, `${path} - ${values}`)}`, async () => {
+        const newPath = context.objectDetector.replaceWithIds(path);
+        const resolvedValues = values.map((value) =>
+            typeof value === 'string' ? context.objectDetector.replaceWithIds(value) : value
+        );
+        const checkboxes: Locator[] = []; // Store the locators for the checkboxes
+
+        // Click on each checkbox
+        for (const value of resolvedValues) {
+            const checkbox = context.page.locator(`id=survey-question__${newPath}_${value}__input-checkbox__${value}`);
+            checkboxes.push(checkbox); // Store the locator for the checkbox
+            await checkbox.scrollIntoViewIfNeeded();
+            await checkbox.click();
+        }
+
+        // Check that all checkboxes are checked
+        for (const checkbox of checkboxes) {
+            await checkbox.scrollIntoViewIfNeeded();
+            await expect(checkbox).toBeChecked();
+        }
+
+        await focusOut(context.page);
+    });
+};
+
 // Test input mapFindPlace widget
 export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) => {
     test(`Find place on map ${path} - ${getTestCounter(context, `${path}`)}`, async () => {
@@ -408,25 +469,28 @@ export const inputDatePickerTest = ({ context, path, value }: PathAndValue & Com
         const datePickerBoundingBox = await datePickerInput.boundingBox();
         if (datePickerBoundingBox !== null) {
             // Click in the middle of the bounding box
-            context.page.mouse.click(datePickerBoundingBox.x + datePickerBoundingBox.width / 2, datePickerBoundingBox.y + datePickerBoundingBox.height / 2);
+            context.page.mouse.click(
+                datePickerBoundingBox.x + datePickerBoundingBox.width / 2,
+                datePickerBoundingBox.y + datePickerBoundingBox.height / 2
+            );
         }
 
         // Find the date picker container (3 levels higher up)
         const datePickerContainer = datePickerInput.locator('..').locator('..').locator('..');
 
         // Prepare the values to select
-        const desiredDate = moment(value, 'YYYY-MM-DD')
+        const desiredDate = moment(value, 'YYYY-MM-DD');
         const desiredMonth = desiredDate.format('MMMM');
         const desiredDay = desiredDate.format('D');
         const desiredYear = desiredDate.format('YYYY');
 
         // Select the desired month
-        const getCurrentlySelectedMonthYear = async() => {
+        const getCurrentlySelectedMonthYear = async () => {
             const monthSelector = datePickerContainer.locator('.react-datepicker__current-month');
             await expect(monthSelector).toBeVisible();
             const currentMonthYearText = await monthSelector.allInnerTexts();
             return moment(currentMonthYearText[0], 'MMMM YYYY');
-        }
+        };
 
         // Select the desired month, either by clicking previous or next month buttons
         // FIXME This approach to selecting month was tested with the od_longue_distance survey, but it may not work for all surveys
@@ -458,15 +522,22 @@ export const inputDatePickerTest = ({ context, path, value }: PathAndValue & Com
         const selectedDateValue = await datePickerInput.getAttribute('value');
         expect(selectedDateValue).toBe(desiredDate.format('DD/MM/YYYY'));
     });
-}
+};
 
 /**
  * Test whether a widget is visible or not
  *
  * @param { path, isVisible = true } - The path of the widget and whether it should be visible or not
  */
-export const inputVisibleTest = ({ context, path, isVisible = true }: { path: Path, isVisible?: boolean } & CommonTestParameters) => {
-    test(`Check input visibility ${path} - ${isVisible} - ${getTestCounter(context, `${path} - ${isVisible}`)}`, async () => {
+export const inputVisibleTest = ({
+    context,
+    path,
+    isVisible = true
+}: { path: Path; isVisible?: boolean } & CommonTestParameters) => {
+    test(`Check input visibility ${path} - ${isVisible} - ${getTestCounter(
+        context,
+        `${path} - ${isVisible}`
+    )}`, async () => {
         const newPath = context.objectDetector.replaceWithIds(path);
         const input = context.page.locator(`id=survey-question__${newPath}`);
         if (isVisible) {
@@ -475,7 +546,7 @@ export const inputVisibleTest = ({ context, path, isVisible = true }: { path: Pa
             await expect(input).toBeHidden();
         }
     });
-}
+};
 
 /**
  * Test that a text is visible on the page
@@ -487,4 +558,4 @@ export const waitTextVisible = ({ context, text }: { text: Path } & CommonTestPa
         const input = context.page.getByText(text);
         await expect(input).toBeVisible();
     });
-}
+};
