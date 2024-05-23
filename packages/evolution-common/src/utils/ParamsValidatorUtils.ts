@@ -93,6 +93,7 @@ export class ParamsValidatorUtils {
         }
     }
 
+    // a date string is a string of format 'YYYY-MM-DD'
     static isDateString(attribute: string, value: unknown, displayName: string): Error[] {
         if (value !== undefined) {
             const date = new Date(value + 'T00:00:00');

@@ -8,8 +8,10 @@
 import { Optional } from '../types/Optional.type';
 
 /**
- * can return invalid dates: use isNaN on date.getTime() to check if it's valid
- * @deprecated use parseDate instead
+ * This functions will parse a date string or date object and return a date object if valid.
+ * Will no logner be needed once we switch to the new function getDateFromDateString
+ * Can return invalid dates: use isNaN on date.getTime() to check if it's valid
+ * @deprecated use getDateFromDateString instead
  * @param date the date string or date object
  * @param showErrorOnValidate whether to show an error in the console if the date is invalid
  * @returns date object | undefined if invalid or undefined or null
