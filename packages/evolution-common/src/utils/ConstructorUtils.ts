@@ -14,7 +14,7 @@ export class ConstructorUtils {
      * @param attributeNames - The array of attributes names.
      * @returns An object containing the attributes and custom attributes.
      */
-    static initializeAttributes<T>(params: T, attributeNames: string[]) {
+    static initializeAttributes<T>(params: T, attributeNames: readonly string[]) {
         const initializedAttributes = {} as T;
         const initializedCustomAttributes = {} as { [key: string]: unknown };
 
@@ -36,6 +36,7 @@ export class ConstructorUtils {
      *
      * @template T - The type of the parameters object.
      * @template U - The type of the unserialized attribute item.
+     * @template P - The type of the attribute item parameters.
      * @param params - The parameters object containing the composed attribute values.
      * @param attributeKey - The key of the composed attribute in the parameters object.
      * @param unserializeFunc - The function used to unserialize each attribute item.

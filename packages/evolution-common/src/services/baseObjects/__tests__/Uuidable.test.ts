@@ -18,7 +18,8 @@ describe('Uuidable Class', () => {
 
     it('should have a valid UUID for the _uuid property when instantiated without parameters', () => {
         const uuidBaseInstance = new Uuidable();
-        const isValidUUID = uuidValidate(uuidBaseInstance._uuid || '');
+        expect(typeof uuidBaseInstance._uuid).toEqual('string');
+        const isValidUUID = uuidValidate(uuidBaseInstance._uuid as string);
         expect(isValidUUID).toBeTruthy();
     });
 

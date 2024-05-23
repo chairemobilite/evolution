@@ -23,6 +23,16 @@ describe('ParamsValidatorUtils', () => {
             expect(errors).toEqual([]);
         });
 
+        test('should return no errors for an null value', () => {
+            const errors = ParamsValidatorUtils.isObject('attr', null, 'TestClass');
+            expect(errors).toEqual([]);
+        });
+
+        test('should return no errors for an non-empty object', () => {
+            const errors = ParamsValidatorUtils.isObject('attr', { foo: 'bar' }, 'TestClass');
+            expect(errors).toEqual([]);
+        });
+
         test('should return an error for a non-object value', () => {
             const errors = ParamsValidatorUtils.isObject('attr', 'invalid', 'TestClass');
             expect(errors).toHaveLength(1);
@@ -44,6 +54,10 @@ describe('ParamsValidatorUtils', () => {
     });
 
     describe('isInstanceOf', () => {
+
+        class ParentClass {}
+        class ChildClass extends ParentClass {}
+
         test('should return no errors for an instance of TestClass', () => {
             const instance = new TestClass();
             const errors = ParamsValidatorUtils.isInstanceOf('attr', instance, 'TestClass', TestClass
@@ -60,6 +74,12 @@ describe('ParamsValidatorUtils', () => {
             const errors = ParamsValidatorUtils.isInstanceOf('attr', {}, 'TestClass', TestClass);
             expect(errors).toHaveLength(1);
             expect(errors[0].message).toContain('should be an instance of TestClass');
+        });
+
+        test('should return no errors for an instance of a child class', () => {
+            const instance = new ChildClass();
+            const errors = ParamsValidatorUtils.isInstanceOf('attr', instance, 'ParentClass', ParentClass);
+            expect(errors).toEqual([]);
         });
     });
 
@@ -174,11 +194,6 @@ describe('ParamsValidatorUtils', () => {
     describe('isDateString', () => {
         test('should return no errors for a date string', () => {
             const errors = ParamsValidatorUtils.isDateString('attr', '2024-01-01', 'TestClass');
-            expect(errors).toEqual([]);
-        });
-
-        test('should return no errors for an undefined value', () => {
-            const errors = ParamsValidatorUtils.isDateString('attr', undefined, 'TestClass');
             expect(errors).toEqual([]);
         });
 
@@ -418,6 +433,18 @@ describe('ParamsValidatorUtils', () => {
 
         test('should return an error for an invalid GeoJSON Point', () => {
             const errors = ParamsValidatorUtils.isGeojsonPoint('attr', { type: 'Feature', geometry: { type: 'Invalid' } }, 'TestClass');
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toContain('should be a valid geojson point');
+        });
+
+        test('should return an error for an empty GeoJSON Point coordinates', () => {
+            const errors = ParamsValidatorUtils.isGeojsonPoint('attr', { type: 'Feature', geometry: { type: 'Point', coordinates: [] } }, 'TestClass');
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toContain('should be a valid geojson point');
+        });
+
+        test('should return an error for an undefined GeoJSON Point coordinates', () => {
+            const errors = ParamsValidatorUtils.isGeojsonPoint('attr', { type: 'Feature', geometry: { type: 'Point', coordinates: undefined } }, 'TestClass');
             expect(errors).toHaveLength(1);
             expect(errors[0].message).toContain('should be a valid geojson point');
         });

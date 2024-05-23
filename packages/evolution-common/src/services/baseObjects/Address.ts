@@ -12,6 +12,11 @@ import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 
+/**
+ * Address objects are created from official data sources and are used
+ * to match geolocations with a civic address.
+ */
+
 export const addressAttributes = [
     '_uuid',
     '_isValid',
@@ -21,43 +26,44 @@ export const addressAttributes = [
     'streetName',
     'streetNameHomogenized',
     'streetNameId',
-    'streetNameInternalId',
     'municipalityName',
     'municipalityCode',
     'postalMunicipalityName',
     'region',
     'country',
     'postalCode',
-    'addressId',
-    'internalId',
-];
+    'addressId'
+] as const;
 
-/** homogenized street name:
- * - replace latin characters with their non-latin equivalent
- * - lowercase
- * - no dash
- * - includes non-abbreviated street type/prefix and/or suffix (e.g. "rue", "avenue", "boulevard", etc.)
- * - includes non-abbreviated orientation
- * - non-abbreviated saint/sainte
- * - trimed and trimed start
- * example: rue de la gauchetiere ouest | 5e avenue nord | rang du petit saint jean | 30e rue
+/**
+ * Note about ? and Optional type:
+ * We keep the ? so it accepts empty params
+ * We add the Optional type to make it obvious that the attribute is optional everywhere it appears
  */
 export type AddressAttributes = {
     civicNumber: number;
-    civicNumberSuffix?: string;
-    unitNumber?: number;
-    streetName: string;
-    streetNameHomogenized?: string;
-    streetNameId?: string;
-    streetNameInternalId?: string;
+    civicNumberSuffix?: Optional<string>; // example: A, B, C
+    unitNumber?: Optional<string>; // example: 101, 202
+    streetName: string; // no abbreviation, with latin characters and capital letters
+    /** homogenized street name:
+     * - replace latin characters with their non-latin equivalent
+     * - lowercase
+     * - no dash
+     * - includes non-abbreviated street type/prefix and/or suffix (e.g. "rue", "avenue", "boulevard", etc.)
+     * - includes non-abbreviated orientation
+     * - non-abbreviated saint/sainte
+     * - trimed and trimed start
+     * example: 30th street | saint john boulevard | rue de la gauchetiere ouest | 5e avenue nord | rang du petit saint jean | 30e rue
+     */
+    streetNameHomogenized?: Optional<string>; // should be unique by municipality
+    streetNameId?: Optional<string>; // official street name id
     municipalityName: string;
-    municipalityCode?: string;
-    postalMunicipalityName?: string;
+    municipalityCode?: Optional<string>; // official code for the municipality
+    postalMunicipalityName?: Optional<string>; // some municipalities have a different name for postal addresses
     region: string;
     country: string;
-    postalCode?: string;
-    addressId?: string;
-    internalId?: string;
+    postalCode?: Optional<string>;
+    addressId?: Optional<string>; // official address id
 } & UuidableAttributes & ValidatebleAttributes;
 
 export type ExtendedAddressAttributes = AddressAttributes & { [key: string]: unknown };
@@ -119,11 +125,11 @@ export class Address implements IValidatable {
         this._attributes.civicNumberSuffix = value;
     }
 
-    get unitNumber(): Optional<number> {
+    get unitNumber(): Optional<string> {
         return this._attributes.unitNumber;
     }
 
-    set unitNumber(value: Optional<number>) {
+    set unitNumber(value: Optional<string>) {
         this._attributes.unitNumber = value;
     }
 
@@ -149,14 +155,6 @@ export class Address implements IValidatable {
 
     set streetNameId(value: Optional<string>) {
         this._attributes.streetNameId = value;
-    }
-
-    get streetNameInternalId(): Optional<string> {
-        return this._attributes.streetNameInternalId;
-    }
-
-    set streetNameInternalId(value: Optional<string>) {
-        this._attributes.streetNameInternalId = value;
     }
 
     get municipalityName(): string {
@@ -215,14 +213,6 @@ export class Address implements IValidatable {
         this._attributes.addressId = value;
     }
 
-    get internalId(): Optional<string> {
-        return this._attributes.internalId;
-    }
-
-    set internalId(value: Optional<string>) {
-        this._attributes.internalId = value;
-    }
-
     // params must be sanitized and must be valid:
     static unserialize(params: ExtendedAddressAttributes): Address {
         return new Address(params);
@@ -257,6 +247,7 @@ export class Address implements IValidatable {
     /**
      * Validates attributes types for Address.
      * @param dirtyParams The parameters to validate.
+     * @param displayName The name of the object to validate, for error display
      * @returns Error[] TODO: specialize this error class
      */
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Address'): Error[] {
@@ -304,7 +295,7 @@ export class Address implements IValidatable {
         );
 
         errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
+            ...ParamsValidatorUtils.isString(
                 'unitNumber',
                 dirtyParams.unitNumber,
                 displayName
@@ -331,14 +322,6 @@ export class Address implements IValidatable {
             ...ParamsValidatorUtils.isString(
                 'streetNameId',
                 dirtyParams.streetNameId,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'streetNameInternalId',
-                dirtyParams.streetNameInternalId,
                 displayName
             )
         );
@@ -395,14 +378,6 @@ export class Address implements IValidatable {
             ...ParamsValidatorUtils.isString(
                 'addressId',
                 dirtyParams.addressId,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'internalId',
-                dirtyParams.internalId,
                 displayName
             )
         );

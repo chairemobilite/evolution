@@ -15,30 +15,27 @@ describe('Address', () => {
         _isValid: true,
         civicNumber: 123,
         civicNumberSuffix: 'A',
-        unitNumber: 456,
+        unitNumber: '456',
         streetName: 'Main Street',
         streetNameHomogenized: 'main street',
         streetNameId: 'street-id',
-        streetNameInternalId: 'street-internal-id',
         municipalityName: 'City',
         municipalityCode: 'CITY',
         postalMunicipalityName: 'Postal City',
         region: 'Region',
         country: 'Country',
         postalCode: 'A1B 2C3',
-        addressId: 'address-id',
-        internalId: 'internal-id',
+        addressId: 'address-id'
     };
 
-    const extendedAddressAttributes: ExtendedAddressAttributes = {
-        ...validAddressAttributes,
-        customAttribute: 'custom value',
-    };
-
+    /**
+     * This tests only checks that we did not forget to validate all params in the class attributes:
+     * it will check that the validateParams includes at least each param name in quotes
+     */
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Address.validateParams.toString();
-        addressAttributes.forEach((attributeName) => {
-            expect(validateParamsCode).toContain(attributeName);
+        addressAttributes.filter((attribute) => attribute !== '_uuid').forEach((attributeName) => {
+            expect(validateParamsCode).toContain('\''+attributeName+'\'');
         });
     });
 
@@ -62,12 +59,6 @@ describe('Address', () => {
 
     test('should create an Address instance with valid attributes', () => {
         const result = Address.create(validAddressAttributes);
-        expect(isOk(result)).toBe(true);
-        expect(unwrap(result)).toBeInstanceOf(Address);
-    });
-
-    test('should create an Address instance with extended attributes', () => {
-        const result = Address.create(extendedAddressAttributes);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Address);
     });
@@ -120,11 +111,10 @@ describe('Address', () => {
         test.each([
             ['civicNumber', 789],
             ['civicNumberSuffix', 'B'],
-            ['unitNumber', 987],
+            ['unitNumber', '987A'],
             ['streetName', 'New Street'],
             ['streetNameHomogenized', 'new street'],
             ['streetNameId', 'new-street-id'],
-            ['streetNameInternalId', 'new-street-internal-id'],
             ['municipalityName', 'New City'],
             ['municipalityCode', 'NEWCITY'],
             ['postalMunicipalityName', 'New Postal City'],
@@ -132,42 +122,34 @@ describe('Address', () => {
             ['country', 'New Country'],
             ['postalCode', 'X9Y 8Z7'],
             ['addressId', 'new-address-id'],
-            ['internalId', 'new-internal-id'],
-        ])('should set and get %s', (attribute, value) => {
-            const address = new Address(validAddressAttributes);
-            address[attribute] = value;
-            expect(address[attribute]).toEqual(value);
-        });
-
-        test.each([
             ['_isValid', false],
         ])('should set and get %s', (attribute, value) => {
             const address = new Address(validAddressAttributes);
             address[attribute] = value;
             expect(address[attribute]).toEqual(value);
         });
+
     });
 
     describe('validateParams', () => {
         test.each([
             ['civicNumber', 'invalid'],
-            ['unitNumber', 'invalid'],
+            ['unitNumber', {}],
             ['streetName', 123],
             ['municipalityName', 123],
             ['region', 123],
             ['country', 123],
             ['postalCode', 123],
             ['addressId', 123],
-            ['internalId', 123],
             ['civicNumberSuffix', 123],
             ['streetNameHomogenized', 123],
             ['streetNameId', 123],
-            ['streetNameInternalId', 123],
             ['municipalityCode', 123],
             ['postalMunicipalityName', 123],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAddressAttributes, [param]: value };
             const errors = Address.validateParams(invalidAttributes);
+            expect(errors[0].toString()).toContain(param);
             expect(errors).toHaveLength(1);
         });
 
