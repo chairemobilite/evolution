@@ -16,6 +16,11 @@ import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 
+/**
+ * A place is a location (GeoJSON point) with attributes.
+ * Classes can inherit this class and add their own attributes (like a work place, a school place, a junction, etc.).
+ */
+
 export const placeAttributes = [
     '_weights',
     '_isValid',

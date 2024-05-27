@@ -16,6 +16,11 @@ import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 
+/**
+ * A person is a member of a household. it can have these composed objects:
+ * workPlaces, schoolPlaces, journeys, vehicles
+ */
+
 export const personAttributes = [
     '_weights',
     '_isValid',
