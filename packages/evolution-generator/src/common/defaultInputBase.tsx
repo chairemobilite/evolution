@@ -61,7 +61,6 @@ export const inputRangeBase: inputTypes.InputRangeBase = {
     type: 'question',
     inputType: 'slider',
     initValue: null,
-    trackClassName: 'input-slider-blue'
 };
 
 // Checkbox default params

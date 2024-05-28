@@ -72,6 +72,11 @@ def generate_input_range(input_file: str, output_file: str):
             max_value = str(row_dict["maxValue"])
             unit_fr = replaces_quotes_and_stringify(row_dict["unitFr"])
             unit_en = replaces_quotes_and_stringify(row_dict["unitEn"])
+            input_color = (
+                row_dict["input_color"]
+                if row_dict["input_color"] is not None
+                else "blue"
+            )
 
             # Check if the row is valid
             if (
@@ -103,8 +108,8 @@ def generate_input_range(input_file: str, output_file: str):
             ts_code += f"{INDENT}maxValue: {max_value},\n"
             ts_code += f"{INDENT}formatLabel: (value, language) => {{\n"
             ts_code += f"{INDENT}{INDENT}return value < 0 ? '' : `${{value}} ${{language === 'fr' ? '{unit_fr}' : language === 'en' ? '{unit_en}' : ''}}`;\n"
-            # ts_code += f"{INDENT}{INDENT}return value + ' ' + (language === 'fr' ? '{unit_fr}' : '{unit_en}');\n"
-            ts_code += f"{INDENT}}}\n"
+            ts_code += f"{INDENT}}},\n"
+            ts_code += f"{INDENT}trackClassName: 'input-slider-{input_color}'\n"
             ts_code += "};\n\n"
 
         # Write TypeScript code to a file

@@ -111,7 +111,7 @@ export type InputRadioNumber = InputRadioNumberBase & {
         min: number;
         max: number;
     };
-    overMaxAllowed: boolean,
+    overMaxAllowed: boolean;
     helpPopup?: HelpPopup;
     conditional: Conditional;
     validations?: Validations;
@@ -158,13 +158,13 @@ export type InputRangeBase = {
     type: 'question';
     inputType: 'slider';
     initValue: null;
-    trackClassName: string;
 };
 export type InputRangeConfig = {
     labels: Labels;
     minValue?: number;
     maxValue?: number;
     formatLabel?: (value: number, lang: string) => string;
+    trackClassName: 'input-slider-blue' | 'input-slider-red-yellow-green' | 'input-slider-green-yellow-red';
 };
 export type InputRange = InputRangeBase &
     InputRangeConfig & {
