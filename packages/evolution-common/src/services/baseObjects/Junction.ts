@@ -45,7 +45,7 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
 
     static _confidentialAttributes = [];
 
-    constructor(params: JunctionAttributes | ExtendedJunctionAttributes) {
+    constructor(params: ExtendedJunctionAttributes) {
         super(params, junctionAttributes);
     }
 

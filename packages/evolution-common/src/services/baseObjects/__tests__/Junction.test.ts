@@ -183,6 +183,20 @@ describe('Junction', () => {
             expect(junction[attribute]).toEqual(value);
         });
 
+        describe('Getters for attributes with no setters', () => {
+            test.each([
+                ['_uuid', extendedJunctionAttributes._uuid],
+                ['customAttributes', {
+                    customAttribute1: extendedJunctionAttributes.customAttribute1,
+                    customAttribute2: extendedJunctionAttributes.customAttribute2
+                }],
+                ['attributes', validJunctionAttributes],
+            ])('should set and get %s', (attribute, value) => {
+                const junction = new Junction(extendedJunctionAttributes);
+                expect(junction[attribute]).toEqual(value);
+            });
+        });
+
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],

@@ -5,12 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Route as OSRMRoute } from 'osrm';
-import { Optional } from '../../../types/Optional.type';
-import { Uuidable, UuidableAttributes } from '../Uuidable';
-import { ConstructorUtils } from '../../../utils/ConstructorUtils';
-import { ParamsValidatorUtils } from '../../../utils/ParamsValidatorUtils';
-import { Result, createErrors, createOk } from '../../../types/Result.type';
+import { Optional } from '../../types/Optional.type';
+import { Uuidable, UuidableAttributes } from './Uuidable';
+import { ConstructorUtils } from '../../utils/ConstructorUtils';
+import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
+import { Result, createErrors, createOk } from '../../types/Result.type';
 
 export const routingModes = [
     'walking',
@@ -51,20 +50,20 @@ export type RoutingAttributes = {
     status?: Optional<RoutingStatus>;
     travelTimeS?: Optional<number>; // seconds
     travelDistanceM?: Optional<number>; // meters
-    route?: Optional<OSRMRoute>; // TODO: create a generic route result
+    //route?: Optional<GENERICROUTE>; // TODO: create a generic route result
 } & UuidableAttributes;
 
 export type ExtendedRoutingAttributes = RoutingAttributes & { [key: string]: unknown };
 
-export class Routing<ChildAttributes> {
-    protected _attributes: ChildAttributes & RoutingAttributes;
+export class Routing {
+    protected _attributes: RoutingAttributes;
     protected _customAttributes: { [key: string]: unknown };
 
-    constructor(params: ChildAttributes & ExtendedRoutingAttributes, childRoutingAttributes: string[] = routingAttributes) {
+    constructor(params: ExtendedRoutingAttributes, childRoutingAttributes: string[] = routingAttributes) {
 
         params._uuid = Uuidable.getUuid(params._uuid);
 
-        this._attributes = {} as ChildAttributes & RoutingAttributes;
+        this._attributes = {} as RoutingAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
@@ -76,7 +75,7 @@ export class Routing<ChildAttributes> {
 
     }
 
-    get attributes(): ChildAttributes & RoutingAttributes {
+    get attributes(): RoutingAttributes {
         return this._attributes;
     }
 
@@ -160,8 +159,16 @@ export class Routing<ChildAttributes> {
         this._attributes.travelDistanceM = value;
     }
 
+    /*get route(): Optional<GENERICROUTE> {
+        return this._attributes.route;
+    }
+
+    set route(value: Optional<GENERICROUTE>) {
+        this._attributes.route = value;
+    }*/
+
     // params must be sanitized and must be valid:
-    static unserialize(params: ExtendedRoutingAttributes): Routing<RoutingAttributes> {
+    static unserialize(params: ExtendedRoutingAttributes): Routing {
         return new Routing(params);
     }
 
@@ -172,13 +179,13 @@ export class Routing<ChildAttributes> {
      * @param dirtyParams
      * @returns Routing | Error[]
      */
-    static create(dirtyParams: { [key: string]: unknown }): Result<Routing<RoutingAttributes>> {
+    static create(dirtyParams: { [key: string]: unknown }): Result<Routing> {
         const errors = Routing.validateParams(dirtyParams);
         const place = errors.length === 0 ? new Routing(dirtyParams) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }
-        return createOk(place as Routing<RoutingAttributes>);
+        return createOk(place as Routing);
     }
 
     /**
@@ -270,11 +277,11 @@ export class Routing<ChildAttributes> {
 
         // Validate params object:
         // TODO: verify all attributes from the route object
-        errors.push(...ParamsValidatorUtils.isObject(
+        /*errors.push(...ParamsValidatorUtils.isObject(
             'route',
             dirtyParams.route,
             displayName
-        ));
+        ));*/
 
         return errors;
     }

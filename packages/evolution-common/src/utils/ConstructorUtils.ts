@@ -12,19 +12,28 @@ export class ConstructorUtils {
      * Initializes the attributes and custom attributes of an object based on the provided parameters.
      *
      * @template T - The type of the params object.
-     * @param params - The parameters object containing the attribute values.
+     * @param params - The parameters object containing the attribute values (includes named attributes, custom attributes and composed attributes, which are ignored here).
      * @param attributeNames - The array of attributes names.
+     * @param attributeWithComposedAttributes - The array of attributes names including composed attributes names. Undefined if the class has no composed objects. Composed attributes are ignored here and must be sent to initializeComposedAttribute/initializeComposedArrayAttributes.
      * @returns An object containing the attributes and custom attributes.
      */
-    static initializeAttributes<T>(params: T, attributeNames: readonly string[]) {
+    static initializeAttributes<T>(
+        params: T,
+        attributeNames: readonly string[],
+        attributeWithComposedAttributes?: readonly string[]
+    ) {
         const initializedAttributes = {} as T;
         const initializedCustomAttributes = {} as { [key: string]: unknown };
+        if (attributeWithComposedAttributes === undefined) {
+            attributeWithComposedAttributes = attributeNames;
+        }
 
         for (const attribute in params) {
             if (attributeNames.includes(attribute)) {
                 // If the key exists in the attributes object, assign the value to the initialized attributes
                 initializedAttributes[attribute] = params[attribute];
-            } else {
+            } else if (!attributeWithComposedAttributes.includes(attribute)) {
+                // ignore composed attributes, dealt with later in the constructor
                 // If the key doesn't exist in the attributes object, assign the value to the initialized custom attributes
                 initializedCustomAttributes[attribute] = params[attribute];
             }

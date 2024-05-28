@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { YesNoDontKnowNonApplicable, YesNoDontKnowPreferNotToAnswer } from './GenericAttributes';
+
 // Should be validated for max 120 years old:
 export type Age = number;
 
@@ -43,12 +45,6 @@ export type AgeGroup = (typeof ageGroupValues)[number];
 
 export const genderValues = ['female', 'male', 'custom'];
 export type Gender = (typeof genderValues)[number];
-
-export const yesNoDontKnowNonApplicableValues = ['yes', 'no', 'dontKnow', 'nonApplicable'];
-export type YesNoDontKnowNonApplicable = (typeof yesNoDontKnowNonApplicableValues)[number];
-
-export const yesNoDontKnowPreferNotToAnswerValues = ['yes', 'no', 'dontKnow', 'preferNotToAnswer'];
-export type YesNoDontKnowPreferNotToAnswer = (typeof yesNoDontKnowPreferNotToAnswerValues)[number];
 
 export type DrivingLicenseOwnership = YesNoDontKnowNonApplicable;
 

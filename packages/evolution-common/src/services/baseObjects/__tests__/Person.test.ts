@@ -328,6 +328,17 @@ describe('Person', () => {
             expect(person[attribute]).toEqual(value);
         });
 
+        describe('Getters for attributes with no setters', () => {
+            test.each([
+                ['_uuid', extendedAttributes._uuid],
+                ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
+                ['attributes', validAttributes],
+            ])('should set and get %s', (attribute, value) => {
+                const person = new Person(extendedAttributes);
+                expect(person[attribute]).toEqual(value);
+            });
+        });
+
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],

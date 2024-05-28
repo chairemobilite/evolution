@@ -168,6 +168,20 @@ describe('SchoolPlace', () => {
             expect(schoolPlace[attribute]).toEqual(value);
         });
 
+        describe('Getters for attributes with no setters', () => {
+            test.each([
+                ['_uuid', validSchoolPlaceAttributes._uuid],
+                ['customAttributes', {
+                    customAttribute1: extendedSchoolPlaceAttributes.customAttribute1,
+                    customAttribute2: extendedSchoolPlaceAttributes.customAttribute2
+                }],
+                ['attributes', validSchoolPlaceAttributes],
+            ])('should set and get %s', (attribute, value) => {
+                const schoolPlace = new SchoolPlace(extendedSchoolPlaceAttributes);
+                expect(schoolPlace[attribute]).toEqual(value);
+            });
+        });
+
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],

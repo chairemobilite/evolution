@@ -41,6 +41,11 @@ export const placeAttributes = [
     'zoom',
 ];
 
+export const placeComposedAttributes = [
+    ...placeAttributes,
+    'address'
+];
+
 export type PlaceAttributes = {
     geography?: Optional<GeoJSON.Feature<GeoJSON.Point>>;
     name?: Optional<string>;
