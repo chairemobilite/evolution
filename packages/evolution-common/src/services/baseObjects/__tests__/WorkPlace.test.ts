@@ -168,6 +168,20 @@ describe('WorkPlace', () => {
             expect(workPlace[attribute]).toEqual(value);
         });
 
+        describe('Getters for attributes with no setters', () => {
+            test.each([
+                ['_uuid', validWorkPlaceAttributes._uuid],
+                ['customAttributes', {
+                    customAttribute1: extendedWorkPlaceAttributes.customAttribute1,
+                    customAttribute2: extendedWorkPlaceAttributes.customAttribute2
+                }],
+                ['attributes', validWorkPlaceAttributes],
+            ])('should set and get %s', (attribute, value) => {
+                const workPlace = new WorkPlace(extendedWorkPlaceAttributes);
+                expect(workPlace[attribute]).toEqual(value);
+            });
+        });
+
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],

@@ -23,6 +23,24 @@ describe('ConstructorUtils', () => {
         });
     });
 
+    describe('initializeAttributes', () => {
+        test('should initialize attributes and custom composed attributes correctly', () => {
+            const params = {
+                attr1: 'value1',
+                attr2: 'value2',
+                customAttr1: 'customValue1',
+                customAttr2: 'customValue2',
+                composed1: 'foo',
+                composed2: 'bar'
+            };
+            const attributeNames = ['attr1', 'attr2'];
+            const attributeWithComposedAttributes = [...attributeNames, 'composed1', 'composed2'];
+            const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, attributeNames, attributeWithComposedAttributes);
+            expect(attributes).toEqual({ attr1: 'value1', attr2: 'value2' });
+            expect(customAttributes).toEqual({ customAttr1: 'customValue1', customAttr2: 'customValue2' });
+        });
+    });
+
     describe('initializeComposedArrayAttributes', () => {
         test('should initialize composed array attributes correctly', () => {
             const params = {

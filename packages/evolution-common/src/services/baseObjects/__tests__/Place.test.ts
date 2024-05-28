@@ -14,7 +14,7 @@ import { Address, AddressAttributes } from '../Address';
 
 describe('Place', () => {
 
-    const weightMethodAttributes : WeightMethodAttributes = {
+    const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
@@ -84,7 +84,7 @@ describe('Place', () => {
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Place.validateParams.toString();
         placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
+            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
 
@@ -253,6 +253,20 @@ describe('Place', () => {
             const place = new Place(validPlaceAttributes);
             place[attribute] = value;
             expect(place[attribute]).toEqual(value);
+        });
+
+        describe('Getters for attributes with no setters', () => {
+            test.each([
+                ['_uuid', extendedPlaceAttributes._uuid],
+                ['customAttributes', {
+                    customAttribute1: extendedPlaceAttributes.customAttribute1,
+                    customAttribute2: extendedPlaceAttributes.customAttribute2
+                }],
+                ['attributes', validPlaceAttributes],
+            ])('should set and get %s', (attribute, value) => {
+                const place = new Place(extendedPlaceAttributes);
+                expect(place[attribute]).toEqual(value);
+            });
         });
 
         test.each([

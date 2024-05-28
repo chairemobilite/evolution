@@ -54,6 +54,14 @@ export const personAttributes = [
     'contactEmail'
 ];
 
+export const personAttributesWithComposedAttributes = [
+    ...personAttributes,
+    'workPlaces',
+    'schoolPlaces',
+    //'journeys',
+    //'vehicles'
+];
+
 export const nonStringAttributes = [
     '_weights',
     '_isValid',
@@ -106,7 +114,7 @@ export type PersonWithComposedAttributes = PersonAttributes & {
 export type ExtendedPersonAttributes = PersonWithComposedAttributes & { [key: string]: unknown };
 
 export class Person implements IValidatable {
-    private _attributes: PersonWithComposedAttributes;
+    private _attributes: PersonAttributes;
     private _customAttributes: { [key: string]: unknown };
 
     private _workPlaces?: Optional<WorkPlace[]>;
@@ -123,7 +131,7 @@ export class Person implements IValidatable {
         'nickname'
     ];
 
-    constructor(params: PersonWithComposedAttributes) {
+    constructor(params: ExtendedPersonAttributes) {
 
         params._uuid = Uuidable.getUuid(params._uuid);
 
@@ -132,7 +140,8 @@ export class Person implements IValidatable {
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
             params,
-            personAttributes
+            personAttributes,
+            personAttributesWithComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;

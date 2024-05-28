@@ -153,6 +153,16 @@ describe('Address', () => {
             expect(errors).toHaveLength(1);
         });
 
+        describe('Getters for attributes with no setters', () => {
+            test.each([
+                ['_uuid', validAddressAttributes._uuid],
+                ['attributes', validAddressAttributes],
+            ])('should set and get %s', (attribute, value) => {
+                const address = new Address(validAddressAttributes);
+                expect(address[attribute]).toEqual(value);
+            });
+        });
+
         test('should return no errors for valid attributes', () => {
             const errors = Address.validateParams(validAddressAttributes);
             expect(errors).toHaveLength(0);

@@ -11,8 +11,7 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import * as SAttr from './attributeTypes/SegmentAttributes';
 import { Junction, JunctionAttributes } from './Junction';
-import { TransitRouting, TransitRoutingAttributes } from './routings/TransitRouting';
-import { Routing, RoutingAttributes } from './routings/Routing';
+import { Routing, RoutingAttributes } from './Routing';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
@@ -31,17 +30,31 @@ export const segmentAttributes = [
     'driver',
     'driverUuid',
     'carType',
-    'vehicleOccupancy',
+    'vehicleOccupancy'
+];
+
+export const segmentAttributesWithComposedAttributes = [
+    ...segmentAttributes,
+    'origin',
+    'destination',
+    'transitDeclaredRouting',
+    'walkingDeclaredRouting',
+    'cyclingDeclaredRouting',
+    'drivingDeclaredRouting',
+    'transitCalculatedRoutings',
+    'walkingCalculatedRoutings',
+    'cyclingCalculatedRoutings',
+    'drivingCalculatedRoutings'
 ];
 
 export type SegmentWithComposedAttributes = {
     origin?: Optional<JunctionAttributes>;
     destination?: Optional<JunctionAttributes>;
-    transitDeclaredRouting?: Optional<TransitRoutingAttributes>;
+    transitDeclaredRouting?: Optional<RoutingAttributes>;
     walkingDeclaredRouting?: Optional<RoutingAttributes>;
     cyclingDeclaredRouting?: Optional<RoutingAttributes>;
     drivingDeclaredRouting?: Optional<RoutingAttributes>;
-    transitCalculatedRoutings?: Optional<TransitRoutingAttributes[]>;
+    transitCalculatedRoutings?: Optional<RoutingAttributes[]>;
     walkingCalculatedRoutings?: Optional<RoutingAttributes[]>;
     cyclingCalculatedRoutings?: Optional<RoutingAttributes[]>;
     drivingCalculatedRoutings?: Optional<RoutingAttributes[]>;
@@ -64,19 +77,19 @@ export type SegmentAttributes = {
 export type ExtendedSegmentAttributes = SegmentAttributes & SegmentWithComposedAttributes & { [key: string]: unknown };
 
 export class Segment implements IValidatable {
-    private _attributes: SegmentAttributes & SegmentWithComposedAttributes;
+    private _attributes: SegmentAttributes;
     private _customAttributes: { [key: string]: unknown };
 
     private _origin?: Optional<Junction>;
     private _destination?: Optional<Junction>;
-    private _transitDeclaredRouting?: Optional<TransitRouting>;
-    private _walkingDeclaredRouting?: Optional<Routing<RoutingAttributes>>;
-    private _cyclingDeclaredRouting?: Optional<Routing<RoutingAttributes>>;
-    private _drivingDeclaredRouting?: Optional<Routing<RoutingAttributes>>;
-    private _transitCalculatedRoutings?: Optional<TransitRouting[]>;
-    private _walkingCalculatedRoutings?: Optional<Routing<RoutingAttributes>[]>;
-    private _cyclingCalculatedRoutings?: Optional<Routing<RoutingAttributes>[]>;
-    private _drivingCalculatedRoutings?: Optional<Routing<RoutingAttributes>[]>;
+    private _transitDeclaredRouting?: Optional<Routing>;
+    private _walkingDeclaredRouting?: Optional<Routing>;
+    private _cyclingDeclaredRouting?: Optional<Routing>;
+    private _drivingDeclaredRouting?: Optional<Routing>;
+    private _transitCalculatedRoutings?: Optional<Routing[]>;
+    private _walkingCalculatedRoutings?: Optional<Routing[]>;
+    private _cyclingCalculatedRoutings?: Optional<Routing[]>;
+    private _drivingCalculatedRoutings?: Optional<Routing[]>;
 
     static _confidentialAttributes = [];
 
@@ -87,18 +100,19 @@ export class Segment implements IValidatable {
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
             params,
-            segmentAttributes
+            segmentAttributes,
+            segmentAttributesWithComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
         this.origin = ConstructorUtils.initializeComposedAttribute(params.origin, Junction.unserialize);
         this.destination = ConstructorUtils.initializeComposedAttribute(params.destination, Junction.unserialize);
-        this.transitDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.transitDeclaredRouting, TransitRouting.unserialize);
+        this.transitDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.transitDeclaredRouting, Routing.unserialize);
         this.walkingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.walkingDeclaredRouting, Routing.unserialize);
         this.cyclingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.cyclingDeclaredRouting, Routing.unserialize);
         this.drivingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.drivingDeclaredRouting, Routing.unserialize);
-        this.transitCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.transitCalculatedRoutings, TransitRouting.unserialize);
+        this.transitCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.transitCalculatedRoutings, Routing.unserialize);
         this.walkingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.walkingCalculatedRoutings, Routing.unserialize);
         this.cyclingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.cyclingCalculatedRoutings, Routing.unserialize);
         this.drivingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.drivingCalculatedRoutings, Routing.unserialize);
@@ -236,67 +250,67 @@ export class Segment implements IValidatable {
         this._destination = value;
     }
 
-    get transitDeclaredRouting(): Optional<TransitRouting> {
+    get transitDeclaredRouting(): Optional<Routing> {
         return this._transitDeclaredRouting;
     }
 
-    set transitDeclaredRouting(value: Optional<TransitRouting>) {
+    set transitDeclaredRouting(value: Optional<Routing>) {
         this._transitDeclaredRouting = value;
     }
 
-    get walkingDeclaredRouting(): Optional<Routing<RoutingAttributes>> {
+    get walkingDeclaredRouting(): Optional<Routing> {
         return this._walkingDeclaredRouting;
     }
 
-    set walkingDeclaredRouting(value: Optional<Routing<RoutingAttributes>>) {
+    set walkingDeclaredRouting(value: Optional<Routing>) {
         this._walkingDeclaredRouting = value;
     }
 
-    get cyclingDeclaredRouting(): Optional<Routing<RoutingAttributes>> {
+    get cyclingDeclaredRouting(): Optional<Routing> {
         return this._cyclingDeclaredRouting;
     }
 
-    set cyclingDeclaredRouting(value: Optional<Routing<RoutingAttributes>>) {
+    set cyclingDeclaredRouting(value: Optional<Routing>) {
         this._cyclingDeclaredRouting = value;
     }
 
-    get drivingDeclaredRouting(): Optional<Routing<RoutingAttributes>> {
+    get drivingDeclaredRouting(): Optional<Routing> {
         return this._drivingDeclaredRouting;
     }
 
-    set drivingDeclaredRouting(value: Optional<Routing<RoutingAttributes>>) {
+    set drivingDeclaredRouting(value: Optional<Routing>) {
         this._drivingDeclaredRouting = value;
     }
 
-    get transitCalculatedRoutings(): Optional<TransitRouting[]> {
+    get transitCalculatedRoutings(): Optional<Routing[]> {
         return this._transitCalculatedRoutings;
     }
 
-    set transitCalculatedRoutings(value: Optional<TransitRouting[]>) {
+    set transitCalculatedRoutings(value: Optional<Routing[]>) {
         this._transitCalculatedRoutings = value;
     }
 
-    get walkingCalculatedRoutings(): Optional<Routing<RoutingAttributes>[]> {
+    get walkingCalculatedRoutings(): Optional<Routing[]> {
         return this._walkingCalculatedRoutings;
     }
 
-    set walkingCalculatedRoutings(value: Optional<Routing<RoutingAttributes>[]>) {
+    set walkingCalculatedRoutings(value: Optional<Routing[]>) {
         this._walkingCalculatedRoutings = value;
     }
 
-    get cyclingCalculatedRoutings(): Optional<Routing<RoutingAttributes>[]> {
+    get cyclingCalculatedRoutings(): Optional<Routing[]> {
         return this._cyclingCalculatedRoutings;
     }
 
-    set cyclingCalculatedRoutings(value: Optional<Routing<RoutingAttributes>[]>) {
+    set cyclingCalculatedRoutings(value: Optional<Routing[]>) {
         this._cyclingCalculatedRoutings = value;
     }
 
-    get drivingCalculatedRoutings(): Optional<Routing<RoutingAttributes>[]> {
+    get drivingCalculatedRoutings(): Optional<Routing[]> {
         return this._drivingCalculatedRoutings;
     }
 
-    set drivingCalculatedRoutings(value: Optional<Routing<RoutingAttributes>[]>) {
+    set drivingCalculatedRoutings(value: Optional<Routing[]>) {
         this._drivingCalculatedRoutings = value;
     }
 
@@ -442,49 +456,53 @@ export class Segment implements IValidatable {
             )
         );
 
-        const transitDeclaredRoutingAttributes = dirtyParams.transitDeclaredRouting as { [key: string]: unknown };
-        errors.push(
-            ...TransitRouting.validateParams(transitDeclaredRoutingAttributes, 'TransitRouting')
-        );
-        const walkingDeclaredRoutingAttributes = dirtyParams.walkingDeclaredRouting as { [key: string]: unknown };
-        errors.push(
-            ...Routing.validateParams(walkingDeclaredRoutingAttributes, 'WalkingRouting')
-        );
-        const cyclingDeclaredRoutingAttributes = dirtyParams.cyclingDeclaredRouting as { [key: string]: unknown };
-        errors.push(
-            ...Routing.validateParams(cyclingDeclaredRoutingAttributes, 'CyclingRouting')
-        );
-        const drivingDeclaredRoutingAttributes = dirtyParams.drivingDeclaredRouting as { [key: string]: unknown };
-        errors.push(
-            ...Routing.validateParams(drivingDeclaredRoutingAttributes, 'DrivingRouting')
-        );
-
-        const transitCalculatedRoutingsAttributes = dirtyParams.transiCalculatedRoutings !== undefined ? dirtyParams.transitCalculatedRoutings as { [key: string]: unknown }[] : [];
-        for (let i = 0, countI = transitCalculatedRoutingsAttributes.length; i < countI; i++) {
-            const transitCalculatedRoutingAttributes = transitCalculatedRoutingsAttributes[i];
+        const transitDeclaredRoutingAttributes = dirtyParams.transitDeclaredRouting;
+        if (transitDeclaredRoutingAttributes !== undefined) {
             errors.push(
-                ...TransitRouting.validateParams(transitCalculatedRoutingAttributes, 'TransitRouting')
+                ...Routing.validateParams(transitDeclaredRoutingAttributes as { [key: string]: unknown }, 'TransitRouting')
+            );
+        }
+        const walkingDeclaredRoutingAttributes = dirtyParams.walkingDeclaredRouting;
+        if (walkingDeclaredRoutingAttributes !== undefined) {
+            errors.push(
+                ...Routing.validateParams(walkingDeclaredRoutingAttributes as { [key: string]: unknown }, 'WalkingRouting')
+            );
+        }
+        const cyclingDeclaredRoutingAttributes = dirtyParams.cyclingDeclaredRouting;
+        if (cyclingDeclaredRoutingAttributes !== undefined) {
+            errors.push(
+                ...Routing.validateParams(cyclingDeclaredRoutingAttributes as { [key: string]: unknown }, 'CyclingRouting')
+            );
+        }
+        const drivingDeclaredRoutingAttributes = dirtyParams.drivingDeclaredRouting;
+        if (drivingDeclaredRoutingAttributes !== undefined) {
+            errors.push(
+                ...Routing.validateParams(drivingDeclaredRoutingAttributes as { [key: string]: unknown }, 'DrivingRouting')
+            );
+        }
+
+        const transitCalculatedRoutingsAttributes = dirtyParams.transitCalculatedRoutings !== undefined ? dirtyParams.transitCalculatedRoutings as { [key: string]: unknown }[] : [];
+        for (let i = 0, countI = transitCalculatedRoutingsAttributes.length; i < countI; i++) {
+            errors.push(
+                ...Routing.validateParams(transitCalculatedRoutingsAttributes[i] as { [key: string]: unknown }, 'TransitRouting')
             );
         }
         const walkingCalculatedRoutingsAttributes = dirtyParams.walkingCalculatedRoutings !== undefined ? dirtyParams.walkingCalculatedRoutings as { [key: string]: unknown }[] : [];
         for (let i = 0, countI = walkingCalculatedRoutingsAttributes.length; i < countI; i++) {
-            const walkingCalculatedRoutingAttributes = walkingCalculatedRoutingsAttributes[i];
             errors.push(
-                ...TransitRouting.validateParams(walkingCalculatedRoutingAttributes, 'WalkingRouting')
+                ...Routing.validateParams(walkingCalculatedRoutingsAttributes[i] as { [key: string]: unknown }, 'WalkingRouting')
             );
         }
         const cyclingCalculatedRoutingsAttributes = dirtyParams.cyclingCalculatedRoutings !== undefined ? dirtyParams.cyclingCalculatedRoutings as { [key: string]: unknown }[] : [];
         for (let i = 0, countI = cyclingCalculatedRoutingsAttributes.length; i < countI; i++) {
-            const cyclingCalculatedRoutingAttributes = cyclingCalculatedRoutingsAttributes[i];
             errors.push(
-                ...TransitRouting.validateParams(cyclingCalculatedRoutingAttributes, 'CyclingRouting')
+                ...Routing.validateParams(cyclingCalculatedRoutingsAttributes[i] as { [key: string]: unknown }, 'CyclingRouting')
             );
         }
         const drivingCalculatedRoutingsAttributes = dirtyParams.drivingCalculatedRoutings !== undefined ? dirtyParams.drivingCalculatedRoutings as { [key: string]: unknown }[] : [];
         for (let i = 0, countI = drivingCalculatedRoutingsAttributes.length; i < countI; i++) {
-            const drivingCalculatedRoutingAttributes = drivingCalculatedRoutingsAttributes[i];
             errors.push(
-                ...TransitRouting.validateParams(drivingCalculatedRoutingAttributes, 'DrivingRouting')
+                ...Routing.validateParams(drivingCalculatedRoutingsAttributes[i] as { [key: string]: unknown }, 'DrivingRouting')
             );
         }
 
