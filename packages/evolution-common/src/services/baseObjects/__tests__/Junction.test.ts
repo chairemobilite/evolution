@@ -6,7 +6,7 @@
  */
 
 import { Junction, junctionAttributes } from '../Junction';
-import { PlaceAttributes, placeAttributes } from '../Place';
+import { placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
@@ -20,7 +20,7 @@ describe('Junction', () => {
         description: 'Sample weight method description',
     };
 
-    const validPlaceAttributes: PlaceAttributes = {
+    const validPlaceAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
         name: 'Test Place',
         shortname: 'Test',
@@ -47,7 +47,7 @@ describe('Junction', () => {
         _isValid: true
     };
 
-    const validJunctionAttributes = {
+    const validJunctionAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         arrivalDate: '2023-05-21',
         departureDate: '2023-05-22',
@@ -58,7 +58,7 @@ describe('Junction', () => {
         transitPlaceType: 'trainStation'
     };
 
-    const extendedJunctionAttributes = {
+    const extendedJunctionAttributes: { [key: string]: unknown } = {
         ...validJunctionAttributes,
         customAttribute1: 'value1',
         customAttribute2: 'value2',
@@ -73,7 +73,7 @@ describe('Junction', () => {
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Junction.validateParams.toString();
         junctionAttributes.filter((attribute) => attribute !== '_uuid' && !placeAttributes.includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
+            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
 

@@ -5,12 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Address, AddressAttributes, ExtendedAddressAttributes, addressAttributes } from '../Address';
+import { Address, ExtendedAddressAttributes, addressAttributes } from '../Address';
 import { v4 as uuidV4 } from 'uuid';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 
 describe('Address', () => {
-    const validAddressAttributes: AddressAttributes = {
+    const validAddressAttributes: ExtendedAddressAttributes = {
         _uuid: uuidV4(),
         _isValid: true,
         civicNumber: 123,
@@ -35,7 +35,7 @@ describe('Address', () => {
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Address.validateParams.toString();
         addressAttributes.filter((attribute) => attribute !== '_uuid').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
+            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
 
@@ -94,10 +94,10 @@ describe('Address', () => {
     });
 
     test('should create an Address instance with custom attributes', () => {
-        const customAttributes = {
+        const customAttributes: { [key: string]: unknown } = {
             customAttribute: 'custom value',
         };
-        const addressAttributes = {
+        const addressAttributes: ExtendedAddressAttributes = {
             ...validAddressAttributes,
             ...customAttributes,
         };

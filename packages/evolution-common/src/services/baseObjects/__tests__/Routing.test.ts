@@ -5,12 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Routing, RoutingAttributes, ExtendedRoutingAttributes, routingAttributes } from '../Routing';
+import { Routing, routingAttributes } from '../Routing';
 import { v4 as uuidV4 } from 'uuid';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 
 describe('Routing', () => {
-    const validAttributes: RoutingAttributes = {
+    const validAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
         arrivalDate: '2023-05-22',
         departureDate: '2023-05-21',
@@ -23,7 +23,7 @@ describe('Routing', () => {
         travelDistanceM: 5000,
     };
 
-    const extendedAttributes: ExtendedRoutingAttributes = {
+    const extendedAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
     };
