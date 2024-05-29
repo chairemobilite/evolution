@@ -21,7 +21,7 @@ describe('Place', () => {
         description: 'Sample weight method description',
     };
 
-    const validPlaceAttributes: PlaceAttributes = {
+    const validPlaceAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
         name: 'Test Place',
         shortname: 'Test',
@@ -48,13 +48,13 @@ describe('Place', () => {
         _isValid: true
     };
 
-    const extendedPlaceAttributes = {
+    const extendedPlaceAttributes : { [key: string]: unknown } = {
         ...validPlaceAttributes,
         customAttribute1: 'value1',
         customAttribute2: 'value2',
     };
 
-    const extendedAttributesWithAddress: ExtendedPlaceAttributes = {
+    const extendedAttributesWithAddress: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         customAttribute: 'custom value',
         address: {
@@ -182,7 +182,7 @@ describe('Place', () => {
             };
             const weightMethod = new WeightMethod(weightMethodAttributes);
             const weights: Weight[] = [{ weight: 1.5, method: weightMethod }];
-            const placeAttributes: PlaceAttributes = { ...validPlaceAttributes, _weights: weights };
+            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, _weights: weights };
             const result = Place.create(placeAttributes);
             expect(isOk(result)).toBe(true);
             const place = unwrap(result);
@@ -299,7 +299,7 @@ describe('Place', () => {
                 _isValid: true,
             };
             const address = new Address(addressAttributes);
-            const placeAttributes: ExtendedPlaceAttributes = { ...validPlaceAttributes, address: addressAttributes };
+            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, address: addressAttributes };
             const result = Place.create(placeAttributes);
             expect(isOk(result)).toBe(true);
             const place = unwrap(result);

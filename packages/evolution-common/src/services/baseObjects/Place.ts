@@ -245,14 +245,6 @@ export class Place<ChildAttributes> implements IValidatable {
         this._attributes.geography = value;
     }
 
-    // get address(): Optional<Address> {
-    //     return this._attributes.address;
-    // }
-
-    // set address(value: Optional<Address>) {
-    //     this._attributes.address = value;
-    // }
-
     // params must be sanitized and must be valid:
     static unserialize(params: ExtendedPlaceAttributes): Place<PlaceAttributes> {
         return new Place(params);

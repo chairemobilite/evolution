@@ -5,24 +5,24 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Person, PersonAttributes, ExtendedPersonAttributes, nonStringAttributes, stringAttributes } from '../Person';
+import { Person, nonStringAttributes, stringAttributes } from '../Person';
 import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
-import { WorkPlace, WorkPlaceAttributes } from '../WorkPlace';
-import { SchoolPlace, SchoolPlaceAttributes } from '../SchoolPlace';
+import { WorkPlace } from '../WorkPlace';
+import { SchoolPlace } from '../SchoolPlace';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 
 describe('Person', () => {
 
-    const weightMethodAttributes = {
+    const weightMethodAttributes : WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
         description: 'Sample weight method description',
     };
 
-    const validAttributes: PersonAttributes = {
+    const validAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
         age: 30,
         ageGroup: 'adult',
@@ -55,7 +55,7 @@ describe('Person', () => {
         _isValid: true,
     };
 
-    const extendedAttributes: ExtendedPersonAttributes = {
+    const extendedAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
         workPlaces: [{ _uuid: uuidV4(), placeType: 'office', _isValid: true }],
@@ -219,7 +219,7 @@ describe('Person', () => {
             };
             const weightMethod = new WeightMethod(weightMethodAttributes);
             const weights: Weight[] = [{ weight: 1.5, method: weightMethod }];
-            const personAttributes: PersonAttributes = { ...validAttributes, _weights: weights };
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, _weights: weights };
             const result = Person.create(personAttributes);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
@@ -229,7 +229,7 @@ describe('Person', () => {
 
     describe('Work Places', () => {
         test('should create a Person instance with valid work places', () => {
-            const workPlaceAttributes: WorkPlaceAttributes = {
+            const workPlaceAttributes: { [key: string]: unknown } = {
                 _uuid: '22b78eb3-a5d8-484d-805d-1f947160bb9e',
                 parkingType: 'interiorAssignedOrGuaranteed',
                 parkingFeeType: 'paidByEmployee',
@@ -245,7 +245,7 @@ describe('Person', () => {
                 _isValid: true,
             };
             const workPlace = new WorkPlace(workPlaceAttributes);
-            const personAttributes: ExtendedPersonAttributes = { ...validAttributes, workPlaces: [workPlaceAttributes] };
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, workPlaces: [workPlaceAttributes] };
             const result = Person.create(personAttributes);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
@@ -262,7 +262,7 @@ describe('Person', () => {
 
     describe('School Places', () => {
         test('should create a Person instance with valid school places', () => {
-            const schoolPlaceAttributes: SchoolPlaceAttributes = {
+            const schoolPlaceAttributes: { [key: string]: unknown } = {
                 _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e',
                 parkingType: 'streetside',
                 parkingFeeType: 'paidByStudent',
@@ -278,7 +278,7 @@ describe('Person', () => {
                 _isValid: true,
             };
             const schoolPlace = new SchoolPlace(schoolPlaceAttributes);
-            const personAttributes: ExtendedPersonAttributes = { ...validAttributes, schoolPlaces: [schoolPlaceAttributes] };
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, schoolPlaces: [schoolPlaceAttributes] };
             const result = Person.create(personAttributes);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);

@@ -6,7 +6,7 @@
  */
 
 import { WorkPlace, workPlaceAttributes } from '../WorkPlace';
-import { PlaceAttributes, placeAttributes } from '../Place';
+import { placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
@@ -20,7 +20,7 @@ describe('WorkPlace', () => {
         description: 'Sample weight method description',
     };
 
-    const validPlaceAttributes: PlaceAttributes = {
+    const validPlaceAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
         name: 'Test Place',
         shortname: 'Test',
@@ -47,13 +47,13 @@ describe('WorkPlace', () => {
         _isValid: true
     };
 
-    const validWorkPlaceAttributes = {
+    const validWorkPlaceAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         parkingType: 'interiorAssignedOrGuaranteed',
         parkingFeeType: 'paidByEmployee',
     };
 
-    const extendedWorkPlaceAttributes = {
+    const extendedWorkPlaceAttributes: { [key: string]: unknown } = {
         ...validWorkPlaceAttributes,
         customAttribute1: 'value1',
         customAttribute2: 'value2',

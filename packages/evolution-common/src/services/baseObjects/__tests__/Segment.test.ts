@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Segment, SegmentAttributes, ExtendedSegmentAttributes, segmentAttributes } from '../Segment';
+import { Segment, segmentAttributes } from '../Segment';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
@@ -20,7 +20,7 @@ describe('Segment', () => {
         description: 'Sample weight method description',
     };
 
-    const validAttributes: SegmentAttributes = {
+    const validAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
         modeCategory: 'transit',
         mode: 'bus',
@@ -37,7 +37,7 @@ describe('Segment', () => {
         _isValid: true
     };
 
-    const extendedAttributes: ExtendedSegmentAttributes = {
+    const extendedAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
         origin: { name: 'Origin' },
