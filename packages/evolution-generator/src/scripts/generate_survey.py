@@ -6,9 +6,10 @@
 # These functions are intended to be invoked with the config YAML file.
 import argparse  # For command-line arguments
 from dotenv import load_dotenv  # For environment variables
-import os  # For environment variables
+import os  # For file operations
 import yaml  # For reading the yaml file
 from scripts.generate_excel import generate_excel
+from scripts.generate_folders import generate_folders
 from scripts.generate_section_configs import generate_section_configs
 from scripts.generate_sections import generate_sections
 from scripts.generate_widgets_configs import generate_widgets_configs
@@ -43,6 +44,9 @@ def generate_survey(config_path):
             os.getenv("OFFICE365_USERNAME_EMAIL"),
             os.getenv("OFFICE365_PASSWORD"),
         )
+
+    # Call the generate_folders function to generate the folders for the survey
+    generate_folders(excel_file_path, survey_folder_path)
 
     # Call the generate_section_configs function to generate sectionConfigs.ts if script enabled
     if enabled_scripts["generate_section_configs"]:
