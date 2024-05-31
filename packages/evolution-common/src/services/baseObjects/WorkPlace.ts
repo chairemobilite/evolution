@@ -34,7 +34,7 @@ export class WorkPlace extends Place<WorkPlaceAttributes> implements IValidatabl
 
     static _confidentialAttributes = [];
 
-    constructor(params: WorkPlaceAttributes | ExtendedWorkPlaceAttributes) {
+    constructor(params: ExtendedWorkPlaceAttributes) {
         super(params, workPlaceAttributes);
     }
 

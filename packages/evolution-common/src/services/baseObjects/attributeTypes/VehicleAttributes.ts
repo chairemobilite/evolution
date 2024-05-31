@@ -7,5 +7,5 @@
 
 export type Make = string; // TODO: use normalized makes, maybe remove and include in model
 export type Model = string; // TODO: use normalized models
-export type Type = string; // TODO: use normalized types (type of car, SUV, truck (distinct types of trucks), bus (distinct types of buses), etc.)
+export type VehicleType = string; // TODO: use normalized types (type of car, SUV, truck (distinct types of trucks), bus (distinct types of buses), etc.)
 

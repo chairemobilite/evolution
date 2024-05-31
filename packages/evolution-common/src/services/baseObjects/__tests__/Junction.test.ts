@@ -49,10 +49,10 @@ describe('Junction', () => {
 
     const validJunctionAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
-        arrivalDate: '2023-05-21',
-        departureDate: '2023-05-22',
-        arrivalTime: 3600,
-        departureTime: 7200,
+        startDate: '2023-05-21',
+        endDate: '2023-05-22',
+        startTime: 3600,
+        endTime: 7200,
         parkingType: 'streetside',
         parkingFeeType: 'free',
         transitPlaceType: 'trainStation'
@@ -72,7 +72,7 @@ describe('Junction', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Junction.validateParams.toString();
-        junctionAttributes.filter((attribute) => attribute !== '_uuid' && !placeAttributes.includes(attribute)).forEach((attributeName) => {
+        junctionAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !placeAttributes.includes(attribute)).forEach((attributeName) => {
             expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
@@ -120,7 +120,7 @@ describe('Junction', () => {
     });
 
     test('should return errors for invalid Junction attributes', () => {
-        const invalidAttributes = { ...validJunctionAttributes, arrivalDate: 123 };
+        const invalidAttributes = { ...validJunctionAttributes, startDate: 123 };
         const errors = Junction.validateParams(invalidAttributes);
         expect(errors).toHaveLength(1);
     });
@@ -148,10 +148,10 @@ describe('Junction', () => {
 
     describe('validateParams', () => {
         test.each([
-            ['arrivalDate', 123],
-            ['departureDate', 123],
-            ['arrivalTime', -1],
-            ['departureTime', -1],
+            ['startDate', 123],
+            ['endDate', 123],
+            ['startTime', -1],
+            ['endTime', -1],
             ['parkingType', 123],
             ['parkingFeeType', 123],
             ['transitPlaceType', 123],
@@ -170,10 +170,10 @@ describe('Junction', () => {
 
     describe('Getters and Setters', () => {
         test.each([
-            ['arrivalDate', '2023-05-20'],
-            ['departureDate', '2023-05-23'],
-            ['arrivalTime', 1800],
-            ['departureTime', 5400],
+            ['startDate', '2023-05-20'],
+            ['endDate', '2023-05-23'],
+            ['startTime', 1800],
+            ['endTime', 5400],
             ['parkingType', 'interiorAssignedOrGuaranteed'],
             ['parkingFeeType', 'paidByEmployer'],
             ['transitPlaceType', 'busStation'],
