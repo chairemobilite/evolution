@@ -5,9 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Household, HouseholdAttributes, ExtendedHouseholdAttributes, householdAttributes } from '../Household';
-import { Person, PersonAttributes } from '../Person';
-import { Place, PlaceAttributes } from '../Place';
+import { Household, householdAttributes } from '../Household';
+import { Person } from '../Person';
+import { Place } from '../Place';
 import { Address } from '../Address';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
@@ -120,9 +120,22 @@ describe('Household', () => {
         expect(errors).toHaveLength(0);
     });
 
-    test('should return errors for invalid Household attributes', () => {
-        const invalidAttributes = { ...validAttributes, size: 'invalid' };
+    test.each([
+        ['size', 'invalid'],
+        ['carNumber', 'invalid'],
+        ['twoWheelNumber', 'invalid'],
+        ['pluginHybridCarNumber', 'invalid'],
+        ['electricCarNumber', 'invalid'],
+        ['category', 123],
+        ['wouldLikeToParticipateToOtherSurveys', 'invalid'],
+        ['homeCarParkings', 123],
+        ['incomeLevel', 123],
+        ['contactPhoneNumber', 123],
+        ['contactEmail', 123],
+    ])('should return an error for invalid %s', (param, value) => {
+        const invalidAttributes = { ...validAttributes, [param]: value };
         const errors = Household.validateParams(invalidAttributes);
+        expect(errors[0].toString()).toContain(param);
         expect(errors).toHaveLength(1);
     });
 
@@ -248,8 +261,9 @@ describe('Household', () => {
         const result = Household.create(householdAttributes);
         expect(hasErrors(result)).toBe(true);
         const errors = unwrap(result) as Error[];
-        expect(errors.length).toBeGreaterThan(0);
-        expect(errors[0].message).toContain('Person validateParams');
+        expect(errors.length).toBe(2);
+        expect(errors[0].message).toContain('Person 0 validateParams: age should be a positive integer');
+        expect(errors[1].message).toContain('Person 1 validateParams: ageGroup should be a string');
     });
 
     test('should create a Place instance for home when creating a Household instance', () => {

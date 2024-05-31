@@ -89,11 +89,23 @@ describe('Segment', () => {
         expect(unwrap(result)).toBeInstanceOf(Segment);
     });
 
-    test('should return errors for invalid attributes', () => {
-        const invalidAttributes = { ...validAttributes, modeCategory: -1 };
-        const result = Segment.create(invalidAttributes);
-        expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
+    test.each([
+        ['modeCategory', 123],
+        ['mode', 123],
+        ['modeOtherSpecify', 123],
+        ['departureDate', 123],
+        ['arrivalDate', 123],
+        ['departureTime', 'invalid'],
+        ['arrivalTime', 'invalid'],
+        ['driver', 123],
+        ['driverUuid', 'invalid'],
+        ['vehicleOccupancy', 'invalid'],
+        ['carType', 123],
+    ])('should return an error for invalid %s', (param, value) => {
+        const invalidAttributes = { ...validAttributes, [param]: value };
+        const errors = Segment.validateParams(invalidAttributes);
+        expect(errors[0].toString()).toContain(param);
+        expect(errors).toHaveLength(1);
     });
 
     test('should unserialize a Segment instance', () => {
