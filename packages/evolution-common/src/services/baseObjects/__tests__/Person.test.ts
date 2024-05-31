@@ -10,6 +10,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
 import { WorkPlace } from '../WorkPlace';
 import { SchoolPlace } from '../SchoolPlace';
+import { Vehicle } from '../Vehicle';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 
@@ -60,6 +61,7 @@ describe('Person', () => {
         customAttribute: 'custom value',
         workPlaces: [{ _uuid: uuidV4(), placeType: 'office', _isValid: true }],
         schoolPlaces: [{ placeType: 'university', _isValid: true }],
+        vehicles: [{ model: 'foo', make: 'bar', _isValid: true }],
     };
 
     const extendedInvalidWorkPlacesAttributes: { [key: string]: unknown } = {
@@ -72,6 +74,12 @@ describe('Person', () => {
         ...validAttributes,
         customAttribute: 'custom value',
         schoolPlaces: [{ custom: 333, _isValid: 111, parkingType: 123, parkingFeeType: 123 }],
+    };
+
+    const extendedInvalidVehiclesAttributes: { [key: string]: unknown } = {
+        ...validAttributes,
+        customAttribute: 'custom value',
+        vehicles: [{ custom: 333, _isValid: 111, model: 123, make: 234 }],
     };
 
 
@@ -163,6 +171,14 @@ describe('Person', () => {
         person.schoolPlaces = [schoolPlace];
         expect(person.schoolPlaces).toHaveLength(1);
         expect(person.schoolPlaces[0]).toEqual(schoolPlace);
+    });
+
+    test('should set and get vehicles', () => {
+        const person = new Person(extendedAttributes);
+        const vehicle: Vehicle = new Vehicle({ make: 'foo', model: 'bar', _isValid: true });
+        person.vehicles = [vehicle];
+        expect(person.vehicles).toHaveLength(1);
+        expect(person.vehicles[0]).toEqual(vehicle);
     });
 
     test('should set and get household UUID', () => {
@@ -293,6 +309,41 @@ describe('Person', () => {
         });
     });
 
+    describe('Vehicles', () => {
+        test('should create a Person instance with valid vehicles', () => {
+            const vehiclesAttributes: { [key: string]: unknown } = {
+                _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e',
+                model: 'foo',
+                make: 'bar',
+                internalId: '123',
+                licensePlateNumber: '123',
+                acquiredYear: 2020,
+                modelYear: 2020,
+                vehicleType: 'car',
+                isHybrid: false,
+                isElectric: true,
+                isHydrogen: false,
+                isPluginHybrid: false,
+                capacityStanding: 0,
+                capacitySeats: 5,
+                _isValid: true
+            };
+            const vehicle = new Vehicle(vehiclesAttributes);
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, vehicles: [vehiclesAttributes] };
+            const result = Person.create(personAttributes);
+            expect(isOk(result)).toBe(true);
+            const person = unwrap(result);
+            expect((person as Person).vehicles).toHaveLength(1);
+            expect((person as Person).vehicles?.[0]).toEqual(vehicle);
+        });
+
+        test('should return an error for invalid vehicles', () => {
+            const result = Person.create(extendedInvalidVehiclesAttributes);
+            expect(hasErrors(result)).toBe(true);
+            expect((unwrap(result) as Error[])).toHaveLength(3);
+        });
+    });
+
     describe('Getters and Setters', () => {
         test.each([
             ['age', 35],
@@ -344,6 +395,7 @@ describe('Person', () => {
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
             ['workPlaces', [new WorkPlace({ placeType: 'home', _isValid: true })]],
             ['schoolPlaces', [new SchoolPlace({ placeType: 'college', _isValid: true })]],
+            ['vehicles', [new Vehicle({ modelYear: 2024, _isValid: true })]],
             ['householdUuid', uuidV4()],
         ])('should set and get %s', (attribute, value) => {
             const person = new Person(validAttributes);
