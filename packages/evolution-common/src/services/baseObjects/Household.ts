@@ -390,7 +390,7 @@ export class Household implements IValidatable {
         for (let i = 0, countI = membersAttributes.length; i < countI; i++) {
             const memberAttributes = membersAttributes[i];
             errors.push(
-                ...Person.validateParams(memberAttributes, 'Person')
+                ...Person.validateParams(memberAttributes, `Person ${i}`)
             );
         }
 
