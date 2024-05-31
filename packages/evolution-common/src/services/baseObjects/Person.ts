@@ -15,6 +15,7 @@ import * as PAttr from './attributeTypes/PersonAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
+import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
 
 /**
  * A person is a member of a household. it can have these composed objects:
@@ -59,7 +60,7 @@ export const personAttributesWithComposedAttributes = [
     'workPlaces',
     'schoolPlaces',
     //'journeys',
-    //'vehicles'
+    'vehicles'
 ];
 
 export const nonStringAttributes = [
@@ -108,7 +109,7 @@ export type PersonWithComposedAttributes = PersonAttributes & {
     workPlaces?: ExtendedWorkPlaceAttributes[];
     schoolPlaces?: ExtendedSchoolPlaceAttributes[];
     //journeys?: ExtendedJourneyAttributes[];
-    //vehicles?: ExtendedVehicleAttributes[];
+    vehicles?: ExtendedVehicleAttributes[];
 };
 
 export type ExtendedPersonAttributes = PersonWithComposedAttributes & { [key: string]: unknown };
@@ -120,7 +121,7 @@ export class Person implements IValidatable {
     private _workPlaces?: Optional<WorkPlace[]>;
     private _schoolPlaces?: Optional<SchoolPlace[]>;
     //private _journeys?: Optional<Journey[]>;
-    //private _vehicles?: Optional<Vehicle[]>;
+    private _vehicles?: Optional<Vehicle[]>;
 
     private _householdUuid?: Optional<string>; // allow reverse lookup: must be filled by Household.
 
@@ -153,6 +154,10 @@ export class Person implements IValidatable {
         this.schoolPlaces = ConstructorUtils.initializeComposedArrayAttributes(
             params.schoolPlaces,
             SchoolPlace.unserialize
+        );
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
+            params.vehicles,
+            Vehicle.unserialize
         );
 
     }
@@ -417,6 +422,14 @@ export class Person implements IValidatable {
         this._schoolPlaces = value;
     }
 
+    get vehicles(): Optional<Vehicle[]> {
+        return this._vehicles;
+    }
+
+    set vehicles(value: Optional<Vehicle[]>) {
+        this._vehicles = value;
+    }
+
     get householdUuid(): Optional<string> {
         return this._householdUuid;
     }
@@ -521,19 +534,26 @@ export class Person implements IValidatable {
         );
 
         const workPlacesAttributes = dirtyParams.workPlaces !== undefined ? dirtyParams.workPlaces as { [key: string]: unknown }[] : [];
-        const schoolPlacesAttributes = dirtyParams.schoolPlaces !== undefined ? dirtyParams.schoolPlaces as { [key: string]: unknown }[] : [];
-
         for (let i = 0, countI = workPlacesAttributes.length; i < countI; i++) {
             const workPlaceAttributes = workPlacesAttributes[i];
             errors.push(
-                ...WorkPlace.validateParams(workPlaceAttributes, 'WorkPlace')
+                ...WorkPlace.validateParams(workPlaceAttributes, `WorkPlace ${i}`)
             );
         }
 
+        const schoolPlacesAttributes = dirtyParams.schoolPlaces !== undefined ? dirtyParams.schoolPlaces as { [key: string]: unknown }[] : [];
         for (let i = 0, countI = schoolPlacesAttributes.length; i < countI; i++) {
             const schoolPlaceAttributes = schoolPlacesAttributes[i];
             errors.push(
-                ...SchoolPlace.validateParams(schoolPlaceAttributes, 'SchoolPlace')
+                ...SchoolPlace.validateParams(schoolPlaceAttributes, `SchoolPlace ${i}`)
+            );
+        }
+
+        const vehiclesAttributes = dirtyParams.vehicles !== undefined ? dirtyParams.vehicles as { [key: string]: unknown }[] : [];
+        for (let i = 0, countI = vehiclesAttributes.length; i < countI; i++) {
+            const vehicleAttributes = vehiclesAttributes[i];
+            errors.push(
+                ...Vehicle.validateParams(vehicleAttributes, `Vehicle ${i}`)
             );
         }
 
