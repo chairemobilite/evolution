@@ -33,3 +33,14 @@ export const noWorkTripReasonValues = [
     'nonApplicable'  // automatically assigned, not shown in choices
 ];
 export type NoWorkTripReason = (typeof noWorkTripReasonValues)[number];
+
+export const journeyTypeValues = [
+    'dayPart',
+    'day',
+    'weekEnd',
+    'week',
+    'longDistanceTrip',
+    'other'
+];
+export type JourneyType = (typeof journeyTypeValues)[number];
+

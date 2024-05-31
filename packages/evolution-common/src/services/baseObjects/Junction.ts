@@ -20,20 +20,20 @@ import { Result, createErrors, createOk } from '../../types/Result.type';
 
 export const junctionAttributes = [
     ...placeAttributes,
-    'arrivalDate',
-    'departureDate',
-    'arrivalTime',
-    'departureTime',
+    'startDate',
+    'endDate',
+    'startTime',
+    'endTime',
     'parkingType',
     'parkingFeeType',
     'transitPlaceType'
 ];
 
 export type JunctionAttributes = {
-    arrivalDate?: Optional<string>; // string, YYYY-MM-DD
-    departureDate?: Optional<string>; // string, YYYY-MM-DD
-    arrivalTime?: Optional<number>; // seconds since midnight
-    departureTime?: Optional<number>; // seconds since midnight
+    startDate?: Optional<string>; // string, YYYY-MM-DD
+    endDate?: Optional<string>; // string, YYYY-MM-DD
+    startTime?: Optional<number>; // seconds since midnight
+    endTime?: Optional<number>; // seconds since midnight
     parkingType?: Optional<PlAttr.ParkingType>;
     parkingFeeType?: Optional<PlAttr.ParkingFeeType>;
     transitPlaceType?: Optional<PlAttr.TransitPlaceType>; // for transit junctions
@@ -49,36 +49,36 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
         super(params, junctionAttributes);
     }
 
-    get arrivalDate(): Optional<string> {
-        return this._attributes.arrivalDate;
+    get startDate(): Optional<string> {
+        return this._attributes.startDate;
     }
 
-    set arrivalDate(value: Optional<string>) {
-        this._attributes.arrivalDate = value;
+    set startDate(value: Optional<string>) {
+        this._attributes.startDate = value;
     }
 
-    get departureDate(): Optional<string> {
-        return this._attributes.departureDate;
+    get endDate(): Optional<string> {
+        return this._attributes.endDate;
     }
 
-    set departureDate(value: Optional<string>) {
-        this._attributes.departureDate = value;
+    set endDate(value: Optional<string>) {
+        this._attributes.endDate = value;
     }
 
-    get arrivalTime(): Optional<number> {
-        return this._attributes.arrivalTime;
+    get startTime(): Optional<number> {
+        return this._attributes.startTime;
     }
 
-    set arrivalTime(value: Optional<number>) {
-        this._attributes.arrivalTime = value;
+    set startTime(value: Optional<number>) {
+        this._attributes.startTime = value;
     }
 
-    get departureTime(): Optional<number> {
-        return this._attributes.departureTime;
+    get endTime(): Optional<number> {
+        return this._attributes.endTime;
     }
 
-    set departureTime(value: Optional<number>) {
-        this._attributes.departureTime = value;
+    set endTime(value: Optional<number>) {
+        this._attributes.endTime = value;
     }
 
     get parkingType(): Optional<PlAttr.ParkingType> {
@@ -140,32 +140,32 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
 
         errors.push(
             ...ParamsValidatorUtils.isDateString(
-                'arrivalDate',
-                dirtyParams.arrivalDate,
+                'startDate',
+                dirtyParams.startDate,
                 displayName
             )
         );
 
         errors.push(
             ...ParamsValidatorUtils.isDateString(
-                'departureDate',
-                dirtyParams.departureDate,
+                'endDate',
+                dirtyParams.endDate,
                 displayName
             )
         );
 
         errors.push(
             ...ParamsValidatorUtils.isPositiveInteger(
-                'arrivalTime',
-                dirtyParams.arrivalTime,
+                'startTime',
+                dirtyParams.startTime,
                 displayName
             )
         );
 
         errors.push(
             ...ParamsValidatorUtils.isPositiveInteger(
-                'departureTime',
-                dirtyParams.departureTime,
+                'endTime',
+                dirtyParams.endTime,
                 displayName
             )
         );

@@ -35,7 +35,7 @@ export const vehicleAttributes = [
 export type VehicleAttributes = {
     make?: Optional<VAttr.Make>;
     model?: Optional<VAttr.Model>;
-    type?: Optional<VAttr.Type>;
+    type?: Optional<VAttr.VehicleType>;
     capacitySeated?: Optional<number>;
     capacityStanding?: Optional<number>;
     modelYear?: Optional<number>;
@@ -121,11 +121,11 @@ export class Vehicle implements IValidatable {
         this._attributes.model = value;
     }
 
-    get type(): Optional<VAttr.Type> {
+    get type(): Optional<VAttr.VehicleType> {
         return this._attributes.type;
     }
 
-    set type(value: Optional<VAttr.Type>) {
+    set type(value: Optional<VAttr.VehicleType>) {
         this._attributes.type = value;
     }
 

@@ -6,3 +6,5 @@
  */
 
 export type OrganizationCategory = string; // TODO: use normalized organization categories
+export type RevenueLevel = string; // TODO: use normalized revenue levels
+
