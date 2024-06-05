@@ -13,7 +13,7 @@ export const noSchoolTripReasonValues = [
     'tripsUnknown', // automatically assigned, not shown in choices
     'usualSchoolPlaceIsHome', // automatically assigned, not shown in choices
     'nonApplicable' // automatically assigned, not shown in choices
-];
+] as const;
 export type NoSchoolTripReason = (typeof noSchoolTripReasonValues)[number];
 
 export const noWorkTripReasonValues = [
@@ -31,7 +31,7 @@ export const noWorkTripReasonValues = [
     'tripsUnknown', // automatically assigned, not shown in choices
     'usualWorkPlaceIsHome', // automatically assigned, not shown in choices
     'nonApplicable'  // automatically assigned, not shown in choices
-];
+] as const;
 export type NoWorkTripReason = (typeof noWorkTripReasonValues)[number];
 
 export const journeyTypeValues = [
@@ -41,6 +41,5 @@ export const journeyTypeValues = [
     'week',
     'longDistanceTrip',
     'other'
-];
+] as const;
 export type JourneyType = (typeof journeyTypeValues)[number];
-

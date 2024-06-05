@@ -37,13 +37,13 @@ export const ageGroupValues = [
     '115-119',
     '120-124',
     '125-129'
-];
+] as const;
 
 // age group must be generated. It is a pain to not have exact age.
 // not having exact age implies a lot of conditional and validation ambiguities
 export type AgeGroup = (typeof ageGroupValues)[number];
 
-export const genderValues = ['female', 'male', 'custom'];
+export const genderValues = ['female', 'male', 'custom'] as const;
 export type Gender = (typeof genderValues)[number];
 
 export type DrivingLicenseOwnership = YesNoDontKnowNonApplicable;
@@ -89,7 +89,7 @@ export const occupationValues = [
     'dontKnow', // not always available
     'nonApplicable', // assign automatically, not shown in choices
     'preferNotToAnswer' // not always available
-];
+] as const;
 export type Occupation = (typeof occupationValues)[number];
 
 export const schoolTypeValues = [
@@ -106,7 +106,7 @@ export const schoolTypeValues = [
     'dontKnow', // not always available
     'nonApplicable', // assign automatically, not shown in choices
     'preferNotToAnswer' // not always available
-];
+] as const;
 export type SchoolType = (typeof schoolTypeValues)[number];
 
 export const fullTimePartTimeTypeNoValue = [
@@ -115,14 +115,14 @@ export const fullTimePartTimeTypeNoValue = [
     'no',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type StudentType = (typeof fullTimePartTimeTypeNoValue)[number];
 
 export const schoolPlaceTypeValues = [
     'onLocation',
     'hybrid',
     'remote'
-];
+] as const;
 export type SchoolPlaceType = (typeof schoolPlaceTypeValues)[number];
 
 export type WorkerType = (typeof fullTimePartTimeTypeNoValue)[number] | 'parentalOrSickLeave';
@@ -133,7 +133,7 @@ export const workPlaceTypeValues = [
     'onTheRoadWithUsualPlace',
     'onTheRoadWithoutUsualPlace',
     'remote'
-];
+] as const;
 export type WorkPlaceType = (typeof workPlaceTypeValues)[number];
 
 export type JobCategory = string | 'dontKnow' | 'nonApplicable'; // TODO: add job categories from official source if possible and document it
@@ -157,7 +157,7 @@ export const educationalAttainmentValues = [
     'dontKnow', // not always available
     'nonApplicable', // assign automatically, not shown in choices
     'preferNotToAnswer' // not always available
-];
+] as const;
 export type EducationalAttainment = (typeof educationalAttainmentValues)[number];
 
 export const noUsualSchoolPlaceReasonValues = [
@@ -165,5 +165,5 @@ export const noUsualSchoolPlaceReasonValues = [
     'internshipWorkStudyApprenticeship',
     'multipleLocationsWithoutMainLocation',
     'other'
-];
+] as const;
 export type NoUsualSchoolPlaceReason = (typeof noUsualSchoolPlaceReasonValues)[number];

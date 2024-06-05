@@ -12,11 +12,6 @@ import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Place, PlaceAttributes, placeAttributes } from './Place';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 
-/*
- * A school place is a place associated with a person
- * where they go to school on a regular basis (usual school place)
- */
-
 export const schoolPlaceAttributes = [
     ...placeAttributes,
     'parkingType',
@@ -30,6 +25,10 @@ export type SchoolPlaceAttributes = {
 
 export type ExtendedSchoolPlaceAttributes = SchoolPlaceAttributes & { [key: string]: unknown };
 
+/*
+ * A school place is a place associated with a person
+ * where they go to school on a regular basis (usual school place)
+ */
 export class SchoolPlace extends Place<SchoolPlaceAttributes> implements IValidatable {
 
     static _confidentialAttributes = [];

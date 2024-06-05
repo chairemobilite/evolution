@@ -55,6 +55,10 @@ export type RoutingAttributes = {
 
 export type ExtendedRoutingAttributes = RoutingAttributes & { [key: string]: unknown };
 
+
+/**
+ * A routing is a calculated route for a trip or a segment of trip
+ */
 export class Routing {
     protected _attributes: RoutingAttributes;
     protected _customAttributes: { [key: string]: unknown };

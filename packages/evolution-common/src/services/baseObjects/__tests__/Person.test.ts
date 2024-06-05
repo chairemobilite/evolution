@@ -159,7 +159,7 @@ describe('Person', () => {
 
     test('should set and get work places', () => {
         const person = new Person(extendedAttributes);
-        const workPlace: WorkPlace = new WorkPlace({ parkingType: 'interiorAssignedOrGuaranteed', parkingFeeType: 'paidByEmployee', _isValid: true });
+        const workPlace: WorkPlace = new WorkPlace({ parkingType: 'exterior', parkingFeeType: 'paidByEmployee', _isValid: true });
         person.workPlaces = [workPlace];
         expect(person.workPlaces).toHaveLength(1);
         expect(person.workPlaces[0]).toEqual(workPlace);

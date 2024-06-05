@@ -11,6 +11,7 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { Junction } from '../Junction';
 import { Routing } from '../Routing';
+import { startEndDateAndTimesAttributes } from '../StartEndable';
 
 describe('Segment', () => {
     const weightMethodAttributes: WeightMethodAttributes = {
@@ -25,10 +26,12 @@ describe('Segment', () => {
         modeCategory: 'transit',
         mode: 'bus',
         modeOtherSpecify: 'Other mode',
-        departureDate: '2023-05-21',
-        arrivalDate: '2023-05-22',
-        departureTime: 3600,
-        arrivalTime: 7200,
+        endDate: '2023-05-22',
+        startDate: '2023-05-21',
+        endTime: 3600,
+        startTime: 7200,
+        startTimePeriod: 'am',
+        endTimePeriod: 'pm',
         driver: 'householdMember',
         driverUuid: uuidV4(),
         vehicleOccupancy: 2,
@@ -60,7 +63,7 @@ describe('Segment', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Segment.validateParams.toString();
-        segmentAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
+        segmentAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
             expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
@@ -89,25 +92,6 @@ describe('Segment', () => {
         expect(unwrap(result)).toBeInstanceOf(Segment);
     });
 
-    test.each([
-        ['modeCategory', 123],
-        ['mode', 123],
-        ['modeOtherSpecify', 123],
-        ['departureDate', 123],
-        ['arrivalDate', 123],
-        ['departureTime', 'invalid'],
-        ['arrivalTime', 'invalid'],
-        ['driver', 123],
-        ['driverUuid', 'invalid'],
-        ['vehicleOccupancy', 'invalid'],
-        ['carType', 123],
-    ])('should return an error for invalid %s', (param, value) => {
-        const invalidAttributes = { ...validAttributes, [param]: value };
-        const errors = Segment.validateParams(invalidAttributes);
-        expect(errors[0].toString()).toContain(param);
-        expect(errors).toHaveLength(1);
-    });
-
     test('should unserialize a Segment instance', () => {
         const segment = Segment.unserialize(validAttributes);
         expect(segment).toBeInstanceOf(Segment);
@@ -120,7 +104,7 @@ describe('Segment', () => {
     });
 
     test('should return errors for invalid Segment attributes', () => {
-        const invalidAttributes = { ...validAttributes, departureDate: 123 };
+        const invalidAttributes = { ...validAttributes, endDate: 123 };
         const errors = Segment.validateParams(invalidAttributes);
         expect(errors).toHaveLength(1);
     });
@@ -151,10 +135,12 @@ describe('Segment', () => {
             ['modeCategory', 123],
             ['mode', 123],
             ['modeOtherSpecify', 123],
-            ['departureDate', 123],
-            ['arrivalDate', 123],
-            ['departureTime', -1],
-            ['arrivalTime', -1],
+            ['endDate', 123],
+            ['startDate', 123],
+            ['endTime', -1],
+            ['startTime', -1],
+            ['startTimePeriod', 123],
+            ['endTimePeriod', 123],
             ['driver', 123],
             ['driverUuid', 123],
             ['vehicleOccupancy', -1],
@@ -176,10 +162,12 @@ describe('Segment', () => {
             ['modeCategory', 'walk'],
             ['mode', 'walk'],
             ['modeOtherSpecify', 'Other mode updated'],
-            ['departureDate', '2023-05-20'],
-            ['arrivalDate', '2023-05-23'],
-            ['departureTime', 1800],
-            ['arrivalTime', 5400],
+            ['endDate', '2023-05-20'],
+            ['startDate', '2023-05-23'],
+            ['endTime', 1800],
+            ['startTime', 5400],
+            ['startTimePeriod', 'am'],
+            ['endTimePeriod', 'pm'],
             ['driver', 'colleague'],
             ['driverUuid', uuidV4()],
             ['vehicleOccupancy', 3],

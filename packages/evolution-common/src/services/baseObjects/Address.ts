@@ -14,11 +14,6 @@ import { ConstructorUtils } from '../../utils/ConstructorUtils';
 
 // TODO: make this class more international. For now, it fits Canadian addresses only.
 
-/**
- * Address objects are created from official data sources and are used
- * to match geolocations with a civic address.
- */
-
 export const addressAttributes = [
     '_uuid',
     '_isValid',
@@ -70,6 +65,11 @@ export type AddressAttributes = {
 
 export type ExtendedAddressAttributes = AddressAttributes & { [key: string]: unknown };
 
+
+/**
+ * Address objects are created from official data sources and are used
+ * to match geolocations with a civic address.
+ */
 export class Address implements IValidatable {
     private _attributes: AddressAttributes;
     private _customAttributes: { [key: string]: unknown };

@@ -10,6 +10,7 @@ import { VisitedPlaceAttributes } from '../VisitedPlace';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { startEndDateAndTimesAttributes } from '../StartEndable';
 
 describe('TripChain', () => {
     const weightMethodAttributes: WeightMethodAttributes = {
@@ -25,6 +26,8 @@ describe('TripChain', () => {
         endDate: '2023-05-21',
         startTime: 3600,
         endTime: 7200,
+        startTimePeriod: 'am',
+        endTimePeriod: 'pm',
         category: 'simple',
         isMultiLoop: false,
         isConstrained: true,
@@ -44,6 +47,8 @@ describe('TripChain', () => {
                 startTime: 3600,
                 endDate: '2023-05-21',
                 endTime: 5400,
+                startTimePeriod: 'am',
+                endTimePeriod: 'pm',
                 _isValid: true,
             },
             {
@@ -52,6 +57,8 @@ describe('TripChain', () => {
                 startTime: 5400,
                 endDate: '2023-05-21',
                 endTime: 7200,
+                startTimePeriod: 'am',
+                endTimePeriod: 'pm',
                 _isValid: true,
             },
         ],
@@ -91,7 +98,7 @@ describe('TripChain', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = TripChain.validateParams.toString();
-        tripChainAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
+        tripChainAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
             expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
@@ -171,6 +178,8 @@ describe('TripChain', () => {
             ['endDate', 123],
             ['startTime', 'invalid'],
             ['endTime', 'invalid'],
+            ['startTimePeriod', 123],
+            ['endTimePeriod', 123],
             ['category', 123],
             ['isMultiLoop', 'invalid'],
             ['isConstrained', 'invalid'],
@@ -195,6 +204,8 @@ describe('TripChain', () => {
             ['endDate', '2023-05-22'],
             ['startTime', 7200],
             ['endTime', 10800],
+            ['startTimePeriod', 'am'],
+            ['endTimePeriod', 'pm'],
             ['category', 'complex'],
             ['isMultiLoop', true],
             ['isConstrained', false],
@@ -239,6 +250,8 @@ describe('TripChain', () => {
                     startTime: 3600,
                     endDate: '2023-05-21',
                     endTime: 5400,
+                    startTimePeriod: 'am',
+                    endTimePeriod: 'pm',
                     _isValid: true,
                 },
                 {
@@ -247,6 +260,8 @@ describe('TripChain', () => {
                     startTime: 5400,
                     endDate: '2023-05-21',
                     endTime: 7200,
+                    startTimePeriod: 'am',
+                    endTimePeriod: 'pm',
                     _isValid: true,
                 },
             ];

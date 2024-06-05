@@ -17,15 +17,14 @@ import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { Trip, TripAttributes } from './Trip';
 import { VisitedPlace, VisitedPlaceAttributes } from './VisitedPlace';
+import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
+import { TimePeriod } from './attributeTypes/GenericAttributes';
 
 export const tripChainAttributes = [
+    ...startEndDateAndTimesAttributes,
     '_weights',
     '_isValid',
     '_uuid',
-    'startDate',
-    'endDate',
-    'startTime',
-    'endTime',
     'category',
     'isMultiLoop',
     'isConstrained',
@@ -40,16 +39,12 @@ export const tripChainAttributesWithComposedAttributes = [
 ];
 
 export type TripChainAttributes = {
-    startDate?: Optional<string>;
-    endDate?: Optional<string>;
-    startTime?: Optional<number>;
-    endTime?: Optional<number>;
     category?: Optional<TCAttr.TripChainCategory>;
     isMultiLoop?: Optional<boolean>;
     isConstrained?: Optional<boolean>;
     mainActivity?: Optional<VPAttr.Activity>;
     mainActivityCategory?: Optional<VPAttr.ActivityCategory>;
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type TripChainWithComposedAttributes = TripChainAttributes & {
     trips?: Optional<TripAttributes[]>;
@@ -58,6 +53,17 @@ export type TripChainWithComposedAttributes = TripChainAttributes & {
 
 export type ExtendedTripChainAttributes = TripChainWithComposedAttributes & { [key: string]: unknown };
 
+/**
+ * A trip chain is a group or consecutive trips between two anchors
+ * the anchors are usually home, work place or the main destination of
+ * the trips group. A trip chain could be a closed (return to the same anchor)
+ * or open (the end anchor is not the same as the start anchor)
+ * trip chains can be unconstrained (like a shopping trip chain)
+ * for which timing and/or location is usually flexible
+ * or constrained (like a trip chain with the main anchor being a work or school place)
+ * for which the timing and/or location is usually fixed/not flexible
+ * TODO: document the official academic/students definition of the trip chain with more examples
+ */
 export class TripChain implements IValidatable {
     private _attributes: TripChainAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -123,14 +129,6 @@ export class TripChain implements IValidatable {
         this._attributes.startDate = value;
     }
 
-    get endDate(): Optional<string> {
-        return this._attributes.endDate;
-    }
-
-    set endDate(value: Optional<string>) {
-        this._attributes.endDate = value;
-    }
-
     get startTime(): Optional<number> {
         return this._attributes.startTime;
     }
@@ -139,12 +137,36 @@ export class TripChain implements IValidatable {
         this._attributes.startTime = value;
     }
 
+    get startTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.startTimePeriod;
+    }
+
+    set startTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.startTimePeriod = value;
+    }
+
+    get endDate(): Optional<string> {
+        return this._attributes.endDate;
+    }
+
+    set endDate(value: Optional<string>) {
+        this._attributes.endDate = value;
+    }
+
     get endTime(): Optional<number> {
         return this._attributes.endTime;
     }
 
     set endTime(value: Optional<number>) {
         this._attributes.endTime = value;
+    }
+
+    get endTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.endTimePeriod;
+    }
+
+    set endTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.endTimePeriod = value;
     }
 
     get category(): Optional<TCAttr.TripChainCategory> {
@@ -247,7 +269,8 @@ export class TripChain implements IValidatable {
             displayName
         ));
 
-        errors.push(...Uuidable.validateParams(dirtyParams));
+        errors.push(...Uuidable.validateParams(dirtyParams, displayName));
+        errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isBoolean(
@@ -258,38 +281,6 @@ export class TripChain implements IValidatable {
         );
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'startDate',
-                dirtyParams.startDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'endDate',
-                dirtyParams.endDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'startTime',
-                dirtyParams.startTime,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'endTime',
-                dirtyParams.endTime,
-                displayName
-            )
-        );
 
         errors.push(
             ...ParamsValidatorUtils.isString(

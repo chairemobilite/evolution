@@ -10,6 +10,7 @@ import { placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { startEndDateAndTimesAttributes } from '../StartEndable';
 
 describe('Junction', () => {
 
@@ -53,6 +54,8 @@ describe('Junction', () => {
         endDate: '2023-05-22',
         startTime: 3600,
         endTime: 7200,
+        startTimePeriod: 'am',
+        endTimePeriod: 'pm',
         parkingType: 'streetside',
         parkingFeeType: 'free',
         transitPlaceType: 'trainStation'
@@ -72,7 +75,7 @@ describe('Junction', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Junction.validateParams.toString();
-        junctionAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !placeAttributes.includes(attribute)).forEach((attributeName) => {
+        junctionAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute) && !placeAttributes.includes(attribute)).forEach((attributeName) => {
             expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
@@ -152,6 +155,8 @@ describe('Junction', () => {
             ['endDate', 123],
             ['startTime', -1],
             ['endTime', -1],
+            ['startTimePeriod', 123],
+            ['endTimePeriod', 123],
             ['parkingType', 123],
             ['parkingFeeType', 123],
             ['transitPlaceType', 123],
@@ -174,6 +179,8 @@ describe('Junction', () => {
             ['endDate', '2023-05-23'],
             ['startTime', 1800],
             ['endTime', 5400],
+            ['startTimePeriod', 'am'],
+            ['endTimePeriod', 'pm'],
             ['parkingType', 'interiorAssignedOrGuaranteed'],
             ['parkingFeeType', 'paidByEmployer'],
             ['transitPlaceType', 'busStation'],

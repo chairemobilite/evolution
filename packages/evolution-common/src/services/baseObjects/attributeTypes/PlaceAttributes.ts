@@ -14,7 +14,7 @@ export const lastActionValues = [
     'mapClicked',
     'markerDragged',
     'preGeocoded'
-];
+] as const;
 export type LastAction = (typeof lastActionValues)[number];
 
 export const transitPlaceTypeValues = [
@@ -31,7 +31,7 @@ export const transitPlaceTypeValues = [
     'other',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type TransitPlaceType = (typeof transitPlaceTypeValues)[number];
 
 export const parkingTypeValues = [
@@ -41,7 +41,7 @@ export const parkingTypeValues = [
     'other',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type ParkingType = (typeof parkingTypeValues)[number];
 
 export const residentialParkingTypeValues = [
@@ -54,7 +54,7 @@ export const residentialParkingTypeValues = [
     'other',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type ResidentialParkingType = (typeof parkingTypeValues)[number];
 
 export const parkingFeeTypeValues = [
@@ -68,7 +68,7 @@ export const parkingFeeTypeValues = [
     'parkingMeter',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type ParkingFeeType = (typeof parkingFeeTypeValues)[number];
 
 export const workParkingFeeTypeValues = [
@@ -78,7 +78,7 @@ export const workParkingFeeTypeValues = [
     'parkingMeter',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type WorkParkingFeeType = (typeof workParkingFeeTypeValues)[number];
 
 export const schoolParkingFeeTypeValues = [
@@ -88,6 +88,6 @@ export const schoolParkingFeeTypeValues = [
     'parkingMeter',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type SchoolParkingFeeType = (typeof schoolParkingFeeTypeValues)[number];
 

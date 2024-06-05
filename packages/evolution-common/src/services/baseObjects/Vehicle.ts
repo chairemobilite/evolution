@@ -50,6 +50,11 @@ export type VehicleAttributes = {
 
 export type ExtendedVehicleAttributes = VehicleAttributes & { [key: string]: unknown };
 
+/**
+ * A vehicle is owned by a person or an organization
+ * and could be used during a trip or a segment of a trip
+ * It could include cars, trucks, planes, buses, boats, bicycles, scooters, etc.
+ */
 export class Vehicle implements IValidatable {
     private _attributes: VehicleAttributes;
     private _customAttributes: { [key: string]: unknown };

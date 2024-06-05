@@ -10,3 +10,5 @@ export type YesNoDontKnowNonApplicable = (typeof yesNoDontKnowNonApplicableValue
 
 export const yesNoDontKnowPreferNotToAnswerValues = ['yes', 'no', 'dontKnow', 'preferNotToAnswer'];
 export type YesNoDontKnowPreferNotToAnswer = (typeof yesNoDontKnowPreferNotToAnswerValues)[number];
+
+export type TimePeriod = string // TODO: normalize time periods (when time is too precise, like for long distance journeys)

@@ -16,11 +16,6 @@ import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 
-/**
- * The Household class represents households with their members and attributes.
- * the members composed array includes Person objects.
- */
-
 export const householdAttributes = [
     '_weights',
     '_isValid',
@@ -67,6 +62,10 @@ export type HouseholdWithComposedAttributes = HouseholdAttributes & {
 
 export type ExtendedHouseholdAttributes = HouseholdWithComposedAttributes & { [key: string]: unknown };
 
+/**
+ * The Household class represents households with their members and attributes.
+ * the members composed array includes Person objects.
+ */
 export class Household implements IValidatable {
     private _attributes: HouseholdAttributes;
     private _customAttributes: { [key: string]: unknown };

@@ -12,11 +12,6 @@ import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Place, PlaceAttributes, placeAttributes } from './Place';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 
-/*
- * A work place is a place associated with a person
- * where they go to work on a regular basis (usual work place)
- */
-
 export const workPlaceAttributes = [
     ...placeAttributes,
     'parkingType',
@@ -30,6 +25,11 @@ export type WorkPlaceAttributes = {
 
 export type ExtendedWorkPlaceAttributes = WorkPlaceAttributes & { [key: string]: unknown };
 
+
+/*
+ * A work place is a place associated with a person
+ * where they go to work on a regular basis (usual work place)
+ */
 export class WorkPlace extends Place<WorkPlaceAttributes> implements IValidatable {
 
     static _confidentialAttributes = [];
