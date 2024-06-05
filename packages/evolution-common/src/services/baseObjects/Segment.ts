@@ -15,18 +15,17 @@ import { Routing, RoutingAttributes } from './Routing';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
+import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
+import { TimePeriod } from './attributeTypes/GenericAttributes';
 
 export const segmentAttributes = [
+    ...startEndDateAndTimesAttributes,
     '_weights',
     '_isValid',
     '_uuid',
     'modeCategory',
     'mode',
     'modeOtherSpecify',
-    'departureDate',
-    'arrivalDate',
-    'departureTime',
-    'arrivalTime',
     'driver',
     'driverUuid',
     'carType',
@@ -64,18 +63,21 @@ export type SegmentAttributes = {
     modeCategory?: Optional<SAttr.ModeCategory>;
     mode?: Optional<SAttr.Mode>;
     modeOtherSpecify?: Optional<string>;
-    departureDate?: Optional<string>; // string, YYYY-MM-DD
-    arrivalDate?: Optional<string>; // string, YYYY-MM-DD
-    departureTime?: Optional<number>; // seconds since midnight
-    arrivalTime?: Optional<number>; // seconds since midnight
     driver?: Optional<SAttr.Driver>;
     driverUuid?: Optional<string>; // person uuid
     vehicleOccupancy?: Optional<number>; // positive integer
     carType?: Optional<SAttr.CarType>;
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type ExtendedSegmentAttributes = SegmentAttributes & SegmentWithComposedAttributes & { [key: string]: unknown };
 
+/**
+ * A segment is a part of a trip using a single unique mode
+ * Segments can have a start junction and an end junction
+ * which are the departure and arrival places of the segment
+ * like subway station, a parking or another or the trip origin
+ * and/or destination when the segment is first or last for the trip
+ */
 export class Segment implements IValidatable {
     private _attributes: SegmentAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -170,36 +172,52 @@ export class Segment implements IValidatable {
         this._attributes.modeOtherSpecify = value;
     }
 
-    get departureDate(): Optional<string> {
-        return this._attributes.departureDate;
+    get startDate(): Optional<string> {
+        return this._attributes.startDate;
     }
 
-    set departureDate(value: Optional<string>) {
-        this._attributes.departureDate = value;
+    set startDate(value: Optional<string>) {
+        this._attributes.startDate = value;
     }
 
-    get arrivalDate(): Optional<string> {
-        return this._attributes.arrivalDate;
+    get startTime(): Optional<number> {
+        return this._attributes.startTime;
     }
 
-    set arrivalDate(value: Optional<string>) {
-        this._attributes.arrivalDate = value;
+    set startTime(value: Optional<number>) {
+        this._attributes.startTime = value;
     }
 
-    get departureTime(): Optional<number> {
-        return this._attributes.departureTime;
+    get startTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.startTimePeriod;
     }
 
-    set departureTime(value: Optional<number>) {
-        this._attributes.departureTime = value;
+    set startTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.startTimePeriod = value;
     }
 
-    get arrivalTime(): Optional<number> {
-        return this._attributes.arrivalTime;
+    get endDate(): Optional<string> {
+        return this._attributes.endDate;
     }
 
-    set arrivalTime(value: Optional<number>) {
-        this._attributes.arrivalTime = value;
+    set endDate(value: Optional<string>) {
+        this._attributes.endDate = value;
+    }
+
+    get endTime(): Optional<number> {
+        return this._attributes.endTime;
+    }
+
+    set endTime(value: Optional<number>) {
+        this._attributes.endTime = value;
+    }
+
+    get endTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.endTimePeriod;
+    }
+
+    set endTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.endTimePeriod = value;
     }
 
     get driver(): Optional<SAttr.Driver> {
@@ -356,7 +374,8 @@ export class Segment implements IValidatable {
             displayName
         ));
 
-        errors.push(...Uuidable.validateParams(dirtyParams));
+        errors.push(...Uuidable.validateParams(dirtyParams, displayName));
+        errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isBoolean(
@@ -388,38 +407,6 @@ export class Segment implements IValidatable {
             ...ParamsValidatorUtils.isString(
                 'modeOtherSpecify',
                 dirtyParams.modeOtherSpecify,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'departureDate',
-                dirtyParams.departureDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'arrivalDate',
-                dirtyParams.arrivalDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'departureTime',
-                dirtyParams.departureTime,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'arrivalTime',
-                dirtyParams.arrivalTime,
                 displayName
             )
         );

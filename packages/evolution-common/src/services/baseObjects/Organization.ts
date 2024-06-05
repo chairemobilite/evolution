@@ -63,6 +63,10 @@ export type OrganizationWithComposedAttributes = OrganizationAttributes & {
 
 export type ExtendedOrganizationAttributes = OrganizationWithComposedAttributes & { [key: string]: unknown };
 
+/**
+ * Organization is a base object that represents an organization,
+ * a company, a place with employees, or a group of persons other than a household.
+ */
 export class Organization implements IValidatable {
     private _attributes: OrganizationAttributes;
     private _customAttributes: { [key: string]: unknown };

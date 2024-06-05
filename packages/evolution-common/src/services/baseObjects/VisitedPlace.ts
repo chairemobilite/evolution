@@ -9,30 +9,32 @@ import { Optional } from '../../types/Optional.type';
 import { IValidatable } from './IValidatable';
 import { Place, PlaceAttributes, placeAttributes } from './Place';
 import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
+import * as JAttr from './attributeTypes/JourneyAttributes';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Result, createErrors, createOk } from '../../types/Result.type';
+import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
+import { TimePeriod } from './attributeTypes/GenericAttributes';
 
 export const visitedPlaceAttributes = [
     ...placeAttributes,
-    'startDate',
-    'endDate',
-    'startTime',
-    'endTime',
+    ...startEndDateAndTimesAttributes,
     'activity',
     'activityCategory'
 ];
 
 export type VisitedPlaceAttributes = {
-    startDate?: Optional<string>;
-    endDate?: Optional<string>;
-    startTime?: Optional<number>;
-    endTime?: Optional<number>;
     activity?: Optional<VPAttr.Activity>;
     activityCategory?: Optional<VPAttr.ActivityCategory>;
-} & PlaceAttributes;
+} & StartEndDateAndTimesAttributes & PlaceAttributes;
 
 export type ExtendedVisitedPlaceAttributes = VisitedPlaceAttributes & { [key: string]: unknown };
 
+/**
+ * A visited place is a location that has been visited during a trip/journey
+ * and that has an activity.
+ * It could be home, a work place, a school place, a restaurant, a place of leisure,
+ * a shopping place, etc.
+ */
 export class VisitedPlace extends Place<VisitedPlaceAttributes> implements IValidatable {
     private _journeyUuid?: Optional<string>;
 
@@ -50,14 +52,6 @@ export class VisitedPlace extends Place<VisitedPlaceAttributes> implements IVali
         this._attributes.startDate = value;
     }
 
-    get endDate(): Optional<string> {
-        return this._attributes.endDate;
-    }
-
-    set endDate(value: Optional<string>) {
-        this._attributes.endDate = value;
-    }
-
     get startTime(): Optional<number> {
         return this._attributes.startTime;
     }
@@ -66,12 +60,36 @@ export class VisitedPlace extends Place<VisitedPlaceAttributes> implements IVali
         this._attributes.startTime = value;
     }
 
+    get startTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.startTimePeriod;
+    }
+
+    set startTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.startTimePeriod = value;
+    }
+
+    get endDate(): Optional<string> {
+        return this._attributes.endDate;
+    }
+
+    set endDate(value: Optional<string>) {
+        this._attributes.endDate = value;
+    }
+
     get endTime(): Optional<number> {
         return this._attributes.endTime;
     }
 
     set endTime(value: Optional<number>) {
         this._attributes.endTime = value;
+    }
+
+    get endTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.endTimePeriod;
+    }
+
+    set endTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.endTimePeriod = value;
     }
 
     get activity(): Optional<VPAttr.Activity> {
@@ -124,38 +142,7 @@ export class VisitedPlace extends Place<VisitedPlaceAttributes> implements IVali
         const errors: Error[] = [];
 
         errors.push(...Place.validateParams(dirtyParams, displayName));
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'startDate',
-                dirtyParams.startDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'endDate',
-                dirtyParams.endDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'startTime',
-                dirtyParams.startTime,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'endTime',
-                dirtyParams.endTime,
-                displayName
-            )
-        );
+        errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isString(

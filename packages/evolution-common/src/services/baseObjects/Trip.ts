@@ -15,15 +15,14 @@ import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { VisitedPlace, VisitedPlaceAttributes } from './VisitedPlace';
 import { Segment, SegmentAttributes } from './Segment';
 import { Junction, JunctionAttributes } from './Junction';
+import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
+import { TimePeriod } from './attributeTypes/GenericAttributes';
 
 export const tripAttributes = [
+    ...startEndDateAndTimesAttributes,
     '_weights',
     '_isValid',
-    '_uuid',
-    'startDate',
-    'endDate',
-    'startTime',
-    'endTime',
+    '_uuid'
 ];
 
 export const tripAttributesWithComposedAttributes = [
@@ -34,12 +33,7 @@ export const tripAttributesWithComposedAttributes = [
     'junctions',
 ];
 
-export type TripAttributes = {
-    startDate?: Optional<string>;
-    endDate?: Optional<string>;
-    startTime?: Optional<number>;
-    endTime?: Optional<number>;
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+export type TripAttributes = StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type TripWithComposedAttributes = TripAttributes & {
     startPlace?: Optional<VisitedPlaceAttributes>; // origin
@@ -50,6 +44,11 @@ export type TripWithComposedAttributes = TripAttributes & {
 
 export type ExtendedTripAttributes = TripWithComposedAttributes & { [key: string]: unknown };
 
+
+/**
+ * A trip include the travelling action between two places (visited places: origin|destination)
+ * Start and end dates and times could be generated from the origin and destination data
+ */
 export class Trip implements IValidatable {
     private _attributes: TripAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -120,14 +119,6 @@ export class Trip implements IValidatable {
         this._attributes.startDate = value;
     }
 
-    get endDate(): Optional<string> {
-        return this._attributes.endDate;
-    }
-
-    set endDate(value: Optional<string>) {
-        this._attributes.endDate = value;
-    }
-
     get startTime(): Optional<number> {
         return this._attributes.startTime;
     }
@@ -136,12 +127,36 @@ export class Trip implements IValidatable {
         this._attributes.startTime = value;
     }
 
+    get startTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.startTimePeriod;
+    }
+
+    set startTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.startTimePeriod = value;
+    }
+
+    get endDate(): Optional<string> {
+        return this._attributes.endDate;
+    }
+
+    set endDate(value: Optional<string>) {
+        this._attributes.endDate = value;
+    }
+
     get endTime(): Optional<number> {
         return this._attributes.endTime;
     }
 
     set endTime(value: Optional<number>) {
         this._attributes.endTime = value;
+    }
+
+    get endTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.endTimePeriod;
+    }
+
+    set endTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.endTimePeriod = value;
     }
 
     get startPlace(): Optional<VisitedPlace> {
@@ -228,7 +243,8 @@ export class Trip implements IValidatable {
             displayName
         ));
 
-        errors.push(...Uuidable.validateParams(dirtyParams));
+        errors.push(...Uuidable.validateParams(dirtyParams, displayName));
+        errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isBoolean(
@@ -239,38 +255,6 @@ export class Trip implements IValidatable {
         );
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'startDate',
-                dirtyParams.startDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'endDate',
-                dirtyParams.endDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'startTime',
-                dirtyParams.startTime,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'endTime',
-                dirtyParams.endTime,
-                displayName
-            )
-        );
 
         const startPlaceAttributes = dirtyParams.startPlace as { [key: string]: unknown };
         if (startPlaceAttributes !== undefined) {

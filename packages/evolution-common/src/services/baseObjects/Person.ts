@@ -17,10 +17,6 @@ import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
 
-/**
- * A person is a member of a household. it can have these composed objects:
- * workPlaces, schoolPlaces, journeys, vehicles
- */
 
 export const personAttributes = [
     '_weights',
@@ -114,6 +110,11 @@ export type PersonWithComposedAttributes = PersonAttributes & {
 
 export type ExtendedPersonAttributes = PersonWithComposedAttributes & { [key: string]: unknown };
 
+
+/**
+ * A person is a member of a household. it can have these composed objects:
+ * workPlaces, schoolPlaces, journeys, vehicles
+ */
 export class Person implements IValidatable {
     private _attributes: PersonAttributes;
     private _customAttributes: { [key: string]: unknown };

@@ -33,15 +33,16 @@ export class Uuidable {
     /**
      * validates provided _uuid in params
      * @param dirtyParams the params input
+     * @param displayName the name of the object being validated
      * @returns Error[]
      */
-    static validateParams(dirtyParams: { [key: string]: any }): Error[] {
+    static validateParams(dirtyParams: { [key: string]: any }, displayName?: string): Error[] {
         const errors: Error[] = [];
         errors.push(
             ...ParamsValidatorUtils.isUuid(
                 '_uuid',
                 dirtyParams._uuid,
-                'Uuidable'
+                displayName ? displayName + ' Uuidable' : 'Uuidable'
             )
         );
         return errors;

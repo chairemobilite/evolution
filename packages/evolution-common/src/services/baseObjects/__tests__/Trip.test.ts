@@ -6,12 +6,13 @@
  */
 
 import { Trip, TripAttributes, ExtendedTripAttributes, tripAttributes } from '../Trip';
-import { VisitedPlaceAttributes } from '../VisitedPlace';
-import { SegmentAttributes } from '../Segment';
-import { JunctionAttributes } from '../Junction';
+import { VisitedPlace, VisitedPlaceAttributes, ExtendedVisitedPlaceAttributes } from '../VisitedPlace';
+import { Segment, SegmentAttributes } from '../Segment';
+import { Junction, JunctionAttributes } from '../Junction';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { startEndDateAndTimesAttributes } from '../StartEndable';
 
 describe('Trip', () => {
     const weightMethodAttributes: WeightMethodAttributes = {
@@ -27,6 +28,8 @@ describe('Trip', () => {
         endDate: '2023-05-21',
         startTime: 3600,
         endTime: 7200,
+        startTimePeriod: 'am',
+        endTimePeriod: 'pm',
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true,
     };
@@ -106,7 +109,7 @@ describe('Trip', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Trip.validateParams.toString();
-        tripAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
+        tripAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
             expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
@@ -186,6 +189,8 @@ describe('Trip', () => {
             ['endDate', 123],
             ['startTime', 'invalid'],
             ['endTime', 'invalid'],
+            ['startTimePeriod', 123],
+            ['endTimePeriod', 123],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Trip.validateParams(invalidAttributes);
@@ -205,6 +210,12 @@ describe('Trip', () => {
             ['endDate', '2023-05-22'],
             ['startTime', 7200],
             ['endTime', 10800],
+            ['startTimePeriod', 'am'],
+            ['endTimePeriod', 'pm'],
+            ['journeyUuid', uuidV4()],
+            ['tripChainUuid', uuidV4()],
+            ['_isValid', false],
+            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
         ])('should set and get %s', (attribute, value) => {
             const trip = new Trip(validAttributes);
             trip[attribute] = value;
@@ -223,14 +234,10 @@ describe('Trip', () => {
         });
 
         test.each([
-            ['_isValid', false],
-            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['startPlace', extendedAttributes.startPlace],
-            ['endPlace', extendedAttributes.endPlace],
-            ['segments', extendedAttributes.segments],
-            ['junctions', extendedAttributes.junctions],
-            ['journeyUuid', uuidV4()],
-            ['tripChainUuid', uuidV4()],
+            ['startPlace', new VisitedPlace(extendedAttributes.startPlace as ExtendedVisitedPlaceAttributes)],
+            ['endPlace', new VisitedPlace(extendedAttributes.endPlace as ExtendedVisitedPlaceAttributes)],
+            ['segments', extendedAttributes.segments?.map((segment) => new Segment(segment))],
+            ['junctions', extendedAttributes.junctions?.map((junction) => new Junction(junction))],
         ])('should set and get %s', (attribute, value) => {
             const trip = new Trip(validAttributes);
             trip[attribute] = value;

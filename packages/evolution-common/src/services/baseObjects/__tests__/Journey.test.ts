@@ -12,6 +12,7 @@ import { TripChainAttributes } from '../TripChain';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { startEndDateAndTimesAttributes } from '../StartEndable';
 
 describe('Journey', () => {
     const weightMethodAttributes: WeightMethodAttributes = {
@@ -25,10 +26,12 @@ describe('Journey', () => {
         _uuid: uuidV4(),
         startDate: '2023-05-21',
         startTime: 3600,
+        startTimePeriod: 'morning',
         endDate: '2023-05-21',
         endTime: 7200,
+        endTimePeriod: 'afternoon',
         name: 'Sample Journey',
-        type: 'holiday',
+        type: 'week',
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true,
     };
@@ -74,7 +77,7 @@ describe('Journey', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Journey.validateParams.toString();
-        journeyAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
+        journeyAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
             expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
@@ -152,8 +155,10 @@ describe('Journey', () => {
         test.each([
             ['startDate', 123],
             ['startTime', 'invalid'],
+            ['startTimePeriod', 123],
             ['endDate', 123],
             ['endTime', 'invalid'],
+            ['endTimePeriod', 123],
             ['name', 123],
             ['type', 123],
         ])('should return an error for invalid %s', (param, value) => {
@@ -173,8 +178,10 @@ describe('Journey', () => {
         test.each([
             ['startDate', '2023-05-22'],
             ['startTime', 7200],
+            ['startTimePeriod', 'morning'],
             ['endDate', '2023-05-22'],
             ['endTime', 10800],
+            ['endTimePeriod', 'afternoon'],
             ['name', 'Updated Journey'],
             ['type', 'work'],
         ])('should set and get %s', (attribute, value) => {

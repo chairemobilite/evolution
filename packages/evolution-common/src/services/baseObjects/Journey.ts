@@ -16,19 +16,14 @@ import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { VisitedPlace, VisitedPlaceAttributes } from './VisitedPlace';
 import { Trip, TripAttributes } from './Trip';
 import { TripChain, TripChainAttributes } from './TripChain';
-
-/** A journey is a sequence of visited places that form trips and trip chains.
- * They can be all the visited places for a single person for a day, part of a day,
- * a week, a weekend or a long distance trip */
+import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
+import { TimePeriod } from './attributeTypes/GenericAttributes';
 
 export const journeyAttributes = [
+    ...startEndDateAndTimesAttributes,
     '_weights',
     '_isValid',
     '_uuid',
-    'startDate',
-    'startTime',
-    'endDate',
-    'endTime',
     'name',
     'type',
 ];
@@ -41,13 +36,9 @@ export const journeyAttributesWithComposedAttributes = [
 ];
 
 export type JourneyAttributes = {
-    startDate?: Optional<string>;
-    startTime?: Optional<number>;
-    endDate?: Optional<string>;
-    endTime?: Optional<number>;
     name?: Optional<string>;
     type?: Optional<JAttr.JourneyType>;
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type JourneyWithComposedAttributes = JourneyAttributes & {
     visitedPlaces?: Optional<VisitedPlaceAttributes[]>;
@@ -57,6 +48,10 @@ export type JourneyWithComposedAttributes = JourneyAttributes & {
 
 export type ExtendedJourneyAttributes = JourneyWithComposedAttributes & { [key: string]: unknown };
 
+/** A journey is a sequence of visited places that form trips and trip chains.
+ * They can be all the visited places for a single person for a day, part of a day,
+ * a week, a weekend or a long distance trip
+ */
 export class Journey implements IValidatable {
     private _attributes: JourneyAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -135,6 +130,14 @@ export class Journey implements IValidatable {
         this._attributes.startTime = value;
     }
 
+    get startTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.startTimePeriod;
+    }
+
+    set startTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.startTimePeriod = value;
+    }
+
     get endDate(): Optional<string> {
         return this._attributes.endDate;
     }
@@ -149,6 +152,14 @@ export class Journey implements IValidatable {
 
     set endTime(value: Optional<number>) {
         this._attributes.endTime = value;
+    }
+
+    get endTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.endTimePeriod;
+    }
+
+    set endTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.endTimePeriod = value;
     }
 
     get name(): Optional<string> {
@@ -235,7 +246,8 @@ export class Journey implements IValidatable {
             displayName
         ));
 
-        errors.push(...Uuidable.validateParams(dirtyParams));
+        errors.push(...Uuidable.validateParams(dirtyParams, displayName));
+        errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isBoolean(
@@ -246,38 +258,6 @@ export class Journey implements IValidatable {
         );
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'startDate',
-                dirtyParams.startDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'startTime',
-                dirtyParams.startTime,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'endDate',
-                dirtyParams.endDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'endTime',
-                dirtyParams.endTime,
-                displayName
-            )
-        );
 
         errors.push(
             ...ParamsValidatorUtils.isString(

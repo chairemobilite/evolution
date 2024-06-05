@@ -11,36 +11,30 @@ import * as PlAttr from './attributeTypes/PlaceAttributes';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Place, PlaceAttributes, placeAttributes } from './Place';
 import { Result, createErrors, createOk } from '../../types/Result.type';
-
-/**
- * A junction is a place used to transfer between segments/modes by a person during a trip
- * Usually, junctions are used as origin and/or destination for segments
- * Junctions are optional in most surveys
- */
+import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
+import { TimePeriod } from './attributeTypes/GenericAttributes';
 
 export const junctionAttributes = [
     ...placeAttributes,
-    'startDate',
-    'endDate',
-    'startTime',
-    'endTime',
+    ...startEndDateAndTimesAttributes,
     'parkingType',
     'parkingFeeType',
     'transitPlaceType'
 ];
 
 export type JunctionAttributes = {
-    startDate?: Optional<string>; // string, YYYY-MM-DD
-    endDate?: Optional<string>; // string, YYYY-MM-DD
-    startTime?: Optional<number>; // seconds since midnight
-    endTime?: Optional<number>; // seconds since midnight
     parkingType?: Optional<PlAttr.ParkingType>;
     parkingFeeType?: Optional<PlAttr.ParkingFeeType>;
     transitPlaceType?: Optional<PlAttr.TransitPlaceType>; // for transit junctions
-} & PlaceAttributes;
+} & StartEndDateAndTimesAttributes & PlaceAttributes;
 
 export type ExtendedJunctionAttributes = JunctionAttributes & { [key: string]: unknown };
 
+/**
+ * A junction is a place used to transfer between segments/modes by a person during a trip
+ * Usually, junctions are used as origin and/or destination for segments
+ * Junctions are optional in most surveys
+ */
 export class Junction extends Place<JunctionAttributes> implements IValidatable {
 
     static _confidentialAttributes = [];
@@ -57,14 +51,6 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
         this._attributes.startDate = value;
     }
 
-    get endDate(): Optional<string> {
-        return this._attributes.endDate;
-    }
-
-    set endDate(value: Optional<string>) {
-        this._attributes.endDate = value;
-    }
-
     get startTime(): Optional<number> {
         return this._attributes.startTime;
     }
@@ -73,12 +59,36 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
         this._attributes.startTime = value;
     }
 
+    get startTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.startTimePeriod;
+    }
+
+    set startTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.startTimePeriod = value;
+    }
+
+    get endDate(): Optional<string> {
+        return this._attributes.endDate;
+    }
+
+    set endDate(value: Optional<string>) {
+        this._attributes.endDate = value;
+    }
+
     get endTime(): Optional<number> {
         return this._attributes.endTime;
     }
 
     set endTime(value: Optional<number>) {
         this._attributes.endTime = value;
+    }
+
+    get endTimePeriod(): Optional<TimePeriod> {
+        return this._attributes.endTimePeriod;
+    }
+
+    set endTimePeriod(value: Optional<TimePeriod>) {
+        this._attributes.endTimePeriod = value;
     }
 
     get parkingType(): Optional<PlAttr.ParkingType> {
@@ -137,38 +147,7 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
         const errors: Error[] = [];
 
         errors.push(...Place.validateParams(dirtyParams, displayName));
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'startDate',
-                dirtyParams.startDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'endDate',
-                dirtyParams.endDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'startTime',
-                dirtyParams.startTime,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'endTime',
-                dirtyParams.endTime,
-                displayName
-            )
-        );
+        errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isString(

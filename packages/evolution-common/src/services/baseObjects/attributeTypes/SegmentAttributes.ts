@@ -37,7 +37,7 @@ export const modeValues = [
     'ferryWithCar',
     'other',
     'dontKnow'
-];
+] as const;
 
 export type Mode = (typeof modeValues)[number];
 
@@ -88,7 +88,7 @@ export const modeCategoryValues = [
     'taxi',
     'other',
     'dontKnow'
-];
+] as const;
 export type ModeCategory = (typeof modeCategoryValues)[number];
 
 
@@ -103,7 +103,7 @@ export const driverValues = [
     'other',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type Driver = (typeof driverValues)[number];
 
 export const carTypeValues = [
@@ -117,5 +117,5 @@ export const carTypeValues = [
     'other',
     'dontKnow',
     'nonApplicable'
-];
+] as const;
 export type CarType = (typeof carTypeValues)[number];

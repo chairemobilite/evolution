@@ -10,6 +10,7 @@ import { PlaceAttributes, placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { startEndDateAndTimesAttributes } from '../StartEndable';
 
 describe('VisitedPlace', () => {
     const weightMethodAttributes: WeightMethodAttributes = {
@@ -52,6 +53,8 @@ describe('VisitedPlace', () => {
         endDate: '2023-05-21',
         startTime: 3600,
         endTime: 7200,
+        startTimePeriod: 'am',
+        endTimePeriod: 'pm',
         activity: 'work',
         activityCategory: 'work',
     };
@@ -70,7 +73,7 @@ describe('VisitedPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = VisitedPlace.validateParams.toString();
-        visitedPlaceAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !placeAttributes.includes(attribute)).forEach((attributeName) => {
+        visitedPlaceAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute) && !placeAttributes.includes(attribute)).forEach((attributeName) => {
             expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
@@ -152,6 +155,8 @@ describe('VisitedPlace', () => {
             ['endDate', 123],
             ['startTime', 'invalid'],
             ['endTime', 'invalid'],
+            ['startTimePeriod', 123],
+            ['endTimePeriod', 123],
             ['activity', 123],
             ['activityCategory', 123],
         ])('should return an error for invalid %s', (param, value) => {
@@ -173,6 +178,8 @@ describe('VisitedPlace', () => {
             ['endDate', '2023-05-22'],
             ['startTime', 7200],
             ['endTime', 10800],
+            ['startTimePeriod', 'am'],
+            ['endTimePeriod', 'pm'],
             ['activity', 'leisure'],
             ['activityCategory', 'leisure'],
         ])('should set and get %s', (attribute, value) => {
