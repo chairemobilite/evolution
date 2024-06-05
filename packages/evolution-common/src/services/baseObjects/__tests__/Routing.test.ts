@@ -12,10 +12,10 @@ import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 describe('Routing', () => {
     const validAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
-        arrivalDate: '2023-05-22',
-        departureDate: '2023-05-21',
-        arrivalTime: 7200,
-        departureTime: 3600,
+        endDate: '2023-05-22',
+        startDate: '2023-05-21',
+        endTime: 7200,
+        startTime: 3600,
         calculatedOn: Date.now(),
         mode: 'walking',
         status: 'success',
@@ -71,7 +71,7 @@ describe('Routing', () => {
     });
 
     test('should return errors for invalid attributes', () => {
-        const invalidAttributes = { ...validAttributes, arrivalDate: 123 };
+        const invalidAttributes = { ...validAttributes, endDate: 123 };
         const result = Routing.create(invalidAttributes);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
@@ -96,10 +96,10 @@ describe('Routing', () => {
 
     describe('validateParams', () => {
         test.each([
-            ['arrivalDate', 123],
-            ['departureDate', 123],
-            ['arrivalTime', -1],
-            ['departureTime', -1],
+            ['endDate', 123],
+            ['startDate', 123],
+            ['endTime', -1],
+            ['startTime', -1],
             ['calculatedOn', -1],
             ['mode', 123],
             ['status', 123],
@@ -119,10 +119,10 @@ describe('Routing', () => {
 
     describe('Getters and Setters', () => {
         test.each([
-            ['arrivalDate', '2023-05-23'],
-            ['departureDate', '2023-05-20'],
-            ['arrivalTime', 5400],
-            ['departureTime', 1800],
+            ['endDate', '2023-05-23'],
+            ['startDate', '2023-05-20'],
+            ['endTime', 5400],
+            ['startTime', 1800],
             ['calculatedOn', Date.now()],
             ['mode', 'cycling'],
             ['status', 'noRoutingFound'],

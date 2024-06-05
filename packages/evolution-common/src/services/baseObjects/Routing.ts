@@ -29,10 +29,10 @@ export type RoutingStatus = (typeof routingStatuses)[number];
 // TODO: complete
 export const routingAttributes = [
     '_uuid',
-    'arrivalDate',
-    'departureDate',
-    'arrivalTime',
-    'departureTime',
+    'endDate',
+    'startDate',
+    'endTime',
+    'startTime',
     'calculatedOn',
     'mode',
     'status',
@@ -41,10 +41,10 @@ export const routingAttributes = [
 ];
 
 export type RoutingAttributes = {
-    arrivalDate?: Optional<string>; // string, YYYY-MM-DD
-    departureDate?: Optional<string>; // string, YYYY-MM-DD
-    arrivalTime?: Optional<number>; // seconds since midnight
-    departureTime?: Optional<number>; // seconds since midnight
+    endDate?: Optional<string>; // string, YYYY-MM-DD
+    startDate?: Optional<string>; // string, YYYY-MM-DD
+    endTime?: Optional<number>; // seconds since midnight
+    startTime?: Optional<number>; // seconds since midnight
     calculatedOn?: Optional<number>; // unix epoch timestamp (in seconds)
     mode?: Optional<RoutingModes>;
     status?: Optional<RoutingStatus>;
@@ -91,36 +91,36 @@ export class Routing {
         return this._attributes._uuid;
     }
 
-    get arrivalDate(): Optional<string> {
-        return this._attributes.arrivalDate;
+    get endDate(): Optional<string> {
+        return this._attributes.endDate;
     }
 
-    set arrivalDate(value: Optional<string>) {
-        this._attributes.arrivalDate = value;
+    set endDate(value: Optional<string>) {
+        this._attributes.endDate = value;
     }
 
-    get departureDate(): Optional<string> {
-        return this._attributes.departureDate;
+    get startDate(): Optional<string> {
+        return this._attributes.startDate;
     }
 
-    set departureDate(value: Optional<string>) {
-        this._attributes.departureDate = value;
+    set startDate(value: Optional<string>) {
+        this._attributes.startDate = value;
     }
 
-    get arrivalTime(): Optional<number> {
-        return this._attributes.arrivalTime;
+    get endTime(): Optional<number> {
+        return this._attributes.endTime;
     }
 
-    set arrivalTime(value: Optional<number>) {
-        this._attributes.arrivalTime = value;
+    set endTime(value: Optional<number>) {
+        this._attributes.endTime = value;
     }
 
-    get departureTime(): Optional<number> {
-        return this._attributes.departureTime;
+    get startTime(): Optional<number> {
+        return this._attributes.startTime;
     }
 
-    set departureTime(value: Optional<number>) {
-        this._attributes.departureTime = value;
+    set startTime(value: Optional<number>) {
+        this._attributes.startTime = value;
     }
 
     get calculatedOn(): Optional<number> {
@@ -216,31 +216,31 @@ export class Routing {
         // Validate _uuid:
         errors.push(...Uuidable.validateParams(dirtyParams));
 
-        // Validate arrivalDate:
+        // Validate endDate:
         errors.push(...ParamsValidatorUtils.isDateString(
-            'arrivalDate',
-            dirtyParams.arrivalDate,
+            'endDate',
+            dirtyParams.endDate,
             displayName
         ));
 
-        // Validate departureDate:
+        // Validate startDate:
         errors.push(...ParamsValidatorUtils.isDateString(
-            'departureDate',
-            dirtyParams.departureDate,
+            'startDate',
+            dirtyParams.startDate,
             displayName
         ));
 
-        // Validate arrivalTime:
+        // Validate endTime:
         errors.push(...ParamsValidatorUtils.isPositiveInteger(
-            'arrivalTime',
-            dirtyParams.arrivalTime,
+            'endTime',
+            dirtyParams.endTime,
             displayName
         ));
 
-        // Validate departureTime:
+        // Validate startTime:
         errors.push(...ParamsValidatorUtils.isPositiveInteger(
-            'departureTime',
-            dirtyParams.departureTime,
+            'startTime',
+            dirtyParams.startTime,
             displayName
         ));
 
