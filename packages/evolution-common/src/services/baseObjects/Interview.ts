@@ -23,6 +23,7 @@ export const interviewAttributes = [
     'assignedDate',
     'contactPhoneNumber',
     'contactEmail',
+    'wouldLikeToParticipateInOtherSurveys',
     '_startedAt',
     '_updatedAt',
     '_completedAt',
@@ -44,6 +45,7 @@ export type InterviewAttributes = {
     assignedDate?: string; // string, YYYY-MM-DD, the assigned date for the survey (trips date most of the time)
     contactPhoneNumber?: string; // phone number
     contactEmail?: string; // email
+    wouldLikeToParticipateInOtherSurveys?: boolean; // boolean
 
     _startedAt?: number; // timestamp;
     _updatedAt?: number; // timestamp;
@@ -161,6 +163,14 @@ export class Interview implements IValidatable {
 
     set contactEmail(value: Optional<string>) {
         this._attributes.contactEmail = value;
+    }
+
+    get wouldLikeToParticipateInOtherSurveys(): Optional<boolean> {
+        return this._attributes.wouldLikeToParticipateInOtherSurveys;
+    }
+
+    set wouldLikeToParticipateInOtherSurveys(value: Optional<boolean>) {
+        this._attributes.wouldLikeToParticipateInOtherSurveys = value;
     }
 
     get _startedAt(): Optional<number> {
@@ -317,6 +327,14 @@ export class Interview implements IValidatable {
             ...ParamsValidatorUtils.isString(
                 'contactEmail',
                 dirtyParams.contactEmail,
+                displayName
+            )
+        );
+
+        errors.push(
+            ...ParamsValidatorUtils.isBoolean(
+                'wouldLikeToParticipateInOtherSurveys',
+                dirtyParams.wouldLikeToParticipateInOtherSurveys,
                 displayName
             )
         );
