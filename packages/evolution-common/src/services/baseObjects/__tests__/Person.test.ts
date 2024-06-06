@@ -11,6 +11,7 @@ import { Weight } from '../Weight';
 import { WorkPlace } from '../WorkPlace';
 import { SchoolPlace } from '../SchoolPlace';
 import { Vehicle } from '../Vehicle';
+import { Journey } from '../Journey';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 
@@ -62,6 +63,7 @@ describe('Person', () => {
         workPlaces: [{ _uuid: uuidV4(), placeType: 'office', _isValid: true }],
         schoolPlaces: [{ placeType: 'university', _isValid: true }],
         vehicles: [{ model: 'foo', make: 'bar', _isValid: true }],
+        journeys: [{ _uuid: uuidV4(), _isValid: true }],
     };
 
     const extendedInvalidWorkPlacesAttributes: { [key: string]: unknown } = {
@@ -80,6 +82,12 @@ describe('Person', () => {
         ...validAttributes,
         customAttribute: 'custom value',
         vehicles: [{ custom: 333, _isValid: 111, model: 123, make: 234 }],
+    };
+
+    const extendedInvalidJourneysAttributes: { [key: string]: unknown } = {
+        ...validAttributes,
+        customAttribute: 'custom value',
+        journeys: [{ custom: 333, _isValid: 111 }],
     };
 
 
@@ -179,6 +187,14 @@ describe('Person', () => {
         person.vehicles = [vehicle];
         expect(person.vehicles).toHaveLength(1);
         expect(person.vehicles[0]).toEqual(vehicle);
+    });
+
+    test('should set and get journeys', () => {
+        const person = new Person(extendedAttributes);
+        const journey: Journey = new Journey({ _isValid: true });
+        person.journeys = [journey];
+        expect(person.journeys).toHaveLength(1);
+        expect(person.journeys[0]).toEqual(journey);
     });
 
     test('should set and get household UUID', () => {
@@ -344,6 +360,33 @@ describe('Person', () => {
         });
     });
 
+    describe('Journeys', () => {
+        test('should create a Person instance with valid journeys', () => {
+            const journeyAttributes: { [key: string]: unknown } = {
+                _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e',
+                _isValid: true,
+                visitedPlaces: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
+                trips: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
+                tripChains: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
+                startDate: '2023-01-02',
+                endDate: '2023-01-03',
+                startTime: 10200,
+                endTime: 10300,
+                startTimePeriod: 'am',
+                endTimePeriod: 'pm',
+                name: 'testName',
+                type: 'testType',
+            };
+            const journey = new Journey(journeyAttributes);
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, journeys: [journeyAttributes] };
+            const result = Person.create(personAttributes);
+            expect(isOk(result)).toBe(true);
+            const person = unwrap(result);
+            expect((person as Person).journeys).toHaveLength(1);
+            expect((person as Person).journeys?.[0]).toEqual(journey);
+        });
+    });
+
     describe('Getters and Setters', () => {
         test.each([
             ['age', 35],
@@ -396,6 +439,7 @@ describe('Person', () => {
             ['workPlaces', [new WorkPlace({ placeType: 'home', _isValid: true })]],
             ['schoolPlaces', [new SchoolPlace({ placeType: 'college', _isValid: true })]],
             ['vehicles', [new Vehicle({ modelYear: 2024, _isValid: true })]],
+            ['journeys', [new Journey({ name: 'test', _isValid: true })]],
             ['householdUuid', uuidV4()],
         ])('should set and get %s', (attribute, value) => {
             const person = new Person(validAttributes);

@@ -16,6 +16,7 @@ import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
+import { Journey, ExtendedJourneyAttributes } from './Journey';
 
 
 export const personAttributes = [
@@ -55,7 +56,7 @@ export const personAttributesWithComposedAttributes = [
     ...personAttributes,
     'workPlaces',
     'schoolPlaces',
-    //'journeys',
+    'journeys',
     'vehicles'
 ];
 
@@ -102,10 +103,10 @@ export type PersonAttributes = {
 } & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type PersonWithComposedAttributes = PersonAttributes & {
-    workPlaces?: ExtendedWorkPlaceAttributes[];
-    schoolPlaces?: ExtendedSchoolPlaceAttributes[];
-    //journeys?: ExtendedJourneyAttributes[];
-    vehicles?: ExtendedVehicleAttributes[];
+    workPlaces?: Optional<ExtendedWorkPlaceAttributes[]>;
+    schoolPlaces?: Optional<ExtendedSchoolPlaceAttributes[]>;
+    journeys?: Optional<ExtendedJourneyAttributes[]>;
+    vehicles?: Optional<ExtendedVehicleAttributes[]>;
 };
 
 export type ExtendedPersonAttributes = PersonWithComposedAttributes & { [key: string]: unknown };
@@ -121,7 +122,7 @@ export class Person implements IValidatable {
 
     private _workPlaces?: Optional<WorkPlace[]>;
     private _schoolPlaces?: Optional<SchoolPlace[]>;
-    //private _journeys?: Optional<Journey[]>;
+    private _journeys?: Optional<Journey[]>;
     private _vehicles?: Optional<Vehicle[]>;
 
     private _householdUuid?: Optional<string>; // allow reverse lookup: must be filled by Household.
@@ -155,6 +156,10 @@ export class Person implements IValidatable {
         this.schoolPlaces = ConstructorUtils.initializeComposedArrayAttributes(
             params.schoolPlaces,
             SchoolPlace.unserialize
+        );
+        this.journeys = ConstructorUtils.initializeComposedArrayAttributes(
+            params.journeys,
+            Journey.unserialize
         );
         this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
             params.vehicles,
@@ -423,6 +428,14 @@ export class Person implements IValidatable {
         this._schoolPlaces = value;
     }
 
+    get journeys(): Optional<Journey[]> {
+        return this._journeys;
+    }
+
+    set journeys(value: Optional<Journey[]>) {
+        this._journeys = value;
+    }
+
     get vehicles(): Optional<Vehicle[]> {
         return this._vehicles;
     }
@@ -547,6 +560,14 @@ export class Person implements IValidatable {
             const schoolPlaceAttributes = schoolPlacesAttributes[i];
             errors.push(
                 ...SchoolPlace.validateParams(schoolPlaceAttributes, `SchoolPlace ${i}`)
+            );
+        }
+
+        const journeysAttributes = dirtyParams.journeys !== undefined ? dirtyParams.journeys as { [key: string]: unknown }[] : [];
+        for (let i = 0, countI = journeysAttributes.length; i < countI; i++) {
+            const journeyAttributes = journeysAttributes[i];
+            errors.push(
+                ...Journey.validateParams(journeyAttributes, `Journey ${i}`)
             );
         }
 

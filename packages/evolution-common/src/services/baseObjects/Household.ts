@@ -9,12 +9,13 @@ import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
-import { Person, PersonAttributes } from './Person';
-import { Place, PlaceAttributes } from './Place';
+import { Person, ExtendedPersonAttributes } from './Person';
+import { Place, ExtendedPlaceAttributes, PlaceAttributes } from './Place';
 import * as HAttr from './attributeTypes/HouseholdAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
+import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
 
 export const householdAttributes = [
     '_weights',
@@ -36,7 +37,7 @@ export const householdAttributes = [
 export const householdAttributesWithComposedAttributes = [
     ...householdAttributes,
     'members',
-    //'vehicles',
+    'vehicles',
     'home'
 ];
 
@@ -55,9 +56,9 @@ export type HouseholdAttributes = {
 } & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type HouseholdWithComposedAttributes = HouseholdAttributes & {
-    members?: Optional<PersonAttributes[]>;
-    //vehicles?: Optional<VehicleAttributes[]>;
-    home?: Optional<PlaceAttributes>;
+    members?: Optional<ExtendedPersonAttributes[]>;
+    vehicles?: Optional<ExtendedVehicleAttributes[]>;
+    home?: Optional<ExtendedPlaceAttributes>;
 };
 
 export type ExtendedHouseholdAttributes = HouseholdWithComposedAttributes & { [key: string]: unknown };
@@ -72,7 +73,7 @@ export class Household implements IValidatable {
 
     private _members?: Optional<Person[]>;
     private _home?: Optional<Place<PlaceAttributes>>;
-    //private _vehicles?: Optional<Vehicle[]>;
+    private _vehicles?: Optional<Vehicle[]>;
 
     static _confidentialAttributes = [
         'contactPhoneNumber',
@@ -98,10 +99,10 @@ export class Household implements IValidatable {
             Person.unserialize
         );
 
-        /*this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
             params.vehicles,
             Vehicle.unserialize
-        );*/
+        );
 
         this.home = ConstructorUtils.initializeComposedAttribute(
             params.home,
@@ -233,13 +234,13 @@ export class Household implements IValidatable {
         this._members = value;
     }
 
-    /*get vehicles(): Optional<Vehicle[]> {
+    get vehicles(): Optional<Vehicle[]> {
         return this._vehicles;
     }
 
     set vehicles(value: Optional<Vehicle[]>) {
         this._vehicles = value;
-    }*/
+    }
 
     get home(): Optional<Place<PlaceAttributes>> {
         return this._home;
@@ -393,13 +394,13 @@ export class Household implements IValidatable {
             );
         }
 
-        /*const vehiclesAttributes = dirtyParams.vehicles !== undefined ? dirtyParams.vehicles as { [key: string]: unknown }[] : [];
+        const vehiclesAttributes = dirtyParams.vehicles !== undefined ? dirtyParams.vehicles as { [key: string]: unknown }[] : [];
         for (let i = 0, countI = vehiclesAttributes.length; i < countI; i++) {
             const vehicleAttributes = vehiclesAttributes[i];
             errors.push(
-                ...Vehicle.validateParams(vehicleAttributes, 'Vehicle')
+                ...Vehicle.validateParams(vehicleAttributes, `Vehicle ${i}`)
             );
-        }*/
+        }
 
         const homeAttributes = dirtyParams.home !== undefined ? dirtyParams.home as { [key: string]: unknown } : {};
         errors.push(

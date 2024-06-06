@@ -8,6 +8,7 @@
 import { Household, householdAttributes } from '../Household';
 import { Person } from '../Person';
 import { Place } from '../Place';
+import { Vehicle } from '../Vehicle';
 import { Address } from '../Address';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
@@ -54,6 +55,22 @@ describe('Household', () => {
                 age: 28,
                 ageGroup: 'adult',
                 gender: 'female',
+                _isValid: true,
+            },
+        ],
+        vehicles: [
+            {
+                _uuid: uuidV4(),
+                make: 'Toyota',
+                model: 'Corolla',
+                modelYear: 2020,
+                _isValid: true,
+            },
+            {
+                _uuid: uuidV4(),
+                make: 'Honda',
+                model: 'Civic',
+                modelYear: 2021,
                 _isValid: true,
             },
         ],
@@ -194,6 +211,7 @@ describe('Household', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
             ['members', extendedAttributes.members],
+            ['vehicles', extendedAttributes.vehicles],
         ])('should set and get %s', (attribute, value) => {
             const household = new Household(validAttributes);
             household[attribute] = value;
@@ -235,6 +253,31 @@ describe('Household', () => {
         expect(household.members?.[1].attributes).toEqual(membersAttributes[1]);
     });
 
+    test('should create Vehicle instances for vehicles when creating a Household instance', () => {
+        const vehiclesAttributes: { [key: string]: unknown }[] = [
+            {
+                _uuid: uuidV4(),
+                make: 'Toyota',
+                model: 'Corolla',
+                modelYear: 2020,
+                _isValid: true,
+            },
+        ];
+
+        const householdAttributes: { [key: string]: unknown } = {
+            ...validAttributes,
+            vehicles: vehiclesAttributes,
+        };
+
+        const result = Household.create(householdAttributes);
+        expect(isOk(result)).toBe(true);
+        const household = unwrap(result) as Household;
+        expect(household.vehicles).toBeDefined();
+        expect(household.vehicles?.length).toBe(1);
+        expect(household.vehicles?.[0]).toBeInstanceOf(Vehicle);
+        expect(household.vehicles?.[0].attributes).toEqual(vehiclesAttributes[0]);
+    });
+
     test('should return errors for invalid members attributes when creating a Household instance', () => {
         const invalidMembersAttributes = [
             {
@@ -264,6 +307,29 @@ describe('Household', () => {
         expect(errors.length).toBe(2);
         expect(errors[0].message).toContain('Person 0 validateParams: age should be a positive integer');
         expect(errors[1].message).toContain('Person 1 validateParams: ageGroup should be a string');
+    });
+
+    test('should return errors for invalid vehicles attributes when creating a Household instance', () => {
+        const invalidVehiclesAttributes = [
+            {
+                _uuid: uuidV4(),
+                make: 123, // Invalid type, should be string
+                model: 'Civic',
+                modelYear: 2021,
+                _isValid: true,
+            },
+        ];
+
+        const householdAttributes: { [key: string]: unknown } = {
+            ...validAttributes,
+            vehicles: invalidVehiclesAttributes,
+        };
+
+        const result = Household.create(householdAttributes);
+        expect(hasErrors(result)).toBe(true);
+        const errors = unwrap(result) as Error[];
+        expect(errors.length).toBe(1);
+        expect(errors[0].message).toContain('Vehicle 0 validateParams: make should be a string');
     });
 
     test('should create a Place instance for home when creating a Household instance', () => {

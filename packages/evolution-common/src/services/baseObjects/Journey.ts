@@ -13,9 +13,9 @@ import * as JAttr from './attributeTypes/JourneyAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { VisitedPlace, VisitedPlaceAttributes } from './VisitedPlace';
-import { Trip, TripAttributes } from './Trip';
-import { TripChain, TripChainAttributes } from './TripChain';
+import { VisitedPlace, ExtendedVisitedPlaceAttributes } from './VisitedPlace';
+import { Trip, ExtendedTripAttributes } from './Trip';
+import { TripChain, ExtendedTripChainAttributes } from './TripChain';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
 
@@ -41,9 +41,9 @@ export type JourneyAttributes = {
 } & StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type JourneyWithComposedAttributes = JourneyAttributes & {
-    visitedPlaces?: Optional<VisitedPlaceAttributes[]>;
-    trips?: Optional<TripAttributes[]>;
-    tripChains?: Optional<TripChainAttributes[]>;
+    visitedPlaces?: Optional<ExtendedVisitedPlaceAttributes[]>;
+    trips?: Optional<ExtendedTripAttributes[]>;
+    tripChains?: Optional<ExtendedTripChainAttributes[]>;
 };
 
 export type ExtendedJourneyAttributes = JourneyWithComposedAttributes & { [key: string]: unknown };
