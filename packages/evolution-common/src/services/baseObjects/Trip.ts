@@ -12,9 +12,9 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { VisitedPlace, VisitedPlaceAttributes } from './VisitedPlace';
-import { Segment, SegmentAttributes } from './Segment';
-import { Junction, JunctionAttributes } from './Junction';
+import { VisitedPlace, ExtendedVisitedPlaceAttributes } from './VisitedPlace';
+import { Segment, ExtendedSegmentAttributes } from './Segment';
+import { Junction, ExtendedJunctionAttributes } from './Junction';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
 
@@ -36,10 +36,10 @@ export const tripAttributesWithComposedAttributes = [
 export type TripAttributes = StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type TripWithComposedAttributes = TripAttributes & {
-    startPlace?: Optional<VisitedPlaceAttributes>; // origin
-    endPlace?: Optional<VisitedPlaceAttributes>; // destination
-    segments?: Optional<SegmentAttributes[]>;
-    junctions?: Optional<JunctionAttributes[]>;
+    startPlace?: Optional<ExtendedVisitedPlaceAttributes>; // origin
+    endPlace?: Optional<ExtendedVisitedPlaceAttributes>; // destination
+    segments?: Optional<ExtendedSegmentAttributes[]>;
+    junctions?: Optional<ExtendedJunctionAttributes[]>;
 };
 
 export type ExtendedTripAttributes = TripWithComposedAttributes & { [key: string]: unknown };

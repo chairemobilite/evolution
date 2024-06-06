@@ -10,7 +10,7 @@ import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import * as SAttr from './attributeTypes/SegmentAttributes';
-import { Junction, JunctionAttributes } from './Junction';
+import { Junction, ExtendedJunctionAttributes } from './Junction';
 import { Routing, RoutingAttributes } from './Routing';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
@@ -47,8 +47,8 @@ export const segmentAttributesWithComposedAttributes = [
 ];
 
 export type SegmentWithComposedAttributes = {
-    origin?: Optional<JunctionAttributes>;
-    destination?: Optional<JunctionAttributes>;
+    origin?: Optional<ExtendedJunctionAttributes>;
+    destination?: Optional<ExtendedJunctionAttributes>;
     transitDeclaredRouting?: Optional<RoutingAttributes>;
     walkingDeclaredRouting?: Optional<RoutingAttributes>;
     cyclingDeclaredRouting?: Optional<RoutingAttributes>;

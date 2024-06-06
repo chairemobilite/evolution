@@ -33,7 +33,7 @@ export class SchoolPlace extends Place<SchoolPlaceAttributes> implements IValida
 
     static _confidentialAttributes = [];
 
-    constructor(params: SchoolPlaceAttributes | ExtendedSchoolPlaceAttributes) {
+    constructor(params: ExtendedSchoolPlaceAttributes) {
         super(params, schoolPlaceAttributes);
     }
 

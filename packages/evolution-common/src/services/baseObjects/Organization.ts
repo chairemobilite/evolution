@@ -13,8 +13,8 @@ import * as OAttr from './attributeTypes/OrganizationAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { Vehicle, VehicleAttributes } from './Vehicle';
-import { Place, PlaceAttributes } from './Place';
+import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
+import { Place, PlaceAttributes, ExtendedPlaceAttributes } from './Place';
 
 export const organizationAttributes = [
     '_weights',
@@ -53,12 +53,12 @@ export type OrganizationWithComposedAttributes = OrganizationAttributes & {
     /**
      * These are the vehicles owned by the organization or surveyed in the active survey
      */
-    vehicles?: Optional<VehicleAttributes[]>;
+    vehicles?: Optional<ExtendedVehicleAttributes[]>;
     /**
      * These are the places owned/used by the organization or surveyed in the active survey
      * (factories, headquarters, offices, shops, garages, warehouses, etc.)
      */
-    places?: Optional<PlaceAttributes[]>;
+    places?: Optional<ExtendedPlaceAttributes[]>;
 };
 
 export type ExtendedOrganizationAttributes = OrganizationWithComposedAttributes & { [key: string]: unknown };

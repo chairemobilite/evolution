@@ -15,8 +15,8 @@ import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { Trip, TripAttributes } from './Trip';
-import { VisitedPlace, VisitedPlaceAttributes } from './VisitedPlace';
+import { Trip, ExtendedTripAttributes } from './Trip';
+import { VisitedPlace, ExtendedVisitedPlaceAttributes } from './VisitedPlace';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
 
@@ -47,8 +47,8 @@ export type TripChainAttributes = {
 } & StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
 
 export type TripChainWithComposedAttributes = TripChainAttributes & {
-    trips?: Optional<TripAttributes[]>;
-    visitedPlaces?: Optional<VisitedPlaceAttributes[]>;
+    trips?: Optional<ExtendedTripAttributes[]>;
+    visitedPlaces?: Optional<ExtendedVisitedPlaceAttributes[]>;
 };
 
 export type ExtendedTripChainAttributes = TripChainWithComposedAttributes & { [key: string]: unknown };
