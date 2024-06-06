@@ -12,6 +12,7 @@ import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { Junction } from '../Junction';
 import { Routing } from '../Routing';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
+import { modeValues, mapModeToModeCategory, modeCategoryValues, Mode } from '../attributeTypes/SegmentAttributes';
 
 describe('Segment', () => {
     const weightMethodAttributes: WeightMethodAttributes = {
@@ -23,8 +24,7 @@ describe('Segment', () => {
 
     const validAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
-        modeCategory: 'transit',
-        mode: 'bus',
+        mode: 'transitBus',
         modeOtherSpecify: 'Other mode',
         endDate: '2023-05-22',
         startDate: '2023-05-21',
@@ -132,7 +132,6 @@ describe('Segment', () => {
 
     describe('validateParams', () => {
         test.each([
-            ['modeCategory', 123],
             ['mode', 123],
             ['modeOtherSpecify', 123],
             ['endDate', 123],
@@ -159,7 +158,6 @@ describe('Segment', () => {
 
     describe('Getters and Setters', () => {
         test.each([
-            ['modeCategory', 'walk'],
             ['mode', 'walk'],
             ['modeOtherSpecify', 'Other mode updated'],
             ['endDate', '2023-05-20'],
@@ -200,6 +198,7 @@ describe('Segment', () => {
         describe('Getters for attributes with no setters', () => {
             test.each([
                 ['_uuid', extendedAttributes._uuid],
+                ['modeCategory', 'transit'],
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
@@ -397,5 +396,48 @@ describe('Segment', () => {
             expect(unwrap(segment)[0].toString()).toEqual('Error: DrivingRouting validateParams: params should be an object');
         });
 
+    });
+
+    describe('Mode to Mode Category Mapping', () => {
+        test.each(modeValues)('mode "%s" should have a matching category', (mode) => {
+            const category = mapModeToModeCategory[mode];
+            expect(category).toBeDefined();
+            expect(modeCategoryValues).toContain(category);
+        });
+
+        test.each(modeCategoryValues)('category "%s" should have at least one corresponding mode', (category) => {
+            const matchingModes = modeValues.filter((mode) => mapModeToModeCategory[mode] === category);
+            expect(matchingModes.length).toBeGreaterThan(0);
+        });
+
+        test('should return undefined for undefined mode', () => {
+            const segment = new Segment({ mode: undefined });
+            expect(segment.modeCategory).toBeUndefined();
+        });
+    });
+
+    describe('Segment', () => {
+        test.each([
+            ['transitBus', true],
+            ['transitBRT', true],
+            ['transitSchoolBus', false],
+            ['transitStreetCar', true],
+            ['transitFerry', true],
+            ['transitGondola', true],
+            ['transitMonorail', true],
+            ['transitRRT', true],
+            ['transitRegionalRail', true],
+            ['walk', false],
+            ['bicycle', false],
+            ['carDriver', false],
+            ['carPassenger', false],
+            ['taxi', false],
+            ['schoolBus', false],
+            ['other', false],
+            ['dontKnow', false],
+        ])('isTransit should return %s for mode "%s"', (mode, expected) => {
+            const segment = new Segment({ mode: mode as Mode });
+            expect(segment.isTransit()).toBe(expected);
+        });
     });
 });

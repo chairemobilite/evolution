@@ -307,4 +307,36 @@ describe('Place', () => {
             expect((place as Place<PlaceAttributes>).address).toEqual(address);
         });
     });
+
+    describe('geographyIsValid', () => {
+        test('should return true for valid geography', () => {
+            const place = new Place(validPlaceAttributes);
+            expect(place.geographyIsValid()).toBe(true);
+        });
+
+        test('should return false for invalid geography', () => {
+            const place = new Place(validPlaceAttributes);
+            place.geography = 'invalid' as any;
+            expect(place.geographyIsValid()).toBe(false);
+        });
+
+        test('should return undefined for no geography', () => {
+            const place = new Place(validPlaceAttributes);
+            place.geography = undefined;
+            expect(place.geographyIsValid()).toBe(undefined);
+        });
+
+        test('should return false for valid feature, but not a point', () => {
+            const place = new Place(validPlaceAttributes);
+            place.geography = {
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]],
+                },
+                properties: {},
+            } as any;
+            expect(place.geographyIsValid()).toBe(false);
+        });
+    });
 });

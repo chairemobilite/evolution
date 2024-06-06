@@ -23,7 +23,6 @@ export const segmentAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
-    'modeCategory',
     'mode',
     'modeOtherSpecify',
     'driver',
@@ -60,7 +59,6 @@ export type SegmentWithComposedAttributes = {
 };
 
 export type SegmentAttributes = {
-    modeCategory?: Optional<SAttr.ModeCategory>;
     mode?: Optional<SAttr.Mode>;
     modeOtherSpecify?: Optional<string>;
     driver?: Optional<SAttr.Driver>;
@@ -120,6 +118,18 @@ export class Segment implements IValidatable {
         this.drivingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.drivingCalculatedRoutings, Routing.unserialize);
     }
 
+    /**
+     * Checks if the segment is a transit segment
+     * @returns True if the segment is a transit segment, false otherwise
+     */
+    isTransit(): Optional<boolean> {
+        return this.modeCategory === 'transit';
+    }
+
+    get modeCategory(): Optional<SAttr.ModeCategory> {
+        return this.mode ? SAttr.mapModeToModeCategory[this.mode] as SAttr.ModeCategory : undefined;
+    }
+
     get attributes(): SegmentAttributes & SegmentWithComposedAttributes {
         return this._attributes;
     }
@@ -146,14 +156,6 @@ export class Segment implements IValidatable {
 
     set _weights(value: Optional<Weight[]>) {
         this._attributes._weights = value;
-    }
-
-    get modeCategory(): Optional<SAttr.ModeCategory> {
-        return this._attributes.modeCategory;
-    }
-
-    set modeCategory(value: Optional<SAttr.ModeCategory>) {
-        this._attributes.modeCategory = value;
     }
 
     get mode(): Optional<SAttr.Mode> {
@@ -386,14 +388,6 @@ export class Segment implements IValidatable {
         );
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'modeCategory',
-                dirtyParams.modeCategory,
-                displayName
-            )
-        );
 
         errors.push(
             ...ParamsValidatorUtils.isString(
