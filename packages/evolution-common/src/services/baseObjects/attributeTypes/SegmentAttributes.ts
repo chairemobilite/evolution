@@ -41,27 +41,27 @@ export const modeValues = [
 
 export type Mode = (typeof modeValues)[number];
 
-export const mapModeToModeCategory = {
+export const mapModeToModeCategory : {[mode in Mode]: ModeCategory} = {
     walk: 'walk',
     bicycle: 'bicycle',
     bicycleElectric: 'bicycle',
     bicycleBikeSharing: 'bicycle',
     bicycleBikeSharingElectric: 'bicycle',
     transitBus: 'transit',
-    intercityBus: 'other',
+    transitBRT: 'transit',
+    transitSchoolBus: 'schoolBus', // TODO: decide  if we should use schoolBus or transit here.
+    transitStreetCar: 'transit',
+    transitFerry: 'transit',
+    transitGondola: 'transit',
+    transitMonorail: 'transit',
+    transitRRT: 'transit',
+    transitRegionalRail: 'transit',
+    intercityBus: 'transit',
+    intercityTrain: 'transit',
     schoolBus: 'schoolBus',
-    integratedSchoolLines: 'transit',
-    busOther: 'other',
-    transitSubway: 'transit',
-    transitREM: 'transit',
-    transitRail: 'transit',
-    train: 'other',
-    intercityRail: 'other',
-    personalCar: 'carDriver',
+    otherBus: 'other',
     carDriver: 'carDriver',
     carPassenger: 'carPassenger',
-    carDriverCarsharingStationBased: 'carDriver',
-    carDriverCarsharingFreeFloating: 'carDriver',
     transitTaxi: 'transit',
     taxi: 'taxi',
     uber: 'taxi',
@@ -69,11 +69,10 @@ export const mapModeToModeCategory = {
     plane: 'other',
     otherActiveMode: 'other',
     motorcycle: 'other',
-    ferry: 'other',
-    ferryNoCar: 'other',
+    ferryNoCar: 'transit',
     ferryWithCar: 'other',
     other: 'other',
-    dontKnow: 'dontKnow'
+    dontKnow: 'dontKnow',
 };
 
 // not in questionnaire, generated from mode by parser using mapModeToModeCategory:

@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _uniq from 'lodash/uniq';
+import { distance as turfDistance } from '@turf/turf';
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -14,9 +16,11 @@ import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { VisitedPlace, ExtendedVisitedPlaceAttributes } from './VisitedPlace';
 import { Segment, ExtendedSegmentAttributes } from './Segment';
+import { Mode, ModeCategory } from './attributeTypes/SegmentAttributes';
 import { Junction, ExtendedJunctionAttributes } from './Junction';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
+import { getBirdDistanceMeters, getBirdSpeedKph } from '../../utils/PhysicsUtils';
 
 export const tripAttributes = [
     ...startEndDateAndTimesAttributes,
@@ -81,6 +85,127 @@ export class Trip implements IValidatable {
         this.endPlace = ConstructorUtils.initializeComposedAttribute(params.endPlace, VisitedPlace.unserialize);
         this.segments = ConstructorUtils.initializeComposedArrayAttributes(params.segments, Segment.unserialize);
         this.junctions = ConstructorUtils.initializeComposedArrayAttributes(params.junctions, Junction.unserialize);
+    }
+
+    /**
+     * Check if the trip has segments
+     * @returns {boolean} - Returns true if the trip has segments, false otherwise
+     */
+    hasSegments(): boolean {
+        return this.segments ? this.segments.length > 0 : false;
+    }
+
+    /**
+     * Check if the trip has transit segments
+     * @returns {boolean} - Returns true if the trip has at least one transit segment, false otherwise
+     */
+    hasTransit(): boolean {
+        return this.segments ? this.segments.some((segment) => segment.isTransit()) : false;
+    }
+
+    /**
+     * Get the modes from all segments
+     * @returns {Mode[]} - Returns the modes used for the trip
+     */
+    getModes(): Mode[] {
+        return this.segments ? this.segments.map((segment) => segment.mode as Mode) : [];
+    }
+
+    /**
+     * Get the mode categories from all segments
+     * @returns {ModeCategory[]} - Returns the mode categories used for the trip
+     */
+    getModeCategories(): ModeCategory[] {
+        return this.segments ? this.segments.map((segment) => segment.modeCategory as ModeCategory) : [];
+    }
+
+    /**
+     * Check if the trip is multimodal (more than one mode)
+     * @returns {boolean} - Returns true if the trip is multimodal, false otherwise
+     */
+    isMultimodal(): boolean {
+        return _uniq(this.getModes()).length > 1;
+    }
+
+    /**
+     * Get the modes without walking
+     * @returns {Mode[]} - Returns the modes ignoring walking
+     */
+    getModesWithoutWalk(): Mode[] {
+        return this.getModes().filter((mode) => mode !== 'walk');
+    }
+
+    /**
+     * Get the transit modes
+     * @returns {Mode[]} - Returns the transit modes, ignoring other modes
+     */
+    getTransitModes(): Mode[] {
+        return this.segments ? this.segments.filter((segment) => segment.isTransit()).map((segment) => segment.mode as Mode) : [];
+    }
+
+    /**
+     * Get the non transit modes
+     * @returns {Mode[]} - Returns the non transit modes (ignoring transit modes)
+     */
+    getNonTransitModes(): Mode[] {
+        return this.segments ? this.segments.filter((segment) => !segment.isTransit()).map((segment) => segment.mode as Mode) : [];
+    }
+
+    /**
+     * Check if the trip is transit multimodal (at least one transit mode + another non-walking mode)
+     * @returns {boolean} - Returns true if the trip is transit multimodal, false otherwise
+     */
+    isTransitMultimodal(): boolean {
+        return this.getNonTransitModes().length > 1 && this.hasTransit();
+    }
+
+    /**
+     * Check if the trip is transit only (no non-transit mode, ignore any walking mode though)
+     * @returns {boolean} - Returns true if the trip is transit only, false otherwise
+     */
+    isTransitOnly(): boolean {
+        return this.hasTransit() && this.getTransitModes().length === this.getModesWithoutWalk().length;
+    }
+
+    /**
+     * Get the duration of the trip in seconds
+     * endTime must be >= startTime and both must exist
+     * @returns {Optional<number>} - Returns the duration in seconds, or undefined if no start or end time
+     */
+    getDurationSeconds(): Optional<number> {
+        return StartEndable.getDurationSeconds(this);
+    }
+
+    /**
+     * Get the bird distance between the origin and destination in meters (euclidian distance or as the crow flies distance)
+     * @returns {Optional<number>} - Returns the distance in meters, or undefined if no origin or destination or if the origin or destination is not a valid point
+     */
+    getBirdDistanceMeters(): number | undefined {
+        return getBirdDistanceMeters(this.startPlace?.geography, this.endPlace?.geography);
+    }
+
+    /**
+     * Get the bird speed in km/h, rounded to 2 decimal places
+     * @returns {Optional<number>} - Returns the speed in km/h, or undefined if no origin or destination or if the origin or destination is not a valid point
+     */
+    getBirdSpeedKph(): number | undefined {
+        return getBirdSpeedKph(this.startPlace?.geography, this.endPlace?.geography, this.getDurationSeconds());
+    }
+
+    get origin(): Optional<VisitedPlace> {
+        return this.startPlace;
+    }
+
+    set origin(value: Optional<VisitedPlace>) {
+        this.startPlace = value;
+    }
+
+    get destination(): Optional<VisitedPlace> {
+        return this.endPlace;
+    }
+
+    set destination(value: Optional<VisitedPlace>) {
+        this.endPlace = value;
     }
 
     get attributes(): TripAttributes {

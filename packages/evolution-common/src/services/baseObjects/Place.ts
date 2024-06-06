@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { isFeature, isPoint } from 'geojson-validation';
 import { Optional } from '../../types/Optional.type';
 import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
 import { Address, AddressAttributes } from './Address';
@@ -15,7 +16,6 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-
 
 export const placeAttributes = [
     '_weights',
@@ -96,6 +96,14 @@ export class Place<ChildAttributes> implements IValidatable {
             params.address,
             Address.unserialize
         );
+    }
+
+    /**
+     * Check if the geography attribute is valid and if it is a point feature
+     * @returns {Optional<boolean>} - Returns true if the geography attribute is valid, false if not, or undefined if no geography
+     */
+    geographyIsValid(): Optional<boolean> {
+        return this.geography ? isFeature(this.geography) && this.geography.geometry && isPoint(this.geography.geometry) : undefined;
     }
 
     get attributes(): ChildAttributes & PlaceAttributes {
