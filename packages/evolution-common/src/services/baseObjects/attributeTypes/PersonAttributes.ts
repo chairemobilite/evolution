@@ -77,10 +77,10 @@ export const occupationValues = [
     'fullTimeStudent', // should be assigned from StudentType
     'partTimeStudent', // should be assigned from StudentType
     'workerAndStudent', // deprecated, not precise enough, see below:
-    'workerFullTimeAndStudentFullTime', // should be assigned from WorkerType && StudentType
-    'workerFullTimeAndStudentPartTime', // should be assigned from WorkerType && StudentType
-    'workerPartTimeAndStudentFullTime', // should be assigned from WorkerType && StudentType
-    'workerPartTimeAndStudentPartTime', // should be assigned from WorkerType && StudentType
+    'fullTimeWorkerAndFullTimeStudent', // should be assigned from WorkerType && StudentType
+    'fullTimeWorkerAndPartTimeStudent', // should be assigned from WorkerType && StudentType
+    'partTimeWorkerAndFullTimeStudent', // should be assigned from WorkerType && StudentType
+    'partTimeWorkerAndPartTimeStudent', // should be assigned from WorkerType && StudentType
     'retired',
     'parentalOrSickLeave', // should be assigned from WorkerType, label must be clear
     'atHome',
