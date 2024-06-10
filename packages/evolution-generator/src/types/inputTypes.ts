@@ -22,6 +22,11 @@ type Placeholder = string;
 type DefaultValue = string | ((interview, path) => string | void);
 type Align = 'left' | 'right' | 'center';
 type Size = 'small' | 'large';
+type Icon = {
+    url: string | ((interview: any, path?: Path) => string);
+    size: [number, number];
+};
+type DefaultCenter = { lat: number; lon: number } | ((interview: any, path?: Path) => { lat: number; lon: number });
 type Title = { fr: string | ((interview, path) => string); en: string | ((interview, path) => string) };
 export type InputFilter = (value) => string | number;
 type LabelFunction = (t: TFunction, interview, path) => string;
@@ -35,6 +40,7 @@ export type Labels = {
 type Choice = {
     value: string | number | boolean;
     label: Label;
+    internalId?: number;
     iconPath?: string;
     conditional?: Conditional;
 };
@@ -59,10 +65,6 @@ export type HelpPopup = {
     containsHtml?: ContainsHtml;
     title: Title;
     content: Label;
-};
-type DefaultCenter = {
-    lat: number;
-    lon: number;
 };
 type Points = GeoJSON.FeatureCollection<GeoJSON.Point>;
 type Linestrings = GeoJSON.FeatureCollection<GeoJSON.LineString | GeoJSON.MultiLineString>;
@@ -290,9 +292,9 @@ export type InputMapFindPlaceBase = {
     height: string;
     containsHtml: ContainsHtml;
     autoConfirmIfSingleResult: boolean;
-    placesIcon: { url: (interview, path) => string; size: [number, number] };
+    placesIcon: Icon;
     defaultValue?: DefaultValue;
-    defaultCenter: { lat: number; lon: number };
+    defaultCenter: DefaultCenter;
     refreshGeocodingLabel: Label;
     showSearchPlaceButton: (interview, path) => boolean;
     afterRefreshButtonText: TextKey;
@@ -301,7 +303,7 @@ export type InputMapFindPlaceBase = {
 export type InputMapFindPlace = InputMapFindPlaceBase & {
     path: Path;
     label: Label;
-    icon: { url: string; size: [number, number] };
+    icon: Icon;
     geocodingQueryString: (interview, path?) => void;
     conditional: Conditional;
 };
