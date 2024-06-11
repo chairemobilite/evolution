@@ -175,7 +175,7 @@ export default {
           fr: "Ajouter une personne manquante",
           en: "Add a missing person"
         },
-        addButtonSize: 'small',
+        addButtonSize: 'small' as const,
         widgets: personsWidgets
       }
     },
@@ -445,7 +445,7 @@ export default {
           }
         },
         showGroupedObjectAddButton:    true,
-        addButtonLocation: 'both',
+        addButtonLocation: 'both' as const,
         widgets: [
           "visitedPlaceActivity",
           "visitedPlaceAlreadyVisited",
@@ -601,7 +601,7 @@ export default {
             }
           }
         },
-        addButtonLocation: 'bottom',
+        addButtonLocation: 'bottom' as const,
         widgets: [
           'segmentMode',
           //'segmentParkingType',
@@ -912,7 +912,7 @@ export default {
           fr: "Ajouter une personne manquante",
           en: "Add a missing person"
         },
-        addButtonSize: 'small',
+        addButtonSize: 'small' as const,
         widgets: [...personsWidgets, 
           "groupedPersonWorkOnTheRoad",
           "groupedPersonUsualWorkPlaceIsHome",

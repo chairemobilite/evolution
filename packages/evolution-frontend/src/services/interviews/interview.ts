@@ -7,7 +7,7 @@
 
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { WidgetConfig } from 'evolution-common/lib/services/widgets';
-import { I18nData } from 'evolution-common/lib/utils/helpers';
+import { I18nData, ParsingFunction } from 'evolution-common/lib/utils/helpers';
 
 export type WidgetStatus = {
     path: string;
@@ -65,6 +65,21 @@ export type UserFrontendInterviewAttributes = FrontendInterviewAttributes & User
 
 export type SurveySectionGroup = {
     widgets: string[];
+    /** Whether to show the title of this group section */
+    showTitle?: boolean | ParsingFunction<boolean>;
+    showGroupedObjectAddButton?: boolean | ParsingFunction<boolean>;
+    groupedObjectAddButtonLabel?: I18nData;
+    addButtonLocation?: 'top' | 'bottom' | 'both';
+    addButtonSize?: 'small' | 'medium' | 'large';
+    showGroupedObjectDeleteButton?: boolean | ParsingFunction<boolean>;
+    groupedObjectDeleteButtonLabel?: I18nData;
+    groupedObjectConditional?: boolean | ParsingFunction<boolean>;
+    /** FIXME The generator has this field in its type, but the GroupedObject
+     * does not use it from groupConfig, but from some widgetConfig. When this
+     * is out of evolution-legacy, see if they are the same */
+    deleteConfirmPopup?: {
+        content: I18nData;
+    };
 };
 
 // TODO Properly type this
