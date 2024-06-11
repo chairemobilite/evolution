@@ -26,7 +26,8 @@ export type JunctionAttributes = {
     parkingType?: Optional<PlAttr.ParkingType>;
     parkingFeeType?: Optional<PlAttr.ParkingFeeType>;
     transitPlaceType?: Optional<PlAttr.TransitPlaceType>; // for transit junctions
-} & StartEndDateAndTimesAttributes & PlaceAttributes;
+} & StartEndDateAndTimesAttributes &
+    PlaceAttributes;
 
 export type ExtendedJunctionAttributes = JunctionAttributes & { [key: string]: unknown };
 
@@ -36,7 +37,6 @@ export type ExtendedJunctionAttributes = JunctionAttributes & { [key: string]: u
  * Junctions are optional in most surveys
  */
 export class Junction extends Place<JunctionAttributes> implements IValidatable {
-
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedJunctionAttributes) {
@@ -149,29 +149,11 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
         errors.push(...Place.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'parkingType',
-                dirtyParams.parkingType,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('parkingType', dirtyParams.parkingType, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'parkingFeeType',
-                dirtyParams.parkingFeeType,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('parkingFeeType', dirtyParams.parkingFeeType, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'transitPlaceType',
-                dirtyParams.transitPlaceType,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('transitPlaceType', dirtyParams.transitPlaceType, displayName));
 
         return errors;
     }

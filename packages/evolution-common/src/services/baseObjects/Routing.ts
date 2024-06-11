@@ -11,19 +11,10 @@ import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 
-export const routingModes = [
-    'walking',
-    'cycling',
-    'driving',
-    'transit'
-];
+export const routingModes = ['walking', 'cycling', 'driving', 'transit'];
 export type RoutingModes = (typeof routingModes)[number];
 
-export const routingStatuses = [
-    'success',
-    'noRoutingFound',
-    'error'
-];
+export const routingStatuses = ['success', 'noRoutingFound', 'error'];
 export type RoutingStatus = (typeof routingStatuses)[number];
 
 // TODO: complete
@@ -55,7 +46,6 @@ export type RoutingAttributes = {
 
 export type ExtendedRoutingAttributes = RoutingAttributes & { [key: string]: unknown };
 
-
 /**
  * A routing is a calculated route for a trip or a segment of trip
  */
@@ -64,19 +54,14 @@ export class Routing {
     protected _customAttributes: { [key: string]: unknown };
 
     constructor(params: ExtendedRoutingAttributes, childRoutingAttributes: string[] = routingAttributes) {
-
         params._uuid = Uuidable.getUuid(params._uuid);
 
         this._attributes = {} as RoutingAttributes;
         this._customAttributes = {};
 
-        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
-            childRoutingAttributes
-        );
+        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, childRoutingAttributes);
         this._attributes = attributes;
         this._customAttributes = customAttributes;
-
     }
 
     get attributes(): RoutingAttributes {
@@ -202,82 +187,40 @@ export class Routing {
         const errors: Error[] = [];
 
         // Validate params object:
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         // Validate _uuid:
         errors.push(...Uuidable.validateParams(dirtyParams));
 
         // Validate endDate:
-        errors.push(...ParamsValidatorUtils.isDateString(
-            'endDate',
-            dirtyParams.endDate,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isDateString('endDate', dirtyParams.endDate, displayName));
 
         // Validate startDate:
-        errors.push(...ParamsValidatorUtils.isDateString(
-            'startDate',
-            dirtyParams.startDate,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isDateString('startDate', dirtyParams.startDate, displayName));
 
         // Validate endTime:
-        errors.push(...ParamsValidatorUtils.isPositiveInteger(
-            'endTime',
-            dirtyParams.endTime,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('endTime', dirtyParams.endTime, displayName));
 
         // Validate startTime:
-        errors.push(...ParamsValidatorUtils.isPositiveInteger(
-            'startTime',
-            dirtyParams.startTime,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('startTime', dirtyParams.startTime, displayName));
 
         // Validate calculatedOn:
-        errors.push(...ParamsValidatorUtils.isPositiveInteger(
-            'calculatedOn',
-            dirtyParams.calculatedOn,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('calculatedOn', dirtyParams.calculatedOn, displayName));
 
         // Validate mode:
-        errors.push(...ParamsValidatorUtils.isString(
-            'mode',
-            dirtyParams.mode,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isString('mode', dirtyParams.mode, displayName));
 
         // Validate status:
-        errors.push(...ParamsValidatorUtils.isString(
-            'status',
-            dirtyParams.status,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isString('status', dirtyParams.status, displayName));
 
         // Validate travelTimeS:
-        errors.push(...ParamsValidatorUtils.isPositiveInteger(
-            'travelTimeS',
-            dirtyParams.travelTimeS,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('travelTimeS', dirtyParams.travelTimeS, displayName));
 
         // Validate travelDistanceM:
-        errors.push(...ParamsValidatorUtils.isPositiveInteger(
-            'travelDistanceM',
-            dirtyParams.travelDistanceM,
-            displayName
-        ));
+        errors.push(
+            ...ParamsValidatorUtils.isPositiveInteger('travelDistanceM', dirtyParams.travelDistanceM, displayName)
+        );
 
         // Validate params object:
         // TODO: verify all attributes from the route object
@@ -289,5 +232,4 @@ export class Routing {
 
         return errors;
     }
-
 }

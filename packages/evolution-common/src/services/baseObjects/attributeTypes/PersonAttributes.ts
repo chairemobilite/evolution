@@ -109,20 +109,10 @@ export const schoolTypeValues = [
 ] as const;
 export type SchoolType = (typeof schoolTypeValues)[number];
 
-export const fullTimePartTimeTypeNoValue = [
-    'fullTime',
-    'partTime',
-    'no',
-    'dontKnow',
-    'nonApplicable'
-] as const;
+export const fullTimePartTimeTypeNoValue = ['fullTime', 'partTime', 'no', 'dontKnow', 'nonApplicable'] as const;
 export type StudentType = (typeof fullTimePartTimeTypeNoValue)[number];
 
-export const schoolPlaceTypeValues = [
-    'onLocation',
-    'hybrid',
-    'remote'
-] as const;
+export const schoolPlaceTypeValues = ['onLocation', 'hybrid', 'remote'] as const;
 export type SchoolPlaceType = (typeof schoolPlaceTypeValues)[number];
 
 export type WorkerType = (typeof fullTimePartTimeTypeNoValue)[number] | 'parentalOrSickLeave';

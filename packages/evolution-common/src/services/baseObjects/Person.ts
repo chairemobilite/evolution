@@ -18,7 +18,6 @@ import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
 import { Journey, ExtendedJourneyAttributes } from './Journey';
 
-
 export const personAttributes = [
     '_weights',
     '_isValid',
@@ -60,13 +59,7 @@ export const personAttributesWithComposedAttributes = [
     'vehicles'
 ];
 
-export const nonStringAttributes = [
-    '_weights',
-    '_isValid',
-    '_uuid',
-    'age',
-    'transitPasses'
-];
+export const nonStringAttributes = ['_weights', '_isValid', '_uuid', 'age', 'transitPasses'];
 
 export const stringAttributes = personAttributes.filter((attr) => !nonStringAttributes.includes(attr));
 
@@ -100,7 +93,9 @@ export type PersonAttributes = {
     nickname?: Optional<string>;
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type PersonWithComposedAttributes = PersonAttributes & {
     workPlaces?: Optional<ExtendedWorkPlaceAttributes[]>;
@@ -110,7 +105,6 @@ export type PersonWithComposedAttributes = PersonAttributes & {
 };
 
 export type ExtendedPersonAttributes = PersonWithComposedAttributes & { [key: string]: unknown };
-
 
 /**
  * A person is a member of a household. it can have these composed objects:
@@ -135,7 +129,6 @@ export class Person implements IValidatable {
     ];
 
     constructor(params: ExtendedPersonAttributes) {
-
         params._uuid = Uuidable.getUuid(params._uuid);
 
         this._attributes = {};
@@ -149,23 +142,13 @@ export class Person implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.workPlaces = ConstructorUtils.initializeComposedArrayAttributes(
-            params.workPlaces,
-            WorkPlace.unserialize
-        );
+        this.workPlaces = ConstructorUtils.initializeComposedArrayAttributes(params.workPlaces, WorkPlace.unserialize);
         this.schoolPlaces = ConstructorUtils.initializeComposedArrayAttributes(
             params.schoolPlaces,
             SchoolPlace.unserialize
         );
-        this.journeys = ConstructorUtils.initializeComposedArrayAttributes(
-            params.journeys,
-            Journey.unserialize
-        );
-        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
-            params.vehicles,
-            Vehicle.unserialize
-        );
-
+        this.journeys = ConstructorUtils.initializeComposedArrayAttributes(params.journeys, Journey.unserialize);
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params.vehicles, Vehicle.unserialize);
     }
 
     get attributes(): PersonAttributes {
@@ -448,7 +431,8 @@ export class Person implements IValidatable {
         return this._householdUuid;
     }
 
-    set householdUuid(value: Optional<string>) { // must only be used by Household object
+    set householdUuid(value: Optional<string>) {
+        // must only be used by Household object
         this._householdUuid = value;
     }
 
@@ -493,90 +477,53 @@ export class Person implements IValidatable {
         const errors: Error[] = [];
 
         // Validate params object:
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         // Validate _uuid:
         errors.push(...Uuidable.validateParams(dirtyParams));
 
         // Validate _isValid:
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         // Validate _weights:
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'age',
-                dirtyParams.age,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('age', dirtyParams.age, displayName));
 
         for (let i = 0, countI = stringAttributes.length; i < countI; i++) {
-
             const stringAttribute = stringAttributes[i];
-            errors.push(
-                ...ParamsValidatorUtils.isString(
-                    stringAttribute,
-                    dirtyParams[stringAttribute],
-                    displayName
-                )
-            );
+            errors.push(...ParamsValidatorUtils.isString(stringAttribute, dirtyParams[stringAttribute], displayName));
         }
 
-        errors.push(
-            ...ParamsValidatorUtils.isArrayOfStrings(
-                'transitPasses',
-                dirtyParams.transitPasses,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isArrayOfStrings('transitPasses', dirtyParams.transitPasses, displayName));
 
-        const workPlacesAttributes = dirtyParams.workPlaces !== undefined ? dirtyParams.workPlaces as { [key: string]: unknown }[] : [];
+        const workPlacesAttributes =
+            dirtyParams.workPlaces !== undefined ? (dirtyParams.workPlaces as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = workPlacesAttributes.length; i < countI; i++) {
             const workPlaceAttributes = workPlacesAttributes[i];
-            errors.push(
-                ...WorkPlace.validateParams(workPlaceAttributes, `WorkPlace ${i}`)
-            );
+            errors.push(...WorkPlace.validateParams(workPlaceAttributes, `WorkPlace ${i}`));
         }
 
-        const schoolPlacesAttributes = dirtyParams.schoolPlaces !== undefined ? dirtyParams.schoolPlaces as { [key: string]: unknown }[] : [];
+        const schoolPlacesAttributes =
+            dirtyParams.schoolPlaces !== undefined ? (dirtyParams.schoolPlaces as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = schoolPlacesAttributes.length; i < countI; i++) {
             const schoolPlaceAttributes = schoolPlacesAttributes[i];
-            errors.push(
-                ...SchoolPlace.validateParams(schoolPlaceAttributes, `SchoolPlace ${i}`)
-            );
+            errors.push(...SchoolPlace.validateParams(schoolPlaceAttributes, `SchoolPlace ${i}`));
         }
 
-        const journeysAttributes = dirtyParams.journeys !== undefined ? dirtyParams.journeys as { [key: string]: unknown }[] : [];
+        const journeysAttributes =
+            dirtyParams.journeys !== undefined ? (dirtyParams.journeys as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = journeysAttributes.length; i < countI; i++) {
             const journeyAttributes = journeysAttributes[i];
-            errors.push(
-                ...Journey.validateParams(journeyAttributes, `Journey ${i}`)
-            );
+            errors.push(...Journey.validateParams(journeyAttributes, `Journey ${i}`));
         }
 
-        const vehiclesAttributes = dirtyParams.vehicles !== undefined ? dirtyParams.vehicles as { [key: string]: unknown }[] : [];
+        const vehiclesAttributes =
+            dirtyParams.vehicles !== undefined ? (dirtyParams.vehicles as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = vehiclesAttributes.length; i < countI; i++) {
             const vehicleAttributes = vehiclesAttributes[i];
-            errors.push(
-                ...Vehicle.validateParams(vehicleAttributes, `Vehicle ${i}`)
-            );
+            errors.push(...Vehicle.validateParams(vehicleAttributes, `Vehicle ${i}`));
         }
 
         return errors;

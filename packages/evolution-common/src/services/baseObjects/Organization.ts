@@ -28,14 +28,10 @@ export const organizationAttributes = [
     'contactLastName',
     'contactPhoneNumber',
     'contactEmail',
-    'revenueLevel',
+    'revenueLevel'
 ];
 
-export const organizationAttributesWithComposedAttributes = [
-    ...organizationAttributes,
-    'vehicles',
-    'places',
-];
+export const organizationAttributesWithComposedAttributes = [...organizationAttributes, 'vehicles', 'places'];
 
 export type OrganizationAttributes = {
     name?: Optional<string>;
@@ -47,7 +43,9 @@ export type OrganizationAttributes = {
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
     revenueLevel?: Optional<OAttr.RevenueLevel>;
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type OrganizationWithComposedAttributes = OrganizationAttributes & {
     /**
@@ -74,10 +72,7 @@ export class Organization implements IValidatable {
     private _vehicles?: Optional<Vehicle[]>;
     private _places?: Optional<Place<PlaceAttributes>[]>;
 
-    static _confidentialAttributes = [
-        'contactPhoneNumber',
-        'contactEmail',
-    ];
+    static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
 
     constructor(params: ExtendedOrganizationAttributes) {
         params._uuid = Uuidable.getUuid(params._uuid);
@@ -238,115 +233,49 @@ export class Organization implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Organization'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'name',
-                dirtyParams.name,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('name', dirtyParams.name, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('shortname', dirtyParams.shortname, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'shortname',
-                dirtyParams.shortname,
-                displayName
-            )
+            ...ParamsValidatorUtils.isPositiveInteger('numberOfEmployees', dirtyParams.numberOfEmployees, displayName)
         );
+
+        errors.push(...ParamsValidatorUtils.isString('category', dirtyParams.category, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('contactFirstName', dirtyParams.contactFirstName, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('contactLastName', dirtyParams.contactLastName, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'numberOfEmployees',
-                dirtyParams.numberOfEmployees,
-                displayName
-            )
+            ...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'category',
-                dirtyParams.category,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('contactEmail', dirtyParams.contactEmail, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'contactFirstName',
-                dirtyParams.contactFirstName,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('revenueLevel', dirtyParams.revenueLevel, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'contactLastName',
-                dirtyParams.contactLastName,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'contactPhoneNumber',
-                dirtyParams.contactPhoneNumber,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'contactEmail',
-                dirtyParams.contactEmail,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'revenueLevel',
-                dirtyParams.revenueLevel,
-                displayName
-            )
-        );
-
-        const vehiclesAttributes = dirtyParams.vehicles !== undefined ? dirtyParams.vehicles as { [key: string]: unknown }[] : [];
+        const vehiclesAttributes =
+            dirtyParams.vehicles !== undefined ? (dirtyParams.vehicles as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = vehiclesAttributes.length; i < countI; i++) {
             const vehicleAttributes = vehiclesAttributes[i];
-            errors.push(
-                ...Vehicle.validateParams(vehicleAttributes, 'Vehicle')
-            );
+            errors.push(...Vehicle.validateParams(vehicleAttributes, 'Vehicle'));
         }
 
-        const placesAttributes = dirtyParams.places !== undefined ? dirtyParams.places as { [key: string]: unknown }[] : [];
+        const placesAttributes =
+            dirtyParams.places !== undefined ? (dirtyParams.places as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = placesAttributes.length; i < countI; i++) {
             const placeAttributes = placesAttributes[i];
-            errors.push(
-                ...Place.validateParams(placeAttributes, 'Place')
-            );
+            errors.push(...Place.validateParams(placeAttributes, 'Place'));
         }
 
         return errors;

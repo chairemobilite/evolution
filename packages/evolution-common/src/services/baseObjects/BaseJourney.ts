@@ -19,7 +19,9 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import { ExcludeFunctionPropertyNames } from '../../utils/TypeUtils';
 import { parseDate } from '../../utils/DateUtils';
 
-export type BaseJourneyAttributes = ExcludeFunctionPropertyNames<BaseJourney> & WeightableAttributes & UuidableAttributes;
+export type BaseJourneyAttributes = ExcludeFunctionPropertyNames<BaseJourney> &
+    WeightableAttributes &
+    UuidableAttributes;
 export type ExtendedJourneyAttributes = BaseJourneyAttributes & { [key: string]: unknown };
 
 export class BaseJourney extends Uuidable implements IValidatable {

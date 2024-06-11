@@ -32,7 +32,6 @@ export type BaseAddressAttributes = {
 export type ExtendendAddressAttributes = BaseAddressAttributes & { [key: string]: any };
 
 export class BaseAddress extends Uuidable implements IValidatable {
-
     _isValid: Optional<boolean>;
 
     civicNumber: number;

@@ -18,4 +18,3 @@ export interface IValidatable {
 
     isValid(): Optional<boolean>;
 }
-

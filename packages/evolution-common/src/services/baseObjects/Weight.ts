@@ -32,7 +32,11 @@ export function validateWeights(_weights?: Optional<Weight[]>): Error[] {
             const _weight = _weights[i];
             if (_weight !== undefined && (typeof _weight.weight !== 'number' || _weight.weight < 0)) {
                 errors.push(new Error(`Weightable validateWeights: weight at index ${i} must be a positive number`));
-            } else if (_weight !== undefined && _weight.method !== undefined && !(_weight.method instanceof WeightMethod)) {
+            } else if (
+                _weight !== undefined &&
+                _weight.method !== undefined &&
+                !(_weight.method instanceof WeightMethod)
+            ) {
                 errors.push(
                     new Error(`Weightable validateWeights: method at index ${i} must be an instance of WeightMethod`)
                 );
