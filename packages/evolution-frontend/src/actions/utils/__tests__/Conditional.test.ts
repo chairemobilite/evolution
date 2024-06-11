@@ -27,7 +27,7 @@ type CustomSurvey = {
     choicePath?: undefined | null | string | string[];
 }
 
-const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+const interviewAttributes: UserInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -40,7 +40,7 @@ const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknow
         section2: {
             q1: 'test'
         }
-    },
+    } as any,
     validations: {
         section1: {
             q1: true,
@@ -49,7 +49,7 @@ const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknow
         section2: {
             q1: true
         }
-    },
+    } as any,
     is_valid: true
 };
 
@@ -140,7 +140,7 @@ describe('Test check choice conditional', () => {
         ['Choices with various conditional values, some false, multi-response, some changes with duplicates', variousConditional, ['c', 'd', 'f'], [false, ['a']]],
     ]).test('%s', (_title, choices, currentValue: undefined | null | string | string[], expectedResult) => {
         const interview = _cloneDeep(interviewAttributes);
-        interview.responses.choicePath = currentValue;
+        (interview.responses as any).choicePath = currentValue;
         expect(checkChoicesConditional(currentValue, choices, interview, 'choicePath', userAttributes)).toEqual(expectedResult);
     });
 })

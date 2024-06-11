@@ -51,11 +51,11 @@ const allInterviews = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
 }));
 const returnedInterview = allInterviews[3];
 (interviewsQueries.findByResponse as any).mockResolvedValue(allInterviews);
-mockDbGetByUuid.mockResolvedValue(returnedInterview as InterviewAttributes<unknown, unknown, unknown, unknown>);
+mockDbGetByUuid.mockResolvedValue(returnedInterview as InterviewAttributes);
 (interviewsQueries.getUserInterview as any).mockResolvedValue(returnedInterview);
-mockDbCreate.mockImplementation(async (newObject: Partial<InterviewAttributes<unknown, unknown, unknown, unknown>>, returning: string | string[] = 'id') => {
+mockDbCreate.mockImplementation(async (newObject: Partial<InterviewAttributes>, returning: string | string[] = 'id') => {
     const returnFields = typeof returning === 'string' ? [returning] : returning;
-    const ret: Partial<InterviewAttributes<unknown, unknown, unknown, unknown>> = {};
+    const ret: Partial<InterviewAttributes> = {};
     returnFields.forEach((field) => ret[field] = newObject[field] || returnedInterview[field]);
     return ret;
 });
@@ -162,7 +162,7 @@ describe('Get interview by userId', () => {
 describe('Create interviews', () => {
 
     const participantId = 20;
-    let createdInterview: InterviewAttributes<unknown, unknown, unknown, unknown> | undefined = undefined;
+    let createdInterview: InterviewAttributes | undefined = undefined;
 
     beforeEach(() => {
         mockDbCreate.mockClear();
@@ -173,7 +173,7 @@ describe('Create interviews', () => {
                 ...interview,
                 uuid: interview.uuid ? interview.uuid : uuidV4()
             };
-            createdInterview = newInterview as InterviewAttributes<unknown, unknown, unknown, unknown>;
+            createdInterview = newInterview as InterviewAttributes;
             const returnInterview = {};
             const returningArr = typeof returning === 'string' ? [returning] : returning;
             returningArr?.forEach((field) => returnInterview[field] = newInterview[field]);

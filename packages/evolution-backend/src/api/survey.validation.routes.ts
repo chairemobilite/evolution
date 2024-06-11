@@ -95,7 +95,7 @@ router.post(
             const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
             if (interview) {
                 const canConfirm = isUserAllowed(req.user as UserAttributes, interview, ['confirm']);
-                const fieldsToUpdate: (keyof InterviewAttributes<unknown, unknown, unknown, unknown>)[] = [
+                const fieldsToUpdate: (keyof InterviewAttributes)[] = [
                     'validated_data',
                     'validations',
                     'audits',
@@ -104,7 +104,7 @@ router.post(
                     'is_questionable'
                 ];
                 interview.responses._updatedAt = timestamp;
-                const retInterview = await updateInterview<unknown, unknown, unknown, unknown>(interview, {
+                const retInterview = await updateInterview(interview, {
                     valuesByPath: mappedValuesByPath,
                     unsetPaths,
                     fieldsToUpdate: canConfirm ? [...fieldsToUpdate, 'is_validated'] : fieldsToUpdate,

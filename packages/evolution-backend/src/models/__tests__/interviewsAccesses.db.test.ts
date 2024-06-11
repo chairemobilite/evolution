@@ -51,7 +51,7 @@ const localUserInterviewAttributes = {
     validations: {},
     logs: [],
     audits: { errorOne: 3, errorThree: 1 }
-};
+} as any;
 
 beforeAll(async () => {
     jest.setTimeout(10000);

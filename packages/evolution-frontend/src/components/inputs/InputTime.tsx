@@ -13,15 +13,10 @@ import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateT
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { CommonInputProps } from './CommonInputProps';
 
-export type InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputTimeProps = CommonInputProps & {
     value?: number;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
-    widgetConfig: InputTimeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputTimeType;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;
 };
@@ -30,10 +25,8 @@ const midnight = 24 * 60 * 60;
 const noon = 12 * 60 * 60;
 const onehour = 60 * 60;
 
-export class InputTime<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-> {
-    constructor(props: InputTimeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
+export class InputTime extends React.Component<InputTimeProps & WithTranslation> {
+    constructor(props: InputTimeProps & WithTranslation) {
         super(props);
     }
 
@@ -129,4 +122,4 @@ export class InputTime<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> 
     }
 }
 
-export default withTranslation()(InputTime) as React.FunctionComponent<InputTimeProps<any, any, any, any>>;
+export default withTranslation()(InputTime);

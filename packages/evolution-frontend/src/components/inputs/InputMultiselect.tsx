@@ -14,15 +14,10 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { ChoiceType, InputMultiselectType } from 'evolution-common/lib/services/widgets';
 import { CommonInputProps } from './CommonInputProps';
 
-type InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+type InputMultiselectProps = CommonInputProps & {
     value: string[];
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    widgetConfig: InputMultiselectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputMultiselectType;
 };
 
 const formatOptionLabel = (data: { color?: string; label: string }) => (
@@ -42,9 +37,7 @@ const formatOptionLabel = (data: { color?: string; label: string }) => (
 
 type OptionType = { label: string; color?: string; value: string };
 
-export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputMultiselectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-> {
+export class InputMultiselect extends React.Component<InputMultiselectProps & WithTranslation> {
     constructor(props) {
         super(props);
         this.onValueChange = this.onValueChange.bind(this);
@@ -70,10 +63,7 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
         }
     };
 
-    selectShortcut = (
-        value: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-        e: React.MouseEvent
-    ) => {
+    selectShortcut = (value: ChoiceType, e: React.MouseEvent) => {
         if (this.props.onValueChange === undefined) {
             return;
         }
@@ -215,6 +205,4 @@ export class InputMultiselect<CustomSurvey, CustomHousehold, CustomHome, CustomP
     }
 }
 
-export default withTranslation()(InputMultiselect) as React.FunctionComponent<
-    InputMultiselectProps<any, any, any, any>
->;
+export default withTranslation()(InputMultiselect);

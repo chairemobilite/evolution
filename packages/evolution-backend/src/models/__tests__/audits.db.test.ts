@@ -59,8 +59,8 @@ beforeAll(async () => {
     await truncate(knex, 'sv_participants');
     await create(knex, 'sv_participants', undefined, localParticipant as any);
     await create(knex, 'sv_participants', undefined, otherParticipant as any);
-    await interviewsDbQueries.create(localUserInterviewAttributes);
-    await interviewsDbQueries.create(otherUserInterviewAttributes);
+    await interviewsDbQueries.create(localUserInterviewAttributes as any);
+    await interviewsDbQueries.create(otherUserInterviewAttributes as any);
 });
 
 afterAll(async() => {

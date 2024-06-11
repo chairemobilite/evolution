@@ -17,17 +17,12 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { CommonInputProps } from './CommonInputProps';
 import { sortByParameters } from './InputChoiceSorting';
 
-export type InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputCheckboxProps = CommonInputProps & {
     value: string;
     /** Value of the custom field if 'other' is selected */
     customValue?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    widgetConfig: InputCheckboxType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputCheckboxType;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
 };
@@ -36,10 +31,10 @@ interface InputCheckboxState {
     customValue: string;
 }
 
-interface InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface InputCheckboxChoiceProps {
     id: string;
-    choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    choice: ChoiceType;
+    interview: UserInterviewAttributes;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
@@ -55,9 +50,7 @@ interface InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, Cu
     ) => void;
 }
 
-const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputCheckboxChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-) => {
+const InputCheckboxChoice = (props: InputCheckboxChoiceProps & WithTranslation) => {
     const id = `${props.id}__input-checkbox__${props.choice.value}`;
     const strValue =
         props.choice.value !== null && props.choice.value !== undefined
@@ -120,17 +113,14 @@ const InputCheckboxChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
     );
 };
 
-const InputCheckboxChoiceT = withTranslation()(InputCheckboxChoice) as React.FunctionComponent<
-    InputCheckboxChoiceProps<any, any, any, any>
->;
+const InputCheckboxChoiceT = withTranslation()(
+    InputCheckboxChoice
+) as React.FunctionComponent<InputCheckboxChoiceProps>;
 
-export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
-    InputCheckboxState
-> {
+export class InputCheckbox extends React.Component<InputCheckboxProps & WithTranslation, InputCheckboxState> {
     private customInputRef: React.RefObject<HTMLInputElement> = React.createRef();
 
-    constructor(props: InputCheckboxProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
+    constructor(props: InputCheckboxProps & WithTranslation) {
         super(props);
 
         this.state = {
@@ -306,4 +296,4 @@ export class InputCheckbox<CustomSurvey, CustomHousehold, CustomHome, CustomPers
     }
 }
 
-export default withTranslation()(InputCheckbox) as React.FunctionComponent<InputCheckboxProps<any, any, any, any>>;
+export default withTranslation()(InputCheckbox);

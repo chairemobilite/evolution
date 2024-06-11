@@ -57,7 +57,7 @@ const commonWidgetConfig = {
     }
 };
 
-const defaultWidgetStatus: WidgetStatus<unknown, unknown, unknown, unknown> = {
+const defaultWidgetStatus: WidgetStatus = {
     path: commonWidgetConfig.path,
     isVisible: true,
     modalIsOpen: false,

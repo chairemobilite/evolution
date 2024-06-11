@@ -17,19 +17,14 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { CommonInputProps } from './CommonInputProps';
 import { sortByParameters } from './InputChoiceSorting';
 
-export type InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputRadioProps = CommonInputProps & {
     value: string | boolean;
     /** Value of the custom field if 'other' is selected */
     customValue?: string;
     // FIXME: customPath and customChoice are not part of checkbox, otherwise very similar to this one. Can they be treated the same? How does checkbox handle customPath?
     customPath?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    widgetConfig: InputRadioType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputRadioType;
     // TODO Document, what is this? Also, the presence of this props, that comes as a prop of question, is related to the presence of a customLabel, in the widgetConfig, what's the relation between those 2??
     customId?: string;
 };
@@ -38,10 +33,10 @@ interface InputRadioState {
     customValue: string;
 }
 
-interface InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface InputRadioChoiceProps {
     id: string;
-    choice: RadioChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    choice: RadioChoiceType;
+    interview: UserInterviewAttributes;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
@@ -58,9 +53,7 @@ interface InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, Custo
     ) => void;
 }
 
-const InputRadioChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputRadioChoiceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-) => {
+const InputRadioChoice = (props: InputRadioChoiceProps & WithTranslation) => {
     const id = `${props.id}__input-radio__${props.choice.value}`;
     const strValue =
         props.choice.value !== null && props.choice.value !== undefined
@@ -124,18 +117,13 @@ const InputRadioChoice = <CustomSurvey, CustomHousehold, CustomHome, CustomPerso
     );
 };
 
-export const InputRadioChoiceT = withTranslation()(InputRadioChoice) as React.FunctionComponent<
-    InputRadioChoiceProps<any, any, any, any>
->;
+export const InputRadioChoiceT = withTranslation()(InputRadioChoice) as React.FunctionComponent<InputRadioChoiceProps>;
 
-export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
-    InputRadioState
-> {
+export class InputRadio extends React.Component<InputRadioProps & WithTranslation, InputRadioState> {
     private customInputRef: React.RefObject<HTMLInputElement> = React.createRef();
     private customInputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
 
-    constructor(props: InputRadioProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) {
+    constructor(props: InputRadioProps & WithTranslation) {
         super(props);
 
         this.state = {
@@ -310,4 +298,4 @@ export class InputRadio<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
     }
 }
 
-export default withTranslation()(InputRadio) as React.FunctionComponent<InputRadioProps<any, any, any, any>>;
+export default withTranslation()(InputRadio);

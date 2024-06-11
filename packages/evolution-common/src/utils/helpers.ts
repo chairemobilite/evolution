@@ -20,32 +20,25 @@ import {
     VisitedPlace
 } from '../services/interviews/interview';
 
-export type ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    path: string,
-    user?: CliUser
-) => T;
+export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
 
-export type LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
-    [lang: string]: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+export type LangData = {
+    [lang: string]: string | ParsingFunction<string>;
 };
 
-export type TranslatableStringFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
+export type TranslatableStringFunction = (
     t: TFunction,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserInterviewAttributes,
     path: string,
     user?: CliUser
 ) => string;
 
-export type I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
-    | string
-    | LangData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    | TranslatableStringFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+export type I18nData = string | LangData | TranslatableStringFunction;
 
-export const translateString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    i18nData: I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
+export const translateString = (
+    i18nData: I18nData | undefined,
     i18nObj: i18n,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserInterviewAttributes,
     path: string,
     user?: CliUser
 ): string | undefined => {
@@ -66,9 +59,9 @@ export const translateString = <CustomSurvey, CustomHousehold, CustomHome, Custo
  * @param user The current user's information
  * @returns The parsed string value, or the value itself if it is a string
  */
-export const parseString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: string | ParsingFunction<string, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const parseString = (
+    value: string | ParsingFunction<string> | undefined,
+    interview: UserInterviewAttributes,
     path: string,
     user?: CliUser
 ): string | undefined => {
@@ -87,19 +80,9 @@ export const parseString = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
  * really want a default value of true?
  * @returns The parsed string value, or the value itself if it is a string
  */
-export const parseBoolean = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value:
-        | boolean
-        | ParsingFunction<
-              boolean | [boolean] | [boolean, unknown],
-              CustomSurvey,
-              CustomHousehold,
-              CustomHome,
-              CustomPerson
-          >
-        | undefined
-        | null,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const parseBoolean = (
+    value: boolean | ParsingFunction<boolean | [boolean] | [boolean, unknown]> | undefined | null,
+    interview: UserInterviewAttributes,
     path: string,
     user?: CliUser,
     defaultBoolean = true
@@ -129,15 +112,13 @@ export const parseBoolean = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
  * @param user The current user's information
  * @returns The parsed value of type T, or the value itself if it is a string
  */
-export const parse = <T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: T | ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined | null,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const parse = <T>(
+    value: T | ParsingFunction<T> | undefined | null,
+    interview: UserInterviewAttributes,
     path: string,
     user?: CliUser
 ): T | undefined | null => {
-    return typeof value === 'function'
-        ? (value as ParsingFunction<T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)(interview, path, user)
-        : value;
+    return typeof value === 'function' ? (value as ParsingFunction<T>)(interview, path, user) : value;
 };
 
 /**
@@ -150,9 +131,9 @@ export const parse = <T, CustomSurvey, CustomHousehold, CustomHome, CustomPerson
  * @param user The current user's information
  * @returns The parsed number value, or the value itself
  */
-export const parseInteger = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    value: number | ParsingFunction<number, CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const parseInteger = (
+    value: number | ParsingFunction<number> | undefined,
+    interview: UserInterviewAttributes,
     path: string,
     user?: CliUser
 ): number | undefined => {
@@ -174,10 +155,7 @@ export const parseInteger = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
  * @param path The path, with possibly response placeholders between brackets
  * @returns The path with interpolated responses
  */
-export const interpolatePath = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    path: string
-): string => {
+export const interpolatePath = (interview: UserInterviewAttributes, path: string): string => {
     const splittedInterpolationPath = path ? path.match(/\{(.+?)\}/g) : null;
     let interpolatedPath = path;
     if (splittedInterpolationPath) {
@@ -287,9 +265,9 @@ export const parseValue = function (value: any, datatype: 'integer' | 'float' | 
  * to go back in the path)
  * @returns The value of this path
  */
-export const getResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const getResponse = (
     // TODO Can this really be undefined? it was previously in the if clause, but try to make it not be undefined
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserInterviewAttributes,
     path: string,
     defaultValue: unknown = undefined,
     relativePath?: string
@@ -316,13 +294,13 @@ export const getResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
  * to go back in the path)
  * @returns The interview responses with the field set
  */
-export const setResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const setResponse = (
     // TODO Can this really be undefined? it was previously in the if clause, but try to make it not be undefined
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
+    interview: UserInterviewAttributes | undefined,
     path: string,
     value: unknown = undefined,
     relativePath?: string
-): InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | null => {
+): InterviewResponses | null => {
     const newPath = getPath(path, relativePath);
     if (newPath && interview) {
         return _set(interview.responses, newPath, value);
@@ -339,9 +317,7 @@ export const setResponse = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
  * @param interview The interview object
  * @returns The household object
  */
-export const getHousehold = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-): Partial<Household<CustomHousehold, CustomPerson>> => {
+export const getHousehold = (interview: UserInterviewAttributes): Partial<Household> => {
     return interview.responses.household || {};
 };
 
@@ -354,9 +330,7 @@ export const getHousehold = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
  * @param interview The interview object
  * @returns The current person object
  */
-export const getCurrentPerson = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-): Partial<Person<CustomPerson>> => {
+export const getCurrentPerson = (interview: UserInterviewAttributes): Partial<Person> => {
     const currentPerson = interview.responses._activePersonId;
     const hh = getHousehold(interview);
     if (currentPerson !== undefined) {
@@ -364,11 +338,9 @@ export const getCurrentPerson = <CustomSurvey, CustomHousehold, CustomHome, Cust
     } else {
         // Get first person
         const persons = Object.values(hh.persons || {});
-        // TODO: Fix this type, it should be a Person<CustomPerson>[] or {}
+        // TODO: Fix this type, it should be a Person[] or {}
         // but I need it like that for now because it's not working with Generator
-        return persons.length !== 0
-            ? (persons[0] as Partial<Person<CustomPerson>>)
-            : ({} as Partial<Person<CustomPerson>>);
+        return persons.length !== 0 ? (persons[0] as Partial<Person>) : ({} as Partial<Person>);
     }
 };
 
@@ -383,8 +355,8 @@ export const getCurrentPerson = <CustomSurvey, CustomHousehold, CustomHome, Cust
  * undefined
  * @returns The validation value of this path, or `null` if the path does not have a validation value
  */
-export const getValidation = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const getValidation = (
+    interview: UserInterviewAttributes,
     path: string,
     defaultValue?: boolean
 ): boolean | null => {
@@ -402,12 +374,12 @@ export const getValidation = <CustomSurvey, CustomHousehold, CustomHome, CustomP
  * to go back in the path)
  * @returns The interview responses with the field set
  */
-export const setValidation = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const setValidation = (
+    interview: UserInterviewAttributes,
     path: string,
     value: boolean,
     relativePath?: string
-): UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> => {
+): UserInterviewAttributes => {
     const newPath = getPath(path, relativePath);
     if (newPath) {
         _set(interview.validations, newPath, value);
@@ -451,28 +423,22 @@ export const isPhoneNumber = (maybeNumber: string) => {
     // Thanks to https://stackoverflow.com/questions/16699007/regular-expression-to-match-standard-10-digit-phone-number
 };
 
-export const getPersons = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-): { [personId: string]: Person<CustomPerson> } => {
+export const getPersons = (interview: UserInterviewAttributes): { [personId: string]: Person } => {
     return (interview.responses.household || {}).persons || {};
 };
 
-export const getPersonsArray = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-): Person<CustomPerson>[] => {
+export const getPersonsArray = (interview: UserInterviewAttributes): Person[] => {
     const persons = getPersons(interview);
     return Object.values(persons).sort((personA, personB) => {
         return personA._sequence - personB._sequence;
     });
 };
 
-export const getVisitedPlaces = <CustomPerson>(
-    person: Person<CustomPerson>
-): { [visitedPlaceId: string]: VisitedPlace } => {
+export const getVisitedPlaces = (person: Person): { [visitedPlaceId: string]: VisitedPlace } => {
     return person.visitedPlaces || {};
 };
 
-export const getVisitedPlacesArray = <CustomPerson>(person: Person<CustomPerson>) => {
+export const getVisitedPlacesArray = (person: Person) => {
     const visitedPlaces = getVisitedPlaces(person);
     return Object.values(visitedPlaces).sort((visitedPlaceA, visitedPlaceB) => {
         return visitedPlaceA._sequence - visitedPlaceB._sequence;
@@ -486,8 +452,8 @@ export const getVisitedPlacesArray = <CustomPerson>(person: Person<CustomPerson>
  * @param interview The interview
  * @param visitedPlacesPath The path of the visited place to replace
  */
-export const replaceVisitedPlaceShortcuts = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const replaceVisitedPlaceShortcuts = (
+    interview: UserInterviewAttributes,
     shortcutTo: string
 ): { updatedValuesByPath: { [path: string]: any }; unsetPaths: string[] } | undefined => {
     const originalVisitedPlace = getResponse(interview, shortcutTo, {}) as VisitedPlace;
@@ -540,23 +506,16 @@ const startDateGreaterEqual = (startDate: number | undefined, compare: string | 
     return null;
 };
 
-export const surveyStarted = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => {
+export const surveyStarted = (interview: UserInterviewAttributes) => {
     const isSurveyStarted = startDateGreaterEqual(interview.responses._startedAt, config.surveyStart);
     return isSurveyStarted === null ? true : isSurveyStarted;
 };
 
-export const surveyEnded = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => {
+export const surveyEnded = (interview: UserInterviewAttributes) => {
     const isSurveyEnded = startDateGreaterEqual(interview.responses._startedAt, config.surveyEnd);
     return isSurveyEnded === null ? true : isSurveyEnded;
 };
 
-export const interviewOnOrAfter = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    date: string,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => {
+export const interviewOnOrAfter = (date: string, interview: UserInterviewAttributes) => {
     return startDateGreaterEqual(interview.responses._startedAt, date);
 };

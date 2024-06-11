@@ -28,7 +28,7 @@ const interviewAttributes = {
     validations: {},
     logs: [],
     survey_id: 1
-};
+} as any;
 const testRedirectUrl = 'http://localhost:8080/test'
 
 const updateCallbacks = [

@@ -14,28 +14,21 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { CommonInputProps } from './CommonInputProps';
 
-export type InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputSelectProps = CommonInputProps & {
     value?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    widgetConfig: InputSelectType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputSelectType;
 };
 
-export interface InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
-    choice: ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+export interface InputSelectOptionProps {
+    choice: ChoiceType;
+    interview: UserInterviewAttributes;
     // TODO There's also a path in widgetConfig, but this one comes from the props of the question. See if it's always the same and use the one from widgetConfig if necessary
     path: string;
     user: CliUser;
 }
 
-const InputSelectOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputSelectOptionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-) => {
+const InputSelectOption = (props: InputSelectOptionProps & WithTranslation) => {
     if (
         props.choice.hidden === true ||
         !surveyHelper.parseBoolean(props.choice.conditional, props.interview, props.path, props.user)
@@ -53,13 +46,9 @@ const InputSelectOption = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
     );
 };
 
-const InputSelectOptionT = withTranslation()(InputSelectOption) as React.FunctionComponent<
-    InputSelectOptionProps<any, any, any, any>
->;
+const InputSelectOptionT = withTranslation()(InputSelectOption) as React.FunctionComponent<InputSelectOptionProps>;
 
-export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputSelectProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-) => {
+export const InputSelect = (props: InputSelectProps & WithTranslation) => {
     const widgetChoices = props.widgetConfig.choices;
     const choices =
         typeof widgetChoices === 'function' ? widgetChoices(props.interview, props.path, props.user) : widgetChoices;
@@ -134,4 +123,4 @@ export const InputSelect = <CustomSurvey, CustomHousehold, CustomHome, CustomPer
     );
 };
 
-export default withTranslation()(InputSelect) as React.FunctionComponent<InputSelectProps<any, any, any, any>>;
+export default withTranslation()(InputSelect);

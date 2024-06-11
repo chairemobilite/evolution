@@ -136,9 +136,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
     }
 };
 
-const getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interviewUuid: string
-): Promise<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
+const getInterviewByUuid = async (interviewUuid: string): Promise<InterviewAttributes | undefined> => {
     try {
         // TODO We probably shouldn't just return all fields. Figure out how to
         // specify which fields, it will depend on the calling context. Maybe an
@@ -148,12 +146,7 @@ const getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, Cus
         if (interviews.length !== 1) {
             return undefined;
         }
-        return _removeBlankFields(interviews[0]) as InterviewAttributes<
-            CustomSurvey,
-            CustomHousehold,
-            CustomHome,
-            CustomPerson
-        >;
+        return _removeBlankFields(interviews[0]) as InterviewAttributes;
     } catch (error) {
         console.error(error);
         throw new TrError(
@@ -163,9 +156,7 @@ const getInterviewByUuid = async <CustomSurvey, CustomHousehold, CustomHome, Cus
     }
 };
 
-const getInterviewIdByUuid = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interviewUuid: string
-): Promise<number | undefined> => {
+const getInterviewIdByUuid = async (interviewUuid: string): Promise<number | undefined> => {
     try {
         const interviews = await knex.select('id').from(tableName).andWhere('uuid', interviewUuid);
         return interviews.length === 1 ? interviews[0].id : undefined;
@@ -178,9 +169,7 @@ const getInterviewIdByUuid = async <CustomSurvey, CustomHousehold, CustomHome, C
     }
 };
 
-const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    participantId: number
-): Promise<UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined> => {
+const getUserInterview = async (participantId: number): Promise<UserInterviewAttributes | undefined> => {
     try {
         const surveyId = await getSurveyId();
         const interviews = await knex
@@ -204,12 +193,7 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
         } else if (interviews.length > 1) {
             console.warn(`There are more than one active interview for user ${participantId}`);
         }
-        return _removeBlankFields(interviews[0]) as UserInterviewAttributes<
-            CustomSurvey,
-            CustomHousehold,
-            CustomHome,
-            CustomPerson
-        >;
+        return _removeBlankFields(interviews[0]) as UserInterviewAttributes;
     } catch (error) {
         console.error(error);
         throw new TrError(
@@ -226,9 +210,7 @@ const getUserInterview = async <CustomSurvey, CustomHousehold, CustomHome, Custo
  * @param object
  * @returns An object with the json data sanitized
  */
-const sanitizeJsonData = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    object: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
-) => {
+const sanitizeJsonData = (object: Partial<InterviewAttributes>) => {
     const { logs, responses, validated_data, ...rest } = object;
     const newResponses = responses !== undefined ? JSON.stringify(responses).replaceAll('\\u0000', '') : undefined;
     const newLogs = logs !== undefined ? JSON.stringify(logs).replaceAll('\\u0000', '') : undefined;
@@ -242,10 +224,10 @@ const sanitizeJsonData = <CustomSurvey, CustomHousehold, CustomHome, CustomPerso
     };
 };
 
-const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    newObject: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>,
+const create = async (
+    newObject: Partial<InterviewAttributes>,
     returning: string | string[] = 'id'
-): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
+): Promise<Partial<InterviewAttributes>> => {
     try {
         const surveyId = await getSurveyId();
         newObject.survey_id = surveyId;
@@ -263,11 +245,11 @@ const create = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
     }
 };
 
-const update = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+const update = async (
     uuid: string,
-    updatedInterview: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>,
+    updatedInterview: Partial<InterviewAttributes>,
     returning: string | string[] = 'uuid'
-): Promise<Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>> => {
+): Promise<Partial<InterviewAttributes>> => {
     try {
         const returningArray = await knex(tableName)
             .update(sanitizeJsonData(updatedInterview))
@@ -533,13 +515,13 @@ const updateRawWhereClause = (
  * }>} Return the page of interviews and the total number of interviews
  * corresponding to the query
  */
-const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(params: {
+const getList = async (params: {
     filters: { [key: string]: ValueFilterType };
     pageIndex: number;
     pageSize: number;
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }): Promise<{
-    interviews: InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
+    interviews: InterviewListAttributes[];
     totalCount: number;
 }> => {
     try {
@@ -626,7 +608,7 @@ const getList = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
             return {
                 ...rest,
                 audits: newAudits
-            } as InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+            } as InterviewListAttributes;
         };
         return { interviews: interviews.map((interview) => auditsToObject(_removeBlankFields(interview))), totalCount };
     } catch (error) {

@@ -19,7 +19,7 @@ type CustomSurvey = {
 }
 
 // Default interview data
-const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+const interviewAttributes: UserFrontendInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -33,7 +33,7 @@ const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown
         section2: {
             q1: 'test'
         }
-    },
+    } as any,
     validations: {
         section1: {
             q1: true,
@@ -42,7 +42,7 @@ const interviewAttributes: UserFrontendInterviewAttributes<CustomSurvey, unknown
         section2: {
             q1: true
         }
-    },
+    } as any,
     is_valid: true,
     widgets: {},
     groups: {},

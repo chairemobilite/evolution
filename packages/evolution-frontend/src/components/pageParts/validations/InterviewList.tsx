@@ -18,9 +18,9 @@ import { faSortAmountDown } from '@fortawesome/free-solid-svg-icons/faSortAmount
 import { faSortAmountDownAlt } from '@fortawesome/free-solid-svg-icons/faSortAmountDownAlt';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-interface UsersTableProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends WithTranslation {
+interface UsersTableProps extends WithTranslation {
     columns: any[];
-    data: InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>[];
+    data: InterviewStatusAttributesBase[];
     fetchData: ({ pageSize, pageIndex, filters }: any) => void;
     loading: boolean;
     pageCount: number;
@@ -32,9 +32,7 @@ interface UsersTableProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerso
 }
 
 // User react-table to handle a few table functionalities like paging and filtering
-const InterviewList = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: UsersTableProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => {
+const InterviewList = (props: UsersTableProps) => {
     const {
         getTableProps,
         prepareRow,

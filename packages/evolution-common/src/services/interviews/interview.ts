@@ -24,9 +24,7 @@ type RecursiveFinalKeyOf<TObj extends object> = {
         : `${TKey}`;
 }[keyof TObj & (string | number)];
 
-export type InterviewResponsePath<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = RecursiveFinalKeyOf<
-    Required<InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
->;
+export type InterviewResponsePath = RecursiveFinalKeyOf<Required<InterviewResponses>>;
 
 type RecursivePartial<T> = {
     [P in keyof T]?: T[P] extends (infer U)[]
@@ -36,17 +34,13 @@ type RecursivePartial<T> = {
         : T[P];
 };
 
-export type PartialInterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = RecursivePartial<
-    InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
->;
+export type PartialInterviewResponses = RecursivePartial<InterviewResponses>;
 
 // Type for the validations, which should have the same keys as the responses, but with boolean values
 type RecursiveBoolean<TObj extends object> = {
     [TKey in keyof TObj]?: TObj[TKey] extends object ? RecursiveBoolean<Required<TObj[TKey]>> : boolean;
 };
-export type InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = RecursiveBoolean<
-    Required<InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
->;
+export type InterviewValidations = RecursiveBoolean<Required<InterviewResponses>>;
 
 export type BasePerson = {
     _uuid: string;
@@ -54,18 +48,22 @@ export type BasePerson = {
     visitedPlaces?: {
         [placeUuid: string]: VisitedPlace;
     };
+    nickname?: string;
+    age?: number;
 };
 
-export type Person<CustomPerson> = BasePerson & CustomPerson;
+// TODO Update to use new types in surveyObjects
+export type Person = BasePerson;
 
-export type Household<CustomHousehold, CustomPerson> = {
+// TODO Update to use new types in surveyObjects
+export type Household = {
     // TODO Are there any fields that will be common to ALL households?
     size: number;
     persons: {
         // TODO Are there any fields valid for all persons?
-        [personId: string]: Person<CustomPerson>;
+        [personId: string]: Person;
     };
-} & CustomHousehold;
+};
 
 type SurveyPointProperties = {
     lastAction: 'findPlace' | 'shortcut' | 'mapClicked' | 'markerDragged';
@@ -87,10 +85,12 @@ type SectionStatus = {
 /**
  * Type the common response fields for any survey
  *
+ * TODO Update to use new types in surveyObjects
+ *
  * @export
  * @interface InterviewResponses
  */
-export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+export type InterviewResponses = {
     // Volatile survey workflow fields:
     _activePersonId?: string;
     _activeSection?: string;
@@ -117,19 +117,16 @@ export type InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, Custom
     };
 
     // Actual responses
-    household?: Household<CustomHousehold, CustomPerson>;
+    household?: Household;
     home?: {
         region?: string;
         country?: string;
-    } & CustomHome;
-} & CustomSurvey;
+    };
+    // TODO Refactor the types to use the new types in surveyObjects
+    [key: string]: any;
+};
 
-type ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = InterviewResponses<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+type ValidatedResponses = InterviewResponses & {
     _validatedDataCopiedAt?: number;
     _validationComment?: string;
 };
@@ -145,13 +142,13 @@ export interface InterviewAudits {
  * @export
  * @interface UserInterviewAttributes
  */
-export interface UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface UserInterviewAttributes {
     id: number;
     uuid: string;
     participant_id: number;
     is_completed: boolean;
-    responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    validations: InterviewValidations<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    responses: InterviewResponses;
+    validations: InterviewValidations;
     is_valid: boolean;
     is_questionable?: boolean;
     userRoles?: string[];
@@ -164,12 +161,11 @@ export interface UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHo
  * @export
  * @interface InterviewAttributes
  */
-export interface InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    extends UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InterviewAttributes extends UserInterviewAttributes {
     is_active?: boolean;
     is_started?: boolean;
     logs: { timestamp: number; valuesByPath: { [key: string]: unknown }; unsetPaths?: string[] }[];
-    validated_data?: ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    validated_data?: ValidatedResponses;
     audits?: InterviewAudits;
     is_validated?: boolean;
     is_questionable?: boolean;
@@ -182,12 +178,12 @@ export interface InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, 
     survey_id?: number;
 }
 
-export interface InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InterviewListAttributes {
     id: number;
     uuid: string;
     participant_id: number;
-    responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    validated_data: ValidatedResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    responses: InterviewResponses;
+    validated_data: ValidatedResponses;
     is_valid?: boolean;
     is_completed?: boolean;
     is_validated?: boolean;
@@ -206,10 +202,10 @@ export interface InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHo
  * TODO: See if the consumers of this type can template it so it can be fully
  * typed per project
  */
-export interface InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+export interface InterviewStatusAttributesBase {
     id: number;
     uuid: string;
-    responses: PartialInterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    responses: PartialInterviewResponses;
     is_valid?: boolean;
     is_completed?: boolean;
     is_validated?: boolean;
@@ -227,10 +223,10 @@ export interface InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, Cu
  * @returns The audit result, where the key is the ID of the validation to run
  * and the value is the number of times this validation fails on the responses.
  */
-export const auditInterview = function <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    validatedData: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    originalResponses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const auditInterview = function (
+    validatedData: InterviewResponses,
+    originalResponses: InterviewResponses,
+    interview: InterviewAttributes,
     validations: any,
     surveyProjectHelper: any
 ): { [validationId: string]: number } {

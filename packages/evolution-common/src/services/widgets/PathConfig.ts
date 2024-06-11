@@ -17,7 +17,7 @@ import { ParserFunction } from '../parsers/ParserFunction';
  * Keys are paths with uuids replaced by '@' and array indexes
  * replaced by '#'
  */
-export type PathConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+export type PathConfig = {
     // is the path metadata (included only in export files of type "with metadata")
     isMetadata?: boolean; // default to false except if attribute starts with "_"
     // whether to include the attribute when exporting:
@@ -26,16 +26,16 @@ export type PathConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> 
     // whether to validate the attribute:
     validate?: boolean; // default to true
     // custom admin validations:
-    validations?: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    validations?: ValidationFunction;
     // rename attribute for export, default to undefined, which means no rename:
     rename?: string;
     // whether to auto add validations from the widget:
     includeWidgetValidations?: boolean; // default to true, ignored if validate is false
     // custom parser to change/manipulate/enhance value for export:
-    parser?: ParserFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    parser?: ParserFunction;
     // export generated values from this value, uses the same function as the parser:
     // example: from _completedAt timestamp, generate completedAtDate and completedAtTime
     generatedValues?: {
-        [key: string]: PathConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+        [key: string]: PathConfig;
     };
 };

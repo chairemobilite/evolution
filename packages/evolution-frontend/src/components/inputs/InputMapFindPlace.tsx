@@ -27,23 +27,18 @@ import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
 import InputMapGoogle from './maps/google/InputMapGoogle';
 import { geocodeMultiplePlaces } from './maps/google/GoogleGeocoder';
 
-export type InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputMapFindPlaceProps = CommonInputProps & {
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
     loadingState?: number;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    widgetConfig: InputMapFindPlaceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputMapFindPlaceType;
 };
 
 // Path to default icons
 const defaultMarkerUrl = '/dist/images/activities_icons/default_marker.svg';
 const defaultSelectedMarkerUrl = '/dist/images/activities_icons/default_selected_marker.svg';
 
-interface InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface InputMapFindPlaceState {
     geocoding: boolean;
     geocodingQueryString?: string;
     defaultCenter: any;
@@ -68,9 +63,9 @@ interface InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, Cust
  * as possible. Main difference is that there can be multiple markers here and
  * it needs confirmation.
  */
-export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation,
-    InputMapFindPlaceState<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
+export class InputMapFindPlace extends React.Component<
+    InputMapFindPlaceProps & WithTranslation,
+    InputMapFindPlaceState
 > {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
     private autoConfirmIfSingleResult: boolean;
@@ -78,9 +73,7 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
     private shouldFitBoundsIdx = 0;
     private currentBounds: [number, number, number, number] | undefined = undefined;
 
-    constructor(
-        props: InputMapFindPlaceProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-    ) {
+    constructor(props: InputMapFindPlaceProps & WithTranslation) {
         super(props);
 
         this.onSearchPlaceButtonMouseDown = this.onSearchPlaceButtonMouseDown.bind(this);
@@ -556,6 +549,4 @@ export class InputMapFindPlace<CustomSurvey, CustomHousehold, CustomHome, Custom
     }
 }
 
-export default withTranslation()(InputMapFindPlace) as React.FunctionComponent<
-    InputMapFindPlaceProps<any, any, any, any>
->;
+export default withTranslation()(InputMapFindPlace);

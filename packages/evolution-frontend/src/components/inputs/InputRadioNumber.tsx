@@ -13,17 +13,17 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { InputRadioChoiceT } from './InputRadio';
 
-type InputRadioNumberProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+type InputRadioNumberProps = {
     id: string;
     onValueChange: (e: any, customValue?: string) => void;
     value?: number;
-    widgetConfig: InputRadioNumberType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputRadioNumberType;
+    interview: UserInterviewAttributes;
     path: string;
     user: CliUser;
 };
 
-export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>({
+export const InputRadioNumber = ({
     id,
     onValueChange,
     value,
@@ -32,7 +32,7 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     path,
     user,
     t
-}: InputRadioNumberProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation) => {
+}: InputRadioNumberProps & WithTranslation) => {
     const minValue = surveyHelper.parseInteger(widgetConfig.valueRange.min, interview, path, user) || 0;
     const maxValue = surveyHelper.parseInteger(widgetConfig.valueRange.max, interview, path, user) || minValue + 1;
     const [currentValue, setCurrentValue] = useState(!_isBlank(value) ? Number(value) : -1);
@@ -164,6 +164,4 @@ export const InputRadioNumber = <CustomSurvey, CustomHousehold, CustomHome, Cust
     );
 };
 
-export default withTranslation()(InputRadioNumber) as React.FunctionComponent<
-    InputRadioNumberProps<any, any, any, any>
->;
+export default withTranslation()(InputRadioNumber);

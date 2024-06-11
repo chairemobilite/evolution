@@ -8,8 +8,8 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 // FIXME: This type is very close to the ParsingFunction type in the frontendHelpers, but it has also a customPath. Is it required? Ideally, we could use the ParsingFunction type
-export type ConditionalFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export type ConditionalFunction = (
+    interview: UserInterviewAttributes,
     path: string,
     customPath?: string,
     user?: CliUser
@@ -26,14 +26,9 @@ export type ConditionalFunction<CustomSurvey, CustomHousehold, CustomHome, Custo
  * second and third elements are the values to set to this field (2nd: value and 3rd: customValue for customChoice) if the
  * condition fails.
  */
-export const checkConditional = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    conditional:
-        | undefined
-        | boolean
-        | [boolean, unknown]
-        | [boolean, unknown, unknown]
-        | ConditionalFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const checkConditional = (
+    conditional: undefined | boolean | [boolean, unknown] | [boolean, unknown, unknown] | ConditionalFunction,
+    interview: UserInterviewAttributes,
     path: string,
     customPath?: string,
     user?: CliUser
@@ -87,19 +82,9 @@ export const checkConditional = <CustomSurvey, CustomHousehold, CustomHome, Cust
  * second are the values to set to this field if the
  * condition fails.
  */
-export const checkChoiceConditional = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    conditional:
-        | undefined
-        | boolean
-        | [boolean, unknown]
-        | ParsingFunction<
-              boolean | [boolean] | [boolean, unknown],
-              CustomSurvey,
-              CustomHousehold,
-              CustomHome,
-              CustomPerson
-          >,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const checkChoiceConditional = (
+    conditional: undefined | boolean | [boolean, unknown] | ParsingFunction<boolean | [boolean] | [boolean, unknown]>,
+    interview: UserInterviewAttributes,
     path: string,
     user?: CliUser
 ): [boolean, unknown] => {
@@ -142,24 +127,10 @@ export const checkChoiceConditional = <CustomSurvey, CustomHousehold, CustomHome
  * still visible. The second element is the value to set to this field if the
  * condition fails.
  */
-export const checkChoicesConditional = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const checkChoicesConditional = (
     value: unknown,
-    choices:
-        | (
-              | GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-              | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-          )[]
-        | ParsingFunction<
-              (
-                  | GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-                  | ChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-              )[],
-              CustomSurvey,
-              CustomHousehold,
-              CustomHome,
-              CustomPerson
-          >,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    choices: (GroupedChoiceType | ChoiceType)[] | ParsingFunction<(GroupedChoiceType | ChoiceType)[]>,
+    interview: UserInterviewAttributes,
     path: string,
     user?: CliUser
 ): [boolean, unknown] => {
@@ -171,9 +142,7 @@ export const checkChoicesConditional = <CustomSurvey, CustomHousehold, CustomHom
     // Get the value along with its corresponding choice
     const parsedChoices = (typeof choices === 'function' ? choices(interview, path, user) : choices).flatMap(
         (choice) => {
-            return isGroupedChoice(choice)
-                ? (choice as GroupedChoiceType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>).choices
-                : [choice];
+            return isGroupedChoice(choice) ? (choice as GroupedChoiceType).choices : [choice];
         }
     );
     // Array of [value, [conditional Response, new value]]

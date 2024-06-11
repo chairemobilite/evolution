@@ -13,29 +13,25 @@ import {
 import { ServerFieldUpdateCallback } from '../services/interviews/serverFieldUpdate';
 import { ServerValidation } from '../services/validations/serverValidation';
 
-interface ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface ProjectServerConfig {
     /**
      * Filters the interview object to return minimal data. Used server side
      * before sending validation list to server
      */
-    validationListFilter: (
-        interview: InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    ) => InterviewStatusAttributesBase<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    validationListFilter: (interview: InterviewListAttributes) => InterviewStatusAttributesBase;
     serverUpdateCallbacks: ServerFieldUpdateCallback[];
-    serverValidations: ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    serverValidations: ServerValidation;
     roleDefinitions: (() => void) | undefined;
     /**
      * This function is provided by surveys to validate and audit the complete responses.
      * It will receive the content of the validated_data and should return the
      * individual audits. It is optional. If the survey does not require auditing, just leave blank.
      */
-    auditInterview?: (
-        attributes: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    ) => Promise<SurveyObjectsWithAudits>;
+    auditInterview?: (attributes: InterviewAttributes) => Promise<SurveyObjectsWithAudits>;
 }
 
-export const defaultConfig: ProjectServerConfig<unknown, unknown, unknown, unknown> = {
-    validationListFilter: (interview: InterviewListAttributes<unknown, unknown, unknown, unknown>) => {
+export const defaultConfig: ProjectServerConfig = {
+    validationListFilter: (interview: InterviewListAttributes) => {
         const {
             id,
             uuid,
@@ -83,9 +79,7 @@ const projectConfig = Object.assign({}, defaultConfig);
  *
  * @param config The project specific configuration elements
  */
-export const setProjectConfig = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    config: Partial<ProjectServerConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
-) => {
+export const setProjectConfig = (config: Partial<ProjectServerConfig>) => {
     Object.assign(projectConfig, config);
 };
 

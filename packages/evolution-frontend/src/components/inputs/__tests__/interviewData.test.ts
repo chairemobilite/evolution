@@ -10,7 +10,7 @@ type CustomSurvey = {
     }
 }
 
-export const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+export const interviewAttributes: UserInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -23,7 +23,7 @@ export const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown,
         section2: {
             q1: 'test'
         }
-    },
+    } as any,
     validations: {
         section1: {
             q1: true,
@@ -32,7 +32,7 @@ export const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown,
         section2: {
             q1: true
         }
-    },
+    } as any,
     is_valid: true
 };
 

@@ -28,17 +28,14 @@ import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 
 // called whenever an update occurs in interview responses or when section is switched to
-export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const updateSection = (
     sectionShortname: string,
-    _interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    _interview: UserFrontendInterviewAttributes,
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
     user?: CliUser
-): [
-    UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    { [path: string]: unknown }
-] => {
+): [UserFrontendInterviewAttributes, { [path: string]: unknown }] => {
     let interview = _cloneDeep(_interview);
     let needToUpdate = true; // will stay true if an assigned value changed the initial value after a conditional failed
     let updateCount = 0;
@@ -59,17 +56,15 @@ export const updateSection = <CustomSurvey, CustomHousehold, CustomHome, CustomP
     return [interview, valuesByPath];
 };
 
-const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+const startUpdateInterviewCallback = async (
     next,
     dispatch,
     getState,
     requestedSectionShortname: string | null,
     valuesByPath: { [path: string]: unknown } = {},
     unsetPaths?: string[],
-    initialInterview?: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    callback?: (
-        interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    ) => void,
+    initialInterview?: UserFrontendInterviewAttributes,
+    callback?: (interview: UserFrontendInterviewAttributes) => void,
     history?: History
 ) => {
     try {
@@ -122,12 +117,14 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
             requestedSectionShortname
         ) as string;
 
-        const [updatedInterview, updatedValuesByPath] = updateSection<
-            CustomSurvey,
-            CustomHousehold,
-            CustomHome,
-            CustomPerson
-        >(sectionShortname, interview, affectedPaths, valuesByPath, false, user);
+        const [updatedInterview, updatedValuesByPath] = updateSection(
+            sectionShortname,
+            interview,
+            affectedPaths,
+            valuesByPath,
+            false,
+            user
+        );
 
         if (!updatedInterview.sectionLoaded || updatedInterview.sectionLoaded !== sectionShortname) {
             updatedValuesByPath['sectionLoaded'] = sectionShortname;
@@ -241,8 +238,8 @@ const startUpdateInterviewCallback = async <CustomSurvey, CustomHousehold, Custo
     }
 };
 
-export const updateInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const updateInterview = (
+    interview: UserFrontendInterviewAttributes,
     errors: {
         [path: string]: {
             [lang: string]: string;
@@ -250,36 +247,36 @@ export const updateInterview = <CustomSurvey, CustomHousehold, CustomHome, Custo
     } = {},
     submitted = false
 ) => ({
-        type: 'UPDATE_INTERVIEW',
-        interviewLoaded: true,
-        interview,
-        errors,
-        submitted
-    });
+    type: 'UPDATE_INTERVIEW',
+    interviewLoaded: true,
+    interview,
+    errors,
+    submitted
+});
 
-export const startUpdateInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const startUpdateInterview = (
     sectionShortname: string | null,
     valuesByPath?: { [path: string]: unknown },
     unsetPaths?: string[],
-    interview?: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview?: UserFrontendInterviewAttributes,
     callback?: () => void,
     history?: History
 ) => ({
-        queue: 'UPDATE_INTERVIEW',
-        callback: async (next, dispatch, getState) => {
-            await startUpdateInterviewCallback(
-                next,
-                dispatch,
-                getState,
-                sectionShortname,
-                valuesByPath,
-                unsetPaths,
-                interview,
-                callback,
-                history
-            );
-        }
-    });
+    queue: 'UPDATE_INTERVIEW',
+    callback: async (next, dispatch, getState) => {
+        await startUpdateInterviewCallback(
+            next,
+            dispatch,
+            getState,
+            sectionShortname,
+            valuesByPath,
+            unsetPaths,
+            interview,
+            callback,
+            history
+        );
+    }
+});
 
 export const addConsent = (consented: boolean) => ({
     type: 'ADD_CONSENT',
