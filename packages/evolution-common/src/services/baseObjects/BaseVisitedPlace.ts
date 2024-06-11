@@ -28,7 +28,6 @@ export type BaseVisitedPlaceAttributes = {
     departureTime?: number;
     activityCategory?: VPAttr.ActivityCategory;
     activity?: VPAttr.Activity;
-
 } & Weightable;
 
 export type ExtendedVisitedPlaceAttributes = BaseVisitedPlaceAttributes & { [key: string]: any };

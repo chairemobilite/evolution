@@ -65,7 +65,10 @@ export type SegmentAttributes = {
     driverUuid?: Optional<string>; // person uuid
     vehicleOccupancy?: Optional<number>; // positive integer
     carType?: Optional<SAttr.CarType>;
-} & StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & StartEndDateAndTimesAttributes &
+    UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type ExtendedSegmentAttributes = SegmentAttributes & SegmentWithComposedAttributes & { [key: string]: unknown };
 
@@ -108,14 +111,38 @@ export class Segment implements IValidatable {
 
         this.origin = ConstructorUtils.initializeComposedAttribute(params.origin, Junction.unserialize);
         this.destination = ConstructorUtils.initializeComposedAttribute(params.destination, Junction.unserialize);
-        this.transitDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.transitDeclaredRouting, Routing.unserialize);
-        this.walkingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.walkingDeclaredRouting, Routing.unserialize);
-        this.cyclingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.cyclingDeclaredRouting, Routing.unserialize);
-        this.drivingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(params.drivingDeclaredRouting, Routing.unserialize);
-        this.transitCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.transitCalculatedRoutings, Routing.unserialize);
-        this.walkingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.walkingCalculatedRoutings, Routing.unserialize);
-        this.cyclingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.cyclingCalculatedRoutings, Routing.unserialize);
-        this.drivingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(params.drivingCalculatedRoutings, Routing.unserialize);
+        this.transitDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
+            params.transitDeclaredRouting,
+            Routing.unserialize
+        );
+        this.walkingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
+            params.walkingDeclaredRouting,
+            Routing.unserialize
+        );
+        this.cyclingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
+            params.cyclingDeclaredRouting,
+            Routing.unserialize
+        );
+        this.drivingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
+            params.drivingDeclaredRouting,
+            Routing.unserialize
+        );
+        this.transitCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
+            params.transitCalculatedRoutings,
+            Routing.unserialize
+        );
+        this.walkingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
+            params.walkingCalculatedRoutings,
+            Routing.unserialize
+        );
+        this.cyclingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
+            params.cyclingCalculatedRoutings,
+            Routing.unserialize
+        );
+        this.drivingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
+            params.drivingCalculatedRoutings,
+            Routing.unserialize
+        );
     }
 
     /**
@@ -127,7 +154,7 @@ export class Segment implements IValidatable {
     }
 
     get modeCategory(): Optional<SAttr.ModeCategory> {
-        return this.mode ? SAttr.mapModeToModeCategory[this.mode] as SAttr.ModeCategory : undefined;
+        return this.mode ? (SAttr.mapModeToModeCategory[this.mode] as SAttr.ModeCategory) : undefined;
     }
 
     get attributes(): SegmentAttributes & SegmentWithComposedAttributes {
@@ -365,125 +392,113 @@ export class Segment implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Segment'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'mode',
-                dirtyParams.mode,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('mode', dirtyParams.mode, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('modeOtherSpecify', dirtyParams.modeOtherSpecify, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('driver', dirtyParams.driver, displayName));
+
+        errors.push(...ParamsValidatorUtils.isUuid('driverUuid', dirtyParams.driverUuid, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'modeOtherSpecify',
-                dirtyParams.modeOtherSpecify,
-                displayName
-            )
+            ...ParamsValidatorUtils.isPositiveInteger('vehicleOccupancy', dirtyParams.vehicleOccupancy, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'driver',
-                dirtyParams.driver,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isUuid(
-                'driverUuid',
-                dirtyParams.driverUuid,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'vehicleOccupancy',
-                dirtyParams.vehicleOccupancy,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'carType',
-                dirtyParams.carType,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('carType', dirtyParams.carType, displayName));
 
         const transitDeclaredRoutingAttributes = dirtyParams.transitDeclaredRouting;
         if (transitDeclaredRoutingAttributes !== undefined) {
             errors.push(
-                ...Routing.validateParams(transitDeclaredRoutingAttributes as { [key: string]: unknown }, 'TransitRouting')
+                ...Routing.validateParams(
+                    transitDeclaredRoutingAttributes as { [key: string]: unknown },
+                    'TransitRouting'
+                )
             );
         }
         const walkingDeclaredRoutingAttributes = dirtyParams.walkingDeclaredRouting;
         if (walkingDeclaredRoutingAttributes !== undefined) {
             errors.push(
-                ...Routing.validateParams(walkingDeclaredRoutingAttributes as { [key: string]: unknown }, 'WalkingRouting')
+                ...Routing.validateParams(
+                    walkingDeclaredRoutingAttributes as { [key: string]: unknown },
+                    'WalkingRouting'
+                )
             );
         }
         const cyclingDeclaredRoutingAttributes = dirtyParams.cyclingDeclaredRouting;
         if (cyclingDeclaredRoutingAttributes !== undefined) {
             errors.push(
-                ...Routing.validateParams(cyclingDeclaredRoutingAttributes as { [key: string]: unknown }, 'CyclingRouting')
+                ...Routing.validateParams(
+                    cyclingDeclaredRoutingAttributes as { [key: string]: unknown },
+                    'CyclingRouting'
+                )
             );
         }
         const drivingDeclaredRoutingAttributes = dirtyParams.drivingDeclaredRouting;
         if (drivingDeclaredRoutingAttributes !== undefined) {
             errors.push(
-                ...Routing.validateParams(drivingDeclaredRoutingAttributes as { [key: string]: unknown }, 'DrivingRouting')
+                ...Routing.validateParams(
+                    drivingDeclaredRoutingAttributes as { [key: string]: unknown },
+                    'DrivingRouting'
+                )
             );
         }
 
-        const transitCalculatedRoutingsAttributes = dirtyParams.transitCalculatedRoutings !== undefined ? dirtyParams.transitCalculatedRoutings as { [key: string]: unknown }[] : [];
+        const transitCalculatedRoutingsAttributes =
+            dirtyParams.transitCalculatedRoutings !== undefined
+                ? (dirtyParams.transitCalculatedRoutings as { [key: string]: unknown }[])
+                : [];
         for (let i = 0, countI = transitCalculatedRoutingsAttributes.length; i < countI; i++) {
             errors.push(
-                ...Routing.validateParams(transitCalculatedRoutingsAttributes[i] as { [key: string]: unknown }, 'TransitRouting')
+                ...Routing.validateParams(
+                    transitCalculatedRoutingsAttributes[i] as { [key: string]: unknown },
+                    'TransitRouting'
+                )
             );
         }
-        const walkingCalculatedRoutingsAttributes = dirtyParams.walkingCalculatedRoutings !== undefined ? dirtyParams.walkingCalculatedRoutings as { [key: string]: unknown }[] : [];
+        const walkingCalculatedRoutingsAttributes =
+            dirtyParams.walkingCalculatedRoutings !== undefined
+                ? (dirtyParams.walkingCalculatedRoutings as { [key: string]: unknown }[])
+                : [];
         for (let i = 0, countI = walkingCalculatedRoutingsAttributes.length; i < countI; i++) {
             errors.push(
-                ...Routing.validateParams(walkingCalculatedRoutingsAttributes[i] as { [key: string]: unknown }, 'WalkingRouting')
+                ...Routing.validateParams(
+                    walkingCalculatedRoutingsAttributes[i] as { [key: string]: unknown },
+                    'WalkingRouting'
+                )
             );
         }
-        const cyclingCalculatedRoutingsAttributes = dirtyParams.cyclingCalculatedRoutings !== undefined ? dirtyParams.cyclingCalculatedRoutings as { [key: string]: unknown }[] : [];
+        const cyclingCalculatedRoutingsAttributes =
+            dirtyParams.cyclingCalculatedRoutings !== undefined
+                ? (dirtyParams.cyclingCalculatedRoutings as { [key: string]: unknown }[])
+                : [];
         for (let i = 0, countI = cyclingCalculatedRoutingsAttributes.length; i < countI; i++) {
             errors.push(
-                ...Routing.validateParams(cyclingCalculatedRoutingsAttributes[i] as { [key: string]: unknown }, 'CyclingRouting')
+                ...Routing.validateParams(
+                    cyclingCalculatedRoutingsAttributes[i] as { [key: string]: unknown },
+                    'CyclingRouting'
+                )
             );
         }
-        const drivingCalculatedRoutingsAttributes = dirtyParams.drivingCalculatedRoutings !== undefined ? dirtyParams.drivingCalculatedRoutings as { [key: string]: unknown }[] : [];
+        const drivingCalculatedRoutingsAttributes =
+            dirtyParams.drivingCalculatedRoutings !== undefined
+                ? (dirtyParams.drivingCalculatedRoutings as { [key: string]: unknown }[])
+                : [];
         for (let i = 0, countI = drivingCalculatedRoutingsAttributes.length; i < countI; i++) {
             errors.push(
-                ...Routing.validateParams(drivingCalculatedRoutingsAttributes[i] as { [key: string]: unknown }, 'DrivingRouting')
+                ...Routing.validateParams(
+                    drivingCalculatedRoutingsAttributes[i] as { [key: string]: unknown },
+                    'DrivingRouting'
+                )
             );
         }
 

@@ -12,11 +12,7 @@ import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Place, PlaceAttributes, placeAttributes } from './Place';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 
-export const workPlaceAttributes = [
-    ...placeAttributes,
-    'parkingType',
-    'parkingFeeType'
-];
+export const workPlaceAttributes = [...placeAttributes, 'parkingType', 'parkingFeeType'];
 
 export type WorkPlaceAttributes = {
     parkingType?: Optional<PlAttr.ParkingType>;
@@ -25,13 +21,11 @@ export type WorkPlaceAttributes = {
 
 export type ExtendedWorkPlaceAttributes = WorkPlaceAttributes & { [key: string]: unknown };
 
-
 /*
  * A work place is a place associated with a person
  * where they go to work on a regular basis (usual work place)
  */
 export class WorkPlace extends Place<WorkPlaceAttributes> implements IValidatable {
-
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedWorkPlaceAttributes) {
@@ -97,21 +91,9 @@ export class WorkPlace extends Place<WorkPlaceAttributes> implements IValidatabl
         errors.push(...Place.validateParams(dirtyParams, displayName));
 
         // validate attributes:
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'parkingType',
-                dirtyParams.parkingType,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('parkingType', dirtyParams.parkingType, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'parkingFeeType',
-                dirtyParams.parkingFeeType,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('parkingFeeType', dirtyParams.parkingFeeType, displayName));
 
         return errors;
     }

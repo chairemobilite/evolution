@@ -51,7 +51,9 @@ export class BaseJunction extends Uuidable implements IValidatable {
 
     // params must be sanitized and must be valid:
     static unserialize(
-        params: BaseJunctionAttributes & { basePlace: BasePlaceAttributes & { address?: Optional<BaseAddressAttributes> } }
+        params: BaseJunctionAttributes & {
+            basePlace: BasePlaceAttributes & { address?: Optional<BaseAddressAttributes> };
+        }
     ): BaseJunction {
         return new BaseJunction({ ...params, basePlace: BasePlace.unserialize(params.basePlace) });
     }

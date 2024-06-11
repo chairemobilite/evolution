@@ -30,16 +30,9 @@ export const noWorkTripReasonValues = [
     'didMakeWorkTrips', // automatically assigned, not shown in choices
     'tripsUnknown', // automatically assigned, not shown in choices
     'usualWorkPlaceIsHome', // automatically assigned, not shown in choices
-    'nonApplicable'  // automatically assigned, not shown in choices
+    'nonApplicable' // automatically assigned, not shown in choices
 ] as const;
 export type NoWorkTripReason = (typeof noWorkTripReasonValues)[number];
 
-export const journeyTypeValues = [
-    'dayPart',
-    'day',
-    'weekEnd',
-    'week',
-    'longDistanceTrip',
-    'other'
-] as const;
+export const journeyTypeValues = ['dayPart', 'day', 'weekEnd', 'week', 'longDistanceTrip', 'other'] as const;
 export type JourneyType = (typeof journeyTypeValues)[number];

@@ -25,7 +25,8 @@ export const visitedPlaceAttributes = [
 export type VisitedPlaceAttributes = {
     activity?: Optional<VPAttr.Activity>;
     activityCategory?: Optional<VPAttr.ActivityCategory>;
-} & StartEndDateAndTimesAttributes & PlaceAttributes;
+} & StartEndDateAndTimesAttributes &
+    PlaceAttributes;
 
 export type ExtendedVisitedPlaceAttributes = VisitedPlaceAttributes & { [key: string]: unknown };
 
@@ -144,23 +145,10 @@ export class VisitedPlace extends Place<VisitedPlaceAttributes> implements IVali
         errors.push(...Place.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'activity',
-                dirtyParams.activity,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('activity', dirtyParams.activity, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'activityCategory',
-                dirtyParams.activityCategory,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('activityCategory', dirtyParams.activityCategory, displayName));
 
         return errors;
     }
 }
-

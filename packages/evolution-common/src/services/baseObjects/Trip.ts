@@ -22,22 +22,20 @@ import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttri
 import { TimePeriod } from './attributeTypes/GenericAttributes';
 import { getBirdDistanceMeters, getBirdSpeedKph } from '../../utils/PhysicsUtils';
 
-export const tripAttributes = [
-    ...startEndDateAndTimesAttributes,
-    '_weights',
-    '_isValid',
-    '_uuid'
-];
+export const tripAttributes = [...startEndDateAndTimesAttributes, '_weights', '_isValid', '_uuid'];
 
 export const tripAttributesWithComposedAttributes = [
     ...tripAttributes,
     'startPlace',
     'endPlace',
     'segments',
-    'junctions',
+    'junctions'
 ];
 
-export type TripAttributes = StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+export type TripAttributes = StartEndDateAndTimesAttributes &
+    UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type TripWithComposedAttributes = TripAttributes & {
     startPlace?: Optional<ExtendedVisitedPlaceAttributes>; // origin
@@ -47,7 +45,6 @@ export type TripWithComposedAttributes = TripAttributes & {
 };
 
 export type ExtendedTripAttributes = TripWithComposedAttributes & { [key: string]: unknown };
-
 
 /**
  * A trip include the travelling action between two places (visited places: origin|destination)
@@ -140,7 +137,9 @@ export class Trip implements IValidatable {
      * @returns {Mode[]} - Returns the transit modes, ignoring other modes
      */
     getTransitModes(): Mode[] {
-        return this.segments ? this.segments.filter((segment) => segment.isTransit()).map((segment) => segment.mode as Mode) : [];
+        return this.segments
+            ? this.segments.filter((segment) => segment.isTransit()).map((segment) => segment.mode as Mode)
+            : [];
     }
 
     /**
@@ -148,7 +147,9 @@ export class Trip implements IValidatable {
      * @returns {Mode[]} - Returns the non transit modes (ignoring transit modes)
      */
     getNonTransitModes(): Mode[] {
-        return this.segments ? this.segments.filter((segment) => !segment.isTransit()).map((segment) => segment.mode as Mode) : [];
+        return this.segments
+            ? this.segments.filter((segment) => !segment.isTransit()).map((segment) => segment.mode as Mode)
+            : [];
     }
 
     /**
@@ -357,58 +358,38 @@ export class Trip implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Trip'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
         const startPlaceAttributes = dirtyParams.startPlace as { [key: string]: unknown };
         if (startPlaceAttributes !== undefined) {
-            errors.push(
-                ...VisitedPlace.validateParams(startPlaceAttributes, 'StartVisitedPlace')
-            );
+            errors.push(...VisitedPlace.validateParams(startPlaceAttributes, 'StartVisitedPlace'));
         }
 
         const endPlaceAttributes = dirtyParams.endPlace as { [key: string]: unknown };
         if (endPlaceAttributes !== undefined) {
-            errors.push(
-                ...VisitedPlace.validateParams(endPlaceAttributes, 'EndVisitedPlace')
-            );
+            errors.push(...VisitedPlace.validateParams(endPlaceAttributes, 'EndVisitedPlace'));
         }
 
-        const segmentsAttributes = dirtyParams.segments !== undefined ? dirtyParams.segments as { [key: string]: unknown }[] : [];
+        const segmentsAttributes =
+            dirtyParams.segments !== undefined ? (dirtyParams.segments as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = segmentsAttributes.length; i < countI; i++) {
             const segmentAttributes = segmentsAttributes[i];
-            errors.push(
-                ...Segment.validateParams(segmentAttributes, `Segment ${i}`)
-            );
+            errors.push(...Segment.validateParams(segmentAttributes, `Segment ${i}`));
         }
 
-        const junctionsAttributes = dirtyParams.junctions !== undefined ? dirtyParams.junctions as { [key: string]: unknown }[] : [];
+        const junctionsAttributes =
+            dirtyParams.junctions !== undefined ? (dirtyParams.junctions as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = junctionsAttributes.length; i < countI; i++) {
             const junctionAttributes = junctionsAttributes[i];
-            errors.push(
-                ...Junction.validateParams(junctionAttributes, `Junction ${i}`)
-            );
+            errors.push(...Junction.validateParams(junctionAttributes, `Junction ${i}`));
         }
 
         return errors;

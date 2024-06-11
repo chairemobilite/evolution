@@ -46,7 +46,9 @@ export type VehicleAttributes = {
     acquiredYear?: Optional<number>; // date of acquisition by the owner or the organization
     licensePlateNumber?: Optional<string>;
     internalId?: Optional<string>; // This is an internal number used by an organization or a company to identify the vehicle
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type ExtendedVehicleAttributes = VehicleAttributes & { [key: string]: unknown };
 
@@ -59,10 +61,7 @@ export class Vehicle implements IValidatable {
     private _attributes: VehicleAttributes;
     private _customAttributes: { [key: string]: unknown };
 
-    static _confidentialAttributes = [
-        'licensePlateNumber',
-        'internalId'
-    ];
+    static _confidentialAttributes = ['licensePlateNumber', 'internalId'];
 
     private _organizationUuid?: Optional<string>; // allow reverse lookup: must be filled by Organization.
     private _ownerUuid?: Optional<string>; // allow reverse lookup: must be filled by Person.
@@ -255,132 +254,46 @@ export class Vehicle implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Vehicle'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
+        errors.push(...ParamsValidatorUtils.isString('make', dirtyParams.make, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('model', dirtyParams.model, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('type', dirtyParams.type, displayName));
+
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'make',
-                dirtyParams.make,
-                displayName
-            )
+            ...ParamsValidatorUtils.isPositiveInteger('capacitySeated', dirtyParams.capacitySeated, displayName)
         );
 
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'model',
-                dirtyParams.model,
-                displayName
-            )
+            ...ParamsValidatorUtils.isPositiveInteger('capacityStanding', dirtyParams.capacityStanding, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'type',
-                dirtyParams.type,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('modelYear', dirtyParams.modelYear, displayName));
+
+        errors.push(...ParamsValidatorUtils.isBoolean('isElectric', dirtyParams.isElectric, displayName));
+
+        errors.push(...ParamsValidatorUtils.isBoolean('isPluginHybrid', dirtyParams.isPluginHybrid, displayName));
+
+        errors.push(...ParamsValidatorUtils.isBoolean('isHybrid', dirtyParams.isHybrid, displayName));
+
+        errors.push(...ParamsValidatorUtils.isBoolean('isHydrogen', dirtyParams.isHydrogen, displayName));
+
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('acquiredYear', dirtyParams.acquiredYear, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'capacitySeated',
-                dirtyParams.capacitySeated,
-                displayName
-            )
+            ...ParamsValidatorUtils.isString('licensePlateNumber', dirtyParams.licensePlateNumber, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'capacityStanding',
-                dirtyParams.capacityStanding,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'modelYear',
-                dirtyParams.modelYear,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                'isElectric',
-                dirtyParams.isElectric,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                'isPluginHybrid',
-                dirtyParams.isPluginHybrid,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                'isHybrid',
-                dirtyParams.isHybrid,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                'isHydrogen',
-                dirtyParams.isHydrogen,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'acquiredYear',
-                dirtyParams.acquiredYear,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'licensePlateNumber',
-                dirtyParams.licensePlateNumber,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'internalId',
-                dirtyParams.internalId,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('internalId', dirtyParams.internalId, displayName));
 
         return errors;
     }

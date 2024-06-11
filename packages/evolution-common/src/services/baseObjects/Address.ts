@@ -61,10 +61,10 @@ export type AddressAttributes = {
     country: string;
     postalCode?: Optional<string>;
     addressId?: Optional<string>; // official address id, linking to governmental or postal data
-} & UuidableAttributes & ValidatebleAttributes;
+} & UuidableAttributes &
+    ValidatebleAttributes;
 
 export type ExtendedAddressAttributes = AddressAttributes & { [key: string]: unknown };
-
 
 /**
  * Address objects are created from official data sources and are used
@@ -77,16 +77,12 @@ export class Address implements IValidatable {
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedAddressAttributes) {
-
         params._uuid = Uuidable.getUuid(params._uuid);
 
         this._attributes = {} as AddressAttributes;
         this._customAttributes = {};
 
-        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
-            addressAttributes
-        );
+        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, addressAttributes);
         this._attributes = attributes;
         this._customAttributes = customAttributes;
     }
@@ -256,133 +252,47 @@ export class Address implements IValidatable {
         const errors: Error[] = [];
 
         // Validate params object:
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         // Validate _uuid
         errors.push(...Uuidable.validateParams(dirtyParams));
 
         // Validate _isValid
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         // Validate attributes
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'civicNumber',
-                dirtyParams.civicNumber,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('civicNumber', dirtyParams.civicNumber, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('civicNumberSuffix', dirtyParams.civicNumberSuffix, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('unitNumber', dirtyParams.unitNumber, displayName));
+
+        errors.push(...ParamsValidatorUtils.isNonEmptyString('streetName', dirtyParams.streetName, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'civicNumberSuffix',
-                dirtyParams.civicNumberSuffix,
-                displayName
-            )
+            ...ParamsValidatorUtils.isString('streetNameHomogenized', dirtyParams.streetNameHomogenized, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'unitNumber',
-                dirtyParams.unitNumber,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('streetNameId', dirtyParams.streetNameId, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isNonEmptyString(
-                'streetName',
-                dirtyParams.streetName,
-                displayName
-            )
+            ...ParamsValidatorUtils.isNonEmptyString('municipalityName', dirtyParams.municipalityName, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'streetNameHomogenized',
-                dirtyParams.streetNameHomogenized,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('municipalityCode', dirtyParams.municipalityCode, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'streetNameId',
-                dirtyParams.streetNameId,
-                displayName
-            )
+            ...ParamsValidatorUtils.isString('postalMunicipalityName', dirtyParams.postalMunicipalityName, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isNonEmptyString(
-                'municipalityName',
-                dirtyParams.municipalityName,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isNonEmptyString('region', dirtyParams.region, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'municipalityCode',
-                dirtyParams.municipalityCode,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isNonEmptyString('country', dirtyParams.country, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'postalMunicipalityName',
-                dirtyParams.postalMunicipalityName,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('postalCode', dirtyParams.postalCode, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isNonEmptyString(
-                'region',
-                dirtyParams.region,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isNonEmptyString(
-                'country',
-                dirtyParams.country,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'postalCode',
-                dirtyParams.postalCode,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'addressId',
-                dirtyParams.addressId,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('addressId', dirtyParams.addressId, displayName));
 
         return errors;
     }

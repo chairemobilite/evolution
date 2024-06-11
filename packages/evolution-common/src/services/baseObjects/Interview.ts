@@ -30,7 +30,7 @@ export const interviewAttributes = [
     '_language',
     '_source',
     '_isCompleted',
-    '_device',
+    '_device'
 ];
 
 export const interviewAttributesWithComposedAttributes = [
@@ -56,7 +56,8 @@ export type InterviewAttributes = {
     _isCompleted?: boolean;
 
     _device?: IAttr.Device;
-} & UuidableAttributes & ValidatebleAttributes;
+} & UuidableAttributes &
+    ValidatebleAttributes;
 
 export type InterviewWithComposedAttributes = InterviewAttributes & {
     household?: Optional<ExtendedHouseholdAttributes>;
@@ -78,10 +79,7 @@ export class Interview implements IValidatable {
     private _person?: Optional<Person>;
     private _organization?: Optional<Organization>;
 
-    static _confidentialAttributes = [
-        'contactPhoneNumber',
-        'contactEmail'
-    ];
+    static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
 
     constructor(params: ExtendedInterviewAttributes) {
         params._uuid = Uuidable.getUuid(params._uuid);
@@ -97,20 +95,11 @@ export class Interview implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.household = ConstructorUtils.initializeComposedAttribute(
-            params.household,
-            Household.unserialize
-        );
+        this.household = ConstructorUtils.initializeComposedAttribute(params.household, Household.unserialize);
 
-        this.person = ConstructorUtils.initializeComposedAttribute(
-            params.person,
-            Person.unserialize
-        );
+        this.person = ConstructorUtils.initializeComposedAttribute(params.person, Person.unserialize);
 
-        this.organization = ConstructorUtils.initializeComposedAttribute(
-            params.organization,
-            Organization.unserialize
-        );
+        this.organization = ConstructorUtils.initializeComposedAttribute(params.organization, Organization.unserialize);
     }
 
     get attributes(): InterviewAttributes {
@@ -278,58 +267,22 @@ export class Interview implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Interview'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('accessCode', dirtyParams.accessCode, displayName));
+
+        errors.push(...ParamsValidatorUtils.isDateString('assignedDate', dirtyParams.assignedDate, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'accessCode',
-                dirtyParams.accessCode,
-                displayName
-            )
+            ...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'assignedDate',
-                dirtyParams.assignedDate,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'contactPhoneNumber',
-                dirtyParams.contactPhoneNumber,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'contactEmail',
-                dirtyParams.contactEmail,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('contactEmail', dirtyParams.contactEmail, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isBoolean(
@@ -339,76 +292,31 @@ export class Interview implements IValidatable {
             )
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                '_startedAt',
-                dirtyParams._startedAt,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('_startedAt', dirtyParams._startedAt, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                '_updatedAt',
-                dirtyParams._updatedAt,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('_updatedAt', dirtyParams._updatedAt, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                '_completedAt',
-                dirtyParams._completedAt,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('_completedAt', dirtyParams._completedAt, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                '_language',
-                dirtyParams._language,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('_language', dirtyParams._language, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                '_source',
-                dirtyParams._source,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('_source', dirtyParams._source, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isCompleted',
-                dirtyParams._isCompleted,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isCompleted', dirtyParams._isCompleted, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                '_device',
-                dirtyParams._device,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('_device', dirtyParams._device, displayName));
 
-        const householdAttributes = dirtyParams.household !== undefined ? dirtyParams.household as { [key: string]: unknown } : {};
-        errors.push(
-            ...Household.validateParams(householdAttributes, 'Household')
-        );
+        const householdAttributes =
+            dirtyParams.household !== undefined ? (dirtyParams.household as { [key: string]: unknown }) : {};
+        errors.push(...Household.validateParams(householdAttributes, 'Household'));
 
-        const personAttributes = dirtyParams.person !== undefined ? dirtyParams.person as { [key: string]: unknown } : {};
-        errors.push(
-            ...Person.validateParams(personAttributes, 'Person')
-        );
+        const personAttributes =
+            dirtyParams.person !== undefined ? (dirtyParams.person as { [key: string]: unknown }) : {};
+        errors.push(...Person.validateParams(personAttributes, 'Person'));
 
-        const organizationAttributes = dirtyParams.organization !== undefined ? dirtyParams.organization as { [key: string]: unknown } : {};
-        errors.push(
-            ...Organization.validateParams(organizationAttributes, 'Organization')
-        );
+        const organizationAttributes =
+            dirtyParams.organization !== undefined ? (dirtyParams.organization as { [key: string]: unknown }) : {};
+        errors.push(...Organization.validateParams(organizationAttributes, 'Organization'));
 
         return errors;
     }

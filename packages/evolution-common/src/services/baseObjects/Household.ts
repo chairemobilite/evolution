@@ -34,12 +34,7 @@ export const householdAttributes = [
     'contactEmail'
 ];
 
-export const householdAttributesWithComposedAttributes = [
-    ...householdAttributes,
-    'members',
-    'vehicles',
-    'home'
-];
+export const householdAttributesWithComposedAttributes = [...householdAttributes, 'members', 'vehicles', 'home'];
 
 export type HouseholdAttributes = {
     size?: Optional<number>;
@@ -53,7 +48,9 @@ export type HouseholdAttributes = {
     incomeLevel?: Optional<HAttr.IncomeLevel>;
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type HouseholdWithComposedAttributes = HouseholdAttributes & {
     members?: Optional<ExtendedPersonAttributes[]>;
@@ -75,10 +72,7 @@ export class Household implements IValidatable {
     private _home?: Optional<Place<PlaceAttributes>>;
     private _vehicles?: Optional<Vehicle[]>;
 
-    static _confidentialAttributes = [
-        'contactPhoneNumber',
-        'contactEmail'
-    ];
+    static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
 
     constructor(params: ExtendedHouseholdAttributes) {
         params._uuid = Uuidable.getUuid(params._uuid);
@@ -94,20 +88,11 @@ export class Household implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.members = ConstructorUtils.initializeComposedArrayAttributes(
-            params.members,
-            Person.unserialize
-        );
+        this.members = ConstructorUtils.initializeComposedArrayAttributes(params.members, Person.unserialize);
 
-        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
-            params.vehicles,
-            Vehicle.unserialize
-        );
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params.vehicles, Vehicle.unserialize);
 
-        this.home = ConstructorUtils.initializeComposedAttribute(
-            params.home,
-            Place.unserialize
-        );
+        this.home = ConstructorUtils.initializeComposedAttribute(params.home, Place.unserialize);
     }
 
     get attributes(): HouseholdAttributes {
@@ -275,51 +260,21 @@ export class Household implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Household'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'size',
-                dirtyParams.size,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('size', dirtyParams.size, displayName));
+
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('carNumber', dirtyParams.carNumber, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'carNumber',
-                dirtyParams.carNumber,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'twoWheelNumber',
-                dirtyParams.twoWheelNumber,
-                displayName
-            )
+            ...ParamsValidatorUtils.isPositiveInteger('twoWheelNumber', dirtyParams.twoWheelNumber, displayName)
         );
 
         errors.push(
@@ -331,20 +286,10 @@ export class Household implements IValidatable {
         );
 
         errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'electricCarNumber',
-                dirtyParams.electricCarNumber,
-                displayName
-            )
+            ...ParamsValidatorUtils.isPositiveInteger('electricCarNumber', dirtyParams.electricCarNumber, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'category',
-                dirtyParams.category,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('category', dirtyParams.category, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isBoolean(
@@ -355,57 +300,33 @@ export class Household implements IValidatable {
         );
 
         errors.push(
-            ...ParamsValidatorUtils.isArrayOfStrings(
-                'homeCarParkings',
-                dirtyParams.homeCarParkings,
-                displayName
-            )
+            ...ParamsValidatorUtils.isArrayOfStrings('homeCarParkings', dirtyParams.homeCarParkings, displayName)
         );
+
+        errors.push(...ParamsValidatorUtils.isString('incomeLevel', dirtyParams.incomeLevel, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'incomeLevel',
-                dirtyParams.incomeLevel,
-                displayName
-            )
+            ...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'contactPhoneNumber',
-                dirtyParams.contactPhoneNumber,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('contactEmail', dirtyParams.contactEmail, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'contactEmail',
-                dirtyParams.contactEmail,
-                displayName
-            )
-        );
-
-        const membersAttributes = dirtyParams.members !== undefined ? dirtyParams.members as { [key: string]: unknown }[] : [];
+        const membersAttributes =
+            dirtyParams.members !== undefined ? (dirtyParams.members as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = membersAttributes.length; i < countI; i++) {
             const memberAttributes = membersAttributes[i];
-            errors.push(
-                ...Person.validateParams(memberAttributes, `Person ${i}`)
-            );
+            errors.push(...Person.validateParams(memberAttributes, `Person ${i}`));
         }
 
-        const vehiclesAttributes = dirtyParams.vehicles !== undefined ? dirtyParams.vehicles as { [key: string]: unknown }[] : [];
+        const vehiclesAttributes =
+            dirtyParams.vehicles !== undefined ? (dirtyParams.vehicles as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = vehiclesAttributes.length; i < countI; i++) {
             const vehicleAttributes = vehiclesAttributes[i];
-            errors.push(
-                ...Vehicle.validateParams(vehicleAttributes, `Vehicle ${i}`)
-            );
+            errors.push(...Vehicle.validateParams(vehicleAttributes, `Vehicle ${i}`));
         }
 
-        const homeAttributes = dirtyParams.home !== undefined ? dirtyParams.home as { [key: string]: unknown } : {};
-        errors.push(
-            ...Place.validateParams(homeAttributes, 'Home')
-        );
+        const homeAttributes = dirtyParams.home !== undefined ? (dirtyParams.home as { [key: string]: unknown }) : {};
+        errors.push(...Place.validateParams(homeAttributes, 'Home'));
 
         return errors;
     }

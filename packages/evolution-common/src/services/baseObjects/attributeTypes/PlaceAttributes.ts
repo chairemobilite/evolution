@@ -9,12 +9,7 @@
 
 export type GeocodingPrecisionCategory = string; // TODO: add normalized precision levels
 
-export const lastActionValues = [
-    'findPlace',
-    'mapClicked',
-    'markerDragged',
-    'preGeocoded'
-] as const;
+export const lastActionValues = ['findPlace', 'mapClicked', 'markerDragged', 'preGeocoded'] as const;
 export type LastAction = (typeof lastActionValues)[number];
 
 export const transitPlaceTypeValues = [
@@ -34,14 +29,7 @@ export const transitPlaceTypeValues = [
 ] as const;
 export type TransitPlaceType = (typeof transitPlaceTypeValues)[number];
 
-export const parkingTypeValues = [
-    'interior',
-    'exterior',
-    'streetside',
-    'other',
-    'dontKnow',
-    'nonApplicable'
-] as const;
+export const parkingTypeValues = ['interior', 'exterior', 'streetside', 'other', 'dontKnow', 'nonApplicable'] as const;
 export type ParkingType = (typeof parkingTypeValues)[number];
 
 export const residentialParkingTypeValues = [
@@ -90,4 +78,3 @@ export const schoolParkingFeeTypeValues = [
     'nonApplicable'
 ] as const;
 export type SchoolParkingFeeType = (typeof schoolParkingFeeTypeValues)[number];
-

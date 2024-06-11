@@ -15,7 +15,7 @@ export const startEndDateAndTimesAttributes = [
     'startTimePeriod',
     'endDate',
     'endTime',
-    'endTimePeriod',
+    'endTimePeriod'
 ] as const;
 
 export type StartEndDateAndTimesAttributes = {
@@ -25,14 +25,13 @@ export type StartEndDateAndTimesAttributes = {
     endDate?: Optional<string>;
     endTime?: Optional<number>;
     endTimePeriod?: Optional<TimePeriod>;
-}
+};
 
 /**
  * A StartEndable is an object that has
  * a start and a end datetime and/or time period
  */
 export class StartEndable {
-
     /**
      * validates provided start and end date and time params
      * @param dirtyParams the params input
@@ -44,53 +43,17 @@ export class StartEndable {
 
         displayName = displayName ? displayName + ' StartEndable' : 'StartEndable';
 
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'startDate',
-                dirtyParams.startDate,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isDateString('startDate', dirtyParams.startDate, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'startTime',
-                dirtyParams.startTime,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('startTime', dirtyParams.startTime, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'startTimePeriod',
-                dirtyParams.startTimePeriod,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('startTimePeriod', dirtyParams.startTimePeriod, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isDateString(
-                'endDate',
-                dirtyParams.endDate,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isDateString('endDate', dirtyParams.endDate, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'endTime',
-                dirtyParams.endTime,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('endTime', dirtyParams.endTime, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'endTimePeriod',
-                dirtyParams.endTimePeriod,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('endTimePeriod', dirtyParams.endTimePeriod, displayName));
         return errors;
     }
 
@@ -151,5 +114,4 @@ export class StartEndable {
         }
         return undefined;
     }
-
 }

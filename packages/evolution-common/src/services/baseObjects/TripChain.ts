@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -29,14 +28,10 @@ export const tripChainAttributes = [
     'isMultiLoop',
     'isConstrained',
     'mainActivity',
-    'mainActivityCategory',
+    'mainActivityCategory'
 ];
 
-export const tripChainAttributesWithComposedAttributes = [
-    ...tripChainAttributes,
-    'trips',
-    'visitedPlaces',
-];
+export const tripChainAttributesWithComposedAttributes = [...tripChainAttributes, 'trips', 'visitedPlaces'];
 
 export type TripChainAttributes = {
     category?: Optional<TCAttr.TripChainCategory>;
@@ -44,7 +39,10 @@ export type TripChainAttributes = {
     isConstrained?: Optional<boolean>;
     mainActivity?: Optional<VPAttr.Activity>;
     mainActivityCategory?: Optional<VPAttr.ActivityCategory>;
-} & StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & StartEndDateAndTimesAttributes &
+    UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type TripChainWithComposedAttributes = TripChainAttributes & {
     trips?: Optional<ExtendedTripAttributes[]>;
@@ -90,7 +88,10 @@ export class TripChain implements IValidatable {
         this._customAttributes = customAttributes;
 
         this.trips = ConstructorUtils.initializeComposedArrayAttributes(params.trips, Trip.unserialize);
-        this.visitedPlaces = ConstructorUtils.initializeComposedArrayAttributes(params.visitedPlaces, VisitedPlace.unserialize);
+        this.visitedPlaces = ConstructorUtils.initializeComposedArrayAttributes(
+            params.visitedPlaces,
+            VisitedPlace.unserialize
+        );
     }
 
     get attributes(): TripChainAttributes {
@@ -258,84 +259,40 @@ export class TripChain implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'TripChain'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'category',
-                dirtyParams.category,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('category', dirtyParams.category, displayName));
+
+        errors.push(...ParamsValidatorUtils.isBoolean('isMultiLoop', dirtyParams.isMultiLoop, displayName));
+
+        errors.push(...ParamsValidatorUtils.isBoolean('isConstrained', dirtyParams.isConstrained, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('mainActivity', dirtyParams.mainActivity, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                'isMultiLoop',
-                dirtyParams.isMultiLoop,
-                displayName
-            )
+            ...ParamsValidatorUtils.isString('mainActivityCategory', dirtyParams.mainActivityCategory, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                'isConstrained',
-                dirtyParams.isConstrained,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'mainActivity',
-                dirtyParams.mainActivity,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'mainActivityCategory',
-                dirtyParams.mainActivityCategory,
-                displayName
-            )
-        );
-
-        const tripsAttributes = dirtyParams.trips !== undefined ? dirtyParams.trips as { [key: string]: unknown }[] : [];
+        const tripsAttributes =
+            dirtyParams.trips !== undefined ? (dirtyParams.trips as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = tripsAttributes.length; i < countI; i++) {
             const tripAttributes = tripsAttributes[i];
-            errors.push(
-                ...Trip.validateParams(tripAttributes, 'Trip')
-            );
+            errors.push(...Trip.validateParams(tripAttributes, 'Trip'));
         }
 
-        const visitedPlacesAttributes = dirtyParams.visitedPlaces !== undefined ? dirtyParams.visitedPlaces as { [key: string]: unknown }[] : [];
+        const visitedPlacesAttributes =
+            dirtyParams.visitedPlaces !== undefined ? (dirtyParams.visitedPlaces as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = visitedPlacesAttributes.length; i < countI; i++) {
             const visitedPlaceAttributes = visitedPlacesAttributes[i];
-            errors.push(
-                ...VisitedPlace.validateParams(visitedPlaceAttributes, 'VisitedPlace')
-            );
+            errors.push(...VisitedPlace.validateParams(visitedPlaceAttributes, 'VisitedPlace'));
         }
 
         return errors;

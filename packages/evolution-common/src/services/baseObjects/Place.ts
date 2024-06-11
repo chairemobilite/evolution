@@ -34,13 +34,10 @@ export const placeAttributes = [
     'geocodingQueryString',
     'lastAction',
     'deviceUsed',
-    'zoom',
+    'zoom'
 ];
 
-export const placeComposedAttributes = [
-    ...placeAttributes,
-    'address'
-];
+export const placeComposedAttributes = [...placeAttributes, 'address'];
 
 export type PlaceAttributes = {
     geography?: Optional<GeoJSON.Feature<GeoJSON.Point>>;
@@ -57,14 +54,15 @@ export type PlaceAttributes = {
     lastAction?: Optional<LastAction>;
     deviceUsed?: Optional<Device>;
     zoom?: Optional<number>;
-} & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type PlaceWithComposedAttributes = PlaceAttributes & {
     address?: AddressAttributes;
 };
 
 export type ExtendedPlaceAttributes = PlaceWithComposedAttributes & { [key: string]: unknown };
-
 
 /**
  * A place is a location (GeoJSON point) with attributes.
@@ -79,23 +77,16 @@ export class Place<ChildAttributes> implements IValidatable {
     static _confidentialAttributes = [];
 
     constructor(params: ChildAttributes & ExtendedPlaceAttributes, childPlaceAttributes: string[] = placeAttributes) {
-
         params._uuid = Uuidable.getUuid(params._uuid);
 
         this._attributes = {} as ChildAttributes & PlaceAttributes;
         this._customAttributes = {};
 
-        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
-            childPlaceAttributes
-        );
+        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, childPlaceAttributes);
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.address = ConstructorUtils.initializeComposedAttribute(
-            params.address,
-            Address.unserialize
-        );
+        this.address = ConstructorUtils.initializeComposedAttribute(params.address, Address.unserialize);
     }
 
     /**
@@ -103,7 +94,9 @@ export class Place<ChildAttributes> implements IValidatable {
      * @returns {Optional<boolean>} - Returns true if the geography attribute is valid, false if not, or undefined if no geography
      */
     geographyIsValid(): Optional<boolean> {
-        return this.geography ? isFeature(this.geography) && this.geography.geometry && isPoint(this.geography.geometry) : undefined;
+        return this.geography
+            ? isFeature(this.geography) && this.geography.geometry && isPoint(this.geography.geometry)
+            : undefined;
     }
 
     get attributes(): ChildAttributes & PlaceAttributes {
@@ -295,96 +288,33 @@ export class Place<ChildAttributes> implements IValidatable {
         const errors: Error[] = [];
 
         // Validate params object:
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         // Validate _uuid:
         errors.push(...Uuidable.validateParams(dirtyParams));
 
         // Validate _isValid:
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         // Validate _weights:
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
-        errors.push(
-            ...ParamsValidatorUtils.isGeojsonPoint(
-                'geography',
-                dirtyParams.geography,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isGeojsonPoint('geography', dirtyParams.geography, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'name',
-                dirtyParams.name,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('name', dirtyParams.name, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'shortname',
-                dirtyParams.shortname,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('shortname', dirtyParams.shortname, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'osmId',
-                dirtyParams.osmId,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('osmId', dirtyParams.osmId, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'landRoleId',
-                dirtyParams.landRoleId,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('landRoleId', dirtyParams.landRoleId, displayName));
 
+        errors.push(...ParamsValidatorUtils.isString('postalId', dirtyParams.postalId, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'postalId',
-                dirtyParams.postalId,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('buildingId', dirtyParams.buildingId, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'buildingId',
-                dirtyParams.buildingId,
-                displayName
-            )
-        );
-
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'internalId',
-                dirtyParams.internalId,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('internalId', dirtyParams.internalId, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isString(
@@ -403,36 +333,14 @@ export class Place<ChildAttributes> implements IValidatable {
         );
 
         errors.push(
-            ...ParamsValidatorUtils.isString(
-                'geocodingQueryString',
-                dirtyParams.geocodingQueryString,
-                displayName
-            )
+            ...ParamsValidatorUtils.isString('geocodingQueryString', dirtyParams.geocodingQueryString, displayName)
         );
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'lastAction',
-                dirtyParams.lastAction,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('lastAction', dirtyParams.lastAction, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'deviceUsed',
-                dirtyParams.deviceUsed,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('deviceUsed', dirtyParams.deviceUsed, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger(
-                'zoom',
-                dirtyParams.zoom,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('zoom', dirtyParams.zoom, displayName));
 
         const addressAttributes = dirtyParams.address as { [key: string]: unknown };
         if (addressAttributes) {
@@ -441,9 +349,4 @@ export class Place<ChildAttributes> implements IValidatable {
 
         return errors;
     }
-
 }
-
-
-
-

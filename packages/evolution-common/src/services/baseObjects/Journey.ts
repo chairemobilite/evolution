@@ -19,26 +19,17 @@ import { TripChain, ExtendedTripChainAttributes } from './TripChain';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
 
-export const journeyAttributes = [
-    ...startEndDateAndTimesAttributes,
-    '_weights',
-    '_isValid',
-    '_uuid',
-    'name',
-    'type',
-];
+export const journeyAttributes = [...startEndDateAndTimesAttributes, '_weights', '_isValid', '_uuid', 'name', 'type'];
 
-export const journeyAttributesWithComposedAttributes = [
-    ...journeyAttributes,
-    'visitedPlaces',
-    'trips',
-    'tripChains',
-];
+export const journeyAttributesWithComposedAttributes = [...journeyAttributes, 'visitedPlaces', 'trips', 'tripChains'];
 
 export type JourneyAttributes = {
     name?: Optional<string>;
     type?: Optional<JAttr.JourneyType>;
-} & StartEndDateAndTimesAttributes & UuidableAttributes & WeightableAttributes & ValidatebleAttributes;
+} & StartEndDateAndTimesAttributes &
+    UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
 export type JourneyWithComposedAttributes = JourneyAttributes & {
     visitedPlaces?: Optional<ExtendedVisitedPlaceAttributes[]>;
@@ -235,68 +226,39 @@ export class Journey implements IValidatable {
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Journey'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...ParamsValidatorUtils.isRequired(
-            'params',
-            dirtyParams,
-            displayName
-        ));
-        errors.push(...ParamsValidatorUtils.isObject(
-            'params',
-            dirtyParams,
-            displayName
-        ));
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                '_isValid',
-                dirtyParams._isValid,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'name',
-                dirtyParams.name,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('name', dirtyParams.name, displayName));
 
-        errors.push(
-            ...ParamsValidatorUtils.isString(
-                'type',
-                dirtyParams.type,
-                displayName
-            )
-        );
+        errors.push(...ParamsValidatorUtils.isString('type', dirtyParams.type, displayName));
 
-        const visitedPlacesAttributes = dirtyParams.visitedPlaces !== undefined ? dirtyParams.visitedPlaces as { [key: string]: unknown }[] : [];
+        const visitedPlacesAttributes =
+            dirtyParams.visitedPlaces !== undefined ? (dirtyParams.visitedPlaces as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = visitedPlacesAttributes.length; i < countI; i++) {
             const visitedPlaceAttributes = visitedPlacesAttributes[i];
-            errors.push(
-                ...VisitedPlace.validateParams(visitedPlaceAttributes, 'VisitedPlace')
-            );
+            errors.push(...VisitedPlace.validateParams(visitedPlaceAttributes, 'VisitedPlace'));
         }
 
-        const tripsAttributes = dirtyParams.trips !== undefined ? dirtyParams.trips as { [key: string]: unknown }[] : [];
+        const tripsAttributes =
+            dirtyParams.trips !== undefined ? (dirtyParams.trips as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = tripsAttributes.length; i < countI; i++) {
             const tripAttributes = tripsAttributes[i];
-            errors.push(
-                ...Trip.validateParams(tripAttributes, 'Trip')
-            );
+            errors.push(...Trip.validateParams(tripAttributes, 'Trip'));
         }
 
-        const tripChainsAttributes = dirtyParams.tripChains !== undefined ? dirtyParams.tripChains as { [key: string]: unknown }[] : [];
+        const tripChainsAttributes =
+            dirtyParams.tripChains !== undefined ? (dirtyParams.tripChains as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = tripChainsAttributes.length; i < countI; i++) {
             const tripChainAttributes = tripChainsAttributes[i];
-            errors.push(
-                ...TripChain.validateParams(tripChainAttributes, 'TripChain')
-            );
+            errors.push(...TripChain.validateParams(tripChainAttributes, 'TripChain'));
         }
 
         return errors;
