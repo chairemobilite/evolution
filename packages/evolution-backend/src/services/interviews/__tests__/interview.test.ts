@@ -40,7 +40,7 @@ type CustomSurvey = {
     }
 }
 
-const interviewAttributes: InterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+const interviewAttributes: InterviewAttributes = {
     uuid: uuidV4(),
     id: 4,
     participant_id: 4,
@@ -53,7 +53,7 @@ const interviewAttributes: InterviewAttributes<CustomSurvey, unknown, unknown, u
             fieldA: 'a',
             fieldB: 'b'
         }
-    },
+    } as any,
     survey_id: 1,
     validations: {},
     logs: []
@@ -545,7 +545,7 @@ describe('copyResponsesToValidatedData', () => {
                 fieldA: 'test',
                 fieldB: 'changed'
             }
-        },
+        } as any,
 
         await copyResponsesToValidatedData(testAttributes);
         expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.responses));
@@ -567,11 +567,11 @@ describe('copyResponsesToValidatedData', () => {
                 fieldB: 'changed'
             },
             _validationComment: validationComment
-        },
+        } as any,
 
         await copyResponsesToValidatedData(testAttributes);
         expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.responses));
-        expect(testAttributes.validated_data._validationComment).toEqual(validationComment);
+        expect(testAttributes.validated_data?._validationComment).toEqual(validationComment);
         expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
         expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { validated_data: testAttributes.validated_data });
     });

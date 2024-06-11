@@ -13,14 +13,14 @@ import { I18nData } from 'evolution-common/lib/utils/helpers';
  * @returns An array where the first value is a boolean indicating if the value
  * is valid and the second value is the error message if the value is invalid
  */
-export const checkValidations = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    validations: ValidationFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined,
+export const checkValidations = (
+    validations: ValidationFunction | undefined,
     value: unknown | undefined,
     customValue: unknown | undefined,
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserInterviewAttributes,
     path: string,
     customPath?: string
-): [boolean, I18nData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> | undefined] => {
+): [boolean, I18nData | undefined] => {
     if (typeof validations === 'function') {
         try {
             const validationsGroup = validations(value, customValue, interview, path, customPath);
@@ -39,9 +39,7 @@ export const checkValidations = <CustomSurvey, CustomHousehold, CustomHome, Cust
     return [true, undefined];
 };
 
-export const validateAllWidgets = function <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) {
+export const validateAllWidgets = function (interview: UserInterviewAttributes) {
     // TODO Move the allWidgetsValid out of the interview type
     return (interview as any).allWidgetsValid;
 };

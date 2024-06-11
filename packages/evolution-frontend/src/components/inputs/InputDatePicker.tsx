@@ -17,20 +17,13 @@ import { InputDatePickerType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
 
-export type InputDatePickerProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputDatePickerProps = CommonInputProps & {
     value?: string;
     inputRef?: React.LegacyRef<DatePicker>;
-    widgetConfig: InputDatePickerType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputDatePickerType;
 };
 
-export const InputDatePicker = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputDatePickerProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-) => {
+export const InputDatePicker = (props: InputDatePickerProps & WithTranslation) => {
     const maxDate = surveyHelper.parse(props.widgetConfig.maxDate, props.interview, props.path, props.user);
     const minDate = surveyHelper.parse(props.widgetConfig.minDate, props.interview, props.path, props.user);
     if (
@@ -76,4 +69,4 @@ export const InputDatePicker = <CustomSurvey, CustomHousehold, CustomHome, Custo
     );
 };
 
-export default withTranslation()(InputDatePicker) as React.FunctionComponent<InputDatePickerProps<any, any, any, any>>;
+export default withTranslation()(InputDatePicker);

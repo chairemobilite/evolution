@@ -36,23 +36,23 @@ import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
 import { UserFrontendInterviewAttributes, WidgetStatus } from '../../services/interviews/interview';
 import InputWidgetWrapper from './widgets/InputWidgetWrapper';
 
-interface QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface QuestionProps {
     path: string;
     customPath?: string;
     section: string;
     loadingState: number;
-    widgetConfig: QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: QuestionWidgetConfig;
     join?: boolean;
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserInterviewAttributes;
     user: CliUser;
-    widgetStatus: WidgetStatus<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetStatus: WidgetStatus;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;
     startUpdateInterview: (
         sectionShortname: string | null,
         valuesByPath?: { [path: string]: unknown },
         unsetPaths?: string[],
-        interview?: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+        interview?: UserFrontendInterviewAttributes,
         callback?: () => void,
         history?: History
     ) => void;
@@ -62,17 +62,10 @@ type QuestionState = {
     modalIsOpen: boolean;
 };
 
-export class Question<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> extends React.Component<
-    QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithSurveyContextProps & WithTranslation,
-    QuestionState
-> {
+export class Question extends React.Component<QuestionProps & WithSurveyContextProps & WithTranslation, QuestionState> {
     private inputRef: React.RefObject<HTMLInputElement> = React.createRef();
 
-    constructor(
-        props: QuestionProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> &
-            WithSurveyContextProps &
-            WithTranslation
-    ) {
+    constructor(props: QuestionProps & WithSurveyContextProps & WithTranslation) {
         super(props);
 
         this.state = {

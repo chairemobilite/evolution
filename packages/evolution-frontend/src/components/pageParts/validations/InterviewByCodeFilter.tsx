@@ -21,10 +21,10 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
  * @param param0 description of the filtered column
  * @returns
  */
-export const InterviewByCodeFilter = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>({
+export const InterviewByCodeFilter = ({
     t,
     column: { filterValue, setFilter }
-}: FilterProps<InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & WithTranslation) => {
+}: FilterProps<InterviewListAttributes> & WithTranslation) => {
     const [currentValue, setCurrentValue] = React.useState(
         !_isBlank(filterValue) && filterValue.value ? filterValue.value : filterValue
     );

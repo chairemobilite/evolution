@@ -71,7 +71,7 @@ describe('updateAudits', () => {
 
 describe('runAndSaveInterviewAudits', () => {
 
-    const interviewAttributes: InterviewAttributes<any, any, any, any> = {
+    const interviewAttributes: InterviewAttributes = {
         id: interviewId,
         uuid: 'arbitrary',
         logs: [],
@@ -84,7 +84,7 @@ describe('runAndSaveInterviewAudits', () => {
                 _uuid: 'arbitraryUuid',
                 field1: 3
             }
-        },
+        } as any,
         validations: {},
         is_completed: false,
         validated_data: {
@@ -95,7 +95,7 @@ describe('runAndSaveInterviewAudits', () => {
                 field1: 3,
                 newField: 'added'
             }
-        }
+        } as any
     };
 
     const mockInterviewAudits = jest.fn();

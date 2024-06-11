@@ -6,19 +6,9 @@
  */
 import { WidgetConfig } from '../WidgetConfig';
 
-type CustomSurvey = {
-    test?: {
-        foo?: string;
-    };
-    comments: string;
-}
-type CustomHousehold = {
-    foo: string;
-}
-
 // Simply make sure various objects are recognize as WidgetConfig object. Any fault should result in compilation error.
 test('Test text assignation', () => {
-    const widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown> = {
+    const widgetConfig: WidgetConfig = {
         type: 'text',
         align: 'center',
         text: {
@@ -31,10 +21,10 @@ test('Test text assignation', () => {
 });
 
 test('Test input string assignation', () => {
-    let widgetConfig: WidgetConfig<CustomSurvey, CustomHousehold, unknown, unknown> = {
+    let widgetConfig: WidgetConfig = {
         type: 'question',
         twoColumns: true,
-        path: 'test.foo',
+        path: 'test.foo' as any,
         inputType: 'string',
         datatype: 'string',
         maxLength: 20,
@@ -48,7 +38,7 @@ test('Test input string assignation', () => {
 
     widgetConfig = {
         type: 'question',
-        path: 'test.foo',
+        path: 'test.foo' as any,
         inputType: 'string',
         label: {
             fr: 'Texte en français',
@@ -60,10 +50,10 @@ test('Test input string assignation', () => {
 });
 
 test('Test input text assignation', () => {
-    let widgetConfig: WidgetConfig<CustomSurvey, unknown, unknown, unknown> = {
+    let widgetConfig: WidgetConfig = {
         type: 'question',
         twoColumns: true,
-        path: 'comments',
+        path: 'comments' as any,
         inputType: 'text',
         datatype: 'text',
         maxLength: 1500,
@@ -79,7 +69,7 @@ test('Test input text assignation', () => {
 
     widgetConfig = {
         type: 'question',
-        path: 'comments',
+        path: 'comments' as any,
         inputType: 'text',
         datatype: 'text',
         label: {

@@ -22,15 +22,9 @@ const interviewerModeMenuItem = {
     }
 };
 
-const addInterviewerOptions = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    config: Partial<
-        ApplicationConfiguration<
-            EvolutionApplicationConfiguration<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-        >
-    >
-): Partial<
-    ApplicationConfiguration<EvolutionApplicationConfiguration<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
-> => {
+const addInterviewerOptions = (
+    config: Partial<ApplicationConfiguration<EvolutionApplicationConfiguration>>
+): Partial<ApplicationConfiguration<EvolutionApplicationConfiguration>> => {
     const menuItems = config.userMenuItems || [];
     menuItems.push(interviewerModeMenuItem);
     config.userMenuItems = menuItems;

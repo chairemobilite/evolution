@@ -11,30 +11,21 @@ import { InputStringType } from 'evolution-common/lib/services/widgets';
 import { parseString } from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
 
-export type InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputStringProps = CommonInputProps & {
     value?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
-    widgetConfig: InputStringType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputStringType;
     updateKey: number;
 };
 
-const getStateValue = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => {
+const getStateValue = (props: InputStringProps) => {
     const value = _isBlank(props.value)
         ? parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
         : props.value;
     return _isBlank(value) ? '' : value;
 };
 
-export const InputString = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputStringProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => {
+export const InputString = (props: InputStringProps) => {
     const [value, setValue] = React.useState(getStateValue(props));
     // Update the value with props when updateKey prop is updated. Not using the
     // `key` to avoid loosing the identity of the component (which causes the

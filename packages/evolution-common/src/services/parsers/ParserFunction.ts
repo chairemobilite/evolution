@@ -14,15 +14,15 @@ import { UserInterviewAttributes, InterviewResponses, Household, Person } from '
  * using new classes for person, household, etc. and after validations
  * cleaning.
  */
-export type ParserFunction<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = (
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    responses: InterviewResponses<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & { [key: string]: any },
-    household: Household<CustomHousehold, CustomPerson>,
+export type ParserFunction = (
+    interview: UserInterviewAttributes,
+    responses: InterviewResponses & { [key: string]: any },
+    household: Household,
     home: {
         region?: string;
         country?: string;
-    } & CustomHome,
-    personsById: { [key: string]: Person<CustomPerson> }, // kept for backward compatibility, will be replaced by object types
-    personsArray: Person<CustomPerson>[], // kept for backward compatibility, one of the two will be removed
-    person: Person<CustomPerson>
+    },
+    personsById: { [key: string]: Person }, // kept for backward compatibility, will be replaced by object types
+    personsArray: Person[], // kept for backward compatibility, one of the two will be removed
+    person: Person
 ) => any; // returns the new value after parsing

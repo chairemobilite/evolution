@@ -16,20 +16,13 @@ import { InputRangeType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
 
-export type InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputRangeProps = CommonInputProps & {
     value?: number;
     inputRef?: React.LegacyRef<ReactInputRange>;
-    widgetConfig: InputRangeType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputRangeType;
 };
 
-export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputRangeProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> & WithTranslation
-) => {
+export const InputRange = (props: InputRangeProps & WithTranslation) => {
     const [value, setValue] = React.useState<number | Range | undefined>(props.value);
 
     const labels = props.widgetConfig.labels;
@@ -98,4 +91,4 @@ export const InputRange = <CustomSurvey, CustomHousehold, CustomHome, CustomPers
     );
 };
 
-export default withTranslation()(InputRange) as React.FunctionComponent<InputRangeProps<any, any, any, any>>;
+export default withTranslation()(InputRange);

@@ -17,7 +17,7 @@ type CustomSurvey = {
     }
 }
 
-const testInterview: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+const testInterview: UserInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -30,7 +30,7 @@ const testInterview: UserInterviewAttributes<CustomSurvey, unknown, unknown, unk
         section2: {
             q1: 'test'
         }
-    },
+    } as any,
     validations: {
         section1: {
             q1: true,
@@ -39,7 +39,7 @@ const testInterview: UserInterviewAttributes<CustomSurvey, unknown, unknown, unk
         section2: {
             q1: true
         }
-    },
+    } as any,
     is_valid: true
 };
 test('Test setting an interview', () => {

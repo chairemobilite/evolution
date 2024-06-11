@@ -34,11 +34,11 @@ const objectTypesSortOrder = ['interview', 'home', 'household', 'person', 'visit
  * @param param0 description of the filtered column
  * @returns
  */
-export const ValidationAuditFilter = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>({
+export const ValidationAuditFilter = ({
     t,
     column: { filterValue, setFilter },
     state: { filters }
-}: FilterProps<InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & WithTranslation) => {
+}: FilterProps<InterviewListAttributes> & WithTranslation) => {
     const [auditStats, setAuditStats] = React.useState<AuditsByLevelAndObjectType>({});
     const fetchIdRef = React.useRef(0);
 

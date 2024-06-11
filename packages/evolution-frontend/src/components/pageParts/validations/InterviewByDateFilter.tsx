@@ -16,10 +16,10 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 /**
  * Date picker input for interview creation date filter
  */
-export const InterviewByDateFilter = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>({
+export const InterviewByDateFilter = ({
     t,
     column: { filterValue, setFilter }
-}: FilterProps<InterviewListAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & WithTranslation) => {
+}: FilterProps<InterviewListAttributes> & WithTranslation) => {
     const [startDate, setStartDate] = React.useState<Date | null>(
         !_isBlank(filterValue) && filterValue.value && filterValue.value.length === 2
             ? new Date(filterValue.value[0] * 1000)

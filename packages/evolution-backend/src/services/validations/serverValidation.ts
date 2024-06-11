@@ -8,14 +8,11 @@
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 
 // TODO Projects define server-side validations for fields. For now, we will use something similar to the client-side validation, for ease of use, but there should be a better way to do this, without having all validations in a single file
-export type ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> =
+export type ServerValidation =
     | {
           [key: string]: {
               validations: {
-                  validation: (
-                      fieldValue: any,
-                      interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-                  ) => boolean;
+                  validation: (fieldValue: any, interview: InterviewAttributes) => boolean;
                   errorMessage: { [key: string]: string };
               }[];
           };
@@ -34,9 +31,9 @@ export type ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPe
  * @return {*}  {Promise<{ [key: string]: { [key: string]: string } } |
  * boolean>}
  */
-const validate = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    serverValidations: ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+const validate = async (
+    interview: InterviewAttributes,
+    serverValidations: ServerValidation,
     valuesByPath: { [key: string]: any },
     unsetValues: string[]
 ): Promise<{ [key: string]: { [key: string]: string } } | true> => {

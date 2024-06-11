@@ -11,35 +11,28 @@ import { InputTextType } from 'evolution-common/lib/services/widgets';
 import { parseString } from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
 
-export type InputTextProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = CommonInputProps<
-    CustomSurvey,
-    CustomHousehold,
-    CustomHome,
-    CustomPerson
-> & {
+export type InputTextProps = CommonInputProps & {
     value?: string;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
-    widgetConfig: InputTextType<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: InputTextType;
 };
 
-export const InputText = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: InputTextProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => (
-        <textarea
-            autoComplete="off"
-            rows={props.widgetConfig.rows || 5}
-            className={'apptr__form-input input-text'}
-            name={props.widgetConfig.shortname}
-            id={props.id}
-            defaultValue={
-                _isBlank(props.value)
-                    ? parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
-                    : props.value
-            }
-            onBlur={props.onValueChange}
-            ref={props.inputRef}
-            maxLength={props.widgetConfig.maxLength || 2000}
-        />
-    );
+export const InputText = (props: InputTextProps) => (
+    <textarea
+        autoComplete="off"
+        rows={props.widgetConfig.rows || 5}
+        className={'apptr__form-input input-text'}
+        name={props.widgetConfig.shortname}
+        id={props.id}
+        defaultValue={
+            _isBlank(props.value)
+                ? parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
+                : props.value
+        }
+        onBlur={props.onValueChange}
+        ref={props.inputRef}
+        maxLength={props.widgetConfig.maxLength || 2000}
+    />
+);
 
 export default InputText;

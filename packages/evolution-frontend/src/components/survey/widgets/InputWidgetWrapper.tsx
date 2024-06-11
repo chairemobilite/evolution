@@ -11,22 +11,20 @@ import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
 import SurveyErrorMessage from './SurveyErrorMessage';
 import HelpPopupLink from './HelpPopupLink';
 
-interface InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> {
+interface InputWidgetWrapperProps {
     /** Text shown on the link and title of the modal */
     label: string;
     errorMessage?: string;
     helpTitle?: string;
     helpContent?: () => string;
-    widgetConfig: QuestionWidgetConfig<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    widgetConfig: QuestionWidgetConfig;
     // FIXME This comes from the widget status, but the Question widget did not originally set the collapsed status. Where does it come from? This widget only displays toggled or not
     isCollapsed: boolean;
     className: string;
     widgetId: string;
 }
 
-const FieldsetWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
-) => {
+const FieldsetWrapper = (props: React.PropsWithChildren<InputWidgetWrapperProps>) => {
     const [isCollapsed, setIsCollapsed] = React.useState(props.isCollapsed);
     return (
         <fieldset>
@@ -80,8 +78,8 @@ export const LabelOrDiv = (
         </div>
     );
 
-export const LabelOrDivWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> & {
+export const LabelOrDivWrapper = (
+    props: React.PropsWithChildren<InputWidgetWrapperProps> & {
         needsLabel: boolean;
     }
 ) => {
@@ -124,9 +122,7 @@ export const LabelOrDivWrapper = <CustomSurvey, CustomHousehold, CustomHome, Cus
     );
 };
 
-export const InputWidgetWrapper = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    props: React.PropsWithChildren<InputWidgetWrapperProps<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>>
-) => {
+export const InputWidgetWrapper = (props: React.PropsWithChildren<InputWidgetWrapperProps>) => {
     const typeOfWrapping = React.useMemo(
         () =>
             props.widgetConfig.inputType === 'radio' ||

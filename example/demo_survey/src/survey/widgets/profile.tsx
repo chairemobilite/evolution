@@ -11,9 +11,8 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import helper from '../helper';
 import waterBoundaries  from '../waterBoundaries.json';
-import { SurveyWidgetConfig } from '../../config/widgets.config';
 
-export const personWorkOnTheRoad: SurveyWidgetConfig = {
+export const personWorkOnTheRoad = {
   type: "question",
   path: "household.persons.{_activePersonId}.workOnTheRoad",
   inputType: "radio",
@@ -56,11 +55,11 @@ export const personWorkOnTheRoad: SurveyWidgetConfig = {
     }
   },
   conditional: function(interview, path) {
-    const occupation = surveyHelperNew.getCurrentPerson(interview).occupation;
+    const occupation = (surveyHelperNew.getCurrentPerson(interview) as any).occupation;
     return (!_isBlank(occupation) && helper.isWorker(occupation));
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const occupation = surveyHelperNew.getCurrentPerson(interview).occupation;
+    const occupation = (surveyHelperNew.getCurrentPerson(interview) as any).occupation;
     return [
       {
         validation: _isBlank(value) && !_isBlank(occupation) && helper.isWorker(occupation),
@@ -632,7 +631,7 @@ export const partTwoIntroText = {
   text: {
     fr: function(interview) {
       const homeAddress    = surveyHelperNew.getResponse(interview, 'home.address', "");
-      const householdSize  = surveyHelperNew.getResponse(interview, 'household.size', null);
+      const householdSize  = surveyHelperNew.getResponse(interview, 'household.size', null) as number;
       const homeCity       = surveyHelperNew.getResponse(interview, 'home.city', "");
       const homeRegion     = surveyHelperNew.getResponse(interview, 'home.region', "");
       const homePostalCode = surveyHelperNew.getResponse(interview, 'home.postalCode', "");
@@ -650,7 +649,7 @@ export const partTwoIntroText = {
     },
     en: function(interview) {
       const homeAddress    = surveyHelperNew.getResponse(interview, 'home.address', "");
-      const householdSize  = surveyHelperNew.getResponse(interview, 'household.size', null);
+      const householdSize  = surveyHelperNew.getResponse(interview, 'household.size', null) as number;
       const homeCity       = surveyHelperNew.getResponse(interview, 'home.city', "");
       const homeRegion     = surveyHelperNew.getResponse(interview, 'home.region', "");
       const homePostalCode = surveyHelperNew.getResponse(interview, 'home.postalCode', "");
@@ -792,12 +791,12 @@ export const personDidTripsProfile = {
     }
   },
   conditional: function(interview, path) {
-    const age = surveyHelperNew.getResponse(interview, path, null, '../age');
+    const age = surveyHelperNew.getResponse(interview, path, null, '../age') as number;
     if (_isBlank(age) || (!_isBlank(age) && (age < 5 || !(age > 0)) )) { return [false, null]; }
     return [true, null];
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const age = surveyHelperNew.getResponse(interview, path, null, '../age');
+    const age = surveyHelperNew.getResponse(interview, path, null, '../age') as number;
     return [
       {
         validation: _isBlank(value) && !_isBlank(age) && age >= 5,

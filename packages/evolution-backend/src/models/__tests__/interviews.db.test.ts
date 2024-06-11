@@ -86,7 +86,7 @@ const localUserInterviewAttributes = {
     },
     validations: {},
     logs: [],
-};
+} as any;
 
 const facebookUserInterviewAttributes = {
     uuid: uuidV4(),
@@ -103,7 +103,7 @@ const facebookUserInterviewAttributes = {
     },
     validations: {},
     logs: []
-};
+} as any;
 
 const googleUserInterviewAttributes = {
     uuid: uuidV4(),
@@ -129,7 +129,7 @@ const googleUserInterviewAttributes = {
             arrayField: ['foo', 'bar']
         }
     },
-};
+} as any;
 
 beforeAll(async () => {
     jest.setTimeout(10000);
@@ -199,7 +199,7 @@ describe('create new interviews', () => {
             logs: [],
             is_active: true
         };
-        const returning = await dbQueries.create(newInterviewAttributes, 'responses');
+        const returning = await dbQueries.create(newInterviewAttributes as any, 'responses');
         expect(returning).toEqual({
             responses: newInterviewAttributes.responses
         });
@@ -362,7 +362,7 @@ describe('Update Interview', () => {
         expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
 
         // Re-read the interview
-        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes<any, any, any, any>;
+        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes;
         expect(updateInterview.responses).toEqual(newAttributes.responses);
         expect(updateInterview.validations).toEqual(newAttributes.validations);
     });
@@ -389,7 +389,7 @@ describe('Update Interview', () => {
         expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
 
         // Re-read the interview
-        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes<any, any, any, any>;
+        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes;
         expect(updateInterview.responses).toEqual(newAttributes.responses);
         expect(updateInterview.validations).toEqual(newAttributes.validations);
         expect(updateInterview.logs).toEqual(newAttributes.logs);
@@ -404,7 +404,7 @@ describe('Update Interview', () => {
         expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
 
         // Re-read the interview and make sure it does not contain the null, but other unicode characters are ok
-        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes<any, any, any, any>;
+        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as any;
         expect(updateInterview.responses.name).not.toContain('\u0000');
         expect(updateInterview.responses.name).toContain('\u0007');
     });
@@ -731,20 +731,20 @@ describe('Queries with audits', () => {
         if (firstInterview === undefined) {
             throw 'error getting interview 1 for audits';
         }
-        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
-        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
-        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
-        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorThreeCode, object_type: 'interview', object_uuid: firstInterview.uuid, version: 2 } as any, 'interview_id');
+        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id'});
+        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id'});
+        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id'});
+        await create(knex, 'sv_audits', undefined, { interview_id: firstInterview.id, error_code: errorThreeCode, object_type: 'interview', object_uuid: firstInterview.uuid, version: 2 } as any, { returning: 'interview_id'});
 
         // Add 3 errors per of type one, and one of type two for another interview
         const secondInterview = await dbQueries.getInterviewByUuid(googleUserInterviewAttributes.uuid);
         if (secondInterview === undefined) {
             throw 'error getting interview 2 for audits';
         }
-        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
-        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
-        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
-        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorTwoCode, object_type: 'household', object_uuid: uuidV4(), version: 2 } as any, 'interview_id');
+        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id'});
+        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id'});
+        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id'});
+        await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorTwoCode, object_type: 'household', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id'});
 
     });
 

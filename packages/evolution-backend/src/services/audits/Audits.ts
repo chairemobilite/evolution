@@ -19,17 +19,13 @@ export class Audits {
         }
     };
 
-    static runAndSaveInterviewAudits = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-        interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-    ): Promise<SurveyObjectsWithAudits> => {
+    static runAndSaveInterviewAudits = async (interview: InterviewAttributes): Promise<SurveyObjectsWithAudits> => {
         if (!serverConfig.auditInterview || !interview.validated_data) {
             return {
                 audits: []
             };
         }
-        const surveyObjectsWithAudits = await serverConfig.auditInterview(
-            interview as InterviewAttributes<unknown, unknown, unknown, unknown>
-        );
+        const surveyObjectsWithAudits = await serverConfig.auditInterview(interview as InterviewAttributes);
         const newAudits = await auditsDbQueries.setAuditsForInterview(interview.id, surveyObjectsWithAudits.audits);
         surveyObjectsWithAudits.audits = newAudits;
         return surveyObjectsWithAudits;

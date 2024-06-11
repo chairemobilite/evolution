@@ -29,7 +29,7 @@ type CustomSurvey = {
     }
 }
 
-const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknown, unknown> = {
+const interviewAttributes: UserInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -43,7 +43,7 @@ const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknow
         section2: {
             q1: 'test'
         }
-    },
+    } as any,
     validations: {
         section1: {
             q1: true,
@@ -52,7 +52,7 @@ const interviewAttributes: UserInterviewAttributes<CustomSurvey, unknown, unknow
         section2: {
             q1: true
         }
-    },
+    } as any,
     is_valid: true
 };
 
@@ -68,7 +68,7 @@ const userAttributes = {
 };
 
 
-const interviewAttributes2: UserInterviewAttributes<any, any, any, any> = {
+const interviewAttributes2: UserInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -93,7 +93,7 @@ const interviewAttributes2: UserInterviewAttributes<any, any, any, any> = {
                 }
             }
         }
-    },
+    } as any,
     validations: {
         section1: {
             q1: true,
@@ -102,7 +102,7 @@ const interviewAttributes2: UserInterviewAttributes<any, any, any, any> = {
         section2: {
             q1: true
         }
-    },
+    } as any,
     is_valid: true
 };
 
@@ -173,12 +173,12 @@ test('getPath without relative path', () => {
 });
 
 each([
-    ['section1.q1', 'def', undefined, (interviewAttributes2.responses.section1 as any).q1],
+    ['section1.q1', 'def', undefined, ((interviewAttributes2.responses as any).section1 as any).q1],
     ['section1.q3', 'def', undefined, 'def'],
     ['section1.q3', undefined, undefined, undefined],
-    ['section1.q1', 'def', '../../section2.q1', (interviewAttributes2.responses.section2 as any).q1],
+    ['section1.q1', 'def', '../../section2.q1', ((interviewAttributes2.responses as any).section2 as any).q1],
     ['section1.q1', 'def', 'section2.q1', null],
-    ['section1', 'def', undefined, (interviewAttributes2.responses.section1 as any)],
+    ['section1', 'def', undefined, ((interviewAttributes2.responses as any).section1 as any)],
 ]).test('getResponse: %s %s %s', (path, defaultValue, relativePath, expected) => {
     expect(Helpers.getResponse(interviewAttributes2, path, defaultValue, relativePath)).toEqual(expected);
 });
@@ -242,9 +242,9 @@ each([
 });
 
 each([
-    ['Person 1', interviewAttributes2.responses, 'personId1', interviewAttributes2.responses.household.persons.personId1],
-    ['Person 2', interviewAttributes2.responses, 'personId2', interviewAttributes2.responses.household.persons.personId2],
-    ['Undefined active person', interviewAttributes2.responses, undefined, interviewAttributes2.responses.household.persons.personId1],
+    ['Person 1', interviewAttributes2.responses, 'personId1', (interviewAttributes2.responses as any).household.persons.personId1],
+    ['Person 2', interviewAttributes2.responses, 'personId2', (interviewAttributes2.responses as any).household.persons.personId2],
+    ['Undefined active person', interviewAttributes2.responses, undefined, (interviewAttributes2.responses as any).household.persons.personId1],
     ['Empty persons', { household: { ...interviewAttributes2.responses.household, persons: {} } }, 'personId1', {}],
     ['Empty household', { household: {} }, undefined, {}],
     ['Empty responses', {}, 'personId', {}]
@@ -425,7 +425,7 @@ describe('getPersons', () => {
     });
 
     test('with persons', () => {
-        expect(Helpers.getPersons(interviewAttributes2)).toEqual(interviewAttributes2.responses.household.persons);
+        expect(Helpers.getPersons(interviewAttributes2)).toEqual((interviewAttributes2.responses as any).household.persons);
     });
 
     test('array: test without household', () => {
@@ -445,7 +445,7 @@ describe('getPersons', () => {
     });
 
     test('array: with persons, unordered', () => {
-        expect(Helpers.getPersonsArray(interviewAttributes2)).toEqual(Object.values(interviewAttributes2.responses.household.persons));
+        expect(Helpers.getPersonsArray(interviewAttributes2)).toEqual(Object.values((interviewAttributes2.responses as any).household.persons));
     });
 
     test('array: with persons, ordered', () => {
@@ -458,7 +458,7 @@ describe('getPersons', () => {
 
 describe('getVisitedPlaces', () => {
 
-    const person: Person<unknown> = {
+    const person: Person = {
         _uuid: 'arbitraryPerson',
         _sequence: 1
     }

@@ -17,17 +17,14 @@ import { UserInterviewAttributes, InterviewAttributes } from 'evolution-common/l
 import projectConfig from '../../config/projectConfig';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
-export const addRolesToInterview = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: UserInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    user: UserAttributes
-) => {
+export const addRolesToInterview = (interview: UserInterviewAttributes, user: UserAttributes) => {
     // Add the userRoles in the interview object
     const permissions = user.permissions;
     interview.userRoles = permissions ? Object.keys(permissions).filter((perm) => permissions[perm] === true) : [];
 };
 
-export const setInterviewFields = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const setInterviewFields = (
+    interview: InterviewAttributes,
     options: {
         valuesByPath: { [key: string]: unknown };
         unsetPaths?: string[];
@@ -71,14 +68,14 @@ export const setInterviewFields = <CustomSurvey, CustomHousehold, CustomHome, Cu
  * data that should be added to the log object of the current update, if log is
  * enabled.
  **/
-export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+export const updateInterview = async (
+    interview: InterviewAttributes,
     options: {
         logDatabaseUpdates?: boolean;
         valuesByPath: { [key: string]: unknown };
         unsetPaths?: string[];
-        serverValidations?: ServerValidation<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
-        fieldsToUpdate?: (keyof InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>)[];
+        serverValidations?: ServerValidation;
+        fieldsToUpdate?: (keyof InterviewAttributes)[];
         logData?: { [key: string]: unknown };
     }
 ): Promise<{
@@ -126,8 +123,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
         //console.log(interview.logs);
     }
 
-    const databaseUpdateJson: Partial<InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>> =
-        {};
+    const databaseUpdateJson: Partial<InterviewAttributes> = {};
     fieldsToUpdate.forEach((field) => {
         // FIXME: For some reason, the following line gives type error, not sure why, so casting to any and disabling the warning.
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -163,9 +159,7 @@ export const updateInterview = async <CustomSurvey, CustomHousehold, CustomHome,
     return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath, redirectUrl };
 };
 
-export const copyResponsesToValidatedData = async <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    interview: InterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>
-) => {
+export const copyResponsesToValidatedData = async (interview: InterviewAttributes) => {
     // TODO The frontend code that was replaced by this method said: // TODO The copy to validated_data should include the audit
 
     // Keep the _validationComment from current validated_data, then copy original responses

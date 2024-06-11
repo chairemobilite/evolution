@@ -13,10 +13,10 @@ import { SurveySectionGroup } from '../../services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 // Data for the survey, with values to update
-type CurrentPreparationData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson> = {
+type CurrentPreparationData = {
     affectedPaths: { [path: string]: boolean };
     valuesByPath: { [path: string]: unknown };
-    interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>;
+    interview: UserFrontendInterviewAttributes;
     foundOneOpenedModal: boolean;
     needToUpdate: boolean;
     updateKey: boolean;
@@ -32,8 +32,8 @@ type WidgetPreparationData = {
     parentGroupedObject?: any;
 };
 
-const prepareGroupedWidgets = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    data: CurrentPreparationData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+const prepareGroupedWidgets = (
+    data: CurrentPreparationData,
     widgetData: WidgetPreparationData,
     groupConfig: SurveySectionGroup,
     groupShortname: string,
@@ -61,8 +61,8 @@ const prepareGroupedWidgets = <CustomSurvey, CustomHousehold, CustomHome, Custom
     }
 };
 
-const prepareSimpleWidget = <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    data: CurrentPreparationData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+const prepareSimpleWidget = (
+    data: CurrentPreparationData,
     widgetData: WidgetPreparationData,
     widgetConfig: any,
     widgetShortname: string,
@@ -315,10 +315,7 @@ const prepareSimpleWidget = <CustomSurvey, CustomHousehold, CustomHome, CustomPe
     }
 };
 
-const prepareWidget = function <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
-    data: CurrentPreparationData<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    widgetPrepData: WidgetPreparationData
-) {
+const prepareWidget = function (data: CurrentPreparationData, widgetPrepData: WidgetPreparationData) {
     for (let i = 0, count = widgetPrepData.widgets.length; i < count; i++) {
         const widgetShortname = widgetPrepData.widgets[i];
         const widgetConfig = applicationConfiguration.widgets[widgetShortname];
@@ -350,19 +347,14 @@ const prepareWidget = function <CustomSurvey, CustomHousehold, CustomHome, Custo
     }
 };
 
-export const prepareWidgets = function <CustomSurvey, CustomHousehold, CustomHome, CustomPerson>(
+export const prepareWidgets = function (
     sectionShortname: string,
-    interview: UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
+    interview: UserFrontendInterviewAttributes,
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
     user?: CliUser
-): [
-    UserFrontendInterviewAttributes<CustomSurvey, CustomHousehold, CustomHome, CustomPerson>,
-    { [path: string]: unknown },
-    boolean,
-    boolean
-] {
+): [UserFrontendInterviewAttributes, { [path: string]: unknown }, boolean, boolean] {
     interview.previousWidgets = _cloneDeep(interview.widgets || {});
     interview.previousGroups = _cloneDeep(interview.groups || {});
     interview.widgets = {};

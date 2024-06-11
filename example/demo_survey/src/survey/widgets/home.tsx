@@ -12,7 +12,6 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import waterBoundaries  from '../waterBoundaries.json';
-import { SurveyWidgetConfig } from '../../config/widgets.config';
 
 export const homeIntro = {
   type: "text",
@@ -51,7 +50,7 @@ export const interviewLanguage = {
   }
 };
 
-export const accessCode: SurveyWidgetConfig = {
+export const accessCode = {
   type: 'question',
   twoColumns: true,
   path: 'accessCode',
@@ -74,7 +73,7 @@ export const accessCode: SurveyWidgetConfig = {
   label: (t: TFunction) => t('survey:AccessCode')
 }
 
-export const householdSize: SurveyWidgetConfig = {
+export const householdSize = {
   type: 'question',
   inputType: "radioNumber",
   overMaxAllowed: true,
@@ -109,7 +108,7 @@ export const householdSize: SurveyWidgetConfig = {
       }
     }
   },
-  validations: (value: unknown | undefined) => {
+  validations: (value: number | undefined) => {
     return [
       {
         validation: (isNaN(Number(value)) || !Number.isInteger(Number(value))),
@@ -126,14 +125,14 @@ export const householdSize: SurveyWidgetConfig = {
         }
       },
       {
-        validation: (value > 18),
+        validation: ((value as number) > 18),
         errorMessage: {
           fr: `La taille du ménage doit être au maximum 18.`,
           en: `Household size must be less than or equal to 18.`
         }
       },
       {
-        validation: (value <= 0),
+        validation: ((value as number) <= 0),
         errorMessage: {
           fr: `La taille du ménage doit être au moins de 1 (Vous devez vous inclure).`,
           en: `Household size must be at least 1 (You need to include yourself).`
@@ -143,7 +142,7 @@ export const householdSize: SurveyWidgetConfig = {
   }
 };
 
-export const householdCarNumber: SurveyWidgetConfig = {
+export const householdCarNumber = {
   type: "question",
   path: 'household.carNumber',
   twoColumns: true,

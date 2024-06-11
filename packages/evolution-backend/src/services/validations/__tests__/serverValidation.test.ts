@@ -22,7 +22,7 @@ const validations = {
     }
 };
 
-const interviewAttributes: InterviewAttributes<unknown, unknown, unknown, unknown> = {
+const interviewAttributes: InterviewAttributes = {
     uuid: 'arbitrary',
     id: 4,
     participant_id: 4,
