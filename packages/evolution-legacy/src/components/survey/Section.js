@@ -16,7 +16,7 @@ import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSur
 import Text             from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap          from './InfoMap';
 import InfoMapDirection from './InfoMapDirection';
-import Button           from './Button';
+import Button           from 'evolution-frontend/lib/components/survey/Button';
 import Question         from 'evolution-frontend/lib/components/survey/Question';
 import Group            from './Group';
 import LoadingPage      from '../shared/LoadingPage';

@@ -7,6 +7,8 @@
 
 // Note: This file includes types for all the different input and widgets types used in the evolution-generator
 
+import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewUpdateCallbacks, ParsingFunctionWithCallbacks } from 'evolution-common/lib/utils/helpers';
 import { TFunction } from 'i18next';
 
 /* Define types for all the different input types */
@@ -240,7 +242,7 @@ export type InputButtonBase = {
     // icon: IconProp | IconDefinition;
     // icon: IconDefinition;
     align: Align;
-    action: (interview, section, sections, saveCallback) => void;
+    action: (callbacks: InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback: ParsingFunctionWithCallbacks<void>) => void;
 };
 export type InputButton = InputButtonBase & {
     path: Path;

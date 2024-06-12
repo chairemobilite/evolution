@@ -2802,8 +2802,8 @@ export const buttonSaveTrip = {
   icon: faCheckCircle,
   align: 'center',
   action: surveyHelper.validateButtonAction,
-  saveCallback: function() {
-    this.props.startUpdateInterview("segments", {
+  saveCallback: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks) {
+    callbacks.startUpdateInterview("segments", {
       'responses._activeTripId': null
     });
   },

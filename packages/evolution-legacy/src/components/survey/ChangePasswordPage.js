@@ -8,7 +8,7 @@ import React               from 'react';
 import { connect }         from 'react-redux';
 import { withTranslation } from 'react-i18next';
 
-import Button                  from './Button';
+import Button                  from 'evolution-frontend/lib/components/survey/Button';
 import config                  from 'chaire-lib-common/lib/config/shared/project.config';
 import { startChangePassword } from '../../actions/shared/auth';
 
@@ -31,7 +31,7 @@ export class ChangePasswordPage extends React.Component {
     };
 
     this.widgetConfig = {
-      action: function(section, sections, saveCallback) {
+      action: (callbacks, interview, path, section, sections, saveCallback) => {
         if (!this.state.password)
         {
           this.setState(() => ({ error: this.props.t(['survey:auth:missingPassword', 'auth:missingPassword']) }));
@@ -51,7 +51,7 @@ export class ChangePasswordPage extends React.Component {
             password : this.state.password
           },this.props.history);
         }
-      }.bind(this)
+      }
     };
   }
 

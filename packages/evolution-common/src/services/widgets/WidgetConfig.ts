@@ -8,7 +8,13 @@
 
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { UserInterviewAttributes, InterviewResponsePath, InterviewResponses } from '../interviews/interview';
-import { ParsingFunction, I18nData } from '../../utils/helpers';
+import {
+    ParsingFunction,
+    I18nData,
+    StartUpdateInterview,
+    InterviewUpdateCallbacks,
+    ParsingFunctionWithCallbacks
+} from '../../utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 /**
@@ -282,6 +288,47 @@ export type TextWidgetConfig = {
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
 };
 
+export type ButtonWidgetConfig = {
+    type: 'button';
+    // The 'path' is required to resolve ${relativePath} in conditional expressions.
+    path?: string;
+    containsHtml?: boolean;
+    color?: string;
+    label: I18nData;
+    /**
+     * Whether to hide the button when the page is being refreshed (loading/saving data from/to the server)
+     */
+    hideWhenRefreshing?: boolean;
+    icon?: IconProp;
+    iconPath?: string;
+    align?: 'center' | 'left' | 'right';
+    // FIXME: Type the sections parameters
+    action: (
+        callbacks: InterviewUpdateCallbacks,
+        interview: UserInterviewAttributes,
+        path: string,
+        section: string,
+        sections: { [key: string]: any },
+        saveCallback?: ParsingFunctionWithCallbacks<void>
+    ) => void;
+    saveCallback?: ParsingFunctionWithCallbacks<void>;
+    confirmPopup?: {
+        title?: I18nData;
+        content: I18nData;
+        shortname: string;
+        cancelAction?: React.MouseEventHandler;
+        showCancelButton?: boolean;
+        showConfirmButton?: boolean;
+        cancelButtonLabel?: I18nData;
+        confirmButtonLabel?: I18nData;
+        cancelButtonColor?: string;
+        confirmButtonColor?: string;
+        conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    };
+    size?: 'small' | 'medium' | 'large';
+    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+};
+
 export type WidgetConfig =
     | QuestionWidgetConfig
     | TextWidgetConfig
@@ -291,27 +338,7 @@ export type WidgetConfig =
           conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
           // TODO Further type this
       }
-    | {
-          type: 'button';
-          // FIXME What is this path used for? Document and/or type further
-          path: string;
-          color?: string;
-          label: I18nData;
-          hideWhenRefreshing?: boolean;
-          icon?: IconProp;
-          iconPath?: string;
-          align?: 'center' | 'left' | 'right';
-          // FIXME: Type the section and sections parameters
-          action: (section: any, sections: any[], saveCallback?: () => void) => void;
-          // FIXME: Type the saveCallback. There is a `this` bound to the function, with props.interview. See if we can pass the interview as parameter instead, and/or anything else.
-          saveCallback?: () => void;
-          confirmPopup?: {
-              title?: I18nData;
-              content: I18nData;
-          };
-          size?: 'small' | 'medium' | 'large';
-          conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
-      }
+    | ButtonWidgetConfig
     | {
           type: 'infoMap';
           path?: string;

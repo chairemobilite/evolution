@@ -31,7 +31,7 @@ import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSur
 import sectionTemplate from 'evolution-legacy/lib/components/survey/SectionTemplateHOC';
 import Text            from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap         from 'evolution-legacy/lib/components/survey/InfoMap';
-import Button          from 'evolution-legacy/lib/components/survey/Button';
+import Button          from 'evolution-frontend/lib/components/survey/Button';
 import Question        from 'evolution-frontend/lib/components/survey/Question';
 import Group           from 'evolution-legacy/lib/components/survey/Group';
 import GroupedObject   from 'evolution-legacy/lib/components/survey/GroupedObject';

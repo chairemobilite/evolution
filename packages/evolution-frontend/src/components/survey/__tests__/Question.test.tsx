@@ -170,7 +170,7 @@ describe('With help popup and link', () => {
             startUpdateInterview={() => { /* Nothing to do */}}
         />);
 
-        // Find and click on the Geocode button, to return multiple values
+        // Find and click on the help button
         expect(widgetConfig.helpPopup.content).not.toHaveBeenCalled();
         const helpButton = questionWidget.find('.helper-popup');
         const modal = questionWidget.find('.react-modal');

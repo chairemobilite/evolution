@@ -33,6 +33,8 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import i18n              from 'chaire-lib-frontend/lib/config/i18n.config';
 import helper from '../helper';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 export const visitedPlacesIntro = {
   type: "text",
@@ -1507,9 +1509,9 @@ export const buttonCancelVisitedPlace = {
   //icon: faCheckCircle,
   align: 'center',
   size: 'small',
-  action: function(section, sections, saveCallback) {
-    const visitedPlacePath = surveyHelperNew.getPath(this.props.path, '../');
-    helper.deleteVisitedPlace(visitedPlacePath, this.props.interview, this.props.startRemoveGroupedObjects, this.props.startUpdateInterview);
+  action: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback) {
+    const visitedPlacePath = surveyHelperNew.getPath(path, '../');
+    helper.deleteVisitedPlace(visitedPlacePath, interview, callbacks.startRemoveGroupedObjects, callbacks.startUpdateInterview);
   }
 };
 
@@ -1542,9 +1544,9 @@ export const buttonDeleteVisitedPlace = {
       }
     }
   },
-  action: function(section, sections, saveCallback) {
-    const visitedPlacePath = surveyHelperNew.getPath(this.props.path, '../');
-    helper.deleteVisitedPlace(visitedPlacePath, this.props.interview, this.props.startRemoveGroupedObjects, this.props.startUpdateInterview);
+  action: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback) {
+    const visitedPlacePath = surveyHelperNew.getPath(path, '../');
+    helper.deleteVisitedPlace(visitedPlacePath, interview, callbacks.startRemoveGroupedObjects, callbacks.startUpdateInterview);
   }
   
 };
@@ -1560,10 +1562,10 @@ export const buttonSaveVisitedPlace = {
   path: 'saveVisitedPlace',
   icon: faCheckCircle,
   align: 'center',
-  saveCallback: function() {
-    const person                   = helper.getPerson(this.props.interview);
+  saveCallback: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
+    const person                   = helper.getPerson(interview);
     const visitedPlaces            = helper.getVisitedPlaces(person);
-    const visitedPlace: any        = surveyHelperNew.getResponse(this.props.interview, this.props.path, null, '../');
+    const visitedPlace: any        = surveyHelperNew.getResponse(interview, path, null, '../');
     const visitedPlacePath         = `household.persons.${person._uuid}.visitedPlaces.${visitedPlace._uuid}`;
     const previousVisitedPlace     = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);
     const previousVisitedPlacePath = previousVisitedPlace ? `household.persons.${person._uuid}.visitedPlaces.${previousVisitedPlace._uuid}` : null;
@@ -1594,17 +1596,17 @@ export const buttonSaveVisitedPlace = {
       const nextVisitedPlace = helper.getNextVisitedPlace(visitedPlace._uuid, visitedPlaces);
       if (!_isBlank(visitedPlace.activity) && visitedPlace.activity !== 'home' && (!nextVisitedPlace || nextVisitedPlace.activity !== 'home'))
       {
-        this.props.startAddGroupedObjects(1, visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.visitedPlaces`, [{activity: 'home'}], (function() {
-          const person        = helper.getPerson(this.props.interview);
+        callbacks.startAddGroupedObjects(1, visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.visitedPlaces`, [{activity: 'home'}], (function() {
+          const person        = helper.getPerson(interview);
           const visitedPlaces = helper.getVisitedPlaces(person);
           updateValuesbyPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
-          this.props.startUpdateInterview('visitedPlaces', updateValuesbyPath);
+          callbacks.startUpdateInterview('visitedPlaces', updateValuesbyPath);
         }).bind(this));
         return null;
       }
     }
     updateValuesbyPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
-    this.props.startUpdateInterview('visitedPlaces', updateValuesbyPath);
+    callbacks.startUpdateInterview('visitedPlaces', updateValuesbyPath);
     return null;
   },
   action: surveyHelper.validateButtonAction
