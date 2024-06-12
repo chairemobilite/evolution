@@ -35,6 +35,30 @@ export type TranslatableStringFunction = (
 
 export type I18nData = string | LangData | TranslatableStringFunction;
 
+/**
+ * Type of the callback to send interview updates to the server
+ *
+ * @param sectionShortname The shortname of the current section
+ * @param valuesByPath The values to update in the interview. The key is the
+ * path to update and the value is the new value. A dot-separated path will be
+ * exploded to the corresponding nested object path.
+ * @param unsetPaths The paths to unset in the interview. A dot-separated path
+ * will be exploded to the corresponding nested object path.
+ * @param interview The current interview
+ * @param callback An optional function to call after the interview has been updated
+ * @param history The history object to redirect the user in case of error
+ * @returns void
+ */
+export type StartUpdateInterview = (
+    sectionShortname: string | null,
+    valuesByPath?: { [path: string]: unknown },
+    unsetPaths?: string[],
+    interview?: UserInterviewAttributes,
+    callback?: () => void,
+    history?: History
+) => void;
+
+
 export const translateString = (
     i18nData: I18nData | undefined,
     i18nObj: i18n,

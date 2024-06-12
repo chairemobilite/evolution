@@ -254,6 +254,18 @@ export const updateInterview = (
     submitted
 });
 
+/**
+ * Redux action to call with a dispatch to send interview updates to the server.
+ * This function is not to be called directly by the application, except through
+ * redux's connect function.
+ *
+ * It will schedule the call to the interview update callback who update the
+ * interview data on the server and refresh any fields and validations coming
+ * from the server. It will update the app's loading state before and after the
+ * update call. At the end of the call, the callback function will be called if
+ * provided, with the updated interview.
+ * @returns The dispatched action
+ */
 export const startUpdateInterview = (
     sectionShortname: string | null,
     valuesByPath?: { [path: string]: unknown },

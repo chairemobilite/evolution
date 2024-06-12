@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { StartUpdateInterview } from "evolution-common/lib/utils/helpers";
+
 // Note: This file includes types for all the different sections types used in the evolution-generator
 
 export type SectionName = string | null;
@@ -34,7 +36,7 @@ export type Groups = {
 // TODO: Add better types for Preload
 export type Preload = (
     interview: any,
-    startUpdateInterview: any,
+    startUpdateInterview: StartUpdateInterview,
     startAddGroupedObjects: any,
     startRemoveGroupedObjects: any,
     callback: any
