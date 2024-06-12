@@ -14,7 +14,7 @@ import _get                from 'lodash/get';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ConfirmModal     from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
-import Text             from './Text';
+import Text             from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap          from './InfoMap';
 import InfoMapDirection from './InfoMapDirection';
 import Button           from './Button';

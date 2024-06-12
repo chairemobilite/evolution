@@ -29,7 +29,7 @@ import { createBrowserHistory } from 'history';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import sectionTemplate from 'evolution-legacy/lib/components/survey/SectionTemplateHOC';
-import Text            from 'evolution-legacy/lib/components/survey/Text';
+import Text            from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap         from 'evolution-legacy/lib/components/survey/InfoMap';
 import Button          from 'evolution-legacy/lib/components/survey/Button';
 import Question        from 'evolution-frontend/lib/components/survey/Question';
