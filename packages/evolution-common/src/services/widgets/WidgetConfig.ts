@@ -272,17 +272,19 @@ export type QuestionWidgetConfig = {
     | InputRadioNumberType
 );
 
+export type TextWidgetConfig = {
+    type: 'text';
+    align?: 'center' | 'left' | 'right';
+    path?: string;
+    containsHtml?: boolean;
+    text: I18nData;
+    classes?: string;
+    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+};
+
 export type WidgetConfig =
     | QuestionWidgetConfig
-    | {
-          type: 'text';
-          align?: 'center' | 'left' | 'right';
-          path?: string;
-          containsHtml?: boolean;
-          text: I18nData;
-          classes?: string;
-          conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
-      }
+    | TextWidgetConfig
     | {
           type: 'group';
           path: string;

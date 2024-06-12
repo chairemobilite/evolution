@@ -13,7 +13,7 @@ import _shuffle                 from 'lodash/shuffle';
 import sectionTemplate  from './SectionTemplateHOC';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import Text             from './Text';
+import Text             from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap          from './InfoMap';
 import InfoMapDirection from './InfoMapDirection';
 import Button           from './Button';
