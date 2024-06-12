@@ -6,7 +6,6 @@
  */
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import Markdown from 'react-markdown';
 
 import isEqual from 'lodash/isEqual';
 
@@ -33,7 +32,7 @@ import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyCont
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
-import { UserFrontendInterviewAttributes, WidgetStatus } from '../../services/interviews/interview';
+import { WidgetStatus } from '../../services/interviews/interview';
 import InputWidgetWrapper from './widgets/InputWidgetWrapper';
 
 interface QuestionProps {
@@ -48,14 +47,7 @@ interface QuestionProps {
     widgetStatus: WidgetStatus;
     closeQuestionModal?: (path: string) => void;
     questionModalPath?: string;
-    startUpdateInterview: (
-        sectionShortname: string | null,
-        valuesByPath?: { [path: string]: unknown },
-        unsetPaths?: string[],
-        interview?: UserFrontendInterviewAttributes,
-        callback?: () => void,
-        history?: History
-    ) => void;
+    startUpdateInterview: surveyHelper.StartUpdateInterview;
 }
 
 type QuestionState = {
