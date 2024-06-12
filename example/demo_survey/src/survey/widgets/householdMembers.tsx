@@ -26,6 +26,12 @@ export const householdMembers = {
   path: 'household.persons',
   groupShortname: 'household_members',
   shortname: 'person',
+  deleteConfirmPopup: {
+    content: {
+        fr: 'supprimer',
+        en: 'delete'
+    }
+  },
   groupName: {
     fr: "Membres du ménage",
     en: "Household members"

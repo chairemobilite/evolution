@@ -9,7 +9,7 @@ import { withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import ConfirmModal         from './modal/ConfirmModal';
+import ConfirmModal         from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import * as surveyHelper    from 'evolution-common/lib/utils/helpers';
 
 export class Button extends React.Component {
@@ -120,9 +120,6 @@ export class Button extends React.Component {
                 confirmButtonColor          = {widgetConfig.confirmPopup.confirmButtonColor}
                 containsHtml                = {widgetConfig.containsHtml}
                 confirmAction               = {widgetConfig.action ? widgetConfig.action.bind(this) : null}
-                confirmActionValidateButton = {widgetConfig.confirmPopup.confirmActionValidateButton ? true : null}
-                section                     = {this.props.section}
-                sections                    = {this.props.surveyContext.sections}
               />
             </div>)
           }
