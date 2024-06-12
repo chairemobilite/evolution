@@ -20,6 +20,8 @@ import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from '../helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import waterBoundaries  from '../waterBoundaries.json';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 
 export const householdMembers = {
   type: "group",
@@ -1047,20 +1049,20 @@ export const buttonSaveNextSectionHouseholdMembers = {
       return allPersonHaveAge && !atLeastOnePersonOlderThan16;
     }
   },
-  saveCallback: function() {
+  saveCallback: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
     
-    const personsCount  = helper.countPersons(this.props.interview);
-    const householdSize = surveyHelperNew.getResponse(this.props.interview, 'household.size', null);
+    const personsCount  = helper.countPersons(interview);
+    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
     if (householdSize !== personsCount)
     {
-      this.props.startUpdateInterview('householdMembers', {
+      callbacks.startUpdateInterview('householdMembers', {
         [`responses.household.size`]: personsCount,
         [`responses._activeSection`]: 'selectPerson'
       });
     }
     else
     {
-      this.props.startUpdateInterview('householdMembers', {
+      callbacks.startUpdateInterview('householdMembers', {
         [`responses._activeSection`]: 'selectPerson'
       });
     }
@@ -1223,10 +1225,10 @@ export const buttonSwitchPerson = {
     }
     return [countInterviewablePersons >= 2, undefined];
   },
-  action: function(section, sections, saveCallback) {
+  action: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback) {
     // add verification (all widgets must be valid!)
     window.scrollTo(0, 0);
-    this.props.startUpdateInterview(section, {
+    callbacks.startUpdateInterview(section, {
       'responses._activeSection': 'selectPerson'
     });
   }

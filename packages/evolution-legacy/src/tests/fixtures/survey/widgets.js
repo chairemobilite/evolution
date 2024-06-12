@@ -32,7 +32,7 @@ export const buttonSelectPersonConfirm = {
     en: "Select this person and continue"
   },
   align: 'center',
-  action: function (section, sections, saveCallback) {
+  action: function (callbacks, interview, path, section, sections, saveCallback) {
     // FIXME: The questionsValidity is undefined
     // const _questionsValidity = questionsValidity();
     const _questionsValidity = [];
@@ -47,7 +47,7 @@ export const buttonSelectPersonConfirm = {
     if (isValid)
     {
       window.scrollTo(0, 0);
-      this.props.startUpdateInterview('selectPerson',{
+      callbacks.startUpdateInterview('selectPerson',{
         'responses.activeSection': sections[section].nextSection
       });
     }

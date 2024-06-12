@@ -7,7 +7,7 @@
 import moment from 'moment';
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import Button from 'evolution-legacy/lib/components/survey/Button';
+import Button from 'chaire-lib-frontend/lib/components/input/Button';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import DatePicker from 'chaire-lib-frontend/lib/components/input/Calendar';
 
@@ -58,21 +58,15 @@ export const RefreshInterviewerCache = (props: WithTranslation) => {
                 language={props.i18n.language}
             />
             <Button
-                widgetConfig={{
-                    label: props.t([
+                label={
+                    props.t([
                         'survey:admin:interviewer:refreshInterviewerCache',
                         'admin:interviewer:refreshInterviewerCache'
-                    ]),
-                    color: 'blue',
-                    action: () => {
-                        onRefreshMonitoringData();
-                    },
-                    hideWhenRefreshing: true
-                }}
-                widgetStatus={{
-                    isVisible: true
-                }}
-                loadingState={loading ? 1 : 0}
+                    ]) as string
+                }
+                onClick={(e) => onRefreshMonitoringData()}
+                color="blue"
+                disabled={!loading}
             />
             {error && <p className="survey-question__error_message">{error}</p>}
             <a href="/interviewer/monitoring/get_interviewer_data">Interviewer data</a>

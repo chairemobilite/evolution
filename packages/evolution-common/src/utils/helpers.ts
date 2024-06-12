@@ -58,6 +58,19 @@ export type StartUpdateInterview = (
     history?: History
 ) => void;
 
+export type InterviewUpdateCallbacks = {
+    startUpdateInterview: StartUpdateInterview;
+    // TODO Add and/or type the other callbacks, like addGroupedOjbect, etc, that are still in evolution-legacy
+    startAddGroupedObjects: any;
+    startRemoveGroupedObjects: any;
+};
+
+export type ParsingFunctionWithCallbacks<T> = (
+    callbacks: InterviewUpdateCallbacks,
+    interview: UserInterviewAttributes,
+    path: string,
+    user?: CliUser
+) => T;
 
 export const translateString = (
     i18nData: I18nData | undefined,

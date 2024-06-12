@@ -12,7 +12,7 @@ import moment              from 'moment-business-days';
 
 import { startRegister } from '../../actions/shared/auth';
 import config            from 'chaire-lib-common/lib/config/shared/project.config';
-import Button            from './Button';
+import Button            from 'evolution-frontend/lib/components/survey/Button';
 
 class ConsentFormPage extends React.Component { 
     constructor(props) {
@@ -24,7 +24,7 @@ class ConsentFormPage extends React.Component {
       };
   
       this.widgetConfig = {
-        action: function(section, sections, saveCallback) {
+        action: (callbacks, interview, path, section, sections, saveCallback) => {
 
           if (config.loginFromUrl) {
             
@@ -65,7 +65,7 @@ class ConsentFormPage extends React.Component {
           else {
             config.isPartTwo === true ? this.props.history.push('/login') : this.props.history.push('/register');
           }      
-        }.bind(this)
+        }
       };
     }
   

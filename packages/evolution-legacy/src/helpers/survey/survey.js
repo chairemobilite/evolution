@@ -170,18 +170,18 @@ export default {
     return [valuesByPath, unsetPaths];
   },
 
-  validateButtonAction: function(section, sections, saveCallback) {
-    this.props.startUpdateInterview(section, { '_all': true }, null, null, function(interview) {
+  validateButtonAction: function(callbacks, _interview, path, section, sections, saveCallback) {
+    callbacks.startUpdateInterview(section, { '_all': true }, null, null, (interview) => {
       if (interview.allWidgetsValid)
       {
         if (typeof saveCallback === 'function')
         {
-          saveCallback();
+          saveCallback(callbacks, interview, path);
         }
         else // go to next section
         {
           window.scrollTo(0, 0);
-          this.props.startUpdateInterview(section, {
+          callbacks.startUpdateInterview(section, {
             'responses._activeSection': sections[section].nextSection
           });
         }
@@ -190,23 +190,23 @@ export default {
       {
         //this.props.startUpdateInterview(section, { '_all': true }, null, null, null);
       }
-    }.bind(this));
+    });
 
     
   },
 
-  validateButtonActionWithCompleteSection: function(section, sections, saveCallback) {
-    this.props.startUpdateInterview(section, { '_all': true }, null, null, function(interview) {
+  validateButtonActionWithCompleteSection: function(callbacks, _interview, path, section, sections, saveCallback) {
+    callbacks.startUpdateInterview(section, { '_all': true }, null, null, (interview) => {
       if (interview.allWidgetsValid)
       {
         if (typeof saveCallback === 'function')
         {
-          saveCallback();
+          saveCallback(callbacks, interview, path);
         }
         else // go to next section
         {
           window.scrollTo(0, 0);
-          this.props.startUpdateInterview(section, {
+          callbacks.startUpdateInterview(section, {
             'responses._activeSection': sections[section].nextSection,
             [`responses._sections.${section}._isCompleted`]: true
           });
@@ -216,7 +216,7 @@ export default {
       {
         //this.props.startUpdateInterview(section, { '_all': true }, null, null, null);
       }
-    }.bind(this));
+    });
 
     
   },
