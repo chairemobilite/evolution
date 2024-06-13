@@ -375,6 +375,7 @@ def generate_number_widget(question_name, section, path, help_popup, conditional
 def generate_info_text_widget(question_name, section, path, conditional, row):
     return f"{generate_constExport(question_name, 'InfoText')}\n" \
             f"{generate_defaultInputBase('infoTextBase')},\n" \
+            f"{generate_path(path)},\n" \
             f"{generate_common_properties(row, shouldAddTwoColumns = False)}" \
             f"{generate_text(section, path)},\n" \
             f"{generate_conditional(conditional)}\n" \

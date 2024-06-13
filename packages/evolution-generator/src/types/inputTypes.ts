@@ -150,6 +150,7 @@ export type InfoTextBase = {
     align?: Align;
 };
 export type InfoText = InfoTextBase & {
+    path?: Path; // Note: The 'path' is required to resolve ${relativePath} in conditional expressions.
     text: TextKey;
     conditional: Conditional;
     containsHtml: ContainsHtml;
