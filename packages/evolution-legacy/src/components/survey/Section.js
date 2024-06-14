@@ -15,7 +15,6 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import Text             from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap          from 'evolution-frontend/lib/components/survey/InfoMap';
-import InfoMapDirection from './InfoMapDirection';
 import Button           from 'evolution-frontend/lib/components/survey/Button';
 import Question         from 'evolution-frontend/lib/components/survey/Question';
 import Group            from './Group';
@@ -213,7 +212,6 @@ export class Section extends React.Component {
         {
           case 'text':              widgetsComponentByShortname[widgetShortname] = <Text            {...defaultProps} />; break;
           case 'infoMap':           widgetsComponentByShortname[widgetShortname] = <InfoMap         {...defaultProps} />; break;
-          case 'infoMapDirection':  widgetsComponentByShortname[widgetShortname] = <InfoMapDirection {...defaultProps} />; break;
           case 'button':            widgetsComponentByShortname[widgetShortname] = <Button          {...defaultProps} />; break;
           case 'question':          widgetsComponentByShortname[widgetShortname] = <Question        {...defaultProps} />; break;
           case 'group':             widgetsComponentByShortname[widgetShortname] = <Group           {...defaultProps}
