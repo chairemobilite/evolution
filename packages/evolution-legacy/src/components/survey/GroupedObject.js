@@ -16,7 +16,6 @@ import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSur
 import ConfirmModal     from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import Text             from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap          from 'evolution-frontend/lib/components/survey/InfoMap';
-import InfoMapDirection from './InfoMapDirection';
 import Button           from 'evolution-frontend/lib/components/survey/Button';
 import Question         from 'evolution-frontend/lib/components/survey/Question';
 import Group            from './Group';
@@ -119,7 +118,6 @@ export class GroupedObject extends React.Component {
       {
         case 'text':              return <Text              {...defaultProps} />;
         case 'infoMap':           return <InfoMap           {...defaultProps} />;
-        case 'infoMapDirection':  return <InfoMapDirection  {...defaultProps} />;
         case 'button':            return <Button            {...defaultProps}
           saveCallback    = {this.props.saveCallback}
         />;
