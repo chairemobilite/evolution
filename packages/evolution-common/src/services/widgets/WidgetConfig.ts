@@ -16,6 +16,12 @@ import {
     ParsingFunctionWithCallbacks
 } from '../../utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { i18n } from 'i18next';
+
+type IconData = {
+    url: string | ParsingFunction<string>;
+    size?: [number, number];
+};
 
 /**
  * Validation function, which validates the value with potentially multiple
@@ -205,10 +211,7 @@ type InputMapType = {
     geocodingQueryString?: ParsingFunction<string | undefined>;
     refreshGeocodingLabel?: I18nData;
     afterRefreshButtonText?: I18nData;
-    icon?: {
-        url: string | ParsingFunction<string>;
-        size?: [number, number];
-    };
+    icon?: IconData;
     containsHtml?: boolean;
     maxZoom?: number;
     defaultZoom?: number;
@@ -225,10 +228,7 @@ export type InputMapFindPlaceType = InputMapType & {
     inputType: 'mapFindPlace';
     showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
     searchPlaceButtonColor?: string | ParsingFunction<string>;
-    placesIcon?: {
-        url: string | ParsingFunction<string>;
-        size?: [number, number];
-    };
+    placesIcon?: IconData;
     maxGeocodingResultsBounds?: ParsingFunction<
         [{ lat: number; lng: number }, { lat: number; lng: number }] | undefined
     >;
@@ -329,6 +329,48 @@ export type ButtonWidgetConfig = {
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
 };
 
+type SurveyMapObjectProperty = {
+    highlighted?: boolean;
+    label?: I18nData;
+    sequence?: number;
+    icon?: {
+        url: string;
+        size: [number, number];
+    };
+    birdDistance?: number;
+    active?: boolean;
+    bearing?: number;
+};
+
+type SurveyMapObjectPolygonProperty = SurveyMapObjectProperty & {
+    strokeColor?: string;
+    strokeOpacity?: number;
+    strokeWeight?: number;
+    fillColor?: string;
+    fillOpacity?: number;
+    minLat?: number;
+    maxLat?: number;
+    minLong?: number;
+    maxLong?: number;
+};
+
+export type InfoMapWidgetConfig = {
+    type: 'infoMap';
+    path?: string;
+    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    title: I18nData;
+    geojsons: ParsingFunction<{
+        points: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapObjectProperty>;
+        linestrings: GeoJSON.FeatureCollection<GeoJSON.LineString, SurveyMapObjectProperty>;
+        polygons: GeoJSON.FeatureCollection<GeoJSON.Polygon, SurveyMapObjectPolygonProperty>;
+    }>;
+    defaultCenter?: { lat: number; lon: number } | ParsingFunction<{ lat: number; lon: number }>;
+    maxZoom?: number;
+    defaultZoom?: number;
+    linestringColor?: string;
+    linestringActiveColor?: string;
+};
+
 export type WidgetConfig =
     | QuestionWidgetConfig
     | TextWidgetConfig
@@ -339,10 +381,4 @@ export type WidgetConfig =
           // TODO Further type this
       }
     | ButtonWidgetConfig
-    | {
-          type: 'infoMap';
-          path?: string;
-          conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
-          title: I18nData;
-          // TODO Further type this
-      };
+    | InfoMapWidgetConfig;

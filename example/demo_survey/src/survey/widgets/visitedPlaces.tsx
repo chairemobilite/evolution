@@ -220,11 +220,16 @@ export const personVisitedPlacesMap = {
     },
   },
   linestringColor: "#0000ff",
-  geojsons: function(interview, path, activeUuid = null) {
+  geojsons: function(interview, path) {
     const person             = helper.getPerson(interview);
     const visitedPlaces      = helper.getVisitedPlaces(person);
     const tripsGeojsonFeatures: any[]         = [];
     const visitedPlacesGeojsonFeatures: any[] = [];
+
+    const trips = helper.getTrips(person);
+    const selectedTripId: any = helper.getActiveTripId(interview);
+    const selectedTrip = selectedTripId ? trips[selectedTripId] : null;
+    const activeUuid = selectedTrip ? selectedTrip._originVisitedPlaceUuid : null
     
     for (let i = 0, count = visitedPlaces.length; i < count; i++)
     {
@@ -237,8 +242,7 @@ export const personVisitedPlacesMap = {
         const visitedPlaceGeojson = visitedPlaceGeography;
         visitedPlaceGeojson.properties.icon = {
           url: `/dist/images/activities_icons/${visitedPlace.activity}_marker.svg`,
-          size: new google.maps.Size(40,40),
-          scaledSize: new google.maps.Size(40,40)
+          size: [40, 40]
         };
         visitedPlaceGeojson.properties.highlighted = false;
         visitedPlaceGeojson.properties.label       = visitedPlace.name;
