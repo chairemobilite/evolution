@@ -9,6 +9,7 @@
 
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { InterviewUpdateCallbacks, ParsingFunctionWithCallbacks } from 'evolution-common/lib/utils/helpers';
+import { InfoMapWidgetConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
 import { TFunction } from 'i18next';
 
 /* Define types for all the different input types */
@@ -68,14 +69,6 @@ export type HelpPopup = {
     title: Title;
     content: Label;
 };
-type Points = GeoJSON.FeatureCollection<GeoJSON.Point>;
-type Linestrings = GeoJSON.FeatureCollection<GeoJSON.LineString | GeoJSON.MultiLineString>;
-type Polygons = GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
-type Geojsons = (
-    interview: any,
-    path: Path,
-    activeUuid: any
-) => { points?: Points; linestrings?: Linestrings; polygons?: Polygons };
 
 // TODO: Add some missing types for the different input types
 
@@ -312,11 +305,4 @@ export type InputMapFindPlace = InputMapFindPlaceBase & {
 };
 
 /* InfoMap widgetConfig Type */
-export type InfoMap = {
-    type: 'infoMap';
-    defaultCenter: DefaultCenter;
-    title: Title;
-    linestringColor: string;
-    conditional: Conditional;
-    geojsons: Geojsons;
-};
+export type InfoMap = InfoMapWidgetConfig;

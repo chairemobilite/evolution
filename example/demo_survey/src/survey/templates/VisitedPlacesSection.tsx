@@ -30,7 +30,7 @@ import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/Date
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import sectionTemplate from 'evolution-legacy/lib/components/survey/SectionTemplateHOC';
 import Text            from 'evolution-frontend/lib/components/survey/Text';
-import InfoMap         from 'evolution-legacy/lib/components/survey/InfoMap';
+import InfoMap         from 'evolution-frontend/lib/components/survey/InfoMap';
 import Button          from 'evolution-frontend/lib/components/survey/Button';
 import Question        from 'evolution-frontend/lib/components/survey/Question';
 import Group           from 'evolution-legacy/lib/components/survey/Group';

@@ -15,7 +15,7 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ConfirmModal     from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import Text             from 'evolution-frontend/lib/components/survey/Text';
-import InfoMap          from './InfoMap';
+import InfoMap          from 'evolution-frontend/lib/components/survey/InfoMap';
 import InfoMapDirection from './InfoMapDirection';
 import Button           from 'evolution-frontend/lib/components/survey/Button';
 import Question         from 'evolution-frontend/lib/components/survey/Question';
