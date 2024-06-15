@@ -289,19 +289,19 @@ def generate_contains_html(containsHtml, shouldAddContainsHtml):
     else:
         return ""
 def generate_custom_path(row):
-    custom_path = row["customPath"]
+    custom_path = row["customPath"] if 'customPath' in row else None
     if custom_path:
         return f"{INDENT}customPath: '{custom_path}',\n"
     else:
         return ""
 def generate_custom_choice(row):
-    custom_choice = row["customChoice"]
+    custom_choice = row["customChoice"] if 'customChoice' in row else None
     if custom_choice:
         return f"{INDENT}customChoice: '{custom_choice}',\n"
     else:
         return ""
 def generate_default_value(row):
-    default_value = row["defaultValue"]
+    default_value = row["defaultValue"] if 'defaultValue' in row else None
     if default_value:
         return f"{INDENT}defaultValue: '{default_value}',\n"
     else:
