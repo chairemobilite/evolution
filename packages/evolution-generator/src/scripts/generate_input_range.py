@@ -72,11 +72,7 @@ def generate_input_range(input_file: str, output_file: str):
             max_value = str(row_dict["maxValue"])
             unit_fr = replaces_quotes_and_stringify(row_dict["unitFr"])
             unit_en = replaces_quotes_and_stringify(row_dict["unitEn"])
-            input_color = (
-                row_dict["input_color"]
-                if row_dict["input_color"] is not None
-                else "blue"
-            )
+            input_color = row_dict["input_color"] if 'input_color' in row_dict and row_dict["input_color"] is not None else "blue"
 
             # Check if the row is valid
             if (
