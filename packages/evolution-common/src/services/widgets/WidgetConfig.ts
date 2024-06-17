@@ -315,7 +315,6 @@ export type ButtonWidgetConfig = {
     confirmPopup?: {
         title?: I18nData;
         content: I18nData;
-        shortname: string;
         cancelAction?: React.MouseEventHandler;
         showCancelButton?: boolean;
         showConfirmButton?: boolean;
