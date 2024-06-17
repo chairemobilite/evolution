@@ -20,14 +20,6 @@ type ButtonProps = surveyHelper.InterviewUpdateCallbacks & {
     widgetConfig: ButtonWidgetConfig;
     widgetStatus: WidgetStatus;
     loadingState: number;
-    // FIXME: Why is the confirmModal controlled by the parent and not this
-    // widget itself? See if there are cases when something seems to be done
-    // other than save the currently opened modal, but currently all callers
-    // just set the shortname of the modal in their state and need to pass it
-    // all the way down the tree to this component!
-    openConfirmModal: (shortname: string) => void;
-    closeConfirmModal: () => void;
-    confirmModalOpenedShortname?: string;
     interview: UserInterviewAttributes;
     user?: CliUser;
     path: string;
@@ -40,6 +32,7 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
 ) => {
     const [wasMouseDowned, setWasMouseDowned] = useState(false);
     const [loadingState, setLoadingState] = useState(props.loadingState);
+    const [modalIsOpened, setModalIsOpened] = useState(false);
 
     useEffect(() => {
         // wait for any field to blur (unfocus) and save and/or validate, then trigger click:
@@ -85,7 +78,7 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
     };
 
     const onClickButton = () => {
-        const hasConfirmPopup = props.widgetConfig.confirmPopup && props.widgetConfig.confirmPopup.shortname;
+        const hasConfirmPopup = props.widgetConfig.confirmPopup !== undefined;
         const confirmPopupConditional = hasConfirmPopup
             ? surveyHelper.parseBoolean(
                   props.widgetConfig.confirmPopup!.conditional,
@@ -96,7 +89,7 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
             : true;
 
         if (hasConfirmPopup && confirmPopupConditional === true) {
-            props.openConfirmModal(props.widgetConfig.confirmPopup!.shortname);
+            setModalIsOpened(true);
         } else {
             confirmButton();
         }
@@ -136,13 +129,11 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
                 )}
             </button>
             {/* confirmPopup below: */}
-            {props.widgetConfig.confirmPopup &&
-                props.widgetConfig.confirmPopup.shortname &&
-                props.confirmModalOpenedShortname === props.widgetConfig.confirmPopup.shortname && (
+            {modalIsOpened && props.widgetConfig.confirmPopup && (
                 <div>
                     <ConfirmModal
                         isOpen={true}
-                        closeModal={props.closeConfirmModal}
+                        closeModal={() => setModalIsOpened(false)}
                         text={surveyHelper.translateString(
                             props.widgetConfig.confirmPopup.content,
                             props.i18n,

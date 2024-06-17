@@ -95,9 +95,6 @@ export class Group extends React.Component {
             user                        = {this.props.user}
             openQuestionModal           = {this.props.openQuestionModal}
             closeQuestionModal          = {this.props.closeQuestionModal}
-            openConfirmModal            = {this.props.openConfirmModal}
-            closeConfirmModal           = {this.props.closeConfirmModal}
-            confirmModalOpenedShortname = {this.props.confirmModalOpenedShortname}
             isInsideModal               = {this.props.isInsideModal}
             questionModalPath           = {this.props.questionModalPath}
             startUpdateInterview        = {this.props.startUpdateInterview}

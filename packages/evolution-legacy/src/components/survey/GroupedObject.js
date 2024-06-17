@@ -23,7 +23,9 @@ import Group            from './Group';
 export class GroupedObject extends React.Component {
   constructor(props) {
     super(props);
-    
+    this.state = {
+        confirmDeleteVisitedPlace: null
+    }
     this.beforeRemoveGroupedObject = this.beforeRemoveGroupedObject.bind(this);
     this.onRemoveGroupedObject     = this.onRemoveGroupedObject.bind(this);
   }
@@ -40,7 +42,7 @@ export class GroupedObject extends React.Component {
 
     if (hasConfirmPopup && confirmPopupConditional === true)
     {
-      this.props.openConfirmModal(`_confirmDeleteButtonForGroupedObject__${this.props.path}`);
+      this.setState({confirmDeleteVisitedPlace: this.props.path});
     }
     else
     {
@@ -94,9 +96,6 @@ export class GroupedObject extends React.Component {
         user                       : this.props.user,
         openQuestionModal          : this.props.openQuestionModal,
         closeQuestionModal         : this.props.closeQuestionModal,
-        openConfirmModal           : this.props.openConfirmModal,
-        closeConfirmModal          : this.props.closeConfirmModal,
-        confirmModalOpenedShortname: this.props.confirmModalOpenedShortname,
         isInsideModal              : this.props.isInsideModal,
         questionModalPath          : this.props.questionModalPath,
         startUpdateInterview       : this.props.startUpdateInterview,
@@ -169,14 +168,14 @@ export class GroupedObject extends React.Component {
                 {deleteButtonLabel}
               </button>}
               { /* confirmPopup below: */ }
-              {    this.props.confirmModalOpenedShortname === `_confirmDeleteButtonForGroupedObject__${this.props.path}`
+              {    this.state.confirmDeleteVisitedPlace === this.props.path
                 && widgetConfig.deleteConfirmPopup
                 && widgetConfig.deleteConfirmPopup.content
                 && widgetConfig.deleteConfirmPopup.content[this.props.i18n.language]
                 && (<div>
                     <ConfirmModal 
                       isOpen        = {true}
-                      closeModal    = {this.props.closeConfirmModal}
+                      closeModal    = {() => this.setState({confirmDeleteVisitedPlace: null})}
                       text          = {surveyHelperNew.parseString(widgetConfig.deleteConfirmPopup.content[this.props.i18n.language] || widgetConfig.deleteConfirmPopup.content, this.props.interview, this.props.path)}
                       title         = {widgetConfig.deleteConfirmPopup.title && widgetConfig.deleteConfirmPopup.title[this.props.i18n.language] ? surveyHelperNew.parseString(widgetConfig.deleteConfirmPopup.title[this.props.i18n.language] || widgetConfig.deleteConfirmPopup.title, this.props.interview, this.props.path) : null}
                       cancelAction  = {widgetConfig.deleteConfirmPopup.cancelAction}

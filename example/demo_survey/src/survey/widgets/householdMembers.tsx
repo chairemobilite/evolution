@@ -1005,7 +1005,6 @@ export const buttonSaveNextSectionHouseholdMembers = {
   icon: faCheckCircle,
   align: 'center',
   confirmPopup: {
-    shortname: '_householdNoMemberOlderThan16YearsOld',
     content: {
       fr: function(interview, path) {
         const householdSize = helper.countPersons(interview);
@@ -1196,7 +1195,6 @@ export const buttonSwitchPerson = {
     conditional: function(interview) {
       return !interview.allWidgetsValid;
     },
-    shortname: '_switchPersonConfirm',
     content: {
       fr: function(interview) {
         return `Veuillez compléter cette section avant de changer de personne.`;

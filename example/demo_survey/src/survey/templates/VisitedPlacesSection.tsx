@@ -46,7 +46,8 @@ export class VisitedPlacesSection extends React.Component<any, any> {
   constructor(props) {
     super(props);
     this.state = {
-      preloaded: (typeof props.preload === 'function' ? false : true)
+      preloaded: (typeof props.preload === 'function' ? false : true),
+      confirmDeleteVisitedPlace: null
     };
     this.addVisitedPlace          = this.addVisitedPlace.bind(this);
     this.selectVisitedPlace       = this.selectVisitedPlace.bind(this);
@@ -249,9 +250,6 @@ export class VisitedPlacesSection extends React.Component<any, any> {
         user                           : this.props.user,
         openQuestionModal              : this.props.openQuestionModal,
         closeQuestionModal             : this.props.closeQuestionModal,
-        openConfirmModal               : this.props.openConfirmModal,
-        closeConfirmModal              : this.props.closeConfirmModal,
-        confirmModalOpenedShortname    : this.props.confirmModalOpenedShortname,
         isInsideModal                  : this.props.isInsideModal,
         questionModalPath              : this.props.questionModalPath,
         startUpdateInterview           : this.props.startUpdateInterview,
@@ -314,7 +312,7 @@ export class VisitedPlacesSection extends React.Component<any, any> {
             {!selectedVisitedPlaceId/*this.state.editActivated*/ && this.props.loadingState === 0 && visitedPlaces.length > 1 && <button
               type      = "button"
               className = {`survey-section__button button red small`}
-              onClick   = {(e) => this.props.openConfirmModal(`_confirmDeleteButtonForGroupedObject__${visitedPlacePath}`, e)}
+              onClick   = {(e) => this.setState({confirmDeleteVisitedPlace: visitedPlacePath})}
               title     = {this.props.t('survey:visitedPlace:deleteVisitedPlace')}
             >
               <FontAwesomeIcon icon={faTrashAlt} className="" />
@@ -329,11 +327,11 @@ export class VisitedPlacesSection extends React.Component<any, any> {
               <FontAwesomeIcon icon={faArrowsAltV} className="" />
             </button>}
             { /* confirmPopup below: */ }
-            { this.props.confirmModalOpenedShortname === `_confirmDeleteButtonForGroupedObject__${visitedPlacePath}`
+            { this.state.confirmDeleteVisitedPlace === visitedPlacePath
               && (<div>
                   <ConfirmModal 
                     isOpen        = {true}
-                    closeModal    = {this.props.closeConfirmModal}
+                    closeModal    = {() => this.setState({confirmDeleteVisitedPlace: null})}
                     text          = {surveyHelper.parseString(groupConfig.deleteConfirmPopup.content[this.props.i18n.language] || groupConfig.deleteConfirmPopup.content, this.props.interview, this.props.path)}
                     title         = {groupConfig.deleteConfirmPopup.title && groupConfig.deleteConfirmPopup.title[this.props.i18n.language] ? surveyHelper.parseString(groupConfig.deleteConfirmPopup.title[this.props.i18n.language] || groupConfig.deleteConfirmPopup.title, this.props.interview, this.props.path) : null}
                     cancelAction  = {null}
@@ -367,9 +365,6 @@ export class VisitedPlacesSection extends React.Component<any, any> {
               section                     = {'visitedPlaces'}
               interview                   = {this.props.interview}
               user                        = {this.props.user}
-              openConfirmModal            = {this.props.openConfirmModal}
-              closeConfirmModal           = {this.props.closeConfirmModal}
-              confirmModalOpenedShortname = {this.props.confirmModalOpenedShortname}
               startUpdateInterview        = {this.props.startUpdateInterview}
               startAddGroupedObjects      = {this.props.startAddGroupedObjects}
               startRemoveGroupedObjects   = {this.props.startRemoveGroupedObjects}

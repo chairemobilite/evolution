@@ -29,7 +29,7 @@ export class Survey extends React.Component {
     super(props);
     surveyHelperNew.devLog('params_survey', props.location.search)
     this.state = {
-      confirmModalOpenedShortname: null
+        confirmCompleteBeforeSwitchingOpened: false
     };
     // set language if empty and change locale:
     if (!props.i18n.language || config.languages.indexOf(props.i18n.language) <= -1)
@@ -39,17 +39,8 @@ export class Survey extends React.Component {
     moment.locale(props.i18n.language);
     this.surveyContext = props.surveyContext;
 
-    this.openConfirmModal  = this.openConfirmModal.bind(this);
     this.closeConfirmModal = this.closeConfirmModal.bind(this);
     this.onChangeSection   = this.onChangeSection.bind(this);
-  }
-
-  openConfirmModal(confirmModalShortname, e) {
-    if (e)
-    {
-      e.preventDefault();
-    }
-    this.setState({confirmModalOpenedShortname: confirmModalShortname});
   }
 
   closeConfirmModal(e) {
@@ -57,7 +48,7 @@ export class Survey extends React.Component {
     {
       e.preventDefault();
     }
-    this.setState({confirmModalOpenedShortname: null});
+    this.setState({confirmCompleteBeforeSwitchingOpened: false});
   }
 
   componentDidMount() {
@@ -88,7 +79,7 @@ export class Survey extends React.Component {
     else
     {
       this.setState(() => ({
-        confirmModalOpenedShortname: 'confirmModalCompleteSectionBeforeSwitching'
+        confirmCompleteBeforeSwitchingOpened: true
       }), function() {
         const scrollPosition = _get(document.getElementsByClassName('question-invalid'), '[0].offsetTop', null);
         if (scrollPosition && scrollPosition >= 0)
@@ -157,7 +148,7 @@ export class Survey extends React.Component {
                 startUpdateInterview = {this.props.startUpdateInterview}
                 user                 = {this.props.user}
               />
-              {this.state.confirmModalOpenedShortname === 'confirmModalCompleteSectionBeforeSwitching' && (<div>
+              {this.state.confirmCompleteBeforeSwitchingOpened && (<div>
                 <ConfirmModal
                   isOpen             = {true}
                   closeModal         = {this.closeConfirmModal}
@@ -185,9 +176,6 @@ export class Survey extends React.Component {
                   startUpdateInterview        = {this.props.startUpdateInterview}
                   startAddGroupedObjects      = {this.props.startAddGroupedObjects}
                   startRemoveGroupedObjects   = {this.props.startRemoveGroupedObjects}
-                  confirmModalOpenedShortname = {this.state.confirmModalOpenedShortname}
-                  openConfirmModal            = {this.openConfirmModal}
-                  closeConfirmModal           = {this.closeConfirmModal}
                   location                    = {this.props.location}
                   submitted                   = {this.props.submitted}
                 />

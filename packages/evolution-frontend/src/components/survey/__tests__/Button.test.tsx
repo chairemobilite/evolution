@@ -53,8 +53,6 @@ const defaultWidgetStatus: WidgetStatus = {
 const startUpdateInterviewMock = jest.fn();
 const startAddGroupedObjectsMock = jest.fn();
 const startRemoveGroupedObjectsMock = jest.fn();
-const openConfirmModalMock = jest.fn();
-const closeConfirmModalMock = jest.fn();
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -74,7 +72,6 @@ each([
         confirmPopup: {
             title: 'popupTitle',
             content: 'popupContent',
-            shortname: 'popupShortname'
         },
         size: 'small',
         conditional: jest.fn()
@@ -95,8 +92,6 @@ each([
                 startAddGroupedObjects={startAddGroupedObjectsMock}
                 startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
                 loadingState={0}
-                openConfirmModal={openConfirmModalMock}
-                closeConfirmModal={closeConfirmModalMock}
             />
         );
         expect(wrapper).toMatchSnapshot();
@@ -115,8 +110,6 @@ each([
                 startAddGroupedObjects={startAddGroupedObjectsMock}
                 startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
                 loadingState={0}
-                openConfirmModal={openConfirmModalMock}
-                closeConfirmModal={closeConfirmModalMock}
             />
         );
         const results = await axe(container);
@@ -139,8 +132,6 @@ test('Widget invisible, should be null', () => {
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
             loadingState={0}
-            openConfirmModal={openConfirmModalMock}
-            closeConfirmModal={closeConfirmModalMock}
         />
     );
     expect(wrapper).toMatchSnapshot();
@@ -163,8 +154,6 @@ test('Widget loading, should be disabled', () => {
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
             loadingState={1}
-            openConfirmModal={openConfirmModalMock}
-            closeConfirmModal={closeConfirmModalMock}
         />
     );
     expect(wrapper).toMatchSnapshot();
@@ -183,8 +172,6 @@ describe('Button widget: behavioral tests', () => {
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-            openConfirmModal={openConfirmModalMock}
-            closeConfirmModal={closeConfirmModalMock}
         />);
 
         // Find and click (with mousedown/mouseup) on the button itself and make sure the action has been called
@@ -208,7 +195,6 @@ describe('Button widget: behavioral tests', () => {
             confirmPopup: {
                 title: 'popupTitle',
                 content: 'popupContent',
-                shortname: 'popupShortname'
             },
         }
         const initialProps = {
@@ -222,8 +208,6 @@ describe('Button widget: behavioral tests', () => {
             startUpdateInterview: startUpdateInterviewMock,
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
-            openConfirmModal: openConfirmModalMock,
-            closeConfirmModal: closeConfirmModalMock
         }
         const buttonWidget = mount(<Button
             {...initialProps}
@@ -234,18 +218,10 @@ describe('Button widget: behavioral tests', () => {
         button.simulate('mousedown');
         button.simulate('mouseup');
 
-        // The openConfirmModal should have been called
+        // The action should not have been called
         buttonWidget.update();
-        expect(openConfirmModalMock).toHaveBeenCalledTimes(1);
-        expect(openConfirmModalMock).toHaveBeenCalledWith(widgetConfig.confirmPopup.shortname);
         expect(commonWidgetConfig.action).not.toHaveBeenCalled();
 
-        // Update the props to display the modal, the modal should be opened
-        buttonWidget.setProps({
-            ...initialProps,
-            confirmModalOpenedShortname: widgetConfig.confirmPopup.shortname
-        });
-        buttonWidget.update();
         // Find and click on the modal's confirm button
         const confirmModal = buttonWidget.find('.react-modal');
         expect(confirmModal).toMatchSnapshot();
@@ -257,7 +233,6 @@ describe('Button widget: behavioral tests', () => {
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock
         }, interviewAttributes, 'home.region', 'test', {}, undefined);
-        expect(closeConfirmModalMock).toHaveBeenCalledTimes(1);
     });
 
     test('Button click, with modal, cancelled', () => {
@@ -266,7 +241,6 @@ describe('Button widget: behavioral tests', () => {
             confirmPopup: {
                 title: 'popupTitle',
                 content: 'popupContent',
-                shortname: 'popupShortname'
             },
         }
         const initialProps = {
@@ -280,8 +254,6 @@ describe('Button widget: behavioral tests', () => {
             startUpdateInterview: startUpdateInterviewMock,
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
-            openConfirmModal: openConfirmModalMock,
-            closeConfirmModal: closeConfirmModalMock
         }
         const buttonWidget = mount(<Button
             {...initialProps}
@@ -292,25 +264,16 @@ describe('Button widget: behavioral tests', () => {
         button.simulate('mousedown');
         button.simulate('mouseup');
 
-        // The openConfirmModal should have been called
+        // The action should not have been called
         buttonWidget.update();
-        expect(openConfirmModalMock).toHaveBeenCalledTimes(1);
-        expect(openConfirmModalMock).toHaveBeenCalledWith(widgetConfig.confirmPopup.shortname);
         expect(commonWidgetConfig.action).not.toHaveBeenCalled();
 
-        // Update the props to display the modal, the modal should be opened
-        buttonWidget.setProps({
-            ...initialProps,
-            confirmModalOpenedShortname: widgetConfig.confirmPopup.shortname
-        });
-        buttonWidget.update();
-        // Find and click on the modal's confirm button
+        // Find and click on the modal's cancel button
         const confirmModal = buttonWidget.find('.react-modal');
         expect(confirmModal).toMatchSnapshot();
         const cancelButton = confirmModal.findWhere(node => node.type() === 'button' && node.text() === 'Cancel');
         cancelButton.first().simulate('click');
         expect(commonWidgetConfig.action).not.toHaveBeenCalled();
-        expect(closeConfirmModalMock).toHaveBeenCalledTimes(1);
     });
 
     test('With loading state and mouse downed and hideWhenRefreshing to true', () => {
@@ -330,8 +293,6 @@ describe('Button widget: behavioral tests', () => {
             startUpdateInterview: startUpdateInterviewMock,
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
-            openConfirmModal: openConfirmModalMock,
-            closeConfirmModal: closeConfirmModalMock
         }
         const buttonWidget = mount(<Button
             {...initialProps}

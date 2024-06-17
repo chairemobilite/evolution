@@ -1538,7 +1538,6 @@ export const buttonDeleteVisitedPlace = {
   align: 'center',
   size: 'small',
   confirmPopup: {
-    shortname: '_deleteVisitedPlace',
     content: {
       fr: function(interview) {
         return `Confirmez-vous que vous voulez retirer ce lieu?`;
