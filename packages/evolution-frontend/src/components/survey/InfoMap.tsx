@@ -96,7 +96,7 @@ const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps &
     const linestringColor = props.widgetConfig.linestringColor || '#0000ff';
     const linestringActiveColor = props.widgetConfig.linestringActiveColor || '#00ff00';
 
-    const bounds = map ? map.getBounds() || new google.maps.LatLngBounds() : undefined;
+    const bounds = new google.maps.LatLngBounds();
 
     for (let i = 0, countI = points.length; i < countI; i++) {
         const point = points[i];
