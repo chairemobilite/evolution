@@ -134,35 +134,7 @@ describe('InputButton with normal options', () => {
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[3].value }});
     });
 
-    test('Test Button click event with close modal', () => {
-        const mockOnValueChange = jest.fn();
-        const mockCloseModal = jest.fn();
-        const { queryByText } = render(
-            <InputButton
-                id={'test'}
-                onValueChange={mockOnValueChange}
-                widgetConfig={widgetConfig}
-                value='value'
-                inputRef={React.createRef()}
-                interview={interviewAttributes}
-                user={userAttributes}
-                path='foo.test'
-                closeQuestionModal={mockCloseModal}
-                questionModalPath={'modalPath'}
-            />
-        );
-        // Html was added, so the complete text is not there, it is actually composed of many texts
-        const buttonOption1 = queryByText(choices[0].label['en']);
-        expect(buttonOption1).toBeTruthy();
-    
-        // Click on the close button
-        fireEvent.click(buttonOption1 as any);
-        expect(mockOnValueChange).toHaveBeenCalledTimes(1);
-        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: choices[0].value }});
-        expect(mockCloseModal).toHaveBeenCalledTimes(1);
-        expect(mockCloseModal).toHaveBeenCalledWith('modalPath');
-    })
-})
+});
 
 test('Render InputButton with choice function', () => {
 

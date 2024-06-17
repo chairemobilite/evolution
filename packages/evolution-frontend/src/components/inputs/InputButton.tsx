@@ -19,8 +19,6 @@ export type InputButtonProps = CommonInputProps & {
     value: string;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     widgetConfig: InputButtonType;
-    closeQuestionModal?: (path: string) => void;
-    questionModalPath?: string;
 };
 
 export interface InputButtonOptionProps {
@@ -70,10 +68,6 @@ const InputButton = (props: InputButtonProps & WithTranslation) => {
     const onButtonClick = (e: React.MouseEvent, value: string) => {
         e.preventDefault();
         props.onValueChange({ target: { value } });
-
-        if (props.widgetConfig.isModal === true && props.closeQuestionModal) {
-            props.closeQuestionModal(props.questionModalPath || '');
-        }
     };
 
     const choiceInputs = choices.map((choice, index) => (

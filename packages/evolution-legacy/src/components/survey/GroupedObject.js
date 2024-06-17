@@ -94,10 +94,6 @@ export class GroupedObject extends React.Component {
         groupedObjectId            : groupedObjectId,
         interview                  : this.props.interview,
         user                       : this.props.user,
-        openQuestionModal          : this.props.openQuestionModal,
-        closeQuestionModal         : this.props.closeQuestionModal,
-        isInsideModal              : this.props.isInsideModal,
-        questionModalPath          : this.props.questionModalPath,
         startUpdateInterview       : this.props.startUpdateInterview,
         startAddGroupedObjects     : this.props.startAddGroupedObjects,
         startRemoveGroupedObjects  : this.props.startRemoveGroupedObjects

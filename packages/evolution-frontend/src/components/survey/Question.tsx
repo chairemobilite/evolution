@@ -45,8 +45,6 @@ interface QuestionProps {
     interview: UserInterviewAttributes;
     user: CliUser;
     widgetStatus: WidgetStatus;
-    closeQuestionModal?: (path: string) => void;
-    questionModalPath?: string;
     startUpdateInterview: surveyHelper.StartUpdateInterview;
 }
 
@@ -251,8 +249,6 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
                     <InputButton
                         {...commonProps}
                         value={widgetStatus.value as any}
-                        closeQuestionModal={this.props.closeQuestionModal}
-                        questionModalPath={this.props.questionModalPath}
                         widgetConfig={widgetConfig as any}
                     />
                 );
@@ -277,8 +273,6 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
                     <InputTime
                         {...commonProps}
                         value={widgetStatus.value as any}
-                        closeQuestionModal={this.props.closeQuestionModal}
-                        questionModalPath={this.props.questionModalPath}
                         widgetConfig={widgetConfig as any}
                     />
                 );
@@ -391,7 +385,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             return (
                 <Modal
                     isOpen={true}
-                    onRequestClose={this.props.closeQuestionModal}
+                    onRequestClose={() => this.closeModal()}
                     className="react-modal"
                     overlayClassName="react-modal-overlay"
                     contentLabel={(widgetConfig as any).title || ''}
