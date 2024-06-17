@@ -360,9 +360,9 @@ export type InfoMapWidgetConfig = {
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
     title: I18nData;
     geojsons: ParsingFunction<{
-        points: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapObjectProperty>;
-        linestrings: GeoJSON.FeatureCollection<GeoJSON.LineString, SurveyMapObjectProperty>;
-        polygons: GeoJSON.FeatureCollection<GeoJSON.Polygon, SurveyMapObjectPolygonProperty>;
+        points?: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapObjectProperty>;
+        linestrings?: GeoJSON.FeatureCollection<GeoJSON.LineString, SurveyMapObjectProperty>;
+        polygons?: GeoJSON.FeatureCollection<GeoJSON.Polygon, SurveyMapObjectPolygonProperty>;
     }>;
     defaultCenter?: { lat: number; lon: number } | ParsingFunction<{ lat: number; lon: number }>;
     maxZoom?: number;
