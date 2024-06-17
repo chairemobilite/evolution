@@ -249,7 +249,7 @@ export type InputButton = InputButtonBase & {
         conditional?: Conditional;
     };
     size?: Size;
-    saveCallback?: () => void;
+    saveCallback?: ParsingFunctionWithCallbacks<void>;
     conditional?: Conditional;
 };
 
