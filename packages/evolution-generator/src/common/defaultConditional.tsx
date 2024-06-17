@@ -8,4 +8,4 @@
 // import { Conditional } from '../types/inputTypes';
 
 // Accept all the time
-export const defaultConditional = (_interview) => [true, null];
+export const defaultConditional = (_interview) => true;
