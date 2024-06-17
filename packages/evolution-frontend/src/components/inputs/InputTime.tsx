@@ -17,8 +17,6 @@ export type InputTimeProps = CommonInputProps & {
     value?: number;
     inputRef?: React.LegacyRef<HTMLTextAreaElement>;
     widgetConfig: InputTimeType;
-    closeQuestionModal?: (path: string) => void;
-    questionModalPath?: string;
 };
 
 const midnight = 24 * 60 * 60;

@@ -8,43 +8,21 @@ import React from 'react';
 
 export default function sectionTemplate(WrappedComponent) {
 
+  // FIXME: There's not much in this HOC, see if we can remove it, what's this afterLoad function?
   class SectionTemplateHOC extends React.Component {
 
     constructor(props) {
       super(props);
 
-      this.state = {
-        questionModalPath: null
-      };
-      
       if (props.afterLoad === 'function')
       {
         props.afterLoad = props.afterLoad.bind(props);
       }
       
-      this.openQuestionModal               = this.openQuestionModal.bind(this);
-      this.closeQuestionModal              = this.closeQuestionModal.bind(this);
-    }
-
-    openQuestionModal(path) {
-      this.setState(function(oldState){
-        return {
-          questionModalPath: oldState.questionModalPath === null ? path : oldState.questionModalPath
-        };
-      });
-    }
-
-    closeQuestionModal(path) {
-      this.setState((oldState) => ({
-        questionModalPath: oldState.questionModalPath === path ? null : oldState.questionModalPath
-      }));
     }
     
     render() {
-      return <WrappedComponent {...this.props} 
-        openQuestionModal               = {this.openQuestionModal}
-        closeQuestionModal              = {this.closeQuestionModal}
-        questionModalPath               = {this.state.questionModalPath}
+      return <WrappedComponent {...this.props}     
       />;
     }
   
