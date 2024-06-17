@@ -54,7 +54,7 @@ export type StartUpdateInterview = (
     valuesByPath?: { [path: string]: unknown },
     unsetPaths?: string[],
     interview?: UserInterviewAttributes,
-    callback?: () => void,
+    callback?: (interview: UserInterviewAttributes) => void,
     history?: History
 ) => void;
 

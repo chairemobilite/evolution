@@ -271,7 +271,7 @@ export const startUpdateInterview = (
     valuesByPath?: { [path: string]: unknown },
     unsetPaths?: string[],
     interview?: UserFrontendInterviewAttributes,
-    callback?: () => void,
+    callback?: (interview: UserFrontendInterviewAttributes) => void,
     history?: History
 ) => ({
     queue: 'UPDATE_INTERVIEW',
