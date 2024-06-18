@@ -98,16 +98,6 @@ export class GroupedObject extends React.Component {
         startAddGroupedObjects     : this.props.startAddGroupedObjects,
         startRemoveGroupedObjects  : this.props.startRemoveGroupedObjects
       };
-      
-      if (typeof widgetConfig.type === 'function') // custom widget component
-      {
-        const WidgetComponent = widgetConfig.type();
-        return <WidgetComponent {...defaultProps}
-          groupConfig                     = {this.props.groupsConfig[widgetShortname]}
-          groupsConfig                    = {this.props.groupsConfig}
-          parentObjectIds                 = {parentObjectIds}
-        />;
-      }
 
       switch(widgetConfig.type)
       {
