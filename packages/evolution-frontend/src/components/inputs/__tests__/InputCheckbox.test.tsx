@@ -90,13 +90,13 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
         conditionalFct.mockClear();
     })
 
-    test('Includes hidden values, conditional displayed, no custom, 2 columns', () => {
+    test('Includes hidden values, conditional displayed, no custom, 2 columns, 2 selected values', () => {
         const wrapper = TestRenderer.create(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
                 widgetConfig={widgetConfig}
-                value='value'
+                value={['val1', 'val2']}
                 inputRef={React.createRef()}
                 
                 interview={interviewAttributes}
@@ -110,7 +110,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
         expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
     });
 
-    test('Conditional value hidden, same line', () => {
+    test('Conditional value hidden, same line, no value selected', () => {
         conditionalFct.mockReturnValueOnce(false);
         const testWidgetConfig = Object.assign({}, widgetConfig, { sameLine: true, columns: undefined });
         const wrapper = TestRenderer.create(
@@ -118,7 +118,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
                 widgetConfig={testWidgetConfig}
-                value='value'
+                value={[]}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -128,7 +128,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
         expect(wrapper).toMatchSnapshot();
     });
 
-    test('Shuffle choices', () => {
+    test('Shuffle choices, one selected value', () => {
         shuffleMock.mockReturnValue([choices[1], choices[3], choices[0], choices[2]]);
         const testWidgetConfig = Object.assign({}, widgetConfig, { shuffle: true });
         const wrapper = TestRenderer.create(
@@ -136,7 +136,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
                 widgetConfig={testWidgetConfig}
-                value='value'
+                value={['val2']}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -148,14 +148,32 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
         expect(shuffleMock).toHaveBeenCalledWith(choices, undefined, widgetConfig.seed);
     });
 
-    test('With custom choice', () => {
+    test('With custom choice, custom unchecked', () => {
         const testWidgetConfig = Object.assign({}, widgetConfig, { addCustom: true });
         const wrapper = TestRenderer.create(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
                 widgetConfig={testWidgetConfig}
-                value='value'
+                value={['value']}
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path='foo.test'
+                customId='foo.test.custom'
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('With custom choice, custom checked', () => {
+        const testWidgetConfig = Object.assign({}, widgetConfig, { addCustom: true });
+        const wrapper = TestRenderer.create(
+            <InputCheckbox
+                id={'test'}
+                onValueChange={() => { /* nothing to do */}}
+                widgetConfig={testWidgetConfig}
+                value={['custom']}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -194,13 +212,13 @@ describe('Render InputCheckbox with minimum parameters', () => {
         }
     };
 
-    test('Minimum parameters', () => {
+    test('Minimum parameters, one value selected', () => {
         const wrapper = TestRenderer.create(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
                 widgetConfig={widgetConfig}
-                value='value'
+                value={['val1']}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -248,7 +266,7 @@ describe('Render InputCheckbox with HTML label', () => {
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
                 widgetConfig={widgetConfig}
-                value='value'
+                value={['second value']}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}

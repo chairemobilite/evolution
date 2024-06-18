@@ -18,7 +18,7 @@ import { CommonInputProps } from './CommonInputProps';
 import { sortByParameters } from './InputChoiceSorting';
 
 export type InputCheckboxProps = CommonInputProps & {
-    value: string;
+    value: string[];
     /** Value of the custom field if 'other' is selected */
     customValue?: string;
     inputRef?: React.LegacyRef<HTMLInputElement>;
