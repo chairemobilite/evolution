@@ -172,6 +172,490 @@ exports[`Should correctly render InputRange with minimal parameters Test without
 </div>
 `;
 
+exports[`Should correctly render InputRange with not applicable Test with a not applicable value 1`] = `
+<div
+  className="survey-question__input-range_input_container_with_labels"
+>
+  <div
+    aria-disabled={true}
+    className="input-range input-range--disabled"
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseDown={[Function]}
+    onTouchStart={[Function]}
+  >
+    <span
+      className="input-range__label input-range__label--min"
+    >
+      <span
+        className="input-range__label-container"
+      >
+        -10
+      </span>
+    </span>
+    <div
+      className="myTrackClass"
+      onMouseDown={[Function]}
+      onTouchStart={[Function]}
+    >
+      <div
+        className="input-range__track input-range__track--active"
+        style={
+          Object {
+            "left": "0%",
+            "width": "0%",
+          }
+        }
+      />
+      <span
+        className="input-range__slider-container"
+        style={
+          Object {
+            "left": "0%",
+            "position": "absolute",
+          }
+        }
+      >
+        <span
+          className="input-range__label input-range__label--value"
+        >
+          <span
+            className="input-range__label-container"
+          >
+            -10
+          </span>
+        </span>
+        <div
+          aria-labelledby="test_label"
+          aria-valuemax={100}
+          aria-valuemin={-10}
+          aria-valuenow={-10}
+          className="input-range__slider"
+          draggable="false"
+          onKeyDown={[Function]}
+          onMouseDown={[Function]}
+          onTouchStart={[Function]}
+          role="slider"
+          tabIndex="0"
+        />
+      </span>
+    </div>
+    <span
+      className="input-range__label input-range__label--max"
+    >
+      <span
+        className="input-range__label-container"
+      >
+        100
+      </span>
+    </span>
+    <input
+      name="test"
+      type="hidden"
+      value={-10}
+    />
+  </div>
+  <div
+    className="survey-question__input-checkbox-group-container"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container checked"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={true}
+          className="input-checkbox"
+          id="test_na_na__input-checkbox__na"
+          name="test_na_na"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="na"
+        />
+        <label
+          htmlFor="test_na_na__input-checkbox__na"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "NotApplicable",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Should correctly render InputRange with not applicable Test with custom not applicable label 1`] = `
+<div
+  className="survey-question__input-range_input_container_with_labels"
+>
+  <div
+    aria-disabled={false}
+    className="input-range"
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseDown={[Function]}
+    onTouchStart={[Function]}
+  >
+    <span
+      className="input-range__label input-range__label--min"
+    >
+      <span
+        className="input-range__label-container"
+      >
+        -10
+      </span>
+    </span>
+    <div
+      className="myTrackClass"
+      onMouseDown={[Function]}
+      onTouchStart={[Function]}
+    >
+      <div
+        className="input-range__track input-range__track--active"
+        style={
+          Object {
+            "left": "0%",
+            "width": "18.181818181818183%",
+          }
+        }
+      />
+      <span
+        className="input-range__slider-container"
+        style={
+          Object {
+            "left": "18.181818181818183%",
+            "position": "absolute",
+          }
+        }
+      >
+        <span
+          className="input-range__label input-range__label--value"
+        >
+          <span
+            className="input-range__label-container"
+          >
+            10
+          </span>
+        </span>
+        <div
+          aria-labelledby="test_label"
+          aria-valuemax={100}
+          aria-valuemin={-10}
+          aria-valuenow={10}
+          className="input-range__slider"
+          draggable="false"
+          onKeyDown={[Function]}
+          onMouseDown={[Function]}
+          onTouchStart={[Function]}
+          role="slider"
+          tabIndex="0"
+        />
+      </span>
+    </div>
+    <span
+      className="input-range__label input-range__label--max"
+    >
+      <span
+        className="input-range__label-container"
+      >
+        100
+      </span>
+    </span>
+    <input
+      name="test"
+      type="hidden"
+      value={10}
+    />
+  </div>
+  <div
+    className="survey-question__input-checkbox-group-container"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_na_na__input-checkbox__na"
+          name="test_na_na"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="na"
+        />
+        <label
+          htmlFor="test_na_na__input-checkbox__na"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "Custom non applicable",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Should correctly render InputRange with not applicable Test with value 1`] = `
+<div
+  className="survey-question__input-range_input_container_with_labels"
+>
+  <div
+    aria-disabled={false}
+    className="input-range"
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseDown={[Function]}
+    onTouchStart={[Function]}
+  >
+    <span
+      className="input-range__label input-range__label--min"
+    >
+      <span
+        className="input-range__label-container"
+      >
+        -10
+      </span>
+    </span>
+    <div
+      className="myTrackClass"
+      onMouseDown={[Function]}
+      onTouchStart={[Function]}
+    >
+      <div
+        className="input-range__track input-range__track--active"
+        style={
+          Object {
+            "left": "0%",
+            "width": "18.181818181818183%",
+          }
+        }
+      />
+      <span
+        className="input-range__slider-container"
+        style={
+          Object {
+            "left": "18.181818181818183%",
+            "position": "absolute",
+          }
+        }
+      >
+        <span
+          className="input-range__label input-range__label--value"
+        >
+          <span
+            className="input-range__label-container"
+          >
+            10
+          </span>
+        </span>
+        <div
+          aria-labelledby="test_label"
+          aria-valuemax={100}
+          aria-valuemin={-10}
+          aria-valuenow={10}
+          className="input-range__slider"
+          draggable="false"
+          onKeyDown={[Function]}
+          onMouseDown={[Function]}
+          onTouchStart={[Function]}
+          role="slider"
+          tabIndex="0"
+        />
+      </span>
+    </div>
+    <span
+      className="input-range__label input-range__label--max"
+    >
+      <span
+        className="input-range__label-container"
+      >
+        100
+      </span>
+    </span>
+    <input
+      name="test"
+      type="hidden"
+      value={10}
+    />
+  </div>
+  <div
+    className="survey-question__input-checkbox-group-container"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_na_na__input-checkbox__na"
+          name="test_na_na"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="na"
+        />
+        <label
+          htmlFor="test_na_na__input-checkbox__na"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "NotApplicable",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Should correctly render InputRange with not applicable Test without value 1`] = `
+<div
+  className="survey-question__input-range_input_container_with_labels input-blank"
+>
+  <div
+    aria-disabled={false}
+    className="input-range"
+    onKeyDown={[Function]}
+    onKeyUp={[Function]}
+    onMouseDown={[Function]}
+    onTouchStart={[Function]}
+  >
+    <span
+      className="input-range__label input-range__label--min"
+    >
+      <span
+        className="input-range__label-container"
+      >
+        -10
+      </span>
+    </span>
+    <div
+      className="myTrackClass"
+      onMouseDown={[Function]}
+      onTouchStart={[Function]}
+    >
+      <div
+        className="input-range__track input-range__track--active"
+        style={
+          Object {
+            "left": "0%",
+            "width": "0%",
+          }
+        }
+      />
+      <span
+        className="input-range__slider-container"
+        style={
+          Object {
+            "left": "0%",
+            "position": "absolute",
+          }
+        }
+      >
+        <span
+          className="input-range__label input-range__label--value"
+        >
+          <span
+            className="input-range__label-container"
+          >
+            -10
+          </span>
+        </span>
+        <div
+          aria-labelledby="test_label"
+          aria-valuemax={100}
+          aria-valuemin={-10}
+          aria-valuenow={-10}
+          className="input-range__slider"
+          draggable="false"
+          onKeyDown={[Function]}
+          onMouseDown={[Function]}
+          onTouchStart={[Function]}
+          role="slider"
+          tabIndex="0"
+        />
+      </span>
+    </div>
+    <span
+      className="input-range__label input-range__label--max"
+    >
+      <span
+        className="input-range__label-container"
+      >
+        100
+      </span>
+    </span>
+    <input
+      name="test"
+      type="hidden"
+      value={-10}
+    />
+  </div>
+  <div
+    className="survey-question__input-checkbox-group-container"
+  >
+    <div
+      className="survey-question__input-checkbox-input-container"
+      onClick={[Function]}
+    >
+      <div
+        className="label-input-container"
+      >
+        <input
+          checked={false}
+          className="input-checkbox"
+          id="test_na_na__input-checkbox__na"
+          name="test_na_na"
+          onChange={[Function]}
+          onClick={[Function]}
+          type="checkbox"
+          value="na"
+        />
+        <label
+          htmlFor="test_na_na__input-checkbox__na"
+          onClick={[Function]}
+        >
+          <span
+            dangerouslySetInnerHTML={
+              Object {
+                "__html": "NotApplicable",
+              }
+            }
+          />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Should correctly render InputRange with various parameters Test trackclass and labels 1`] = `
 <div
   className="survey-question__input-range_input_container_with_labels"

@@ -143,3 +143,90 @@ describe('Should correctly render InputRange with various parameters', () => {
     });
 
 });
+
+describe('Should correctly render InputRange with not applicable', () => {
+
+    const widgetConfig = {
+        type: 'question' as const,
+        twoColumns: true,
+        path: 'test.foo',
+        containsHtml: true,
+        label: {
+            fr: `Texte en français`,
+            en: `English text`
+        },
+        inputType: 'slider' as const,
+        includeNotApplicable: true
+    }
+
+    test('Test without value', () => {
+        // Should have a blank style
+        const wrapper = TestRenderer.create(
+            <InputRange
+                id={'test'}
+                onValueChange={() => { /* nothing to do */}}
+                widgetConfig={widgetConfig}
+                value={undefined}
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path='foo.test'
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('Test with value', () => {
+        const wrapper = TestRenderer.create(
+            <InputRange
+                id={'test'}
+                onValueChange={() => { /* nothing to do */}}
+                widgetConfig={widgetConfig}
+                value={10}
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path='foo.test'
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('Test with a not applicable value', () => {
+        const wrapper = TestRenderer.create(
+            <InputRange
+                id={'test'}
+                onValueChange={() => { /* nothing to do */}}
+                widgetConfig={widgetConfig}
+                value={'na'}
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path='foo.test'
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('Test with custom not applicable label', () => {
+        const widgetConfigWithLabel = {
+            ...widgetConfig,
+            notApplicableLabel: 'Custom non applicable'
+        }
+        const wrapper = TestRenderer.create(
+            <InputRange
+                id={'test'}
+                onValueChange={() => { /* nothing to do */}}
+                widgetConfig={widgetConfigWithLabel}
+                value={10}
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path='foo.test'
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+});
+
