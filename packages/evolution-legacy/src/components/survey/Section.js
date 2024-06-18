@@ -191,28 +191,17 @@ export class Section extends React.Component {
         startRemoveGroupedObjects  : this.props.startRemoveGroupedObjects
       };
 
-      if (typeof widgetConfig.type === 'function') // custom widget component
+      switch(widgetConfig.type)
       {
-        const WidgetComponent = widgetConfig.type();
-        widgetsComponentByShortname[widgetShortname] = <WidgetComponent {...defaultProps}
+        case 'text':              widgetsComponentByShortname[widgetShortname] = <Text            {...defaultProps} />; break;
+        case 'infoMap':           widgetsComponentByShortname[widgetShortname] = <InfoMap         {...defaultProps} />; break;
+        case 'button':            widgetsComponentByShortname[widgetShortname] = <Button          {...defaultProps} />; break;
+        case 'question':          widgetsComponentByShortname[widgetShortname] = <Question        {...defaultProps} />; break;
+        case 'group':             widgetsComponentByShortname[widgetShortname] = <Group           {...defaultProps}
           groupConfig                     = {this.props.groups[widgetShortname]}
+          groupsConfig                    = {this.props.groups}
           parentObjectIds                 = {{}}
-        />;
-      }
-      else
-      {
-        switch(widgetConfig.type)
-        {
-          case 'text':              widgetsComponentByShortname[widgetShortname] = <Text            {...defaultProps} />; break;
-          case 'infoMap':           widgetsComponentByShortname[widgetShortname] = <InfoMap         {...defaultProps} />; break;
-          case 'button':            widgetsComponentByShortname[widgetShortname] = <Button          {...defaultProps} />; break;
-          case 'question':          widgetsComponentByShortname[widgetShortname] = <Question        {...defaultProps} />; break;
-          case 'group':             widgetsComponentByShortname[widgetShortname] = <Group           {...defaultProps}
-            groupConfig                     = {this.props.groups[widgetShortname]}
-            groupsConfig                    = {this.props.groups}
-            parentObjectIds                 = {{}}
-          />; break;
-        }
+        />; break;
       }
     }
 
