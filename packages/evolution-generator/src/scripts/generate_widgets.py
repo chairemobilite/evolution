@@ -383,12 +383,15 @@ def generate_info_text_widget(question_name, section, path, conditional, row):
 
 # Generate InputRange widget
 def generate_range_widget(question_name, section, path, input_range, conditional, validation, widget_label, row):
+    includeNotApplicable = row['includeNotApplicable'] if 'includeNotApplicable' in row else False
+    notApplicableConfig = "includeNotApplicable: true,\n" if includeNotApplicable else ""
     return f"{generate_constExport(question_name, 'InputRange')}\n" \
             f"{generate_defaultInputBase('inputRangeBase')},\n" \
             f"{INDENT}...inputRange.{input_range},\n" \
             f"{generate_path(path)},\n" \
             f"{generate_common_properties(row)}" \
             f"{widget_label},\n" \
+            f"{notApplicableConfig}" \
             f"{generate_conditional(conditional)},\n" \
             f"{generate_validation(validation)}\n" \
             f"}};"

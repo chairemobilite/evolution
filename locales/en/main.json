@@ -41,5 +41,6 @@
   "BackToSurveyPage": "Back to survey",
   "AnErrorOccurred": "An error occurred.",
   "MakeSureReliableConnection": "Make sure you have a reliable internet connection.",
-  "ErrorPersistsWhatToDo": "If the problem persists, please contact the survey administrators."
+  "ErrorPersistsWhatToDo": "If the problem persists, please contact the survey administrators.",
+  "NotApplicable": "Not applicable"
 }

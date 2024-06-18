@@ -41,5 +41,6 @@
   "BackToSurveyPage": "Retour à l'enquête",
   "AnErrorOccurred": "Une erreur est survenue.",
   "MakeSureReliableConnection": "Assurez-vous d'avoir une connection internet fiable.",
-  "ErrorPersistsWhatToDo": "Si le problème persiste, veuillez contacter les administrateurs de l'enquête."
+  "ErrorPersistsWhatToDo": "Si le problème persiste, veuillez contacter les administrateurs de l'enquête.",
+  "NotApplicable": "Non applicable"
 }

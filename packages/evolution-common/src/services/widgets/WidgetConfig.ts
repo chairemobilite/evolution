@@ -194,6 +194,10 @@ export type InputRangeType = {
     formatLabel?: (value: number, lang: string) => string;
     labels?: I18nData[];
     trackClassName?: string;
+    /** Whether to include a 'not applicable' checkbox that will disable the input */
+    includeNotApplicable?: boolean;
+    /** An optional label for the 'not applicable' text. Only used if includeNotApplicable is true */
+    notApplicableLabel?: I18nData;
 };
 
 export type InputDatePickerType = {

@@ -343,6 +343,7 @@ export const householdSurveyAppreciation = {
     type: "question",
     path: "household.surveyAppreciation",
     inputType: "slider",
+    includeNotApplicable: true,
     datatype: "number",
     twoColumns: true,
     maxValue: 10,
