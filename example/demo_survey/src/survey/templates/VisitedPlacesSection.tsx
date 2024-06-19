@@ -33,8 +33,7 @@ import Text            from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap         from 'evolution-frontend/lib/components/survey/InfoMap';
 import Button          from 'evolution-frontend/lib/components/survey/Button';
 import Question        from 'evolution-frontend/lib/components/survey/Question';
-import Group           from 'evolution-legacy/lib/components/survey/Group';
-import GroupedObject   from 'evolution-legacy/lib/components/survey/GroupedObject';
+import { Group, GroupedObject } from 'evolution-frontend/lib/components/survey/GroupWidgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import helper          from '../helper';
 import ConfirmModal    from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
@@ -260,6 +259,7 @@ export class VisitedPlacesSection extends React.Component<any, any> {
         case 'question': component = <Question {...defaultProps} />; break;
         case 'group':    component = <Group    {...defaultProps}
           groupConfig     = {this.props.groups[widgetShortname]}
+          groupsConfig    = {this.props.groups}
           parentObjectIds = {{}}
         />;
       }

@@ -374,14 +374,27 @@ export type InfoMapWidgetConfig = {
     linestringActiveColor?: string;
 };
 
+export type GroupConfig = {
+    type: 'group';
+    path: string;
+    widgets: string[];
+    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    showTitle?: boolean;
+    groupedObjectConditional?: ParsingFunction<boolean>;
+    showGroupedObjectAddButton: ParsingFunction<boolean>;
+    groupedObjectAddButtonLabel?: I18nData;
+    showGroupedObjectDeleteButton: ParsingFunction<boolean>;
+    groupedObjectDeleteButtonLabel?: I18nData;
+    deleteConfirmPopup?: {
+        content: I18nData;
+    };
+    addButtonLocation?: 'bottom' | 'top' | 'both';
+    addButtonSize?: string;
+};
+
 export type WidgetConfig =
     | QuestionWidgetConfig
     | TextWidgetConfig
-    | {
-          type: 'group';
-          path: string;
-          conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
-          // TODO Further type this
-      }
+    | GroupConfig
     | ButtonWidgetConfig
     | InfoMapWidgetConfig;

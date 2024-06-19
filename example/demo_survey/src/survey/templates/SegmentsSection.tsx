@@ -25,8 +25,7 @@ import Text            from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap         from 'evolution-frontend/lib/components/survey/InfoMap';
 import Button          from 'evolution-frontend/lib/components/survey/Button';
 import Question        from 'evolution-frontend/lib/components/survey/Question';
-import Group           from 'evolution-legacy/lib/components/survey/Group';
-import GroupedObject   from 'evolution-legacy/lib/components/survey/GroupedObject';
+import { Group, GroupedObject } from 'evolution-frontend/lib/components/survey/GroupWidgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
 import helper          from '../helper';
@@ -150,6 +149,7 @@ export class SegmentsSection extends React.Component<any, any> {
         case 'question': component = <Question {...defaultProps} />; break;
         case 'group':    component = <Group    {...defaultProps}
           groupConfig     = {this.props.groups[widgetShortname]}
+          groupsConfig    = {this.props.groups}
           parentObjectIds = {{}}
         />;
       }
@@ -258,13 +258,6 @@ export class SegmentsSection extends React.Component<any, any> {
               startUpdateInterview        = {this.props.startUpdateInterview}
               startAddGroupedObjects      = {this.props.startAddGroupedObjects}
               startRemoveGroupedObjects   = {this.props.startRemoveGroupedObjects}
-              saveCallback                = {(function() {
-                const person = helper.getPerson(this.props.interview);
-                const trips  = helper.getTrips(person);
-                this.props.startUpdateInterview('segments', {
-                  [`responses._activeTripId`]: helper.selectNextTripId(trips)
-                });
-              }).bind(this)}
             />
           </li>
         );
