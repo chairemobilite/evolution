@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { GroupConfig } from "evolution-common/lib/services/widgets/WidgetConfig";
 import { StartUpdateInterview } from "evolution-common/lib/utils/helpers";
 
 // Note: This file includes types for all the different sections types used in the evolution-generator
@@ -12,24 +13,7 @@ import { StartUpdateInterview } from "evolution-common/lib/utils/helpers";
 export type SectionName = string | null;
 export type WidgetsNames = string[];
 export type InterviewPathFunction = (interview: any, path: string) => boolean;
-export type Group = {
-    showTitle?: boolean;
-    showGroupedObjectDeleteButton: InterviewPathFunction | boolean;
-    deleteConfirmPopup?: {
-        content: {
-            fr: ((interview?, path?) => string) | string;
-            en: ((interview?, path?) => string) | string;
-        };
-    };
-    showGroupedObjectAddButton: InterviewPathFunction | boolean;
-    groupedObjectAddButtonLabel?: {
-        fr: ((interview?, path?) => string) | string;
-        en: ((interview?, path?) => string) | string;
-    };
-    addButtonLocation?: 'bottom' | 'both';
-    addButtonSize?: string;
-    widgets: string[];
-};
+export type Group = GroupConfig;
 export type Groups = {
     [groupName: string]: Group;
 };

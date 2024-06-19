@@ -1,0 +1,115 @@
+/*
+ * Copyright 2024, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+import React from 'react';
+import { withTranslation, WithTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+import {
+    InterviewUpdateCallbacks,
+    parseBoolean,
+    parseString,
+    translateString
+} from 'evolution-common/lib/utils/helpers';
+import { withSurveyContext, WithSurveyContextProps } from '../../hoc/WithSurveyContextHoc';
+import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
+
+type DeleteGroupedObjectButton = InterviewUpdateCallbacks & {
+    interview: UserInterviewAttributes;
+    user: CliUser;
+    path: string;
+    shortname: string;
+    groupConfig: GroupConfig;
+    widgetConfig: any;
+};
+
+const DeleteGroupedObjectButton: React.FC<DeleteGroupedObjectButton & WithTranslation> = (props) => {
+    const [deletePlaceModalOpened, setDeletePlaceModalOpened] = React.useState(false);
+
+    const beforeRemoveGroupedObject = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        const hasConfirmPopup = props.widgetConfig.deleteConfirmPopup;
+        const confirmPopupConditional = hasConfirmPopup
+            ? parseBoolean(props.widgetConfig.deleteConfirmPopup.conditional, props.interview, props.path, props.user)
+            : true;
+
+        if (hasConfirmPopup && confirmPopupConditional === true) {
+            setDeletePlaceModalOpened(true);
+        } else {
+            onRemoveGroupedObject();
+        }
+    };
+
+    const onRemoveGroupedObject = (e?: React.MouseEvent<unknown>) => {
+        if (e) {
+            e.preventDefault();
+        }
+        props.startRemoveGroupedObjects(props.path);
+    };
+
+    const widgetConfig = props.widgetConfig;
+
+    const showDeleteButton = parseBoolean(
+        props.groupConfig.showGroupedObjectDeleteButton,
+        props.interview,
+        props.path,
+        props.user,
+        false
+    );
+    const deleteButtonLabel =
+        parseString(
+            props.groupConfig.groupedObjectDeleteButtonLabel
+                ? props.groupConfig.groupedObjectDeleteButtonLabel[props.i18n.language] ||
+                      props.groupConfig.groupedObjectDeleteButtonLabel
+                : null,
+            props.interview,
+            props.path
+        ) || props.t(`survey:${widgetConfig.shortname}:deleteThisGroupedObject`);
+
+    return (
+        <div className="center">
+            {showDeleteButton && (
+                <button type="button" className="button red small" onClick={beforeRemoveGroupedObject}>
+                    <FontAwesomeIcon icon={faTrashAlt} className="faIconLeft" />
+                    {deleteButtonLabel}
+                </button>
+            )}
+            {deletePlaceModalOpened &&
+                widgetConfig.deleteConfirmPopup &&
+                widgetConfig.deleteConfirmPopup.content &&
+                widgetConfig.deleteConfirmPopup.content[props.i18n.language] && (
+                <div>
+                    <ConfirmModal
+                        isOpen={true}
+                        closeModal={() => setDeletePlaceModalOpened(false)}
+                        text={parseString(
+                            widgetConfig.deleteConfirmPopup.content[props.i18n.language] ||
+                                    widgetConfig.deleteConfirmPopup.content,
+                            props.interview,
+                            props.path
+                        )}
+                        title={
+                            translateString(
+                                widgetConfig.deleteConfirmPopup.title,
+                                props.i18n,
+                                props.interview,
+                                props.path
+                            ) || ''
+                        }
+                        cancelAction={widgetConfig.deleteConfirmPopup.cancelAction}
+                        confirmAction={(e) => onRemoveGroupedObject(e)}
+                        containsHtml={widgetConfig.containsHtml}
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
+export default withTranslation()(DeleteGroupedObjectButton);

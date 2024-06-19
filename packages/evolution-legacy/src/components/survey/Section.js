@@ -17,7 +17,7 @@ import Text             from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap          from 'evolution-frontend/lib/components/survey/InfoMap';
 import Button           from 'evolution-frontend/lib/components/survey/Button';
 import Question         from 'evolution-frontend/lib/components/survey/Question';
-import Group            from './Group';
+import { Group }        from 'evolution-frontend/lib/components/survey/GroupWidgets';
 import LoadingPage      from '../shared/LoadingPage';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
 
