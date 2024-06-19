@@ -708,6 +708,7 @@ const getInterviewsStream = function (params: {
         'i.is_valid',
         'i.is_completed',
         'i.is_validated',
+        'i.is_questionable',
         'i.survey_id',
         knex.raw('case when validated_data is null then false else true end as validated_data_available')
     ];
