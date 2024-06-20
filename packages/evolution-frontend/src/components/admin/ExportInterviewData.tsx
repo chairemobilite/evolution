@@ -22,10 +22,20 @@ const ExportInterviewData = ({ t }: WithTranslation) => {
         updateOrWaitForFiles(false);
     }, []);
 
-    const onPrepareCsvExportFiles = async () => {
+    const onPrepareCsvRespondentExportFiles = async () => {
+        return onPrepareCsvExportFiles('participant');
+    };
+
+    const onPrepareCsvValidatedExportFiles = async () => {
+        return onPrepareCsvExportFiles('validatedIfAvailable');
+    };
+
+    const onPrepareCsvExportFiles = async (
+        exportType: 'validatedIfAvailable' | 'participant' = 'validatedIfAvailable'
+    ) => {
         setIsPreparingCsvExportFiles(true);
         try {
-            const response = await fetch('/api/admin/data/prepareCsvFileForExportByObject', {
+            const response = await fetch('/api/admin/data/prepareCsvFileForExportByObject?responseType=' + exportType, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -114,7 +124,16 @@ const ExportInterviewData = ({ t }: WithTranslation) => {
     return (
         <div className="admin-widget-container">
             {isPreparingCsvExportFiles && <LoadingPage />}
-            <Button color="blue" onClick={onPrepareCsvExportFiles} label={t('admin:export:PrepareCsvExportFiles')} />
+            <Button
+                color="blue"
+                onClick={onPrepareCsvValidatedExportFiles}
+                label={t('admin:export:PrepareValidatedCsvExportFiles')}
+            />
+            <Button
+                color="blue"
+                onClick={onPrepareCsvRespondentExportFiles}
+                label={t('admin:export:PrepareParticipantCsvExportFiles')}
+            />
             {error && <FormErrors errors={[error]} />}
             {csvExportFilesReady && <ul>{csvFileExportLinks}</ul>}
             <ul>

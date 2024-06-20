@@ -126,7 +126,8 @@
   "HouseholdSize": "Taille du ménage",
   "Select": "Sélectionner",
   "export": {
-    "PrepareCsvExportFiles": "Préparer les fichiers CSV pour exportation par objet",
+    "PrepareValidatedCsvExportFiles": "Préparer les fichiers CSV par objet (réponses validées si disponibles)",
+    "PrepareParticipantCsvExportFiles": "Préparer les fichiers CSV par objet (réponses originales)",
     "RefreshExportFiles": "Rafraîchir la liste des fichiers d'export",
     "ServerErrorForExport": "Erreur de serveur pendant la préparation des fichiers d'export",
     "ServerExportForbidden": "Vous n'êtes pas autorisé à exporter les données d'enquête",

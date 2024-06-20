@@ -126,7 +126,9 @@ const getLastUuidFromPath = function (path) {
     return undefined;
 };
 
-const getRenamedPaths = async (): Promise<{ attributes: string[]; objectPaths: string[]; arrayPaths: string[] }> => {
+const getRenamedPaths = async (
+    options: ExportOptions
+): Promise<{ attributes: string[]; objectPaths: string[]; arrayPaths: string[] }> => {
     const allAttributes: AttributeAndObjectPaths = {
         attributes: [],
         objectPaths: [],
@@ -134,7 +136,10 @@ const getRenamedPaths = async (): Promise<{ attributes: string[]; objectPaths: s
     };
     const queryStream = interviewsDbQueries.getInterviewsStream({
         filters: {},
-        select: { includeAudits: false, responses: 'validatedIfAvailable' }
+        select: {
+            includeAudits: false,
+            responses: options.responseType
+        }
     });
     let i = 0;
     return new Promise((resolve, reject) => {
@@ -174,11 +179,12 @@ const getRenamedPaths = async (): Promise<{ attributes: string[]; objectPaths: s
 /**
  * Get all paths available in the responses, with each object type having its
  * own set of paths. The root object is `interview`
+ * @param options export options.
  * @returns An object where the keys are the objects to export and the values
  * are an array of path
  */
-const getPathsByObject = async (): Promise<{ [objName: string]: string[] }> => {
-    const paths = await getRenamedPaths();
+const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: string]: string[] }> => {
+    const paths = await getRenamedPaths(options);
 
     const pathsByObject = {
         interview: ['hasValidatedData', 'is_valid', 'is_completed', 'is_validated', 'is_questionable']
@@ -215,8 +221,8 @@ const getPathsByObject = async (): Promise<{ [objName: string]: string[] }> => {
     return pathsByObject;
 };
 
-const exportAllToCsvByObject = async function () {
-    const pathsByObject = await getPathsByObject();
+const exportAllToCsvByObject = async function (options: ExportOptions = { responseType: 'validatedIfAvailable' }) {
+    const pathsByObject = await getPathsByObject(options);
 
     const exportedDataByObjectPath: any = {};
     for (const objectPath in pathsByObject) {
@@ -238,8 +244,10 @@ const exportAllToCsvByObject = async function () {
     } = {};
     const wroteHeaderByObjectPath = {};
     const csvFilePaths: string[] = [];
+    const fileNamePrefix = options.responseType === 'validatedIfAvailable' ? 'validated' : 'participant';
     for (const objectPath in pathsByObject) {
-        const csvFilePath = `${filePathOnServer}/` + objectPath.replaceAll('._.', '_').replaceAll('.', '_') + '.csv';
+        const csvFilePath =
+            `${filePathOnServer}/${fileNamePrefix}_` + objectPath.replaceAll('._.', '_').replaceAll('.', '_') + '.csv';
         const csvStream = fs.createWriteStream(fileManager.getAbsolutePath(csvFilePath));
         csvStream.on('error', console.error);
         csvFilePathByObjectPath[objectPath] = csvStream;
@@ -251,7 +259,10 @@ const exportAllToCsvByObject = async function () {
 
     const queryStream = interviewsDbQueries.getInterviewsStream({
         filters: {},
-        select: { includeAudits: false, responses: 'validatedIfAvailable' }
+        select: {
+            includeAudits: false,
+            responses: options.responseType
+        }
     });
     let i = 0;
     return new Promise((resolve, reject) => {
@@ -348,7 +359,7 @@ const exportAllToCsvByObject = async function () {
                 i++;
             })
             .on('end', () => {
-                console.log('all interview paths generated');
+                console.log('All interview objects exported for response type: ', options.responseType);
                 Object.keys(csvFilePathByObjectPath).forEach((object) => csvFilePathByObjectPath[object].end());
                 resolve(csvFilePaths);
             });

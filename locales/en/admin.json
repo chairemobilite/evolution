@@ -126,7 +126,8 @@
   "HouseholdSize": "Household size",
   "Select": "Select",
   "export": {
-    "PrepareCsvExportFiles": "Prepare CSV files for export by object",
+    "PrepareValidatedCsvExportFiles": "Prepare CSV files by object (validated, if available)",
+    "PrepareParticipantCsvExportFiles": "Prepare CSV files for export by object (original responses)",
     "RefreshExportFiles": "Refresh export file list",
     "ServerErrorForExport": "Server error while preparing export files",
     "ServerExportForbidden": "You are not authorized to export data",
