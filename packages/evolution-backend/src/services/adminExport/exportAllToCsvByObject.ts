@@ -16,12 +16,12 @@ pool = workerpool.pool(__dirname + '/exportToCsvByObjectWorkerPool.js', { maxWor
 // eslint-disable-next-line @typescript-eslint/ban-types
 let runningExportNonce: undefined | Object = undefined;
 
-export const exportAllToCsvByObject = function () {
+export const exportAllToCsvByObject = function (options: ExportOptions) {
     if (runningExportNonce !== undefined) {
         return 'alreadyRunning';
     }
     runningExportNonce = new Object();
-    pool.exec('exportAllToCsvByObject')
+    pool.exec('exportAllToCsvByObject', [options])
         .then(() => console.log('Export by object completed'))
         .catch((error) => {
             console.log('Export by object failed:', error);
