@@ -18,7 +18,6 @@ import * as Status from 'chaire-lib-common/lib/utils/Status';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 
 export const addExportRoutes = () => {
-    console.log('addin export routes');
     // Get a specific export file per object
     router.get('/data/exportcsv/exports/:filePath', (req, res, next) => {
         console.log('requesting csv file from path', req.params.filePath);
@@ -56,7 +55,10 @@ export const addExportRoutes = () => {
     router.get('/data/prepareCsvFileForExportByObject', (req, res, next) => {
         console.log('preparing csv export files...');
         try {
-            const taskRunning = exportAllToCsvByObject();
+            const validatedResponses = req.query.responseType !== 'participant';
+            const taskRunning = exportAllToCsvByObject({
+                responseType: validatedResponses ? 'validatedIfAvailable' : 'participant'
+            });
             return res.status(200).json({
                 status: taskRunning
             });
