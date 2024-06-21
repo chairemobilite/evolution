@@ -28,7 +28,8 @@ export const optionalValidation: Validations = () => [{ validation: false }];
 export const inputRangeValidation: Validations = (value) => {
     return [
         {
-            validation: !(Number(value) >= 0),
+            // Check if the value is less than 0 and not 'na'
+            validation: !(Number(value) >= 0) && value !== 'na',
             errorMessage: {
                 fr: 'Cette réponse doit être d\'une valeur minimum de 0.',
                 en: 'This answer must be a minimum value of 0.'
