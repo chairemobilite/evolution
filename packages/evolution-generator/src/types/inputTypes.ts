@@ -172,6 +172,7 @@ export type InputRange = InputRangeBase &
         containsHtml: ContainsHtml;
         twoColumns: TwoColumns;
         validations?: Validations;
+        includeNotApplicable?: boolean;
     };
 
 /* InputCheckbox widgetConfig Type */
