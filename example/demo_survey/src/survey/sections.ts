@@ -31,24 +31,6 @@ const homeWidgets = [
   'homeGeography'
 ];
 
-const personsWidgets = [
-  'personNickname',
-  'personAge',
-  'personGender',
-  'personOccupation',
-  'personDrivingLicenseOwner',
-  'personTransitPassOwner',
-  'personTransitPasses',
-  'personCarsharingMember',
-  'personBikesharingMember',
-  'personHasDisability',
-  'personCellphoneOwner'
-];
-if (config.isPartTwo !== true)
-{
-  personsWidgets.push("personDidTrips");
-}
-
 let profileWidgets = [];
 
 if (config.isPartTwo === true)
@@ -154,31 +136,6 @@ export default {
       'householdMembers',
       'buttonSaveNextSectionHouseholdMembers'
     ],
-    groups: {
-      'householdMembers': {
-        showGroupedObjectDeleteButton: function(interview, path) { 
-          const countPersons = helper.countPersons(interview);
-          if (config.isPartTwo === true)
-          {
-            return countPersons > 1;
-          }
-          const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-          return countPersons > householdSize;
-        },
-        showGroupedObjectAddButton: function(interview, path) {
-          //const hasGroupedObjects = Object.keys(_get(interview, `groups.householdMembers`, {})).length > 0;
-          //const householdSize     = surveyHelperNew.getResponse(interview, 'household.size', null);
-          //const persons           = surveyHelperNew.getResponse(interview, path, {});
-          return true;//hasGroupedObjects && Object.keys(persons).length < householdSize;
-        },
-        groupedObjectAddButtonLabel: {
-          fr: "Ajouter une personne manquante",
-          en: "Add a missing person"
-        },
-        addButtonSize: 'small' as const,
-        widgets: personsWidgets
-      }
-    },
     preload: function(interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
       const groupedObjects       = surveyHelperNew.getResponse(interview, 'household.persons');
       const groupedObjectIds     = groupedObjects ? Object.keys(groupedObjects) : [];
@@ -431,39 +388,6 @@ export default {
       //'personLastVisitedPlaceNotHome',
       'buttonVisitedPlacesConfirmNextSection'
     ],
-    groups: {
-      'personVisitedPlaces': {
-        showGroupedObjectDeleteButton: false,
-        deleteConfirmPopup: {
-          content: {
-            fr: function(interview) {
-              return `Confirmez-vous que vous voulez retirer ce lieu?`;
-            },
-            en: function(interview) {
-              return `Do you confirm that you want to remove this location?`;
-            }
-          }
-        },
-        showGroupedObjectAddButton:    true,
-        addButtonLocation: 'both' as const,
-        widgets: [
-          "visitedPlaceActivity",
-          "visitedPlaceAlreadyVisited",
-          "visitedPlaceShortcut",
-          "visitedPlaceName",
-          "visitedPlaceGeography",
-          //"visitedPlaceArrivalAndDepartureTime",
-          "visitedPlaceArrivalTime",
-          "visitedPlaceDepartureTime",
-          "visitedPlaceNextPlaceCategory",
-          //"visitedPlaceWentBackHomeDirectlyAfter",
-          //"visitedPlaceIsNotLast",
-          "buttonSaveVisitedPlace",
-          "buttonCancelVisitedPlace",
-          "buttonDeleteVisitedPlace"
-        ]
-      }
-    },
     preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
       
       const person = helper.getPerson(interview);
@@ -548,80 +472,6 @@ export default {
       'personVisitedPlacesMap',
       'buttonConfirmNextSection'
     ],
-    groups: {
-      'personTrips': {
-        showGroupedObjectDeleteButton: false,
-        showGroupedObjectAddButton: false,
-        widgets: [
-          'segmentIntro',
-          'segments',
-          'tripJunctionGeography',
-          //'introButtonSaveTrip',
-          'buttonSaveTrip'
-        ]
-      },
-      'segments': {
-        showTitle: false,
-        showGroupedObjectDeleteButton: function(interview, path) {
-          const segment = surveyHelperNew.getResponse(interview, path, {});
-          return (segment && segment['_sequence'] > 1);
-        },
-        showGroupedObjectAddButton: function(interview, path) {
-          const segments      = surveyHelperNew.getResponse(interview, path, {});
-          const segmentsArray = Object.values(segments).sort((segmentA, segmentB) => {
-            return segmentA['_sequence'] - segmentB['_sequence'];
-          });
-          const segmentsCount = segmentsArray.length;
-          const lastSegment   = segmentsArray[segmentsCount - 1];
-          return segmentsCount === 0 || (lastSegment  && lastSegment.isNotLast === true);
-        },
-        groupedObjectAddButtonLabel: {
-          fr: function(interview, path) {
-            const segments      = surveyHelperNew.getResponse(interview, path, {});
-            const segmentsCount = Object.keys(segments).length;
-            if (segmentsCount === 0)
-            {
-              return 'Sélectionner le premier (ou le seul) mode de transport utilisé pour ce déplacement';
-            }
-            else
-            {
-              return 'Sélectionner le mode de transport suivant';
-            }
-          },
-          en: function(interview, path) {
-            const segments = surveyHelperNew.getResponse(interview, path, {});
-            const segmentsCount = Object.keys(segments).length;
-            if (segmentsCount === 0)
-            {
-              return 'Select the first mode of transport used during this trip';
-            }
-            else
-            {
-              return 'Select the next mode of transport';
-            }
-          }
-        },
-        addButtonLocation: 'bottom' as const,
-        widgets: [
-          'segmentMode',
-          //'segmentParkingType',
-          'segmentParkingPaymentType',
-          'segmentVehicleOccupancy',
-          'segmentVehicleType',
-          'segmentDriver',
-          'segmentBridgesAndTunnels',
-          'segmentHighways',
-          'segmentUsedBikesharing',
-          'segmentSubwayStationStart',
-          'segmentSubwayStationEnd',
-          'segmentSubwayTransferStations',
-          'segmentTrainStationStart',
-          'segmentTrainStationEnd',
-          'segmentBusLines',
-          'segmentIsNotLast'
-        ]
-      }
-    },
     preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
       
       const person = helper.getPerson(interview);
@@ -913,7 +763,18 @@ export default {
           en: "Add a missing person"
         },
         addButtonSize: 'small' as const,
-        widgets: [...personsWidgets, 
+        widgets: [
+          'personNickname',
+          'personAge',
+          'personGender',
+          'personOccupation',
+          'personDrivingLicenseOwner',
+          'personTransitPassOwner',
+          'personTransitPasses',
+          'personCarsharingMember',
+          'personBikesharingMember',
+          'personHasDisability',
+          'personCellphoneOwner', 
           "groupedPersonWorkOnTheRoad",
           "groupedPersonUsualWorkPlaceIsHome",
           "groupedPersonUsualWorkPlaceName",

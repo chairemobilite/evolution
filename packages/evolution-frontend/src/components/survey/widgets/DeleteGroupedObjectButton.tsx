@@ -14,7 +14,6 @@ import {
     parseString,
     translateString
 } from 'evolution-common/lib/utils/helpers';
-import { withSurveyContext, WithSurveyContextProps } from '../../hoc/WithSurveyContextHoc';
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
@@ -23,11 +22,13 @@ import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig'
 
 type DeleteGroupedObjectButton = InterviewUpdateCallbacks & {
     interview: UserInterviewAttributes;
-    user: CliUser;
+    user?: CliUser;
     path: string;
     shortname: string;
-    groupConfig: GroupConfig;
-    widgetConfig: any;
+    widgetConfig: Pick<
+        GroupConfig,
+        'showGroupedObjectDeleteButton' | 'groupedObjectDeleteButtonLabel' | 'deleteConfirmPopup'
+    >;
 };
 
 const DeleteGroupedObjectButton: React.FC<DeleteGroupedObjectButton & WithTranslation> = (props) => {
@@ -37,7 +38,7 @@ const DeleteGroupedObjectButton: React.FC<DeleteGroupedObjectButton & WithTransl
         e.preventDefault();
         const hasConfirmPopup = props.widgetConfig.deleteConfirmPopup;
         const confirmPopupConditional = hasConfirmPopup
-            ? parseBoolean(props.widgetConfig.deleteConfirmPopup.conditional, props.interview, props.path, props.user)
+            ? parseBoolean(props.widgetConfig.deleteConfirmPopup?.conditional, props.interview, props.path, props.user)
             : true;
 
         if (hasConfirmPopup && confirmPopupConditional === true) {
@@ -57,30 +58,22 @@ const DeleteGroupedObjectButton: React.FC<DeleteGroupedObjectButton & WithTransl
     const widgetConfig = props.widgetConfig;
 
     const showDeleteButton = parseBoolean(
-        props.groupConfig.showGroupedObjectDeleteButton,
+        props.widgetConfig.showGroupedObjectDeleteButton,
         props.interview,
         props.path,
         props.user,
         false
     );
     const deleteButtonLabel =
-        parseString(
-            props.groupConfig.groupedObjectDeleteButtonLabel
-                ? props.groupConfig.groupedObjectDeleteButtonLabel[props.i18n.language] ||
-                      props.groupConfig.groupedObjectDeleteButtonLabel
-                : null,
-            props.interview,
-            props.path
-        ) || props.t(`survey:${widgetConfig.shortname}:deleteThisGroupedObject`);
+        translateString(props.widgetConfig.groupedObjectDeleteButtonLabel, props.i18n, props.interview, props.path) ||
+        props.t(`survey:${props.shortname}:deleteThisGroupedObject`);
 
-    return (
+    return showDeleteButton ? (
         <div className="center">
-            {showDeleteButton && (
-                <button type="button" className="button red small" onClick={beforeRemoveGroupedObject}>
-                    <FontAwesomeIcon icon={faTrashAlt} className="faIconLeft" />
-                    {deleteButtonLabel}
-                </button>
-            )}
+            <button type="button" className="button red small" onClick={beforeRemoveGroupedObject}>
+                <FontAwesomeIcon icon={faTrashAlt} className="faIconLeft" />
+                {deleteButtonLabel}
+            </button>
             {deletePlaceModalOpened &&
                 widgetConfig.deleteConfirmPopup &&
                 widgetConfig.deleteConfirmPopup.content &&
@@ -105,11 +98,11 @@ const DeleteGroupedObjectButton: React.FC<DeleteGroupedObjectButton & WithTransl
                         }
                         cancelAction={widgetConfig.deleteConfirmPopup.cancelAction}
                         confirmAction={(e) => onRemoveGroupedObject(e)}
-                        containsHtml={widgetConfig.containsHtml}
+                        containsHtml={widgetConfig.deleteConfirmPopup.containsHtml}
                     />
                 </div>
             )}
         </div>
-    );
+    ) : null;
 };
 export default withTranslation()(DeleteGroupedObjectButton);

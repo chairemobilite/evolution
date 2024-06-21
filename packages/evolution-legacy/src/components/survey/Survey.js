@@ -169,7 +169,6 @@ export class Survey extends React.Component {
                   nextSection                 = {sectionConfig.nextSection}
                   widgets                     = {sectionConfig.widgets}
                   preload                     = {sectionConfig.preload}
-                  groups                      = {sectionConfig.groups}
                   interview                   = {this.props.interview}
                   errors                      = {this.props.errors}
                   user                        = {this.props.user}

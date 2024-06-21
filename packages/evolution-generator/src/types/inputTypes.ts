@@ -9,7 +9,7 @@
 
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { InterviewUpdateCallbacks, ParsingFunctionWithCallbacks } from 'evolution-common/lib/utils/helpers';
-import { InfoMapWidgetConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
+import { GroupConfig, InfoMapWidgetConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
 import { TFunction } from 'i18next';
 
 /* Define types for all the different input types */
@@ -270,16 +270,7 @@ export type Text = TextBase & {
 };
 
 /* Group type */
-export type Group = {
-    type: 'group';
-    path: Path;
-    groupShortname: string;
-    shortname: string;
-    groupName: Label;
-    name: { fr: NameFunction; en: NameFunction };
-    filter?: (interview, groupedObjects) => any;
-    conditional?: Conditional;
-};
+export type Group = GroupConfig;
 
 /* InputMapFindPlace widgetConfig Type */
 export type InputMapFindPlaceBase = {

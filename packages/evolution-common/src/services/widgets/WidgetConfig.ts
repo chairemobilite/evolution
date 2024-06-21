@@ -16,7 +16,7 @@ import {
     ParsingFunctionWithCallbacks
 } from '../../utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { i18n } from 'i18next';
+import { TFunction, i18n } from 'i18next';
 
 type IconData = {
     url: string | ParsingFunction<string>;
@@ -374,22 +374,57 @@ export type InfoMapWidgetConfig = {
     linestringActiveColor?: string;
 };
 
+export type GroupNameLangData = {
+    [lang: string]:
+        | string
+        | ((object: unknown, sequence: number, interview?: UserInterviewAttributes, path?: string) => string);
+};
+
+export type GroupNameTranslatableStringFunction = (
+    t: TFunction,
+    object: unknown,
+    sequence: number,
+    interview?: UserInterviewAttributes,
+    path?: string
+) => string;
+
+export type GroupNameI18nData = string | GroupNameLangData | GroupNameTranslatableStringFunction;
+
 export type GroupConfig = {
     type: 'group';
     path: string;
     widgets: string[];
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
-    showTitle?: boolean;
-    groupedObjectConditional?: ParsingFunction<boolean>;
-    showGroupedObjectAddButton: ParsingFunction<boolean>;
+    showTitle?: boolean | ParsingFunction<boolean>;
+    /** Title of the group, that will be displayed if showTitle is true */
+    title?: I18nData;
+    /** A translatable string that will be the title of individual group objects */
+    name?: GroupNameI18nData;
+    conditional?: boolean | ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    /** Whether to show a specific grouped object
+     * FIXME: Is this redundant with filter?
+     */
+    groupedObjectConditional?: boolean | ParsingFunction<boolean>;
+    showGroupedObjectAddButton?: boolean | ParsingFunction<boolean>;
     groupedObjectAddButtonLabel?: I18nData;
-    showGroupedObjectDeleteButton: ParsingFunction<boolean>;
+    showGroupedObjectDeleteButton?: boolean | ParsingFunction<boolean>;
     groupedObjectDeleteButtonLabel?: I18nData;
     deleteConfirmPopup?: {
         content: I18nData;
+        conditional?: boolean | ParsingFunction<boolean>;
+        title?: I18nData;
+        cancelAction?: React.MouseEventHandler;
+        containsHtml?: boolean;
     };
     addButtonLocation?: 'bottom' | 'top' | 'both';
     addButtonSize?: string;
+    /**
+     * A function to filter the grouped objects and returns an object containing only the filtered objects
+     * FIXME: Redundant with groupedObjectConditional?
+     */
+    filter?: (
+        interview: UserInterviewAttributes,
+        objects: { [objectId: string]: unknown }
+    ) => { [objectId: string]: unknown };
 };
 
 export type WidgetConfig =

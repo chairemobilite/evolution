@@ -18,13 +18,12 @@ import helper from '../helper';
 import subwayStations from '../subwayStations.json';
 import trainStations  from '../trainStations.json';
 import busRoutes  from '../busRoutes.json';
+import { GroupConfig } from 'evolution-common/lib/services/widgets';
 
-export const personTrips = {
+export const personTrips: GroupConfig = {
   type: "group",
   path: "household.persons.{_activePersonId}.trips",
-  groupShortname: 'trips',
-  shortname: 'trip',
-  groupName: {
+  title: {
     fr: "Déplacements",
     en: "Trips"
   },
@@ -50,23 +49,88 @@ export const personTrips = {
   name: {
     fr: "",
     en: ""
-  }
-  
+  },
+  showGroupedObjectDeleteButton: false,
+  showGroupedObjectAddButton: false,
+  widgets: [
+    'segmentIntro',
+    'segments',
+    'tripJunctionGeography',
+    //'introButtonSaveTrip',
+    'buttonSaveTrip'
+  ]
 };
 
-export const segments = {
+export const segments: GroupConfig = {
   type: "group",
   path: "segments",
-  groupShortname: 'segments',
-  shortname: 'mode',
-  groupName: {
+  title: {
     fr: "Modes",
     en: "Modes"
   },
   name: {
     fr: (groupedObject, sequence, interview, path) => (`Mode de transport ${sequence}`),
     en: (groupedObject, sequence, interview, path) => (`Mode of transport ${sequence}`)
-  }
+  },
+  showTitle: false,
+  showGroupedObjectDeleteButton: function(interview, path) {
+    const segment = surveyHelperNew.getResponse(interview, path, {});
+    return (segment && segment['_sequence'] > 1);
+  },
+  showGroupedObjectAddButton: function(interview, path) {
+    const segments      = surveyHelperNew.getResponse(interview, path, {});
+    const segmentsArray = Object.values(segments).sort((segmentA, segmentB) => {
+      return segmentA['_sequence'] - segmentB['_sequence'];
+    });
+    const segmentsCount = segmentsArray.length;
+    const lastSegment   = segmentsArray[segmentsCount - 1];
+    return segmentsCount === 0 || (lastSegment  && lastSegment.isNotLast === true);
+  },
+  groupedObjectAddButtonLabel: {
+    fr: function(interview, path) {
+      const segments      = surveyHelperNew.getResponse(interview, path, {});
+      const segmentsCount = Object.keys(segments).length;
+      if (segmentsCount === 0)
+      {
+        return 'Sélectionner le premier (ou le seul) mode de transport utilisé pour ce déplacement';
+      }
+      else
+      {
+        return 'Sélectionner le mode de transport suivant';
+      }
+    },
+    en: function(interview, path) {
+      const segments = surveyHelperNew.getResponse(interview, path, {});
+      const segmentsCount = Object.keys(segments).length;
+      if (segmentsCount === 0)
+      {
+        return 'Select the first mode of transport used during this trip';
+      }
+      else
+      {
+        return 'Select the next mode of transport';
+      }
+    }
+  },
+  addButtonLocation: 'bottom' as const,
+  widgets: [
+    'segmentMode',
+    //'segmentParkingType',
+    'segmentParkingPaymentType',
+    'segmentVehicleOccupancy',
+    'segmentVehicleType',
+    'segmentDriver',
+    'segmentBridgesAndTunnels',
+    'segmentHighways',
+    'segmentUsedBikesharing',
+    'segmentSubwayStationStart',
+    'segmentSubwayStationEnd',
+    'segmentSubwayTransferStations',
+    'segmentTrainStationStart',
+    'segmentTrainStationEnd',
+    'segmentBusLines',
+    'segmentIsNotLast'
+  ]
 }
 
 export const segmentIntro = {

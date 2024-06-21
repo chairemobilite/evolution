@@ -35,6 +35,7 @@ import i18n              from 'chaire-lib-frontend/lib/config/i18n.config';
 import helper from '../helper';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { GroupConfig } from 'evolution-common/lib/services/widgets';
 
 export const visitedPlacesIntro = {
   type: "text",
@@ -288,12 +289,10 @@ export const personVisitedPlacesMap = {
   }
 };
 
-export const personVisitedPlaces = {
+export const personVisitedPlaces: GroupConfig = {
   type: "group",
   path: "household.persons.{_activePersonId}.visitedPlaces",
-  groupShortname: 'visitedPlaces',
-  shortname: 'visitedPlace',
-  groupName: {
+  title: {
     fr: "Lieux visités",
     en: "Visited places"
   },
@@ -317,15 +316,44 @@ export const personVisitedPlaces = {
     }
   },
   name: {
-    fr: function(groupedObject, sequence) { 
+    fr: function(groupedObject: any, sequence) {
       const locationStr = (sequence === 1 || groupedObject['_sequence'] === 1 )? 'Lieu de départ de la journée' : `Lieu ${sequence || groupedObject['_sequence']}`;
       return `${locationStr} ${groupedObject.name ? `• **${groupedObject.name}**` : groupedObject.activity ? `• **${i18n.t(`survey:visitedPlace:activities:${groupedObject.activity}`)}**` : ''}`; 
     },
-    en: function(groupedObject, sequence) { 
+    en: function(groupedObject: any, sequence) {
       const locationStr = (sequence === 1 || groupedObject['_sequence'] === 1 )? 'Departure place for this day' : `Location ${sequence || groupedObject['_sequence']}`;
       return `${locationStr} ${groupedObject.name ? `• **${groupedObject.name}**` : groupedObject.activity ? `• **${i18n.t(`survey:visitedPlace:activities:${groupedObject.activity}`)}**` : ''}`;
     }
-  }
+  },
+  showGroupedObjectDeleteButton: false,
+  deleteConfirmPopup: {
+    content: {
+      fr: function(interview) {
+        return `Confirmez-vous que vous voulez retirer ce lieu?`;
+      },
+      en: function(interview) {
+        return `Do you confirm that you want to remove this location?`;
+      }
+    }
+  },
+  showGroupedObjectAddButton:    true,
+  addButtonLocation: 'both' as const,
+  widgets: [
+    "visitedPlaceActivity",
+    "visitedPlaceAlreadyVisited",
+    "visitedPlaceShortcut",
+    "visitedPlaceName",
+    "visitedPlaceGeography",
+    //"visitedPlaceArrivalAndDepartureTime",
+    "visitedPlaceArrivalTime",
+    "visitedPlaceDepartureTime",
+    "visitedPlaceNextPlaceCategory",
+    //"visitedPlaceWentBackHomeDirectlyAfter",
+    //"visitedPlaceIsNotLast",
+    "buttonSaveVisitedPlace",
+    "buttonCancelVisitedPlace",
+    "buttonDeleteVisitedPlace"
+  ]
 };
 
 export const visitedPlaceName = {

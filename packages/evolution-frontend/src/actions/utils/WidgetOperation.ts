@@ -9,8 +9,8 @@ import applicationConfiguration from '../../config/application.config';
 import { checkConditional, checkChoicesConditional } from './Conditional';
 import { checkValidations } from './Validation';
 import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
-import { SurveySectionGroup } from '../../services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
 
 // Data for the survey, with values to update
 type CurrentPreparationData = {
@@ -26,7 +26,6 @@ type CurrentPreparationData = {
 // Data for a specific widget
 type WidgetPreparationData = {
     widgets: string[];
-    groupsConfig: { [groupName: string]: SurveySectionGroup };
     groupShortname?: string;
     parentPath?: string;
     parentGroupedObject?: any;
@@ -34,26 +33,25 @@ type WidgetPreparationData = {
 
 const prepareGroupedWidgets = (
     data: CurrentPreparationData,
-    widgetData: WidgetPreparationData,
-    groupConfig: SurveySectionGroup,
+    widgetConfig: GroupConfig,
     groupShortname: string,
-    widgetConfig: any,
     path: string
 ) => {
-    const allGroupedObjects = surveyHelper.getResponse(data.interview, path, {});
-    const groupedObjects: { _uuid: string; _sequence: number }[] =
+    // FIXME: Type the grouped objects so they are not unknown and contain at least the _uuid and _sequence
+    const allGroupedObjects = surveyHelper.getResponse(data.interview, path, {}) as { [objectid: string]: unknown };
+    const groupedObjects = (
         typeof widgetConfig.filter === 'function'
             ? widgetConfig.filter(data.interview, allGroupedObjects)
-            : allGroupedObjects;
+            : allGroupedObjects
+    ) as { [objectid: string]: { _uuid: string; _sequence: number } };
     const sortedGroupedObjects = sortBy(Object.values(groupedObjects), ['_sequence']);
 
     for (let grObj_i = 0, grpObjCount = sortedGroupedObjects.length; grObj_i < grpObjCount; grObj_i++) {
         const groupedObject = sortedGroupedObjects[grObj_i];
         const groupedObjectPath = `${path}.${groupedObject._uuid}`;
-        const groupedObjectWidgets = groupConfig.widgets;
+        const groupedObjectWidgets = widgetConfig.widgets;
         prepareWidget(data, {
             widgets: groupedObjectWidgets,
-            groupsConfig: widgetData.groupsConfig,
             groupShortname,
             parentPath: groupedObjectPath,
             parentGroupedObject: groupedObject
@@ -333,14 +331,7 @@ const prepareWidget = function (data: CurrentPreparationData, widgetPrepData: Wi
                 : '';
 
         if (componentType === 'group') {
-            prepareGroupedWidgets(
-                data,
-                widgetPrepData,
-                widgetPrepData.groupsConfig[widgetShortname],
-                widgetShortname,
-                widgetConfig,
-                path
-            );
+            prepareGroupedWidgets(data, widgetConfig, widgetShortname, path);
         } else {
             prepareSimpleWidget(data, widgetPrepData, widgetConfig, widgetShortname, path);
         }
@@ -364,7 +355,6 @@ export const prepareWidgets = function (
 
     const sectionConfig = applicationConfiguration.sections[sectionShortname] || {};
     const sectionWidgets = sectionConfig.widgets;
-    const groupsConfig = sectionConfig.groups || {};
 
     if (sectionWidgets === undefined) {
         return [interview, {}, false, false];
@@ -380,7 +370,6 @@ export const prepareWidgets = function (
     };
     prepareWidget(widgetPrepData, {
         widgets: sectionWidgets,
-        groupsConfig,
         parentPath: ''
     });
 

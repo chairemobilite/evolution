@@ -13,9 +13,11 @@
         "start": "Start",
         "info": "You will need this information if you want to reconnect to your interview or if you want to use another computer to access it."
     },
-    "person": {
+    "householdMembers": {
         "deleteThisGroupedObject": "Delete this person",
-        "addGroupedObject": "Add a person",
+        "addGroupedObject": "Add a person"
+    },
+    "person": {
         "dayScheduleFor": "Day schedule for",
         "yourDaySchedule": "Your day schedule"
     },
@@ -75,7 +77,7 @@
             "carPassenger": "Car passenger"
         }
     },
-    "mode": {
+    "segments": {
         "deleteThisGroupedObject": "Delete this mode of transport",
         "addGroupedObject": "Add a mode of transport"
     },

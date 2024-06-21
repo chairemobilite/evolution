@@ -5,9 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import * as React from 'react';
+import { SurveySections } from '../services/interviews/interview';
 
-// TODO Properly type this
-export type SurveySections = { [key: string]: any };
 // TODO This type is probably WidgetConfig from '../services/widgets'. But it is not complete yet and it's to be confirmed
 export type SurveyWidgets = { [key: string]: any };
 

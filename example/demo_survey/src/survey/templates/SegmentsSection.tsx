@@ -104,7 +104,7 @@ export class SegmentsSection extends React.Component<any, any> {
     
     surveyHelper.devLog('%c rendering section ' + this.props.shortname, 'background: rgba(0,0,255,0.1);')
     const widgetsComponentsByShortname = {};
-    const groupConfig                  = this.props.groups['personTrips'];
+    const personTripsConfig            = this.props.surveyContext.widgets['personTrips'];
     const person                       = helper.getPerson(this.props.interview);
 
     const trips      = helper.getTrips(person);
@@ -148,8 +148,6 @@ export class SegmentsSection extends React.Component<any, any> {
         case 'button':   component = <Button   {...defaultProps} />; break;
         case 'question': component = <Question {...defaultProps} />; break;
         case 'group':    component = <Group    {...defaultProps}
-          groupConfig     = {this.props.groups[widgetShortname]}
-          groupsConfig    = {this.props.groups}
           parentObjectIds = {{}}
         />;
       }
@@ -243,10 +241,9 @@ export class SegmentsSection extends React.Component<any, any> {
         selectedTrip = (
           <li className="no-bullet" style={{marginTop: "-0.4rem"}} key={`survey-trip-item-selected__${i}`}>
             <GroupedObject
-              groupConfig                 = {this.props.groups['personTrips']}
-              groupsConfig                = {this.props.groups}
-              path                        = {tripPath}
+              widgetConfig                = {personTripsConfig}
               shortname                   = 'personTrips'
+              path                        = {tripPath}
               loadingState                = {this.props.loadingState}
               objectId                    = {trip._uuid}
               parentObjectIds             = {parentObjectIds}
