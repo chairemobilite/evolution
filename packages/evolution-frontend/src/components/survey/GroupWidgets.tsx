@@ -32,16 +32,17 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WidgetStatus } from '../../services/interviews/interview';
 import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
 import DeleteGroupedObjectButton from './widgets/DeleteGroupedObjectButton';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 type GroupedObjectProps = InterviewUpdateCallbacks & {
     interview: UserInterviewAttributes;
     user: CliUser;
     path: string;
     label?: string;
-    section: string;
+    /** The name of the widget, to be used as key for translations */
     shortname: string;
-    groupConfig: GroupConfig;
-    groupsConfig: { [groupName: string]: GroupConfig };
+    section: string;
+    widgetConfig: GroupConfig;
     loadingState: number;
     /** Associates a widget shortname with the parent UUID */
     parentObjectIds: { [widgetShortname: string]: string };
@@ -50,8 +51,7 @@ type GroupedObjectProps = InterviewUpdateCallbacks & {
 };
 
 export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & WithSurveyContextProps> = (props) => {
-    const widgetConfig = props.surveyContext.widgets[props.shortname];
-    const groupedObjectShortname = widgetConfig.shortname;
+    const groupedObjectShortname = props.shortname;
     devLog(
         '%c rendering ' + groupedObjectShortname + ' ' + props.objectId,
         'background: rgba(0,255,0,0.1); font-size: 7px;'
@@ -61,7 +61,7 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
     const parentObjectIds = props.parentObjectIds;
     const sectionShortname = props.section;
     parentObjectIds[groupedObjectShortname] = groupedObjectId;
-    const widgetsComponents = props.groupConfig.widgets.map((widgetShortname) => {
+    const widgetsComponents = props.widgetConfig.widgets.map((widgetShortname) => {
         const widgetPath = `${path}.${widgetShortname}`;
         const widgetConfig = props.surveyContext.widgets[widgetShortname];
         const customPath = widgetConfig.customPath ? `${path}.${widgetConfig.customPath}` : undefined;
@@ -70,17 +70,14 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
             `groups.${props.shortname}.${groupedObjectId}.${widgetShortname}`,
             {}
         ) as WidgetStatus;
-
         const defaultProps = {
             path: widgetPath,
             customPath: customPath,
             key: widgetPath,
-            shortname: widgetShortname,
             loadingState: props.loadingState,
             widgetConfig: widgetConfig,
             widgetStatus: widgetStatus,
             section: sectionShortname,
-            groupShortname: props.shortname,
             groupedObjectId: groupedObjectId,
             interview: props.interview,
             user: props.user,
@@ -102,8 +99,9 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
             return (
                 <Group
                     {...defaultProps}
-                    groupConfig={props.groupsConfig[widgetShortname]}
-                    groupsConfig={props.groupsConfig}
+                    shortname={widgetShortname}
+                    path={`${path}.${widgetConfig.path}`}
+                    widgetConfig={widgetConfig}
                     parentObjectIds={parentObjectIds}
                 />
             );
@@ -111,27 +109,38 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
     });
 
     let title = '';
-    const localizedName = widgetConfig.name[props.i18n.language];
+    const localizedName = props.widgetConfig.name;
     if (typeof localizedName === 'function') {
-        title = localizedName(_get(props.interview.responses, path), props.sequence, props.interview, path);
+        title = localizedName(props.t, _get(props.interview.responses, path), props.sequence, props.interview, path);
+    } else if (typeof localizedName === 'object') {
+        title =
+            typeof localizedName[props.i18n.language] === 'string'
+                ? localizedName[props.i18n.language]
+                : (localizedName[props.i18n.language] as any)(
+                    _get(props.interview.responses, path),
+                    props.sequence,
+                    props.interview,
+                    path
+                );
     } else {
-        title = localizedName;
+        title = localizedName || '';
     }
 
     return (
         <div className="survey-group-object">
             <div className="content-container">
                 <div className="survey-group-object__content">
-                    <h3 className="survey-group-object__title">
-                        <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>{title}</Markdown>
-                    </h3>
+                    {!_isBlank(title) && (
+                        <h3 className="survey-group-object__title">
+                            <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>{title}</Markdown>
+                        </h3>
+                    )}
                     <DeleteGroupedObjectButton
                         interview={props.interview}
-                        groupConfig={props.groupConfig}
                         user={props.user}
                         path={path}
+                        widgetConfig={props.widgetConfig}
                         shortname={props.shortname}
-                        widgetConfig={widgetConfig}
                         startRemoveGroupedObjects={props.startRemoveGroupedObjects}
                         startUpdateInterview={props.startUpdateInterview}
                         startAddGroupedObjects={props.startAddGroupedObjects}
@@ -146,13 +155,12 @@ export const GroupedObject = withTranslation()(withSurveyContext(BaseGroupedObje
 
 type GroupProps = InterviewUpdateCallbacks & {
     path: string;
+    /** The name of the widget, to be used as key for translations */
+    shortname: string;
     customPath?: string;
     interview: UserInterviewAttributes;
     user: CliUser;
-    shortname: string;
-    groupConfig: GroupConfig;
-    // FIXME Where does this come from, shouldn't it be in the survey context?
-    groupsConfig: { [groupName: string]: GroupConfig };
+    widgetConfig: GroupConfig;
     loadingState: number;
     /** Associates a widget shortname with the parent UUID */
     parentObjectIds: { [widgetShortname: string]: string };
@@ -160,14 +168,15 @@ type GroupProps = InterviewUpdateCallbacks & {
 };
 
 const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyContextProps> = (props) => {
+    const widgetConfig = props.widgetConfig;
+
     const onAddGroupedObject = (sequence: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         e.preventDefault();
         props.startAddGroupedObjects(1, sequence, props.path);
     };
 
     const groupedObjects = () => {
-        const { interview, path, shortname, surveyContext } = props;
-        const widgetConfig = surveyContext.widgets[shortname];
+        const { interview, path } = props;
         if (interview && interview.responses) {
             let groupedObjects = {};
             const allGroupedObjects = _get(interview.responses, path, {});
@@ -182,9 +191,9 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
     };
 
     if (
-        props.groupConfig.conditional !== undefined &&
+        props.widgetConfig.conditional !== undefined &&
         !checkConditional(
-            parseBoolean(props.groupConfig.conditional, props.interview, props.path),
+            parseBoolean(props.widgetConfig.conditional, props.interview, props.path),
             props.interview,
             props.path,
             props.customPath
@@ -195,18 +204,17 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
 
     const widgetsComponents: JSX.Element[] = [];
     const parentObjectIds = _cloneDeep(props.parentObjectIds) || {};
-    const widgetConfig = props.surveyContext.widgets[props.shortname];
     // FIXME Type the groupedObject
     groupedObjects().forEach((groupedObject: any, index) => {
         // FIXME What are we doing here exactly? Why?
-        parentObjectIds[widgetConfig.shortname] = groupedObject._uuid;
+        parentObjectIds[props.shortname] = groupedObject._uuid;
         const path = `${props.path}.${groupedObject._uuid}`;
 
         for (const parentGroupShortname in parentObjectIds) {
             path.split('{' + parentGroupShortname + '}').join(parentObjectIds[parentGroupShortname]);
         }
         const showThisGroupedObject = parseBoolean(
-            props.groupConfig.groupedObjectConditional,
+            props.widgetConfig.groupedObjectConditional,
             props.interview,
             path,
             props.user,
@@ -215,11 +223,10 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
         if (showThisGroupedObject) {
             widgetsComponents.push(
                 <GroupedObject
-                    groupConfig={props.groupConfig}
-                    groupsConfig={props.groupsConfig}
+                    widgetConfig={props.widgetConfig}
                     path={path}
-                    shortname={props.shortname}
                     loadingState={props.loadingState}
+                    shortname={props.shortname}
                     objectId={groupedObject._uuid}
                     parentObjectIds={parentObjectIds}
                     key={groupedObject._uuid}
@@ -235,21 +242,21 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
         }
     });
 
-    const showTitle = parseBoolean(props.groupConfig.showTitle, props.interview, props.path, props.user);
+    const showTitle = parseBoolean(props.widgetConfig.showTitle, props.interview, props.path, props.user);
     const showAddButton =
         props.loadingState === 0 &&
-        parseBoolean(props.groupConfig.showGroupedObjectAddButton, props.interview, props.path, props.user);
+        parseBoolean(props.widgetConfig.showGroupedObjectAddButton, props.interview, props.path, props.user);
     const addButtonLabel =
         parseString(
-            props.groupConfig.groupedObjectAddButtonLabel
-                ? props.groupConfig.groupedObjectAddButtonLabel[props.i18n.language] ||
-                      props.groupConfig.groupedObjectAddButtonLabel
+            props.widgetConfig.groupedObjectAddButtonLabel
+                ? props.widgetConfig.groupedObjectAddButtonLabel[props.i18n.language] ||
+                      props.widgetConfig.groupedObjectAddButtonLabel
                 : null,
             props.interview,
             props.path
-        ) || props.t(`survey:${widgetConfig.shortname}:addGroupedObject`);
-    const addButtonLocation = props.groupConfig.addButtonLocation || 'bottom';
-    const addButtonSize = props.groupConfig.addButtonSize || 'large';
+        ) || props.t(`survey:${props.shortname}:addGroupedObject`);
+    const addButtonLocation = props.widgetConfig.addButtonLocation || 'bottom';
+    const addButtonSize = props.widgetConfig.addButtonSize || 'large';
 
     return (
         <section className="survey-group">
@@ -257,7 +264,8 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
                 <div className="survey-group__content">
                     {showTitle && (
                         <h2 className="survey-group__title">
-                            {translateString(widgetConfig.groupName, props.i18n, props.interview, props.path) || ''}
+                            {translateString(widgetConfig.title, props.i18n, props.interview, props.path) ||
+                                props.t(`survey:${props.shortname}:title`)}
                         </h2>
                     )}
                     {showAddButton && (addButtonLocation === 'top' || addButtonLocation === 'both') && (

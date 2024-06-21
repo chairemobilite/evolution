@@ -38,8 +38,7 @@ def generate_section_configs(excel_file_path: str):
                 "title_en",
                 "in_nav",
                 "template",
-                "parent_section",
-                "groups",
+                "parent_section"
             ],
             sheet_name="Sections",
         )
@@ -65,8 +64,7 @@ def generate_section_configs(excel_file_path: str):
                 title_en,
                 in_nav,
                 template,
-                parent_section,
-                groups,
+                parent_section
             ) = get_values_from_row(row, headers)
 
             # Generate code for section
@@ -78,14 +76,8 @@ def generate_section_configs(excel_file_path: str):
                     f"../../../survey/src/survey/sections/{section}/sectionConfigs.ts"
                 )
 
-                # Check if the section has groups
-                has_groups = groups is not None and groups != ""
                 # Check if the sections has template
                 has_template = template is not None and template == True 
-
-                # Add imports for groups if the section has groups
-                if has_groups:
-                    ts_section_code += f"import * as groups from './groups';\n"
 
                 # Add imports for template if the section has template
                 if has_template:
@@ -162,13 +154,6 @@ def generate_section_configs(excel_file_path: str):
                 )
                 ts_section_code += f"{INDENT}{INDENT}return isSectionComplete({{ interview, sectionName: currentSectionName }});\n"
                 ts_section_code += f"{INDENT}}}"
-                if has_groups:
-                    # Split the groups string into a list of group names
-                    group_names = groups.split(",")
-                    ts_section_code += f",\n{INDENT}groups: {{\n"
-                    for group_name in group_names:
-                        ts_section_code += f"{INDENT}{INDENT}{group_name}: groups.{group_name},\n"
-                    ts_section_code += f"{INDENT}}},\n"
                 ts_section_code += f"\n}};\n\n"
                 ts_section_code += f"export default sectionConfig;\n"
 

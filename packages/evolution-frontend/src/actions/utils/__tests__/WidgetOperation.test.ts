@@ -38,11 +38,6 @@ const sections = {
         widgets: ['widget1', 'widget2']
     },
     [groupSection]: {
-        groups: {
-            [group1Name]: {
-                widgets: ['widget3']
-            }
-        },
         widgets: [group1Name]
     },
     [choiceSection]: {
@@ -84,7 +79,8 @@ const widgets = {
     },
     [group1Name]: {
         type: 'group',
-        path: `groupResponses`
+        path: `groupResponses`,
+        widgets: ['widget3']
     }
 };
 const mockedDefaultValue = widgets.widget3.defaultValue as jest.MockedFunction<any>;

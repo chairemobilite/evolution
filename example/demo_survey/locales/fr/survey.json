@@ -13,9 +13,11 @@
         "start": "Débuter",
         "info": "Vous aurez besoin de ces informations si vous désirez vous reconnecter à votre entrevue ou si vous désirez y accéder à partir d’un autre ordinateur."
     },
-    "person": {
+    "householdMembers": {
         "deleteThisGroupedObject": "Supprimer cette personne",
-        "addGroupedObject": "Ajouter une personne",
+        "addGroupedObject": "Ajouter une personne"
+    },
+    "person": {
         "dayScheduleFor": "Horaire de la journée de",
         "yourDaySchedule": "Votre horaire de la journée"
     },
@@ -75,7 +77,7 @@
             "carPassenger": "Auto passager"
         }
     },
-    "mode": {
+    "segments": {
         "deleteThisGroupedObject": "Supprimer ce mode de transport",
         "addGroupedObject": "Ajouter un mode de transport"
     },

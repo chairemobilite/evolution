@@ -198,9 +198,8 @@ export class Section extends React.Component {
         case 'button':            widgetsComponentByShortname[widgetShortname] = <Button          {...defaultProps} />; break;
         case 'question':          widgetsComponentByShortname[widgetShortname] = <Question        {...defaultProps} />; break;
         case 'group':             widgetsComponentByShortname[widgetShortname] = <Group           {...defaultProps}
-          groupConfig                     = {this.props.groups[widgetShortname]}
-          groupsConfig                    = {this.props.groups}
           parentObjectIds                 = {{}}
+          shortname = {widgetShortname}
         />; break;
       }
     }

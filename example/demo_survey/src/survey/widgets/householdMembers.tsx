@@ -22,26 +22,64 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import waterBoundaries  from '../waterBoundaries.json';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { GroupConfig } from 'evolution-common/src/services/widgets';
 
-export const householdMembers = {
+const personsWidgets = [
+    'personNickname',
+    'personAge',
+    'personGender',
+    'personOccupation',
+    'personDrivingLicenseOwner',
+    'personTransitPassOwner',
+    'personTransitPasses',
+    'personCarsharingMember',
+    'personBikesharingMember',
+    'personHasDisability',
+    'personCellphoneOwner'
+];
+if (config.isPartTwo !== true)
+{
+    personsWidgets.push("personDidTrips");
+}
+
+export const householdMembers: GroupConfig = {
   type: "group",
   path: 'household.persons',
-  groupShortname: 'household_members',
-  shortname: 'person',
   deleteConfirmPopup: {
     content: {
         fr: 'supprimer',
         en: 'delete'
     }
   },
-  groupName: {
+  title: {
     fr: "Membres du ménage",
     en: "Household members"
   },
   name: {
-    fr: function(groupedObject, sequence) { return `Personne ${sequence || groupedObject['_sequence']} ${groupedObject.nickname ? `• **${groupedObject.nickname}**` : ''}`; },
-    en: function(groupedObject, sequence) { return `Person ${sequence || groupedObject['_sequence']} ${groupedObject.nickname ? `• **${groupedObject.nickname}**` : ''}`; }
-  }
+    fr: function(groupedObject: any, sequence) { return `Personne ${sequence || groupedObject['_sequence']} ${groupedObject.nickname ? `• **${groupedObject.nickname}**` : ''}`; },
+    en: function(groupedObject: any, sequence) { return `Person ${sequence || groupedObject['_sequence']} ${groupedObject.nickname ? `• **${groupedObject.nickname}**` : ''}`; }
+  },
+  showGroupedObjectDeleteButton: function(interview, path) { 
+    const countPersons = helper.countPersons(interview);
+    if (config.isPartTwo === true)
+    {
+      return countPersons > 1;
+    }
+    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null) as number;
+    return countPersons > householdSize;
+  },
+  showGroupedObjectAddButton: function(interview, path) {
+    //const hasGroupedObjects = Object.keys(_get(interview, `groups.householdMembers`, {})).length > 0;
+    //const householdSize     = surveyHelperNew.getResponse(interview, 'household.size', null);
+    //const persons           = surveyHelperNew.getResponse(interview, path, {});
+    return true;//hasGroupedObjects && Object.keys(persons).length < householdSize;
+  },
+  groupedObjectAddButtonLabel: {
+    fr: "Ajouter une personne manquante",
+    en: "Add a missing person"
+  },
+  addButtonSize: 'small' as const,
+  widgets: personsWidgets
 };
 
 export const personAge = {

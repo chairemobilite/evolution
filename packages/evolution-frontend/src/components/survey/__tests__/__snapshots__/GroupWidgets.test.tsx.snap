@@ -1,0 +1,2098 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Group Add button top, default label, medium Render widget 1`] = `
+<section
+  className="survey-group"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group__content"
+    >
+      <h2
+        className="survey-group__title"
+      >
+        myGroup.title
+      </h2>
+      <div
+        className="center"
+      >
+        <button
+          className="button blue center small"
+          onClick={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+            data-icon="plus-circle"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={Object {}}
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+          myGroup.addGroupedObject
+        </button>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj0Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj0Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj1Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj1Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some other answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj2Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj2Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+`;
+
+exports[`Group All values set, all true, add button default data, filter show all Render widget 1`] = `
+<section
+  className="survey-group"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group__content"
+    >
+      <h2
+        className="survey-group__title"
+      >
+        Group Title
+      </h2>
+      <div
+        className="center"
+      >
+        <button
+          className="button blue center small"
+          onClick={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+            data-icon="plus-circle"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={Object {}}
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+          Add a new grouped object in my group
+        </button>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 0
+              </p>
+            </h3>
+            <div
+              className="center"
+            >
+              <button
+                className="button red small"
+                onClick={[Function]}
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="svg-inline--fa fa-trash-alt fa-w-14 faIconLeft"
+                  data-icon="trash-alt"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  style={Object {}}
+                  viewBox="0 0 448 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
+                    fill="currentColor"
+                    style={Object {}}
+                  />
+                </svg>
+                Delete this grouped object from my group
+              </button>
+            </div>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj0Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj0Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 1
+              </p>
+            </h3>
+            <div
+              className="center"
+            >
+              <button
+                className="button red small"
+                onClick={[Function]}
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="svg-inline--fa fa-trash-alt fa-w-14 faIconLeft"
+                  data-icon="trash-alt"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  style={Object {}}
+                  viewBox="0 0 448 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
+                    fill="currentColor"
+                    style={Object {}}
+                  />
+                </svg>
+                Delete this grouped object from my group
+              </button>
+            </div>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj1Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj1Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some other answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 2
+              </p>
+            </h3>
+            <div
+              className="center"
+            >
+              <button
+                className="button red small"
+                onClick={[Function]}
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="svg-inline--fa fa-trash-alt fa-w-14 faIconLeft"
+                  data-icon="trash-alt"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  style={Object {}}
+                  viewBox="0 0 448 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
+                    fill="currentColor"
+                    style={Object {}}
+                  />
+                </svg>
+                Delete this grouped object from my group
+              </button>
+            </div>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj2Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj2Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="center"
+      >
+        <button
+          className="button blue center small"
+          onClick={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+            data-icon="plus-circle"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={Object {}}
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+          Add a new grouped object in my group
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+`;
+
+exports[`Group All values set, false when possible Render widget 1`] = `
+<section
+  className="survey-group"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group__content"
+    >
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 0
+              </p>
+            </h3>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj0Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj0Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 1
+              </p>
+            </h3>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj1Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj1Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some other answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 2
+              </p>
+            </h3>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj2Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj2Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+`;
+
+exports[`Group Conditional false, should not display Render widget 1`] = `null`;
+
+exports[`Group Default values Render widget 1`] = `
+<section
+  className="survey-group"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group__content"
+    >
+      <h2
+        className="survey-group__title"
+      >
+        myGroup.title
+      </h2>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj0Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj0Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj1Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj1Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some other answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj2Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj2Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="center"
+      >
+        <button
+          className="button blue center large"
+          onClick={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+            data-icon="plus-circle"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={Object {}}
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+          myGroup.addGroupedObject
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+`;
+
+exports[`Group Nested groups, should display widgets with right path 1`] = `
+<section
+  className="survey-group"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group__content"
+    >
+      <h2
+        className="survey-group__title"
+      >
+        myGroup.title
+      </h2>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 0
+              </p>
+            </h3>
+            <section
+              className="survey-group"
+            >
+              <div
+                className="content-container"
+              >
+                <div
+                  className="survey-group__content"
+                >
+                  <h2
+                    className="survey-group__title"
+                  >
+                    Nested group title
+                  </h2>
+                  <div
+                    className="survey-group-object"
+                  >
+                    <div
+                      className="content-container"
+                    >
+                      <div
+                        className="survey-group-object__content"
+                      >
+                        <h3
+                          className="survey-group-object__title"
+                        >
+                          <p>
+                            Nested object at index 0
+                          </p>
+                        </h3>
+                        <div
+                          className="survey-section__text"
+                        >
+                          <div
+                            className="left "
+                          >
+                            <p>
+                              This is a text widget
+                            </p>
+                          </div>
+                        </div>
+                        <div
+                          className="apptr__form-container question-type-string question-filled"
+                          onClick={[Function]}
+                          style={
+                            Object {
+                              "position": "relative",
+                            }
+                          }
+                        >
+                          <div
+                            className="apptr__form-label-container"
+                          >
+                            <label
+                              htmlFor="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
+                            >
+                              <div
+                                className="label"
+                              >
+                                <p>
+                                  Test Question Label
+                                </p>
+                              </div>
+                            </label>
+                          </div>
+                          <div
+                            className="apptr__form-input-container "
+                          >
+                            <input
+                              autoComplete="none"
+                              className="apptr__form-input apptr__input-string input-large"
+                              id="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
+                              maxLength={255}
+                              name="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
+                              onBlur={[Function]}
+                              onChange={[Function]}
+                              style={
+                                Object {
+                                  "textTransform": "none",
+                                }
+                              }
+                              type="text"
+                              value="Some answer"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className="survey-group-object"
+                  >
+                    <div
+                      className="content-container"
+                    >
+                      <div
+                        className="survey-group-object__content"
+                      >
+                        <h3
+                          className="survey-group-object__title"
+                        >
+                          <p>
+                            Nested object at index 1
+                          </p>
+                        </h3>
+                        <div
+                          className="survey-section__text"
+                        >
+                          <div
+                            className="left "
+                          >
+                            <p>
+                              This is a text widget
+                            </p>
+                          </div>
+                        </div>
+                        <div
+                          className="apptr__form-container question-type-string question-filled"
+                          onClick={[Function]}
+                          style={
+                            Object {
+                              "position": "relative",
+                            }
+                          }
+                        >
+                          <div
+                            className="apptr__form-label-container"
+                          >
+                            <label
+                              htmlFor="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
+                            >
+                              <div
+                                className="label"
+                              >
+                                <p>
+                                  Test Question Label
+                                </p>
+                              </div>
+                            </label>
+                          </div>
+                          <div
+                            className="apptr__form-input-container "
+                          >
+                            <input
+                              autoComplete="none"
+                              className="apptr__form-input apptr__input-string input-large"
+                              id="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
+                              maxLength={255}
+                              name="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
+                              onBlur={[Function]}
+                              onChange={[Function]}
+                              style={
+                                Object {
+                                  "textTransform": "none",
+                                }
+                              }
+                              type="text"
+                              value="Some other answer"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    className="center"
+                  >
+                    <button
+                      className="button blue center large"
+                      onClick={[Function]}
+                      type="button"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+                        data-icon="plus-circle"
+                        data-prefix="fas"
+                        focusable="false"
+                        role="img"
+                        style={Object {}}
+                        viewBox="0 0 512 512"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                          fill="currentColor"
+                          style={Object {}}
+                        />
+                      </svg>
+                      widgetGroups.addGroupedObject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 1
+              </p>
+            </h3>
+            <section
+              className="survey-group"
+            >
+              <div
+                className="content-container"
+              >
+                <div
+                  className="survey-group__content"
+                >
+                  <h2
+                    className="survey-group__title"
+                  >
+                    Nested group title
+                  </h2>
+                  <div
+                    className="center"
+                  >
+                    <button
+                      className="button blue center large"
+                      onClick={[Function]}
+                      type="button"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+                        data-icon="plus-circle"
+                        data-prefix="fas"
+                        focusable="false"
+                        role="img"
+                        style={Object {}}
+                        viewBox="0 0 512 512"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                          fill="currentColor"
+                          style={Object {}}
+                        />
+                      </svg>
+                      widgetGroups.addGroupedObject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 2
+              </p>
+            </h3>
+            <section
+              className="survey-group"
+            >
+              <div
+                className="content-container"
+              >
+                <div
+                  className="survey-group__content"
+                >
+                  <h2
+                    className="survey-group__title"
+                  >
+                    Nested group title
+                  </h2>
+                  <div
+                    className="center"
+                  >
+                    <button
+                      className="button blue center large"
+                      onClick={[Function]}
+                      type="button"
+                    >
+                      <svg
+                        aria-hidden="true"
+                        className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+                        data-icon="plus-circle"
+                        data-prefix="fas"
+                        focusable="false"
+                        role="img"
+                        style={Object {}}
+                        viewBox="0 0 512 512"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                          fill="currentColor"
+                          style={Object {}}
+                        />
+                      </svg>
+                      widgetGroups.addGroupedObject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+      <div
+        className="center"
+      >
+        <button
+          className="button blue center large"
+          onClick={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+            data-icon="plus-circle"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={Object {}}
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+          myGroup.addGroupedObject
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+`;
+
+exports[`Group With grouped object conditional filter, show only object 1 Render widget 1`] = `
+<section
+  className="survey-group"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group__content"
+    >
+      <h2
+        className="survey-group__title"
+      >
+        myGroup.title
+      </h2>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 1
+              </p>
+            </h3>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj1Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj1Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some other answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="center"
+      >
+        <button
+          className="button blue center large"
+          onClick={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+            data-icon="plus-circle"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={Object {}}
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+          myGroup.addGroupedObject
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+`;
+
+exports[`Group With object filter, show even sequenced objects Render widget 1`] = `
+<section
+  className="survey-group"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group__content"
+    >
+      <h2
+        className="survey-group__title"
+      >
+        myGroup.title
+      </h2>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 0
+              </p>
+            </h3>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj0Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj0Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value="Some answer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="survey-group-object"
+      >
+        <div
+          className="content-container"
+        >
+          <div
+            className="survey-group-object__content"
+          >
+            <h3
+              className="survey-group-object__title"
+            >
+              <p>
+                Grouped object at index 2
+              </p>
+            </h3>
+            <div
+              className="survey-section__text"
+            >
+              <div
+                className="left "
+              >
+                <p>
+                  This is a text widget
+                </p>
+              </div>
+            </div>
+            <div
+              className="apptr__form-container question-type-string question-filled"
+              onClick={[Function]}
+              style={
+                Object {
+                  "position": "relative",
+                }
+              }
+            >
+              <div
+                className="apptr__form-label-container"
+              >
+                <label
+                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                >
+                  <div
+                    className="label"
+                  >
+                    <p>
+                      Test Question Label
+                    </p>
+                  </div>
+                </label>
+              </div>
+              <div
+                className="apptr__form-input-container "
+              >
+                <input
+                  autoComplete="none"
+                  className="apptr__form-input apptr__input-string input-large"
+                  id="survey-question__myGroups.obj2Uuid.quest"
+                  maxLength={255}
+                  name="survey-question__myGroups.obj2Uuid.quest"
+                  onBlur={[Function]}
+                  onChange={[Function]}
+                  style={
+                    Object {
+                      "textTransform": "none",
+                    }
+                  }
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className="center"
+      >
+        <button
+          className="button blue center large"
+          onClick={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-plus-circle fa-w-16 faIconLeft"
+            data-icon="plus-circle"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={Object {}}
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+          myGroup.addGroupedObject
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+`;
+
+exports[`Grouped Object All values set, add/delete button false Render widget 1`] = `
+<div
+  className="survey-group-object"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group-object__content"
+    >
+      <h3
+        className="survey-group-object__title"
+      >
+        <p>
+          Grouped object at index 0
+        </p>
+      </h3>
+      <div
+        className="survey-section__text"
+      >
+        <div
+          className="left "
+        >
+          <p>
+            This is a text widget
+          </p>
+        </div>
+      </div>
+      <div
+        className="apptr__form-container question-type-string question-filled"
+        onClick={[Function]}
+        style={
+          Object {
+            "position": "relative",
+          }
+        }
+      >
+        <div
+          className="apptr__form-label-container"
+        >
+          <label
+            htmlFor="survey-question__myGroups.obj0Uuid.quest"
+          >
+            <div
+              className="label"
+            >
+              <p>
+                Test Question Label
+              </p>
+            </div>
+          </label>
+        </div>
+        <div
+          className="apptr__form-input-container "
+        >
+          <input
+            autoComplete="none"
+            className="apptr__form-input apptr__input-string input-large"
+            id="survey-question__myGroups.obj0Uuid.quest"
+            maxLength={255}
+            name="survey-question__myGroups.obj0Uuid.quest"
+            onBlur={[Function]}
+            onChange={[Function]}
+            style={
+              Object {
+                "textTransform": "none",
+              }
+            }
+            type="text"
+            value="Some answer"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Grouped Object All values set, all true, add button default label, filter show all Render widget 1`] = `
+<div
+  className="survey-group-object"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group-object__content"
+    >
+      <h3
+        className="survey-group-object__title"
+      >
+        <p>
+          Grouped object at index 0
+        </p>
+      </h3>
+      <div
+        className="center"
+      >
+        <button
+          className="button red small"
+          onClick={[Function]}
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            className="svg-inline--fa fa-trash-alt fa-w-14 faIconLeft"
+            data-icon="trash-alt"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            style={Object {}}
+            viewBox="0 0 448 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
+              fill="currentColor"
+              style={Object {}}
+            />
+          </svg>
+          Delete this grouped object from my group
+        </button>
+      </div>
+      <div
+        className="survey-section__text"
+      >
+        <div
+          className="left "
+        >
+          <p>
+            This is a text widget
+          </p>
+        </div>
+      </div>
+      <div
+        className="apptr__form-container question-type-string question-filled"
+        onClick={[Function]}
+        style={
+          Object {
+            "position": "relative",
+          }
+        }
+      >
+        <div
+          className="apptr__form-label-container"
+        >
+          <label
+            htmlFor="survey-question__myGroups.obj0Uuid.quest"
+          >
+            <div
+              className="label"
+            >
+              <p>
+                Test Question Label
+              </p>
+            </div>
+          </label>
+        </div>
+        <div
+          className="apptr__form-input-container "
+        >
+          <input
+            autoComplete="none"
+            className="apptr__form-input apptr__input-string input-large"
+            id="survey-question__myGroups.obj0Uuid.quest"
+            maxLength={255}
+            name="survey-question__myGroups.obj0Uuid.quest"
+            onBlur={[Function]}
+            onChange={[Function]}
+            style={
+              Object {
+                "textTransform": "none",
+              }
+            }
+            type="text"
+            value="Some answer"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Grouped Object Default values Render widget 1`] = `
+<div
+  className="survey-group-object"
+>
+  <div
+    className="content-container"
+  >
+    <div
+      className="survey-group-object__content"
+    >
+      <div
+        className="survey-section__text"
+      >
+        <div
+          className="left "
+        >
+          <p>
+            This is a text widget
+          </p>
+        </div>
+      </div>
+      <div
+        className="apptr__form-container question-type-string question-filled"
+        onClick={[Function]}
+        style={
+          Object {
+            "position": "relative",
+          }
+        }
+      >
+        <div
+          className="apptr__form-label-container"
+        >
+          <label
+            htmlFor="survey-question__myGroups.obj0Uuid.quest"
+          >
+            <div
+              className="label"
+            >
+              <p>
+                Test Question Label
+              </p>
+            </div>
+          </label>
+        </div>
+        <div
+          className="apptr__form-input-container "
+        >
+          <input
+            autoComplete="none"
+            className="apptr__form-input apptr__input-string input-large"
+            id="survey-question__myGroups.obj0Uuid.quest"
+            maxLength={255}
+            name="survey-question__myGroups.obj0Uuid.quest"
+            onBlur={[Function]}
+            onChange={[Function]}
+            style={
+              Object {
+                "textTransform": "none",
+              }
+            }
+            type="text"
+            value="Some answer"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

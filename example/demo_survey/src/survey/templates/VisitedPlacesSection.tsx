@@ -137,7 +137,7 @@ export class VisitedPlacesSection extends React.Component<any, any> {
 
     surveyHelper.devLog('%c rendering section ' + this.props.shortname, 'background: rgba(0,0,255,0.1);')
     const widgetsComponentsByShortname = {};
-    const groupConfig                  = this.props.groups['personVisitedPlaces'];
+    const personVisitedPlacesConfig    = this.props.surveyContext.widgets['personVisitedPlaces'];
     const person                       = helper.getPerson(this.props.interview);
     const householdSize                = surveyHelper.getResponse(this.props.interview, 'household.size', null);
     const isAlone                      = householdSize === 1;
@@ -258,8 +258,6 @@ export class VisitedPlacesSection extends React.Component<any, any> {
         case 'button':   component = <Button   {...defaultProps} />; break;
         case 'question': component = <Question {...defaultProps} />; break;
         case 'group':    component = <Group    {...defaultProps}
-          groupConfig     = {this.props.groups[widgetShortname]}
-          groupsConfig    = {this.props.groups}
           parentObjectIds = {{}}
         />;
       }
@@ -328,11 +326,11 @@ export class VisitedPlacesSection extends React.Component<any, any> {
                   <ConfirmModal 
                     isOpen        = {true}
                     closeModal    = {() => this.setState({confirmDeleteVisitedPlace: null})}
-                    text          = {surveyHelper.parseString(groupConfig.deleteConfirmPopup.content[this.props.i18n.language] || groupConfig.deleteConfirmPopup.content, this.props.interview, this.props.path)}
-                    title         = {groupConfig.deleteConfirmPopup.title && groupConfig.deleteConfirmPopup.title[this.props.i18n.language] ? surveyHelper.parseString(groupConfig.deleteConfirmPopup.title[this.props.i18n.language] || groupConfig.deleteConfirmPopup.title, this.props.interview, this.props.path) : null}
+                    text          = {surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.content[this.props.i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.content, this.props.interview, this.props.path)}
+                    title         = {personVisitedPlacesConfig.deleteConfirmPopup.title && personVisitedPlacesConfig.deleteConfirmPopup.title[this.props.i18n.language] ? surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.title[this.props.i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.title, this.props.interview, this.props.path) : null}
                     cancelAction  = {null}
                     confirmAction = {() => this.deleteVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces)}
-                    containsHtml  = {groupConfig.deleteConfirmPopup.containsHtml}
+                    containsHtml  = {personVisitedPlacesConfig.deleteConfirmPopup.containsHtml}
                   />
                 </div>)
             }
@@ -349,10 +347,9 @@ export class VisitedPlacesSection extends React.Component<any, any> {
         const selectedVisitedPlaceComponent = (
           <li className='no-bullet' style={{marginTop: "-0.4rem"}} key={`survey-visited-place-item-selected__${i}`}>
             <GroupedObject
-              groupConfig                 = {this.props.groups['personVisitedPlaces']}
-              groupsConfig                = {this.props.groups}
-              path                        = {visitedPlacePath}
+              widgetConfig                 = {personVisitedPlacesConfig}
               shortname                   = 'personVisitedPlaces'
+              path                        = {visitedPlacePath}
               loadingState                = {this.props.loadingState}
               objectId                    = {visitedPlace._uuid}
               parentObjectIds             = {parentObjectIds}
