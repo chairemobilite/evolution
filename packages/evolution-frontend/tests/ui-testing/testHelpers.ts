@@ -510,8 +510,8 @@ export const inputDatePickerTest = ({ context, path, value }: PathAndValue & Com
             }
         }
 
-        // Select the desired day, by getting the element with the day as exact text
-        const desiredDayOption = datePickerContainer.getByText(desiredDay, { exact: true });
+        // Select the desired day, by getting the element with the day as exact text and labelled with the month (the label locator needs to precede the text locator)
+        const desiredDayOption = datePickerContainer.getByLabel(desiredMonth).getByText(desiredDay, { exact: true });
         await desiredDayOption.click();
 
         // The month selector should be hidden before reading the value
