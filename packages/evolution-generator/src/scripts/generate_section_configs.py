@@ -58,14 +58,13 @@ def generate_section_configs(excel_file_path: str):
         # Iterate through each row in the sheet, starting from the second row
         for row_number, row in enumerate(rows[1:], start=2):
             # Get values from the row
-            (
-                section,
-                title_fr,
-                title_en,
-                in_nav,
-                template,
-                parent_section
-            ) = get_values_from_row(row, headers)
+            row_dict = dict(zip(headers, (cell.value for cell in row)))
+            section = row_dict.get("section")
+            title_fr = row_dict.get("title_fr")
+            title_en = row_dict.get("title_en")
+            in_nav = row_dict.get("in_nav")
+            template = row_dict.get("template")
+            parent_section = row_dict.get("parent_section")
 
             # Generate code for section
             def generate_section_code(previousSection, nextSection):
