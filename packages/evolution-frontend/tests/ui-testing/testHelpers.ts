@@ -43,7 +43,7 @@ type HasTitleTest = (params: { title: Title } & CommonTestParameters) => void;
 type HasFrenchTest = (params: CommonTestParameters) => void;
 type SwitchToEnglishTest = (params: CommonTestParameters) => void;
 type HasConsentTest = (params: CommonTestParameters) => void;
-type StartSurveyTest = (params: CommonTestParameters) => void;
+type StartSurveyTest = (params: CommonTestParameters & { nextUrl?: string }) => void;
 type RegisterWithoutEmailTest = (params: CommonTestParameters) => void;
 type HasUserTest = (params: CommonTestParameters) => void;
 type SimpleAction = (params: CommonTestParameters) => void;
@@ -138,11 +138,12 @@ export const hasConsentTest: HasConsentTest = ({ context }) => {
 };
 
 // Test if the page has a start survey button
-export const startSurveyTest: StartSurveyTest = ({ context }) => {
+export const startSurveyTest: StartSurveyTest = ({ context, nextUrl }) => {
     test('Start survey', async () => {
+        const startPage = nextUrl || '/login';
         const startSurvey = context.page.getByRole('button', { name: 'Start' });
         await startSurvey.click();
-        await expect(context.page).toHaveURL('/login');
+        await expect(context.page).toHaveURL(startPage);
     });
 };
 
