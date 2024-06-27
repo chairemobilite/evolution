@@ -56,14 +56,36 @@ type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => 
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
 type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
 
-// Open the browser before all the tests and go to the home page
+/**
+ * Open the browser before all the tests and go to the home page
+ *
+ * @param {Browser} browser - The test browser object
+ * @param {SurveyObjectDetector} surveyObjectDetector - The object detector for
+ * the test, to keep object data and IDs passed between client and server.
+ * @param {Object} options - The options for the test.
+ * @param {{ [param: string]: string} } options.urlSearchParams - Additional
+ * parameters to add to the URL as query string question.
+ */
 export const initializeTestPage = async (
     browser: Browser,
-    surveyObjectDetector: SurveyObjectDetector
+    surveyObjectDetector: SurveyObjectDetector,
+    options: { urlSearchParams?: { [param: string]: string} } = {}
 ): Promise<Page> => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto('/');
+
+    const baseUrlString = test.info().project.use.baseURL;
+    if (typeof baseUrlString === 'string' && options.urlSearchParams) {
+        // Add the search params to the base URL
+        const baseURL = new URL(baseUrlString);
+        Object.keys(options.urlSearchParams).forEach((param) => {
+            baseURL.searchParams.append(param, options.urlSearchParams![param]);
+        });
+        await page.goto(baseURL.toString());
+    } else {
+        // Go to home page
+        await page.goto('/');
+    }
 
     page.on('request', (request) => {
         // Listen to requests to survey update to get the objects' uuid
