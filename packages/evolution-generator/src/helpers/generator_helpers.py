@@ -149,9 +149,9 @@ def is_excel_file(file: str) -> None:
 
 # Check if the output file is an TypeScript file
 def is_ts_file(file: str) -> None:
-    if not file.endswith(".tsx"):
+    if not (file.endswith(".ts") or file.endswith(".tsx")):
         raise Exception(
-            f"Invalid output file extension for {file} : must be an TypeScript .tsx file"
+            f"Invalid output file extension for {file} : must be an TypeScript .ts or .tsx file"
         )
 
 

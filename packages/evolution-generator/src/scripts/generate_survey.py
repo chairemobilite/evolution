@@ -18,6 +18,7 @@ from scripts.generate_conditionals import generate_conditionals
 from scripts.generate_choices import generate_choices
 from scripts.generate_input_range import generate_input_range
 from scripts.generate_libelles import generate_libelles
+from scripts.generate_UI_tests import generate_UI_tests
 
 
 # TODO: Add some validation for the config file
@@ -33,10 +34,28 @@ def generate_survey(config_path):
         # Get the data from the YAML file
         survey_folder_path = surveyGenerator["survey_folder_path"]
         excel_file_path = surveyGenerator["excel_file_path"]
-        enabled_scripts = surveyGenerator["enabled_scripts"]
+        enabled_scripts = surveyGenerator.get("enabled_scripts", [])
+        enabled_generate_excel = enabled_scripts.get("generate_excel", False)
+        enabled_generate_section_configs = enabled_scripts.get(
+            "generate_section_configs", False
+        )
+        enabled_generate_sections = enabled_scripts.get("generate_sections", False)
+        enabled_generate_widgets_configs = enabled_scripts.get(
+            "generate_widgets_configs", False
+        )
+        enabled_generate_widgets = enabled_scripts.get("generate_widgets", False)
+        enabled_generate_conditionals = enabled_scripts.get(
+            "generate_conditionals", False
+        )
+        enabled_generate_choices = enabled_scripts.get("generate_choices", False)
+        enabled_generate_input_range = enabled_scripts.get(
+            "generate_input_range", False
+        )
+        enabled_generate_libelles = enabled_scripts.get("generate_libelles", False)
+        enabled_generate_UI_tests = enabled_scripts.get("generate_UI_tests", False)
 
     # Call the generate_excel function to generate the Excel file if script enabled
-    if enabled_scripts["generate_excel"]:
+    if enabled_generate_excel:
         generate_excel(
             os.getenv("SHAREPOINT_URL"),
             os.getenv("EXCEL_FILE_PATH"),
@@ -49,57 +68,64 @@ def generate_survey(config_path):
     generate_folders(excel_file_path, survey_folder_path)
 
     # Call the generate_section_configs function to generate sectionConfigs.ts if script enabled
-    if enabled_scripts["generate_section_configs"]:
+    if enabled_generate_section_configs:
         generate_section_configs(excel_file_path)
 
     # Call the generate_sections function to generate sections.tsx if script enabled
-    if enabled_scripts["generate_sections"]:
+    if enabled_generate_sections:
         sections_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "sections.ts"
         )
         generate_sections(excel_file_path, sections_output_file_path)
 
     # Call the generate_widgets_config function to generate widgetsConfigs.tsx if script enabled
-    if enabled_scripts["generate_widgets_configs"]:
+    if enabled_generate_widgets_configs:
         widgets_configs_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "widgetsConfigs.tsx"
         )
         generate_widgets_configs(excel_file_path, widgets_configs_output_file_path)
 
     # Call the generate_widgets function to generate widgets.tsx for each section if script enabled
-    if enabled_scripts["generate_widgets"]:
+    if enabled_generate_widgets:
         widgets_output_folder = os.path.join(
             survey_folder_path, "src", "survey", "sections"
         )
         generate_widgets(excel_file_path, widgets_output_folder)
 
     # Call the generate_conditionals function to generate conditionals.tsx if script enabled
-    if enabled_scripts["generate_conditionals"]:
+    if enabled_generate_conditionals:
         conditionals_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "conditionals.tsx"
         )
         generate_conditionals(excel_file_path, conditionals_output_file_path)
 
     # Call the generate_choices function to generate choices.tsx if script enabled
-    if enabled_scripts["generate_choices"]:
+    if enabled_generate_choices:
         choices_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "choices.tsx"
         )
         generate_choices(excel_file_path, choices_output_file_path)
 
     # Call the generate_input_range function to generate labels.tsx if script enabled
-    if enabled_scripts["generate_input_range"]:
+    if enabled_generate_input_range:
         input_range_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "inputRange.tsx"
         )
         generate_input_range(excel_file_path, input_range_output_file_path)
 
     # Call the generate_libelles function to generate the libelles locales folder if script enabled
-    if enabled_scripts["generate_libelles"]:
+    if enabled_generate_libelles:
         libelles_output_folder_path = os.path.join(survey_folder_path, "locales")
         generate_libelles(
             excel_file_path, libelles_output_folder_path, overwrite=True, section=None
         )
+
+    # Call the generate_UI_tests function to generate the template-tests-UI.ts if script enabled
+    if enabled_generate_UI_tests:
+        UI_tests_output_file_path = os.path.join(
+            survey_folder_path, "tests", "template-tests-UI.ts"
+        )
+        generate_UI_tests(excel_file_path, UI_tests_output_file_path)
 
 
 # Call the generate_survey function with the config_path argument
