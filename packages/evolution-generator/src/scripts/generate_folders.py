@@ -30,6 +30,10 @@ def generate_folders(excel_file_path: str, survey_folder_path: str):
         common_folder_path = os.path.join(survey_folder_path, "src", "survey", "common")
         generate_folder(common_folder_path)
 
+        # Create the tests folder
+        tests_folder_path = os.path.join(survey_folder_path, "tests")
+        generate_folder(tests_folder_path)
+
         for section in sections_names:
             # Create the section folder
             section_folder_path = os.path.join(
