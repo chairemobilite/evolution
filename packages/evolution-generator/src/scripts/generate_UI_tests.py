@@ -75,6 +75,19 @@ def generate_UI_tests(input_file: str, output_file: str):
         ts_code += f"{INDENT}context.page = await testHelpers.initializeTestPage(browser, context.objectDetector);\n"
         ts_code += f"}});\n\n"
 
+        # TODO: Only add the good auth method test depending on the survey
+        # Start the survey
+        ts_code += f"/********** Start the survey **********/\n\n"
+        ts_code += f"// Start the survey with email\n"
+        ts_code += f"surveyTestHelpers.startAndLoginWithEmail({{\n"
+        ts_code += f"{INDENT}context,\n"
+        ts_code += f"{INDENT}title: '?',\n"
+        ts_code += f"{INDENT}email: `test${{Math.random().toString(36).substring(2, 15)}}@test.com`,\n"
+        ts_code += f"{INDENT}nextPageUrl: '?'\n"
+        ts_code += f"}});\n"
+        ts_code += f"// Start the survey without email\n"
+        ts_code += f"surveyTestHelpers.startAndLoginAnonymously({{ context, title: '?', hasUser: false }});\n\n"
+
         # Iterate through each row in the sheet, starting from the second row
         for row in list(sheet.rows)[1:]:
             # Create a dictionary from the row values and headers
@@ -111,21 +124,28 @@ def generate_UI_tests(input_file: str, output_file: str):
                 path = f"{group_path_prefix}.{path}" if group_path_prefix else path
 
             # Generate TypeScript code
-            ts_code += f"/* Test {input_type.lower()} widget: {question_name} */\n"
-
+            
+            # Generate widget message
+            conditional_message = f""
+            choices_message = f""
+            if conditional:
+                conditional_message = f" with conditional {conditional}"
+            if choices:
+                choices_message = f" witch choices {choices}"
+            ts_code += f"/* Test {input_type.lower()} widget {question_name}{conditional_message}{choices_message} */\n"
+            
+            # Generate input visible test
             if conditional and active:
-                ts_code += f"// Test conditional {conditional}\n"
                 ts_code += f"testHelpers.inputVisibleTest({{ context, path: '{path}', isVisible: undefined }});\n"
 
+            # Generate input tests
             if not active:
                 ts_code += f"// Widget not active\n\n"
             elif input_type == "Radio":
                 # TODO: Add choices values options and not the choices name
-                ts_code += f"// Extract value from {choices} choice\n"
                 ts_code += f"testHelpers.inputRadioTest({{ context, path: '{path}', value: '?' }});\n\n"
             elif input_type == "Checkbox":
                 # TODO: Add choices values options and not the choices name
-                ts_code += f"// Extract value(s) from {choices} choice\n"
                 ts_code += f"testHelpers.inputCheckboxTest({{ context, path: '{path}', values: ['?'] }});\n\n"
             elif (
                 input_type == "String" or input_type == "Text" or input_type == "Number"

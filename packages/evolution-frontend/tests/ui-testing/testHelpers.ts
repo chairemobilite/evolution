@@ -37,6 +37,7 @@ type Text = string;
 type Url = string;
 type Title = string;
 type Path = string;
+type Email = string;
 type PathAndValue = { path: Path; value: Value };
 type PathAndValueBoolOrStr = { path: Path; value: StringOrBoolean };
 type HasTitleTest = (params: { title: Title } & CommonTestParameters) => void;
@@ -45,6 +46,7 @@ type SwitchToEnglishTest = (params: CommonTestParameters) => void;
 type HasConsentTest = (params: CommonTestParameters) => void;
 type StartSurveyTest = (params: CommonTestParameters & { nextUrl?: string }) => void;
 type RegisterWithoutEmailTest = (params: CommonTestParameters) => void;
+type RegisterWithEmailTest = (params: { email: Email; nextPageUrl?: Url } & CommonTestParameters) => void;
 type HasUserTest = (params: CommonTestParameters) => void;
 type SimpleAction = (params: CommonTestParameters) => void;
 type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void;
@@ -69,7 +71,7 @@ type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTes
 export const initializeTestPage = async (
     browser: Browser,
     surveyObjectDetector: SurveyObjectDetector,
-    options: { urlSearchParams?: { [param: string]: string} } = {}
+    options: { urlSearchParams?: { [param: string]: string } } = {}
 ): Promise<Page> => {
     const context = await browser.newContext();
     const page = await context.newPage();
@@ -180,7 +182,31 @@ export const registerWithoutEmailTest: RegisterWithoutEmailTest = ({ context }) 
     });
 };
 
-// Test if the page has a register without email button
+/**
+ * Executes a test to register a user with an email on a specific page.
+ *
+ * This function simulates a user entering an email address and clicking the confirm button to register.
+ * It then waits for navigation to the specified nextPageUrl, verifying the registration process completes successfully.
+ *
+ * @param {Object} params - The parameters for the registration test.
+ * @param {testHelpers.CommonTestParameters} params.context - The test context including the page object.
+ * @param {string} params.email - The email address to use for registration.
+ * @param {string} [params.nextPageUrl='/survey/home'] - The URL to navigate to after registration, defaults to '/survey/home'.
+ */
+export const registerWithEmailTest: RegisterWithEmailTest = ({ context, email, nextPageUrl = '/survey/home' }) => {
+    test('Register with email', async () => {
+        const emailInput = context.page.locator('id=email');
+        const confirmButton = context.page.getByRole('button', {
+            name: i18n.t(['survey:auth:Login', 'auth:Login']) as string
+        });
+
+        await emailInput.fill(email);
+        await confirmButton.click();
+        await expect(context.page).toHaveURL(nextPageUrl, { timeout: 30000 }); // Wait for the page to load
+    });
+};
+
+// Test if the page has a logout button
 export const logoutTest: SimpleAction = ({ context }) => {
     test('Logout from survey', async () => {
         const logoutButton = context.page.getByRole('button', {
@@ -193,7 +219,7 @@ export const logoutTest: SimpleAction = ({ context }) => {
 
 // Test if the page has a user
 export const hasUserTest: HasUserTest = ({ context }) => {
-    test(`Has anonym user`, async () => {
+    test('Has anonym user', async () => {
         const userName = context.page.getByRole('button', { name: /anonym_.*/ });
         await expect(userName).toHaveText(/anonym_.*/);
     });
