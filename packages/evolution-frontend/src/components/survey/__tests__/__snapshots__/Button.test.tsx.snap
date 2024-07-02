@@ -34,7 +34,7 @@ exports[`Button widget: Default values Render widget 1`] = `
 `;
 
 exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`] = `
-Array [
+[
   <Modal
     ariaHideApp={true}
     bodyOpenClassName="ReactModal__Body--open"
@@ -121,8 +121,8 @@ Array [
         contentElement={[Function]}
         contentLabel="popupTitle"
         defaultStyles={
-          Object {
-            "content": Object {
+          {
+            "content": {
               "WebkitOverflowScrolling": "touch",
               "background": "#fff",
               "border": "1px solid #ccc",
@@ -136,7 +136,7 @@ Array [
               "right": "40px",
               "top": "40px",
             },
-            "overlay": Object {
+            "overlay": {
               "backgroundColor": "rgba(255, 255, 255, 0.75)",
               "bottom": 0,
               "left": 0,
@@ -159,9 +159,9 @@ Array [
         shouldFocusAfterRender={true}
         shouldReturnFocusAfterClose={true}
         style={
-          Object {
-            "content": Object {},
-            "overlay": Object {},
+          {
+            "content": {},
+            "overlay": {},
           }
         }
       >
@@ -169,7 +169,7 @@ Array [
           className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
-          style={Object {}}
+          style={{}}
         >
           <div
             aria-label="popupTitle"
@@ -180,7 +180,7 @@ Array [
             onMouseDown={[Function]}
             onMouseUp={[Function]}
             role="dialog"
-            style={Object {}}
+            style={{}}
             tabIndex="-1"
           >
             <div>
@@ -189,10 +189,10 @@ Array [
               >
                 <ReactMarkdown
                   remarkPlugins={
-                    Array [
-                      Array [
+                    [
+                      [
                         [Function],
-                        Object {
+                        {
                           "singleTilde": false,
                         },
                       ],
@@ -210,10 +210,10 @@ Array [
               <ReactMarkdown
                 className="confirm-popup"
                 remarkPlugins={
-                  Array [
-                    Array [
+                  [
+                    [
                       [Function],
-                      Object {
+                      {
                         "singleTilde": false,
                       },
                     ],
@@ -271,8 +271,8 @@ Array [
     contentElement={[Function]}
     contentLabel="popupTitle"
     defaultStyles={
-      Object {
-        "content": Object {
+      {
+        "content": {
           "WebkitOverflowScrolling": "touch",
           "background": "#fff",
           "border": "1px solid #ccc",
@@ -286,7 +286,7 @@ Array [
           "right": "40px",
           "top": "40px",
         },
-        "overlay": Object {
+        "overlay": {
           "backgroundColor": "rgba(255, 255, 255, 0.75)",
           "bottom": 0,
           "left": 0,
@@ -309,9 +309,9 @@ Array [
     shouldFocusAfterRender={true}
     shouldReturnFocusAfterClose={true}
     style={
-      Object {
-        "content": Object {},
-        "overlay": Object {},
+      {
+        "content": {},
+        "overlay": {},
       }
     }
   >
@@ -319,7 +319,7 @@ Array [
       className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
-      style={Object {}}
+      style={{}}
     >
       <div
         aria-label="popupTitle"
@@ -330,7 +330,7 @@ Array [
         onMouseDown={[Function]}
         onMouseUp={[Function]}
         role="dialog"
-        style={Object {}}
+        style={{}}
         tabIndex="-1"
       >
         <div>
@@ -339,10 +339,10 @@ Array [
           >
             <ReactMarkdown
               remarkPlugins={
-                Array [
-                  Array [
+                [
+                  [
                     [Function],
-                    Object {
+                    {
                       "singleTilde": false,
                     },
                   ],
@@ -360,10 +360,10 @@ Array [
           <ReactMarkdown
             className="confirm-popup"
             remarkPlugins={
-              Array [
-                Array [
+              [
+                [
                   [Function],
-                  Object {
+                  {
                     "singleTilde": false,
                   },
                 ],
@@ -420,7 +420,7 @@ Array [
     onMouseDown={[Function]}
     onMouseUp={[Function]}
     role="dialog"
-    style={Object {}}
+    style={{}}
     tabIndex="-1"
   >
     <div>
@@ -429,10 +429,10 @@ Array [
       >
         <ReactMarkdown
           remarkPlugins={
-            Array [
-              Array [
+            [
+              [
                 [Function],
-                Object {
+                {
                   "singleTilde": false,
                 },
               ],
@@ -450,10 +450,10 @@ Array [
       <ReactMarkdown
         className="confirm-popup"
         remarkPlugins={
-          Array [
-            Array [
+          [
+            [
               [Function],
-              Object {
+              {
                 "singleTilde": false,
               },
             ],
@@ -503,7 +503,7 @@ Array [
 `;
 
 exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`] = `
-Array [
+[
   <Modal
     ariaHideApp={true}
     bodyOpenClassName="ReactModal__Body--open"
@@ -590,8 +590,8 @@ Array [
         contentElement={[Function]}
         contentLabel="popupTitle"
         defaultStyles={
-          Object {
-            "content": Object {
+          {
+            "content": {
               "WebkitOverflowScrolling": "touch",
               "background": "#fff",
               "border": "1px solid #ccc",
@@ -605,7 +605,7 @@ Array [
               "right": "40px",
               "top": "40px",
             },
-            "overlay": Object {
+            "overlay": {
               "backgroundColor": "rgba(255, 255, 255, 0.75)",
               "bottom": 0,
               "left": 0,
@@ -628,9 +628,9 @@ Array [
         shouldFocusAfterRender={true}
         shouldReturnFocusAfterClose={true}
         style={
-          Object {
-            "content": Object {},
-            "overlay": Object {},
+          {
+            "content": {},
+            "overlay": {},
           }
         }
       >
@@ -638,7 +638,7 @@ Array [
           className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
-          style={Object {}}
+          style={{}}
         >
           <div
             aria-label="popupTitle"
@@ -649,7 +649,7 @@ Array [
             onMouseDown={[Function]}
             onMouseUp={[Function]}
             role="dialog"
-            style={Object {}}
+            style={{}}
             tabIndex="-1"
           >
             <div>
@@ -658,10 +658,10 @@ Array [
               >
                 <ReactMarkdown
                   remarkPlugins={
-                    Array [
-                      Array [
+                    [
+                      [
                         [Function],
-                        Object {
+                        {
                           "singleTilde": false,
                         },
                       ],
@@ -679,10 +679,10 @@ Array [
               <ReactMarkdown
                 className="confirm-popup"
                 remarkPlugins={
-                  Array [
-                    Array [
+                  [
+                    [
                       [Function],
-                      Object {
+                      {
                         "singleTilde": false,
                       },
                     ],
@@ -740,8 +740,8 @@ Array [
     contentElement={[Function]}
     contentLabel="popupTitle"
     defaultStyles={
-      Object {
-        "content": Object {
+      {
+        "content": {
           "WebkitOverflowScrolling": "touch",
           "background": "#fff",
           "border": "1px solid #ccc",
@@ -755,7 +755,7 @@ Array [
           "right": "40px",
           "top": "40px",
         },
-        "overlay": Object {
+        "overlay": {
           "backgroundColor": "rgba(255, 255, 255, 0.75)",
           "bottom": 0,
           "left": 0,
@@ -778,9 +778,9 @@ Array [
     shouldFocusAfterRender={true}
     shouldReturnFocusAfterClose={true}
     style={
-      Object {
-        "content": Object {},
-        "overlay": Object {},
+      {
+        "content": {},
+        "overlay": {},
       }
     }
   >
@@ -788,7 +788,7 @@ Array [
       className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
-      style={Object {}}
+      style={{}}
     >
       <div
         aria-label="popupTitle"
@@ -799,7 +799,7 @@ Array [
         onMouseDown={[Function]}
         onMouseUp={[Function]}
         role="dialog"
-        style={Object {}}
+        style={{}}
         tabIndex="-1"
       >
         <div>
@@ -808,10 +808,10 @@ Array [
           >
             <ReactMarkdown
               remarkPlugins={
-                Array [
-                  Array [
+                [
+                  [
                     [Function],
-                    Object {
+                    {
                       "singleTilde": false,
                     },
                   ],
@@ -829,10 +829,10 @@ Array [
           <ReactMarkdown
             className="confirm-popup"
             remarkPlugins={
-              Array [
-                Array [
+              [
+                [
                   [Function],
-                  Object {
+                  {
                     "singleTilde": false,
                   },
                 ],
@@ -889,7 +889,7 @@ Array [
     onMouseDown={[Function]}
     onMouseUp={[Function]}
     role="dialog"
-    style={Object {}}
+    style={{}}
     tabIndex="-1"
   >
     <div>
@@ -898,10 +898,10 @@ Array [
       >
         <ReactMarkdown
           remarkPlugins={
-            Array [
-              Array [
+            [
+              [
                 [Function],
-                Object {
+                {
                   "singleTilde": false,
                 },
               ],
@@ -919,10 +919,10 @@ Array [
       <ReactMarkdown
         className="confirm-popup"
         remarkPlugins={
-          Array [
-            Array [
+          [
+            [
               [Function],
-              Object {
+              {
                 "singleTilde": false,
               },
             ],

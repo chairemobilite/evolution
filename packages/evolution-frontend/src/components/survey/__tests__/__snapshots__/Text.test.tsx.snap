@@ -8,7 +8,7 @@ exports[`Text widget: Contains html Render widget 1`] = `
 >
   <div
     dangerouslySetInnerHTML={
-      Object {
+      {
         "__html": "<br> bold text</br>blabla",
       }
     }

@@ -5,7 +5,7 @@ exports[`Question with widget InputButton Render widget 1`] = `
   className="apptr__form-container two-columns question-type-button question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -18,7 +18,7 @@ exports[`Question with widget InputButton Render widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -65,7 +65,7 @@ exports[`Question with widget InputCheckbox Render widget 1`] = `
   className="apptr__form-container two-columns question-type-checkbox question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -80,7 +80,7 @@ exports[`Question with widget InputCheckbox Render widget 1`] = `
         >
           <div
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "English text",
               }
             }
@@ -117,7 +117,7 @@ exports[`Question with widget InputCheckbox Render widget 1`] = `
             >
               <span
                 dangerouslySetInnerHTML={
-                  Object {
+                  {
                     "__html": "choice 1",
                   }
                 }
@@ -148,7 +148,7 @@ exports[`Question with widget InputCheckbox Render widget 1`] = `
             >
               <span
                 dangerouslySetInnerHTML={
-                  Object {
+                  {
                     "__html": "choice 2",
                   }
                 }
@@ -167,7 +167,7 @@ exports[`Question with widget InputDatePicker Render widget 1`] = `
   className="apptr__form-container two-columns question-type-datePicker question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -180,7 +180,7 @@ exports[`Question with widget InputDatePicker Render widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -227,7 +227,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
   className="apptr__form-container two-columns question-type-multiselect question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -241,7 +241,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -284,7 +284,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
               >
                 <div
                   style={
-                    Object {
+                    {
                       "alignItems": "center",
                       "display": "flex",
                     }
@@ -292,7 +292,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
                 >
                   <div
                     style={
-                      Object {
+                      {
                         "background": undefined,
                         "borderRadius": 6,
                         "height": 6,
@@ -347,7 +347,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
                 role="combobox"
                 spellCheck="false"
                 style={
-                  Object {
+                  {
                     "background": 0,
                     "border": 0,
                     "color": "inherit",
@@ -413,7 +413,7 @@ exports[`Question with widget InputRadio Render widget 1`] = `
   className="apptr__form-container two-columns question-type-radio question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -428,7 +428,7 @@ exports[`Question with widget InputRadio Render widget 1`] = `
         >
           <div
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "English text",
               }
             }
@@ -465,7 +465,7 @@ exports[`Question with widget InputRadio Render widget 1`] = `
             >
               <span
                 dangerouslySetInnerHTML={
-                  Object {
+                  {
                     "__html": "choice 1",
                   }
                 }
@@ -496,7 +496,7 @@ exports[`Question with widget InputRadio Render widget 1`] = `
             >
               <span
                 dangerouslySetInnerHTML={
-                  Object {
+                  {
                     "__html": "choice 2",
                   }
                 }
@@ -515,7 +515,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
   className="apptr__form-container two-columns question-type-radioNumber question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -530,7 +530,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
         >
           <div
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "English text",
               }
             }
@@ -567,7 +567,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             >
               <span
                 dangerouslySetInnerHTML={
-                  Object {
+                  {
                     "__html": "1",
                   }
                 }
@@ -598,7 +598,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             >
               <span
                 dangerouslySetInnerHTML={
-                  Object {
+                  {
                     "__html": "2",
                   }
                 }
@@ -629,7 +629,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             >
               <span
                 dangerouslySetInnerHTML={
-                  Object {
+                  {
                     "__html": "3",
                   }
                 }
@@ -660,7 +660,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             >
               <span
                 dangerouslySetInnerHTML={
-                  Object {
+                  {
                     "__html": "4+",
                   }
                 }
@@ -670,7 +670,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
         </div>
         <div
           style={
-            Object {
+            {
               "alignItems": "center",
               "display": "flex",
               "gap": "1rem",
@@ -694,7 +694,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
             onMouseUp={[Function]}
             pattern="[0-9]*"
             style={
-              Object {
+              {
                 "width": "6rem",
               }
             }
@@ -712,7 +712,7 @@ exports[`Question with widget InputRange Render widget 1`] = `
   className="apptr__form-container two-columns question-type-slider question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -726,7 +726,7 @@ exports[`Question with widget InputRange Render widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -764,7 +764,7 @@ exports[`Question with widget InputRange Render widget 1`] = `
           <div
             className="input-range__track input-range__track--active"
             style={
-              Object {
+              {
                 "left": "0%",
                 "width": "0%",
               }
@@ -773,7 +773,7 @@ exports[`Question with widget InputRange Render widget 1`] = `
           <span
             className="input-range__slider-container"
             style={
-              Object {
+              {
                 "left": "0%",
                 "position": "absolute",
               }
@@ -828,7 +828,7 @@ exports[`Question with widget InputSelect Render widget 1`] = `
   className="apptr__form-container two-columns question-type-select question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -841,7 +841,7 @@ exports[`Question with widget InputSelect Render widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -858,7 +858,7 @@ exports[`Question with widget InputSelect Render widget 1`] = `
         id="survey-question__home.region"
         onChange={[Function]}
         style={
-          Object {
+          {
             "maxWidth": "100%",
             "overflow": "hidden",
             "textOverflow": "ellipsis",
@@ -897,7 +897,7 @@ exports[`Question with widget InputString Render widget 1`] = `
   className="apptr__form-container two-columns question-type-string question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -910,7 +910,7 @@ exports[`Question with widget InputString Render widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -929,7 +929,7 @@ exports[`Question with widget InputString Render widget 1`] = `
       onBlur={[Function]}
       onChange={[Function]}
       style={
-        Object {
+        {
           "textTransform": "none",
         }
       }
@@ -945,7 +945,7 @@ exports[`Question with widget InputText Render widget 1`] = `
   className="apptr__form-container two-columns question-type-text question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -958,7 +958,7 @@ exports[`Question with widget InputText Render widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -986,7 +986,7 @@ exports[`Question with widget InputTime Render widget 1`] = `
   className="apptr__form-container two-columns question-type-time question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -999,7 +999,7 @@ exports[`Question with widget InputTime Render widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -1074,7 +1074,7 @@ exports[`With error message Error message on visible widget 1`] = `
   className="apptr__form-container two-columns question-type-string question-filled question-invalid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -1087,7 +1087,7 @@ exports[`With error message Error message on visible widget 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -1098,7 +1098,7 @@ exports[`With error message Error message on visible widget 1`] = `
     >
       <span
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "error test",
           }
         }
@@ -1117,7 +1117,7 @@ exports[`With error message Error message on visible widget 1`] = `
       onBlur={[Function]}
       onChange={[Function]}
       style={
-        Object {
+        {
           "textTransform": "none",
         }
       }
@@ -1129,7 +1129,7 @@ exports[`With error message Error message on visible widget 1`] = `
 `;
 
 exports[`With help popup and link Open modal 1`] = `
-Array [
+[
   <Modal
     ariaHideApp={true}
     bodyOpenClassName="ReactModal__Body--open"
@@ -1203,8 +1203,8 @@ Array [
         contentElement={[Function]}
         contentLabel="Help title"
         defaultStyles={
-          Object {
-            "content": Object {
+          {
+            "content": {
               "WebkitOverflowScrolling": "touch",
               "background": "#fff",
               "border": "1px solid #ccc",
@@ -1218,7 +1218,7 @@ Array [
               "right": "40px",
               "top": "40px",
             },
-            "overlay": Object {
+            "overlay": {
               "backgroundColor": "rgba(255, 255, 255, 0.75)",
               "bottom": 0,
               "left": 0,
@@ -1241,9 +1241,9 @@ Array [
         shouldFocusAfterRender={true}
         shouldReturnFocusAfterClose={true}
         style={
-          Object {
-            "content": Object {},
-            "overlay": Object {},
+          {
+            "content": {},
+            "overlay": {},
           }
         }
       >
@@ -1251,7 +1251,7 @@ Array [
           className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
-          style={Object {}}
+          style={{}}
         >
           <div
             aria-label="Help title"
@@ -1262,7 +1262,7 @@ Array [
             onMouseDown={[Function]}
             onMouseUp={[Function]}
             role="dialog"
-            style={Object {}}
+            style={{}}
             tabIndex="-1"
           >
             <div>
@@ -1271,10 +1271,10 @@ Array [
               >
                 <ReactMarkdown
                   remarkPlugins={
-                    Array [
-                      Array [
+                    [
+                      [
                         [Function],
-                        Object {
+                        {
                           "singleTilde": false,
                         },
                       ],
@@ -1292,10 +1292,10 @@ Array [
               <ReactMarkdown
                 className="help-popup"
                 remarkPlugins={
-                  Array [
-                    Array [
+                  [
+                    [
                       [Function],
-                      Object {
+                      {
                         "singleTilde": false,
                       },
                     ],
@@ -1337,8 +1337,8 @@ Array [
     contentElement={[Function]}
     contentLabel="Help title"
     defaultStyles={
-      Object {
-        "content": Object {
+      {
+        "content": {
           "WebkitOverflowScrolling": "touch",
           "background": "#fff",
           "border": "1px solid #ccc",
@@ -1352,7 +1352,7 @@ Array [
           "right": "40px",
           "top": "40px",
         },
-        "overlay": Object {
+        "overlay": {
           "backgroundColor": "rgba(255, 255, 255, 0.75)",
           "bottom": 0,
           "left": 0,
@@ -1375,9 +1375,9 @@ Array [
     shouldFocusAfterRender={true}
     shouldReturnFocusAfterClose={true}
     style={
-      Object {
-        "content": Object {},
-        "overlay": Object {},
+      {
+        "content": {},
+        "overlay": {},
       }
     }
   >
@@ -1385,7 +1385,7 @@ Array [
       className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
-      style={Object {}}
+      style={{}}
     >
       <div
         aria-label="Help title"
@@ -1396,7 +1396,7 @@ Array [
         onMouseDown={[Function]}
         onMouseUp={[Function]}
         role="dialog"
-        style={Object {}}
+        style={{}}
         tabIndex="-1"
       >
         <div>
@@ -1405,10 +1405,10 @@ Array [
           >
             <ReactMarkdown
               remarkPlugins={
-                Array [
-                  Array [
+                [
+                  [
                     [Function],
-                    Object {
+                    {
                       "singleTilde": false,
                     },
                   ],
@@ -1426,10 +1426,10 @@ Array [
           <ReactMarkdown
             className="help-popup"
             remarkPlugins={
-              Array [
-                Array [
+              [
+                [
                   [Function],
-                  Object {
+                  {
                     "singleTilde": false,
                   },
                 ],
@@ -1470,7 +1470,7 @@ Array [
     onMouseDown={[Function]}
     onMouseUp={[Function]}
     role="dialog"
-    style={Object {}}
+    style={{}}
     tabIndex="-1"
   >
     <div>
@@ -1479,10 +1479,10 @@ Array [
       >
         <ReactMarkdown
           remarkPlugins={
-            Array [
-              Array [
+            [
+              [
                 [Function],
-                Object {
+                {
                   "singleTilde": false,
                 },
               ],
@@ -1500,10 +1500,10 @@ Array [
       <ReactMarkdown
         className="help-popup"
         remarkPlugins={
-          Array [
-            Array [
+          [
+            [
               [Function],
-              Object {
+              {
                 "singleTilde": false,
               },
             ],
@@ -1541,7 +1541,7 @@ exports[`With help popup and link Test widget with help 1`] = `
   className="apptr__form-container two-columns question-type-string question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -1554,7 +1554,7 @@ exports[`With help popup and link Test widget with help 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -1573,14 +1573,14 @@ exports[`With help popup and link Test widget with help 1`] = `
           data-prefix="fas"
           focusable="false"
           role="img"
-          style={Object {}}
+          style={{}}
           viewBox="0 0 512 512"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
             d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
             fill="currentColor"
-            style={Object {}}
+            style={{}}
           />
         </svg>
         Help title
@@ -1599,7 +1599,7 @@ exports[`With help popup and link Test widget with help 1`] = `
       onBlur={[Function]}
       onChange={[Function]}
       style={
-        Object {
+        {
           "textTransform": "none",
         }
       }
@@ -1615,7 +1615,7 @@ exports[`With joining questions Joining next 1`] = `
   className="apptr__form-container apptr__form-join-next two-columns question-type-string question-filled question-valid"
   onClick={[Function]}
   style={
-    Object {
+    {
       "position": "relative",
     }
   }
@@ -1628,7 +1628,7 @@ exports[`With joining questions Joining next 1`] = `
     >
       <div
         dangerouslySetInnerHTML={
-          Object {
+          {
             "__html": "English text",
           }
         }
@@ -1647,7 +1647,7 @@ exports[`With joining questions Joining next 1`] = `
       onBlur={[Function]}
       onChange={[Function]}
       style={
-        Object {
+        {
           "textTransform": "none",
         }
       }

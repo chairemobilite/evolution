@@ -34,7 +34,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
           >
             <div
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "display": "flex",
                 }
@@ -42,7 +42,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
             >
               <div
                 style={
-                  Object {
+                  {
                     "background": undefined,
                     "borderRadius": 6,
                     "height": 6,
@@ -84,7 +84,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
           >
             <div
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "display": "flex",
                 }
@@ -92,7 +92,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
             >
               <div
                 style={
-                  Object {
+                  {
                     "background": undefined,
                     "borderRadius": 6,
                     "height": 6,
@@ -147,7 +147,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
             role="combobox"
             spellCheck="false"
             style={
-              Object {
+              {
                 "background": 0,
                 "border": 0,
                 "color": "inherit",
@@ -245,7 +245,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
           >
             <div
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "display": "flex",
                 }
@@ -253,7 +253,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
             >
               <div
                 style={
-                  Object {
+                  {
                     "background": undefined,
                     "borderRadius": 6,
                     "height": 6,
@@ -295,7 +295,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
           >
             <div
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "display": "flex",
                 }
@@ -303,7 +303,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
             >
               <div
                 style={
-                  Object {
+                  {
                     "background": undefined,
                     "borderRadius": 6,
                     "height": 6,
@@ -358,7 +358,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
             role="combobox"
             spellCheck="false"
             style={
-              Object {
+              {
                 "background": 0,
                 "border": 0,
                 "color": "inherit",
@@ -483,7 +483,7 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
           >
             <div
               style={
-                Object {
+                {
                   "alignItems": "center",
                   "display": "flex",
                 }
@@ -491,7 +491,7 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
             >
               <div
                 style={
-                  Object {
+                  {
                     "background": undefined,
                     "borderRadius": 6,
                     "height": 6,
@@ -546,7 +546,7 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
             role="combobox"
             spellCheck="false"
             style={
-              Object {
+              {
                 "background": 0,
                 "border": 0,
                 "color": "inherit",

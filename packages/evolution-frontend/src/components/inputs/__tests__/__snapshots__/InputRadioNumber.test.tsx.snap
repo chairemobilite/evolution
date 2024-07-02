@@ -27,7 +27,7 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "1",
             }
           }
@@ -58,7 +58,7 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "2",
             }
           }
@@ -89,7 +89,7 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "3",
             }
           }
@@ -120,7 +120,7 @@ exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "4+",
             }
           }
@@ -158,7 +158,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "1",
             }
           }
@@ -189,7 +189,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "2",
             }
           }
@@ -220,7 +220,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "3",
             }
           }
@@ -251,7 +251,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "4+",
             }
           }
@@ -261,7 +261,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
   </div>
   <div
     style={
-      Object {
+      {
         "alignItems": "center",
         "display": "flex",
         "gap": "1rem",
@@ -285,7 +285,7 @@ exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
       onMouseUp={[Function]}
       pattern="[0-9]*"
       style={
-        Object {
+        {
           "width": "6rem",
         }
       }
@@ -322,7 +322,7 @@ exports[`Render InputRadioNumber InputRadioNumber without "over max" option 1`] 
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "1",
             }
           }
@@ -353,7 +353,7 @@ exports[`Render InputRadioNumber InputRadioNumber without "over max" option 1`] 
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "2",
             }
           }
@@ -384,7 +384,7 @@ exports[`Render InputRadioNumber InputRadioNumber without "over max" option 1`] 
       >
         <span
           dangerouslySetInnerHTML={
-            Object {
+            {
               "__html": "3",
             }
           }
