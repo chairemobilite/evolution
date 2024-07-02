@@ -20,8 +20,8 @@ type RecursiveFinalKeyOf<TObj extends object> = {
     [TKey in keyof TObj & (string | number)]: TObj[TKey] extends any[]
         ? `${TKey}`
         : TObj[TKey] extends object | undefined
-        ? `${TKey}.${RecursiveFinalKeyOf<Required<TObj[TKey]>>}`
-        : `${TKey}`;
+          ? `${TKey}.${RecursiveFinalKeyOf<Required<TObj[TKey]>>}`
+          : `${TKey}`;
 }[keyof TObj & (string | number)];
 
 export type InterviewResponsePath = RecursiveFinalKeyOf<Required<InterviewResponses>>;
@@ -30,8 +30,8 @@ type RecursivePartial<T> = {
     [P in keyof T]?: T[P] extends (infer U)[]
         ? RecursivePartial<U>[]
         : T[P] extends object | undefined
-        ? RecursivePartial<T[P]>
-        : T[P];
+          ? RecursivePartial<T[P]>
+          : T[P];
 };
 
 export type PartialInterviewResponses = RecursivePartial<InterviewResponses>;
