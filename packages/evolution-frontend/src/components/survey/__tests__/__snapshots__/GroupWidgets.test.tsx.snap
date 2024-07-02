@@ -30,14 +30,14 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
             data-prefix="fas"
             focusable="false"
             role="img"
-            style={Object {}}
+            style={{}}
             viewBox="0 0 512 512"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
               fill="currentColor"
-              style={Object {}}
+              style={{}}
             />
           </svg>
           myGroup.addGroupedObject
@@ -67,7 +67,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -99,7 +99,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -135,7 +135,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -167,7 +167,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -203,7 +203,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -235,7 +235,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -282,14 +282,14 @@ exports[`Group All values set, all true, add button default data, filter show al
             data-prefix="fas"
             focusable="false"
             role="img"
-            style={Object {}}
+            style={{}}
             viewBox="0 0 512 512"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
               fill="currentColor"
-              style={Object {}}
+              style={{}}
             />
           </svg>
           Add a new grouped object in my group
@@ -326,14 +326,14 @@ exports[`Group All values set, all true, add button default data, filter show al
                   data-prefix="fas"
                   focusable="false"
                   role="img"
-                  style={Object {}}
+                  style={{}}
                   viewBox="0 0 448 512"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
                     fill="currentColor"
-                    style={Object {}}
+                    style={{}}
                   />
                 </svg>
                 Delete this grouped object from my group
@@ -354,7 +354,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -386,7 +386,7 @@ exports[`Group All values set, all true, add button default data, filter show al
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -429,14 +429,14 @@ exports[`Group All values set, all true, add button default data, filter show al
                   data-prefix="fas"
                   focusable="false"
                   role="img"
-                  style={Object {}}
+                  style={{}}
                   viewBox="0 0 448 512"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
                     fill="currentColor"
-                    style={Object {}}
+                    style={{}}
                   />
                 </svg>
                 Delete this grouped object from my group
@@ -457,7 +457,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -489,7 +489,7 @@ exports[`Group All values set, all true, add button default data, filter show al
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -532,14 +532,14 @@ exports[`Group All values set, all true, add button default data, filter show al
                   data-prefix="fas"
                   focusable="false"
                   role="img"
-                  style={Object {}}
+                  style={{}}
                   viewBox="0 0 448 512"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
                     d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
                     fill="currentColor"
-                    style={Object {}}
+                    style={{}}
                   />
                 </svg>
                 Delete this grouped object from my group
@@ -560,7 +560,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -592,7 +592,7 @@ exports[`Group All values set, all true, add button default data, filter show al
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -619,14 +619,14 @@ exports[`Group All values set, all true, add button default data, filter show al
             data-prefix="fas"
             focusable="false"
             role="img"
-            style={Object {}}
+            style={{}}
             viewBox="0 0 512 512"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
               fill="currentColor"
-              style={Object {}}
+              style={{}}
             />
           </svg>
           Add a new grouped object in my group
@@ -678,7 +678,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -710,7 +710,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -753,7 +753,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -785,7 +785,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -828,7 +828,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -860,7 +860,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -918,7 +918,7 @@ exports[`Group Default values Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -950,7 +950,7 @@ exports[`Group Default values Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -986,7 +986,7 @@ exports[`Group Default values Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -1018,7 +1018,7 @@ exports[`Group Default values Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -1054,7 +1054,7 @@ exports[`Group Default values Render widget 1`] = `
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -1086,7 +1086,7 @@ exports[`Group Default values Render widget 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -1113,14 +1113,14 @@ exports[`Group Default values Render widget 1`] = `
             data-prefix="fas"
             focusable="false"
             role="img"
-            style={Object {}}
+            style={{}}
             viewBox="0 0 512 512"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
               fill="currentColor"
-              style={Object {}}
+              style={{}}
             />
           </svg>
           myGroup.addGroupedObject
@@ -1207,7 +1207,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                           className="apptr__form-container question-type-string question-filled"
                           onClick={[Function]}
                           style={
-                            Object {
+                            {
                               "position": "relative",
                             }
                           }
@@ -1239,7 +1239,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                               onBlur={[Function]}
                               onChange={[Function]}
                               style={
-                                Object {
+                                {
                                   "textTransform": "none",
                                 }
                               }
@@ -1282,7 +1282,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                           className="apptr__form-container question-type-string question-filled"
                           onClick={[Function]}
                           style={
-                            Object {
+                            {
                               "position": "relative",
                             }
                           }
@@ -1314,7 +1314,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                               onBlur={[Function]}
                               onChange={[Function]}
                               style={
-                                Object {
+                                {
                                   "textTransform": "none",
                                 }
                               }
@@ -1341,14 +1341,14 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                         data-prefix="fas"
                         focusable="false"
                         role="img"
-                        style={Object {}}
+                        style={{}}
                         viewBox="0 0 512 512"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
                           d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
                           fill="currentColor"
-                          style={Object {}}
+                          style={{}}
                         />
                       </svg>
                       widgetGroups.addGroupedObject
@@ -1405,14 +1405,14 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                         data-prefix="fas"
                         focusable="false"
                         role="img"
-                        style={Object {}}
+                        style={{}}
                         viewBox="0 0 512 512"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
                           d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
                           fill="currentColor"
-                          style={Object {}}
+                          style={{}}
                         />
                       </svg>
                       widgetGroups.addGroupedObject
@@ -1469,14 +1469,14 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                         data-prefix="fas"
                         focusable="false"
                         role="img"
-                        style={Object {}}
+                        style={{}}
                         viewBox="0 0 512 512"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
                           d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
                           fill="currentColor"
-                          style={Object {}}
+                          style={{}}
                         />
                       </svg>
                       widgetGroups.addGroupedObject
@@ -1503,14 +1503,14 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
             data-prefix="fas"
             focusable="false"
             role="img"
-            style={Object {}}
+            style={{}}
             viewBox="0 0 512 512"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
               fill="currentColor"
-              style={Object {}}
+              style={{}}
             />
           </svg>
           myGroup.addGroupedObject
@@ -1567,7 +1567,7 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -1599,7 +1599,7 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -1626,14 +1626,14 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
             data-prefix="fas"
             focusable="false"
             role="img"
-            style={Object {}}
+            style={{}}
             viewBox="0 0 512 512"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
               fill="currentColor"
-              style={Object {}}
+              style={{}}
             />
           </svg>
           myGroup.addGroupedObject
@@ -1690,7 +1690,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -1722,7 +1722,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -1765,7 +1765,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
               className="apptr__form-container question-type-string question-filled"
               onClick={[Function]}
               style={
-                Object {
+                {
                   "position": "relative",
                 }
               }
@@ -1797,7 +1797,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
                   onBlur={[Function]}
                   onChange={[Function]}
                   style={
-                    Object {
+                    {
                       "textTransform": "none",
                     }
                   }
@@ -1824,14 +1824,14 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
             data-prefix="fas"
             focusable="false"
             role="img"
-            style={Object {}}
+            style={{}}
             viewBox="0 0 512 512"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
               fill="currentColor"
-              style={Object {}}
+              style={{}}
             />
           </svg>
           myGroup.addGroupedObject
@@ -1874,7 +1874,7 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
         className="apptr__form-container question-type-string question-filled"
         onClick={[Function]}
         style={
-          Object {
+          {
             "position": "relative",
           }
         }
@@ -1906,7 +1906,7 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
             onBlur={[Function]}
             onChange={[Function]}
             style={
-              Object {
+              {
                 "textTransform": "none",
               }
             }
@@ -1952,14 +1952,14 @@ exports[`Grouped Object All values set, all true, add button default label, filt
             data-prefix="fas"
             focusable="false"
             role="img"
-            style={Object {}}
+            style={{}}
             viewBox="0 0 448 512"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
               d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
               fill="currentColor"
-              style={Object {}}
+              style={{}}
             />
           </svg>
           Delete this grouped object from my group
@@ -1980,7 +1980,7 @@ exports[`Grouped Object All values set, all true, add button default label, filt
         className="apptr__form-container question-type-string question-filled"
         onClick={[Function]}
         style={
-          Object {
+          {
             "position": "relative",
           }
         }
@@ -2012,7 +2012,7 @@ exports[`Grouped Object All values set, all true, add button default label, filt
             onBlur={[Function]}
             onChange={[Function]}
             style={
-              Object {
+              {
                 "textTransform": "none",
               }
             }
@@ -2051,7 +2051,7 @@ exports[`Grouped Object Default values Render widget 1`] = `
         className="apptr__form-container question-type-string question-filled"
         onClick={[Function]}
         style={
-          Object {
+          {
             "position": "relative",
           }
         }
@@ -2083,7 +2083,7 @@ exports[`Grouped Object Default values Render widget 1`] = `
             onBlur={[Function]}
             onChange={[Function]}
             style={
-              Object {
+              {
                 "textTransform": "none",
               }
             }

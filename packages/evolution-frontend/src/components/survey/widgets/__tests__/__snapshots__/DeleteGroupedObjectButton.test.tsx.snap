@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, should be displayed 1`] = `
-Array [
+[
   <Modal
     ariaHideApp={true}
     bodyOpenClassName="ReactModal__Body--open"
@@ -88,8 +88,8 @@ Array [
         contentElement={[Function]}
         contentLabel="Delete item"
         defaultStyles={
-          Object {
-            "content": Object {
+          {
+            "content": {
               "WebkitOverflowScrolling": "touch",
               "background": "#fff",
               "border": "1px solid #ccc",
@@ -103,7 +103,7 @@ Array [
               "right": "40px",
               "top": "40px",
             },
-            "overlay": Object {
+            "overlay": {
               "backgroundColor": "rgba(255, 255, 255, 0.75)",
               "bottom": 0,
               "left": 0,
@@ -126,9 +126,9 @@ Array [
         shouldFocusAfterRender={true}
         shouldReturnFocusAfterClose={true}
         style={
-          Object {
-            "content": Object {},
-            "overlay": Object {},
+          {
+            "content": {},
+            "overlay": {},
           }
         }
       >
@@ -136,7 +136,7 @@ Array [
           className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
-          style={Object {}}
+          style={{}}
         >
           <div
             aria-label="Delete item"
@@ -147,7 +147,7 @@ Array [
             onMouseDown={[Function]}
             onMouseUp={[Function]}
             role="dialog"
-            style={Object {}}
+            style={{}}
             tabIndex="-1"
           >
             <div>
@@ -156,10 +156,10 @@ Array [
               >
                 <ReactMarkdown
                   remarkPlugins={
-                    Array [
-                      Array [
+                    [
+                      [
                         [Function],
-                        Object {
+                        {
                           "singleTilde": false,
                         },
                       ],
@@ -177,10 +177,10 @@ Array [
               <ReactMarkdown
                 className="confirm-popup"
                 remarkPlugins={
-                  Array [
-                    Array [
+                  [
+                    [
                       [Function],
-                      Object {
+                      {
                         "singleTilde": false,
                       },
                     ],
@@ -238,8 +238,8 @@ Array [
     contentElement={[Function]}
     contentLabel="Delete item"
     defaultStyles={
-      Object {
-        "content": Object {
+      {
+        "content": {
           "WebkitOverflowScrolling": "touch",
           "background": "#fff",
           "border": "1px solid #ccc",
@@ -253,7 +253,7 @@ Array [
           "right": "40px",
           "top": "40px",
         },
-        "overlay": Object {
+        "overlay": {
           "backgroundColor": "rgba(255, 255, 255, 0.75)",
           "bottom": 0,
           "left": 0,
@@ -276,9 +276,9 @@ Array [
     shouldFocusAfterRender={true}
     shouldReturnFocusAfterClose={true}
     style={
-      Object {
-        "content": Object {},
-        "overlay": Object {},
+      {
+        "content": {},
+        "overlay": {},
       }
     }
   >
@@ -286,7 +286,7 @@ Array [
       className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
-      style={Object {}}
+      style={{}}
     >
       <div
         aria-label="Delete item"
@@ -297,7 +297,7 @@ Array [
         onMouseDown={[Function]}
         onMouseUp={[Function]}
         role="dialog"
-        style={Object {}}
+        style={{}}
         tabIndex="-1"
       >
         <div>
@@ -306,10 +306,10 @@ Array [
           >
             <ReactMarkdown
               remarkPlugins={
-                Array [
-                  Array [
+                [
+                  [
                     [Function],
-                    Object {
+                    {
                       "singleTilde": false,
                     },
                   ],
@@ -327,10 +327,10 @@ Array [
           <ReactMarkdown
             className="confirm-popup"
             remarkPlugins={
-              Array [
-                Array [
+              [
+                [
                   [Function],
-                  Object {
+                  {
                     "singleTilde": false,
                   },
                 ],
@@ -387,7 +387,7 @@ Array [
     onMouseDown={[Function]}
     onMouseUp={[Function]}
     role="dialog"
-    style={Object {}}
+    style={{}}
     tabIndex="-1"
   >
     <div>
@@ -396,10 +396,10 @@ Array [
       >
         <ReactMarkdown
           remarkPlugins={
-            Array [
-              Array [
+            [
+              [
                 [Function],
-                Object {
+                {
                   "singleTilde": false,
                 },
               ],
@@ -417,10 +417,10 @@ Array [
       <ReactMarkdown
         className="confirm-popup"
         remarkPlugins={
-          Array [
-            Array [
+          [
+            [
               [Function],
-              Object {
+              {
                 "singleTilde": false,
               },
             ],
@@ -470,7 +470,7 @@ Array [
 `;
 
 exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, cancel 1`] = `
-Array [
+[
   <Modal
     ariaHideApp={true}
     bodyOpenClassName="ReactModal__Body--open"
@@ -557,8 +557,8 @@ Array [
         contentElement={[Function]}
         contentLabel="Delete item"
         defaultStyles={
-          Object {
-            "content": Object {
+          {
+            "content": {
               "WebkitOverflowScrolling": "touch",
               "background": "#fff",
               "border": "1px solid #ccc",
@@ -572,7 +572,7 @@ Array [
               "right": "40px",
               "top": "40px",
             },
-            "overlay": Object {
+            "overlay": {
               "backgroundColor": "rgba(255, 255, 255, 0.75)",
               "bottom": 0,
               "left": 0,
@@ -595,9 +595,9 @@ Array [
         shouldFocusAfterRender={true}
         shouldReturnFocusAfterClose={true}
         style={
-          Object {
-            "content": Object {},
-            "overlay": Object {},
+          {
+            "content": {},
+            "overlay": {},
           }
         }
       >
@@ -605,7 +605,7 @@ Array [
           className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
-          style={Object {}}
+          style={{}}
         >
           <div
             aria-label="Delete item"
@@ -616,7 +616,7 @@ Array [
             onMouseDown={[Function]}
             onMouseUp={[Function]}
             role="dialog"
-            style={Object {}}
+            style={{}}
             tabIndex="-1"
           >
             <div>
@@ -625,10 +625,10 @@ Array [
               >
                 <ReactMarkdown
                   remarkPlugins={
-                    Array [
-                      Array [
+                    [
+                      [
                         [Function],
-                        Object {
+                        {
                           "singleTilde": false,
                         },
                       ],
@@ -646,10 +646,10 @@ Array [
               <ReactMarkdown
                 className="confirm-popup"
                 remarkPlugins={
-                  Array [
-                    Array [
+                  [
+                    [
                       [Function],
-                      Object {
+                      {
                         "singleTilde": false,
                       },
                     ],
@@ -707,8 +707,8 @@ Array [
     contentElement={[Function]}
     contentLabel="Delete item"
     defaultStyles={
-      Object {
-        "content": Object {
+      {
+        "content": {
           "WebkitOverflowScrolling": "touch",
           "background": "#fff",
           "border": "1px solid #ccc",
@@ -722,7 +722,7 @@ Array [
           "right": "40px",
           "top": "40px",
         },
-        "overlay": Object {
+        "overlay": {
           "backgroundColor": "rgba(255, 255, 255, 0.75)",
           "bottom": 0,
           "left": 0,
@@ -745,9 +745,9 @@ Array [
     shouldFocusAfterRender={true}
     shouldReturnFocusAfterClose={true}
     style={
-      Object {
-        "content": Object {},
-        "overlay": Object {},
+      {
+        "content": {},
+        "overlay": {},
       }
     }
   >
@@ -755,7 +755,7 @@ Array [
       className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
-      style={Object {}}
+      style={{}}
     >
       <div
         aria-label="Delete item"
@@ -766,7 +766,7 @@ Array [
         onMouseDown={[Function]}
         onMouseUp={[Function]}
         role="dialog"
-        style={Object {}}
+        style={{}}
         tabIndex="-1"
       >
         <div>
@@ -775,10 +775,10 @@ Array [
           >
             <ReactMarkdown
               remarkPlugins={
-                Array [
-                  Array [
+                [
+                  [
                     [Function],
-                    Object {
+                    {
                       "singleTilde": false,
                     },
                   ],
@@ -796,10 +796,10 @@ Array [
           <ReactMarkdown
             className="confirm-popup"
             remarkPlugins={
-              Array [
-                Array [
+              [
+                [
                   [Function],
-                  Object {
+                  {
                     "singleTilde": false,
                   },
                 ],
@@ -856,7 +856,7 @@ Array [
     onMouseDown={[Function]}
     onMouseUp={[Function]}
     role="dialog"
-    style={Object {}}
+    style={{}}
     tabIndex="-1"
   >
     <div>
@@ -865,10 +865,10 @@ Array [
       >
         <ReactMarkdown
           remarkPlugins={
-            Array [
-              Array [
+            [
+              [
                 [Function],
-                Object {
+                {
                   "singleTilde": false,
                 },
               ],
@@ -886,10 +886,10 @@ Array [
       <ReactMarkdown
         className="confirm-popup"
         remarkPlugins={
-          Array [
-            Array [
+          [
+            [
               [Function],
-              Object {
+              {
                 "singleTilde": false,
               },
             ],
@@ -939,7 +939,7 @@ Array [
 `;
 
 exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, confirm 1`] = `
-Array [
+[
   <Modal
     ariaHideApp={true}
     bodyOpenClassName="ReactModal__Body--open"
@@ -1026,8 +1026,8 @@ Array [
         contentElement={[Function]}
         contentLabel="Delete item"
         defaultStyles={
-          Object {
-            "content": Object {
+          {
+            "content": {
               "WebkitOverflowScrolling": "touch",
               "background": "#fff",
               "border": "1px solid #ccc",
@@ -1041,7 +1041,7 @@ Array [
               "right": "40px",
               "top": "40px",
             },
-            "overlay": Object {
+            "overlay": {
               "backgroundColor": "rgba(255, 255, 255, 0.75)",
               "bottom": 0,
               "left": 0,
@@ -1064,9 +1064,9 @@ Array [
         shouldFocusAfterRender={true}
         shouldReturnFocusAfterClose={true}
         style={
-          Object {
-            "content": Object {},
-            "overlay": Object {},
+          {
+            "content": {},
+            "overlay": {},
           }
         }
       >
@@ -1074,7 +1074,7 @@ Array [
           className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
-          style={Object {}}
+          style={{}}
         >
           <div
             aria-label="Delete item"
@@ -1085,7 +1085,7 @@ Array [
             onMouseDown={[Function]}
             onMouseUp={[Function]}
             role="dialog"
-            style={Object {}}
+            style={{}}
             tabIndex="-1"
           >
             <div>
@@ -1094,10 +1094,10 @@ Array [
               >
                 <ReactMarkdown
                   remarkPlugins={
-                    Array [
-                      Array [
+                    [
+                      [
                         [Function],
-                        Object {
+                        {
                           "singleTilde": false,
                         },
                       ],
@@ -1115,10 +1115,10 @@ Array [
               <ReactMarkdown
                 className="confirm-popup"
                 remarkPlugins={
-                  Array [
-                    Array [
+                  [
+                    [
                       [Function],
-                      Object {
+                      {
                         "singleTilde": false,
                       },
                     ],
@@ -1176,8 +1176,8 @@ Array [
     contentElement={[Function]}
     contentLabel="Delete item"
     defaultStyles={
-      Object {
-        "content": Object {
+      {
+        "content": {
           "WebkitOverflowScrolling": "touch",
           "background": "#fff",
           "border": "1px solid #ccc",
@@ -1191,7 +1191,7 @@ Array [
           "right": "40px",
           "top": "40px",
         },
-        "overlay": Object {
+        "overlay": {
           "backgroundColor": "rgba(255, 255, 255, 0.75)",
           "bottom": 0,
           "left": 0,
@@ -1214,9 +1214,9 @@ Array [
     shouldFocusAfterRender={true}
     shouldReturnFocusAfterClose={true}
     style={
-      Object {
-        "content": Object {},
-        "overlay": Object {},
+      {
+        "content": {},
+        "overlay": {},
       }
     }
   >
@@ -1224,7 +1224,7 @@ Array [
       className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
-      style={Object {}}
+      style={{}}
     >
       <div
         aria-label="Delete item"
@@ -1235,7 +1235,7 @@ Array [
         onMouseDown={[Function]}
         onMouseUp={[Function]}
         role="dialog"
-        style={Object {}}
+        style={{}}
         tabIndex="-1"
       >
         <div>
@@ -1244,10 +1244,10 @@ Array [
           >
             <ReactMarkdown
               remarkPlugins={
-                Array [
-                  Array [
+                [
+                  [
                     [Function],
-                    Object {
+                    {
                       "singleTilde": false,
                     },
                   ],
@@ -1265,10 +1265,10 @@ Array [
           <ReactMarkdown
             className="confirm-popup"
             remarkPlugins={
-              Array [
-                Array [
+              [
+                [
                   [Function],
-                  Object {
+                  {
                     "singleTilde": false,
                   },
                 ],
@@ -1325,7 +1325,7 @@ Array [
     onMouseDown={[Function]}
     onMouseUp={[Function]}
     role="dialog"
-    style={Object {}}
+    style={{}}
     tabIndex="-1"
   >
     <div>
@@ -1334,10 +1334,10 @@ Array [
       >
         <ReactMarkdown
           remarkPlugins={
-            Array [
-              Array [
+            [
+              [
                 [Function],
-                Object {
+                {
                   "singleTilde": false,
                 },
               ],
@@ -1355,10 +1355,10 @@ Array [
       <ReactMarkdown
         className="confirm-popup"
         remarkPlugins={
-          Array [
-            Array [
+          [
+            [
               [Function],
-              Object {
+              {
                 "singleTilde": false,
               },
             ],
@@ -1425,14 +1425,14 @@ exports[`DeleteGroupedObjectButton layout: Display with custom label Render widg
       data-prefix="fas"
       focusable="false"
       role="img"
-      style={Object {}}
+      style={{}}
       viewBox="0 0 448 512"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
         d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
         fill="currentColor"
-        style={Object {}}
+        style={{}}
       />
     </svg>
     Delete for unit test
@@ -1456,14 +1456,14 @@ exports[`DeleteGroupedObjectButton layout: Display with default label Render wid
       data-prefix="fas"
       focusable="false"
       role="img"
-      style={Object {}}
+      style={{}}
       viewBox="0 0 448 512"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
         d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
         fill="currentColor"
-        style={Object {}}
+        style={{}}
       />
     </svg>
     myGroup.deleteThisGroupedObject

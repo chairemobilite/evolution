@@ -1,6 +1,5 @@
 module.exports = {
   "testEnvironment": "node",
-  "testURL": "http://localhost/",
   "snapshotSerializers": [
     "enzyme-to-json/serializer"
   ],

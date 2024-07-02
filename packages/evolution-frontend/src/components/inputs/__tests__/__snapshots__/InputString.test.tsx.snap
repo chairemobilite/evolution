@@ -10,7 +10,7 @@ exports[`Should correctly render InputString with a value of 0 1`] = `
   onBlur={[MockFunction]}
   onChange={[Function]}
   style={
-    Object {
+    {
       "textTransform": "none",
     }
   }
@@ -31,7 +31,7 @@ exports[`Should correctly render InputString with all parameters 1`] = `
   onChange={[Function]}
   placeholder="example placeholder"
   style={
-    Object {
+    {
       "textTransform": "lowercase",
     }
   }
@@ -50,7 +50,7 @@ exports[`Should correctly render InputString with base parameters 1`] = `
   onBlur={[MockFunction]}
   onChange={[Function]}
   style={
-    Object {
+    {
       "textTransform": "none",
     }
   }
@@ -69,7 +69,7 @@ exports[`Should correctly render InputString with default value as function 1`] 
   onBlur={[Function]}
   onChange={[Function]}
   style={
-    Object {
+    {
       "textTransform": "none",
     }
   }

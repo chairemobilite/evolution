@@ -29,7 +29,7 @@ exports[`Should correctly render InputRange with minimal parameters Test with va
       <div
         className="input-range__track input-range__track--active"
         style={
-          Object {
+          {
             "left": "0%",
             "width": "18.181818181818183%",
           }
@@ -38,7 +38,7 @@ exports[`Should correctly render InputRange with minimal parameters Test with va
       <span
         className="input-range__slider-container"
         style={
-          Object {
+          {
             "left": "18.181818181818183%",
             "position": "absolute",
           }
@@ -115,7 +115,7 @@ exports[`Should correctly render InputRange with minimal parameters Test without
       <div
         className="input-range__track input-range__track--active"
         style={
-          Object {
+          {
             "left": "0%",
             "width": "0%",
           }
@@ -124,7 +124,7 @@ exports[`Should correctly render InputRange with minimal parameters Test without
       <span
         className="input-range__slider-container"
         style={
-          Object {
+          {
             "left": "0%",
             "position": "absolute",
           }
@@ -201,7 +201,7 @@ exports[`Should correctly render InputRange with not applicable Test with a not 
       <div
         className="input-range__track input-range__track--active"
         style={
-          Object {
+          {
             "left": "0%",
             "width": "0%",
           }
@@ -210,7 +210,7 @@ exports[`Should correctly render InputRange with not applicable Test with a not 
       <span
         className="input-range__slider-container"
         style={
-          Object {
+          {
             "left": "0%",
             "position": "absolute",
           }
@@ -281,7 +281,7 @@ exports[`Should correctly render InputRange with not applicable Test with a not 
         >
           <span
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "NotApplicable",
               }
             }
@@ -322,7 +322,7 @@ exports[`Should correctly render InputRange with not applicable Test with custom
       <div
         className="input-range__track input-range__track--active"
         style={
-          Object {
+          {
             "left": "0%",
             "width": "18.181818181818183%",
           }
@@ -331,7 +331,7 @@ exports[`Should correctly render InputRange with not applicable Test with custom
       <span
         className="input-range__slider-container"
         style={
-          Object {
+          {
             "left": "18.181818181818183%",
             "position": "absolute",
           }
@@ -402,7 +402,7 @@ exports[`Should correctly render InputRange with not applicable Test with custom
         >
           <span
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "Custom non applicable",
               }
             }
@@ -443,7 +443,7 @@ exports[`Should correctly render InputRange with not applicable Test with value 
       <div
         className="input-range__track input-range__track--active"
         style={
-          Object {
+          {
             "left": "0%",
             "width": "18.181818181818183%",
           }
@@ -452,7 +452,7 @@ exports[`Should correctly render InputRange with not applicable Test with value 
       <span
         className="input-range__slider-container"
         style={
-          Object {
+          {
             "left": "18.181818181818183%",
             "position": "absolute",
           }
@@ -523,7 +523,7 @@ exports[`Should correctly render InputRange with not applicable Test with value 
         >
           <span
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "NotApplicable",
               }
             }
@@ -564,7 +564,7 @@ exports[`Should correctly render InputRange with not applicable Test without val
       <div
         className="input-range__track input-range__track--active"
         style={
-          Object {
+          {
             "left": "0%",
             "width": "0%",
           }
@@ -573,7 +573,7 @@ exports[`Should correctly render InputRange with not applicable Test without val
       <span
         className="input-range__slider-container"
         style={
-          Object {
+          {
             "left": "0%",
             "position": "absolute",
           }
@@ -644,7 +644,7 @@ exports[`Should correctly render InputRange with not applicable Test without val
         >
           <span
             dangerouslySetInnerHTML={
-              Object {
+              {
                 "__html": "NotApplicable",
               }
             }
@@ -685,7 +685,7 @@ exports[`Should correctly render InputRange with various parameters Test trackcl
       <div
         className="input-range__track input-range__track--active"
         style={
-          Object {
+          {
             "left": "0%",
             "width": "18.181818181818183%",
           }
@@ -694,7 +694,7 @@ exports[`Should correctly render InputRange with various parameters Test trackcl
       <span
         className="input-range__slider-container"
         style={
-          Object {
+          {
             "left": "18.181818181818183%",
             "position": "absolute",
           }
@@ -785,7 +785,7 @@ exports[`Should correctly render InputRange with various parameters Test with mi
       <div
         className="input-range__track input-range__track--active"
         style={
-          Object {
+          {
             "left": "0%",
             "width": "0%",
           }
@@ -794,7 +794,7 @@ exports[`Should correctly render InputRange with various parameters Test with mi
       <span
         className="input-range__slider-container"
         style={
-          Object {
+          {
             "left": "0%",
             "position": "absolute",
           }

@@ -8,7 +8,7 @@ exports[`Render InputSelect with choice function and grouped choice type 1`] = `
     id="test"
     onChange={[Function]}
     style={
-      Object {
+      {
         "maxWidth": "100%",
         "overflow": "hidden",
         "textOverflow": "ellipsis",
@@ -65,7 +65,7 @@ exports[`Render InputSelect with grouped choice type without labels 1`] = `
     id="test"
     onChange={[Function]}
     style={
-      Object {
+      {
         "maxWidth": "100%",
         "overflow": "hidden",
         "textOverflow": "ellipsis",
@@ -124,7 +124,7 @@ exports[`Render InputSelect with normal option type 1`] = `
     id="test"
     onChange={[Function]}
     style={
-      Object {
+      {
         "maxWidth": "100%",
         "overflow": "hidden",
         "textOverflow": "ellipsis",
