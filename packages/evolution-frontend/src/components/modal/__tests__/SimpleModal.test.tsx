@@ -8,6 +8,10 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import SimpleModal from '../SimpleModal';
 
+// Mock react-markdown and remark-gfm as they use syntax not supported by jest
+jest.mock('react-markdown', () => 'Markdown');
+jest.mock('remark-gfm', () => 'remark-gfm');
+
 jest.mock('react-i18next', () => ({
     // this mock makes sure any components using the translate HoC receive the t function as a prop
     withTranslation: () => Component => {

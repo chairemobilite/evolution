@@ -74,17 +74,18 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
                 <div
                   class="center"
                 >
-                  <p>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
                     popupTitle
-                  </p>
+                  </markdown>
                 </div>
-                <div
+                <markdown
                   class="confirm-popup"
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <p>
-                    popupContent
-                  </p>
-                </div>
+                  popupContent
+                </markdown>
                 <div
                   class="tr__form-buttons-container _center"
                 >
@@ -187,50 +188,36 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
               <div
                 className="center"
               >
-                <ReactMarkdown
+                <Markdown
                   remarkPlugins={
                     [
                       [
-                        [Function],
+                        "remark-gfm",
                         {
                           "singleTilde": false,
                         },
                       ],
                     ]
                   }
-                  transformLinkUri={[Function]}
                 >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    popupTitle
-                  </p>
-                </ReactMarkdown>
+                  popupTitle
+                </Markdown>
               </div>
-              <ReactMarkdown
+              <Markdown
                 className="confirm-popup"
                 remarkPlugins={
                   [
                     [
-                      [Function],
+                      "remark-gfm",
                       {
                         "singleTilde": false,
                       },
                     ],
                   ]
                 }
-                transformLinkUri={[Function]}
               >
-                <div
-                  className="confirm-popup"
-                >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    popupContent
-                  </p>
-                </div>
-              </ReactMarkdown>
+                popupContent
+              </Markdown>
               <div
                 className="tr__form-buttons-container _center"
               >
@@ -337,50 +324,36 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
           <div
             className="center"
           >
-            <ReactMarkdown
+            <Markdown
               remarkPlugins={
                 [
                   [
-                    [Function],
+                    "remark-gfm",
                     {
                       "singleTilde": false,
                     },
                   ],
                 ]
               }
-              transformLinkUri={[Function]}
             >
-              <p
-                key="p-1-1-0"
-              >
-                popupTitle
-              </p>
-            </ReactMarkdown>
+              popupTitle
+            </Markdown>
           </div>
-          <ReactMarkdown
+          <Markdown
             className="confirm-popup"
             remarkPlugins={
               [
                 [
-                  [Function],
+                  "remark-gfm",
                   {
                     "singleTilde": false,
                   },
                 ],
               ]
             }
-            transformLinkUri={[Function]}
           >
-            <div
-              className="confirm-popup"
-            >
-              <p
-                key="p-1-1-0"
-              >
-                popupContent
-              </p>
-            </div>
-          </ReactMarkdown>
+            popupContent
+          </Markdown>
           <div
             className="tr__form-buttons-container _center"
           >
@@ -427,50 +400,36 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
       <div
         className="center"
       >
-        <ReactMarkdown
+        <Markdown
           remarkPlugins={
             [
               [
-                [Function],
+                "remark-gfm",
                 {
                   "singleTilde": false,
                 },
               ],
             ]
           }
-          transformLinkUri={[Function]}
         >
-          <p
-            key="p-1-1-0"
-          >
-            popupTitle
-          </p>
-        </ReactMarkdown>
+          popupTitle
+        </Markdown>
       </div>
-      <ReactMarkdown
+      <Markdown
         className="confirm-popup"
         remarkPlugins={
           [
             [
-              [Function],
+              "remark-gfm",
               {
                 "singleTilde": false,
               },
             ],
           ]
         }
-        transformLinkUri={[Function]}
       >
-        <div
-          className="confirm-popup"
-        >
-          <p
-            key="p-1-1-0"
-          >
-            popupContent
-          </p>
-        </div>
-      </ReactMarkdown>
+        popupContent
+      </Markdown>
       <div
         className="tr__form-buttons-container _center"
       >
@@ -543,17 +502,18 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
                 <div
                   class="center"
                 >
-                  <p>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
                     popupTitle
-                  </p>
+                  </markdown>
                 </div>
-                <div
+                <markdown
                   class="confirm-popup"
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <p>
-                    popupContent
-                  </p>
-                </div>
+                  popupContent
+                </markdown>
                 <div
                   class="tr__form-buttons-container _center"
                 >
@@ -656,50 +616,36 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
               <div
                 className="center"
               >
-                <ReactMarkdown
+                <Markdown
                   remarkPlugins={
                     [
                       [
-                        [Function],
+                        "remark-gfm",
                         {
                           "singleTilde": false,
                         },
                       ],
                     ]
                   }
-                  transformLinkUri={[Function]}
                 >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    popupTitle
-                  </p>
-                </ReactMarkdown>
+                  popupTitle
+                </Markdown>
               </div>
-              <ReactMarkdown
+              <Markdown
                 className="confirm-popup"
                 remarkPlugins={
                   [
                     [
-                      [Function],
+                      "remark-gfm",
                       {
                         "singleTilde": false,
                       },
                     ],
                   ]
                 }
-                transformLinkUri={[Function]}
               >
-                <div
-                  className="confirm-popup"
-                >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    popupContent
-                  </p>
-                </div>
-              </ReactMarkdown>
+                popupContent
+              </Markdown>
               <div
                 className="tr__form-buttons-container _center"
               >
@@ -806,50 +752,36 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
           <div
             className="center"
           >
-            <ReactMarkdown
+            <Markdown
               remarkPlugins={
                 [
                   [
-                    [Function],
+                    "remark-gfm",
                     {
                       "singleTilde": false,
                     },
                   ],
                 ]
               }
-              transformLinkUri={[Function]}
             >
-              <p
-                key="p-1-1-0"
-              >
-                popupTitle
-              </p>
-            </ReactMarkdown>
+              popupTitle
+            </Markdown>
           </div>
-          <ReactMarkdown
+          <Markdown
             className="confirm-popup"
             remarkPlugins={
               [
                 [
-                  [Function],
+                  "remark-gfm",
                   {
                     "singleTilde": false,
                   },
                 ],
               ]
             }
-            transformLinkUri={[Function]}
           >
-            <div
-              className="confirm-popup"
-            >
-              <p
-                key="p-1-1-0"
-              >
-                popupContent
-              </p>
-            </div>
-          </ReactMarkdown>
+            popupContent
+          </Markdown>
           <div
             className="tr__form-buttons-container _center"
           >
@@ -896,50 +828,36 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
       <div
         className="center"
       >
-        <ReactMarkdown
+        <Markdown
           remarkPlugins={
             [
               [
-                [Function],
+                "remark-gfm",
                 {
                   "singleTilde": false,
                 },
               ],
             ]
           }
-          transformLinkUri={[Function]}
         >
-          <p
-            key="p-1-1-0"
-          >
-            popupTitle
-          </p>
-        </ReactMarkdown>
+          popupTitle
+        </Markdown>
       </div>
-      <ReactMarkdown
+      <Markdown
         className="confirm-popup"
         remarkPlugins={
           [
             [
-              [Function],
+              "remark-gfm",
               {
                 "singleTilde": false,
               },
             ],
           ]
         }
-        transformLinkUri={[Function]}
       >
-        <div
-          className="confirm-popup"
-        >
-          <p
-            key="p-1-1-0"
-          >
-            popupContent
-          </p>
-        </div>
-      </ReactMarkdown>
+        popupContent
+      </Markdown>
       <div
         className="tr__form-buttons-container _center"
       >

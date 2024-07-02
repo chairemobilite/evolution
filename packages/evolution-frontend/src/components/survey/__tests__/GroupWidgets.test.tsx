@@ -15,6 +15,9 @@ import { Group, GroupedObject } from '../GroupWidgets';
 import each from 'jest-each';
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 
+// Mock react-markdown and remark-gfm as they use syntax not supported by jest
+jest.mock('react-markdown', () => 'Markdown');
+jest.mock('remark-gfm', () => 'remark-gfm');
 
 // Mock the react-datepicker files to avoid jest compilation errors
 jest.mock('react-datepicker/dist/react-datepicker.css', () => {});

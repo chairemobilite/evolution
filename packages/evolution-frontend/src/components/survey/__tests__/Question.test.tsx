@@ -17,6 +17,10 @@ import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 import Question from '../Question';
 import { WidgetStatus } from '../../../services/interviews/interview';
 
+// Mock react-markdown and remark-gfm as they use syntax not supported by jest
+jest.mock('react-markdown', () => 'Markdown');
+jest.mock('remark-gfm', () => 'remark-gfm');
+
 // Mock the react-datepicker files to avoid jest compilation errors
 jest.mock('react-datepicker/dist/react-datepicker.css', () => {});
 // Mock the react-input-range files to avoid jest compilation errors

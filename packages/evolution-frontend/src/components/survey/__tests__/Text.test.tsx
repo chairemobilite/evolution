@@ -16,6 +16,10 @@ import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 import Text from '../Text';
 import { WidgetStatus } from '../../../services/interviews/interview';
 
+// Mock react-markdown and remark-gfm as they use syntax not supported by jest
+jest.mock('react-markdown', () => 'Markdown');
+jest.mock('remark-gfm', () => 'remark-gfm');
+
 const userAttributes = {
     id: 1,
     username: 'foo',

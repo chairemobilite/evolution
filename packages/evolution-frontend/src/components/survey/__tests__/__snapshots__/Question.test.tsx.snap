@@ -1169,17 +1169,18 @@ exports[`With help popup and link Open modal 1`] = `
                 <h3
                   class="center"
                 >
-                  <p>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
                     Help title
-                  </p>
+                  </markdown>
                 </h3>
-                <div
+                <markdown
                   class="help-popup"
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <p>
-                    Help content
-                  </p>
-                </div>
+                  Help content
+                </markdown>
                 <div
                   class="center"
                 >
@@ -1269,50 +1270,36 @@ exports[`With help popup and link Open modal 1`] = `
               <h3
                 className="center"
               >
-                <ReactMarkdown
+                <Markdown
                   remarkPlugins={
                     [
                       [
-                        [Function],
+                        "remark-gfm",
                         {
                           "singleTilde": false,
                         },
                       ],
                     ]
                   }
-                  transformLinkUri={[Function]}
                 >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    Help title
-                  </p>
-                </ReactMarkdown>
+                  Help title
+                </Markdown>
               </h3>
-              <ReactMarkdown
+              <Markdown
                 className="help-popup"
                 remarkPlugins={
                   [
                     [
-                      [Function],
+                      "remark-gfm",
                       {
                         "singleTilde": false,
                       },
                     ],
                   ]
                 }
-                transformLinkUri={[Function]}
               >
-                <div
-                  className="help-popup"
-                >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    Help content
-                  </p>
-                </div>
-              </ReactMarkdown>
+                Help content
+              </Markdown>
               <div
                 className="center"
               >
@@ -1403,50 +1390,36 @@ exports[`With help popup and link Open modal 1`] = `
           <h3
             className="center"
           >
-            <ReactMarkdown
+            <Markdown
               remarkPlugins={
                 [
                   [
-                    [Function],
+                    "remark-gfm",
                     {
                       "singleTilde": false,
                     },
                   ],
                 ]
               }
-              transformLinkUri={[Function]}
             >
-              <p
-                key="p-1-1-0"
-              >
-                Help title
-              </p>
-            </ReactMarkdown>
+              Help title
+            </Markdown>
           </h3>
-          <ReactMarkdown
+          <Markdown
             className="help-popup"
             remarkPlugins={
               [
                 [
-                  [Function],
+                  "remark-gfm",
                   {
                     "singleTilde": false,
                   },
                 ],
               ]
             }
-            transformLinkUri={[Function]}
           >
-            <div
-              className="help-popup"
-            >
-              <p
-                key="p-1-1-0"
-              >
-                Help content
-              </p>
-            </div>
-          </ReactMarkdown>
+            Help content
+          </Markdown>
           <div
             className="center"
           >
@@ -1477,50 +1450,36 @@ exports[`With help popup and link Open modal 1`] = `
       <h3
         className="center"
       >
-        <ReactMarkdown
+        <Markdown
           remarkPlugins={
             [
               [
-                [Function],
+                "remark-gfm",
                 {
                   "singleTilde": false,
                 },
               ],
             ]
           }
-          transformLinkUri={[Function]}
         >
-          <p
-            key="p-1-1-0"
-          >
-            Help title
-          </p>
-        </ReactMarkdown>
+          Help title
+        </Markdown>
       </h3>
-      <ReactMarkdown
+      <Markdown
         className="help-popup"
         remarkPlugins={
           [
             [
-              [Function],
+              "remark-gfm",
               {
                 "singleTilde": false,
               },
             ],
           ]
         }
-        transformLinkUri={[Function]}
       >
-        <div
-          className="help-popup"
-        >
-          <p
-            key="p-1-1-0"
-          >
-            Help content
-          </p>
-        </div>
-      </ReactMarkdown>
+        Help content
+      </Markdown>
       <div
         className="center"
       >

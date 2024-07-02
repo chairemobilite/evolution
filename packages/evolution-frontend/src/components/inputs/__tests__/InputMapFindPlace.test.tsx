@@ -12,6 +12,10 @@ import { interviewAttributes } from './interviewData.test';
 import InputMapFindPlace from '../InputMapFindPlace';
 import { geocodeMultiplePlaces } from '../maps/google/GoogleGeocoder';
 
+// Mock react-markdown and remark-gfm as they use syntax not supported by jest
+jest.mock('react-markdown', () => 'Markdown');
+jest.mock('remark-gfm', () => 'remark-gfm');
+
 // Mock db queries
 jest.mock('../maps/google/GoogleGeocoder', () => ({
     geocodeMultiplePlaces: jest.fn()

@@ -56,6 +56,18 @@ exports[`Render InputMapPoint with various parameters Test with all parameters 1
       }
     />
   </div>
+  <Markdown
+    remarkPlugins={
+      [
+        [
+          "remark-gfm",
+          {
+            "singleTilde": false,
+          },
+        ],
+      ]
+    }
+  />
   <div
     aria-hidden="true"
     className="survey-question__input-map-container"
@@ -81,6 +93,18 @@ exports[`Render InputMapPoint with various parameters Test with minimal paramete
     id="test"
     readOnly={true}
     type="hidden"
+  />
+  <Markdown
+    remarkPlugins={
+      [
+        [
+          "remark-gfm",
+          {
+            "singleTilde": false,
+          },
+        ],
+      ]
+    }
   />
   <div
     aria-hidden="true"

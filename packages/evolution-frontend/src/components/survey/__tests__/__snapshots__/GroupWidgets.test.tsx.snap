@@ -55,13 +55,21 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -78,13 +86,11 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj0Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -123,13 +129,21 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -146,13 +160,11 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj1Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -191,13 +203,21 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -214,13 +234,11 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj2Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -307,9 +325,20 @@ exports[`Group All values set, all true, add button default data, filter show al
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 0
-              </p>
+              </Markdown>
             </h3>
             <div
               className="center"
@@ -342,13 +371,21 @@ exports[`Group All values set, all true, add button default data, filter show al
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -365,13 +402,11 @@ exports[`Group All values set, all true, add button default data, filter show al
                 <label
                   htmlFor="survey-question__myGroups.obj0Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -410,9 +445,20 @@ exports[`Group All values set, all true, add button default data, filter show al
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 1
-              </p>
+              </Markdown>
             </h3>
             <div
               className="center"
@@ -445,13 +491,21 @@ exports[`Group All values set, all true, add button default data, filter show al
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -468,13 +522,11 @@ exports[`Group All values set, all true, add button default data, filter show al
                 <label
                   htmlFor="survey-question__myGroups.obj1Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -513,9 +565,20 @@ exports[`Group All values set, all true, add button default data, filter show al
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 2
-              </p>
+              </Markdown>
             </h3>
             <div
               className="center"
@@ -548,13 +611,21 @@ exports[`Group All values set, all true, add button default data, filter show al
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -571,13 +642,11 @@ exports[`Group All values set, all true, add button default data, filter show al
                 <label
                   htmlFor="survey-question__myGroups.obj2Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -659,20 +728,39 @@ exports[`Group All values set, false when possible Render widget 1`] = `
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 0
-              </p>
+              </Markdown>
             </h3>
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -689,13 +777,11 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj0Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -734,20 +820,39 @@ exports[`Group All values set, false when possible Render widget 1`] = `
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 1
-              </p>
+              </Markdown>
             </h3>
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -764,13 +869,11 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj1Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -809,20 +912,39 @@ exports[`Group All values set, false when possible Render widget 1`] = `
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 2
-              </p>
+              </Markdown>
             </h3>
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -839,13 +961,11 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj2Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -906,13 +1026,21 @@ exports[`Group Default values Render widget 1`] = `
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -929,13 +1057,11 @@ exports[`Group Default values Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj0Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -974,13 +1100,21 @@ exports[`Group Default values Render widget 1`] = `
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -997,13 +1131,11 @@ exports[`Group Default values Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj1Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -1042,13 +1174,21 @@ exports[`Group Default values Render widget 1`] = `
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -1065,13 +1205,11 @@ exports[`Group Default values Render widget 1`] = `
                 <label
                   htmlFor="survey-question__myGroups.obj2Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -1158,9 +1296,20 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 0
-              </p>
+              </Markdown>
             </h3>
             <section
               className="survey-group"
@@ -1188,20 +1337,39 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                         <h3
                           className="survey-group-object__title"
                         >
-                          <p>
+                          <Markdown
+                            remarkPlugins={
+                              [
+                                [
+                                  "remark-gfm",
+                                  {
+                                    "singleTilde": false,
+                                  },
+                                ],
+                              ]
+                            }
+                          >
                             Nested object at index 0
-                          </p>
+                          </Markdown>
                         </h3>
                         <div
                           className="survey-section__text"
                         >
-                          <div
+                          <Markdown
                             className="left "
+                            remarkPlugins={
+                              [
+                                [
+                                  "remark-gfm",
+                                  {
+                                    "singleTilde": false,
+                                  },
+                                ],
+                              ]
+                            }
                           >
-                            <p>
-                              This is a text widget
-                            </p>
-                          </div>
+                            This is a text widget
+                          </Markdown>
                         </div>
                         <div
                           className="apptr__form-container question-type-string question-filled"
@@ -1218,13 +1386,11 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                             <label
                               htmlFor="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
                             >
-                              <div
+                              <Markdown
                                 className="label"
                               >
-                                <p>
-                                  Test Question Label
-                                </p>
-                              </div>
+                                Test Question Label
+                              </Markdown>
                             </label>
                           </div>
                           <div
@@ -1263,20 +1429,39 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                         <h3
                           className="survey-group-object__title"
                         >
-                          <p>
+                          <Markdown
+                            remarkPlugins={
+                              [
+                                [
+                                  "remark-gfm",
+                                  {
+                                    "singleTilde": false,
+                                  },
+                                ],
+                              ]
+                            }
+                          >
                             Nested object at index 1
-                          </p>
+                          </Markdown>
                         </h3>
                         <div
                           className="survey-section__text"
                         >
-                          <div
+                          <Markdown
                             className="left "
+                            remarkPlugins={
+                              [
+                                [
+                                  "remark-gfm",
+                                  {
+                                    "singleTilde": false,
+                                  },
+                                ],
+                              ]
+                            }
                           >
-                            <p>
-                              This is a text widget
-                            </p>
-                          </div>
+                            This is a text widget
+                          </Markdown>
                         </div>
                         <div
                           className="apptr__form-container question-type-string question-filled"
@@ -1293,13 +1478,11 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                             <label
                               htmlFor="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
                             >
-                              <div
+                              <Markdown
                                 className="label"
                               >
-                                <p>
-                                  Test Question Label
-                                </p>
-                              </div>
+                                Test Question Label
+                              </Markdown>
                             </label>
                           </div>
                           <div
@@ -1372,9 +1555,20 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 1
-              </p>
+              </Markdown>
             </h3>
             <section
               className="survey-group"
@@ -1436,9 +1630,20 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 2
-              </p>
+              </Markdown>
             </h3>
             <section
               className="survey-group"
@@ -1548,20 +1753,39 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 1
-              </p>
+              </Markdown>
             </h3>
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -1578,13 +1802,11 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
                 <label
                   htmlFor="survey-question__myGroups.obj1Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -1671,20 +1893,39 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 0
-              </p>
+              </Markdown>
             </h3>
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -1701,13 +1942,11 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
                 <label
                   htmlFor="survey-question__myGroups.obj0Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -1746,20 +1985,39 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
             <h3
               className="survey-group-object__title"
             >
-              <p>
+              <Markdown
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
+              >
                 Grouped object at index 2
-              </p>
+              </Markdown>
             </h3>
             <div
               className="survey-section__text"
             >
-              <div
+              <Markdown
                 className="left "
+                remarkPlugins={
+                  [
+                    [
+                      "remark-gfm",
+                      {
+                        "singleTilde": false,
+                      },
+                    ],
+                  ]
+                }
               >
-                <p>
-                  This is a text widget
-                </p>
-              </div>
+                This is a text widget
+              </Markdown>
             </div>
             <div
               className="apptr__form-container question-type-string question-filled"
@@ -1776,13 +2034,11 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
                 <label
                   htmlFor="survey-question__myGroups.obj2Uuid.quest"
                 >
-                  <div
+                  <Markdown
                     className="label"
                   >
-                    <p>
-                      Test Question Label
-                    </p>
-                  </div>
+                    Test Question Label
+                  </Markdown>
                 </label>
               </div>
               <div
@@ -1855,20 +2111,39 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
       <h3
         className="survey-group-object__title"
       >
-        <p>
+        <Markdown
+          remarkPlugins={
+            [
+              [
+                "remark-gfm",
+                {
+                  "singleTilde": false,
+                },
+              ],
+            ]
+          }
+        >
           Grouped object at index 0
-        </p>
+        </Markdown>
       </h3>
       <div
         className="survey-section__text"
       >
-        <div
+        <Markdown
           className="left "
+          remarkPlugins={
+            [
+              [
+                "remark-gfm",
+                {
+                  "singleTilde": false,
+                },
+              ],
+            ]
+          }
         >
-          <p>
-            This is a text widget
-          </p>
-        </div>
+          This is a text widget
+        </Markdown>
       </div>
       <div
         className="apptr__form-container question-type-string question-filled"
@@ -1885,13 +2160,11 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
           <label
             htmlFor="survey-question__myGroups.obj0Uuid.quest"
           >
-            <div
+            <Markdown
               className="label"
             >
-              <p>
-                Test Question Label
-              </p>
-            </div>
+              Test Question Label
+            </Markdown>
           </label>
         </div>
         <div
@@ -1933,9 +2206,20 @@ exports[`Grouped Object All values set, all true, add button default label, filt
       <h3
         className="survey-group-object__title"
       >
-        <p>
+        <Markdown
+          remarkPlugins={
+            [
+              [
+                "remark-gfm",
+                {
+                  "singleTilde": false,
+                },
+              ],
+            ]
+          }
+        >
           Grouped object at index 0
-        </p>
+        </Markdown>
       </h3>
       <div
         className="center"
@@ -1968,13 +2252,21 @@ exports[`Grouped Object All values set, all true, add button default label, filt
       <div
         className="survey-section__text"
       >
-        <div
+        <Markdown
           className="left "
+          remarkPlugins={
+            [
+              [
+                "remark-gfm",
+                {
+                  "singleTilde": false,
+                },
+              ],
+            ]
+          }
         >
-          <p>
-            This is a text widget
-          </p>
-        </div>
+          This is a text widget
+        </Markdown>
       </div>
       <div
         className="apptr__form-container question-type-string question-filled"
@@ -1991,13 +2283,11 @@ exports[`Grouped Object All values set, all true, add button default label, filt
           <label
             htmlFor="survey-question__myGroups.obj0Uuid.quest"
           >
-            <div
+            <Markdown
               className="label"
             >
-              <p>
-                Test Question Label
-              </p>
-            </div>
+              Test Question Label
+            </Markdown>
           </label>
         </div>
         <div
@@ -2039,13 +2329,21 @@ exports[`Grouped Object Default values Render widget 1`] = `
       <div
         className="survey-section__text"
       >
-        <div
+        <Markdown
           className="left "
+          remarkPlugins={
+            [
+              [
+                "remark-gfm",
+                {
+                  "singleTilde": false,
+                },
+              ],
+            ]
+          }
         >
-          <p>
-            This is a text widget
-          </p>
-        </div>
+          This is a text widget
+        </Markdown>
       </div>
       <div
         className="apptr__form-container question-type-string question-filled"
@@ -2062,13 +2360,11 @@ exports[`Grouped Object Default values Render widget 1`] = `
           <label
             htmlFor="survey-question__myGroups.obj0Uuid.quest"
           >
-            <div
+            <Markdown
               className="label"
             >
-              <p>
-                Test Question Label
-              </p>
-            </div>
+              Test Question Label
+            </Markdown>
           </label>
         </div>
         <div
