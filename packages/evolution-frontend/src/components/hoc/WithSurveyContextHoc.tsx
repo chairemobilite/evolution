@@ -13,9 +13,8 @@ export interface WithSurveyContextProps {
 
 export const withSurveyContext =
     <T extends WithSurveyContextProps = WithSurveyContextProps>(WrappedComponent: React.ComponentType<T>) =>
-        (props: Omit<T, keyof WithSurveyContextProps>) =>
-            (
-                <SurveyContext.Consumer>
-                    {(context) => <WrappedComponent {...(props as T)} surveyContext={context} />}
-                </SurveyContext.Consumer>
-            );
+        (props: Omit<T, keyof WithSurveyContextProps>) => (
+            <SurveyContext.Consumer>
+                {(context) => <WrappedComponent {...(props as T)} surveyContext={context} />}
+            </SurveyContext.Consumer>
+        );
