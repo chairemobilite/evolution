@@ -41,17 +41,18 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
                 <div
                   class="center"
                 >
-                  <p>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
                     Delete item
-                  </p>
+                  </markdown>
                 </div>
-                <div
+                <markdown
                   class="confirm-popup"
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <p>
-                    Are you sure you want to delete this item?
-                  </p>
-                </div>
+                  Are you sure you want to delete this item?
+                </markdown>
                 <div
                   class="tr__form-buttons-container _center"
                 >
@@ -154,50 +155,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
               <div
                 className="center"
               >
-                <ReactMarkdown
+                <Markdown
                   remarkPlugins={
                     [
                       [
-                        [Function],
+                        "remark-gfm",
                         {
                           "singleTilde": false,
                         },
                       ],
                     ]
                   }
-                  transformLinkUri={[Function]}
                 >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    Delete item
-                  </p>
-                </ReactMarkdown>
+                  Delete item
+                </Markdown>
               </div>
-              <ReactMarkdown
+              <Markdown
                 className="confirm-popup"
                 remarkPlugins={
                   [
                     [
-                      [Function],
+                      "remark-gfm",
                       {
                         "singleTilde": false,
                       },
                     ],
                   ]
                 }
-                transformLinkUri={[Function]}
               >
-                <div
-                  className="confirm-popup"
-                >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    Are you sure you want to delete this item?
-                  </p>
-                </div>
-              </ReactMarkdown>
+                Are you sure you want to delete this item?
+              </Markdown>
               <div
                 className="tr__form-buttons-container _center"
               >
@@ -304,50 +291,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
           <div
             className="center"
           >
-            <ReactMarkdown
+            <Markdown
               remarkPlugins={
                 [
                   [
-                    [Function],
+                    "remark-gfm",
                     {
                       "singleTilde": false,
                     },
                   ],
                 ]
               }
-              transformLinkUri={[Function]}
             >
-              <p
-                key="p-1-1-0"
-              >
-                Delete item
-              </p>
-            </ReactMarkdown>
+              Delete item
+            </Markdown>
           </div>
-          <ReactMarkdown
+          <Markdown
             className="confirm-popup"
             remarkPlugins={
               [
                 [
-                  [Function],
+                  "remark-gfm",
                   {
                     "singleTilde": false,
                   },
                 ],
               ]
             }
-            transformLinkUri={[Function]}
           >
-            <div
-              className="confirm-popup"
-            >
-              <p
-                key="p-1-1-0"
-              >
-                Are you sure you want to delete this item?
-              </p>
-            </div>
-          </ReactMarkdown>
+            Are you sure you want to delete this item?
+          </Markdown>
           <div
             className="tr__form-buttons-container _center"
           >
@@ -394,50 +367,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
       <div
         className="center"
       >
-        <ReactMarkdown
+        <Markdown
           remarkPlugins={
             [
               [
-                [Function],
+                "remark-gfm",
                 {
                   "singleTilde": false,
                 },
               ],
             ]
           }
-          transformLinkUri={[Function]}
         >
-          <p
-            key="p-1-1-0"
-          >
-            Delete item
-          </p>
-        </ReactMarkdown>
+          Delete item
+        </Markdown>
       </div>
-      <ReactMarkdown
+      <Markdown
         className="confirm-popup"
         remarkPlugins={
           [
             [
-              [Function],
+              "remark-gfm",
               {
                 "singleTilde": false,
               },
             ],
           ]
         }
-        transformLinkUri={[Function]}
       >
-        <div
-          className="confirm-popup"
-        >
-          <p
-            key="p-1-1-0"
-          >
-            Are you sure you want to delete this item?
-          </p>
-        </div>
-      </ReactMarkdown>
+        Are you sure you want to delete this item?
+      </Markdown>
       <div
         className="tr__form-buttons-container _center"
       >
@@ -510,17 +469,18 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
                 <div
                   class="center"
                 >
-                  <p>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
                     Delete item
-                  </p>
+                  </markdown>
                 </div>
-                <div
+                <markdown
                   class="confirm-popup"
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <p>
-                    Are you sure you want to delete this item?
-                  </p>
-                </div>
+                  Are you sure you want to delete this item?
+                </markdown>
                 <div
                   class="tr__form-buttons-container _center"
                 >
@@ -623,50 +583,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
               <div
                 className="center"
               >
-                <ReactMarkdown
+                <Markdown
                   remarkPlugins={
                     [
                       [
-                        [Function],
+                        "remark-gfm",
                         {
                           "singleTilde": false,
                         },
                       ],
                     ]
                   }
-                  transformLinkUri={[Function]}
                 >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    Delete item
-                  </p>
-                </ReactMarkdown>
+                  Delete item
+                </Markdown>
               </div>
-              <ReactMarkdown
+              <Markdown
                 className="confirm-popup"
                 remarkPlugins={
                   [
                     [
-                      [Function],
+                      "remark-gfm",
                       {
                         "singleTilde": false,
                       },
                     ],
                   ]
                 }
-                transformLinkUri={[Function]}
               >
-                <div
-                  className="confirm-popup"
-                >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    Are you sure you want to delete this item?
-                  </p>
-                </div>
-              </ReactMarkdown>
+                Are you sure you want to delete this item?
+              </Markdown>
               <div
                 className="tr__form-buttons-container _center"
               >
@@ -773,50 +719,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
           <div
             className="center"
           >
-            <ReactMarkdown
+            <Markdown
               remarkPlugins={
                 [
                   [
-                    [Function],
+                    "remark-gfm",
                     {
                       "singleTilde": false,
                     },
                   ],
                 ]
               }
-              transformLinkUri={[Function]}
             >
-              <p
-                key="p-1-1-0"
-              >
-                Delete item
-              </p>
-            </ReactMarkdown>
+              Delete item
+            </Markdown>
           </div>
-          <ReactMarkdown
+          <Markdown
             className="confirm-popup"
             remarkPlugins={
               [
                 [
-                  [Function],
+                  "remark-gfm",
                   {
                     "singleTilde": false,
                   },
                 ],
               ]
             }
-            transformLinkUri={[Function]}
           >
-            <div
-              className="confirm-popup"
-            >
-              <p
-                key="p-1-1-0"
-              >
-                Are you sure you want to delete this item?
-              </p>
-            </div>
-          </ReactMarkdown>
+            Are you sure you want to delete this item?
+          </Markdown>
           <div
             className="tr__form-buttons-container _center"
           >
@@ -863,50 +795,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
       <div
         className="center"
       >
-        <ReactMarkdown
+        <Markdown
           remarkPlugins={
             [
               [
-                [Function],
+                "remark-gfm",
                 {
                   "singleTilde": false,
                 },
               ],
             ]
           }
-          transformLinkUri={[Function]}
         >
-          <p
-            key="p-1-1-0"
-          >
-            Delete item
-          </p>
-        </ReactMarkdown>
+          Delete item
+        </Markdown>
       </div>
-      <ReactMarkdown
+      <Markdown
         className="confirm-popup"
         remarkPlugins={
           [
             [
-              [Function],
+              "remark-gfm",
               {
                 "singleTilde": false,
               },
             ],
           ]
         }
-        transformLinkUri={[Function]}
       >
-        <div
-          className="confirm-popup"
-        >
-          <p
-            key="p-1-1-0"
-          >
-            Are you sure you want to delete this item?
-          </p>
-        </div>
-      </ReactMarkdown>
+        Are you sure you want to delete this item?
+      </Markdown>
       <div
         className="tr__form-buttons-container _center"
       >
@@ -979,17 +897,18 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
                 <div
                   class="center"
                 >
-                  <p>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
                     Delete item
-                  </p>
+                  </markdown>
                 </div>
-                <div
+                <markdown
                   class="confirm-popup"
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <p>
-                    Are you sure you want to delete this item?
-                  </p>
-                </div>
+                  Are you sure you want to delete this item?
+                </markdown>
                 <div
                   class="tr__form-buttons-container _center"
                 >
@@ -1092,50 +1011,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
               <div
                 className="center"
               >
-                <ReactMarkdown
+                <Markdown
                   remarkPlugins={
                     [
                       [
-                        [Function],
+                        "remark-gfm",
                         {
                           "singleTilde": false,
                         },
                       ],
                     ]
                   }
-                  transformLinkUri={[Function]}
                 >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    Delete item
-                  </p>
-                </ReactMarkdown>
+                  Delete item
+                </Markdown>
               </div>
-              <ReactMarkdown
+              <Markdown
                 className="confirm-popup"
                 remarkPlugins={
                   [
                     [
-                      [Function],
+                      "remark-gfm",
                       {
                         "singleTilde": false,
                       },
                     ],
                   ]
                 }
-                transformLinkUri={[Function]}
               >
-                <div
-                  className="confirm-popup"
-                >
-                  <p
-                    key="p-1-1-0"
-                  >
-                    Are you sure you want to delete this item?
-                  </p>
-                </div>
-              </ReactMarkdown>
+                Are you sure you want to delete this item?
+              </Markdown>
               <div
                 className="tr__form-buttons-container _center"
               >
@@ -1242,50 +1147,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
           <div
             className="center"
           >
-            <ReactMarkdown
+            <Markdown
               remarkPlugins={
                 [
                   [
-                    [Function],
+                    "remark-gfm",
                     {
                       "singleTilde": false,
                     },
                   ],
                 ]
               }
-              transformLinkUri={[Function]}
             >
-              <p
-                key="p-1-1-0"
-              >
-                Delete item
-              </p>
-            </ReactMarkdown>
+              Delete item
+            </Markdown>
           </div>
-          <ReactMarkdown
+          <Markdown
             className="confirm-popup"
             remarkPlugins={
               [
                 [
-                  [Function],
+                  "remark-gfm",
                   {
                     "singleTilde": false,
                   },
                 ],
               ]
             }
-            transformLinkUri={[Function]}
           >
-            <div
-              className="confirm-popup"
-            >
-              <p
-                key="p-1-1-0"
-              >
-                Are you sure you want to delete this item?
-              </p>
-            </div>
-          </ReactMarkdown>
+            Are you sure you want to delete this item?
+          </Markdown>
           <div
             className="tr__form-buttons-container _center"
           >
@@ -1332,50 +1223,36 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
       <div
         className="center"
       >
-        <ReactMarkdown
+        <Markdown
           remarkPlugins={
             [
               [
-                [Function],
+                "remark-gfm",
                 {
                   "singleTilde": false,
                 },
               ],
             ]
           }
-          transformLinkUri={[Function]}
         >
-          <p
-            key="p-1-1-0"
-          >
-            Delete item
-          </p>
-        </ReactMarkdown>
+          Delete item
+        </Markdown>
       </div>
-      <ReactMarkdown
+      <Markdown
         className="confirm-popup"
         remarkPlugins={
           [
             [
-              [Function],
+              "remark-gfm",
               {
                 "singleTilde": false,
               },
             ],
           ]
         }
-        transformLinkUri={[Function]}
       >
-        <div
-          className="confirm-popup"
-        >
-          <p
-            key="p-1-1-0"
-          >
-            Are you sure you want to delete this item?
-          </p>
-        </div>
-      </ReactMarkdown>
+        Are you sure you want to delete this item?
+      </Markdown>
       <div
         className="tr__form-buttons-container _center"
       >

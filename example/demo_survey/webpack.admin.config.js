@@ -25,7 +25,7 @@ const appIncludeName = 'survey';
 module.exports = (env) => {
   console.log(`building js for project ${config.projectShortname}`);
   
-  const isProduction = env === 'production';
+  const isProduction = process.env.NODE_ENV === 'production';
   console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 
   const languages = config.languages || ['fr', 'en'];
@@ -44,15 +44,20 @@ module.exports = (env) => {
   ];
 
   return {
+    // Controls which information to display (see https://webpack.js.org/configuration/stats/)
+    stats: {
+      errorDetails: true,
+      children: true,
+    },
     node: {
-        Buffer: false,
-        process: true,
+      // global will be deprecated at next major release, see where it is being used
+      global: 'warn'
     },
     mode: process.env.NODE_ENV,
     entry: entry,
     output: {
       path: bundleOutputPath,
-      filename: isProduction ? `survey-admin-${config.projectShortname}-bundle-${env}.[contenthash].js` : `survey-admin-${config.projectShortname}-bundle-${env}.dev.js`,
+      filename: isProduction ? `survey-admin-${config.projectShortname}-bundle-${process.env.NODE_ENV}.[contenthash].js` : `survey-admin-${config.projectShortname}-bundle-${process.env.NODE_ENV}.dev.js`,
       publicPath: '/dist/'
     },
     watchOptions: {
@@ -76,10 +81,7 @@ module.exports = (env) => {
         },
         { 
           test: /\.(ttf|woff2|woff|eot|svg)$/,
-          loader: 'url-loader',
-          options: {
-            limit: 100000
-          }
+          type: 'asset'
         },
         {
           test: /\.glsl$/,
@@ -134,7 +136,7 @@ module.exports = (env) => {
       new HtmlWebpackPlugin({
         title: process.env.DEFAULT_TITLE || 'Evolution - Admin',
         noindex: true, // we should never index the admin dashboard
-        filename: path.join(`index-survey-${config.projectShortname}${env === 'test' ? `_${env}` : ''}.html`),
+        filename: path.join(`index-survey-${config.projectShortname}.html`),
         template: path.join(__dirname, '..', '..', 'public', 'index.html'),
       }),
       new MiniCssExtractPlugin({
@@ -148,7 +150,6 @@ module.exports = (env) => {
           'APP_NAME'                    : JSON.stringify(appIncludeName),
           'PROJECT_SHORTNAME'           : JSON.stringify(config.projectShortname),
           'PROJECT_SOURCE'              : JSON.stringify(process.env.PROJECT_SOURCE),
-          'NODE_ENV'                    : JSON.stringify(process.env.NODE_ENV),
           'IS_TESTING'                  : JSON.stringify(env === 'test'),
           'GOOGLE_API_KEY'              : JSON.stringify(process.env.GOOGLE_API_KEY),
           'MAPBOX_ACCESS_TOKEN'         : JSON.stringify(process.env.MAPBOX_ACCESS_TOKEN),
@@ -166,7 +167,7 @@ module.exports = (env) => {
       }),
       new webpack.optimize.AggressiveMergingPlugin(),//Merge chunks 
       new CompressionPlugin({
-        filename: "[path].gz[query]",
+        filename: "[path][base].gz[query]",
         algorithm: "gzip",
         test: /\.js$|\.css$/,
         threshold: 0,
@@ -199,8 +200,11 @@ module.exports = (env) => {
       )
     ],
     resolve: {
+      mainFields: ['browser', 'main', 'module'],
       modules: ['node_modules'],
-      extensions: ['.json', '.js', '.jsx', '.css', '.scss', '.ts', '.tsx'],
+      extensions: ['.json', '.js', '.ts', '.tsx'],
+      // These modules are not used in the frontend, don't try to resolve them as they are nodejs only and don't have a browser counterpart (but they may be used in transition-legacy which is still not cleanly separated)
+      fallback: { path: false, buffer: false }
     },
     devtool: isProduction ? 'cheap-source-map' : 'eval-source-map',
     devServer: {

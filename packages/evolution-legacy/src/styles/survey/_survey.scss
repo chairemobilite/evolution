@@ -13,7 +13,7 @@
   background-size: 12rem, 6rem;
   background-position: center 1.8em, 90% 100.5%;
   background-repeat: no-repeat, no-repeat;*/
-  background-image: url(/dist/images/ornaments/ornament_flower_points_pale.svg);
+  background-image: url(../../assets/images/ornaments/ornament_flower_points_pale.svg);
   background-size: 6rem;
   background-position: 90% 100.5%;
   background-repeat: no-repeat;
@@ -40,7 +40,7 @@
 
   .ornament_bottom {
     padding-bottom: 3rem;
-    background: linear-gradient(to right, rgba(0,0,0,0.0) 0, $black-pale 30%, $black-pale 70%, rgba(0,0,0,0.0) 100%), url(/dist/images/ornaments/ornament_wide_bottom_pale.svg);
+    background: linear-gradient(to right, rgba(0,0,0,0.0) 0, $black-pale 30%, $black-pale 70%, rgba(0,0,0,0.0) 100%), url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
     background-size: 100% 1px, 12rem;
     background-position: left bottom 2.4rem, center bottom 1px;
     background-repeat: no-repeat, no-repeat;
@@ -65,7 +65,7 @@
     width: 100%;
     height: 2.5rem;
     margin-bottom: 1rem;
-    background: linear-gradient(to right, rgba(0,0,0,0.0) 0, $black-pale 30%, $black-pale 70%, rgba(0,0,0,0.0) 100%), url(/dist/images/ornaments/ornament_wide_bottom_pale.svg);
+    background: linear-gradient(to right, rgba(0,0,0,0.0) 0, $black-pale 30%, $black-pale 70%, rgba(0,0,0,0.0) 100%), url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
     background-size: 100% 1px, 12rem;
     background-position: left top, center top 1px;
     background-repeat: no-repeat, no-repeat;

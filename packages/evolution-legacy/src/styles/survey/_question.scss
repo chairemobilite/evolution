@@ -150,7 +150,7 @@ label strong, .apptr__form__label-standalone strong {
         padding: 0.5rem 2rem 0.5rem 0;
         margin-bottom: 0;
         text-align: right;
-        background: url(/dist/images/ornaments/ornament_vertical_separator_bracket_pale.svg);
+        background: url(../../assets/images/ornaments/ornament_vertical_separator_bracket_pale.svg);
         background-position: right 0 top;
         background-origin: padding-box;
         background-size: auto 6px;
@@ -338,14 +338,14 @@ label strong, .apptr__form__label-standalone strong {
 .apptr__form-container.question-valid {
 
   border: 0.5rem solid $valid-border;
-  background: url(/dist/images/interface_icons/check-circle.svg) $valid-background;
+  background: url(../../assets/images/interface_icons/check-circle.svg) $valid-background;
   background-position: right 0.5rem top 0.5rem;
   background-origin: padding-box;
   background-size: 2.5rem;
   background-repeat: no-repeat;
   
   &.question-type-mapPoint {
-    background: url(/dist/images/interface_icons/check-circle.svg) $valid-background;
+    background: url(../../assets/images/interface_icons/check-circle.svg) $valid-background;
     background-position: right 0.5rem top 0.5rem;
     background-origin: padding-box;
     background-size: 2.5rem;

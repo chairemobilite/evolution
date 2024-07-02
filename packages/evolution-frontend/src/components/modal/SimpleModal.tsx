@@ -19,7 +19,7 @@ export interface SimpleModalProps {
     action?: React.MouseEventHandler;
 }
 
-if (process.env.NODE_ENV !== 'test') {
+if (!process.env.IS_TESTING) {
     Modal.setAppElement('#app');
 }
 
