@@ -44,7 +44,10 @@ module.exports = (env) => {
   ];
 
   return {
-
+    node: {
+        Buffer: false,
+        process: true,
+    },
     mode: process.env.NODE_ENV,
     entry: entry,
     output: {
@@ -67,7 +70,7 @@ module.exports = (env) => {
           include: includeDirectories
         },
         {
-          loader: 'json-loader',
+          use: 'json-loader',
           test: /\.geojson$/,
           include: includeDirectories
         },
@@ -80,7 +83,7 @@ module.exports = (env) => {
         },
         {
           test: /\.glsl$/,
-          loader: 'webpack-glsl-loader'
+          use: 'ts-shader-loader'
         },
         {
           test: /\.s?css$/,
