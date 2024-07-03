@@ -15,7 +15,6 @@
     "rollback": "knex migrate:rollback",
     "rollback-test": "cross-env NODE_ENV=test knex migrate:rollback",
     "seed": "cross-env NODE_ENV=test knex seed:run",
-    "generate-password": "yarn babel-node tasks/generatePassword.task.js",
     "table-schema": "yarn babel-node src/tasks/tableSchema.task.js",
     "generate-uuid": "yarn babel-node src/tasks/generateUuid.task.js",
     "list-tasks": "yarn babel-node src/tasks/listTasks.task.js",
