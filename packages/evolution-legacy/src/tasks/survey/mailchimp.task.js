@@ -5,12 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 const fs        = require('fs');
-const chalk     = require('chalk');
 const moment    = require('moment');
-const Mailchimp = require('mailchimp-api-v3');
+// FIXME Revisit this task as it likely does not work in surveys anymore
+//const Mailchimp = require('mailchimp-api-v3');
 const crypto    = require('crypto');
 const _get      = require('lodash/get');
-const mailchimp = new Mailchimp(process.env.MAILCHIMP_API_KEY);
+//const mailchimp = new Mailchimp(process.env.MAILCHIMP_API_KEY);
 const config    = require('chaire-lib-common/lib/config/shared/project.config');
 import Users from 'chaire-lib-backend/lib/services/users/users';
 import Interviews from 'evolution-backend/lib/services/interviews/interviews';
