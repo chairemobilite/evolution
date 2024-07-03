@@ -67,14 +67,6 @@ module.exports = (env) => {
     module: {
       rules: [
         {
-          loader: 'babel-loader',
-          test: /\.jsx?$/,
-          options: {
-            presets: ['@babel/preset-env', '@babel/preset-react'],
-          },
-          include: includeDirectories
-        },
-        {
           use: 'json-loader',
           test: /\.geojson$/,
           include: includeDirectories
