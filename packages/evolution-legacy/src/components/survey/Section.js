@@ -58,8 +58,8 @@ export class Section extends React.Component {
     if (!this.props.allWidgetsValid && this.props.submitted && this.props.loadingState === 0)
     {
       const invalidInputs = document.querySelectorAll('.question-invalid input');
-      if (invalidInputs.length > 0) {
-        // Focus on invalid input if found
+      if (invalidInputs.length > 0 && invalidInputs[0].id) {
+        // Focus on invalid input if found and it has an ID (inputRanges do not have IDs, the library used does not support it)
         const inputElement = document.getElementById(invalidInputs[0].id);
         if (inputElement) {
           inputElement.focus();
