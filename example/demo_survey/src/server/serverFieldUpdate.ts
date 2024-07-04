@@ -10,7 +10,10 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 export default [
     {
         field: 'accessCode',
-        callback: (interview, value, path) => {
+        callback: (interview, value, path, registerUpdateOperation) => {
+            if (typeof value !== 'string') {
+                return {};
+            }
             // Sample server update: Move the home to Caraquet, NB if access code starts with 111 and the city is not set
             if (value.startsWith('111')) {
                 if (_isBlank(getResponse(interview, 'home.city'))) {
@@ -28,7 +31,33 @@ export default [
             } else if (value === '1133-1133') {
                 // Special access code to test url redirection
                 return [{}, 'https://github.com/chairemobilite/evolution/']
+            } else if (value.startsWith('222')) {
+                // Use the update operation to set the city to Calgary, but 5 seconds later
+                registerUpdateOperation({
+                    opName: 'city',
+                    opUniqueId: 1,
+                    operation: () => new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve({
+                                'home.city': 'Calgary'
+                            });
+                        }, 5000);
+                    })
+                });
+                // Use the update operation to set the province to Alberta, but 10 seconds later
+                registerUpdateOperation({
+                    opName: 'province',
+                    opUniqueId: 1,
+                    operation: () => new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve({
+                                'home.region': 'Alberta'
+                            });
+                        }, 10000);
+                    })
+                });
             }
+            
             return {};
         }
     }

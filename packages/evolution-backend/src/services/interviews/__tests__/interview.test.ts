@@ -14,6 +14,7 @@ import serverValidate from '../../validations/serverValidation';
 import serverUpdate from '../serverFieldUpdate';
 import config from 'chaire-lib-backend/lib/config/server.config';
 import { registerServerUpdateCallbacks } from '../../../config/projectConfig';
+import TestUtils from 'chaire-lib-common/lib/test/TestUtils';
 
 jest.mock('../../validations/serverValidation', () =>
     jest.fn()
@@ -28,9 +29,11 @@ const mockedServerUpdate = serverUpdate as jest.MockedFunction<typeof serverUpda
 mockedServerUpdate.mockResolvedValue([{}, undefined]);
 
 jest.mock('../../../models/interviews.db.queries', () => ({
-    update: jest.fn()
+    update: jest.fn(),
+    getInterviewByUuid: jest.fn()
 }));
 const mockUpdate = interviewsQueries.update as jest.MockedFunction<typeof interviewsQueries.update>;
+const mockGetInterviewByUuid = interviewsQueries.getInterviewByUuid as jest.MockedFunction<typeof interviewsQueries.getInterviewByUuid>;
 
 type CustomSurvey = {
     accessCode: string;
@@ -59,6 +62,10 @@ const interviewAttributes: InterviewAttributes = {
     logs: []
 };
 (interviewsQueries.update as any).mockResolvedValue({ uuid: interviewAttributes.uuid });
+
+beforeEach(() => {
+    jest.clearAllMocks();
+})
 
 describe('Set interview fields', () => {
 
@@ -205,7 +212,7 @@ describe('Update Interview', () => {
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, unsetPaths);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, unsetPaths, undefined);
 
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
@@ -226,7 +233,7 @@ describe('Update Interview', () => {
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, []);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined, undefined);
 
         const expectedUpdatedValues = {
             validated_data: { foo: 'abc' },
@@ -245,7 +252,7 @@ describe('Update Interview', () => {
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, []);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_completed: true }, undefined);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_completed: true }, undefined, undefined);
 
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: true, is_frozen: true });
 
@@ -281,7 +288,7 @@ describe('Update Interview', () => {
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, []);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_valid: true }, undefined);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_valid: true }, undefined, undefined);
 
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: true, is_frozen: true });
 
@@ -341,7 +348,7 @@ describe('Update Interview', () => {
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, serverValidations, valuesByPath, []);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined, undefined);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
@@ -375,7 +382,7 @@ describe('Update Interview', () => {
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, updateCallbacks, valuesByPath, unsetPaths);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, updateCallbacks, valuesByPath, unsetPaths, undefined);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
@@ -386,6 +393,66 @@ describe('Update Interview', () => {
         delete expectedUpdatedValues.responses.accessCode;
         expectedUpdatedValues.validations = { testFields: { fieldA: valuesByPath['validations.testFields.fieldA'] } };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+    });
+
+    test('With server field updates and execution callback', async() => {
+        const deferredUpdateCallback = jest.fn();
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const valuesByPath = { 'responses.testFields.fieldB': 'abc', 'responses.testFields.fieldA': 'clientVal', 'validations.testFields.fieldA': true };
+        const unsetPaths = ['responses.accessCode'];
+
+        // Prepare server update responses, callbacks won't be called, but we need an object
+        const updateCallbacks = [
+            { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
+        ];
+        registerServerUpdateCallbacks(updateCallbacks);
+        const updatedValuesByPath = { 'responses.testFields.fieldB': 'newVal' };
+        const asyncUpdatedValuesByPath = { 'responses.testFields.fieldC': 'valC' }
+        // The mocked server update will call the execution callback once
+        mockedServerUpdate.mockImplementationOnce(async (_i, _c, _v, _u, execCallback) => {
+            execCallback!(asyncUpdatedValuesByPath);
+            return [updatedValuesByPath, undefined]
+        });
+        // The first update should update with the received values and updated ones
+        const expectedUpdatedValues = {
+            responses: _cloneDeep(interviewAttributes.responses) as any,
+            validations: _cloneDeep(interviewAttributes.validations) as any
+        };
+        expectedUpdatedValues.responses.testFields.fieldB = updatedValuesByPath['responses.testFields.fieldB'];
+        expectedUpdatedValues.responses.testFields.fieldA = valuesByPath['responses.testFields.fieldA'];
+        delete expectedUpdatedValues.responses.accessCode;
+        expectedUpdatedValues.validations = { testFields: { fieldA: valuesByPath['validations.testFields.fieldA'] } };
+        // When the interview will be reloaded, make sure it is with updated responses
+        const reloadedInterview = { ...testAttributes, responses: expectedUpdatedValues.responses, validations: expectedUpdatedValues.validations }
+        mockGetInterviewByUuid.mockResolvedValueOnce(reloadedInterview);
+
+        const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths, deferredUpdateCallback });
+        await TestUtils.flushPromises();
+        registerServerUpdateCallbacks([]);
+        expect(interview).toEqual({
+            interviewId: testAttributes.uuid,
+            serverValidations: true,
+            serverValuesByPath: updatedValuesByPath,
+            redirectUrl: undefined
+        });
+
+        expect(mockedServerValidate).toHaveBeenCalledTimes(2);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
+        expect(mockedServerValidate).toHaveBeenCalledWith(reloadedInterview, undefined, asyncUpdatedValuesByPath, []);
+        // Update should have been called twice, intially and after the execution callback call
+        expect(mockedServerUpdate).toHaveBeenCalledTimes(2);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, updateCallbacks, valuesByPath, unsetPaths, expect.anything());
+        expect(mockedServerUpdate).toHaveBeenCalledWith(reloadedInterview, updateCallbacks, asyncUpdatedValuesByPath, undefined, undefined);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(2);
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+
+        // The second update should update with the received values and updated ones
+        const asyncExpectedUpdatedValues = {
+            responses: _cloneDeep(expectedUpdatedValues.responses) as any,
+            validations: _cloneDeep(expectedUpdatedValues.validations) as any
+        };
+        asyncExpectedUpdatedValues.responses.testFields.fieldC = asyncUpdatedValuesByPath['responses.testFields.fieldC'];
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, asyncExpectedUpdatedValues);
     });
 
     test('With server field updates and redirect URL', async() => {
@@ -412,7 +479,7 @@ describe('Update Interview', () => {
         expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, updateCallbacks, valuesByPath, unsetPaths);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, updateCallbacks, valuesByPath, unsetPaths, undefined);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,

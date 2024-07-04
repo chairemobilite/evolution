@@ -9,6 +9,7 @@
  * user's own survey
  * */
 import express, { Request, Response, Router } from 'express';
+import _get from 'lodash/get';
 import moment from 'moment';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
@@ -99,6 +100,11 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                 const ip = (req as any).clientIp;
                 const timestamp = moment().unix();
 
+                // Get the current session data to send to client, then set to undefined again
+                const session = req.session;
+                const sessionClientPaths = session.clientValues?.updatedPaths;
+                delete session.clientValues;
+
                 const content = req.body;
                 if (!content.valuesByPath || !content.interviewId) {
                     console.log('Missing valuesByPath or unspecified interview ID');
@@ -107,8 +113,11 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                 const valuesByPath = content.valuesByPath || {};
                 const unsetPaths = content.unsetPaths || [];
 
-                if (unsetPaths.length === 0 && Object.keys(valuesByPath).length === 0) {
-                    return res.status(200).json({ status: 'success', interviewId: req.params.interviewUuid });
+                if (unsetPaths.length === 0 && Object.keys(valuesByPath).length === 0 && !sessionClientPaths) {
+                    return res.status(200).json({
+                        status: 'success',
+                        interviewId: req.params.interviewUuid
+                    });
                 }
 
                 const interview = await Interviews.getInterviewByUuid(content.interviewId);
@@ -119,15 +128,68 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                         valuesByPath,
                         unsetPaths,
                         serverValidations: serverConfig.serverValidations,
-                        fieldsToUpdate: ['responses', 'validations']
+                        fieldsToUpdate: ['responses', 'validations'],
+                        deferredUpdateCallback: async (newValuesByPath) => {
+                            // Reload the session as this can be called much later
+                            session.reload((err) => {
+                                if (err !== undefined) {
+                                    console.error(`Error reloading session: ${err}`);
+                                    return;
+                                }
+                                const reloadedSession = req.session;
+
+                                // Save the updated paths in the current user's
+                                // session data for asynchronous update to the
+                                // client. We save the path instead of the whole
+                                // values by path object because the value will
+                                // be fetched directly from the latest version
+                                // of the interview before sending back to the
+                                // client. This avoids outdated values to be
+                                // stored here.
+                                //
+                                // Previous paths may not have been sent yet to
+                                // the client. New ones will be appended. But
+                                // first, make sure the interview id is the same
+                                // as the one is was saved for. It can happen
+                                // for users of the admin app that a session is
+                                // reused for another interview.
+                                const currentSessionValues = reloadedSession.clientValues || {
+                                    interviewId: interview.uuid,
+                                    updatedPaths: []
+                                };
+
+                                const updatedPaths =
+                                    currentSessionValues.interviewId === interview.uuid
+                                        ? currentSessionValues.updatedPaths
+                                        : [];
+                                updatedPaths.push(...Object.keys(newValuesByPath));
+                                reloadedSession.clientValues = {
+                                    interviewId: interview.uuid,
+                                    updatedPaths
+                                };
+                                // Save the session with the updated paths
+                                reloadedSession.save();
+                            });
+                        }
                     });
+                    // Fetch the values to send to the client from the interview
+                    const sessionClientValues =
+                        sessionClientPaths !== undefined
+                            ? sessionClientPaths.reduce((acc, path) => {
+                                acc[path] = _get(interview, path);
+                                return acc;
+                            }, {})
+                            : {};
                     if (retInterview.serverValidations === true) {
                         // TODO See if we can do a `res.redirect`. It does not work with a local server, as the browser gets CORS Missing Allow Origin messages
                         return retInterview.redirectUrl === undefined
                             ? res.status(200).json({
                                 status: 'success',
                                 interviewId: retInterview.interviewId,
-                                updatedValuesByPath: retInterview.serverValuesByPath
+                                updatedValuesByPath: {
+                                    ...sessionClientValues,
+                                    ...retInterview.serverValuesByPath
+                                }
                             })
                             : res.status(200).json({
                                 status: 'redirect',
@@ -138,7 +200,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                         status: 'invalid',
                         interviewId: retInterview.interviewId,
                         messages: retInterview.serverValidations,
-                        updatedValuesByPath: retInterview.serverValuesByPath
+                        updatedValuesByPath: { ...sessionClientValues, ...retInterview.serverValuesByPath }
                     });
                 }
                 return res.status(200).json({ status: 'failed', interviewId: null });
