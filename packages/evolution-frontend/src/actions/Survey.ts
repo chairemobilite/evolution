@@ -190,6 +190,12 @@ const startUpdateInterviewCallback = async (
                         serverAffectedPath[path] = true;
                         _set(updatedInterview, path, body.updatedValuesByPath[path]);
                     }
+                    // Get the section shortname again, it could have been changed by the server
+                    const sectionShortname = surveyHelper.getResponse(
+                        updatedInterview,
+                        '_activeSection',
+                        requestedSectionShortname
+                    ) as string;
                     // Need to update the widget status with server data, there should be no side-effect, so no loop update here
                     serverUpdatedInterview = updateSection(
                         sectionShortname,
@@ -199,6 +205,16 @@ const startUpdateInterviewCallback = async (
                         true,
                         user
                     )[0];
+                    // FIXME When the interview update process is better
+                    // documented and understood, see why we need this, but when
+                    // the section is changed by the server, not doing this
+                    // block results in empty survey rendering.
+                    if (
+                        !serverUpdatedInterview.sectionLoaded ||
+                        serverUpdatedInterview.sectionLoaded !== sectionShortname
+                    ) {
+                        serverUpdatedInterview.sectionLoaded = sectionShortname;
+                    }
                 }
 
                 dispatch(
