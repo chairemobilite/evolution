@@ -54,7 +54,7 @@ type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
 type InputStringTest = (params: PathAndValue & CommonTestParameters) => void;
 type InputRangeTest = (params: { path: Path; value: number; sliderColor?: string } & CommonTestParameters) => void;
 type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestParameters) => void;
-type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => void;
+type InputMapFindPlaceTest = (params: { path: Path, expectMultiple?: boolean } & CommonTestParameters) => void;
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
 type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
 
@@ -458,7 +458,7 @@ export const inputCheckboxTest: InputCheckboxTest = ({ context, path, values }) 
 };
 
 // Test input mapFindPlace widget
-export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) => {
+export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path, expectMultiple = true }) => {
     test(`Find place on map ${path} - ${getTestCounter(context, `${path}`)}`, async () => {
         const newPath = context.objectDetector.replaceWithIds(path);
         // Refresh map result
@@ -466,15 +466,27 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
         await refreshButton.scrollIntoViewIfNeeded();
         await refreshButton.click();
 
-        // Select option from select
-        const select = context.page.locator(`id=survey-question__${newPath}_mapFindPlace`);
-        await select.press('ArrowDown');
-        await select.press('Enter');
+        // Get the main map widget, 4 above the button
+        const inputMap = refreshButton.locator('..').locator('..').locator('..').locator('..');
 
-        // Confirm place
-        const confimButton = context.page.locator(`id=survey-question__${newPath}_confirm`);
-        await expect(confimButton).toBeVisible();
-        await confimButton.click();
+        if (expectMultiple) {
+            // Multiple places, take the first one
+            // Select option from select
+            const select = inputMap.locator(`id=survey-question__${newPath}_mapFindPlace`);
+            await select.press('ArrowDown');
+            await select.press('Enter');
+
+            // Confirm place
+            const confimButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
+            await expect(confimButton).toBeVisible();
+            await confimButton.click();
+        } else {
+            // Single place, wait for the input to have the question-valid class and verify the confirmation text
+            // FIXME This will work only the first time a single choice question is filled, otherwise this class is already there and we won't know if it has been updated or not
+            await expect(inputMap).toHaveClass(/question-valid/)
+            const validateText = inputMap.getByText('Please check that the location is identified correctly');
+            await expect(validateText).toBeVisible();
+        }
     });
 };
 
