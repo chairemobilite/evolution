@@ -612,11 +612,19 @@ export const inputVisibleTest = ({
 /**
  * Test that a text is visible on the page
  *
- * @param { text } string The text to display
+ * @param { path, isVisible = true } - The text to display and whether it should
+ * be visible or not. Note that to check if a text is not visible, previous
+ * tests should make sure the right page is displayed, otherwise the text may
+ * simply not be visible yet but may appear later once the page has finished
+ * refreshing.
  */
-export const waitTextVisible = ({ context, text }: { text: Path } & CommonTestParameters) => {
-    test(`Check text visibility ${text} - ${getTestCounter(context, `${text}`)}`, async () => {
+export const waitTextVisible = ({ context, text, isVisible = true }: { text: Path, isVisible?: boolean } & CommonTestParameters) => {
+    test(`Check text visibility ${text} - ${getTestCounter(context, `${text} - ${isVisible}`)}`, async () => {
         const input = context.page.getByText(text);
-        await expect(input).toBeVisible();
+        if (isVisible) {
+            await expect(input).toBeVisible();
+        } else {
+            await expect(input).not.toBeVisible();
+        }
     });
 };
