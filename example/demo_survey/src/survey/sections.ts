@@ -524,9 +524,7 @@ export default {
         }
         if (tripsPathsToRemove.length > 0)
         {
-          let updateValuePaths = {};
-          let unsetValuePaths  = [];
-          [updateValuePaths, unsetValuePaths] = surveyHelper.removeGroupedObjects(tripsPathsToRemove, interview);
+          const [updateValuePaths, unsetValuePaths] = surveyHelper.removeGroupedObjects(interview, tripsPathsToRemove);
           tripsUpdatesUnsetPaths  = tripsUpdatesUnsetPaths.concat(unsetValuePaths);
           tripsUpdatesValueByPath = Object.assign(tripsUpdatesValueByPath, updateValuePaths);
         }

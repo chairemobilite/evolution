@@ -310,3 +310,74 @@ export const addConsent = (consented: boolean) => ({
     type: 'ADD_CONSENT',
     consented
 });
+
+/**
+ * Redux action to call with a dispatch to add grouped objects to the interview
+ * and optionally update the server.
+ *
+ * @param newObjectsCount The number of new objects to add
+ * @param insertSequence The sequence number to insert the new objects at. To
+ * insert at the end, use a negative number
+ * @param path The path in the interview that contains the object array to which
+ * to add the new objects
+ * @param attributes The attributes to assign to the new objects
+ * @param callback A callback function to call after the interview has been
+ * updated
+ * @param returnOnly If true, the action will return the updated values by path
+ * instead of dispatching the update to the server
+ * @returns The dispatched action
+ */
+export const startAddGroupedObjects = (
+    newObjectsCount: number,
+    insertSequence: number | undefined,
+    path: string,
+    attributes: { [objectField: string]: unknown }[] = [],
+    callback?: (interview: UserFrontendInterviewAttributes) => void,
+    returnOnly = false
+) => {
+    surveyHelper.devLog(`Add ${newObjectsCount} grouped objects for path ${path} at sequence ${insertSequence}`);
+    return (dispatch, getState) => {
+        const interview = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
+        const changedValuesByPath = surveyHelper.addGroupedObjects(
+            interview,
+            newObjectsCount,
+            insertSequence,
+            path,
+            attributes || []
+        );
+        if (returnOnly) {
+            return changedValuesByPath;
+        } else {
+            dispatch(startUpdateInterview(null, changedValuesByPath, undefined, undefined, callback));
+        }
+    };
+};
+
+/**
+ * Redux action to call with a dispatch to remove grouped objects from the
+ * interview and optionally update the server. Sequences of the remaining
+ * objects will be updated to be continuous.
+ *
+ * @param paths An array of paths to the objects to remove.
+ * @param callback A callback function to call after the interview has been
+ * updated
+ * @param returnOnly If true, the action will return the updated values by path
+ * instead of dispatching the update to the server
+ * @returns
+ */
+export const startRemoveGroupedObjects = function (
+    paths: string | string[],
+    callback?: (interview: UserFrontendInterviewAttributes) => void,
+    returnOnly = false
+) {
+    surveyHelper.devLog('Remove grouped objects at paths', paths);
+    return (dispatch, getState) => {
+        const interview = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
+        const [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(interview, paths);
+        if (returnOnly) {
+            return [valuesByPath, unsetPaths];
+        } else {
+            dispatch(startUpdateInterview(null, valuesByPath, unsetPaths, undefined, callback));
+        }
+    };
+};

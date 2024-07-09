@@ -105,70 +105,9 @@ export default {
 
   interpolatePath: Helpers.interpolatePath,
 
-  
+  addGroupedObjects: Helpers.addGroupedObjects,
 
-  addGroupedObjects: function(interview, newObjectsCount, insertSequence, path, attributes = [])
-  {
-    const changedValuesByPath = {};
-    const groupedObjects      = _get(interview.responses, path, {});
-    const groupedObjectsArray = sortBy(Object.values(groupedObjects),['_sequence']);
-    if (LE._isBlank(insertSequence) || insertSequence === -1)
-    {
-      insertSequence = groupedObjectsArray.length + 1;
-    }
-    else {
-      // increment sequences of groupedObjects after the insertSequence:
-      for(let seq = insertSequence, count = groupedObjectsArray.length; seq <= count; seq++)
-      {
-        const groupedObject = groupedObjectsArray[seq - 1];
-        changedValuesByPath[`responses.${path}.${groupedObject._uuid}._sequence`] = seq + newObjectsCount;
-      }
-    }
-    for (let i = 0; i < newObjectsCount; i++)
-    {
-      const uniqueId            = uuidV4();
-      const newSequence         = insertSequence + i;
-      const newObjectAttributes = attributes[i] ? attributes[i] : {};
-      changedValuesByPath[`responses.${path}.${uniqueId}`] = {'_sequence': newSequence, '_uuid': uniqueId, ...newObjectAttributes};
-      changedValuesByPath[`validations.${path}.${uniqueId}`] = {};
-    }
-    return changedValuesByPath;
-  },
-
-  removeGroupedObjects: function(paths, interview)
-  {
-    // allow single path:
-    if (!Array.isArray(paths))
-    {
-      paths = [paths];
-    }
-
-    if (paths.length === 0) {
-        return [{}, []];
-    }
-
-    const unsetPaths   = [];
-    const valuesByPath = {};
-    let pathRemovedCount = 0;
-
-    const groupedObjects        = Helpers.getResponse(interview, paths[0], {}, '../');
-    const groupedObjectsArray   = sortBy(Object.values(groupedObjects),['_sequence']);
-
-    for (let i = 0, count = groupedObjectsArray.length; i < count; i++) {
-        const groupedObject = groupedObjectsArray[i];
-        const groupedObjectPath = Helpers.getPath(paths[0], `../${groupedObject._uuid}`);
-        if (paths.includes(groupedObjectPath)) {
-            unsetPaths.push(`responses.${groupedObjectPath}`);
-            unsetPaths.push(`validations.${groupedObjectPath}`);
-            pathRemovedCount++;
-        } else {
-            if (pathRemovedCount > 0) {
-                valuesByPath['responses.' + groupedObjectPath + '._sequence'] = groupedObject._sequence - pathRemovedCount;
-            }
-        }
-    }
-    return [valuesByPath, unsetPaths];
-  },
+  removeGroupedObjects: Helpers.removeGroupedObjects,
 
   validateButtonAction: function(callbacks, _interview, path, section, sections, saveCallback) {
     callbacks.startUpdateInterview(section, { '_all': true }, null, null, (interview) => {

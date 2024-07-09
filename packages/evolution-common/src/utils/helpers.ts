@@ -6,6 +6,8 @@
  */
 import _get from 'lodash/get';
 import _set from 'lodash/set';
+import { v4 as uuidV4 } from 'uuid';
+import sortBy from 'lodash/sortBy';
 import { i18n, TFunction } from 'i18next';
 import moment from 'moment';
 
@@ -19,6 +21,7 @@ import {
     UserInterviewAttributes,
     VisitedPlace
 } from '../services/interviews/interview';
+import { Uuidable } from '../services/baseObjects/Uuidable';
 
 export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
 
@@ -58,11 +61,25 @@ export type StartUpdateInterview = (
     history?: History
 ) => void;
 
+export type StartAddGroupedObjects = (
+    newObjectsCount: number,
+    insertSequence: number | undefined,
+    path: string,
+    attributes?: { [objectField: string]: unknown }[],
+    callback?: (interview: UserInterviewAttributes) => void,
+    returnOnly?: boolean
+) => any;
+
+export type StartRemoveGroupedObjects = (
+    paths: string | string[],
+    callback?: (interview: UserInterviewAttributes) => void,
+    returnOnly?: boolean
+) => any;
+
 export type InterviewUpdateCallbacks = {
     startUpdateInterview: StartUpdateInterview;
-    // TODO Add and/or type the other callbacks, like addGroupedOjbect, etc, that are still in evolution-legacy
-    startAddGroupedObjects: any;
-    startRemoveGroupedObjects: any;
+    startAddGroupedObjects: StartAddGroupedObjects;
+    startRemoveGroupedObjects: StartRemoveGroupedObjects;
 };
 
 export type ParsingFunctionWithCallbacks<T> = (
@@ -555,4 +572,97 @@ export const surveyEnded = (interview: UserInterviewAttributes) => {
 
 export const interviewOnOrAfter = (date: string, interview: UserInterviewAttributes) => {
     return startDateGreaterEqual(interview.responses._startedAt, date);
+};
+
+/**
+ * Add new grouped objects to the interview at path with the given attributes,
+ * at the given sequence. Note that object sequences are 1-based. So the first
+ * object is at sequence 1.
+ * @param {UserInterviewAttributes} interview The interview object
+ * @param {number} newObjectsCount The number of new objects to add
+ * @param {(number|undefined)} insertSequence The sequence at which to insert
+ * the new objects. Any negative value will add at the end of the array. The
+ * first object is at sequence 1.
+ * @param {string} path Path at which to add the grouped objects. New objects
+ * will be added at the insertSequence position of the existing objects.
+ * @param {Object[]} [attributes=[]] An array of attributes with which to
+ * initialize the objects. Each attributes object in the array will be used to
+ * initialize the new objects at the same position.
+ * @returns {Object} The changed values by path
+ */
+export const addGroupedObjects = (
+    interview: UserInterviewAttributes,
+    newObjectsCount: number,
+    insertSequence: number | undefined,
+    path: string,
+    attributes: { [key: string]: unknown }[] = []
+): { [modifiedValue: string]: unknown } => {
+    const changedValuesByPath = {};
+    const groupedObjects = _get(interview.responses, path, {});
+    const groupedObjectsArray = sortBy(Object.values(groupedObjects), ['_sequence']) as Uuidable[];
+    // Make sure sequence is within bounds:
+    const objStartSequence =
+        typeof insertSequence !== 'number' || insertSequence <= -1
+            ? groupedObjectsArray.length + 1
+            : Math.min(groupedObjectsArray.length + 1, Math.max(1, insertSequence as number));
+
+    // increment sequences of groupedObjects after the insertSequence:
+    for (let seq = objStartSequence, count = groupedObjectsArray.length; seq <= count; seq++) {
+        const groupedObject = groupedObjectsArray[seq - 1];
+        changedValuesByPath[`responses.${path}.${groupedObject._uuid}._sequence`] = seq + newObjectsCount;
+    }
+    for (let i = 0; i < newObjectsCount; i++) {
+        const uniqueId = uuidV4();
+        const newSequence = objStartSequence + i;
+        const newObjectAttributes = attributes[i] ? attributes[i] : {};
+        changedValuesByPath[`responses.${path}.${uniqueId}`] = {
+            _sequence: newSequence,
+            _uuid: uniqueId,
+            ...newObjectAttributes
+        };
+        changedValuesByPath[`validations.${path}.${uniqueId}`] = {};
+    }
+    return changedValuesByPath;
+};
+
+/**
+ * Remove grouped objects from the interview at the given path. The sequences of
+ * the remaining objects will be modified to be continuous.
+ * @param {UserInterviewAttributes} interview The interview object
+ * @param {(string|string[])} paths The paths of the objects to remove
+ * @returns {[Object, string[]]} An array where the first element is the changed
+ * values by path and the second element is the unset paths
+ */
+export const removeGroupedObjects = (
+    interview: UserInterviewAttributes,
+    paths: string | string[]
+): [{ [modifiedPath: string]: unknown }, string[]] => {
+    // allow single path:
+    const removePaths = Array.isArray(paths) ? paths : [paths];
+    if (removePaths.length === 0) {
+        return [{}, []];
+    }
+
+    const unsetPaths: string[] = [];
+    const valuesByPath = {};
+    let pathRemovedCount = 0;
+
+    const groupedObjects = getResponse(interview, removePaths[0], {}, '../') as any;
+    const groupedObjectsArray = sortBy(Object.values(groupedObjects), ['_sequence']) as Uuidable[];
+
+    for (let i = 0, count = groupedObjectsArray.length; i < count; i++) {
+        const groupedObject = groupedObjectsArray[i];
+        const groupedObjectPath = getPath(removePaths[0], `../${groupedObject._uuid}`);
+        if (groupedObjectPath !== null && removePaths.includes(groupedObjectPath)) {
+            unsetPaths.push(`responses.${groupedObjectPath}`);
+            unsetPaths.push(`validations.${groupedObjectPath}`);
+            pathRemovedCount++;
+        } else {
+            if (pathRemovedCount > 0) {
+                valuesByPath['responses.' + groupedObjectPath + '._sequence'] =
+                    ((groupedObject as any)._sequence || i + 1) - pathRemovedCount;
+            }
+        }
+    }
+    return [valuesByPath, unsetPaths];
 };
