@@ -3,25 +3,38 @@ header {
   height: 1.8em;
   border-bottom: 1px solid $black-pale;
 
-
   .header__content {
     font-size: $font-size-small;
     align-items: flex-end;
     display: flex;
     justify-content: space-between;
     padding: $xxs-size;
+
+    // Ensures the title text in the top navigation bar doesn't overflow
     h1 {
       opacity: 0.6;
       margin: 0;
+      width: 100%;
+      max-width: 180px;
       font-size: $font-size-small;
       font-weight: 300;
+      white-space: nowrap; /* Prevents the text from wrapping to the next line */
+      overflow: hidden; /* Hides the overflow text */
+      text-overflow: ellipsis; /* Adds an ellipsis to indicate hidden text */
+
+      // Adjusts on larger screens
+      @media (min-width: 600px) {
+        max-width: 300px; 
+      }
     }
+
     ul {
       padding: 0;
       list-style: none;
       display: flex;
       margin: 0;
     }
+
     li {
       display: flex;
     }
@@ -43,5 +56,8 @@ header {
     z-index: 1000;
   }
 
+  // Hide the user name in the top header
+  #item-nav-user {
+    display: none;
+  }
 }
-
