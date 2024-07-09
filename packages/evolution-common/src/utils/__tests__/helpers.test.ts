@@ -7,6 +7,7 @@
 import each from 'jest-each';
 import i18n from 'i18next';
 import moment from 'moment';
+import { v4 as uuidV4 } from 'uuid';
 import _cloneDeep from 'lodash/cloneDeep';
 import { Person, UserInterviewAttributes } from '../../services/interviews/interview';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
@@ -17,6 +18,7 @@ jest.mock('i18next', () => ({
     t: jest.fn(),
     language: 'en'
 }));
+jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue('arbitrary uuid') }));
 const mockedT = i18n.t as jest.MockedFunction<typeof i18n.t>;
 
 type CustomSurvey = {
@@ -68,7 +70,7 @@ const userAttributes = {
 };
 
 
-const interviewAttributes2: UserInterviewAttributes = {
+const interviewAttributesWithHh: UserInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -173,14 +175,14 @@ test('getPath without relative path', () => {
 });
 
 each([
-    ['section1.q1', 'def', undefined, ((interviewAttributes2.responses as any).section1 as any).q1],
+    ['section1.q1', 'def', undefined, ((interviewAttributesWithHh.responses as any).section1 as any).q1],
     ['section1.q3', 'def', undefined, 'def'],
     ['section1.q3', undefined, undefined, undefined],
-    ['section1.q1', 'def', '../../section2.q1', ((interviewAttributes2.responses as any).section2 as any).q1],
+    ['section1.q1', 'def', '../../section2.q1', ((interviewAttributesWithHh.responses as any).section2 as any).q1],
     ['section1.q1', 'def', 'section2.q1', null],
-    ['section1', 'def', undefined, ((interviewAttributes2.responses as any).section1 as any)],
+    ['section1', 'def', undefined, ((interviewAttributesWithHh.responses as any).section1 as any)],
 ]).test('getResponse: %s %s %s', (path, defaultValue, relativePath, expected) => {
-    expect(Helpers.getResponse(interviewAttributes2, path, defaultValue, relativePath)).toEqual(expected);
+    expect(Helpers.getResponse(interviewAttributesWithHh, path, defaultValue, relativePath)).toEqual(expected);
 });
 
 each([
@@ -190,7 +192,7 @@ each([
     ['section1.q1.sq1', 'def', undefined, 'section1.q1.sq1'],
     ['section1.q1', 'def', 'section2.q1', 'section1.q1', 'abc']
 ]).test('setResponse: %s %s %s', (path, value, relativePath, finalPath, expected = undefined) => {
-    const attributes = _cloneDeep(interviewAttributes2);
+    const attributes = _cloneDeep(interviewAttributesWithHh);
     Helpers.setResponse(attributes, path, value, relativePath);
     expect(Helpers.getResponse(attributes, finalPath)).toEqual(expected === undefined ? value : expected);
 });
@@ -206,7 +208,7 @@ each([
     ['section1', false, null],
     ['section1.q2', undefined, false],
 ]).test('getValidation: %s %s %s', (path, defaultValue, expected) => {
-    expect(Helpers.getValidation(interviewAttributes2, path, defaultValue)).toEqual(expected);
+    expect(Helpers.getValidation(interviewAttributesWithHh, path, defaultValue)).toEqual(expected);
 });
 
 each([
@@ -216,7 +218,7 @@ each([
     ['section1.q1.sq1.other', false, undefined, 'section1.q1.sq1.other'],
     ['section1.q1', false, 'section2.q1', 'section1.q1', true]
 ]).test('setValidation: %s %s %s', (path, value, relativePath, finalPath, expected = undefined) => {
-    const attributes = _cloneDeep(interviewAttributes2);
+    const attributes = _cloneDeep(interviewAttributesWithHh);
     Helpers.setValidation(attributes, path, value, relativePath);
     expect(Helpers.getValidation(attributes, finalPath)).toEqual(expected === undefined ? value : expected);
 });
@@ -233,7 +235,7 @@ each([
 });
 
 each([
-    ['Has Household', interviewAttributes2.responses, interviewAttributes2.responses.household],
+    ['Has Household', interviewAttributesWithHh.responses, interviewAttributesWithHh.responses.household],
     ['Empty responses', {}, {}]
 ]).test('getHousehold: %s', (_title, responses, expected) => {
     const interview = _cloneDeep(interviewAttributes);
@@ -242,14 +244,14 @@ each([
 });
 
 each([
-    ['Person 1', interviewAttributes2.responses, 'personId1', (interviewAttributes2.responses as any).household.persons.personId1],
-    ['Person 2', interviewAttributes2.responses, 'personId2', (interviewAttributes2.responses as any).household.persons.personId2],
-    ['Undefined active person', interviewAttributes2.responses, undefined, (interviewAttributes2.responses as any).household.persons.personId1],
-    ['Empty persons', { household: { ...interviewAttributes2.responses.household, persons: {} } }, 'personId1', {}],
+    ['Person 1', interviewAttributesWithHh.responses, 'personId1', (interviewAttributesWithHh.responses as any).household.persons.personId1],
+    ['Person 2', interviewAttributesWithHh.responses, 'personId2', (interviewAttributesWithHh.responses as any).household.persons.personId2],
+    ['Undefined active person', interviewAttributesWithHh.responses, undefined, (interviewAttributesWithHh.responses as any).household.persons.personId1],
+    ['Empty persons', { household: { ...interviewAttributesWithHh.responses.household, persons: {} } }, 'personId1', {}],
     ['Empty household', { household: {} }, undefined, {}],
     ['Empty responses', {}, 'personId', {}]
 ]).test('getCurrentPerson: %s', (_title, responses, currentPersonId, expected) => {
-    const interview = _cloneDeep(interviewAttributes2);
+    const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
     interview.responses._activePersonId = currentPersonId;
     expect(Helpers.getCurrentPerson(interview)).toEqual(expected);
@@ -425,7 +427,7 @@ describe('getPersons', () => {
     });
 
     test('with persons', () => {
-        expect(Helpers.getPersons(interviewAttributes2)).toEqual((interviewAttributes2.responses as any).household.persons);
+        expect(Helpers.getPersons(interviewAttributesWithHh)).toEqual((interviewAttributesWithHh.responses as any).household.persons);
     });
 
     test('array: test without household', () => {
@@ -445,11 +447,11 @@ describe('getPersons', () => {
     });
 
     test('array: with persons, unordered', () => {
-        expect(Helpers.getPersonsArray(interviewAttributes2)).toEqual(Object.values((interviewAttributes2.responses as any).household.persons));
+        expect(Helpers.getPersonsArray(interviewAttributesWithHh)).toEqual(Object.values((interviewAttributesWithHh.responses as any).household.persons));
     });
 
     test('array: with persons, ordered', () => {
-        const attributes = _cloneDeep(interviewAttributes2) as any;
+        const attributes = _cloneDeep(interviewAttributesWithHh) as any;
         attributes.responses.household.persons.personId1._sequence = 2;
         attributes.responses.household.persons.personId2._sequence = 1;
         expect(Helpers.getPersonsArray(attributes)).toEqual([attributes.responses.household.persons.personId2, attributes.responses.household.persons.personId1]);
@@ -699,4 +701,175 @@ each([
     const interview = _cloneDeep(interviewAttributes);
     interview.responses._startedAt = surveyStart;
     expect(Helpers.interviewOnOrAfter(dateCompare, interview)).toEqual(expected);
+});
+
+describe('Group functions', () => {
+    each([
+        ['one object at the end', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, -1, [], {
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { } 
+        }],
+        ['0 objects', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 0, -1, [], { }],
+        ['one object at sequence', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, 2, [], {
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 3,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { }
+        }],
+        ['one object at sequence 0, should be 1', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, 0, [], {
+            'responses.household.persons.personId1.visitedPlaces.obj1._sequence': 2,
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 3,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 1 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { }
+        }],
+        ['one object at sequence too large', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, 5, [], {
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { }
+        }],
+        ['2 objects, no previous objects', {}, 2, undefined, [], {
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 1 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 2 },
+            'validations.household.persons.personId1.visitedPlaces.newObj1': { } 
+        }],
+        ['3 objects, at sequence 2', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 3, 2, [], {
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 5,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3 },
+            'validations.household.persons.personId1.visitedPlaces.newObj1': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4 },
+            'validations.household.persons.personId1.visitedPlaces.newObj2': { }
+        }],
+        ['with attributes, same count',  {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 3, 2, [{ myVal: 'first' }, { myVal: 'second', other: 'test' }, { myVal: 'third' }], {
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 5,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2, myVal: 'first' },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3, myVal: 'second', other: 'test' },
+            'validations.household.persons.personId1.visitedPlaces.newObj1': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4, myVal: 'third' },
+            'validations.household.persons.personId1.visitedPlaces.newObj2': { }
+        }],
+        ['with attributes, unequal count',  {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 3, 2, [{ myVal: 'first' }, { myVal: 'second', other: 'test' }], {
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 5,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2, myVal: 'first' },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3, myVal: 'second', other: 'test' },
+            'validations.household.persons.personId1.visitedPlaces.newObj1': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4 },
+            'validations.household.persons.personId1.visitedPlaces.newObj2': { }
+        }],
+        ['negative object count', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, -1, -1, [], { }],
+        ['negative, but not -1, sequence', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, -2, [], {
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { } 
+        }]
+    ]).test('add grouped objects: %s', (_title, previousObj, count, seq, attributes, expected) => {
+        // Mock the uuid return value
+        for (let i = 0; i < count; i++) {
+            (uuidV4 as jest.Mock).mockReturnValueOnce(`newObj${i}`);
+        }
+        const basePath = 'household.persons.personId1.visitedPlaces';
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        interview.responses.household!.persons.personId1.visitedPlaces = previousObj;
+        expect(Helpers.addGroupedObjects(interview, count, seq, basePath, attributes)).toEqual(expected);
+    });
+
+    each([
+        ['single object to remove at the end', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 'obj2', {}, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2'
+        ]],
+        ['multiple objects to remove at the end', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2},
+            obj3: { _uuid: 'obj3', _sequence: 3}
+        }, ['obj2', 'obj3'], {}, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2',
+            'responses.household.persons.personId1.visitedPlaces.obj3',
+            'validations.household.persons.personId1.visitedPlaces.obj3'
+        ]],
+        ['single object to remove in the middle', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2},
+            obj3: { _uuid: 'obj3', _sequence: 3}
+        }, 'obj2', {
+            'responses.household.persons.personId1.visitedPlaces.obj3._sequence': 2
+        }, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2'
+        ]],
+        ['multiple objects to remove at various location', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2},
+            obj3: { _uuid: 'obj3', _sequence: 3},
+            obj4: { _uuid: 'obj4', _sequence: 4},
+            obj5: { _uuid: 'obj5', _sequence: 5}
+        }, ['obj2', 'obj4'], {
+            'responses.household.persons.personId1.visitedPlaces.obj3._sequence': 2,
+            'responses.household.persons.personId1.visitedPlaces.obj5._sequence': 3
+        }, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2',
+            'responses.household.persons.personId1.visitedPlaces.obj4',
+            'validations.household.persons.personId1.visitedPlaces.obj4'
+        ]],
+        ['unexisting objects', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 'objnone', {}, []],
+        ['no path to remove', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, [], {}, []],
+        ['No sequence in previous object data', {
+            obj1: { _uuid: 'obj1'},
+            obj2: { _uuid: 'obj2'},
+            obj3: { _uuid: 'obj3'}
+        }, ['obj2'], {
+            'responses.household.persons.personId1.visitedPlaces.obj3._sequence': 2
+        }, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2'
+        ]]
+    ]).test('remove grouped objects: %s', (_title, previousObj, paths, expectedByPath, expectedUnset) => {
+        const basePath = 'household.persons.personId1.visitedPlaces';
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        const completePaths = typeof paths === 'string' ? `${basePath}.${paths}` : paths.map(path => `${basePath}.${path}`);
+        interview.responses.household!.persons.personId1.visitedPlaces = previousObj;
+        expect(Helpers.removeGroupedObjects(interview, completePaths)).toEqual([expectedByPath, expectedUnset]);
+    });
 });

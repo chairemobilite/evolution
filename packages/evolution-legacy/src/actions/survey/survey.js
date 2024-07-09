@@ -34,7 +34,13 @@ import surveyHelper                                     from '../../helpers/surv
 import * as surveyHelperNew                             from 'evolution-common/lib/utils/helpers';
 import { incrementLoadingState, decrementLoadingState } from '../shared/loadingState.js';
 import config                                           from 'chaire-lib-common/lib/config/shared/project.config';
-import { updateSection as updateSectionTs, startUpdateInterview as startUpdateInterviewTs, updateInterview as updateInterviewTs } from 'evolution-frontend/lib/actions/Survey';
+import { 
+    updateSection as updateSectionTs,
+    startUpdateInterview as startUpdateInterviewTs,
+    updateInterview as updateInterviewTs,
+    startAddGroupedObjects as startAddGroupedObjectsTs,
+    startRemoveGroupedObjects as startRemoveGroupedObjectsTs
+} from 'evolution-frontend/lib/actions/Survey';
 import { handleHttpOtherResponseCode } from 'evolution-frontend/lib/services/errorManagement/errorHandling';
 
 //export const setInterview = (interview) => ({
@@ -47,6 +53,8 @@ import { handleHttpOtherResponseCode } from 'evolution-frontend/lib/services/err
 export const updateSection = updateSectionTs;
 export const startUpdateInterview = startUpdateInterviewTs;
 export const updateInterview = updateInterviewTs;
+export const startAddGroupedObjects = startAddGroupedObjectsTs;
+export const startRemoveGroupedObjects = startRemoveGroupedObjectsTs;
 
 /**
  * Fetch an interview from server and set it for edition in validation mode.
@@ -539,40 +547,6 @@ export const startUpdateValidateInterview = function(sectionShortname, valuesByP
   };
 };
 
-export const startAddGroupedObjects = (newObjectsCount, insertSequence, path, attributes = [], callback, returnOnly = false) => {
-  surveyHelperNew.devLog(`Add ${newObjectsCount} grouped objects for path ${path} at sequence ${insertSequence}`);
-  return (dispatch, getState) => {
-    const interview           = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
-    const changedValuesByPath = surveyHelper.addGroupedObjects(interview, newObjectsCount, insertSequence, path, attributes || []);
-    if (returnOnly)
-    {
-      return changedValuesByPath;
-    }
-    else
-    {
-      dispatch(startUpdateInterview(null, changedValuesByPath, null, null, callback));
-    }
-  };
-};
-
-export const startRemoveGroupedObjects = function(paths, callback, returnOnly = false) {
-  surveyHelperNew.devLog(`Remove grouped objects at paths`, paths);
-  return (dispatch, getState) => {
-    const interview    = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
-    let   unsetPaths   = [];
-    let   valuesByPath = {};
-    [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(paths, interview);
-    if (returnOnly)
-    {
-      return [valuesByPath, unsetPaths];
-    }
-    else
-    {
-      dispatch(startUpdateInterview(null, valuesByPath, unsetPaths, null, callback));
-    }
-  };
-};
-
 export const startValidateAddGroupedObjects = (newObjectsCount, insertSequence, path, attributes = [], callback, returnOnly = false) => {
   surveyHelperNew.devLog(`Add ${newObjectsCount} grouped objects for path ${path} at sequence ${insertSequence}`);
   return (dispatch, getState) => {
@@ -595,7 +569,7 @@ export const startSurveyValidateRemoveGroupedObjects = function(paths, callback,
     const interview    = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
     let   unsetPaths   = [];
     let   valuesByPath = {};
-    [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(paths, interview);
+    [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(interview, paths);
     if (returnOnly)
     {
       return [valuesByPath, unsetPaths];
@@ -629,7 +603,7 @@ export const startValidateRemoveGroupedObjects = function(paths, callback, retur
     const interview    = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
     let   unsetPaths   = [];
     let   valuesByPath = {};
-    [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(paths, interview);
+    [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(interview, paths);
     if (returnOnly)
     {
       return [valuesByPath, unsetPaths];
