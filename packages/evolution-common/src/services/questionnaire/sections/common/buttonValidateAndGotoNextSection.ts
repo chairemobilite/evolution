@@ -17,7 +17,7 @@ import { ButtonAction } from '../../types';
  * translatable string key, automatically, its custom version in the
  * customSurvey namespace will be added to the call
  * @param options
- * @returns
+ * @returns {ButtonWidgetConfig} The configuration object for the button widget.
  */
 export const getButtonValidateAndGotoNextSection = (
     translatableLabel: string,

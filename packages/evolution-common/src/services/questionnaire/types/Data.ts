@@ -78,6 +78,12 @@ type SurveyPointProperties = {
     lastAction: 'findPlace' | 'shortcut' | 'mapClicked' | 'markerDragged';
 };
 
+/**
+ * @typedef {Object} Person
+ * @property {number} _sequence The sequence number of the person.
+ * @property {string} whoWillAnswerForThisPerson UUID of the person who responds for this person.
+ * @property {{ [journeyId: string]: Journey }} [journeys] The journeys associated with this person.
+ */
 export type Person = PersonAttributes & {
     _sequence: number;
     /** uuid of the person who responds for this person (for household where more than 1 person have more than the minimum self response age) */
@@ -87,6 +93,13 @@ export type Person = PersonAttributes & {
     };
 };
 
+/**
+ * @typedef {Object} Journey
+ * @property {number} _sequence The sequence number of the journey.
+ * @property {string} [departurePlaceType] The type of the departure place.
+ * @property {{ [tripId: string]: Trip }} [trips] The trips associated with this journey.
+ * @property {{ [visitedPlaceId: string]: VisitedPlace }} [visitedPlaces] The visited places associated with this journey.
+ */
 export type Journey = JourneyAttributes & {
     _sequence: number;
     departurePlaceType?: string;

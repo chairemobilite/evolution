@@ -20,7 +20,7 @@ import {
  * @param options The options to use when converting the line to a bezier curve
  * @param { number } options.superposedSequence The superposed sequence to use when converting the line to a bezier curve. The higher this number, the wider will be the curve
  * @param { object } options.additionalProperties The additional properties to add to the bezier curve feature
- * @returns
+ * @returns {GeoJSON.Feature<GeoJSON.LineString>} A GeoJSON LineString feature representing the bezier curve.
  */
 export const pointsToBezierCurve = (
     points: GeoJSON.Point[],

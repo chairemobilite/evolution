@@ -18,7 +18,8 @@
     "test:ui": "echo 'no tests to run for this workspace'",
     "lint": "eslint .",
     "format": "prettier-eslint ./src/**/*.{ts,tsx} --write",
-    "format:all": "yarn format"
+    "format:all": "yarn format",
+    "jsdoc": "jsdoc -c jsdoc.json"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.1",

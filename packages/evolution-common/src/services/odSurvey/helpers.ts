@@ -37,7 +37,7 @@ import { loopActivities } from './types';
  * @param {UserInterviewAttributes} options.interview - The interview object.
  * @param {string|null} [options.personId=null] - The ID of the person to
  * retrieve. If not specified, the currently active person will be returned.
- * @returns
+ * @returns {Person | null} The person object with the specified ID or the active person, or `null` if not found.
  */
 export const getPerson = ({
     interview,
@@ -60,7 +60,7 @@ export const getPerson = ({
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns The household object
+ * @returns {Partial<Household>} The household object or an empty object if not initialized.
  */
 export const getHousehold = ({ interview }: { interview: UserInterviewAttributes }): Partial<Household> => {
     return interview.responses.household || {};
@@ -73,7 +73,7 @@ export const getHousehold = ({ interview }: { interview: UserInterviewAttributes
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns The current person object or `null` if the person is not found
+ * @returns {Person | null} The active person object or `null` if not found.
  */
 export const getActivePerson = ({ interview }: { interview: UserInterviewAttributes }): Person | null => {
     const currentPerson = interview.responses._activePersonId;
@@ -88,12 +88,17 @@ export const getActivePerson = ({ interview }: { interview: UserInterviewAttribu
 };
 
 /**
+ * @typedef {Object.<string, Person>} PersonsObject
+ * An object where the keys are person IDs and the values are Person objects.
+ */
+
+/**
  * Get the persons object in the interview responses, or an empty object if
- * there are no persons in the survey
+ * there are no persons in the survey.
  *
  * @param {Object} options - The options object.
- * @param {UserInterviewAttributes} options.interview
- * @returns
+ * @param {UserInterviewAttributes} options.interview The interview object.
+ * @returns {PersonsObject} The persons object or an empty object if no persons exist.
  */
 export const getPersons = ({ interview }: { interview: UserInterviewAttributes }): { [personId: string]: Person } => {
     return (interview.responses.household || {}).persons || {};
@@ -105,7 +110,7 @@ export const getPersons = ({ interview }: { interview: UserInterviewAttributes }
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns {Person[]}
+ * @returns {Person[]} The array of persons sorted by sequence, or an empty array if no persons exist.
  */
 export const getPersonsArray = ({ interview }: { interview: UserInterviewAttributes }): Person[] => {
     const persons = getPersons({ interview });
@@ -122,7 +127,7 @@ export const getPersonsArray = ({ interview }: { interview: UserInterviewAttribu
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns {Person[]}
+ * @returns {Person[]} The array of interviewable persons sorted by sequence, or an empty array if none exist.
  */
 export const getInterviewablePersonsArray = ({ interview }: { interview: UserInterviewAttributes }): Person[] => {
     const persons = getPersons({ interview });
@@ -139,7 +144,7 @@ export const getInterviewablePersonsArray = ({ interview }: { interview: UserInt
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns The number of persons in the household
+ * @returns {number} The number of persons in the household.
  */
 export const countPersons = ({ interview }: { interview: UserInterviewAttributes }): number => {
     const personIds = getResponse(interview, 'household.persons', {}) as { [personId: string]: Person };
@@ -154,7 +159,7 @@ export const countPersons = ({ interview }: { interview: UserInterviewAttributes
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} optins.interview The interview object
  * @param {Person} options.person The person to check
- * @returns `true` if the person is self-declared, `false` otherwise
+ * @returns {boolean} `true` if the person is self-declared, `false` otherwise.
  */
 export const isSelfDeclared = ({
     interview,
@@ -179,6 +184,7 @@ export const isSelfDeclared = ({
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview
  * @param {Person} options.person The current person being interviews
+ * @returns {number} The number of persons in the household or 1 if the person is self-declared.
  */
 export const getCountOrSelfDeclared = ({
     interview,
@@ -199,7 +205,7 @@ export const getCountOrSelfDeclared = ({
  *
  * @param {Object} options - The options object.
  * @param {Person} options.person The current person being interviews
- * @returns `true` if the person may have a disability, `false` otherwise
+ * @returns {boolean} `true` if the person may have a disability, `false` otherwise.
  */
 export const personMayHaveDisability = ({ person }: { person: Person }): boolean =>
     // FIXME Do we want undefined to return `true`? ie surveys without this question everyone potentially disabled
@@ -210,7 +216,7 @@ export const personMayHaveDisability = ({ person }: { person: Person }): boolean
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns `true` if anyone in the household may have disabilities
+ * @returns {boolean} `true` if anyone in the household may have disabilities, `false` otherwise.
  */
 export const householdMayHaveDisability = ({ interview }: { interview: UserInterviewAttributes }): boolean =>
     getPersonsArray({ interview }).some((person) => personMayHaveDisability({ person }));
@@ -225,7 +231,7 @@ export const householdMayHaveDisability = ({ interview }: { interview: UserInter
  * @param {UserInterviewAttributes} options.interview The participant interview
  * @param {Person|null} [options.person=null] The person for which to get the
  * active journey.  If null, the active person will be used.
- * @returns
+ * @returns {Journey | null} The active journey for the person, or `null` if not found.
  */
 export const getActiveJourney = ({
     interview,
@@ -244,12 +250,16 @@ export const getActiveJourney = ({
 };
 
 /**
- * Get the journeys for a person
+ * @typedef {Object.<string, Journey>} JourneysObject
+ * An object where the keys are journey IDs and the values are Journey objects.
+ */
+
+/**
+ * Get the journeys for a person.
  *
  * @param {Object} options - The options object.
- * @param {Person} options.person The person for which to get the journeys
- * @returns {Object} The journeys object, with they key being the journey ID, or
- * an empty object if there are no journeys for this person
+ * @param {Person} options.person The person for which to get the journeys.
+ * @returns {JourneysObject} The journeys object or an empty object if no journeys exist.
  */
 export const getJourneys = function ({ person }: { person: Person }): { [journeyId: string]: Journey } {
     return person.journeys || {};
@@ -261,7 +271,7 @@ export const getJourneys = function ({ person }: { person: Person }): { [journey
  *
  * @param {Object} options - The options object.
  * @param {Person} options.person The person for whom to get the journeys
- * @returns {Journey[]} The journeys, sorted by sequence
+ * @returns {Journey[]} The array of journeys sorted by sequence, or an empty array if no journeys exist.
  */
 export const getJourneysArray = function ({ person }: { person: Person }): Journey[] {
     const journeys = getJourneys({ person });
@@ -271,6 +281,11 @@ export const getJourneysArray = function ({ person }: { person: Person }): Journ
 // *** Trip-related functions
 
 /**
+ * @typedef {Object.<string, Trip>} TripsObject
+ * An object where the keys are trip IDs and the values are Trip objects.
+ */
+
+/**
  * Get the active trip for a journey, or null if there is no active trip, or if
  * the active trip is not part of the journey
  *
@@ -278,7 +293,7 @@ export const getJourneysArray = function ({ person }: { person: Person }): Journ
  * @param {UserInterviewAttributes} options.interview The participant interview
  * @param {Journey|null} [options.journey=null] The journey for which to get the
  * active interview.  If null, the active journey will be used.
- * @returns {Trip|null} The active trip, or `null` if there is no active trip.
+ * @returns {Trip | null} The active trip for the journey, or `null` if not found.
  */
 export const getActiveTrip = ({
     interview,
@@ -297,12 +312,11 @@ export const getActiveTrip = ({
 };
 
 /**
- * Get the trips from a journey
+ * Get the trips from a journey.
  *
  * @param {Object} options - The options object.
- * @param {Journey} options.journey The journey for which to get the trips
- * @returns {Object} The trips object, with they key being the trip ID, or an
- * empty object if there are no trips in this journey
+ * @param {Journey} options.journey The journey for which to get the trips.
+ * @returns {TripsObject} The trips object or an empty object if no trips exist.
  */
 export const getTrips = function ({ journey }: { journey: Journey }): { [tripId: string]: Trip } {
     return journey.trips || {};
@@ -314,7 +328,7 @@ export const getTrips = function ({ journey }: { journey: Journey }): { [tripId:
  *
  * @param {Object} options - The options object.
  * @param {Journey} options.journey The journey for which to get the trips
- * @returns {Journey[]} The trips, sorted by sequence
+ * @returns {Trip[]} The array of trips sorted by sequence, or an empty array if no trips exist.
  */
 export const getTripsArray = function ({ journey }: { journey: Journey }): Trip[] {
     const trips = getTrips({ journey });
@@ -328,7 +342,7 @@ export const getTripsArray = function ({ journey }: { journey: Journey }): Trip[
  * @param {Trip} options.currentTrip The current trip, of which to get the
  * previous trip
  * @param {Journey} options.journey The journey for which to get the trips
- * @returns {Trip|null} The previous trips, or `null` if the trip is the first
+ * @returns {Trip | null} The previous trip in the journey, or `null` if the current trip is the first.
  */
 export const getPreviousTrip = ({ currentTrip, journey }: { currentTrip: Trip; journey: Journey }): Trip | null => {
     const trips = getTripsArray({ journey });
@@ -342,8 +356,7 @@ export const getPreviousTrip = ({ currentTrip, journey }: { currentTrip: Trip; j
  * @param {Object} options - The options object.
  * @param {Journey} options.journey The journey for which to get the next
  * incomplete trips
- * @returns {Trip|null} The next incomplete trips, or `null` if all trips have
- * been completed
+ * @returns {Trip | null} The next incomplete trip in the journey, or `null` if all trips are complete.
  */
 export const selectNextIncompleteTrip = ({ journey }: { journey: Journey }): Trip | null => {
     const trips = getTripsArray({ journey });
@@ -385,7 +398,7 @@ export const selectNextIncompleteTrip = ({ journey }: { journey: Journey }): Tri
  * @param {Object} options - The options object.
  * @param {Trip} options.trip The trip for which to get the origin visited place
  * @param {Object} options.visitedPlaces The object containing all visited places, keyed by ID
- * @returns The origin visited place, or `null` if the place does not exist
+ * @returns {VisitedPlace | null} The origin visited place of the trip, or `null` if not found.
  */
 export const getOrigin = function ({
     trip,
@@ -405,7 +418,7 @@ export const getOrigin = function ({
  * place
  * @param {Object} options.visitedPlaces The object containing all visited
  * places, keyed by ID
- * @returns The destination visited place, or `null` if the place does not exist
+ * @returns {VisitedPlace | null} The destination visited place of the trip, or `null` if not found.
  */
 export const getDestination = function ({
     trip,
@@ -420,12 +433,17 @@ export const getDestination = function ({
 // *** Visited place-related functions
 
 /**
+ * @typedef {Object.<string, VisitedPlace>} VisitedPlacesObject
+ * An object where the keys are visited place IDs and the values are VisitedPlace objects.
+ */
+
+/**
  * Get the visited places object for a journey, or an empty object if there are
  * no visited places for this journey.
  *
  * @param {Object} options - The options object.
- * @param {Journey} options.journey The journey containing the visited places
- * @returns
+ * @param {Journey} options.journey The journey containing the visited places.
+ * @returns {VisitedPlacesObject} The visited places object or an empty object if none exist.
  */
 export const getVisitedPlaces = ({ journey }: { journey: Journey }): { [visitedPlaceId: string]: VisitedPlace } => {
     return journey.visitedPlaces || {};
@@ -438,7 +456,7 @@ export const getVisitedPlaces = ({ journey }: { journey: Journey }): { [visitedP
  * @param {Object} options - The options object.
  * @param {Journey} options.journey The journey for which to get the visited
  * places
- * @returns {VisitedPlace[]} The visited places, sorted by sequence
+ * @returns {VisitedPlace[]} The array of visited places sorted by sequence, or an empty array if none exist.
  */
 export const getVisitedPlacesArray = function ({ journey }: { journey: Journey }): VisitedPlace[] {
     const visitedPlaces = getVisitedPlaces({ journey });
@@ -455,8 +473,7 @@ export const getVisitedPlacesArray = function ({ journey }: { journey: Journey }
  * @param {UserInterviewAttributes} options.interview The participant interview
  * @param {Journey|null} [options.journey=null] The journey for which to get the
  * active visited place.  If null, the active journey will be used.
- * @returns {Trip|null} The active visited place, or `null` if there is no
- * active visited place.
+ * @returns {VisitedPlace | null} The active visited place for the journey, or `null` if not found.
  */
 export const getActiveVisitedPlace = ({
     interview,
@@ -545,7 +562,7 @@ export const replaceVisitedPlaceShortcuts = ({
  * @param {VisitedPlace} options.visitedPlace The visited place for which to get
  * the name
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns {string} The visited place name
+ * @returns {string} The visited place name or a generic name followed by its sequence.
  */
 export const getVisitedPlaceName = function ({
     t,
@@ -580,8 +597,7 @@ export const getVisitedPlaceName = function ({
  * the geography
  * @param {UserInterviewAttributes} options.interview The interview object
  * @param {UserInterviewAttributes} options.person The person object
- * @returns {GeoJSON.Feature<GeoJSON.Point> | null} The visited place geography,
- * or `null` if it does not exist
+ * @returns {GeoJSON.Feature<GeoJSON.Point> | null} The visited place geography, or `null` if not found.
  */
 export const getVisitedPlaceGeography = function ({
     visitedPlace,
@@ -620,8 +636,7 @@ export const getVisitedPlaceGeography = function ({
  * @param {Journey} options.journey The journey the visited place is part of
  * @param {string} options.visitedPlaceId The ID of the visited place from which
  * we want the next place id
- * @returns {VisitedPlace | null} The next visited place, or `null` if there is
- * no visited place after
+ * @returns {VisitedPlace | null} The next visited place in the journey, or `null` if none exist.
  */
 export const getNextVisitedPlace = function ({
     journey,
@@ -646,8 +661,7 @@ export const getNextVisitedPlace = function ({
  * @param {Journey} options.journey The journey the visited place is part of
  * @param {string} options.visitedPlaceId The ID of the visited place from which
  * we want the previous place id
- * @returns {VisitedPlace | null} The previous visited place, or `null` if the
- * visited place is the first one
+ * @returns {VisitedPlace | null} The previous visited place in the journey, or `null` if none exist.
  */
 export const getPreviousVisitedPlace = function ({
     journey,
@@ -668,12 +682,17 @@ export const getPreviousVisitedPlace = function ({
 // *** Segments-related functions
 
 /**
+ * @typedef {Object.<string, Segment>} SegmentsObject
+ * An object where the keys are segment IDs and the values are Segment objects.
+ */
+
+/**
  * Get the segments object for a trip, or an empty object if there are no
  * segments for this trip.
  *
  * @param {Object} options - The options object.
- * @param {Trip} options.trip The trip for which to get the segments
- * @returns {Object} The segments object, with they key being the segment ID
+ * @param {Trip} options.trip The trip for which to get the segments.
+ * @returns {SegmentsObject} The segments object or an empty object if no segments exist.
  */
 export const getSegments = ({ trip }: { trip: Trip }): { [segmentId: string]: Segment } => {
     return trip.segments || {};
@@ -685,7 +704,7 @@ export const getSegments = ({ trip }: { trip: Trip }): { [segmentId: string]: Se
  *
  * @param {Object} options - The options object.
  * @param {Trip} options.trip The trip for which to get the segments
- * @returns {Segment[]} The segments, sorted by sequence
+ * @returns {Segment[]} The array of segments sorted by sequence, or an empty array if no segments exist.
  */
 export const getSegmentsArray = ({ trip }: { trip: Trip }): Segment[] => {
     const segments = getSegments({ trip });

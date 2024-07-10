@@ -45,7 +45,8 @@
         "format:all": "yarn format && yarn format:python",
         "generate-migration": "knex migrate:make",
         "reset-submodules": "rimraf transition/ && git submodule init && git submodule update",
-        "generateSurvey:example": "yarn workspace evolution-generator run generateSurvey --config_path src/examples/generatorExampleConfigs.yaml"
+        "generateSurvey:example": "yarn workspace evolution-generator run generateSurvey --config_path src/examples/generatorExampleConfigs.yaml",
+        "jsdoc": "yarn workspace evolution-common run jsdoc"
     },
     "dependencies": {},
     "devDependencies": {
