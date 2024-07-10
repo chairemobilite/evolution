@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { WithTranslation, withTranslation } from 'react-i18next';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import GeoJSON from 'geojson';
 import bowser from 'bowser';
@@ -53,12 +54,30 @@ const callWithBounds = (
     );
 };
 
-const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props: InputGoogleMapPointProps) => {
-    const { isLoaded } = useJsApiLoader({
+// The google map configuration needs to be global as the loading of the API
+// takes place once for the whole survey and the configuration cannot change,
+// even between sections, otherwise it throws an exception.
+let currentGoogleMapConfig: Parameters<typeof useJsApiLoader>[0] | undefined = undefined;
+const getCurrentGoogleMapConfig = (language = projectConfig.defaultLocale): Parameters<typeof useJsApiLoader>[0] => {
+    if (currentGoogleMapConfig) {
+        return currentGoogleMapConfig;
+    }
+    currentGoogleMapConfig = {
         region: projectConfig.region,
-        language: projectConfig.defaultLocale,
+        language: language,
         ...googleConfig
-    });
+    };
+    return currentGoogleMapConfig;
+};
+
+const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTranslation> = (
+    props: InputGoogleMapPointProps & WithTranslation
+) => {
+    // Set the google map config once, as it cannot be changed after it is
+    // loaded (for language change for example). see
+    // https://stackoverflow.com/questions/7065420/how-can-i-change-the-language-of-google-maps-on-the-run
+    const googleMapConfig = React.useMemo(() => getCurrentGoogleMapConfig(props.i18n.language), []);
+    const { isLoaded } = useJsApiLoader(googleMapConfig);
 
     const [map, setMap] = React.useState<google.maps.Map | null>(null);
     const [center, setCenter] = React.useState<{ lat: number; lng: number } | google.maps.LatLng>({
@@ -227,4 +246,4 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props
     );
 };
 
-export default InputMapGoogle;
+export default withTranslation()(InputMapGoogle);
