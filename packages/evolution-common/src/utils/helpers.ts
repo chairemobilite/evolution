@@ -231,7 +231,7 @@ export const getPath = function (path: string | null | undefined, relativePath?:
  *
  * @param value The value to parse
  * @param datatype The type of data
- * @returns
+ * @returns The parsed value converted to the specified data type, or the original value if no conversion is applied.
  */
 export const parseValue = function (
     value: any,
@@ -467,12 +467,24 @@ const startDateGreaterEqual = (startDate: number | undefined, compare: string | 
     return null;
 };
 
-export const surveyStarted = (interview: UserInterviewAttributes) => {
+/**
+ * Check if the survey has started based on the interview start date and the configured survey start date.
+ *
+ * @param {UserInterviewAttributes} interview The interview object.
+ * @returns {boolean} `true` if the survey has started, `false` otherwise.
+ */
+export const surveyStarted = (interview: UserInterviewAttributes): boolean => {
     const isSurveyStarted = startDateGreaterEqual(interview.responses._startedAt, config.surveyStart);
     return isSurveyStarted === null ? true : isSurveyStarted;
 };
 
-export const surveyEnded = (interview: UserInterviewAttributes) => {
+/**
+ * Check if the survey has ended based on the interview start date and the configured survey end date.
+ *
+ * @param {UserInterviewAttributes} interview The interview object.
+ * @returns {boolean} `true` if the survey has ended, `false` otherwise.
+ */
+export const surveyEnded = (interview: UserInterviewAttributes): boolean => {
     const isSurveyEnded = startDateGreaterEqual(interview.responses._startedAt, config.surveyEnd);
     return isSurveyEnded === null ? true : isSurveyEnded;
 };
@@ -480,6 +492,12 @@ export const surveyEnded = (interview: UserInterviewAttributes) => {
 export const interviewOnOrAfter = (date: string, interview: UserInterviewAttributes) => {
     return startDateGreaterEqual(interview.responses._startedAt, date);
 };
+
+/**
+ * @typedef {Object} GroupedObjectsResult
+ * @property {Object} changedValuesByPath The changed values by path.
+ * @property {string[]} unsetPaths The unset paths.
+ */
 
 /**
  * Add new grouped objects to the interview at path with the given attributes,
@@ -537,8 +555,7 @@ export const addGroupedObjects = (
  * the remaining objects will be modified to be continuous.
  * @param {UserInterviewAttributes} interview The interview object
  * @param {(string|string[])} paths The paths of the objects to remove
- * @returns {[Object, string[]]} An array where the first element is the changed
- * values by path and the second element is the unset paths
+ * @returns {GroupedObjectsResult} An object containing the changed values by path and the unset paths.
  */
 export const removeGroupedObjects = (
     interview: UserInterviewAttributes,
