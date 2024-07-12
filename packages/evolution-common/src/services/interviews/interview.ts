@@ -8,6 +8,13 @@ import _get from 'lodash/get';
 import _set from 'lodash/set';
 import _isEqual from 'lodash/isEqual';
 import _cloneDeep from 'lodash/cloneDeep';
+import { PersonAttributes } from '../baseObjects/Person';
+import { JourneyAttributes } from '../baseObjects/Journey';
+import { TripAttributes } from '../baseObjects/Trip';
+import * as VPAttr from '../baseObjects/attributeTypes/VisitedPlaceAttributes';
+import { Optional } from '../../types/Optional.type';
+import { SegmentAttributes } from '../baseObjects/Segment';
+import { HouseholdAttributes } from '../baseObjects/Household';
 
 type Required<T> = { [P in keyof T]-?: T[P] };
 // This recursive generic type is taken from this stack overflow question:
@@ -42,25 +49,13 @@ type RecursiveBoolean<TObj extends object> = {
 };
 export type InterviewValidations = RecursiveBoolean<Required<InterviewResponses>>;
 
-export type BasePerson = {
-    _uuid: string;
-    _sequence: number;
-    visitedPlaces?: {
-        [placeUuid: string]: VisitedPlace;
-    };
-    nickname?: string;
-    age?: number;
-};
+// The following types are those in the responses field of the interview object.
+// They use the types of the survey objects for the attributes, but extended
+// attributes are in an object with the key being the object uuid, instead of an
+// array of objects, like the composed attributes of the corresponding objects
 
-// TODO Update to use new types in surveyObjects
-export type Person = BasePerson;
-
-// TODO Update to use new types in surveyObjects
-export type Household = {
-    // TODO Are there any fields that will be common to ALL households?
-    size: number;
-    persons: {
-        // TODO Are there any fields valid for all persons?
+export type Household = HouseholdAttributes & {
+    persons?: {
         [personId: string]: Person;
     };
 };
@@ -69,13 +64,47 @@ type SurveyPointProperties = {
     lastAction: 'findPlace' | 'shortcut' | 'mapClicked' | 'markerDragged';
 };
 
+export type Person = PersonAttributes & {
+    _sequence: number;
+    journeys?: {
+        [journeyId: string]: Journey;
+    };
+};
+
+export type Journey = JourneyAttributes & {
+    _sequence: number;
+    departurePlaceType?: string;
+    trips?: {
+        [tripId: string]: Trip;
+    };
+    visitedPlaces?: {
+        [visitedPlaceId: string]: VisitedPlace;
+    };
+};
+
+// FIXME We are not using the VisitedPlaceAttributes type here because during survey, most of the data from that type is rather as a property of the geography feature and not as fields of the object
 export type VisitedPlace = {
-    _isNew?: boolean;
     _sequence: number;
     _uuid: string;
-    activity?: string;
+    activity?: Optional<VPAttr.Activity>;
     geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
+    departureTime?: number;
+    arrivalTime?: number;
 } & ({ name?: string } | { shortcut?: string });
+
+export type Trip = TripAttributes & {
+    _sequence: number;
+    _originVisitedPlaceUuid?: string;
+    _destinationVisitedPlaceUuid?: string;
+    segments?: {
+        [segmentUuid: string]: Segment;
+    };
+};
+
+export type Segment = SegmentAttributes & {
+    _sequence: number;
+    modePre?: string;
+};
 
 type SectionStatus = {
     _isCompleted?: boolean;
@@ -93,6 +122,9 @@ type SectionStatus = {
 export type InterviewResponses = {
     // Volatile survey workflow fields:
     _activePersonId?: string;
+    _activeTripId?: string;
+    _activeJourneyId?: string;
+    _activeVisitedPlaceId?: string;
     _activeSection?: string;
 
     // Participant/web interview data

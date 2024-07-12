@@ -35,6 +35,7 @@ import Button          from 'evolution-frontend/lib/components/survey/Button';
 import Question        from 'evolution-frontend/lib/components/survey/Question';
 import { Group, GroupedObject } from 'evolution-frontend/lib/components/survey/GroupWidgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
+import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import helper          from '../helper';
 import ConfirmModal    from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
@@ -61,13 +62,15 @@ export class VisitedPlacesSection extends React.Component<any, any> {
     }
     this.props.startAddGroupedObjects(1, sequence, path, [], (function(interview) {
       const person             = helper.getPerson(interview);
-      const visitedPlaces      = helper.getVisitedPlaces(person, true);
+      const journeys           = odSurveyHelper.getJourneysArray(person);
+      const currentJourney     = journeys[0];
+      const visitedPlaces      = odSurveyHelper.getVisitedPlacesArray(currentJourney);
       const lastVisitedPlace   = visitedPlaces[visitedPlaces.length - 1];
       const updateValuesByPath = {};
       if (lastVisitedPlace && sequence === lastVisitedPlace._sequence) // we are inserting a new visited place at the end
       {
         const beforeLastVisitedPlace     = visitedPlaces[visitedPlaces.length - 2];
-        const beforeLastVisitedPlacePath = `household.persons.${person._uuid}.visitedPlaces.${beforeLastVisitedPlace._uuid}`;
+        const beforeLastVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${beforeLastVisitedPlace._uuid}`;
         updateValuesByPath[`responses.${beforeLastVisitedPlacePath}.nextPlaceCategory`] = null;
       }
       updateValuesByPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
@@ -139,6 +142,8 @@ export class VisitedPlacesSection extends React.Component<any, any> {
     const widgetsComponentsByShortname = {};
     const personVisitedPlacesConfig    = this.props.surveyContext.widgets['personVisitedPlaces'];
     const person                       = helper.getPerson(this.props.interview);
+    const journeys = odSurveyHelper.getJourneysArray(person);
+    const currentJourney = journeys[0];
     const householdSize                = surveyHelper.getResponse(this.props.interview, 'household.size', null);
     const isAlone                      = householdSize === 1;
 
@@ -153,7 +158,9 @@ export class VisitedPlacesSection extends React.Component<any, any> {
     {
       const _person                         = persons[_personId];
       let   atLeastOneCompletedVisitedPlace = false;
-      const visitedPlaces                   = helper.getVisitedPlaces(_person);
+      const _journeys = odSurveyHelper.getJourneysArray(_person);
+      const _currentJourney = _journeys[0];
+      const visitedPlaces = _currentJourney !== undefined ? odSurveyHelper.getVisitedPlacesArray(_currentJourney) : [];
       const personVisitedPlacesSchedules    = [];
       for (let i = 0, count = visitedPlaces.length; i < count; i++)
       {
@@ -266,15 +273,15 @@ export class VisitedPlacesSection extends React.Component<any, any> {
 
     // setup visited places:
 
-    const visitedPlaces          = helper.getVisitedPlaces(person);
+    const visitedPlaces          = odSurveyHelper.getVisitedPlacesArray(currentJourney);
     const lastVisitedPlace       = helper.getLastVisitedPlace(visitedPlaces);
     const visitedPlacesList      = [];
 
     for (let i = 0, count = visitedPlaces.length; i < count; i++)
     {
-      const visitedPlace         = visitedPlaces[i];
+      const visitedPlace         = visitedPlaces[i] as any;
       const activity             = visitedPlace.activity;
-      const visitedPlacePath     = `household.persons.${person._uuid}.visitedPlaces.${visitedPlace._uuid}`;
+      const visitedPlacePath     = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${visitedPlace._uuid}`;
       const visitedPlaceItem     = (
         <li className={`no-bullet survey-visited-place-item${visitedPlace._uuid === selectedVisitedPlaceId ? ' survey-visited-place-item-selected' : ''}`} key={`survey-visited-place-item__${i}`}>
           <span className="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon">
@@ -383,7 +390,7 @@ export class VisitedPlacesSection extends React.Component<any, any> {
             <button
               type      = "button"
               className = "button blue center small"
-              onClick   = {(e) => this.addVisitedPlace(visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.visitedPlaces`, e)}
+              onClick   = {(e) => this.addVisitedPlace(visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, e)}
               title     = {this.props.t('survey:visitedPlace:insertVisitedPlace')}
             >
               <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
@@ -409,7 +416,7 @@ export class VisitedPlacesSection extends React.Component<any, any> {
               && <button
                 type      = "button"
                 className = "button blue center large"
-                onClick   = {(e) => this.addVisitedPlace(-1, `household.persons.${person._uuid}.visitedPlaces`, e)}
+                onClick   = {(e) => this.addVisitedPlace(-1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, e)}
                 title     = {this.props.t('survey:visitedPlace:addVisitedPlace')}
               >
                 <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
@@ -433,10 +440,10 @@ export class VisitedPlacesSection extends React.Component<any, any> {
           key       = {`header__nav-reset`}
           onClick   = {function() { 
             const valuesByPath = {
-              [`responses.household.persons.${person._uuid}.visitedPlaces`]: {},
-              [`validations.household.persons.${person._uuid}.visitedPlaces`]: {},
-              [`responses.household.persons.${person._uuid}.trips`]: {},
-              [`validations.household.persons.${person._uuid}.trips`]: {},
+              [`responses.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`]: {},
+              [`validations.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`]: {},
+              [`responses.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`]: {},
+              [`validations.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`]: {},
               [`responses._activeSection`]: 'tripsIntro'
             };
             this.props.startUpdateInterview('visitedPlaces', valuesByPath);

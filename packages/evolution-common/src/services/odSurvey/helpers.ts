@@ -6,7 +6,7 @@
  */
 
 import { getResponse } from '../../utils/helpers';
-import { Household, Person, UserInterviewAttributes, VisitedPlace } from '../interviews/interview';
+import { Household, Journey, Person, UserInterviewAttributes, VisitedPlace } from '../interviews/interview';
 
 // This file contains helper function that retrieves various data from the
 // responses field of the interview
@@ -39,7 +39,7 @@ export const getActivePerson = (interview: UserInterviewAttributes): Partial<Per
     const currentPerson = interview.responses._activePersonId;
     const hh = getHousehold(interview);
     if (currentPerson !== undefined) {
-        return hh !== null ? (hh.persons || {})[currentPerson] || {} : {};
+        return (hh.persons || {})[currentPerson] || {};
     } else {
         // Get first person
         const persons = Object.values(hh.persons || {});
@@ -73,23 +73,44 @@ export const getPersonsArray = (interview: UserInterviewAttributes): Person[] =>
 };
 
 /**
- * Get the visited places object for a person, or an empty object if
- * there are no visited places for this person.
- * @param {Person} person
- * @returns
+ * Get the journeys for a person
+ * @param {Person} person The person for which to get the journeys
+ * @returns {Object} The journeys object, with they key being the journey ID, or
+ * an empty object if there are no journeys for this person
  */
-export const getVisitedPlaces = (person: Person): { [visitedPlaceId: string]: VisitedPlace } => {
-    return person.visitedPlaces || {};
+export const getJourneys = function (person: Person): { [journeyId: string]: Journey } {
+    return person.journeys || {};
 };
 
 /**
- * Get the visited places array for a person, or an empty array if there are no
- * visited places for this person.
- * @param {Person} person
+ * Get the journeys array for a person, or an empty array if there are no
+ * journeys for this person.
+ * @param {Person} person The person for whom to get the journeys
+ * @returns {Journey[]} The journeys, sorted by sequence
+ */
+export const getJourneysArray = function (person: Person): Journey[] {
+    const journeys = getJourneys(person);
+    return Object.values(journeys).sort((journeyA, journeyB) => journeyA._sequence - journeyB._sequence);
+};
+
+/**
+ * Get the visited places object for a journey, or an empty object if
+ * there are no visited places for this journey.
+ * @param {Journey} journey
+ * @returns
+ */
+export const getVisitedPlaces = (journey: Journey): { [visitedPlaceId: string]: VisitedPlace } => {
+    return journey.visitedPlaces || {};
+};
+
+/**
+ * Get the visited places array for a journey, or an empty array if there are no
+ * visited places for this journey.
+ * @param {Journey} journey
  * @returns {VisitedPlace[]} The visited places, sorted by sequence
  */
-export const getVisitedPlacesArray = function (person: Person): VisitedPlace[] {
-    const visitedPlaces = getVisitedPlaces(person);
+export const getVisitedPlacesArray = function (journey: Journey): VisitedPlace[] {
+    const visitedPlaces = getVisitedPlaces(journey);
     return Object.values(visitedPlaces).sort(
         (visitedPlaceA, visitedPlaceB) => visitedPlaceA._sequence - visitedPlaceB._sequence
     );
@@ -110,9 +131,13 @@ export const replaceVisitedPlaceShortcuts = (
 
     // Find shortcuts to this place
     const placesWithShortcut = getPersonsArray(interview).flatMap((person) =>
-        getVisitedPlacesArray(person)
-            .filter((visitedPlace) => (visitedPlace as any).shortcut && (visitedPlace as any).shortcut === shortcutTo)
-            .map((visitedPlace) => ({ person, visitedPlace }))
+        getJourneysArray(person).flatMap((journey) =>
+            getVisitedPlacesArray(journey)
+                .filter(
+                    (visitedPlace) => (visitedPlace as any).shortcut && (visitedPlace as any).shortcut === shortcutTo
+                )
+                .map((visitedPlace) => ({ person, journey, visitedPlace }))
+        )
     );
 
     if (placesWithShortcut.length === 0) {
@@ -123,7 +148,7 @@ export const replaceVisitedPlaceShortcuts = (
 
     // Replace first place's name and geography with original and remove shortcut if necessary. The original place can itself be a shortcut
     const firstVisitedPlace = placesWithShortcut[0];
-    const firstPlacePath = `household.persons.${firstVisitedPlace.person._uuid}.visitedPlaces.${firstVisitedPlace.visitedPlace._uuid}`;
+    const firstPlacePath = `household.persons.${firstVisitedPlace.person._uuid}.journeys.${firstVisitedPlace.journey._uuid}.visitedPlaces.${firstVisitedPlace.visitedPlace._uuid}`;
 
     if ((originalVisitedPlace as any).shortcut) {
         updatedValuesByPath[`responses.${firstPlacePath}.shortcut`] = (originalVisitedPlace as any).shortcut;
@@ -139,7 +164,7 @@ export const replaceVisitedPlaceShortcuts = (
         .forEach(
             (place) =>
                 (updatedValuesByPath[
-                    `responses.household.persons.${place.person._uuid}.visitedPlaces.${place.visitedPlace._uuid}.shortcut`
+                    `responses.household.persons.${place.person._uuid}.journeys.${place.journey._uuid}.visitedPlaces.${place.visitedPlace._uuid}.shortcut`
                 ] = firstPlacePath)
         );
 
