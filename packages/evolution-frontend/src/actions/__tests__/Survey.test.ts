@@ -1,22 +1,26 @@
 import fetchMock from 'jest-fetch-mock';
 import _cloneDeep from 'lodash/cloneDeep';
+import { addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
-import { startUpdateInterview } from '../Survey';
+import * as SurveyActions from '../Survey';
 import { prepareWidgets } from '../utils';
 
 jest.mock('chaire-lib-frontend/lib/config/i18n.config', () => ({
     language: 'en'
-}))
-
-type CustomSurvey = {
-    section1?: {
-        q1?: string;
-        q2?: number;
+}));
+jest.mock('evolution-common/lib/utils/helpers', () => {
+    // Require the original module to not be mocked...
+    const originalModule =
+        jest.requireActual<typeof import('evolution-common/lib/utils/helpers')>('evolution-common/lib/utils/helpers');
+  
+    return {
+        ...originalModule,
+        addGroupedObjects: jest.fn(),
+        removeGroupedObjects: jest.fn()
     };
-    section2?: {
-        q1?: string;
-    }
-}
+});
+const mockedAddGroupedObject = addGroupedObjects as jest.MockedFunction<typeof addGroupedObjects>;
+const mockedRemoveGroupedObject = removeGroupedObjects as jest.MockedFunction<typeof removeGroupedObjects>;
 
 // Default interview data
 const interviewAttributes: UserFrontendInterviewAttributes = {
@@ -80,11 +84,8 @@ const mockGetState = jest.fn().mockReturnValue({
 });
 
 beforeEach(() => {
-    mockDispatch.mockClear();
-    mockPrepareWidgets.mockClear();
+    jest.clearAllMocks();
     fetchMock.doMock();
-    fetchMock.mockClear();
-    mockNext.mockClear();
 })
 
 describe('Update interview', () => {
@@ -100,7 +101,7 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const { callback } = startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
@@ -154,7 +155,7 @@ describe('Update interview', () => {
         (expectedInterviewAsState.validations as any).section1.q2 = true;
         
         // Do the actual test
-        const { callback } = startUpdateInterview('section', _cloneDeep(valuesByPath), unsetPaths, _cloneDeep(interviewAttributes), updateCallback);
+        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), unsetPaths, _cloneDeep(interviewAttributes), updateCallback);
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
@@ -203,7 +204,7 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const { callback } = startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
         await callback(mockNext, mockDispatch, mockLocalGetState);
 
         // Verifications
@@ -254,7 +255,7 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const { callback } = startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
@@ -299,7 +300,7 @@ describe('Update interview', () => {
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
         
         // Do the actual test
-        const { callback } = startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
@@ -326,7 +327,7 @@ describe('Update interview', () => {
         const expectedInterviewAsState = _cloneDeep(initialInterview);
 
         // Do the actual test
-        const { callback } = startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(initialInterview), updateCallback);
+        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(initialInterview), updateCallback);
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
@@ -350,6 +351,162 @@ describe('Update interview', () => {
         });
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
         expect(mockNext).toHaveBeenCalledTimes(1);
+    });
+
+});
+
+describe('startAddGroupedObjects', () => {
+    const defaultAddGroupResponse = { 'responses.data': { _uuid: 'someuuid' }, 'validations.data': true };
+    mockedAddGroupedObject.mockReturnValue(defaultAddGroupResponse);
+
+    let startUpdateInterviewSpy;
+
+    beforeAll(() => {
+        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue({ queue: 'UPDATE_INTERVIEW', callback: jest.fn() });
+    });
+
+    afterAll(() => {
+        startUpdateInterviewSpy.mockRestore();
+    });
+
+    test('Call with minimal data', async () => {
+        // Prepare function parameters
+        const newObjectCnt = 3;
+        const insertSeq = 1;
+        const path = 'data';
+
+        // Do the actual test
+        const dispatchFct = SurveyActions.startAddGroupedObjects(newObjectCnt, insertSeq, path);
+        dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockedAddGroupedObject).toHaveBeenCalledTimes(1);
+        expect(mockedAddGroupedObject).toHaveBeenCalledWith(interviewAttributes, newObjectCnt, insertSeq, path, []);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultAddGroupResponse, undefined, undefined, undefined);
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith({ 
+            queue: 'UPDATE_INTERVIEW',
+            callback: expect.any(Function),
+        });
+    });
+
+    test('Call with return only and callback', async () => {
+        // Prepare function parameters
+        const newObjectCnt = 3;
+        const insertSeq = 1;
+        const path = 'data';
+        const attributes = [{ field1: 'abc'}, { field2: 'def' }];
+        const callback = jest.fn();
+
+        // Do the actual test
+        const dispatchFct = SurveyActions.startAddGroupedObjects(newObjectCnt, insertSeq, path, attributes, callback, true);
+        const vals = dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockedAddGroupedObject).toHaveBeenCalledTimes(1);
+        expect(mockedAddGroupedObject).toHaveBeenCalledWith(interviewAttributes, newObjectCnt, insertSeq, path, attributes);
+        expect(startUpdateInterviewSpy).not.toHaveBeenCalled();
+        expect(vals).toEqual(defaultAddGroupResponse);
+        expect(mockDispatch).not.toHaveBeenCalled();
+    });
+
+    test('Call with callback', async () => {
+        // Prepare function parameters
+        const newObjectCnt = 3;
+        const insertSeq = 1;
+        const path = 'data';
+        const attributes = [{ field1: 'abc'}, { field2: 'def' }];
+        const callback = jest.fn();
+
+        // Do the actual test
+        const dispatchFct = SurveyActions.startAddGroupedObjects(newObjectCnt, insertSeq, path, attributes, callback, false);
+        dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockedAddGroupedObject).toHaveBeenCalledTimes(1);
+        expect(mockedAddGroupedObject).toHaveBeenCalledWith(interviewAttributes, newObjectCnt, insertSeq, path, attributes);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultAddGroupResponse, undefined, undefined, callback);
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith({ 
+            queue: 'UPDATE_INTERVIEW',
+            callback: expect.any(Function),
+        });
+    });
+
+});
+
+describe('startRemoveGroupedObjects', () => {
+    const defaultRemoveGroupResponse = [{ 'response.data.obj._sequence': 1 }, ['responses.data', 'validations.data']] as any;
+    mockedRemoveGroupedObject.mockReturnValue(defaultRemoveGroupResponse);
+
+    let startUpdateInterviewSpy;
+
+    beforeAll(() => {
+        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue({ queue: 'UPDATE_INTERVIEW', callback: jest.fn() });
+    });
+
+    afterAll(() => {
+        startUpdateInterviewSpy.mockRestore();
+    });
+
+    test('Call with minimal data', async () => {
+        // Prepare function parameters
+        const paths = 'data';
+
+        // Do the actual test
+        const dispatchFct = SurveyActions.startRemoveGroupedObjects(paths);
+        dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockedRemoveGroupedObject).toHaveBeenCalledTimes(1);
+        expect(mockedRemoveGroupedObject).toHaveBeenCalledWith(interviewAttributes, paths);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultRemoveGroupResponse[0], defaultRemoveGroupResponse[1], undefined, undefined);
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith({ 
+            queue: 'UPDATE_INTERVIEW',
+            callback: expect.any(Function),
+        });
+    });
+
+    test('Call with return only and callback', async () => {
+        // Prepare function parameters
+        const paths = 'data';
+        const callback = jest.fn();
+
+        // Do the actual test
+        const dispatchFct = SurveyActions.startRemoveGroupedObjects(paths, callback, true);
+        const vals = dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockedRemoveGroupedObject).toHaveBeenCalledTimes(1);
+        expect(mockedRemoveGroupedObject).toHaveBeenCalledWith(interviewAttributes, paths);
+        expect(startUpdateInterviewSpy).not.toHaveBeenCalled();
+        expect(vals).toEqual(defaultRemoveGroupResponse);
+        expect(mockDispatch).not.toHaveBeenCalled();
+    });
+
+    test('Call with callback', async () => {
+        // Prepare function parameters
+        const paths = 'data';
+        const callback = jest.fn();
+
+        // Do the actual test
+        const dispatchFct = SurveyActions.startRemoveGroupedObjects(paths, callback, false);
+        dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockedRemoveGroupedObject).toHaveBeenCalledTimes(1);
+        expect(mockedRemoveGroupedObject).toHaveBeenCalledWith(interviewAttributes, paths);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultRemoveGroupResponse[0], defaultRemoveGroupResponse[1], undefined, callback);
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith({ 
+            queue: 'UPDATE_INTERVIEW',
+            callback: expect.any(Function),
+        });
     });
 
 });

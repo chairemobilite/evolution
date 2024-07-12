@@ -11,7 +11,6 @@ import { UserInterviewAttributes, InterviewResponsePath, InterviewResponses } fr
 import {
     ParsingFunction,
     I18nData,
-    StartUpdateInterview,
     InterviewUpdateCallbacks,
     ParsingFunctionWithCallbacks
 } from '../../utils/helpers';

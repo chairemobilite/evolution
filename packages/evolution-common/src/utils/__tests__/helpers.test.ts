@@ -7,6 +7,7 @@
 import each from 'jest-each';
 import i18n from 'i18next';
 import moment from 'moment';
+import { v4 as uuidV4 } from 'uuid';
 import _cloneDeep from 'lodash/cloneDeep';
 import { Person, UserInterviewAttributes } from '../../services/interviews/interview';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
@@ -17,17 +18,8 @@ jest.mock('i18next', () => ({
     t: jest.fn(),
     language: 'en'
 }));
+jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue('arbitrary uuid') }));
 const mockedT = i18n.t as jest.MockedFunction<typeof i18n.t>;
-
-type CustomSurvey = {
-    section1?: {
-        q1?: string;
-        q2?: number;
-    };
-    section2?: {
-        q1?: string;
-    }
-}
 
 const interviewAttributes: UserInterviewAttributes = {
     id: 1,
@@ -68,7 +60,7 @@ const userAttributes = {
 };
 
 
-const interviewAttributes2: UserInterviewAttributes = {
+const interviewAttributesWithHh: UserInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -173,14 +165,14 @@ test('getPath without relative path', () => {
 });
 
 each([
-    ['section1.q1', 'def', undefined, ((interviewAttributes2.responses as any).section1 as any).q1],
+    ['section1.q1', 'def', undefined, ((interviewAttributesWithHh.responses as any).section1 as any).q1],
     ['section1.q3', 'def', undefined, 'def'],
     ['section1.q3', undefined, undefined, undefined],
-    ['section1.q1', 'def', '../../section2.q1', ((interviewAttributes2.responses as any).section2 as any).q1],
+    ['section1.q1', 'def', '../../section2.q1', ((interviewAttributesWithHh.responses as any).section2 as any).q1],
     ['section1.q1', 'def', 'section2.q1', null],
-    ['section1', 'def', undefined, ((interviewAttributes2.responses as any).section1 as any)],
+    ['section1', 'def', undefined, ((interviewAttributesWithHh.responses as any).section1 as any)],
 ]).test('getResponse: %s %s %s', (path, defaultValue, relativePath, expected) => {
-    expect(Helpers.getResponse(interviewAttributes2, path, defaultValue, relativePath)).toEqual(expected);
+    expect(Helpers.getResponse(interviewAttributesWithHh, path, defaultValue, relativePath)).toEqual(expected);
 });
 
 each([
@@ -190,7 +182,7 @@ each([
     ['section1.q1.sq1', 'def', undefined, 'section1.q1.sq1'],
     ['section1.q1', 'def', 'section2.q1', 'section1.q1', 'abc']
 ]).test('setResponse: %s %s %s', (path, value, relativePath, finalPath, expected = undefined) => {
-    const attributes = _cloneDeep(interviewAttributes2);
+    const attributes = _cloneDeep(interviewAttributesWithHh);
     Helpers.setResponse(attributes, path, value, relativePath);
     expect(Helpers.getResponse(attributes, finalPath)).toEqual(expected === undefined ? value : expected);
 });
@@ -206,7 +198,7 @@ each([
     ['section1', false, null],
     ['section1.q2', undefined, false],
 ]).test('getValidation: %s %s %s', (path, defaultValue, expected) => {
-    expect(Helpers.getValidation(interviewAttributes2, path, defaultValue)).toEqual(expected);
+    expect(Helpers.getValidation(interviewAttributesWithHh, path, defaultValue)).toEqual(expected);
 });
 
 each([
@@ -216,7 +208,7 @@ each([
     ['section1.q1.sq1.other', false, undefined, 'section1.q1.sq1.other'],
     ['section1.q1', false, 'section2.q1', 'section1.q1', true]
 ]).test('setValidation: %s %s %s', (path, value, relativePath, finalPath, expected = undefined) => {
-    const attributes = _cloneDeep(interviewAttributes2);
+    const attributes = _cloneDeep(interviewAttributesWithHh);
     Helpers.setValidation(attributes, path, value, relativePath);
     expect(Helpers.getValidation(attributes, finalPath)).toEqual(expected === undefined ? value : expected);
 });
@@ -231,30 +223,6 @@ each([
 ]).test('formatGeocodingQueryStringFromMultipleFields: %s', (fields, expected) => {
     expect(Helpers.formatGeocodingQueryStringFromMultipleFields(fields)).toEqual(expected);
 });
-
-each([
-    ['Has Household', interviewAttributes2.responses, interviewAttributes2.responses.household],
-    ['Empty responses', {}, {}]
-]).test('getHousehold: %s', (_title, responses, expected) => {
-    const interview = _cloneDeep(interviewAttributes);
-    interview.responses = responses;
-    expect(Helpers.getHousehold(interview)).toEqual(expected);
-});
-
-each([
-    ['Person 1', interviewAttributes2.responses, 'personId1', (interviewAttributes2.responses as any).household.persons.personId1],
-    ['Person 2', interviewAttributes2.responses, 'personId2', (interviewAttributes2.responses as any).household.persons.personId2],
-    ['Undefined active person', interviewAttributes2.responses, undefined, (interviewAttributes2.responses as any).household.persons.personId1],
-    ['Empty persons', { household: { ...interviewAttributes2.responses.household, persons: {} } }, 'personId1', {}],
-    ['Empty household', { household: {} }, undefined, {}],
-    ['Empty responses', {}, 'personId', {}]
-]).test('getCurrentPerson: %s', (_title, responses, currentPersonId, expected) => {
-    const interview = _cloneDeep(interviewAttributes2);
-    interview.responses = responses;
-    interview.responses._activePersonId = currentPersonId;
-    expect(Helpers.getCurrentPerson(interview)).toEqual(expected);
-});
-
 
 test('parseString', () => {
     // Default string value
@@ -407,253 +375,6 @@ each([
     expect(Helpers.isPhoneNumber(phoneNumber)).toEqual(expected);
 });
 
-describe('getPersons', () => {
-    test('test without household', () => {
-        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
-    });
-
-    test('test without persons', () => {
-        const attributes = _cloneDeep(interviewAttributes) as any;
-        attributes.household = {};
-        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
-    });
-
-    test('empty persons', () => {
-        const attributes = _cloneDeep(interviewAttributes) as any;
-        attributes.household = { size: 0, persons: {} };
-        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
-    });
-
-    test('with persons', () => {
-        expect(Helpers.getPersons(interviewAttributes2)).toEqual((interviewAttributes2.responses as any).household.persons);
-    });
-
-    test('array: test without household', () => {
-        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
-    });
-
-    test('array: test without persons', () => {
-        const attributes = _cloneDeep(interviewAttributes) as any;
-        attributes.household = {};
-        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
-    });
-
-    test('array: empty persons', () => {
-        const attributes = _cloneDeep(interviewAttributes) as any;
-        attributes.household = { size: 0, persons: {} };
-        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
-    });
-
-    test('array: with persons, unordered', () => {
-        expect(Helpers.getPersonsArray(interviewAttributes2)).toEqual(Object.values((interviewAttributes2.responses as any).household.persons));
-    });
-
-    test('array: with persons, ordered', () => {
-        const attributes = _cloneDeep(interviewAttributes2) as any;
-        attributes.responses.household.persons.personId1._sequence = 2;
-        attributes.responses.household.persons.personId2._sequence = 1;
-        expect(Helpers.getPersonsArray(attributes)).toEqual([attributes.responses.household.persons.personId2, attributes.responses.household.persons.personId1]);
-    });
-});
-
-describe('getVisitedPlaces', () => {
-
-    const person: Person = {
-        _uuid: 'arbitraryPerson',
-        _sequence: 1
-    }
-
-    const visitedPlaces = {
-        visitedPlace1: {
-            _uuid: 'visitedPlace1',
-            _sequence: 2,
-            activity: 'home',
-        },
-        visitedPlace2: {
-            _uuid: 'visitedPlace2',
-            _sequence: 1,
-            activity: 'work',
-        }
-    }
-
-    test('object: test without visited places', () => {
-        expect(Helpers.getVisitedPlaces(person)).toEqual({});
-    });
-
-    test('object: empty visited places', () => {
-        const attributes = _cloneDeep(person);
-        attributes.visitedPlaces = { };
-        expect(Helpers.getVisitedPlaces(attributes)).toEqual({});
-    });
-
-    test('object: with visited places, ordered', () => {
-        const attributes = _cloneDeep(person);
-        attributes.visitedPlaces = visitedPlaces;
-        expect(Helpers.getVisitedPlaces(attributes)).toEqual(visitedPlaces);
-    });
-
-    test('array: test without visited places', () => {
-        expect(Helpers.getVisitedPlacesArray(person)).toEqual([]);
-    });
-
-    test('array: empty visited places', () => {
-        const attributes = _cloneDeep(person);
-        attributes.visitedPlaces = { };
-        expect(Helpers.getVisitedPlacesArray(attributes)).toEqual([]);
-    });
-
-    test('array: with visited places, ordered', () => {
-        const attributes = _cloneDeep(person);
-        attributes.visitedPlaces = visitedPlaces;
-        expect(Helpers.getVisitedPlacesArray(attributes)).toEqual([visitedPlaces.visitedPlace2, visitedPlaces.visitedPlace1]);
-    });
-
-});
-
-describe('replaceVisitedPlaceShortcuts', () => {
-
-    const shortcutInterview = _cloneDeep(interviewAttributes);
-    shortcutInterview.responses.household = {
-        size: 3,
-        persons: {
-            person1: {
-                _uuid: 'person1',
-                _sequence: 1,
-                visitedPlaces: {
-                    basicPlace: {
-                        _uuid: 'basicPlace',
-                        _sequence: 1,
-                        geography: {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [-73, 45 ]},
-                            properties: { lastAction: 'mapClicked' }
-                        },
-                        name: 'blabla'
-                    },
-                    usedAsShortcut: {
-                        _uuid: 'usedAsShortcut',
-                        _sequence: 2,
-                        geography: {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
-                            properties: { lastAction: 'mapClicked' }
-                        },
-                        name: 'used as a shortcut'
-                    },
-                    shortcutToShortcut: {
-                        _uuid: 'shortcutToShortcut',
-                        _sequence: 3,
-                        geography: {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [-73.2, 45.2 ]},
-                            properties: { lastAction: 'shortcut' }
-                        },
-                        shortcut: 'household.persons.person3.visitedPlaces.shortcutToBasic2'
-                    },
-                }
-            },
-            person2: {
-                _uuid: 'person2',
-                _sequence: 2,
-                visitedPlaces: {
-                    isAShortcut: {
-                        _uuid: 'isAShortcut',
-                        _sequence: 1,
-                        geography: {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
-                            properties: { lastAction: 'shortcut' }
-                        },
-                        shortcut: 'household.persons.person1.visitedPlaces.usedAsShortcut'
-                    },
-                    basicPlace2: {
-                        _uuid: 'basicPlace2',
-                        _sequence: 2,
-                        geography: {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [-73.2, 45.2 ]},
-                            properties: { lastAction: 'markerDragged' }
-                        },
-                        name: 'basic place 2'
-                    },
-                }
-            },
-            person3: {
-                _uuid: 'person3',
-                _sequence: 3,
-                visitedPlaces: {
-                    isAShortcutToo: {
-                        _uuid: 'isAShortcutToo',
-                        _sequence: 1,
-                        geography: {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
-                            properties: { lastAction: 'shortcut' }
-                        },
-                        shortcut: 'household.persons.person1.visitedPlaces.usedAsShortcut'
-                    },
-                    shortcutToBasic2: {
-                        _uuid: 'shortcutToBasic2',
-                        _sequence: 2,
-                        geography: {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [-73.2, 45.2 ]},
-                            properties: { lastAction: 'shortcut' }
-                        },
-                        shortcut: 'household.persons.person2.visitedPlaces.basicPlace2'
-                    },
-                    againAShortcut: {
-                        _uuid: 'againAShortcut',
-                        _sequence: 3,
-                        geography: {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
-                            properties: { lastAction: 'shortcut' }
-                        },
-                        shortcut: 'household.persons.person1.visitedPlaces.usedAsShortcut'
-                    },
-                }
-            }
-        }
-    }
-
-    test('Place is not a shortcut', () => {
-        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person1.visitedPlaces.basicPlace1')).toBeUndefined();
-    });
-
-    test('Place is a shortcut to a shorcut', () => {
-        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person3.visitedPlaces.shortcutToBasic2')).toEqual({
-            updatedValuesByPath: {
-                ['responses.household.persons.person1.visitedPlaces.shortcutToShortcut.shortcut']: ((shortcutInterview.responses.household?.persons['person3'].visitedPlaces || {})['shortcutToBasic2'] as any).shortcut,
-                ['responses.household.persons.person1.visitedPlaces.shortcutToShortcut.geography']: (shortcutInterview.responses.household?.persons['person3'].visitedPlaces || {})['shortcutToBasic2'].geography
-            },
-            unsetPaths: []
-        });
-    });
-
-    test('Place shortcut to one other place', () => {
-        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person2.visitedPlaces.basicPlace2')).toEqual({
-            updatedValuesByPath: {
-                ['responses.household.persons.person3.visitedPlaces.shortcutToBasic2.name']: ((shortcutInterview.responses.household?.persons['person2'].visitedPlaces || {})['basicPlace2'] as any).name,
-                ['responses.household.persons.person3.visitedPlaces.shortcutToBasic2.geography']: (shortcutInterview.responses.household?.persons['person2'].visitedPlaces || {})['basicPlace2'].geography
-            },
-            unsetPaths: ['responses.household.persons.person3.visitedPlaces.shortcutToBasic2.shortcut']
-        });
-    });
-
-    test('Place shortcut to many places from many persons', () => {
-        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person1.visitedPlaces.usedAsShortcut')).toEqual({
-            updatedValuesByPath: {
-                ['responses.household.persons.person2.visitedPlaces.isAShortcut.name']: ((shortcutInterview.responses.household?.persons['person1'].visitedPlaces || {})['usedAsShortcut'] as any).name,
-                ['responses.household.persons.person2.visitedPlaces.isAShortcut.geography']: (shortcutInterview.responses.household?.persons['person1'].visitedPlaces || {})['usedAsShortcut'].geography,
-                ['responses.household.persons.person3.visitedPlaces.isAShortcutToo.shortcut']: 'household.persons.person2.visitedPlaces.isAShortcut',
-                ['responses.household.persons.person3.visitedPlaces.againAShortcut.shortcut']: 'household.persons.person2.visitedPlaces.isAShortcut'
-            },
-            unsetPaths: ['responses.household.persons.person2.visitedPlaces.isAShortcut.shortcut']
-        });
-    });
-});
-
 each([
     [undefined, undefined, true],
     [undefined, moment('2023-12-13').unix(), true],
@@ -699,4 +420,175 @@ each([
     const interview = _cloneDeep(interviewAttributes);
     interview.responses._startedAt = surveyStart;
     expect(Helpers.interviewOnOrAfter(dateCompare, interview)).toEqual(expected);
+});
+
+describe('Group functions', () => {
+    each([
+        ['one object at the end', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, -1, [], {
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { } 
+        }],
+        ['0 objects', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 0, -1, [], { }],
+        ['one object at sequence', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, 2, [], {
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 3,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { }
+        }],
+        ['one object at sequence 0, should be 1', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, 0, [], {
+            'responses.household.persons.personId1.visitedPlaces.obj1._sequence': 2,
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 3,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 1 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { }
+        }],
+        ['one object at sequence too large', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, 5, [], {
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { }
+        }],
+        ['2 objects, no previous objects', {}, 2, undefined, [], {
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 1 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 2 },
+            'validations.household.persons.personId1.visitedPlaces.newObj1': { } 
+        }],
+        ['3 objects, at sequence 2', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 3, 2, [], {
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 5,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3 },
+            'validations.household.persons.personId1.visitedPlaces.newObj1': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4 },
+            'validations.household.persons.personId1.visitedPlaces.newObj2': { }
+        }],
+        ['with attributes, same count',  {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 3, 2, [{ myVal: 'first' }, { myVal: 'second', other: 'test' }, { myVal: 'third' }], {
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 5,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2, myVal: 'first' },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3, myVal: 'second', other: 'test' },
+            'validations.household.persons.personId1.visitedPlaces.newObj1': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4, myVal: 'third' },
+            'validations.household.persons.personId1.visitedPlaces.newObj2': { }
+        }],
+        ['with attributes, unequal count',  {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 3, 2, [{ myVal: 'first' }, { myVal: 'second', other: 'test' }], {
+            'responses.household.persons.personId1.visitedPlaces.obj2._sequence': 5,
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2, myVal: 'first' },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3, myVal: 'second', other: 'test' },
+            'validations.household.persons.personId1.visitedPlaces.newObj1': { },
+            'responses.household.persons.personId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4 },
+            'validations.household.persons.personId1.visitedPlaces.newObj2': { }
+        }],
+        ['negative object count', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, -1, -1, [], { }],
+        ['negative, but not -1, sequence', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 1, -2, [], {
+            'responses.household.persons.personId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'validations.household.persons.personId1.visitedPlaces.newObj0': { } 
+        }]
+    ]).test('add grouped objects: %s', (_title, previousObj, count, seq, attributes, expected) => {
+        // Mock the uuid return value
+        for (let i = 0; i < count; i++) {
+            (uuidV4 as jest.Mock).mockReturnValueOnce(`newObj${i}`);
+        }
+        const basePath = 'household.persons.personId1.visitedPlaces';
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        interview.responses.household!.persons.personId1.visitedPlaces = previousObj;
+        expect(Helpers.addGroupedObjects(interview, count, seq, basePath, attributes)).toEqual(expected);
+    });
+
+    each([
+        ['single object to remove at the end', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 'obj2', {}, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2'
+        ]],
+        ['multiple objects to remove at the end', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2},
+            obj3: { _uuid: 'obj3', _sequence: 3}
+        }, ['obj2', 'obj3'], {}, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2',
+            'responses.household.persons.personId1.visitedPlaces.obj3',
+            'validations.household.persons.personId1.visitedPlaces.obj3'
+        ]],
+        ['single object to remove in the middle', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2},
+            obj3: { _uuid: 'obj3', _sequence: 3}
+        }, 'obj2', {
+            'responses.household.persons.personId1.visitedPlaces.obj3._sequence': 2
+        }, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2'
+        ]],
+        ['multiple objects to remove at various location', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2},
+            obj3: { _uuid: 'obj3', _sequence: 3},
+            obj4: { _uuid: 'obj4', _sequence: 4},
+            obj5: { _uuid: 'obj5', _sequence: 5}
+        }, ['obj2', 'obj4'], {
+            'responses.household.persons.personId1.visitedPlaces.obj3._sequence': 2,
+            'responses.household.persons.personId1.visitedPlaces.obj5._sequence': 3
+        }, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2',
+            'responses.household.persons.personId1.visitedPlaces.obj4',
+            'validations.household.persons.personId1.visitedPlaces.obj4'
+        ]],
+        ['unexisting objects', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, 'objnone', {}, []],
+        ['no path to remove', {
+            obj1: { _uuid: 'obj1', _sequence: 1},
+            obj2: { _uuid: 'obj2', _sequence: 2}
+        }, [], {}, []],
+        ['No sequence in previous object data', {
+            obj1: { _uuid: 'obj1'},
+            obj2: { _uuid: 'obj2'},
+            obj3: { _uuid: 'obj3'}
+        }, ['obj2'], {
+            'responses.household.persons.personId1.visitedPlaces.obj3._sequence': 2
+        }, [
+            'responses.household.persons.personId1.visitedPlaces.obj2',
+            'validations.household.persons.personId1.visitedPlaces.obj2'
+        ]]
+    ]).test('remove grouped objects: %s', (_title, previousObj, paths, expectedByPath, expectedUnset) => {
+        const basePath = 'household.persons.personId1.visitedPlaces';
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        const completePaths = typeof paths === 'string' ? `${basePath}.${paths}` : paths.map(path => `${basePath}.${path}`);
+        interview.responses.household!.persons.personId1.visitedPlaces = previousObj;
+        expect(Helpers.removeGroupedObjects(interview, completePaths)).toEqual([expectedByPath, expectedUnset]);
+    });
 });
