@@ -16,6 +16,26 @@ import { Household, Person, Trip, UserInterviewAttributes, VisitedPlace } from '
 // stabilized and are ready to be used during the survey
 
 /**
+ * Get a person by its ID or the currently actively person if no ID is specified
+ * 
+ * @param {UserInterviewAttributes} interview 
+ * @param {string|null} [personId=null] 
+ * @returns 
+ */
+export const getPerson = (interview: UserInterviewAttributes, personId: string | null = null): Person | null => {
+    const requestedPersonId = personId || getResponse(interview, '_activePersonId', null);
+    if (requestedPersonId) {
+        return getResponse(
+            interview,
+            `household.persons.${requestedPersonId}`,
+            null
+        ) as Person;
+    } else {
+        return null;
+    }
+};
+
+/**
  * Get the household object in the interview responses, or an empty object if
  * the household has not been initialized
  *
@@ -70,6 +90,26 @@ export const getPersonsArray = (interview: UserInterviewAttributes): Person[] =>
     return Object.values(persons).sort((personA, personB) => {
         return personA._sequence - personB._sequence;
     });
+};
+
+export const getActiveTrip = (interview: UserInterviewAttributes, person: Person | null = null) => {
+    const requestedPerson = person || getPerson(interview);
+    if (requestedPerson === null) {
+        return null;
+    }
+    const trips = getTrips(requestedPerson);
+    const activeTripId = getResponse(interview, '_activeTripId', null) as string | null;
+    return activeTripId ? trips[activeTripId] : null;
+};
+
+export const getTrips = function (person: Person): { [tripId: string]: Trip } {
+    const trips = person.trips || {};
+    return trips;
+};
+
+export const getTripsArray = function (person: Person): Trip[] {
+    const trips = getTrips(person);
+    return Object.values(trips).sort((tripA, tripB) => tripA._sequence - tripB._sequence);
 };
 
 /**
