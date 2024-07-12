@@ -9,6 +9,7 @@ import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
+import { getHousehold, getActivePerson } from 'evolution-common/lib/services/odSurvey/helpers';
 import helper from '../helper';
 import waterBoundaries  from '../waterBoundaries.json';
 
@@ -36,30 +37,30 @@ export const personWorkOnTheRoad = {
   ],
   label: {
     fr: function(interview, path) {
-      const householdSize = surveyHelperNew.getHousehold(interview).size;
+      const householdSize = getHousehold(interview).size;
       if (householdSize === 1)
       {
         return `Travaillez-vous sur la route de manière régulière (${surveyHelperNew.getResponse(interview, path, null, '../gender') == 'female' ? "livreuse, représentante, conductrice, policière" : "livreur, représentant, chauffeur, policier"}, etc.)?`;
       }
       const person       = helper.getPerson(interview);
       const genderString = helper.getGenderString(person, "livreuse, représentante, conductrice, policière", "livreur, représentant, chauffeur, policier", "livreur/se, représentant(e), conducteur/trice, policier/ère", "livreur/se, représentant(e), conducteur/trice, policier/ère")
-      return `Est-ce que ${surveyHelperNew.getCurrentPerson(interview).nickname || ''} travaille sur la route de manière régulière (${genderString}, etc.)?`;
+      return `Est-ce que ${getActivePerson(interview).nickname || ''} travaille sur la route de manière régulière (${genderString}, etc.)?`;
     },
     en: function(interview, path) {
-      const householdSize = surveyHelperNew.getHousehold(interview).size;
+      const householdSize = getHousehold(interview).size;
       if (householdSize === 1)
       {
         return `Do you work on the road on a regular basis (deliverer, representative, driver, police officer, etc.)?`;
       }
-      return `Does ${surveyHelperNew.getCurrentPerson(interview).nickname || ''} work on the road on a regular basis (deliverer, representative, driver, police officer, etc.)?`;
+      return `Does ${getActivePerson(interview).nickname || ''} work on the road on a regular basis (deliverer, representative, driver, police officer, etc.)?`;
     }
   },
   conditional: function(interview, path) {
-    const occupation = (surveyHelperNew.getCurrentPerson(interview) as any).occupation;
+    const occupation = (getActivePerson(interview) as any).occupation;
     return (!_isBlank(occupation) && helper.isWorker(occupation));
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const occupation = (surveyHelperNew.getCurrentPerson(interview) as any).occupation;
+    const occupation = (getActivePerson(interview) as any).occupation;
     return [
       {
         validation: _isBlank(value) && !_isBlank(occupation) && helper.isWorker(occupation),

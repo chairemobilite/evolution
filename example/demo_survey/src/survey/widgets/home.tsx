@@ -11,6 +11,7 @@ import { TFunction } from 'i18next';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
+import { getHousehold } from 'evolution-common/lib/services/odSurvey/helpers';
 import waterBoundaries  from '../waterBoundaries.json';
 
 export const homeIntro = {
@@ -184,7 +185,7 @@ export const householdCarNumber = {
     }
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const householdSize: any = surveyHelperNew.getHousehold(interview).size;
+    const householdSize: any = getHousehold(interview).size;
     return [
       {
         validation: (isNaN(Number(value)) || !Number.isInteger(Number(value))),

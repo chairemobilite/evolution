@@ -14,14 +14,15 @@ import moment from 'moment';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
-import {
-    Household,
-    InterviewResponses,
-    Person,
-    UserInterviewAttributes,
-    VisitedPlace
-} from '../services/interviews/interview';
+import { InterviewResponses, UserInterviewAttributes } from '../services/interviews/interview';
 import { Uuidable } from '../services/baseObjects/Uuidable';
+import * as odSurveyHelpers from '../services/odSurvey/helpers';
+
+// The helpers in this file are used to manipulate and parse the survey model,
+// regardless of the data it contains. The involve the higher level interview
+// object and the widget data and functions.
+
+// For data manipulation, see the helpers in the odSurvey folder.
 
 export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
 
@@ -370,10 +371,10 @@ export const setResponse = (
  *
  * @param interview The interview object
  * @returns The household object
+ * @deprecated use {@link odSurveyHelpers.getHousehold} instead, this is just an
+ * alias
  */
-export const getHousehold = (interview: UserInterviewAttributes): Partial<Household> => {
-    return interview.responses.household || {};
-};
+export const getHousehold = odSurveyHelpers.getHousehold;
 
 /**
  * Get the currently active person, as defined in the interview responses. If
@@ -383,20 +384,10 @@ export const getHousehold = (interview: UserInterviewAttributes): Partial<Househ
  *
  * @param interview The interview object
  * @returns The current person object
+ * @deprecated use {@link odSurveyHelpers.getActivePerson} instead. This is
+ * just an alias
  */
-export const getCurrentPerson = (interview: UserInterviewAttributes): Partial<Person> => {
-    const currentPerson = interview.responses._activePersonId;
-    const hh = getHousehold(interview);
-    if (currentPerson !== undefined) {
-        return hh !== null ? (hh.persons || {})[currentPerson] || {} : {};
-    } else {
-        // Get first person
-        const persons = Object.values(hh.persons || {});
-        // TODO: Fix this type, it should be a Person[] or {}
-        // but I need it like that for now because it's not working with Generator
-        return persons.length !== 0 ? (persons[0] as Partial<Person>) : ({} as Partial<Person>);
-    }
-};
+export const getCurrentPerson = odSurveyHelpers.getActivePerson;
 
 /**
  * Get a validation value value for a specific path in the interview
@@ -477,27 +468,25 @@ export const isPhoneNumber = (maybeNumber: string) => {
     // Thanks to https://stackoverflow.com/questions/16699007/regular-expression-to-match-standard-10-digit-phone-number
 };
 
-export const getPersons = (interview: UserInterviewAttributes): { [personId: string]: Person } => {
-    return (interview.responses.household || {}).persons || {};
-};
+/**
+ * @deprecated Use {@link odSurveyHelpers.getPersons} instead, this is just an alias
+ * */
+export const getPersons = odSurveyHelpers.getPersons;
 
-export const getPersonsArray = (interview: UserInterviewAttributes): Person[] => {
-    const persons = getPersons(interview);
-    return Object.values(persons).sort((personA, personB) => {
-        return personA._sequence - personB._sequence;
-    });
-};
+/**
+ * @deprecated Use {@link odSurveyHelpers.getPersonsArray} instead, this is just an alias
+ */
+export const getPersonsArray = odSurveyHelpers.getPersonsArray;
 
-export const getVisitedPlaces = (person: Person): { [visitedPlaceId: string]: VisitedPlace } => {
-    return person.visitedPlaces || {};
-};
+/**
+ * @deprecated Use {@link odSurveyHelpers.getVisitedPlaces} instead, this is just an alias
+ */
+export const getVisitedPlaces = odSurveyHelpers.getVisitedPlaces;
 
-export const getVisitedPlacesArray = (person: Person) => {
-    const visitedPlaces = getVisitedPlaces(person);
-    return Object.values(visitedPlaces).sort((visitedPlaceA, visitedPlaceB) => {
-        return visitedPlaceA._sequence - visitedPlaceB._sequence;
-    });
-};
+/**
+ * @deprecated Use {@link odSurveyHelpers.getVisitedPlacesArray} instead, this is just an alias
+ */
+export const getVisitedPlacesArray = odSurveyHelpers.getVisitedPlacesArray;
 
 /**
  * Replace visited places that are shortcuts to the given location by the data
@@ -505,50 +494,9 @@ export const getVisitedPlacesArray = (person: Person) => {
  * use the first place as new shortcut
  * @param interview The interview
  * @param visitedPlacesPath The path of the visited place to replace
+ * @deprecated Use {@link odSurveyHelpers.replaceVisitedPlaceShortcuts} instead, this is just an alias
  */
-export const replaceVisitedPlaceShortcuts = (
-    interview: UserInterviewAttributes,
-    shortcutTo: string
-): { updatedValuesByPath: { [path: string]: any }; unsetPaths: string[] } | undefined => {
-    const originalVisitedPlace = getResponse(interview, shortcutTo, {}) as VisitedPlace;
-
-    // Find shortcuts to this place
-    const placesWithShortcut = getPersonsArray(interview).flatMap((person) =>
-        getVisitedPlacesArray(person)
-            .filter((visitedPlace) => (visitedPlace as any).shortcut && (visitedPlace as any).shortcut === shortcutTo)
-            .map((visitedPlace) => ({ person, visitedPlace }))
-    );
-
-    if (placesWithShortcut.length === 0) {
-        return undefined;
-    }
-    const updatedValuesByPath: { [path: string]: any } = {};
-    const unsetPaths: string[] = [];
-
-    // Replace first place's name and geography with original and remove shortcut if necessary. The original place can itself be a shortcut
-    const firstVisitedPlace = placesWithShortcut[0];
-    const firstPlacePath = `household.persons.${firstVisitedPlace.person._uuid}.visitedPlaces.${firstVisitedPlace.visitedPlace._uuid}`;
-
-    if ((originalVisitedPlace as any).shortcut) {
-        updatedValuesByPath[`responses.${firstPlacePath}.shortcut`] = (originalVisitedPlace as any).shortcut;
-    } else {
-        unsetPaths.push(`responses.${firstPlacePath}.shortcut`);
-        updatedValuesByPath[`responses.${firstPlacePath}.name`] = (originalVisitedPlace as any).name;
-    }
-    updatedValuesByPath[`responses.${firstPlacePath}.geography`] = (originalVisitedPlace as any).geography;
-
-    // Replace all other places' shortcut with first place
-    placesWithShortcut
-        .slice(1)
-        .forEach(
-            (place) =>
-                (updatedValuesByPath[
-                    `responses.household.persons.${place.person._uuid}.visitedPlaces.${place.visitedPlace._uuid}.shortcut`
-                ] = firstPlacePath)
-        );
-
-    return { updatedValuesByPath, unsetPaths };
-};
+export const replaceVisitedPlaceShortcuts = odSurveyHelpers.replaceVisitedPlaceShortcuts;
 
 const startDateGreaterEqual = (startDate: number | undefined, compare: string | undefined): boolean | null => {
     const interviewStart = startDate ? moment.unix(startDate) : undefined;

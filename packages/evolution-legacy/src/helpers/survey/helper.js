@@ -18,6 +18,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import i18n                     from 'chaire-lib-frontend/lib/config/i18n.config';
 import * as surveyHelperNew     from 'evolution-common/lib/utils/helpers';
+import * as odSurveyHelper     from 'evolution-common/lib/services/odSurvey/helpers';
 import surveyHelper             from './survey';
 import getTripMultimodeCategory from './helperFunctions/getTripMultimodeCategory';
 
@@ -223,7 +224,7 @@ const getSegments = function(trip, asArray = true) {
   return asArray ? [] : {};
 };
 
-const getPersons = (interview, asArray = false) => asArray ? surveyHelperNew.getPersonsArray(interview) : surveyHelperNew.getPersons(interview);
+const getPersons = (interview, asArray = false) => asArray ? odSurveyHelper.getPersonsArray(interview) : odSurveyHelper.getPersons(interview);
 
 const countPersons = function(interview)
 {
@@ -231,13 +232,13 @@ const countPersons = function(interview)
   return Object.keys(personIds).length;
 };
 
-const getVisitedPlaces = (person, asArray = true) => asArray ? surveyHelperNew.getVisitedPlacesArray(person) : surveyHelperNew.getVisitedPlaces(person);
+const getVisitedPlaces = (journey, asArray = true) => asArray ? odSurveyHelper.getVisitedPlacesArray(journey) : odSurveyHelper.getVisitedPlaces(journey);
 
-const getTrips = function(person, asArray = true)
+const getTrips = function(journey, asArray = true)
 {
-  if (person)
+  if (journey)
   {
-    const trips = person.trips || {};
+    const trips = journey.trips || {};
     if (asArray)
     {
       return Object.values(trips).sort((tripA, tripB) => {
