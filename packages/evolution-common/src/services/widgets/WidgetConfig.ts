@@ -8,12 +8,7 @@
 
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { UserInterviewAttributes, InterviewResponsePath, InterviewResponses } from '../interviews/interview';
-import {
-    ParsingFunction,
-    I18nData,
-    InterviewUpdateCallbacks,
-    ParsingFunctionWithCallbacks
-} from '../../utils/helpers';
+import { ParsingFunction, I18nData, InterviewUpdateCallbacks, ParsingFunctionWithCallbacks } from '../../utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { TFunction, i18n } from 'i18next';
 

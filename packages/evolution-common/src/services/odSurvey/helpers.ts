@@ -6,7 +6,7 @@
  */
 
 import { getResponse } from '../../utils/helpers';
-import { Household, Journey, Person, UserInterviewAttributes, VisitedPlace } from '../interviews/interview';
+import { Household, Journey, Person, Trip, UserInterviewAttributes, VisitedPlace } from '../interviews/interview';
 
 // This file contains helper function that retrieves various data from the
 // responses field of the interview
@@ -14,6 +14,22 @@ import { Household, Journey, Person, UserInterviewAttributes, VisitedPlace } fro
 // TODO This should eventually all be replaced with function directly from a
 // survey object that will return other survey objects, once the objects have
 // stabilized and are ready to be used during the survey
+
+/**
+ * Get a person by its ID or the currently actively person if no ID is specified
+ *
+ * @param {UserInterviewAttributes} interview
+ * @param {string|null} [personId=null]
+ * @returns
+ */
+export const getPerson = (interview: UserInterviewAttributes, personId: string | null = null): Person | null => {
+    const requestedPersonId = personId || getResponse(interview, '_activePersonId', null);
+    if (requestedPersonId) {
+        return getResponse(interview, `household.persons.${requestedPersonId}`, null) as Person;
+    } else {
+        return null;
+    }
+};
 
 /**
  * Get the household object in the interview responses, or an empty object if
@@ -73,6 +89,24 @@ export const getPersonsArray = (interview: UserInterviewAttributes): Person[] =>
 };
 
 /**
+ * Get the active journey for a person, or null if there is no active journey,
+ * or if the active journey does not belong to the person.
+ * @param {UserInterviewAttributes} interview The participant interview
+ * @param {Person|null} person The person for which to get the active journey.
+ * If null, the active person will be used.
+ * @returns
+ */
+export const getActiveJourney = (interview: UserInterviewAttributes, person: Person | null = null) => {
+    const requestedPerson = person || getPerson(interview);
+    if (requestedPerson === null) {
+        return null;
+    }
+    const journeys = getJourneys(requestedPerson);
+    const activeJourneyId = getResponse(interview, '_activeJourneyId', null) as string | null;
+    return activeJourneyId ? journeys[activeJourneyId] || null : null;
+};
+
+/**
  * Get the journeys for a person
  * @param {Person} person The person for which to get the journeys
  * @returns {Object} The journeys object, with they key being the journey ID, or
@@ -91,6 +125,45 @@ export const getJourneys = function (person: Person): { [journeyId: string]: Jou
 export const getJourneysArray = function (person: Person): Journey[] {
     const journeys = getJourneys(person);
     return Object.values(journeys).sort((journeyA, journeyB) => journeyA._sequence - journeyB._sequence);
+};
+
+/**
+ * Get the active trip for a journey, or null if there is no active trip,
+ * or if the active trip is not part of the journey
+ * @param {UserInterviewAttributes} interview The participant interview
+ * @param {Journey|null} journey The journey for which to get the active interview.
+ * If null, the active journey will be used.
+ * @returns {Trip|null} The active trip, or `null` if there is no active trip.
+ */
+export const getActiveTrip = (interview: UserInterviewAttributes, journey: Journey | null = null): Trip | null => {
+    const activeJourney = journey !== null ? journey : getActiveJourney(interview);
+    if (activeJourney === null) {
+        return null;
+    }
+    const trips = getTrips(activeJourney);
+    const activeTripId = getResponse(interview, '_activeTripId', null) as string | null;
+    return activeTripId ? trips[activeTripId] || null : null;
+};
+
+/**
+ * Get the trips from a journey
+ * @param {Journey} journey The journey for which to get the trips
+ * @returns {Object} The trips object, with they key being the trip ID, or
+ * an empty object if there are no trips in this journey
+ */
+export const getTrips = function (journey: Journey): { [tripId: string]: Trip } {
+    return journey.trips || {};
+};
+
+/**
+ * Get the trips array from a journey, or an empty array if there are no
+ * trips for this journey.
+ * @param {Journey} journey The journey for which to get the trips
+ * @returns {Journey[]} The trips, sorted by sequence
+ */
+export const getTripsArray = function (journey: Journey): Trip[] {
+    const trips = getTrips(journey);
+    return Object.values(trips).sort((tripA, tripB) => tripA._sequence - tripB._sequence);
 };
 
 /**

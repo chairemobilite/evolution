@@ -7,7 +7,7 @@
 import each from 'jest-each';
 import i18n from 'i18next';
 import _cloneDeep from 'lodash/cloneDeep';
-import { Journey, Person, UserInterviewAttributes } from '../../interviews/interview';
+import { Journey, Person, Trip, UserInterviewAttributes } from '../../interviews/interview';
 
 import * as Helpers from '../helpers';
 
@@ -60,13 +60,15 @@ const interviewAttributesWithHh: UserInterviewAttributes = {
             q1: 'test'
         },
         household: {
-            size: 1,
+            size: 2,
             persons: {
                 personId1: {
-                    _uuid: 'personId1'
+                    _uuid: 'personId1',
+                    _sequence: 1
                 },
                 personId2: {
-                    _uuid: 'personId2'
+                    _uuid: 'personId2',
+                    _sequence: 2
                 }
             }
         }
@@ -158,6 +160,21 @@ describe('getPersons', () => {
     });
 });
 
+each([
+    ['null personId, no active person', interviewAttributesWithHh.responses, null, null],
+    ['null personId, get active person', {
+        ...interviewAttributesWithHh.responses,
+        _activePersonId: 'personId2'
+    }, null, (interviewAttributesWithHh.responses as any).household.persons.personId2],
+    ['Existing person ID', interviewAttributesWithHh.responses, 'personId1', (interviewAttributesWithHh.responses as any).household.persons.personId1],
+    ['Non-existent person ID', interviewAttributesWithHh.responses, 'unexistentPersonId', null],
+    ['Empty household', { household: {} }, 'personId1', null],
+    ['Empty responses', {}, 'personId1', null]
+]).test('getPerson: %s', (_title, responses, personId, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.responses = responses;
+    expect(Helpers.getPerson(interview, personId)).toEqual(expected);
+});
 
 describe('getJourneys', () => {
 
@@ -210,6 +227,104 @@ describe('getJourneys', () => {
         const attributes = _cloneDeep(person);
         attributes.journeys = journeys;
         expect(Helpers.getJourneysArray(attributes)).toEqual([journeys.journeyId2, journeys.journeyId1]);
+    });
+
+    each([
+        ['null personId, no active person, no journey', interviewAttributesWithHh.responses, null, null],
+        ['null personId, get active person, no journey', {
+            ...interviewAttributesWithHh.responses,
+            _activePersonId: 'personId2'
+        }, null, null],
+        ['null personId, get active person, with active journey', {
+            ...interviewAttributesWithHh.responses,
+            household: {
+                ...interviewAttributesWithHh.responses.household,
+                persons: {
+                    ...interviewAttributesWithHh.responses.household!.persons,
+                    personId2: {
+                        ...interviewAttributesWithHh.responses.household!.persons!.personId2,
+                        journeys: journeys
+                    }
+                }
+            },
+            _activePersonId: 'personId2',
+            _activeJourneyId: 'journeyId1'
+        }, null, journeys.journeyId1],
+        ['null personId, get active person, active journey for another person', {
+            ...interviewAttributesWithHh.responses,
+            household: {
+                ...interviewAttributesWithHh.responses.household,
+                persons: {
+                    ...interviewAttributesWithHh.responses.household!.persons,
+                    personId2: {
+                        ...interviewAttributesWithHh.responses.household!.persons!.personId2,
+                        journeys: journeys
+                    }
+                }
+            },
+            _activePersonId: 'personId1',
+            _activeJourneyId: 'journeyId1'
+        }, null, null],
+        ['Existing person, no journey', {
+            ...interviewAttributesWithHh.responses,
+            household: {
+                ...interviewAttributesWithHh.responses.household,
+                persons: {
+                    ...interviewAttributesWithHh.responses.household!.persons,
+                    personId2: {
+                        ...interviewAttributesWithHh.responses.household!.persons!.personId2,
+                        journeys: journeys
+                    }
+                }
+            },
+            _activePersonId: 'personId1',
+            _activeJourneyId: 'journeyId1'
+        }, 'personId1', null],
+        ['Existing person, with active journey', {
+            ...interviewAttributesWithHh.responses,
+            household: {
+                ...interviewAttributesWithHh.responses.household,
+                persons: {
+                    ...interviewAttributesWithHh.responses.household!.persons,
+                    personId2: {
+                        ...interviewAttributesWithHh.responses.household!.persons!.personId2,
+                        journeys: journeys
+                    }
+                }
+            },
+            _activePersonId: 'personId2',
+            _activeJourneyId: 'journeyId2'
+        }, 'personId2', journeys.journeyId2],
+        ['Existing person, active journey not for this person', {
+            ...interviewAttributesWithHh.responses,
+            household: {
+                ...interviewAttributesWithHh.responses.household,
+                persons: {
+                    personId1: {
+                        ...interviewAttributesWithHh.responses.household!.persons!.personId2,
+                        journeys: {
+                            'someJourneyId': {
+                                _uuid: 'someJourneyId',
+                                _sequence: 1
+                            }
+                        }
+                    },
+                    personId2: {
+                        ...interviewAttributesWithHh.responses.household!.persons!.personId2,
+                        journeys: journeys
+                    }
+                }
+            },
+            _activePersonId: 'personId1',
+            _activeJourneyId: 'journeyId1'
+        }, 'personId1', null],
+        ['Empty household', { household: {} }, 'personId1', null],
+        ['Empty responses', {}, 'personId1', null]
+    ]).test('getActiveJourney: %s', (_title, responses, personId, expected) => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        interview.responses = responses;
+        const person = personId === null ? null : interview.responses?.household?.persons ? interview.responses?.household?.persons[personId] : null
+        expect(Helpers.getActiveJourney(interview, person)).toEqual(expected);
     });
 
 });
@@ -428,4 +543,115 @@ describe('replaceVisitedPlaceShortcuts', () => {
             unsetPaths: ['responses.household.persons.person2.journeys.journey1.visitedPlaces.isAShortcut.shortcut']
         });
     });
+});
+
+
+describe('getTrips', () => {
+
+    const journey: Journey = {
+        _uuid: 'arbitraryJourney',
+        _sequence: 1,
+    }
+
+    const trips = {
+        trip1: {
+            _uuid: 'trip1',
+            _sequence: 2
+        },
+        trip2: {
+            _uuid: 'trip2',
+            _sequence: 1
+        }
+    }
+
+    test('object: test without trips', () => {
+        expect(Helpers.getTrips(journey)).toEqual({});
+    });
+
+    test('object: empty trips', () => {
+        const attributes = _cloneDeep(journey);
+        attributes.trips = { };
+        expect(Helpers.getTrips(attributes)).toEqual({});
+    });
+
+    test('object: with trips', () => {
+        const attributes = _cloneDeep(journey);
+        attributes.trips = trips;
+        expect(Helpers.getTrips(attributes)).toEqual(trips);
+    });
+
+    test('array: test without trips', () => {
+        expect(Helpers.getTripsArray(journey)).toEqual([]);
+    });
+
+    test('array: empty trips', () => {
+        const attributes = _cloneDeep(journey);
+        attributes.trips = { };
+        expect(Helpers.getTripsArray(attributes)).toEqual([]);
+    });
+
+    test('array: with trips, ordered', () => {
+        const attributes = _cloneDeep(journey);
+        attributes.trips = trips;
+        expect(Helpers.getTripsArray(attributes)).toEqual([trips.trip2, trips.trip1]);
+    });
+
+    each([
+        ['Null journey, no active journey', { }, false],
+        ['Null journey, active journey, with active trip', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', activeTripId: 'trip1' }, true],
+        ['Null journey, active journey, active trip for another journey', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', activeTripId: 'tripP2T1' }, false],
+        ['With journey and active trip', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', activeTripId: 'tripP2T1', testPersonId: 'personId2', testJourneyId: 'journeyId2' }, true],
+        ['With journey, no active trip', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', testPersonId: 'personId1', testJourneyId: 'journeyId1' }, false],
+        ['With journey, active trip for another journey', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', activeTripId: 'tripP2T1', testPersonId: 'personId1', testJourneyId: 'journeyId1'  }, false]
+    ]).test('getActiveTrip: %s', (_title, testData: { activePersonId?: string, activeJourneyId?: string, activeTripId?: string, testPersonId?: string, testJourneyId?: string }, expectResult) => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        // Set the persons and journeys for the test
+        interview.responses.household!.persons = {
+            personId1: {
+                _uuid: 'personId1',
+                _sequence: 1,
+                journeys: {
+                    journeyId1: {
+                        _uuid: 'journeyId1',
+                        _sequence: 1,
+                        trips: trips
+                    }
+                }
+            },
+            personId2: {
+                _uuid: 'personId2', _sequence: 2,
+                journeys: {
+                    journeyId2: {
+                        _uuid: 'journeyId2',
+                        _sequence: 1,
+                        trips: {
+                            tripP2T1: {
+                                _uuid: 'tripP2T1',
+                                _sequence: 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (testData.activePersonId) {
+            interview.responses._activePersonId = testData.activePersonId;
+        }
+        if (testData.activeJourneyId) {
+            interview.responses._activeJourneyId = testData.activeJourneyId;
+        }
+        if (testData.activeTripId) {
+            interview.responses._activeTripId = testData.activeTripId;
+        }
+        const journey = testData.testPersonId && testData.testJourneyId ? interview.responses.household!.persons![testData.testPersonId].journeys![testData.testJourneyId] : null;
+        const result = expectResult ? interview.responses.household!.persons![(testData.testPersonId || testData.activePersonId) as string].journeys![(testData.testJourneyId || testData.activeJourneyId) as string].trips![testData.activeTripId!] : null;
+        const activeTrip = Helpers.getActiveTrip(interview, journey);
+        if (expectResult) {
+            expect(activeTrip).toBeTruthy();
+            expect(activeTrip).toEqual(result);
+        } else {
+            expect(activeTrip).toEqual(null);
+        }
+    });
+
 });
