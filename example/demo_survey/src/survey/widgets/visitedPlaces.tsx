@@ -30,6 +30,7 @@ import waterBoundaries  from '../waterBoundaries.json';
 import mtlLavalLongueuil from '../mtlLavalLongueuil.json';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
+import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import i18n              from 'chaire-lib-frontend/lib/config/i18n.config';
 import helper from '../helper';
@@ -112,7 +113,7 @@ export const visitedPlacesOutro = {
 
 export const personDeparturePlaceType = {
   type: "question",
-  path: "household.persons.{_activePersonId}.departurePlaceType",
+  path: "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.departurePlaceType",
   inputType: "radio",
   datatype: "string",
   twoColumns: false,
@@ -174,7 +175,7 @@ export const personDeparturePlaceType = {
 
 export const personVisitedPlacesTitle = {
   type: "text",
-  path: "household.persons.{_activePersonId}.personVisitedPlacesTitle",
+  path: "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.personVisitedPlacesTitle",
   align: "left",
   containsHtml: true,
   text: {
@@ -196,7 +197,7 @@ export const personVisitedPlacesTitle = {
 
 export const personVisitedPlacesMap = {
   type: "infoMap",
-  path: "household.persons.{_activePersonId}.visitedPlacesMap",
+  path: "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.visitedPlacesMap",
   defaultCenter: config.mapDefaultCenter,
   title: {
     fr: function(interview, path) {
@@ -291,7 +292,7 @@ export const personVisitedPlacesMap = {
 
 export const personVisitedPlaces: GroupConfig = {
   type: "group",
-  path: "household.persons.{_activePersonId}.visitedPlaces",
+  path: "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.visitedPlaces",
   title: {
     fr: "Lieux visités",
     en: "Visited places"
@@ -412,7 +413,8 @@ export const visitedPlaceActivity = {
   label: {
     fr: function(interview, path) {
       const person = helper.getPerson(interview);
-      const visitedPlaces = helper.getVisitedPlaces(person, true);
+      const journey = odSurveyHelper.getJourneysArray(person)[0];
+      const visitedPlaces = odSurveyHelper.getVisitedPlacesArray(journey);
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -427,7 +429,8 @@ export const visitedPlaceActivity = {
     },
     en: function(interview, path) {
       const person = helper.getPerson(interview);
-      const visitedPlaces = helper.getVisitedPlaces(person, true);
+      const journey = odSurveyHelper.getJourneysArray(person)[0];
+      const visitedPlaces = odSurveyHelper.getVisitedPlacesArray(journey);
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -937,7 +940,7 @@ export const visitedPlaceGeography = {
   validations: function(value, customValue, interview, path, customPath) {
     const activity: any = surveyHelperNew.getResponse(interview, path, null, '../activity');
     const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
-    const geocodingTextInput = geography.properties?.geocodingQueryString;
+    const geocodingTextInput = geography?.properties?.geocodingQueryString;
 
     return [{
       validation: ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(activity) <= -1 && surveyHelper.isBlank(value),
@@ -947,14 +950,14 @@ export const visitedPlaceGeography = {
       }
     },
     {
-      validation: geography && geography.properties.lastAction && (geography.properties.lastAction === 'mapClicked' || geography.properties.lastAction === 'markerDragged') && geography.properties.zoom < 14,
+      validation: geography && geography.properties?.lastAction && (geography.properties.lastAction === 'mapClicked' || geography.properties.lastAction === 'markerDragged') && geography.properties.zoom < 14,
       errorMessage: {
         fr: `Le positionnement du lieu n'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l'icône.`,
         en: `Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.`
       }
     },
     {
-      validation: geography.properties.isGeocodingImprecise,
+      validation: geography && geography.properties?.isGeocodingImprecise,
       errorMessage: {
         fr: `Le nom du lieu utilisé pour effectuer la recherche ${!_isBlank(geocodingTextInput) ? `("${geocodingTextInput}")` : ''} n'est pas assez précis. Ajoutez de l'information ou précisez la localisation à l'aide de la carte.`,
         en: `The location name used for searching ${!_isBlank(geocodingTextInput) ? `("${geocodingTextInput}")` : ''} is not specific enough. Please add information or specify the location more precisely using the map.`,
@@ -1061,7 +1064,7 @@ export const visitedPlaceArrivalTime = {
       const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
       const person        = helper.getPerson(interview);
       const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
-      const nickname      = surveyHelperNew.getResponse(interview, path, null, "../../../nickname");
+      const nickname      = surveyHelperNew.getResponse(interview, path, null, "../../../../../nickname");
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       const isAlone       = householdSize === 1;
       let   placeStr      = 'à cet endroit';
@@ -1194,7 +1197,7 @@ export const visitedPlaceDepartureTime = {
   label: {
     fr: function(interview, path) {
       const visitedPlace: any  = surveyHelperNew.getResponse(interview, path, null, '../');
-      const nickname      = surveyHelperNew.getResponse(interview, path, null, "../../../nickname");
+      const nickname      = surveyHelperNew.getResponse(interview, path, null, "../../../../../nickname");
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       const isAlone       = householdSize === 1;
       let   placeStr      = 'cet endroit';
@@ -1328,8 +1331,10 @@ export const visitedPlaceNextPlaceCategory = {
       },
       conditional: function(interview) {
         const person         = helper.getPerson(interview);
+        const journeys = odSurveyHelper.getJourneysArray(person);
+        const currentJourney = journeys[0];
         const visitedPlaceId = helper.getActiveVisitedPlaceId(interview);
-        const visitedPlace: any  = surveyHelperNew.getResponse(interview, `household.persons.${person._uuid}.visitedPlaces.${visitedPlaceId}`, null);
+        const visitedPlace: any  = surveyHelperNew.getResponse(interview, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${visitedPlaceId}`, null);
         return visitedPlace.activity !== 'home';
       }
     },
@@ -1461,7 +1466,7 @@ export const visitedPlaceNextPlaceCategory = {
 export const personLastVisitedPlaceNotHome = {
   type: "question",
   inputType: "button",
-  path: "household.persons.{_activePersonId}.lastVisitedPlaceNotHome",
+  path: "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.lastVisitedPlaceNotHome",
   align: "center",
   datatype: "boolean",
   twoColumns: false,
@@ -1595,13 +1600,15 @@ export const buttonSaveVisitedPlace = {
   align: 'center',
   saveCallback: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
     const person                   = helper.getPerson(interview);
-    const visitedPlaces            = helper.getVisitedPlaces(person);
+    const journeys = odSurveyHelper.getJourneysArray(person);
+    const currentJourney = journeys[0];
+    const visitedPlaces            = odSurveyHelper.getVisitedPlacesArray(currentJourney);
     const visitedPlace: any        = surveyHelperNew.getResponse(interview, path, null, '../');
-    const visitedPlacePath         = `household.persons.${person._uuid}.visitedPlaces.${visitedPlace._uuid}`;
+    const visitedPlacePath         = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${visitedPlace._uuid}`;
     const previousVisitedPlace     = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);
-    const previousVisitedPlacePath = previousVisitedPlace ? `household.persons.${person._uuid}.visitedPlaces.${previousVisitedPlace._uuid}` : null;
+    const previousVisitedPlacePath = previousVisitedPlace ? `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${previousVisitedPlace._uuid}` : null;
     const nextVisitedPlace         = helper.getNextVisitedPlace(visitedPlace._uuid, visitedPlaces);
-    const nextVisitedPlacePath     = nextVisitedPlace ? `household.persons.${person._uuid}.visitedPlaces.${nextVisitedPlace._uuid}` : null;
+    const nextVisitedPlacePath     = nextVisitedPlace ? `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${nextVisitedPlace._uuid}` : null;
     const updateValuesbyPath       = {};
     if (previousVisitedPlace && previousVisitedPlace.nextPlaceCategory !== 'wentBackHome' && visitedPlace.activity === 'home')
     {
@@ -1627,7 +1634,7 @@ export const buttonSaveVisitedPlace = {
       const nextVisitedPlace = helper.getNextVisitedPlace(visitedPlace._uuid, visitedPlaces);
       if (!_isBlank(visitedPlace.activity) && visitedPlace.activity !== 'home' && (!nextVisitedPlace || nextVisitedPlace.activity !== 'home'))
       {
-        callbacks.startAddGroupedObjects(1, visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.visitedPlaces`, [{activity: 'home'}], (function() {
+        callbacks.startAddGroupedObjects(1, visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, [{activity: 'home'}], (function() {
           const person        = helper.getPerson(interview);
           const visitedPlaces = helper.getVisitedPlaces(person);
           updateValuesbyPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);

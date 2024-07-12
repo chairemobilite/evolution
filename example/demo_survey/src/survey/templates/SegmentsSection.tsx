@@ -29,6 +29,7 @@ import { Group, GroupedObject } from 'evolution-frontend/lib/components/survey/G
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
 import helper          from '../helper';
+import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
 
 //const ResponsiveEllipsis = responsiveHOC()(HTMLEllipsis);
@@ -106,11 +107,13 @@ export class SegmentsSection extends React.Component<any, any> {
     const widgetsComponentsByShortname = {};
     const personTripsConfig            = this.props.surveyContext.widgets['personTrips'];
     const person                       = helper.getPerson(this.props.interview);
+    const journeys = odSurveyHelper.getJourneysArray(person);
+    const currentJourney = journeys[0];
 
-    const trips      = helper.getTrips(person);
+    const trips      = currentJourney.trips || {};
     const tripsList  = [];
 
-    const visitedPlaces = person ? person.visitedPlaces || {} : {};
+    const visitedPlaces = currentJourney.visitedPlaces || {};
     const selectedTripId  = helper.getActiveTripId(this.props.interview);
     let   selectedTrip    = selectedTripId ? trips[selectedTripId] : null;
 
@@ -154,12 +157,12 @@ export class SegmentsSection extends React.Component<any, any> {
       widgetsComponentsByShortname[widgetShortname] = component;
     }
     
-    for (let i = 0, count = trips.length; i < count; i++)
+    for (let i = 0, count = Object.keys(trips).length; i < count; i++)
     {
-      const trip             = trips[i];
-      const origin           = visitedPlaces[trip._originVisitedPlaceUuid];
-      const destination      = visitedPlaces[trip._destinationVisitedPlaceUuid];
-      const tripPath         = `household.persons.${person._uuid}.trips.${trip._uuid}`;
+      const trip             = trips[Object.keys(trips)[i]];
+      const origin           = visitedPlaces[trip._originVisitedPlaceUuid] as any;
+      const destination      = visitedPlaces[trip._destinationVisitedPlaceUuid] as any;
+      const tripPath         = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips.${trip._uuid}`;
       let   selectedTrip     = null;
       const modeIcons        = [];
 

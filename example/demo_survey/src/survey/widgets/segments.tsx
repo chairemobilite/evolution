@@ -14,6 +14,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
+import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import helper from '../helper';
 import subwayStations from '../subwayStations.json';
 import trainStations  from '../trainStations.json';
@@ -22,7 +23,7 @@ import { GroupConfig } from 'evolution-common/lib/services/widgets';
 
 export const personTrips: GroupConfig = {
   type: "group",
-  path: "household.persons.{_activePersonId}.trips",
+  path: "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.trips",
   title: {
     fr: "Déplacements",
     en: "Trips"
@@ -2759,8 +2760,10 @@ export const segmentParkingPaymentType = {
                 },
                 conditional: function(interview, path) {
                   const person = helper.getPerson(interview);
+                  const journeys = odSurveyHelper.getJourneysArray(person);
+                  const currentJourney = journeys[journeys.length - 1];
                   const trip: any = surveyHelperNew.getResponse(interview, path, null, '../../');
-                  const visitedPlaces = person.visitedPlaces;
+                  const visitedPlaces = currentJourney.visitedPlaces;
                   const destination = trip && trip._destinationVisitedPlaceUuid && visitedPlaces[trip._destinationVisitedPlaceUuid] ? visitedPlaces[trip._destinationVisitedPlaceUuid] : null;
                   const destinationActivity = destination ? destination.activity : null;
                   return ['workUsual', 'workNotUsual', 'workOnTheRoad', 'workOnTheRoadFromUsualWork'].indexOf(destinationActivity) > -1;
