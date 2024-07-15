@@ -51,6 +51,10 @@ def generate_choices(input_file: str, output_file: str):
             sheet_name="Choices",
         )
 
+        # Check if the sheet has custom conditionals import and conditionals import
+        has_conditionals_import = False
+        has_custom_conditionals_import = False
+
         # Iterate through each row in the sheet, starting from the second row
         for row in list(sheet.rows)[1:]:
             # Create a dictionary from the row values and headers
@@ -74,9 +78,17 @@ def generate_choices(input_file: str, output_file: str):
                 "spread_choices_name": spread_choices_name,
             }
 
-            # Add the 'conditional' field only if it exists
-            if "conditional":
-                choice["conditional"] = conditional
+            # Add conditional field to choice object if it exists
+            if conditional is not None and conditional.endswith("CustomConditional"):
+                # Check to see if the conditional finish with 'CustomConditional'
+                has_custom_conditionals_import = True
+                choice["conditional"] = f"customConditionals.{conditional}"
+            if conditional is not None and not conditional.endswith(
+                "CustomConditional"
+            ):
+                # Check to see if the conditional does not finish with 'CustomConditional'
+                has_conditionals_import = True
+                choice["conditional"] = f"conditionals.{conditional}"
 
             # Group choices by choiceName using defaultdict
             choices_by_name[choice_name].append(choice)
@@ -89,16 +101,13 @@ def generate_choices(input_file: str, output_file: str):
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += (
-            f"import {{ Choices }} from 'evolution-generator/lib/types/inputTypes';\n"
-        )
-        ts_code += f"import * as conditionals from './conditionals';\n\n"
+        ts_code += generate_import_statements(has_conditionals_import, has_custom_conditionals_import)
 
         for choice_name, choices in choices_by_name.items():
             # Create a TypeScript const statement for each choiceName
             ts_code += f"export const {choice_name}: Choices = [\n"
             for index, choice in enumerate(choices):
-                if choice["spread_choices_name"] is not None:
+                if choice.get("spread_choices_name", None) is not None:
                     # Spread choices from another choiceName when spread_choices_name is not None
                     ts_code += f"{INDENT}...{choice['spread_choices_name']}"
                 else:
@@ -108,11 +117,11 @@ def generate_choices(input_file: str, output_file: str):
                         f"{INDENT}{INDENT}label: {{\n"
                         f"{INDENT}{INDENT}{INDENT}fr: '{choice['label']['fr']}',\n"
                         f"{INDENT}{INDENT}{INDENT}en: '{choice['label']['en']}'\n"
-                        f"{INDENT}{INDENT}}}{',' if choice['conditional'] else ''}\n"
+                        f"{INDENT}{INDENT}}}{',' if choice.get("conditional", None) is not None else ''}\n"
                     )
                     # Add the 'conditional' field only if it exists
-                    if "conditional" in choice and choice["conditional"] is not None:
-                        ts_code += f"{INDENT}{INDENT}conditional: conditionals.{choice['conditional']},\n"
+                    if choice.get("conditional", None) is not None:
+                        ts_code += f"{INDENT}{INDENT}conditional: {choice['conditional']},\n"
 
                     ts_code += f"{INDENT}}}"
                 if index < len(choices) - 1:
@@ -131,3 +140,21 @@ def generate_choices(input_file: str, output_file: str):
         # Handle any other exceptions that might occur during script execution
         print(f"An error occurred: {e}")
         raise e
+
+
+# Generate import statement if needed
+def generate_import_statements(
+    has_conditionals_import,
+    has_custom_conditionals_import,
+):
+    conditionals_import = (
+        "// " if not has_conditionals_import else ""
+    ) + "import * as conditionals from './conditionals';\n"
+    custom_conditionals_import = (
+        "// " if not has_custom_conditionals_import else ""
+    ) + "import * as customConditionals from './customConditionals';\n"
+    return (
+        f"import {{ Choices }} from 'evolution-generator/lib/types/inputTypes';\n"
+        f"{conditionals_import}"
+        f"{custom_conditionals_import}\n"
+    )

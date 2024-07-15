@@ -54,7 +54,8 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                 if row['conditional'] and row['conditional'].endswith('CustomConditional'):
                     # Check to see if the conditional finish with 'CustomConditional'
                     has_custom_conditionals_import = True
-                elif row['conditional']:
+                elif row['conditional'] and not row['conditional'].endswith('CustomConditional'):
+                    # Check to see if the conditional is not empty and does not finish with 'CustomConditional'
                     has_conditionals_import = True
                 if row['inputRange']:
                     has_input_range_import = True
