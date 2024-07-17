@@ -66,6 +66,8 @@ type SurveyPointProperties = {
 
 export type Person = PersonAttributes & {
     _sequence: number;
+    /** uuid of the person who responds for this person (for household where more than 1 person have more than the minimum self response age) */
+    whoWillAnswerForThisPerson?: string;
     journeys?: {
         [journeyId: string]: Journey;
     };
@@ -87,10 +89,14 @@ export type VisitedPlace = {
     _sequence: number;
     _uuid: string;
     activity?: Optional<VPAttr.Activity>;
+    activityCategory?: Optional<VPAttr.ActivityCategory>;
     geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
     departureTime?: number;
     arrivalTime?: number;
-} & ({ name?: string } | { shortcut?: string });
+} & (
+    | { alreadyVisitedBySelfOrAnotherHouseholdMember?: false; name?: string; shortcut?: never }
+    | { alreadyVisitedBySelfOrAnotherHouseholdMember: true; name?: never; shortcut?: string }
+);
 
 export type Trip = TripAttributes & {
     _sequence: number;
@@ -104,6 +110,7 @@ export type Trip = TripAttributes & {
 export type Segment = SegmentAttributes & {
     _sequence: number;
     modePre?: string;
+    sameModeAsReverseTrip?: boolean;
 };
 
 type SectionStatus = {
@@ -153,6 +160,7 @@ export type InterviewResponses = {
     home?: {
         region?: string;
         country?: string;
+        geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
     };
     // TODO Refactor the types to use the new types in surveyObjects
     [key: string]: any;
