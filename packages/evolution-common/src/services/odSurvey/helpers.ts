@@ -5,8 +5,19 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse } from '../../utils/helpers';
-import { Household, Journey, Person, Trip, UserInterviewAttributes, VisitedPlace } from '../interviews/interview';
+import {
+    Household,
+    Journey,
+    Person,
+    Segment,
+    Trip,
+    UserInterviewAttributes,
+    VisitedPlace
+} from '../interviews/interview';
+import { TFunction } from 'i18next';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 
 // This file contains helper function that retrieves various data from the
 // responses field of the interview
@@ -14,6 +25,12 @@ import { Household, Journey, Person, Trip, UserInterviewAttributes, VisitedPlace
 // TODO This should eventually all be replaced with function directly from a
 // survey object that will return other survey objects, once the objects have
 // stabilized and are ready to be used during the survey
+
+// Person and household related functions
+
+// Age for self response. It can be configured ine the survey's configuration by setting the `selfResponseMinimumAge` property
+// TODO Type and document this configuration property
+const selfResponseAge = config.selfResponseMinimumAge || 14;
 
 /**
  * Get a person by its ID or the currently actively person if no ID is specified
@@ -89,6 +106,53 @@ export const getPersonsArray = (interview: UserInterviewAttributes): Person[] =>
 };
 
 /**
+ * Count the number of persons in the household. This function uses the person
+ * defined in the household and not the household size specified by the
+ * respondent.
+ * @param {UserInterviewAttributes} interview The interview object
+ * @returns The number of persons in the household
+ */
+export const countPersons = (interview: UserInterviewAttributes): number => {
+    const personIds = getResponse(interview, 'household.persons', {}) as { [personId: string]: Person };
+    return Object.keys(personIds).length;
+};
+
+/**
+ * Return whether the person is self-declared or not. A person is self-declared
+ * if she is responding for herself and has an age greater than the
+ * self-response age defined in the configuration
+ * @param {UserInterviewAttributes} interview The interview object
+ * @param {Person} person The person to check
+ * @returns `true` if the person is self-declared, `false` otherwise
+ */
+export const isSelfDeclared = (interview: UserInterviewAttributes, person: Person): boolean => {
+    const persons: any = getPersonsArray(interview);
+    const personsCanSelfRespond = persons.filter((p: Person) => p.age && p.age >= selfResponseAge);
+    return (
+        (personsCanSelfRespond.length === 1 && person._uuid === personsCanSelfRespond[0]._uuid) ||
+        (!_isBlank(person.whoWillAnswerForThisPerson) ? person.whoWillAnswerForThisPerson === person._uuid : false)
+    );
+};
+
+/**
+ * Return the number of person in the household, or if the person is
+ * self-declared, it will return 1. This function is used to know if the
+ * labels should directly address the respondent or use a nickname
+ *
+ * @param {UserInterviewAttributes} interview The interview
+ * @param {Person} person The current person being interviews
+ */
+export const getCountOrSelfDeclared = (interview: UserInterviewAttributes, person: Person): number => {
+    const personsCount = countPersons(interview);
+    if (personsCount > 1 && isSelfDeclared(interview, person)) {
+        return 1;
+    }
+    return personsCount;
+};
+
+// *** Journey-related functions
+
+/**
  * Get the active journey for a person, or null if there is no active journey,
  * or if the active journey does not belong to the person.
  * @param {UserInterviewAttributes} interview The participant interview
@@ -126,6 +190,8 @@ export const getJourneysArray = function (person: Person): Journey[] {
     const journeys = getJourneys(person);
     return Object.values(journeys).sort((journeyA, journeyB) => journeyA._sequence - journeyB._sequence);
 };
+
+// *** Trip-related functions
 
 /**
  * Get the active trip for a journey, or null if there is no active trip,
@@ -165,6 +231,46 @@ export const getTripsArray = function (journey: Journey): Trip[] {
     const trips = getTrips(journey);
     return Object.values(trips).sort((tripA, tripB) => tripA._sequence - tripB._sequence);
 };
+
+/**
+ * Get the previous trip from a journey, chronologically
+ * @param {Trip} currentTrip The current trip, of which to get the previous trip
+ * @param {Journey} journey The journey for which to get the trips
+ * @returns {Trip|null} The previous trips, or `null` if the trip is the first
+ */
+export const getPreviousTrip = (currentTrip: Trip, journey: Journey): Trip | null => {
+    const trips = getTripsArray(journey);
+    const indexOfTrip = trips.findIndex((trip) => trip._uuid === currentTrip._uuid);
+    return indexOfTrip > 0 ? trips[indexOfTrip - 1] : null;
+};
+
+/**
+ * Get the origin visited place of a trip
+ * @param {Trip} trip The trip for which to get the origin visited place
+ * @param {Object} visitedPlaces The object containing all visited places, keyed by ID
+ * @returns The origin visited place, or `null` if the place does not exist
+ */
+export const getOrigin = function (
+    trip: Trip,
+    visitedPlaces: { [visitedPlaceId: string]: VisitedPlace }
+): VisitedPlace | null {
+    return trip._originVisitedPlaceUuid ? visitedPlaces[trip._originVisitedPlaceUuid] || null : null;
+};
+
+/**
+ * Get the destination visited place of a trip
+ * @param {Trip} trip The trip for which to get the destination visited place
+ * @param {Object} visitedPlaces The object containing all visited places, keyed by ID
+ * @returns The destination visited place, or `null` if the place does not exist
+ */
+export const getDestination = function (
+    trip: Trip,
+    visitedPlaces: { [visitedPlaceId: string]: VisitedPlace }
+): VisitedPlace | null {
+    return trip._destinationVisitedPlaceUuid ? visitedPlaces[trip._destinationVisitedPlaceUuid] || null : null;
+};
+
+// *** Visited place-related functions
 
 /**
  * Get the visited places object for a journey, or an empty object if
@@ -242,4 +348,79 @@ export const replaceVisitedPlaceShortcuts = (
         );
 
     return { updatedValuesByPath, unsetPaths };
+};
+
+/**
+ * Returns visited place name string. If no name will return generic name followed by sequence
+ * @param {TFunction} t
+ * @param {VisitedPlace} visitedPlace
+ * @param {UserInterviewAttributes} interview
+ * @returns visitedPlace name
+ */
+export const getVisitedPlaceName = function (
+    t: TFunction,
+    visitedPlace: VisitedPlace,
+    interview: UserInterviewAttributes
+): string {
+    if (visitedPlace && visitedPlace.activity === 'home') {
+        return t(`survey:visitedPlace:activityCategories:${visitedPlace.activity}`);
+    }
+
+    // Resolve any shortcut, then return the name if available
+    const actualVisitedPlace =
+        visitedPlace.alreadyVisitedBySelfOrAnotherHouseholdMember && visitedPlace.shortcut !== undefined
+            ? getResponse(interview, visitedPlace.shortcut, null)
+            : visitedPlace;
+    console.log('visitedPlace', visitedPlace, actualVisitedPlace);
+    if (actualVisitedPlace && (actualVisitedPlace as VisitedPlace).name) {
+        return (actualVisitedPlace as VisitedPlace).name as string;
+    }
+
+    return `${t('survey:placeGeneric')} ${visitedPlace._sequence}`;
+};
+
+/**
+ * Returns the visited place geography.
+ * @param {VisitedPlace} visitedPlace
+ * @param {UserInterviewAttributes} interview
+ * @returns {GeoJSON.Feature<GeoJSON.Point> | null} The visited place geography,
+ * or `null` if it does not exist
+ */
+export const getVisitedPlaceGeography = function (
+    visitedPlace: VisitedPlace,
+    interview: UserInterviewAttributes
+): GeoJSON.Feature<GeoJSON.Point> | null {
+    let geojson: GeoJSON.Feature<GeoJSON.Point> | null = null;
+    // FIXME In some surveys, 'workUsual' and 'schoolUsual' are special cases, like
+    // 'home', but as long as it is not properly specified, this helper function
+    // cannot handle them properly
+    if (visitedPlace.activity === 'home') {
+        geojson = getResponse(interview, 'home.geography', null) as GeoJSON.Feature<GeoJSON.Point> | null;
+    } else {
+        geojson = (visitedPlace.geography || null) as GeoJSON.Feature<GeoJSON.Point> | null;
+    }
+    return geojson;
+};
+
+// *** Segments-related functions
+
+/**
+ * Get the segments object for a trip, or an empty object if there are no
+ * segments for this trip.
+ * @param {Trip} trip
+ * @returns {Object} The segments object, with they key being the segment ID
+ */
+export const getSegments = (trip: Trip): { [segmentId: string]: Segment } => {
+    return trip.segments || {};
+};
+
+/**
+ * Get the segments array for a trip, or an empty array if there are no
+ * segments for this trip.
+ * @param {Trip} trip The trip for which to get the segments
+ * @returns {Segment[]} The segments, sorted by sequence
+ */
+export const getSegmentsArray = (trip: Trip): Segment[] => {
+    const segments = getSegments(trip);
+    return Object.values(segments).sort((segmentA, segmentB) => segmentA._sequence - segmentB._sequence);
 };

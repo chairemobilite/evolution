@@ -5,17 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import each from 'jest-each';
-import i18n from 'i18next';
 import _cloneDeep from 'lodash/cloneDeep';
 import { Journey, Person, Trip, UserInterviewAttributes } from '../../interviews/interview';
+import { interviewAttributesForTestCases } from '../../../tests/surveys';
 
 import * as Helpers from '../helpers';
-
-jest.mock('i18next', () => ({
-    t: jest.fn(),
-    language: 'en'
-}));
-jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue('arbitrary uuid') }));
 
 const baseInterviewAttributes: Pick<UserInterviewAttributes, 'id' | 'uuid' | 'participant_id' | 'is_completed' | 'is_questionable' | 'is_valid'> = {
     id: 1,
@@ -174,6 +168,202 @@ each([
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
     expect(Helpers.getPerson(interview, personId)).toEqual(expected);
+});
+
+each([
+    ['One person', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1 }
+            }
+        }
+    }, 1],
+    ['Multiple persons', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2 },
+                personId3: { _uuid: 'personId3', _sequence: 3 }
+            }
+        }
+    }, 3],
+    ['Empty persons', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {}
+        }
+    }, 0],
+    ['Empty household', { household: {} }, 0],
+    ['Empty responses', {}, 0]
+]).test('countPersons: %s', (_title, responses, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.responses = responses;
+    expect(Helpers.countPersons(interview)).toEqual(expected);
+});
+
+each([
+    ['One person-only', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 18 }
+            }
+        }
+    }, 'personId1', true],
+    ['One person-only, too young', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 12 }
+            }
+        }
+    }, 'personId1', false],
+    ['Multiple persons, one with minimum age, should self-declared self', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 10 },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20 }
+            }
+        }
+    }, 'personId3', true],
+    ['Multiple persons, one with minimum age, should not self-declared younger', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 10 },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20 }
+            }
+        }
+    }, 'personId2', false],
+    ['Multiple persons, multiple with minimal age, should self-declared if set', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 34, whoWillAnswerForThisPerson: 'personId1' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 18 },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 75 }
+            }
+        }
+    }, 'personId1', true],
+    ['Multiple persons, multiple with minimal age, should not self-declared if other declared', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, whoWillAnswerForThisPerson: 'personId2' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 18 },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 75 }
+            }
+        }
+    }, 'personId2', false],
+    ['Multiple persons, multiple with minimal age, should not self-declared if other', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, whoWillAnswerForThisPerson: 'personId2' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 18 },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 75 }
+            }
+        }
+    }, 'personId2', false],
+    ['Empty persons', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {}
+        }
+    }, { _uuid: 'somePersonId', _sequence: 1 }, false],
+    ['Empty household', { household: {} }, { _uuid: 'somePersonId', _sequence: 1 }, false],
+    ['Empty responses', {}, { _uuid: 'somePersonId', _sequence: 1 }, false]
+]).test('isSelfDeclared: %s', (_title, responses, personIdOrPerson: string | Person, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.responses = responses;
+    const person = typeof personIdOrPerson === 'string' ? responses.household!.persons![personIdOrPerson] : personIdOrPerson;
+    expect(Helpers.isSelfDeclared(interview, person)).toEqual(expected);
+});
+
+each([
+    ['One person-only', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 18 }
+            }
+        }
+    }, 'personId1', 1],
+    ['Multiple persons, self-declared', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId2' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20 }
+            }
+        }
+    }, 'personId2', 1],
+    ['Multiple persons, not self-declared', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20 }
+            }
+        }
+    }, 'personId2', 3],
+    ['Multiple persons, only one with minimal age, should self-declare adult', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 10 },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20 }
+            }
+        }
+    }, 'personId3', 1],
+    ['Multiple persons, only one with minimal age, return count for others', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 10 },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20 }
+            }
+        }
+    }, 'personId2', 3],
+    ['Empty persons', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {}
+        }
+    }, { _uuid: 'somePersonId', _sequence: 1 }, 0],
+    ['Empty household', { household: {} }, { _uuid: 'somePersonId', _sequence: 1 }, 0],
+    ['Empty responses', {}, { _uuid: 'somePersonId', _sequence: 1 }, 0]
+]).test('getCountOrSelfDeclared: %s', (_title, responses, personIdOrPerson: string | Person, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.responses = responses;
+    const person = typeof personIdOrPerson === 'string' ? responses.household!.persons![personIdOrPerson] : personIdOrPerson;
+    expect(Helpers.getCountOrSelfDeclared(interview, person)).toEqual(expected);
 });
 
 describe('getJourneys', () => {
@@ -425,6 +615,7 @@ describe('replaceVisitedPlaceShortcuts', () => {
                                     geometry: { type: 'Point', coordinates: [-73.2, 45.2 ]},
                                     properties: { lastAction: 'shortcut' }
                                 },
+                                alreadyVisitedBySelfOrAnotherHouseholdMember: true,
                                 shortcut: 'household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2'
                             },
                         }
@@ -447,6 +638,7 @@ describe('replaceVisitedPlaceShortcuts', () => {
                                     geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
                                     properties: { lastAction: 'shortcut' }
                                 },
+                                alreadyVisitedBySelfOrAnotherHouseholdMember: true,
                                 shortcut: 'household.persons.person1.journeys.journey1.visitedPlaces.usedAsShortcut'
                             },
                             basicPlace2: {
@@ -479,6 +671,7 @@ describe('replaceVisitedPlaceShortcuts', () => {
                                     geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
                                     properties: { lastAction: 'shortcut' }
                                 },
+                                alreadyVisitedBySelfOrAnotherHouseholdMember: true,
                                 shortcut: 'household.persons.person1.journeys.journey1.visitedPlaces.usedAsShortcut'
                             },
                             shortcutToBasic2: {
@@ -489,6 +682,7 @@ describe('replaceVisitedPlaceShortcuts', () => {
                                     geometry: { type: 'Point', coordinates: [-73.2, 45.2 ]},
                                     properties: { lastAction: 'shortcut' }
                                 },
+                                alreadyVisitedBySelfOrAnotherHouseholdMember: true,
                                 shortcut: 'household.persons.person2.journeys.journey1.visitedPlaces.basicPlace2'
                             },
                             againAShortcut: {
@@ -499,6 +693,7 @@ describe('replaceVisitedPlaceShortcuts', () => {
                                     geometry: { type: 'Point', coordinates: [-73.1, 45.1 ]},
                                     properties: { lastAction: 'shortcut' }
                                 },
+                                alreadyVisitedBySelfOrAnotherHouseholdMember: true,
                                 shortcut: 'household.persons.person1.journeys.journey1.visitedPlaces.usedAsShortcut'
                             },
                         }
@@ -652,6 +847,177 @@ describe('getTrips', () => {
         } else {
             expect(activeTrip).toEqual(null);
         }
+    });
+
+    each([
+        ['Is first trip', trips.trip2, null],
+        ['Has previous trip', trips.trip1, trips.trip2],
+        ['Trip not found', { _uuid: 'unexistentTrip', _sequence: 3 }, null],
+    ]).test('getPreviousTrip: %s', (_title, currentTrip, previousTrip) => {
+        const attributes = _cloneDeep(journey);
+        attributes.trips = trips;
+        expect(Helpers.getPreviousTrip(currentTrip, attributes)).toEqual(previousTrip)
+    });
+
+});
+
+describe('getOrigin/getDestination', () => {
+
+    test('getOrigin, existing', () => {
+        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
+        expect(Helpers.getOrigin(journey.trips!.tripId1P1, journey.visitedPlaces!)).toEqual(journey.visitedPlaces!.homePlace1P1);
+    });
+
+    test('getOrigin, unexisting', () => {
+        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
+        expect(Helpers.getOrigin(journey.trips!.tripId1P1, {})).toEqual(null);
+    });
+
+    test('getOrigin, trip without origin', () => {
+        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2;
+        expect(Helpers.getOrigin(journey.trips!.tripId3P2, journey.visitedPlaces!)).toEqual(null);
+    });
+
+    test('getDestination, existing', () => {
+        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
+        expect(Helpers.getDestination(journey.trips!.tripId1P1, journey.visitedPlaces!)).toEqual(journey.visitedPlaces!.workPlace1P1);
+    });
+
+    test('getDestination: unexisting', () => {
+        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
+        expect(Helpers.getDestination(journey.trips!.tripId1P1, {})).toEqual(null);
+    });
+
+    test('getDestination, trip without origin', () => {
+        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2;
+        expect(Helpers.getDestination(journey.trips!.tripId3P2, journey.visitedPlaces!)).toEqual(null);
+    });
+
+});
+
+describe('getVisitedPlaceNames', () => {
+
+    const mockedT = jest.fn().mockReturnValue('mocked');
+
+    each([
+        [
+            'Home place',
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1,
+            'survey:visitedPlace:activityCategories:home',
+            'mocked'
+        ],
+        [
+            'Place with a name',
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1,
+            undefined,
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.name
+        ],
+        [
+            'Place with a shortcut',
+            interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2,
+            undefined,
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.name
+        ],
+        [
+            'Place with neither name or shortcut',
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1,
+            'survey:placeGeneric',
+            'mocked 4'
+        ]
+    ]).test('%s', (_title, visitedPlace, mockedTVal, expected) => {
+        const name = Helpers.getVisitedPlaceName(mockedT, visitedPlace, interviewAttributesForTestCases);
+        if (mockedTVal) {
+            expect(mockedT).toHaveBeenCalledWith(mockedTVal);
+        } else {
+            expect(mockedT).not.toHaveBeenCalled();
+        }
+        expect(name).toEqual(expected);
+    });
+
+});
+
+describe('getVisitedPlaceGeography', () => {
+
+    each([
+        [
+            'Home place',
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1,
+            interviewAttributesForTestCases.responses.home!.geography
+        ],
+        [
+            'Place with a geography',
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1,
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.geography
+        ],
+        [
+            'Place with a shortcut',
+            interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2,
+            interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2.geography
+        ],
+        [
+            'Place without a geography',
+            interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1,
+            null
+        ]
+    ]).test('%s', (_title, visitedPlace, expected) => {
+        const geography = Helpers.getVisitedPlaceGeography(visitedPlace, interviewAttributesForTestCases);
+        if (expected) {
+            expect(geography).toEqual(expected);
+        } else {
+            expect(geography).toBeNull();
+        }
+    });
+
+});
+
+describe('getTrips', () => {
+
+    const trip: Trip = {
+        _uuid: 'arbitraryTrip',
+        _sequence: 1,
+    }
+
+    const segments = {
+        segment1: {
+            _uuid: 'segment1',
+            _sequence: 2
+        },
+        segment2: {
+            _uuid: 'segment2',
+            _sequence: 1
+        }
+    }
+
+    test('object: test without segments', () => {
+        expect(Helpers.getSegments(trip)).toEqual({});
+    });
+
+    test('object: empty segments', () => {
+        const attributes = _cloneDeep(trip);
+        attributes.segments = { };
+        expect(Helpers.getSegments(attributes)).toEqual({});
+    });
+
+    test('object: with segments', () => {
+        const attributes = _cloneDeep(trip);
+        attributes.segments = segments;
+        expect(Helpers.getSegments(attributes)).toEqual(segments);
+    });
+
+    test('array: test without segments', () => {
+        expect(Helpers.getSegmentsArray(trip)).toEqual([]);
+    });
+
+    test('array: empty segments', () => {
+        const attributes = _cloneDeep(trip);
+        attributes.segments = { };
+        expect(Helpers.getSegmentsArray(attributes)).toEqual([]);
+    });
+
+    test('array: with segments, ordered', () => {
+        const attributes = _cloneDeep(trip);
+        attributes.segments = segments;
+        expect(Helpers.getSegmentsArray(attributes)).toEqual([segments.segment2, segments.segment1]);
     });
 
 });
