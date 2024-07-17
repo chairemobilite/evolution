@@ -1,0 +1,32 @@
+ModeIsRequired: Le mode de transport est requis.
+modePre:
+    CarDriver: <strong>Conducteur</strong> (voiture/moto/scooter/camion)
+    CarPassenger: <strong>Passager</strong> (voiture/moto/scooter/camion)
+    Walk: <strong>Marche</strong>
+    WalkOrMobilityHelp: <strong>Marche</strong> ou <strong>aide à la mobilité</strong>
+    Bicycle: <strong>Vélo</strong> ou <strong>vélo électrique</strong>
+    Transit: <strong>Transport collectif</strong>
+    Taxi: <strong>Taxi</strong> ou équivalent (ex. Uber, Lyft)
+    Other: <strong>Autre</strong>
+    DontKnow: <strong>Je ne sais pas</strong>
+    PreferNotToAnswer: <strong>Préfère ne pas répondre</strong>
+mode:
+    Walk: <strong>Marche</strong>
+    WalkOrMobilityHelp: <strong>Marche</strong> ou <strong>aide à la mobilité</strong>
+    Other: <strong>Autre</strong>
+    DontKnow: <strong>Je ne sais pas</strong> / Préfère ne pas répondre
+    CarDriver: <strong>Conducteur</strong> (voiture/moto/scooter)
+    CarPassenger: <strong>Passager</strong> (voiture/moto/scooter)
+    Taxi: <strong>Taxi</strong> ou équivalent (ex. Uber)
+    Bicycle: <strong>Vélo</strong> ou <strong> Vélo électrique</strong>
+    Bus: <strong>Autobus</strong>
+    Ferry: <strong>Traversier</strong>
+    Transit: <strong>Transport collectif</strong>
+ModeFirst: Quel mode de transport a été utilisé en premier?
+ModeFirst_cati: >-
+    Quel mode de transport a été utilisé en premier pour se rendre de
+    {{originName}} à {{destinationName}}?
+ModeThen: Quel mode de transport a été utilisé ensuite?
+ModeThen_cati: >-
+    Quel mode de transport a été utilisé ensuite pour se rendre de
+    {{originName}} à {{destinationName}}?
