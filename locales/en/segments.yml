@@ -1,0 +1,32 @@
+ModeIsRequired: Mode of transport is required.
+modePre:
+    CarDriver: <strong>Driver</strong> (car/moto/scooter/truck)
+    CarPassenger: <strong>Passenger</strong> (car/moto/scooter/truck)
+    Walk: <strong>Walking</strong>
+    WalkOrMobilityHelp: <strong>Walking</strong> or <strong>wheeling</strong> (eg. wheelchair)
+    Bicycle: <strong>Bicycle</strong> or <strong>e-bike</strong>
+    Transit: <strong>Public transit</strong>
+    Taxi: <strong>Taxi</strong> or equivalent (eg. Uber, Lyft)
+    Other: <strong>Other</strong>
+    DontKnow: <strong>I don't know</strong>
+    PreferNotToAnswer: <strong>Prefer not to answer</strong>
+mode:
+    Walk: <strong>Walking</strong>
+    WalkOrMobilityHelp: <strong>Walking</strong> or <strong>wheeling</strong> (eg. wheelchair)
+    Other: <strong>Other</strong>
+    DontKnow: <strong>I don\'t know</strong> / Prefer not to answer
+    CarDriver: <strong>Driver</strong> (car/moto/scooter)
+    CarPassenger: <strong>Passenger (car/moto/scooter)</strong>
+    Taxi: <strong>Taxi</strong> or equivalent (eg. Uber)
+    Bicycle: <strong>Bicycle</strong> or <strong>electric bicycle</strong>
+    Bus: <strong>Bus</strong>
+    Transit: <strong>Public transit</strong>
+    Ferry: <strong>Ferry</strong>
+ModeFirst: Which mode of transport was used first?
+ModeFirst_cati: >-
+    Which mode of transport was used first to go from {{originName}} to
+    {{destinationName}}?
+ModeThen: Which mode of transport was used after?
+ModeThen_cati: >-
+    Which mode of transport was used after to go from {{originName}} to
+    {{destinationName}}?
