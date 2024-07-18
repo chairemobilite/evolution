@@ -298,3 +298,21 @@ export type InputMapFindPlace = InputMapFindPlaceBase & {
 
 /* InfoMap widgetConfig Type */
 export type InfoMap = InfoMapWidgetConfig;
+
+/* InputDatePicker widgetConfig Type */
+export type InputDatePicker = {
+    type: 'question';
+    inputType: 'datePicker';
+    path: Path;
+    label: Label;
+    datatype: 'number';
+    containsHtml: ContainsHtml;
+    twoColumns: TwoColumns;
+    showTimeSelect: boolean;
+    placeholderText: Title;
+    locale: { fr: string; en: string };
+    maxDate: (interview, path) => Date;
+    minDate: (interview, path) => Date;
+    conditional: Conditional;
+    validations: Validations;
+};
