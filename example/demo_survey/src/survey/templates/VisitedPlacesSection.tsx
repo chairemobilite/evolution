@@ -62,9 +62,9 @@ export class VisitedPlacesSection extends React.Component<any, any> {
     }
     this.props.startAddGroupedObjects(1, sequence, path, [], (function(interview) {
       const person             = helper.getPerson(interview);
-      const journeys           = odSurveyHelper.getJourneysArray(person);
+      const journeys           = odSurveyHelper.getJourneysArray({ person });
       const currentJourney     = journeys[0];
-      const visitedPlaces      = odSurveyHelper.getVisitedPlacesArray(currentJourney);
+      const visitedPlaces      = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
       const lastVisitedPlace   = visitedPlaces[visitedPlaces.length - 1];
       const updateValuesByPath = {};
       if (lastVisitedPlace && sequence === lastVisitedPlace._sequence) // we are inserting a new visited place at the end
@@ -142,7 +142,7 @@ export class VisitedPlacesSection extends React.Component<any, any> {
     const widgetsComponentsByShortname = {};
     const personVisitedPlacesConfig    = this.props.surveyContext.widgets['personVisitedPlaces'];
     const person                       = helper.getPerson(this.props.interview);
-    const journeys = odSurveyHelper.getJourneysArray(person);
+    const journeys = odSurveyHelper.getJourneysArray({ person });
     const currentJourney = journeys[0];
     const householdSize                = surveyHelper.getResponse(this.props.interview, 'household.size', null);
     const isAlone                      = householdSize === 1;
@@ -158,9 +158,9 @@ export class VisitedPlacesSection extends React.Component<any, any> {
     {
       const _person                         = persons[_personId];
       let   atLeastOneCompletedVisitedPlace = false;
-      const _journeys = odSurveyHelper.getJourneysArray(_person);
+      const _journeys = odSurveyHelper.getJourneysArray({ person: _person});
       const _currentJourney = _journeys[0];
-      const visitedPlaces = _currentJourney !== undefined ? odSurveyHelper.getVisitedPlacesArray(_currentJourney) : [];
+      const visitedPlaces = _currentJourney !== undefined ? odSurveyHelper.getVisitedPlacesArray({ journey: _currentJourney }) : [];
       const personVisitedPlacesSchedules    = [];
       for (let i = 0, count = visitedPlaces.length; i < count; i++)
       {
@@ -273,7 +273,7 @@ export class VisitedPlacesSection extends React.Component<any, any> {
 
     // setup visited places:
 
-    const visitedPlaces          = odSurveyHelper.getVisitedPlacesArray(currentJourney);
+    const visitedPlaces          = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney});
     const lastVisitedPlace       = helper.getLastVisitedPlace(visitedPlaces);
     const visitedPlacesList      = [];
 

@@ -413,8 +413,8 @@ export const visitedPlaceActivity = {
   label: {
     fr: function(interview, path) {
       const person = helper.getPerson(interview);
-      const journey = odSurveyHelper.getJourneysArray(person)[0];
-      const visitedPlaces = odSurveyHelper.getVisitedPlacesArray(journey);
+      const journey = odSurveyHelper.getJourneysArray({ person })[0];
+      const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -429,8 +429,8 @@ export const visitedPlaceActivity = {
     },
     en: function(interview, path) {
       const person = helper.getPerson(interview);
-      const journey = odSurveyHelper.getJourneysArray(person)[0];
-      const visitedPlaces = odSurveyHelper.getVisitedPlacesArray(journey);
+      const journey = odSurveyHelper.getJourneysArray({ person })[0];
+      const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -1331,7 +1331,7 @@ export const visitedPlaceNextPlaceCategory = {
       },
       conditional: function(interview) {
         const person         = helper.getPerson(interview);
-        const journeys = odSurveyHelper.getJourneysArray(person);
+        const journeys = odSurveyHelper.getJourneysArray({ person });
         const currentJourney = journeys[0];
         const visitedPlaceId = helper.getActiveVisitedPlaceId(interview);
         const visitedPlace: any  = surveyHelperNew.getResponse(interview, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${visitedPlaceId}`, null);
@@ -1600,9 +1600,9 @@ export const buttonSaveVisitedPlace = {
   align: 'center',
   saveCallback: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
     const person                   = helper.getPerson(interview);
-    const journeys = odSurveyHelper.getJourneysArray(person);
+    const journeys = odSurveyHelper.getJourneysArray({ person });
     const currentJourney = journeys[0];
-    const visitedPlaces            = odSurveyHelper.getVisitedPlacesArray(currentJourney);
+    const visitedPlaces            = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
     const visitedPlace: any        = surveyHelperNew.getResponse(interview, path, null, '../');
     const visitedPlacePath         = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${visitedPlace._uuid}`;
     const previousVisitedPlace     = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);

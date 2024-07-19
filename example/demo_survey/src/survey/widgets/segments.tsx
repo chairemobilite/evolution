@@ -2760,7 +2760,7 @@ export const segmentParkingPaymentType = {
                 },
                 conditional: function(interview, path) {
                   const person = helper.getPerson(interview);
-                  const journeys = odSurveyHelper.getJourneysArray(person);
+                  const journeys = odSurveyHelper.getJourneysArray({ person });
                   const currentJourney = journeys[journeys.length - 1];
                   const trip: any = surveyHelperNew.getResponse(interview, path, null, '../../');
                   const visitedPlaces = currentJourney.visitedPlaces;

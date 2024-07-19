@@ -185,7 +185,7 @@ export const householdCarNumber = {
     }
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const householdSize: any = getHousehold(interview).size;
+    const householdSize: any = getHousehold({ interview }).size;
     return [
       {
         validation: (isNaN(Number(value)) || !Number.isInteger(Number(value))),

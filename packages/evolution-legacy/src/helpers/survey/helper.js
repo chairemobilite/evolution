@@ -224,7 +224,7 @@ const getSegments = function(trip, asArray = true) {
   return asArray ? [] : {};
 };
 
-const getPersons = (interview, asArray = false) => asArray ? odSurveyHelper.getPersonsArray(interview) : odSurveyHelper.getPersons(interview);
+const getPersons = (interview, asArray = false) => asArray ? odSurveyHelper.getPersonsArray({interview}) : odSurveyHelper.getPersons({interview});
 
 const countPersons = function(interview)
 {
@@ -234,8 +234,8 @@ const countPersons = function(interview)
 
 const getVisitedPlaces = (person, asArray = true) => {
     // get the first journey for the person
-    var journey = odSurveyHelper.getJourneysArray(person)[0];
-    return asArray ? odSurveyHelper.getVisitedPlacesArray(journey) : odSurveyHelper.getVisitedPlaces(journey);
+    var journey = odSurveyHelper.getJourneysArray({person})[0];
+    return asArray ? odSurveyHelper.getVisitedPlacesArray({journey}) : odSurveyHelper.getVisitedPlaces({journey});
 }
 
 const getTrips = function(journey, asArray = true)
@@ -577,7 +577,7 @@ export default {
   {
     person       = person || getPerson(interview);
     // get the first journey for the person
-    var journey = odSurveyHelper.getJourneysArray(person)[0];
+    var journey = odSurveyHelper.getJourneysArray({person})[0];
     const trips = journey.trips;
     const activeTripId = surveyHelperNew.getResponse(interview, '_activeTripId', null);
     return activeTripId ? trips[activeTripId] : null;

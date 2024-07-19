@@ -338,10 +338,10 @@ export default {
       }
       else if (person.didTripsOnTripsDate === 'yes' || person.didTripsOnTripsDate === true)
       {
-        const journeys = odSurveyHelper.getJourneysArray(person);
+        const journeys = odSurveyHelper.getJourneysArray({ person });
         if (journeys.length >= 1) {
             const currentJourney = journeys[0];
-            const visitedPlaces = odSurveyHelper.getVisitedPlacesArray(currentJourney);
+            const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
             if (visitedPlaces.length >= 1)
             {
               const firstVisitedPlace         = visitedPlaces[0];
@@ -358,7 +358,7 @@ export default {
                 ...(addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys`, [])),
             }, null, null, (updatedInterview) => {
                 const _person = helper.getPerson(updatedInterview);
-                const journeys = odSurveyHelper.getJourneysArray(_person);
+                const journeys = odSurveyHelper.getJourneysArray({ person: _person });
                 const currentJourney = journeys[0];
                 startUpdateInterview('visitedPlaces', {
                     [`responses._activeJourneyId`]: currentJourney._uuid
@@ -425,9 +425,9 @@ export default {
       }
       
       // Journeys should not be empty
-      const journeys = odSurveyHelper.getJourneysArray(person);
+      const journeys = odSurveyHelper.getJourneysArray({ person });
       const currentJourney = journeys[0];
-      const visitedPlaces             = odSurveyHelper.getVisitedPlacesArray(currentJourney);
+      const visitedPlaces             = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
       const activeVisitedPlaceId      = getResponse(interview, '_activeVisitedPlaceId', null);
       let   foundSelectedVisitedPlace = false;
       let   addValuesByPath           = {};
@@ -499,12 +499,12 @@ export default {
         }, null, null, callback);
         return null;
       }
-      const journeys = odSurveyHelper.getJourneysArray(person);
+      const journeys = odSurveyHelper.getJourneysArray({ person });
       const currentJourney = journeys[0];
       let   tripsUpdatesValueByPath  = {};
       let   tripsUpdatesUnsetPaths   = [];
       const tripsPath                = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`;
-      const visitedPlaces            = odSurveyHelper.getVisitedPlacesArray(currentJourney);
+      const visitedPlaces            = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
       let   trips                    = helper.getTrips(currentJourney);
       //const activeTripId             = getResponse(interview, '_activeTripId', null);
       //let   foundSelectedTrip        = false;

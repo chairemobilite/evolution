@@ -37,30 +37,30 @@ export const personWorkOnTheRoad = {
   ],
   label: {
     fr: function(interview, path) {
-      const householdSize = getHousehold(interview).size;
+      const householdSize = getHousehold({ interview }).size;
       if (householdSize === 1)
       {
         return `Travaillez-vous sur la route de manière régulière (${surveyHelperNew.getResponse(interview, path, null, '../gender') == 'female' ? "livreuse, représentante, conductrice, policière" : "livreur, représentant, chauffeur, policier"}, etc.)?`;
       }
       const person       = helper.getPerson(interview);
       const genderString = helper.getGenderString(person, "livreuse, représentante, conductrice, policière", "livreur, représentant, chauffeur, policier", "livreur/se, représentant(e), conducteur/trice, policier/ère", "livreur/se, représentant(e), conducteur/trice, policier/ère")
-      return `Est-ce que ${getActivePerson(interview).nickname || ''} travaille sur la route de manière régulière (${genderString}, etc.)?`;
+      return `Est-ce que ${getActivePerson({ interview }).nickname || ''} travaille sur la route de manière régulière (${genderString}, etc.)?`;
     },
     en: function(interview, path) {
-      const householdSize = getHousehold(interview).size;
+      const householdSize = getHousehold({ interview }).size;
       if (householdSize === 1)
       {
         return `Do you work on the road on a regular basis (deliverer, representative, driver, police officer, etc.)?`;
       }
-      return `Does ${getActivePerson(interview).nickname || ''} work on the road on a regular basis (deliverer, representative, driver, police officer, etc.)?`;
+      return `Does ${getActivePerson({ interview }).nickname || ''} work on the road on a regular basis (deliverer, representative, driver, police officer, etc.)?`;
     }
   },
   conditional: function(interview, path) {
-    const occupation = (getActivePerson(interview) as any).occupation;
+    const occupation = (getActivePerson({ interview }) as any).occupation;
     return (!_isBlank(occupation) && helper.isWorker(occupation));
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const occupation = (getActivePerson(interview) as any).occupation;
+    const occupation = (getActivePerson({ interview }) as any).occupation;
     return [
       {
         validation: _isBlank(value) && !_isBlank(occupation) && helper.isWorker(occupation),

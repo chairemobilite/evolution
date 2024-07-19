@@ -88,7 +88,7 @@ each([
 ]).test('getHousehold: %s', (_title, responses, expected) => {
     const interview = _cloneDeep(interviewAttributes);
     interview.responses = responses;
-    expect(Helpers.getHousehold(interview)).toEqual(expected);
+    expect(Helpers.getHousehold({ interview })).toEqual(expected);
 });
 
 each([
@@ -102,55 +102,55 @@ each([
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
     interview.responses._activePersonId = currentPersonId;
-    expect(Helpers.getActivePerson(interview)).toEqual(expected);
+    expect(Helpers.getActivePerson({ interview })).toEqual(expected);
 });
 
 describe('getPersons', () => {
     test('test without household', () => {
-        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
+        expect(Helpers.getPersons({ interview: interviewAttributes })).toEqual({});
     });
 
     test('test without persons', () => {
         const attributes = _cloneDeep(interviewAttributes) as any;
         attributes.household = {};
-        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
+        expect(Helpers.getPersons({ interview: attributes })).toEqual({});
     });
 
     test('empty persons', () => {
         const attributes = _cloneDeep(interviewAttributes) as any;
         attributes.household = { size: 0, persons: {} };
-        expect(Helpers.getPersons(interviewAttributes)).toEqual({});
+        expect(Helpers.getPersons({ interview: attributes })).toEqual({});
     });
 
     test('with persons', () => {
-        expect(Helpers.getPersons(interviewAttributesWithHh)).toEqual((interviewAttributesWithHh.responses as any).household.persons);
+        expect(Helpers.getPersons({ interview: interviewAttributesWithHh })).toEqual((interviewAttributesWithHh.responses as any).household.persons);
     });
 
     test('array: test without household', () => {
-        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
+        expect(Helpers.getPersonsArray({ interview: interviewAttributes })).toEqual([]);
     });
 
     test('array: test without persons', () => {
         const attributes = _cloneDeep(interviewAttributes) as any;
         attributes.household = {};
-        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
+        expect(Helpers.getPersonsArray({ interview: attributes })).toEqual([]);
     });
 
     test('array: empty persons', () => {
         const attributes = _cloneDeep(interviewAttributes) as any;
         attributes.household = { size: 0, persons: {} };
-        expect(Helpers.getPersonsArray(interviewAttributes)).toEqual([]);
+        expect(Helpers.getPersonsArray({ interview: attributes })).toEqual([]);
     });
 
     test('array: with persons, unordered', () => {
-        expect(Helpers.getPersonsArray(interviewAttributesWithHh)).toEqual(Object.values((interviewAttributesWithHh.responses as any).household.persons));
+        expect(Helpers.getPersonsArray({ interview: interviewAttributesWithHh })).toEqual(Object.values((interviewAttributesWithHh.responses as any).household.persons));
     });
 
     test('array: with persons, ordered', () => {
         const attributes = _cloneDeep(interviewAttributesWithHh) as any;
         attributes.responses.household.persons.personId1._sequence = 2;
         attributes.responses.household.persons.personId2._sequence = 1;
-        expect(Helpers.getPersonsArray(attributes)).toEqual([attributes.responses.household.persons.personId2, attributes.responses.household.persons.personId1]);
+        expect(Helpers.getPersonsArray({ interview: attributes })).toEqual([attributes.responses.household.persons.personId2, attributes.responses.household.persons.personId1]);
     });
 });
 
@@ -167,7 +167,7 @@ each([
 ]).test('getPerson: %s', (_title, responses, personId, expected) => {
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
-    expect(Helpers.getPerson(interview, personId)).toEqual(expected);
+    expect(Helpers.getPerson({ interview, personId })).toEqual(expected);
 });
 
 each([
@@ -203,7 +203,7 @@ each([
 ]).test('countPersons: %s', (_title, responses, expected) => {
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
-    expect(Helpers.countPersons(interview)).toEqual(expected);
+    expect(Helpers.countPersons({ interview })).toEqual(expected);
 });
 
 each([
@@ -293,7 +293,7 @@ each([
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
     const person = typeof personIdOrPerson === 'string' ? responses.household!.persons![personIdOrPerson] : personIdOrPerson;
-    expect(Helpers.isSelfDeclared(interview, person)).toEqual(expected);
+    expect(Helpers.isSelfDeclared({ interview, person })).toEqual(expected);
 });
 
 each([
@@ -363,7 +363,7 @@ each([
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
     const person = typeof personIdOrPerson === 'string' ? responses.household!.persons![personIdOrPerson] : personIdOrPerson;
-    expect(Helpers.getCountOrSelfDeclared(interview, person)).toEqual(expected);
+    expect(Helpers.getCountOrSelfDeclared({ interview, person })).toEqual(expected);
 });
 
 describe('getJourneys', () => {
@@ -388,35 +388,35 @@ describe('getJourneys', () => {
     }
 
     test('object: test without journeys', () => {
-        expect(Helpers.getJourneys(person)).toEqual({});
+        expect(Helpers.getJourneys({ person })).toEqual({});
     });
 
     test('object: empty journeys', () => {
         const attributes = _cloneDeep(person);
         attributes.journeys = { };
-        expect(Helpers.getJourneys(attributes)).toEqual({});
+        expect(Helpers.getJourneys({ person: attributes })).toEqual({});
     });
 
     test('object: with journeys, ordered', () => {
         const attributes = _cloneDeep(person);
         attributes.journeys = journeys;
-        expect(Helpers.getJourneys(attributes)).toEqual(journeys);
+        expect(Helpers.getJourneys({ person: attributes })).toEqual(journeys);
     });
 
     test('array: test without journeys', () => {
-        expect(Helpers.getJourneysArray(person)).toEqual([]);
+        expect(Helpers.getJourneysArray({ person })).toEqual([]);
     });
 
     test('array: empty journeys', () => {
         const attributes = _cloneDeep(person);
         attributes.journeys = { };
-        expect(Helpers.getJourneysArray(attributes)).toEqual([]);
+        expect(Helpers.getJourneysArray({ person: attributes })).toEqual([]);
     });
 
     test('array: with journeys, ordered', () => {
         const attributes = _cloneDeep(person);
         attributes.journeys = journeys;
-        expect(Helpers.getJourneysArray(attributes)).toEqual([journeys.journeyId2, journeys.journeyId1]);
+        expect(Helpers.getJourneysArray({ person: attributes })).toEqual([journeys.journeyId2, journeys.journeyId1]);
     });
 
     each([
@@ -514,7 +514,7 @@ describe('getJourneys', () => {
         const interview = _cloneDeep(interviewAttributesWithHh);
         interview.responses = responses;
         const person = personId === null ? null : interview.responses?.household?.persons ? interview.responses?.household?.persons[personId] : null
-        expect(Helpers.getActiveJourney(interview, person)).toEqual(expected);
+        expect(Helpers.getActiveJourney({ interview, person })).toEqual(expected);
     });
 
 });
@@ -540,35 +540,35 @@ describe('getVisitedPlaces', () => {
     }
 
     test('object: test without visited places', () => {
-        expect(Helpers.getVisitedPlaces(journey)).toEqual({});
+        expect(Helpers.getVisitedPlaces({ journey })).toEqual({});
     });
 
     test('object: empty visited places', () => {
         const attributes = _cloneDeep(journey);
         attributes.visitedPlaces = { };
-        expect(Helpers.getVisitedPlaces(attributes)).toEqual({});
+        expect(Helpers.getVisitedPlaces({ journey: attributes })).toEqual({});
     });
 
     test('object: with visited places, ordered', () => {
         const attributes = _cloneDeep(journey);
         attributes.visitedPlaces = visitedPlaces;
-        expect(Helpers.getVisitedPlaces(attributes)).toEqual(visitedPlaces);
+        expect(Helpers.getVisitedPlaces({ journey: attributes })).toEqual(visitedPlaces);
     });
 
     test('array: test without visited places', () => {
-        expect(Helpers.getVisitedPlacesArray(journey)).toEqual([]);
+        expect(Helpers.getVisitedPlacesArray({ journey })).toEqual([]);
     });
 
     test('array: empty visited places', () => {
         const attributes = _cloneDeep(journey);
         attributes.visitedPlaces = { };
-        expect(Helpers.getVisitedPlacesArray(attributes)).toEqual([]);
+        expect(Helpers.getVisitedPlacesArray({ journey: attributes })).toEqual([]);
     });
 
     test('array: with visited places, ordered', () => {
         const attributes = _cloneDeep(journey);
         attributes.visitedPlaces = visitedPlaces;
-        expect(Helpers.getVisitedPlacesArray(attributes)).toEqual([visitedPlaces.visitedPlace2, visitedPlaces.visitedPlace1]);
+        expect(Helpers.getVisitedPlacesArray({ journey: attributes })).toEqual([visitedPlaces.visitedPlace2, visitedPlaces.visitedPlace1]);
     });
 
 });
@@ -704,11 +704,11 @@ describe('replaceVisitedPlaceShortcuts', () => {
     }
 
     test('Place is not a shortcut', () => {
-        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person1.journeys.journey1.visitedPlaces.basicPlace1')).toBeUndefined();
+        expect(Helpers.replaceVisitedPlaceShortcuts({ interview: shortcutInterview, shortcutTo: 'household.persons.person1.journeys.journey1.visitedPlaces.basicPlace1' })).toBeUndefined();
     });
 
     test('Place is a shortcut to a shorcut', () => {
-        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2')).toEqual({
+        expect(Helpers.replaceVisitedPlaceShortcuts({ interview: shortcutInterview, shortcutTo: 'household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2' })).toEqual({
             updatedValuesByPath: {
                 ['responses.household.persons.person1.journeys.journey1.visitedPlaces.shortcutToShortcut.shortcut']: ((shortcutInterview.responses.household!.persons!.person3.journeys!.journey1.visitedPlaces || {})['shortcutToBasic2'] as any).shortcut,
                 ['responses.household.persons.person1.journeys.journey1.visitedPlaces.shortcutToShortcut.geography']: (shortcutInterview.responses.household!.persons!.person3.journeys!.journey1.visitedPlaces || {})['shortcutToBasic2'].geography
@@ -718,7 +718,7 @@ describe('replaceVisitedPlaceShortcuts', () => {
     });
 
     test('Place shortcut to one other place', () => {
-        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person2.journeys.journey1.visitedPlaces.basicPlace2')).toEqual({
+        expect(Helpers.replaceVisitedPlaceShortcuts({ interview: shortcutInterview, shortcutTo: 'household.persons.person2.journeys.journey1.visitedPlaces.basicPlace2' })).toEqual({
             updatedValuesByPath: {
                 ['responses.household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2.name']: ((shortcutInterview.responses.household!.persons!.person2.journeys!.journey1.visitedPlaces || {})['basicPlace2'] as any).name,
                 ['responses.household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2.geography']: (shortcutInterview.responses.household!.persons!.person2.journeys!.journey1.visitedPlaces || {})['basicPlace2'].geography
@@ -728,7 +728,7 @@ describe('replaceVisitedPlaceShortcuts', () => {
     });
 
     test('Place shortcut to many places from many persons', () => {
-        expect(Helpers.replaceVisitedPlaceShortcuts(shortcutInterview, 'household.persons.person1.journeys.journey1.visitedPlaces.usedAsShortcut')).toEqual({
+        expect(Helpers.replaceVisitedPlaceShortcuts({ interview: shortcutInterview, shortcutTo: 'household.persons.person1.journeys.journey1.visitedPlaces.usedAsShortcut' })).toEqual({
             updatedValuesByPath: {
                 ['responses.household.persons.person2.journeys.journey1.visitedPlaces.isAShortcut.name']: ((shortcutInterview.responses.household!.persons!.person1.journeys!.journey1.visitedPlaces || {})['usedAsShortcut'] as any).name,
                 ['responses.household.persons.person2.journeys.journey1.visitedPlaces.isAShortcut.geography']: (shortcutInterview.responses.household!.persons!.person1.journeys!.journey1.visitedPlaces || {})['usedAsShortcut'].geography,
@@ -760,35 +760,35 @@ describe('getTrips', () => {
     }
 
     test('object: test without trips', () => {
-        expect(Helpers.getTrips(journey)).toEqual({});
+        expect(Helpers.getTrips({ journey })).toEqual({});
     });
 
     test('object: empty trips', () => {
         const attributes = _cloneDeep(journey);
         attributes.trips = { };
-        expect(Helpers.getTrips(attributes)).toEqual({});
+        expect(Helpers.getTrips({ journey: attributes })).toEqual({});
     });
 
     test('object: with trips', () => {
         const attributes = _cloneDeep(journey);
         attributes.trips = trips;
-        expect(Helpers.getTrips(attributes)).toEqual(trips);
+        expect(Helpers.getTrips({ journey: attributes })).toEqual(trips);
     });
 
     test('array: test without trips', () => {
-        expect(Helpers.getTripsArray(journey)).toEqual([]);
+        expect(Helpers.getTripsArray({ journey })).toEqual([]);
     });
 
     test('array: empty trips', () => {
         const attributes = _cloneDeep(journey);
         attributes.trips = { };
-        expect(Helpers.getTripsArray(attributes)).toEqual([]);
+        expect(Helpers.getTripsArray({ journey: attributes })).toEqual([]);
     });
 
     test('array: with trips, ordered', () => {
         const attributes = _cloneDeep(journey);
         attributes.trips = trips;
-        expect(Helpers.getTripsArray(attributes)).toEqual([trips.trip2, trips.trip1]);
+        expect(Helpers.getTripsArray({ journey: attributes })).toEqual([trips.trip2, trips.trip1]);
     });
 
     each([
@@ -840,7 +840,7 @@ describe('getTrips', () => {
         }
         const journey = testData.testPersonId && testData.testJourneyId ? interview.responses.household!.persons![testData.testPersonId].journeys![testData.testJourneyId] : null;
         const result = expectResult ? interview.responses.household!.persons![(testData.testPersonId || testData.activePersonId) as string].journeys![(testData.testJourneyId || testData.activeJourneyId) as string].trips![testData.activeTripId!] : null;
-        const activeTrip = Helpers.getActiveTrip(interview, journey);
+        const activeTrip = Helpers.getActiveTrip({ interview, journey });
         if (expectResult) {
             expect(activeTrip).toBeTruthy();
             expect(activeTrip).toEqual(result);
@@ -856,7 +856,7 @@ describe('getTrips', () => {
     ]).test('getPreviousTrip: %s', (_title, currentTrip, previousTrip) => {
         const attributes = _cloneDeep(journey);
         attributes.trips = trips;
-        expect(Helpers.getPreviousTrip(currentTrip, attributes)).toEqual(previousTrip)
+        expect(Helpers.getPreviousTrip({ currentTrip, journey: attributes })).toEqual(previousTrip)
     });
 
 });
@@ -865,32 +865,32 @@ describe('getOrigin/getDestination', () => {
 
     test('getOrigin, existing', () => {
         const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
-        expect(Helpers.getOrigin(journey.trips!.tripId1P1, journey.visitedPlaces!)).toEqual(journey.visitedPlaces!.homePlace1P1);
+        expect(Helpers.getOrigin({ trip: journey.trips!.tripId1P1, visitedPlaces: journey.visitedPlaces! })).toEqual(journey.visitedPlaces!.homePlace1P1);
     });
 
     test('getOrigin, unexisting', () => {
         const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
-        expect(Helpers.getOrigin(journey.trips!.tripId1P1, {})).toEqual(null);
+        expect(Helpers.getOrigin({ trip: journey.trips!.tripId1P1, visitedPlaces: {} })).toEqual(null);
     });
 
     test('getOrigin, trip without origin', () => {
         const journey = interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2;
-        expect(Helpers.getOrigin(journey.trips!.tripId3P2, journey.visitedPlaces!)).toEqual(null);
+        expect(Helpers.getOrigin({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(null);
     });
 
     test('getDestination, existing', () => {
         const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
-        expect(Helpers.getDestination(journey.trips!.tripId1P1, journey.visitedPlaces!)).toEqual(journey.visitedPlaces!.workPlace1P1);
+        expect(Helpers.getDestination({ trip: journey.trips!.tripId1P1, visitedPlaces: journey.visitedPlaces! })).toEqual(journey.visitedPlaces!.workPlace1P1);
     });
 
     test('getDestination: unexisting', () => {
         const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
-        expect(Helpers.getDestination(journey.trips!.tripId1P1, {})).toEqual(null);
+        expect(Helpers.getDestination({ trip: journey.trips!.tripId1P1, visitedPlaces: {} })).toEqual(null);
     });
 
     test('getDestination, trip without origin', () => {
         const journey = interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2;
-        expect(Helpers.getDestination(journey.trips!.tripId3P2, journey.visitedPlaces!)).toEqual(null);
+        expect(Helpers.getDestination({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(null);
     });
 
 });
@@ -925,7 +925,7 @@ describe('getVisitedPlaceNames', () => {
             'mocked 4'
         ]
     ]).test('%s', (_title, visitedPlace, mockedTVal, expected) => {
-        const name = Helpers.getVisitedPlaceName(mockedT, visitedPlace, interviewAttributesForTestCases);
+        const name = Helpers.getVisitedPlaceName({ t: mockedT, visitedPlace, interview: interviewAttributesForTestCases });
         if (mockedTVal) {
             expect(mockedT).toHaveBeenCalledWith(mockedTVal);
         } else {
@@ -960,7 +960,7 @@ describe('getVisitedPlaceGeography', () => {
             null
         ]
     ]).test('%s', (_title, visitedPlace, expected) => {
-        const geography = Helpers.getVisitedPlaceGeography(visitedPlace, interviewAttributesForTestCases);
+        const geography = Helpers.getVisitedPlaceGeography({ visitedPlace, interview: interviewAttributesForTestCases });
         if (expected) {
             expect(geography).toEqual(expected);
         } else {
@@ -989,35 +989,35 @@ describe('getTrips', () => {
     }
 
     test('object: test without segments', () => {
-        expect(Helpers.getSegments(trip)).toEqual({});
+        expect(Helpers.getSegments({ trip })).toEqual({});
     });
 
     test('object: empty segments', () => {
         const attributes = _cloneDeep(trip);
         attributes.segments = { };
-        expect(Helpers.getSegments(attributes)).toEqual({});
+        expect(Helpers.getSegments({ trip: attributes })).toEqual({});
     });
 
     test('object: with segments', () => {
         const attributes = _cloneDeep(trip);
         attributes.segments = segments;
-        expect(Helpers.getSegments(attributes)).toEqual(segments);
+        expect(Helpers.getSegments({ trip: attributes })).toEqual(segments);
     });
 
     test('array: test without segments', () => {
-        expect(Helpers.getSegmentsArray(trip)).toEqual([]);
+        expect(Helpers.getSegmentsArray({ trip })).toEqual([]);
     });
 
     test('array: empty segments', () => {
         const attributes = _cloneDeep(trip);
         attributes.segments = { };
-        expect(Helpers.getSegmentsArray(attributes)).toEqual([]);
+        expect(Helpers.getSegmentsArray({ trip: attributes })).toEqual([]);
     });
 
     test('array: with segments, ordered', () => {
         const attributes = _cloneDeep(trip);
         attributes.segments = segments;
-        expect(Helpers.getSegmentsArray(attributes)).toEqual([segments.segment2, segments.segment1]);
+        expect(Helpers.getSegmentsArray({ trip: attributes })).toEqual([segments.segment2, segments.segment1]);
     });
 
 });
