@@ -371,10 +371,9 @@ export const setResponse = (
  *
  * @param interview The interview object
  * @returns The household object
- * @deprecated use {@link odSurveyHelpers.getHousehold} instead, this is just an
- * alias
+ * @deprecated use {@link odSurveyHelpers.getHousehold} instead
  */
-export const getHousehold = odSurveyHelpers.getHousehold;
+export const getHousehold = (interview) => odSurveyHelpers.getHousehold({ interview });
 
 /**
  * Get the currently active person, as defined in the interview responses. If
@@ -384,10 +383,9 @@ export const getHousehold = odSurveyHelpers.getHousehold;
  *
  * @param interview The interview object
  * @returns The current person object
- * @deprecated use {@link odSurveyHelpers.getActivePerson} instead. This is
- * just an alias
+ * @deprecated use {@link odSurveyHelpers.getActivePerson} instead
  */
-export const getCurrentPerson = odSurveyHelpers.getActivePerson;
+export const getCurrentPerson = (interview) => odSurveyHelpers.getActivePerson({ interview });
 
 /**
  * Get a validation value value for a specific path in the interview
@@ -469,24 +467,24 @@ export const isPhoneNumber = (maybeNumber: string) => {
 };
 
 /**
- * @deprecated Use {@link odSurveyHelpers.getPersons} instead, this is just an alias
+ * @deprecated Use {@link odSurveyHelpers.getPersons} instead
  * */
-export const getPersons = odSurveyHelpers.getPersons;
+export const getPersons = (interview) => odSurveyHelpers.getPersons({ interview });
 
 /**
- * @deprecated Use {@link odSurveyHelpers.getPersonsArray} instead, this is just an alias
+ * @deprecated Use {@link odSurveyHelpers.getPersonsArray} instead
  */
-export const getPersonsArray = odSurveyHelpers.getPersonsArray;
+export const getPersonsArray = (interview) => odSurveyHelpers.getPersonsArray({ interview });
 
 /**
- * @deprecated Use {@link odSurveyHelpers.getVisitedPlaces} instead, this is just an alias
+ * @deprecated Use {@link odSurveyHelpers.getVisitedPlaces} instead
  */
-export const getVisitedPlaces = odSurveyHelpers.getVisitedPlaces;
+export const getVisitedPlaces = (journey) => odSurveyHelpers.getVisitedPlaces({ journey });
 
 /**
- * @deprecated Use {@link odSurveyHelpers.getVisitedPlacesArray} instead, this is just an alias
+ * @deprecated Use {@link odSurveyHelpers.getVisitedPlacesArray} instead
  */
-export const getVisitedPlacesArray = odSurveyHelpers.getVisitedPlacesArray;
+export const getVisitedPlacesArray = (journey) => odSurveyHelpers.getVisitedPlacesArray({ journey });
 
 /**
  * Replace visited places that are shortcuts to the given location by the data
@@ -494,9 +492,10 @@ export const getVisitedPlacesArray = odSurveyHelpers.getVisitedPlacesArray;
  * use the first place as new shortcut
  * @param interview The interview
  * @param visitedPlacesPath The path of the visited place to replace
- * @deprecated Use {@link odSurveyHelpers.replaceVisitedPlaceShortcuts} instead, this is just an alias
+ * @deprecated Use {@link odSurveyHelpers.replaceVisitedPlaceShortcuts} instead
  */
-export const replaceVisitedPlaceShortcuts = odSurveyHelpers.replaceVisitedPlaceShortcuts;
+export const replaceVisitedPlaceShortcuts = (interview, visitedPlacesPath) =>
+    odSurveyHelpers.replaceVisitedPlaceShortcuts({ interview, shortcutTo: visitedPlacesPath });
 
 const startDateGreaterEqual = (startDate: number | undefined, compare: string | undefined): boolean | null => {
     const interviewStart = startDate ? moment.unix(startDate) : undefined;

@@ -107,7 +107,7 @@ export class SegmentsSection extends React.Component<any, any> {
     const widgetsComponentsByShortname = {};
     const personTripsConfig            = this.props.surveyContext.widgets['personTrips'];
     const person                       = helper.getPerson(this.props.interview);
-    const journeys = odSurveyHelper.getJourneysArray(person);
+    const journeys = odSurveyHelper.getJourneysArray({ person });
     const currentJourney = journeys[0];
 
     const trips      = currentJourney.trips || {};
