@@ -336,7 +336,6 @@ label strong, .apptr__form__label-standalone strong {
 }
 
 .apptr__form-container.question-valid {
-
   border: 0.5rem solid $valid-border;
   background: url(../../assets/images/interface_icons/check-circle.svg) $valid-background;
   background-position: right 0.5rem top 0.5rem;
@@ -388,9 +387,15 @@ label strong, .apptr__form__label-standalone strong {
 
 }
 
+// InputRange component
+.question-type-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem; // We need this to show correctly the values label on top of the slider
+}
+
 .survey-question__input-range_input_container {
   margin: 0 auto;
-  //padding: -100px 30px -100px;
 }
 
 .input-range__label-container {
@@ -414,7 +419,9 @@ label strong, .apptr__form__label-standalone strong {
     font-style: oblique;
 }
 
+// Labels for the slider
 .__input-range_input_container_label {
+    margin-top: 1rem; // Space between the slider and the label
     flex-grow: 1;
     flex-basis: 0;
     text-align: left;
@@ -454,23 +461,23 @@ label strong, .apptr__form__label-standalone strong {
   border: 1px solid rgba(61, 66, 74, 0.5);
 }
 
+// Value on top of the slider
 .input-range__label--value {
   top: -4rem;
   font-style: normal;
   font-weight: 700;
-  transform:translateX(-50%);
-  margin-left: 1rem;
+  transform:translateX(-50%); // Center the value
   color: rgba(0,0,0,0.85);
 }
 
+// Min value label
 .input-range__label--min {
-  text-align: left;
-  left: 0 !important;
-  //text-anchor: start;
+  display: none; // Hide the min value label
 }
 
+// Max value label
 .input-range__label--max .input-range__label-container {
-  left: 0 !important;
+  display: none; // Hide the max value label
 }
 
 .input-range__label--max {
@@ -483,6 +490,11 @@ label strong, .apptr__form__label-standalone strong {
 .input-range__track--background, .input-slider-blue {
   background: linear-gradient(to right, rgba(255,255,255,1.0), rgba(255,255,255,1.0) 10%, rgba(54, 158, 255, 0.3) 10%, rgba(54, 158, 255, 1.0), rgba(0, 49, 139, 1.0));
   box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
+// Any slider with a class starting with "input-slider-"
+[class^="input-slider-"] {
+  cursor: pointer;
 }
 
 .input-slider-red-yellow-green {
@@ -511,20 +523,20 @@ label strong, .apptr__form__label-standalone strong {
   //box-shadow: 0 0 5px rgba(54, 158, 255, 1.0);
 }
 
+// Slider circle
 .input-range__slider {
   height: 2.5rem;
   width: 2.5rem;
-  margin-left: -1.25rem;
-  margin-top: -1.5rem;
+  margin-left: -1.25rem; // Center the slider
+  margin-top: -1.75rem; // Center the slider
+  cursor: grabbing; // Change the cursor when dragging the slider
 }
 
-
+// Slider track
 .input-range__track {
   border-radius: 0.5rem;
-  height: 0.7rem;
+  height: 1.2rem;
 }
-
-
 
 .react-select-container {
   font-size: $m-size;
