@@ -11,9 +11,8 @@ import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import GeoJSON from 'geojson';
 import bowser from 'bowser';
 
-import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { googleMapConfigNew as googleConfig } from '../../../../config/googleMaps.config';
+import { getCurrentGoogleMapConfig } from '../../../../config/googleMaps.config';
 import InputLoading from '../../InputLoading';
 import { FeatureGeocodedProperties, MarkerData, InfoWindow } from '../InputMapTypes';
 import { geojson, toLatLng } from './GoogleMapUtils';
@@ -52,22 +51,6 @@ const callWithBounds = (
             ]
             : undefined
     );
-};
-
-// The google map configuration needs to be global as the loading of the API
-// takes place once for the whole survey and the configuration cannot change,
-// even between sections, otherwise it throws an exception.
-let currentGoogleMapConfig: Parameters<typeof useJsApiLoader>[0] | undefined = undefined;
-const getCurrentGoogleMapConfig = (language = projectConfig.defaultLocale): Parameters<typeof useJsApiLoader>[0] => {
-    if (currentGoogleMapConfig) {
-        return currentGoogleMapConfig;
-    }
-    currentGoogleMapConfig = {
-        region: projectConfig.region,
-        language: language,
-        ...googleConfig
-    };
-    return currentGoogleMapConfig;
 };
 
 const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTranslation> = (

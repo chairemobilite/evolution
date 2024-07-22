@@ -11,7 +11,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
-import { googleMapConfigNew as googleConfig } from '../../config/googleMaps.config';
+import { getCurrentGoogleMapConfig } from '../../config/googleMaps.config';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import InputLoading from '../inputs/InputLoading';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
@@ -32,11 +32,11 @@ type InfoMapProps = {
 };
 
 const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps & WithTranslation) => {
-    const { isLoaded } = useJsApiLoader({
-        region: projectConfig.region,
-        language: projectConfig.defaultLocale,
-        ...googleConfig
-    });
+    // Set the google map config once, as it cannot be changed after it is
+    // loaded (for language change for example). see
+    // https://stackoverflow.com/questions/7065420/how-can-i-change-the-language-of-google-maps-on-the-run
+    const googleMapConfig = React.useMemo(() => getCurrentGoogleMapConfig(props.i18n.language), []);
+    const { isLoaded } = useJsApiLoader(googleMapConfig);
 
     const [map, setMap] = React.useState<google.maps.Map | null>(null);
     const [center, setCenter] = React.useState<{ lat: number; lng: number } | google.maps.LatLng>({
