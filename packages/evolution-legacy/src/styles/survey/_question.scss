@@ -398,6 +398,11 @@ label strong, .apptr__form__label-standalone strong {
   margin: 0 auto;
 }
 
+// Slider container
+.input-range__slider-container {
+  transition: none; // Do not use transition or the slider will be very slow
+}
+
 .input-range__label-container {
   font-weight: 500;
   left: 0;
