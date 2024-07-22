@@ -18,7 +18,7 @@ import AdminRegisterPage from 'chaire-lib-frontend/lib/components/pages/Register
 import ForgotPasswordPage from 'chaire-lib-frontend/lib/components/pages/ForgotPasswordPage';
 import MagicLinkVerifyPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/MagicLinkVerify';
 import CheckMagicEmailPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/CheckMagicEmail';
-import Survey from '../../../components/survey/Survey';
+import Survey from '../../../components/survey/SurveyWithErrorBoundary';
 //import RegistrationCompleted from '../../components/survey/RegistrationCompleted';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
 import ChangePasswordPage from '../../../components/survey/ChangePasswordPage';
