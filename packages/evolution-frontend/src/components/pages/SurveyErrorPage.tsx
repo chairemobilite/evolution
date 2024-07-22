@@ -8,7 +8,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { withTranslation, WithTranslation } from 'react-i18next';
 
-export const SurveyErrorPage: React.FunctionComponent<WithTranslation> = (props: WithTranslation) => (
+type SurveyErrorPageProps = {
+    onRedirect?: () => void;
+};
+
+export const SurveyErrorPage: React.FunctionComponent<SurveyErrorPageProps & WithTranslation> = (
+    props: SurveyErrorPageProps & WithTranslation
+) => (
     <div className="survey" style={{ display: 'block' }} id="surveyErrorPage">
         <div className="apptr__form">
             <p className="_large _strong _blue">
@@ -31,7 +37,9 @@ export const SurveyErrorPage: React.FunctionComponent<WithTranslation> = (props:
         </div>
         <div className="apptr__separator"></div>
         <div className="apptr__form">
-            <Link to="/survey">{props.t(['survey:BackToSurveyPage', 'BackToSurveyPage'])}</Link>
+            <Link to="/survey" onClick={props.onRedirect}>
+                {props.t(['survey:BackToSurveyPage', 'BackToSurveyPage'])}
+            </Link>
         </div>
     </div>
 );
