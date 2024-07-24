@@ -103,10 +103,6 @@ def generate_UI_tests(input_file: str, output_file: str):
             conditional = row_dict["conditional"]
             choices = row_dict["choices"]
 
-            # Check if the row is valid
-            if question_name is None or input_type is None or path is None:
-                raise Exception("Invalid row data in Widgets sheet")
-
             # Check if we've moved to a new section
             if section != current_section:
                 current_section = section  # Update the current section tracker
