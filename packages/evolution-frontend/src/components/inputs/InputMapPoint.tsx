@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons/faMapMarkerAlt';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
+import projectConfig from 'evolution-common/lib/config/project.config';
 import { InputMapPointType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { WithTranslation, withTranslation } from 'react-i18next';
