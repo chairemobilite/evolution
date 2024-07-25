@@ -17,7 +17,7 @@ import {
     VisitedPlace
 } from '../interviews/interview';
 import { TFunction } from 'i18next';
-import config from 'chaire-lib-common/lib/config/shared/project.config';
+import config from '../../config/project.config';
 
 // This file contains helper function that retrieves various data from the
 // responses field of the interview
@@ -27,10 +27,6 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 // stabilized and are ready to be used during the survey
 
 // Person and household related functions
-
-// Age for self response. It can be configured ine the survey's configuration by setting the `selfResponseMinimumAge` property
-// TODO Type and document this configuration property
-const selfResponseAge = config.selfResponseMinimumAge || 14;
 
 /**
  * Get a person by its ID or the currently actively person if no ID is specified
@@ -151,7 +147,7 @@ export const isSelfDeclared = ({
     person: Person;
 }): boolean => {
     const persons: any = getPersonsArray({ interview });
-    const personsCanSelfRespond = persons.filter((p: Person) => p.age && p.age >= selfResponseAge);
+    const personsCanSelfRespond = persons.filter((p: Person) => p.age && p.age >= config.selfResponseMinimumAge);
     return (
         (personsCanSelfRespond.length === 1 && person._uuid === personsCanSelfRespond[0]._uuid) ||
         (!_isBlank(person.whoWillAnswerForThisPerson) ? person.whoWillAnswerForThisPerson === person._uuid : false)
