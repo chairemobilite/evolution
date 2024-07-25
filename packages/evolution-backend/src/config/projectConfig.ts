@@ -28,6 +28,28 @@ interface ProjectServerConfig {
      * individual audits. It is optional. If the survey does not require auditing, just leave blank.
      */
     auditInterview?: (attributes: InterviewAttributes) => Promise<SurveyObjectsWithAudits>;
+    /**
+     * Configuration of a Transition instance for route calculations. If not
+     * set, route calculations will not use the Transition public API for
+     * eventual route calculations.
+     */
+    transitionApi?: {
+        /**
+         * URL for the Transition API. Can be set by setting the
+         * TRANSITION_API_URL environment variable
+         */
+        url: string;
+        /**
+         * Username for the Transition API. Can be set by setting the
+         * TRANSITION_API_USERNAME environment variable
+         */
+        username: string;
+        /**
+         * Password for the Transition API. Can be set by setting the
+         * TRANSITION_API_PASSWORD environment variable
+         */
+        password: string;
+    };
 }
 
 export const defaultConfig: ProjectServerConfig = {
@@ -80,6 +102,22 @@ const projectConfig = Object.assign({}, defaultConfig);
  * @param config The project specific configuration elements
  */
 export const setProjectConfig = (config: Partial<ProjectServerConfig>) => {
+    // Try to set the transition API object from the environment variables.
+    // FIXME For now, it is either set in the config or in the environment
+    // variables. Consider a mix to support for example url in config and
+    // credentials in env.
+    if (!config.transitionApi) {
+        const transitionUrl = process.env.TRANSITION_API_URL;
+        const transitionUsername = process.env.TRANSITION_API_USERNAME;
+        const transitionPassword = process.env.TRANSITION_API_PASSWORD;
+        if (transitionUrl && transitionUsername && transitionPassword) {
+            config.transitionApi = {
+                url: transitionUrl,
+                username: transitionUsername,
+                password: transitionPassword
+            };
+        }
+    }
     Object.assign(projectConfig, config);
 };
 
