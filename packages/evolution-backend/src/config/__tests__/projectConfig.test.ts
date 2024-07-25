@@ -7,11 +7,6 @@
 import { InterviewListAttributes, InterviewStatusAttributesBase } from 'evolution-common/lib/services/interviews/interview';
 import projectConfig, { defaultConfig, setProjectConfig } from '../projectConfig';
 
-type CustomSurvey = {
-    accessCode?: string;
-    foo?: string;
-}
-
 const interview: InterviewListAttributes = {
     id: 1,
     uuid: 'arbitrary',
@@ -93,4 +88,78 @@ describe('Validation List Filter', () => {
         });
     })
 });
+
+describe('Transition API configuration', () => {
+
+    beforeEach(() => {
+        // Undefine all environment variables and transitionApi config
+        delete process.env.TRANSITION_API_URL;
+        delete process.env.TRANSITION_API_USERNAME;
+        delete process.env.TRANSITION_API_PASSWORD;
+        projectConfig.transitionApi = undefined;
+    });
+
+    test('Default value should not be set', () => {
+        setProjectConfig({
+            // Nothing to set
+        });
+        expect(projectConfig.transitionApi).toBeUndefined();
+    });
+
+    test('Should use environment variables if set', () => {
+        process.env.TRANSITION_API_URL = 'https://transition.from.env';
+        process.env.TRANSITION_API_USERNAME = 'username.env';
+        process.env.TRANSITION_API_PASSWORD = 'password.env';
+        setProjectConfig({
+            // Nothing to set
+        });
+        expect(projectConfig.transitionApi).toEqual({
+            url: 'https://transition.from.env',
+            username: 'username.env',
+            password: 'password.env'
+        });
+    });
+
+    test('Missing password, should not be set', () => {
+        process.env.TRANSITION_API_URL = 'https://transition.from.env';
+        process.env.TRANSITION_API_USERNAME = 'username.env';
+        setProjectConfig({
+            // Nothing to set
+        });
+        expect(projectConfig.transitionApi).toBeUndefined()
+    });
+
+    test('Should use the values specified in the config if set', () => {
+        setProjectConfig({
+            transitionApi: {
+                url: 'http://transition',
+                username: 'user',
+                password: 'password'
+            }
+        });
+        expect(projectConfig.transitionApi).toEqual({
+            url: 'http://transition',
+            username: 'user',
+            password: 'password'
+        });
+    });
+
+    test('Should use values in config if both environment and config set', () => {
+        process.env.TRANSITION_API_URL = 'https://transition.from.env';
+        process.env.TRANSITION_API_USERNAME = 'username.env';
+        process.env.TRANSITION_API_PASSWORD = 'password.env';
+        setProjectConfig({
+            transitionApi: {
+                url: 'http://transition',
+                username: 'user',
+                password: 'password'
+            }
+        });
+        expect(projectConfig.transitionApi).toEqual({
+            url: 'http://transition',
+            username: 'user',
+            password: 'password'
+        });
+    });
+})
 
