@@ -6,7 +6,7 @@
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Validations } from '../types/inputTypes';
-import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
+import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 
 // Make sure the question is answered
 export const requiredValidation: Validations = (value) => {
@@ -81,7 +81,7 @@ export const householdSizeValidation: Validations = (value) => {
 
 // Verify if the value is a valid number of cars
 export const carNumberValidation: Validations = (value, _customValue, interview, _path, _customPath) => {
-    const householdSize = surveyHelper.get(interview, 'household.size', null);
+    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
 
     return [
         {
@@ -92,7 +92,7 @@ export const carNumberValidation: Validations = (value, _customValue, interview,
             }
         },
         {
-            validation: surveyHelper.isBlank(value),
+            validation: _isBlank(value),
             errorMessage: {
                 fr: 'Le nombre de véhicules est requis.',
                 en: 'The number of vehicles is required.'
@@ -112,14 +112,60 @@ export const carNumberValidation: Validations = (value, _customValue, interview,
                 en: 'The number of vehicles must be at least 0.'
             }
         },
+        // The number of vehicles should not be 5 times greater than the number of people in the household
         {
             validation:
-                !surveyHelper.isBlank(householdSize) &&
+                !_isBlank(householdSize) &&
                 !isNaN(Number(householdSize)) &&
+                typeof householdSize === 'number' &&
                 Number(value) / householdSize > 3,
             errorMessage: {
                 fr: 'Le nombre de véhicules est trop élevé pour le nombre de personnes dans le ménage. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.',
                 en: 'The number of vehicles is too high for the number of people in the household. Do not include collection vehicles or vehicles that are not used on a regular basis.'
+            }
+        }
+    ];
+};
+
+// Verify if the value is a valid number of bikes
+export const bikeNumberValidation: Validations = (value, _customValue, interview, _path, _customPath) => {
+    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
+
+    return [
+        {
+            validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
+            errorMessage: {
+                fr: 'Le nombre de vélos est invalide.',
+                en: 'The number of bikes is invalid.'
+            }
+        },
+        {
+            validation: _isBlank(value),
+            errorMessage: {
+                fr: 'Le nombre de vélos est requis.',
+                en: 'The number of bikes is required.'
+            }
+        },
+        {
+            validation: Number(value) > 20,
+            errorMessage: {
+                fr: 'Le nombre de vélos doit être au maximum 20.',
+                en: 'The number of bikes must be less than or equal to 20.'
+            }
+        },
+        {
+            validation: Number(value) < 0,
+            errorMessage: {
+                fr: 'Le nombre de vélos doit être au moins de 0.',
+                en: 'The number of bikes must be at least 0.'
+            }
+        },
+        // The number of bikes should not be 5 times greater than the number of people in the household
+        {
+            validation: !_isBlank(householdSize) && !isNaN(Number(householdSize)) && typeof householdSize === 'number' && (Number(value) / householdSize) > 5,
+            errorMessage: {
+                fr: 'Le nombre de vélos est trop élevé pour le nombre de personnes dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne sont pas utilisés régulièrement.',
+                en: 'The number of bikes is too high for the number of people in the household. Do not include collection bikes or bikes that are not used on a regular basis.'
             }
         }
     ];
