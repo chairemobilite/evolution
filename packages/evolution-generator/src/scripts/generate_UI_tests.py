@@ -132,7 +132,7 @@ def generate_UI_tests(input_file: str, output_file: str):
             
             # Generate input visible test
             if conditional and active:
-                ts_code += f"testHelpers.inputVisibleTest({{ context, path: '{path}', isVisible: undefined }});\n"
+                ts_code += f"testHelpers.inputVisibleTest({{ context, path: '{path}', isVisible: true }});\n"
 
             # Generate input tests
             if not active:
