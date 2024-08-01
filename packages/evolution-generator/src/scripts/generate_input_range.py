@@ -65,14 +65,20 @@ def generate_input_range(input_file: str, output_file: str):
             # Get values from the row dictionary
             input_range_name = row_dict["inputRangeName"]
             label_fr_min = replaces_quotes_and_stringify(row_dict["labelFrMin"])
+            label_fr_middle = replaces_quotes_and_stringify(row_dict["labelFrMiddle"])
             label_fr_max = replaces_quotes_and_stringify(row_dict["labelFrMax"])
             label_en_min = replaces_quotes_and_stringify(row_dict["labelEnMin"])
+            label_en_middle = replaces_quotes_and_stringify(row_dict["labelEnMiddle"])
             label_en_max = replaces_quotes_and_stringify(row_dict["labelEnMax"])
             min_value = str(row_dict["minValue"])
             max_value = str(row_dict["maxValue"])
             unit_fr = replaces_quotes_and_stringify(row_dict["unitFr"])
             unit_en = replaces_quotes_and_stringify(row_dict["unitEn"])
-            input_color = row_dict["input_color"] if 'input_color' in row_dict and row_dict["input_color"] is not None else "blue"
+            input_color = (
+                row_dict["input_color"]
+                if "input_color" in row_dict and row_dict["input_color"] is not None
+                else "blue"
+            )
 
             # Check if the row is valid
             if (
@@ -88,17 +94,19 @@ def generate_input_range(input_file: str, output_file: str):
             ):
                 raise Exception("Invalid row data in InputRange sheet")
 
+            # Function to generate label
+            def generate_label(label_fr: str, label_en: str, is_last: bool = False):
+                insert_comma = "," if not is_last else "" # Insert comma if not last label
+                return f"{INDENT}{{\n{INDENT}{INDENT}fr: '{label_fr}',\n{INDENT}{INDENT}en: '{label_en}'\n{INDENT}}}{insert_comma}\n"
+
             # Generate TypeScript code
             ts_code += f"export const {input_range_name}: InputRangeConfig = {{\n"
             ts_code += f"{INDENT}labels: [\n"
-            ts_code += f"{INDENT}{INDENT}{{\n"
-            ts_code += f"{INDENT}{INDENT}{INDENT}fr: '{label_fr_min}',\n"
-            ts_code += f"{INDENT}{INDENT}{INDENT}en: '{label_en_min}'\n"
-            ts_code += f"{INDENT}{INDENT}}},\n"
-            ts_code += f"{INDENT}{INDENT}{{\n"
-            ts_code += f"{INDENT}{INDENT}{INDENT}fr: '{label_fr_max}',\n"
-            ts_code += f"{INDENT}{INDENT}{INDENT}en: '{label_en_max}'\n"
-            ts_code += f"{INDENT}{INDENT}}}\n"
+            ts_code += generate_label(label_fr_min, label_en_min)
+            # Check if both label_fr_middle and label_en_middle exist before calling generate_label
+            if label_fr_middle and label_en_middle:
+                ts_code += generate_label(label_fr_middle, label_en_middle)
+            ts_code += generate_label(label_fr_max, label_en_max, True)
             ts_code += f"{INDENT}],\n"
             ts_code += f"{INDENT}minValue: {min_value},\n"
             ts_code += f"{INDENT}maxValue: {max_value},\n"
