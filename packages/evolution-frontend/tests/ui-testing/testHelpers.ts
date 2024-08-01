@@ -49,6 +49,7 @@ type RegisterWithoutEmailTest = (params: CommonTestParameters) => void;
 type RegisterWithEmailTest = (params: { email: Email; nextPageUrl?: Url } & CommonTestParameters) => void;
 type HasUserTest = (params: CommonTestParameters) => void;
 type SimpleAction = (params: CommonTestParameters) => void;
+type ContinueWithInvalidEntriesTest = (params: { text: Text; currentPageUrl: Url, nextPageUrl: Url } & CommonTestParameters) => void;
 type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void;
 type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
 type InputStringTest = (params: PathAndValue & CommonTestParameters) => void;
@@ -365,6 +366,46 @@ export const inputStringTest: InputStringTest = ({ context, path, value }) => {
 };
 
 /**
+ * Input characters that should not appear in the widget, and test that the resulting string is empty.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.path - The path of the string input question.
+ * @param {string[]} options.value - The value to try and enter
+ * question.
+ */
+export const inputInvalidStringTypeTest: InputStringTest = ({ context, path, value }) => {
+    test(`Try to fill ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
+        const newPath = context.objectDetector.replaceWithIds(path);
+        const inputText = context.page.locator(`id=survey-question__${newPath}`);
+        await inputText.scrollIntoViewIfNeeded();
+        await inputText.fill(value);
+        await focusOut(context.page);
+        await expect(inputText).toHaveValue("");
+    });
+};
+
+/**
+ * Input a string that is not a valid answer for this widget, and check that it gets highlighted in red.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.path - The path of the string input question.
+ * @param {string[]} options.value - The value to enter
+ * question.
+ */
+export const inputInvalidStringValueTest: InputStringTest = ({ context, path, value }) => {
+    test(`Fill ${value} for ${path} and check that it is invalid - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
+        const newPath = context.objectDetector.replaceWithIds(path);
+        const inputText = context.page.locator(`id=survey-question__${newPath}`);
+        await inputText.scrollIntoViewIfNeeded();
+        await inputText.fill(value);
+        await expect(inputText).toHaveValue(value);
+        await focusOut(context.page);
+        const questionContainer = inputText.locator("../..")
+        await expect(questionContainer).toHaveClass(/question-filled question-invalid/)
+    });
+};
+
+/**
  * Helper function to set a value and test the input range widget.
  *
  * @param {Object} options - The options for the test.
@@ -586,6 +627,28 @@ export const inputDatePickerTest = ({ context, path, value }: PathAndValue & Com
 };
 
 /**
+ * Input a date that is invalid (such as being in the future) and check that it gets modified to a different value.
+ * The new value seems to depend on the context and value entered, giving different values if it is entered from an empty widget or modified, and sometimes being empty.
+ * TODO: Investigate the exact correcting mechanism, so we can test for an expected value
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.path - The path of the date picker question.
+ * @param {string} options.value - The date value to write in the datepicker, in the format 'DD/MM/YYYY'.
+ */
+export const writeInvalidDateTest = ({ context, path, value }: PathAndValue & CommonTestParameters) => {
+    test(`Write invalid date ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
+        const newPath = context.objectDetector.replaceWithIds(path);
+
+        const datePickerInput = context.page.locator(`id=survey-question__${newPath}`);
+        await expect(datePickerInput).toBeVisible();
+        await datePickerInput.scrollIntoViewIfNeeded();
+        await datePickerInput.fill(value);
+        await focusOut(context.page);
+        await expect(datePickerInput).not.toHaveValue(value);
+    });
+};
+
+/**
  * Test whether a widget is visible or not
  *
  * @param { path, isVisible = true } - The path of the widget and whether it should be visible or not
@@ -626,5 +689,45 @@ export const waitTextVisible = ({ context, text, isVisible = true }: { text: Pat
         } else {
             await expect(input).not.toBeVisible();
         }
+    });
+};
+
+const tryToContinueOnInvalidPage: ContinueWithInvalidEntriesTest = async ({ context, text, currentPageUrl, nextPageUrl }) => {
+    const button = context.page.getByRole('button', { name: text });
+    await button.scrollIntoViewIfNeeded();
+    await button.click();
+    await expect(context.page.waitForURL(nextPageUrl, {timeout: 1000})).rejects.toThrow("Timeout")
+    await expect(context.page).toHaveURL(currentPageUrl);
+}
+
+/**
+ * Click the next page button when not all options are filled and check that we remain on the same page.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.text - The text of the button to click.
+ * @param {string} options.currentPageUrl - The URL of the current page.
+ * @param {string} options.nextPageUrl - The URL of the page that the button would normally take us too.
+ */
+export const tryToContinueOnEmptyPage: ContinueWithInvalidEntriesTest = ({ context, text, currentPageUrl, nextPageUrl }) => {
+    test(`Clicking ${text} when options are empty should keep you on ${currentPageUrl} - ${getTestCounter(context, `${text} - ${currentPageUrl} - ${nextPageUrl}`)}`, async () => {
+        await tryToContinueOnInvalidPage({ context, text, currentPageUrl, nextPageUrl });
+    });
+};
+
+/**
+ * Click the next page button with invalid data that will create a popup, verifies that the appropriate popup appears, and close it.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.text - The text of the button to click.
+ * @param {string} options.currentPageUrl - The URL of the current page.
+ * @param {string} options.nextPageUrl - The URL of the page that the button would normally take us too.
+ */
+export const tryToContinueWithPopup: ContinueWithInvalidEntriesTest = ({ context, text, currentPageUrl, nextPageUrl }) => {
+    test(`Clicking ${text} when age is under 18 should open a popup and keep you on ${currentPageUrl} - ${getTestCounter(context, `${text} - ${currentPageUrl} - ${nextPageUrl}`)}`, async () => {
+        await tryToContinueOnInvalidPage({ context, text, currentPageUrl, nextPageUrl });
+        const agePopup = context.page.getByRole('dialog');
+        await expect(agePopup).toBeVisible();
+        await agePopup.locator("button").click();
+        await await expect(agePopup).not.toBeVisible();
     });
 };
