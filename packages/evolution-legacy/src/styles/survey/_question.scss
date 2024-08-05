@@ -550,3 +550,8 @@ label strong, .apptr__form__label-standalone strong {
 .survey-question__input-button-input-container {
   margin-right: 0.7rem;
 }
+
+/* datepicker override for font-size */
+.react-datepicker { font-size: 1.4rem !important; }
+.react-datepicker__day-name, .react-datepicker__day { width: 2.8rem !important; }
+.react-datepicker__current-month { font-size: 1.6rem !important; }
