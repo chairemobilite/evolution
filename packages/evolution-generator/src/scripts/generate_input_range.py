@@ -64,16 +64,16 @@ def generate_input_range(input_file: str, output_file: str):
 
             # Get values from the row dictionary
             input_range_name = row_dict["inputRangeName"]
-            label_fr_min = replaces_quotes_and_stringify(row_dict["labelFrMin"])
-            label_fr_middle = replaces_quotes_and_stringify(row_dict["labelFrMiddle"])
-            label_fr_max = replaces_quotes_and_stringify(row_dict["labelFrMax"])
-            label_en_min = replaces_quotes_and_stringify(row_dict["labelEnMin"])
-            label_en_middle = replaces_quotes_and_stringify(row_dict["labelEnMiddle"])
-            label_en_max = replaces_quotes_and_stringify(row_dict["labelEnMax"])
+            label_fr_min = replaces_quotes_and_stringify(row_dict.get("labelFrMin"))
+            label_fr_middle = replaces_quotes_and_stringify(row_dict.get("labelFrMiddle"))
+            label_fr_max = replaces_quotes_and_stringify(row_dict.get("labelFrMax"))
+            label_en_min = replaces_quotes_and_stringify(row_dict.get("labelEnMin"))
+            label_en_middle = replaces_quotes_and_stringify(row_dict.get("labelEnMiddle"))
+            label_en_max = replaces_quotes_and_stringify(row_dict.get("labelEnMax"))
             min_value = str(row_dict["minValue"])
             max_value = str(row_dict["maxValue"])
-            unit_fr = replaces_quotes_and_stringify(row_dict["unitFr"])
-            unit_en = replaces_quotes_and_stringify(row_dict["unitEn"])
+            unit_fr = replaces_quotes_and_stringify(row_dict.get("unitFr"))
+            unit_en = replaces_quotes_and_stringify(row_dict.get("unitEn"))
             input_color = (
                 row_dict["input_color"]
                 if "input_color" in row_dict and row_dict["input_color"] is not None
