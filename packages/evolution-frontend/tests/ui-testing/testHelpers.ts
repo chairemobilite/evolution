@@ -61,6 +61,7 @@ type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestPa
 type InputMapFindPlaceTest = (params: { path: Path, expectMultiple?: boolean } & CommonTestParameters) => void;
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
 type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
+type RedirectionTest = (params: { buttonText: Text, expectedRedirectionUrl: Url, nextPageUrl: Url } & CommonTestParameters) => void;
 
 /**
  * Open the browser before all the tests and go to the home page
@@ -744,5 +745,65 @@ export const tryToContinueWithPopup: ContinueWithInvalidEntriesTest = ({ context
         await expect(popup).toBeVisible();
         await popup.locator("//button").click();
         await expect(popup).not.toBeVisible();
+    });
+};
+
+/**
+ * Check that we are redirected to the right url, and interrupt it.
+ *
+ * @param {string} buttonText - The text of the button that triggers the redirection.
+ * @param {string} expectedRedirectionUrl - The URL we expect to be redirected to.
+ * @param {string} nextPageUrl - The URL of the page that the button takes us to before the redirect.
+ */
+export const pageRedirectionTest: RedirectionTest = ({ context, buttonText, expectedRedirectionUrl, nextPageUrl }) => {
+    // Get the domain of the expected url by splitting it and taking the section after the 'https://'
+    // Putting the whole url in the test title also causes issue, so we just put the domain
+    const urlDomain = expectedRedirectionUrl.split("/")[2];
+    test(`Clicking ${buttonText} should normally take user to ${nextPageUrl} but redirects to ${urlDomain} - ${getTestCounter(context, `${buttonText} - ${urlDomain} - ${nextPageUrl}`)}`, async () => {
+        let redirectionCalled = false;
+        let logoutCalled = false;
+
+        // Create a promise that will be resolved when redirectionCalled is true
+        let resolveRedirectPromise;
+        const redirectPromise = new Promise((resolve) => {
+            resolveRedirectPromise = resolve;
+        });
+        let resolveLogoutPromise;
+        const logoutPromise = new Promise((resolve) => {
+            resolveLogoutPromise = resolve;
+        });
+
+        // Activate request interception to prevent redirection
+        await context.page.route('**/*', (route, request) => {
+            // Get the domain of the expected url by splitting it and taking the section after the 'https://'
+            const urlDomain = expectedRedirectionUrl.split("/")[2];
+            if (request.url().includes(urlDomain)) {
+                expect(request.url()).toBe(expectedRedirectionUrl);
+                redirectionCalled = true;
+                // Block the redirection
+                route.abort();
+                resolveRedirectPromise();
+            } else if (request.url().includes('logout')) {
+                logoutCalled = true;
+                route.continue();
+                resolveLogoutPromise();
+            } else {
+                // Authorise all other requests to continue
+                route.continue();
+            }
+        });
+
+        const button = context.page.getByRole('button', { name: buttonText });
+        await button.scrollIntoViewIfNeeded();
+        await button.click();
+
+        await expect(context.page).toHaveURL(nextPageUrl);
+
+        // Await the promise outside the await on the context.page.route
+        await redirectPromise;
+        await logoutPromise;
+
+        expect(redirectionCalled).toBe(true);
+        expect(logoutCalled).toBe(true);
     });
 };
