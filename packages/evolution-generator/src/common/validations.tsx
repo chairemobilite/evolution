@@ -66,7 +66,7 @@ export const householdSizeValidation: Validations = (value) => {
             validation: Number(value) > 18,
             errorMessage: {
                 fr: 'La taille du ménage doit être au maximum 18.',
-                en: 'Household size must be less than or equal to 18.'
+                en: 'Household size must be at most 18.'
             }
         },
         {
@@ -82,6 +82,7 @@ export const householdSizeValidation: Validations = (value) => {
 // Verify if the value is a valid number of cars
 export const carNumberValidation: Validations = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
+    const maxCarsPerPerson = 3;
 
     return [
         {
@@ -99,37 +100,38 @@ export const carNumberValidation: Validations = (value, _customValue, interview,
             }
         },
         {
-            validation: Number(value) > 13,
-            errorMessage: {
-                fr: 'Le nombre de véhicules doit être au maximum 13.',
-                en: 'The number of vehicles must be less than or equal to 13.'
-            }
-        },
-        {
             validation: Number(value) < 0,
             errorMessage: {
                 fr: 'Le nombre de véhicules doit être au moins de 0.',
                 en: 'The number of vehicles must be at least 0.'
             }
         },
-        // The number of vehicles should not be 5 times greater than the number of people in the household
+        // The number of vehicles should not be 3 times greater than the number of people in the household
         {
             validation:
                 !_isBlank(householdSize) &&
                 !isNaN(Number(householdSize)) &&
                 typeof householdSize === 'number' &&
-                Number(value) / householdSize > 3,
+                Number(value) / householdSize > maxCarsPerPerson,
             errorMessage: {
-                fr: 'Le nombre de véhicules est trop élevé pour le nombre de personnes dans le ménage. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.',
-                en: 'The number of vehicles is too high for the number of people in the household. Do not include collection vehicles or vehicles that are not used on a regular basis.'
+                fr: `Le nombre de véhicules doit être au maximum ${Number(householdSize) * maxCarsPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.`,
+                en: `The number of vehicles must be at most ${Number(householdSize) * maxCarsPerPerson} for the number of people in the household. Do not include collection vehicles or vehicles that are not used on a regular basis.`
             }
-        }
+        },
+        {
+            validation: Number(value) > 13,
+            errorMessage: {
+                fr: 'Le nombre de véhicules doit être au maximum 13.',
+                en: 'The number of vehicles must be at most 13.'
+            }
+        },
     ];
 };
 
 // Verify if the value is a valid number of bikes
 export const bikeNumberValidation: Validations = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
+    const maxBikesPerPerson = 5;
 
     return [
         {
@@ -147,13 +149,6 @@ export const bikeNumberValidation: Validations = (value, _customValue, interview
             }
         },
         {
-            validation: Number(value) > 20,
-            errorMessage: {
-                fr: 'Le nombre de vélos doit être au maximum 20.',
-                en: 'The number of bikes must be less than or equal to 20.'
-            }
-        },
-        {
             validation: Number(value) < 0,
             errorMessage: {
                 fr: 'Le nombre de vélos doit être au moins de 0.',
@@ -162,10 +157,21 @@ export const bikeNumberValidation: Validations = (value, _customValue, interview
         },
         // The number of bikes should not be 5 times greater than the number of people in the household
         {
-            validation: !_isBlank(householdSize) && !isNaN(Number(householdSize)) && typeof householdSize === 'number' && (Number(value) / householdSize) > 5,
+            validation:
+                !_isBlank(householdSize) &&
+                !isNaN(Number(householdSize)) &&
+                typeof householdSize === 'number' &&
+                (Number(value) / householdSize) > maxBikesPerPerson,
             errorMessage: {
-                fr: 'Le nombre de vélos est trop élevé pour le nombre de personnes dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne sont pas utilisés régulièrement.',
-                en: 'The number of bikes is too high for the number of people in the household. Do not include collection bikes or bikes that are not used on a regular basis.'
+                fr: `Le nombre de vélos doit être au maximum ${Number(householdSize) * maxBikesPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne sont pas utilisés régulièrement.`,
+                en: `The number of bikes must be at most ${Number(householdSize) * maxBikesPerPerson} for the number of people in the household. Do not include collection bikes or bikes that are not used on a regular basis.`
+            }
+        },
+        {
+            validation: Number(value) > 20,
+            errorMessage: {
+                fr: 'Le nombre de vélos doit être au maximum 20.',
+                en: 'The number of bikes must be at most to 20.'
             }
         }
     ];
