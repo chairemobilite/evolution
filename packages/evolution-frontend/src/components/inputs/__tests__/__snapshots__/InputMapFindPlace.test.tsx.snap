@@ -27,6 +27,11 @@ exports[`Render InputMapPoint with various parameters Test with all parameters 1
       onKeyDown={[Function]}
       onMouseDown={[Function]}
       onMouseUp={[Function]}
+      style={
+        {
+          "display": "none",
+        }
+      }
       type="button"
     >
       <svg

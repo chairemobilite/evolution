@@ -33,6 +33,7 @@ interface InputMapPointState {
     currentBounds?: [number, number, number, number];
     markers: MarkerData[];
     displayMessage?: string;
+    renderGeoCodeButton: boolean;
 }
 
 /**
@@ -72,6 +73,7 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
         this.state = {
             defaultCenter,
             currentBounds: undefined,
+            renderGeoCodeButton: false,
             markers: this.props.value
                 ? [
                     {
@@ -103,7 +105,8 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
     };
 
     onMapReady = (bbox?: [number, number, number, number]) => {
-        this.setState({ currentBounds: bbox });
+        // Do not render button until map is ready, to prevent flakiness when a test clicks the button too quickly.
+        this.setState({ currentBounds: bbox, renderGeoCodeButton: true });
         if (!this.props.value) {
             this.geocodeAddress(bbox);
         }
@@ -168,6 +171,7 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
                         className="button refresh-geocode green large"
                         onClick={this.onGeocodeAddress}
                         ref={this.geocodeButtonRef}
+                        style={{display: this.state.renderGeoCodeButton ? 'inline' : 'none'}}
                     >
                         <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />
                         {surveyHelper.translateString(
