@@ -50,6 +50,7 @@ interface InputMapFindPlaceState {
      * need to match a map (for instance Google) */
     geocodingSpecificOptions: { [key: string]: unknown };
     displayMessage?: string;
+    renderGeoCodeButton: boolean;
 }
 
 /**
@@ -95,7 +96,8 @@ export class InputMapFindPlace extends React.Component<
             defaultCenter,
             places: [],
             searchPlaceButtonWasMouseDowned: false,
-            geocodingSpecificOptions: {}
+            geocodingSpecificOptions: {},
+            renderGeoCodeButton: false
         };
     }
 
@@ -155,6 +157,9 @@ export class InputMapFindPlace extends React.Component<
         /*if (!this.props.value) { // does not work because map is not yet loaded at this point
             this.geocodePlaces(bbox);
         }*/
+
+        // Do not render button until map is ready, to prevent flakiness when a test clicks the button too quickly.
+        this.setState({renderGeoCodeButton: true});
     };
 
     onBoundsChanged = (bbox?: [number, number, number, number]) => {
@@ -452,6 +457,7 @@ export class InputMapFindPlace extends React.Component<
                             onMouseUp={this.onSearchPlaceButtonMouseUp}
                             onKeyDown={this.onSearchPlaceButtonKeyDown}
                             ref={this.geocodeButtonRef}
+                            style={{display: this.state.renderGeoCodeButton ? 'inline' : 'none'}}
                         >
                             <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />
                             {surveyHelper.translateString(
