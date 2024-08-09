@@ -173,18 +173,14 @@ router.post('/validationList', async (req, res) => {
 router.get('/interviewSummary/:interviewUuid', async (req: Request, res: Response) => {
     if (req.params.interviewUuid) {
         try {
-            const response = await Interviews.getAllMatching({
-                pageIndex: 0,
-                pageSize: -1,
-                filter: { uuid: req.params.interviewUuid }
-            });
-            if (response.interviews.length === 1) {
+            const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+            if (interview) {
                 return res.status(200).json({
                     status: 'success',
-                    interview: response.interviews[0]
+                    interview
                 });
             } else {
-                console.log('Not found, got response', response);
+                console.log('Interview not found with id', req.params.interviewUuid);
                 return res.status(404).json({ status: 'failed', interview: null });
             }
         } catch (error) {
