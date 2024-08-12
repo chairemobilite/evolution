@@ -53,9 +53,9 @@ type RegisterWithEmailTest = (params: { email: Email; nextPageUrl?: Url } & Comm
 type HasUserTest = (params: CommonTestParameters) => void;
 type SimpleAction = (params: CommonTestParameters) => void;
 type ContinueWithInvalidEntriesTest = (params: { text: Text; currentPageUrl: Url, nextPageUrl: Url } & CommonTestParameters) => void;
-type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void;
+type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void | Promise<Locator>;
 type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
-type InputStringTest = (params: PathAndValue & CommonTestParameters) => void;
+type InputStringTest = (params: PathAndValue & CommonTestParameters) => void | Promise<Locator>;
 type InputRangeTest = (params: { path: Path; value: number; sliderColor?: string } & CommonTestParameters) => void;
 type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestParameters) => void;
 type InputMapFindPlaceTest = (params: { path: Path, expectMultiple?: boolean } & CommonTestParameters) => void;
@@ -230,16 +230,32 @@ export const hasUserTest: HasUserTest = ({ context }) => {
     });
 };
 
+// Click a particular option in a radio widget, and return the locator for that radio input.
+const inputRadio: InputRadioTest = async ({ context, path, value }): Promise<Locator> => {
+    const newPath = context.objectDetector.replaceWithIds(path);
+    const newValue = typeof value === 'string' ? context.objectDetector.replaceWithIds(value) : value;
+    const radio = context.page.locator(`id=survey-question__${newPath}_${newValue}__input-radio__${newValue}`);
+    await radio.scrollIntoViewIfNeeded();
+    await radio.click();
+    await expect(radio).toBeChecked();
+    await focusOut(context.page);
+    return radio;
+}
+
 // Test input radio widget
 export const inputRadioTest: InputRadioTest = ({ context, path, value }) => {
     test(`Check ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const newPath = context.objectDetector.replaceWithIds(path);
-        const newValue = typeof value === 'string' ? context.objectDetector.replaceWithIds(value) : value;
-        const radio = context.page.locator(`id=survey-question__${newPath}_${newValue}__input-radio__${newValue}`);
-        await radio.scrollIntoViewIfNeeded();
-        await radio.click();
-        await expect(radio).toBeChecked();
-        await focusOut(context.page);
+        await inputRadio({ context, path, value});
+    });
+};
+
+// Test input radio widget with invalid answer
+export const inputRadioInvalidTest: InputRadioTest = ({ context, path, value }) => {
+    test(`Input radion value ${value} for ${path} and check that it is invalid - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
+        const radioLocator = await inputRadio({ context, path, value}) as Locator;
+        // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
+        const questionContainer = context.page.locator("//div[contains(@class, 'form-container')]").filter({ has: radioLocator });
+        await expect(questionContainer).toHaveClass(/question-filled question-invalid/);
     });
 };
 
@@ -357,15 +373,21 @@ export const expectInputSelectOptionsTest = ({
     });
 };
 
+// Input text in a string input widget, and return the locator of that widget.
+const inputString: InputStringTest = async ({ context, path, value }): Promise<Locator> => {
+    const newPath = context.objectDetector.replaceWithIds(path);
+    const inputText = context.page.locator(`id=survey-question__${newPath}`);
+    await inputText.scrollIntoViewIfNeeded();
+    await inputText.fill(value);
+    await focusOut(context.page);
+    return inputText;
+}
+
 // Test input string widget
 export const inputStringTest: InputStringTest = ({ context, path, value }) => {
     test(`Fill ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const newPath = context.objectDetector.replaceWithIds(path);
-        const inputText = context.page.locator(`id=survey-question__${newPath}`);
-        await inputText.scrollIntoViewIfNeeded();
-        await inputText.fill(value);
-        await expect(inputText).toHaveValue(value);
-        await focusOut(context.page);
+        const inputLocator = await inputString({ context, path, value }) as Locator;
+        await expect(inputLocator).toHaveValue(value);
     });
 };
 
@@ -377,14 +399,10 @@ export const inputStringTest: InputStringTest = ({ context, path, value }) => {
  * @param {string[]} options.value - The value to try and enter
  * question.
  */
-export const inputInvalidStringTypeTest: InputStringTest = ({ context, path, value }) => {
+export const inputStringInvalidTypeTest: InputStringTest = ({ context, path, value }) => {
     test(`Try to fill ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const newPath = context.objectDetector.replaceWithIds(path);
-        const inputText = context.page.locator(`id=survey-question__${newPath}`);
-        await inputText.scrollIntoViewIfNeeded();
-        await inputText.fill(value);
-        await focusOut(context.page);
-        await expect(inputText).toHaveValue("");
+        const inputLocator = await inputString({ context, path, value }) as Locator;
+        await expect(inputLocator).toHaveValue("");
     });
 };
 
@@ -396,16 +414,14 @@ export const inputInvalidStringTypeTest: InputStringTest = ({ context, path, val
  * @param {string[]} options.value - The value to enter
  * question.
  */
-export const inputInvalidStringValueTest: InputStringTest = ({ context, path, value }) => {
+export const inputStringInvalidValueTest: InputStringTest = ({ context, path, value }) => {
     test(`Fill ${value} for ${path} and check that it is invalid - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const newPath = context.objectDetector.replaceWithIds(path);
-        const inputText = context.page.locator(`id=survey-question__${newPath}`);
-        await inputText.scrollIntoViewIfNeeded();
-        await inputText.fill(value);
-        await expect(inputText).toHaveValue(value);
-        await focusOut(context.page);
-        const questionContainer = inputText.locator("../..")
-        await expect(questionContainer).toHaveClass(/question-filled question-invalid/)
+        const inputLocator = await inputString({ context, path, value }) as Locator;
+        await expect(inputLocator).toHaveValue(value);
+
+        // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
+        const questionContainer = context.page.locator("//div[contains(@class, 'form-container')]").filter({ has: inputLocator });
+        await expect(questionContainer).toHaveClass(/question-filled question-invalid/);
     });
 };
 
@@ -701,7 +717,7 @@ const tryToContinueOnInvalidPage: ContinueWithInvalidEntriesTest = async ({ cont
     await button.scrollIntoViewIfNeeded();
     await button.click();
     // FIXME: 1000 timeout might not be enough on slower machine. Might require a new way to check if test fails.
-    await expect(context.page.waitForURL(nextPageUrl, {timeout: 1000})).rejects.toThrow("Timeout")
+    await expect(context.page.waitForURL(nextPageUrl, {timeout: 1000})).rejects.toThrow("Timeout");
     await expect(context.page).toHaveURL(currentPageUrl);
 }
 
