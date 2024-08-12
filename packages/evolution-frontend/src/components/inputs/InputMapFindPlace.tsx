@@ -228,7 +228,8 @@ export class InputMapFindPlace extends React.Component<
                         places: features,
                         selectedPlace: isSingleResult ? features[0] : undefined,
                         geocodingQueryString,
-                        displayMessage: features.length === 0 ? 'main:InputMapGeocodeNoResult' : undefined
+                        // Display a message if there are no results
+                        displayMessage: features && features.length === 0 ? 'main:InputMapGeocodeNoResult' : undefined
                     },
                     () => {
                         // FIXME: In order to directly show the "geocoding is imprecise" warning if there is a *single* result
