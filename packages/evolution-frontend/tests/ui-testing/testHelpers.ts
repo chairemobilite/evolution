@@ -53,12 +53,13 @@ type RegisterWithEmailTest = (params: { email: Email; nextPageUrl?: Url } & Comm
 type HasUserTest = (params: CommonTestParameters) => void;
 type SimpleAction = (params: CommonTestParameters) => void;
 type ContinueWithInvalidEntriesTest = (params: { text: Text; currentPageUrl: Url, nextPageUrl: Url } & CommonTestParameters) => void;
+type FetchGoogleMapsApiResponse = (params: { context: CommonTestParameters['context'], refreshButton: Locator }) => Promise<{ results: any[], resultsNumber: number }>;
 type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void | Promise<Locator>;
 type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
 type InputStringTest = (params: PathAndValue & CommonTestParameters) => void | Promise<Locator>;
 type InputRangeTest = (params: { path: Path; value: number; sliderColor?: string } & CommonTestParameters) => void;
 type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestParameters) => void;
-type InputMapFindPlaceTest = (params: { path: Path, expectMultiple?: boolean } & CommonTestParameters) => void;
+type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => void;
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
 type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
 type RedirectionTest = (params: { buttonText: Text, expectedRedirectionUrl: Url, nextPageUrl: Url } & CommonTestParameters) => void;
@@ -240,21 +241,21 @@ const inputRadio: InputRadioTest = async ({ context, path, value }): Promise<Loc
     await expect(radio).toBeChecked();
     await focusOut(context.page);
     return radio;
-}
+};
 
 // Test input radio widget
 export const inputRadioTest: InputRadioTest = ({ context, path, value }) => {
     test(`Check ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        await inputRadio({ context, path, value});
+        await inputRadio({ context, path, value });
     });
 };
 
 // Test input radio widget with invalid answer
 export const inputRadioInvalidTest: InputRadioTest = ({ context, path, value }) => {
     test(`Input radion value ${value} for ${path} and check that it is invalid - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const radioLocator = await inputRadio({ context, path, value}) as Locator;
+        const radioLocator = await inputRadio({ context, path, value }) as Locator;
         // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
-        const questionContainer = context.page.locator("//div[contains(@class, 'form-container')]").filter({ has: radioLocator });
+        const questionContainer = context.page.locator('//div[contains(@class, \'form-container\')]').filter({ has: radioLocator });
         await expect(questionContainer).toHaveClass(/question-filled question-invalid/);
     });
 };
@@ -381,7 +382,7 @@ const inputString: InputStringTest = async ({ context, path, value }): Promise<L
     await inputText.fill(value);
     await focusOut(context.page);
     return inputText;
-}
+};
 
 // Test input string widget
 export const inputStringTest: InputStringTest = ({ context, path, value }) => {
@@ -402,7 +403,7 @@ export const inputStringTest: InputStringTest = ({ context, path, value }) => {
 export const inputStringInvalidTypeTest: InputStringTest = ({ context, path, value }) => {
     test(`Try to fill ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
         const inputLocator = await inputString({ context, path, value }) as Locator;
-        await expect(inputLocator).toHaveValue("");
+        await expect(inputLocator).toHaveValue('');
     });
 };
 
@@ -420,7 +421,7 @@ export const inputStringInvalidValueTest: InputStringTest = ({ context, path, va
         await expect(inputLocator).toHaveValue(value);
 
         // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
-        const questionContainer = context.page.locator("//div[contains(@class, 'form-container')]").filter({ has: inputLocator });
+        const questionContainer = context.page.locator('//div[contains(@class, \'form-container\')]').filter({ has: inputLocator });
         await expect(questionContainer).toHaveClass(/question-filled question-invalid/);
     });
 };
@@ -518,36 +519,126 @@ export const inputCheckboxTest: InputCheckboxTest = ({ context, path, values }) 
     });
 };
 
-// Test input mapFindPlace widget
-export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path, expectMultiple = true }) => {
+/**
+ * Fetch and parse the Google Maps API response.
+ *
+ * @param {Object} params - The parameters for the function.
+ * @param {Object} params.context - The test context.
+ * @param {Object} params.refreshButton - The button element to refresh the map.
+* @returns {Promise<{results: Array<Object>, resultsNumber: number}>} - The parsed response body and the number of results.
+ */
+const fetchGoogleMapsApiResponse: FetchGoogleMapsApiResponse = async ({ context, refreshButton }) => {
+    // Wait for a response from the Google Maps API with retry logic.
+    const waitForResponse = async () => {
+        let attempts = 1; // Number of attempts
+        const maxRetries = 3; // Maximum number of retries
+
+        // Attempt to fetch the response from the Google Maps API.
+        const attemptFetch = async () => {
+            try {
+                // Wait for the response from the Google Maps API
+                const [response] = await Promise.all([
+                    context.page.waitForResponse(
+                        (response) =>
+                            response.url().includes('maps.googleapis.com/maps/api/place') && response.status() === 200,
+                        { timeout: 5000 } // Set a timeout of 5 seconds
+                    ),
+                    refreshButton.click() // Click the refresh button to trigger the API call
+                ]);
+                return response; // Return the response if successful
+            } catch (error) {
+                if (attempts <= maxRetries) {
+                    console.log(
+                        `No response received from Google Maps, retrying in 5 seconds... (Attempt ${attempts} of ${maxRetries})`
+                    );
+                    attempts++;
+                    await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds before retrying
+                    return attemptFetch(); // Retry the fetch
+                } else {
+                    throw new Error('Max retries reached. No response received.'); // Throw an error if max retries are reached
+                }
+            }
+        };
+
+        return attemptFetch(); // Start the first attempt
+    };
+
+    const response = await waitForResponse(); // Wait for a response from the Google Maps API with retry logic.
+    const responseBody = await response.text(); // Get the response body as text
+    let responseBodyJson; // Store the response body as JSON
+    try {
+        // Check if the response body starts with this specific pattern.
+        // Google Maps API returns a JSONP response, which needs to be parsed differently
+        const jsonpPrefix = '/**/_xdc_'; // JSONP prefix
+        if (responseBody.startsWith(jsonpPrefix)) {
+            // Strip out the JSONP prefix and the trailing semicolon
+            const jsonpStartIndex = responseBody.indexOf('(') + 1; // Start index of the JSONP response
+            const jsonpEndIndex = responseBody.lastIndexOf(')'); // End index of the JSONP response
+            const jsonString = responseBody.substring(jsonpStartIndex, jsonpEndIndex); // Extract the JSONP response
+            responseBodyJson = JSON.parse(jsonString); // Parse the JSONP response as JSON
+        } else {
+            responseBodyJson = JSON.parse(responseBody); // Parse the response body as JSON
+        }
+    } catch (error) {
+        console.error('Failed to parse response body as JSON:', error);
+    }
+
+    const results = responseBodyJson.results || [];
+    const resultsNumber = results.length;
+
+    return { results, resultsNumber };
+};
+
+/**
+ * Test input mapFindPlace widget.
+ *
+ * @param {Object} params - The parameters for the test.
+ * @param {Object} params.context - The test context.
+ * @param {string} params.path - The path to the map widget.
+ */
+export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) => {
     test(`Find place on map ${path} - ${getTestCounter(context, `${path}`)}`, async () => {
         const newPath = context.objectDetector.replaceWithIds(path);
+
         // Refresh map result
         const refreshButton = context.page.locator(`id=survey-question__${newPath}_refresh`);
         await refreshButton.scrollIntoViewIfNeeded();
-        await refreshButton.click();
+        await refreshButton.isVisible();
+
+        // Fetch the Google Maps API response
+        const { resultsNumber } = await fetchGoogleMapsApiResponse({ context, refreshButton });
 
         // Get the main map widget, 4 above the button
         const inputMap = refreshButton.locator('..').locator('..').locator('..').locator('..');
+        await inputMap.scrollIntoViewIfNeeded(); // So we can see the map correctly in the screenshot when the test fails
 
-        if (expectMultiple) {
-            // Multiple places, take the first one
-            // Select option from select
+        // Check if the no result alert is visible
+        // const noResultAlertElement = inputMap.getByText('The search did not return any result');
+        // const checkIfNoResult = await noResultAlertElement.isVisible();
+
+        // If no result, click again
+        if (resultsNumber === 0) {
+            console.log('Map not ready, clicking again...');
+            await refreshButton.click();
+        }
+
+        if (resultsNumber >= 2) {
+            // If multiple results
             const select = inputMap.locator(`id=survey-question__${newPath}_mapFindPlace`);
-            await select.press('ArrowDown');
+            await select.focus(); // Focus on the select element
+            await select.press('ArrowDown'); // take the first option from select
             await select.press('Enter');
 
             // Confirm place
-            const confimButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
-            await expect(confimButton).toBeVisible();
-            await confimButton.click();
-        } else {
-            // Single place, wait for the input to have the question-valid class and verify the confirmation text
-            // FIXME This will work only the first time a single choice question is filled, otherwise this class is already there and we won't know if it has been updated or not
-            await expect(inputMap).toHaveClass(/question-valid/)
-            const validateText = inputMap.getByText('Please check that the location is identified correctly');
-            await expect(validateText).toBeVisible();
+            const confirmButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
+            await expect(confirmButton).toBeVisible();
+            await confirmButton.click();
         }
+
+        // Check if the input has the question-valid class and the confirmation text is visible
+        const validateText = inputMap.getByText('Please check that the location is identified correctly');
+        await expect(validateText).toBeVisible();
+        await expect(inputMap).toHaveClass(/question-valid/);
     });
 };
 
@@ -616,7 +707,7 @@ export const inputDatePickerTest = ({ context, path, value }: PathAndValue & Com
 
         // Select the desired month, either by clicking previous or next month buttons
         // FIXME This approach to selecting month was tested with the od_longue_distance survey, but it may not work for all surveys
-        const desiredMonthYear = moment(`${desiredMonth} ${desiredYear}`, `MMMM YYYY`);
+        const desiredMonthYear = moment(`${desiredMonth} ${desiredYear}`, 'MMMM YYYY');
         let currentMonthYear = await getCurrentlySelectedMonthYear();
         if (desiredMonthYear.isBefore(currentMonthYear)) {
             const previousMonthButton = datePickerContainer.locator('.react-datepicker__navigation--previous');
@@ -717,9 +808,9 @@ const tryToContinueOnInvalidPage: ContinueWithInvalidEntriesTest = async ({ cont
     await button.scrollIntoViewIfNeeded();
     await button.click();
     // FIXME: 1000 timeout might not be enough on slower machine. Might require a new way to check if test fails.
-    await expect(context.page.waitForURL(nextPageUrl, {timeout: 1000})).rejects.toThrow("Timeout");
+    await expect(context.page.waitForURL(nextPageUrl, { timeout: 1000 })).rejects.toThrow('Timeout');
     await expect(context.page).toHaveURL(currentPageUrl);
-}
+};
 
 /**
  * Click the next page button when not all options are filled, check that we remain on the same page, and check that at least one input widget has the invalid class.
@@ -732,17 +823,17 @@ const tryToContinueOnInvalidPage: ContinueWithInvalidEntriesTest = async ({ cont
 export const tryToContinueWithInvalidInputs: ContinueWithInvalidEntriesTest = ({ context, text, currentPageUrl, nextPageUrl }) => {
     test(`Clicking ${text} when options are invalid should keep you on ${currentPageUrl} - ${getTestCounter(context, `${text} - ${currentPageUrl} - ${nextPageUrl}`)}`, async () => {
         await tryToContinueOnInvalidPage({ context, text, currentPageUrl, nextPageUrl });
-        const inputBoxes = context.page.locator("//div[contains(@class, 'form-container')]");
+        const inputBoxes = context.page.locator('//div[contains(@class, \'form-container\')]');
         const inputNumber = await inputBoxes.count();
         let hasInvalidClass = false;
         for (let i = 0; i < inputNumber; i++) {
-            const inputClass = await inputBoxes.nth(i).getAttribute("class");
-            if (inputClass?.includes("question-invalid")){
+            const inputClass = await inputBoxes.nth(i).getAttribute('class');
+            if (inputClass?.includes('question-invalid')){
                 hasInvalidClass = true;
                 break;
             }
         }
-        expect(hasInvalidClass, "No widgets on this page have invalid inputs.").toBeTruthy();
+        expect(hasInvalidClass, 'No widgets on this page have invalid inputs.').toBeTruthy();
     });
 };
 
@@ -759,7 +850,7 @@ export const tryToContinueWithPopup: ContinueWithInvalidEntriesTest = ({ context
         await tryToContinueOnInvalidPage({ context, text, currentPageUrl, nextPageUrl });
         const popup = context.page.getByRole('dialog');
         await expect(popup).toBeVisible();
-        await popup.locator("//button").click();
+        await popup.locator('//button').click();
         await expect(popup).not.toBeVisible();
     });
 };
@@ -774,7 +865,7 @@ export const tryToContinueWithPopup: ContinueWithInvalidEntriesTest = ({ context
 export const pageRedirectionTest: RedirectionTest = ({ context, buttonText, expectedRedirectionUrl, nextPageUrl }) => {
     // Get the domain of the expected url by splitting it and taking the section after the 'https://'
     // Putting the whole url in the test title also causes issue, so we just put the domain
-    const urlDomain = expectedRedirectionUrl.split("/")[2];
+    const urlDomain = expectedRedirectionUrl.split('/')[2];
     test(`Clicking ${buttonText} should normally take user to ${nextPageUrl} but redirects to ${urlDomain} - ${getTestCounter(context, `${buttonText} - ${urlDomain} - ${nextPageUrl}`)}`, async () => {
         let redirectionCalled = false;
         let logoutCalled = false;
@@ -792,7 +883,7 @@ export const pageRedirectionTest: RedirectionTest = ({ context, buttonText, expe
         // Activate request interception to prevent redirection
         await context.page.route('**/*', (route, request) => {
             // Get the domain of the expected url by splitting it and taking the section after the 'https://'
-            const urlDomain = expectedRedirectionUrl.split("/")[2];
+            const urlDomain = expectedRedirectionUrl.split('/')[2];
             if (request.url().includes(urlDomain)) {
                 expect(request.url()).toBe(expectedRedirectionUrl);
                 redirectionCalled = true;
