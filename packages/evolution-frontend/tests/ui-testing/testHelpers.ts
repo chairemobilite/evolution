@@ -52,8 +52,13 @@ type RegisterWithoutEmailTest = (params: CommonTestParameters) => void;
 type RegisterWithEmailTest = (params: { email: Email; nextPageUrl?: Url } & CommonTestParameters) => void;
 type HasUserTest = (params: CommonTestParameters) => void;
 type SimpleAction = (params: CommonTestParameters) => void;
-type ContinueWithInvalidEntriesTest = (params: { text: Text; currentPageUrl: Url, nextPageUrl: Url } & CommonTestParameters) => void;
-type FetchGoogleMapsApiResponse = (params: { context: CommonTestParameters['context'], refreshButton: Locator }) => Promise<{ results: any[], resultsNumber: number }>;
+type ContinueWithInvalidEntriesTest = (
+    params: { text: Text; currentPageUrl: Url; nextPageUrl: Url } & CommonTestParameters
+) => void;
+type FetchGoogleMapsApiResponse = (params: {
+    context: CommonTestParameters['context'];
+    refreshButton: Locator;
+}) => Promise<{ results: any[]; resultsNumber: number }>;
 type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void | Promise<Locator>;
 type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
 type InputStringTest = (params: PathAndValue & CommonTestParameters) => void | Promise<Locator>;
@@ -62,7 +67,9 @@ type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestPa
 type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => void;
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
 type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
-type RedirectionTest = (params: { buttonText: Text, expectedRedirectionUrl: Url, nextPageUrl: Url } & CommonTestParameters) => void;
+type RedirectionTest = (
+    params: { buttonText: Text; expectedRedirectionUrl: Url; nextPageUrl: Url } & CommonTestParameters
+) => void;
 
 /**
  * Open the browser before all the tests and go to the home page
@@ -253,9 +260,11 @@ export const inputRadioTest: InputRadioTest = ({ context, path, value }) => {
 // Test input radio widget with invalid answer
 export const inputRadioInvalidTest: InputRadioTest = ({ context, path, value }) => {
     test(`Input radion value ${value} for ${path} and check that it is invalid - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const radioLocator = await inputRadio({ context, path, value }) as Locator;
+        const radioLocator = (await inputRadio({ context, path, value })) as Locator;
         // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
-        const questionContainer = context.page.locator('//div[contains(@class, \'form-container\')]').filter({ has: radioLocator });
+        const questionContainer = context.page
+            .locator("//div[contains(@class, 'form-container')]")
+            .filter({ has: radioLocator });
         await expect(questionContainer).toHaveClass(/question-filled question-invalid/);
     });
 };
@@ -387,7 +396,7 @@ const inputString: InputStringTest = async ({ context, path, value }): Promise<L
 // Test input string widget
 export const inputStringTest: InputStringTest = ({ context, path, value }) => {
     test(`Fill ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const inputLocator = await inputString({ context, path, value }) as Locator;
+        const inputLocator = (await inputString({ context, path, value })) as Locator;
         await expect(inputLocator).toHaveValue(value);
     });
 };
@@ -402,7 +411,7 @@ export const inputStringTest: InputStringTest = ({ context, path, value }) => {
  */
 export const inputStringInvalidTypeTest: InputStringTest = ({ context, path, value }) => {
     test(`Try to fill ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const inputLocator = await inputString({ context, path, value }) as Locator;
+        const inputLocator = (await inputString({ context, path, value })) as Locator;
         await expect(inputLocator).toHaveValue('');
     });
 };
@@ -417,11 +426,13 @@ export const inputStringInvalidTypeTest: InputStringTest = ({ context, path, val
  */
 export const inputStringInvalidValueTest: InputStringTest = ({ context, path, value }) => {
     test(`Fill ${value} for ${path} and check that it is invalid - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
-        const inputLocator = await inputString({ context, path, value }) as Locator;
+        const inputLocator = (await inputString({ context, path, value })) as Locator;
         await expect(inputLocator).toHaveValue(value);
 
         // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
-        const questionContainer = context.page.locator('//div[contains(@class, \'form-container\')]').filter({ has: inputLocator });
+        const questionContainer = context.page
+            .locator("//div[contains(@class, 'form-container')]")
+            .filter({ has: inputLocator });
         await expect(questionContainer).toHaveClass(/question-filled question-invalid/);
     });
 };
@@ -525,7 +536,7 @@ export const inputCheckboxTest: InputCheckboxTest = ({ context, path, values }) 
  * @param {Object} params - The parameters for the function.
  * @param {Object} params.context - The test context.
  * @param {Object} params.refreshButton - The button element to refresh the map.
-* @returns {Promise<{results: Array<Object>, resultsNumber: number}>} - The parsed response body and the number of results.
+ * @returns {Promise<{results: Array<Object>, resultsNumber: number}>} - The parsed response body and the number of results.
  */
 const fetchGoogleMapsApiResponse: FetchGoogleMapsApiResponse = async ({ context, refreshButton }) => {
     // Wait for a response from the Google Maps API with retry logic.
@@ -633,11 +644,11 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
             const confirmButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
             await expect(confirmButton).toBeVisible();
             await confirmButton.click();
+            await expect(confirmButton).toBeHidden(); // Confirm button should be hidden after clicking
         }
 
-        // Check if the input has the question-valid class and the confirmation text is visible
-        const validateText = inputMap.getByText('Please check that the location is identified correctly');
-        await expect(validateText).toBeVisible();
+        // Make sure that the the question widget have validations implemented
+        // Check if the input has the question-valid class
         await expect(inputMap).toHaveClass(/question-valid/);
     });
 };
@@ -792,7 +803,11 @@ export const inputVisibleTest = ({
  * simply not be visible yet but may appear later once the page has finished
  * refreshing.
  */
-export const waitTextVisible = ({ context, text, isVisible = true }: { text: Path, isVisible?: boolean } & CommonTestParameters) => {
+export const waitTextVisible = ({
+    context,
+    text,
+    isVisible = true
+}: { text: Path; isVisible?: boolean } & CommonTestParameters) => {
     test(`Check text visibility ${text} - ${getTestCounter(context, `${text} - ${isVisible}`)}`, async () => {
         const input = context.page.getByText(text);
         if (isVisible) {
@@ -803,7 +818,12 @@ export const waitTextVisible = ({ context, text, isVisible = true }: { text: Pat
     });
 };
 
-const tryToContinueOnInvalidPage: ContinueWithInvalidEntriesTest = async ({ context, text, currentPageUrl, nextPageUrl }) => {
+const tryToContinueOnInvalidPage: ContinueWithInvalidEntriesTest = async ({
+    context,
+    text,
+    currentPageUrl,
+    nextPageUrl
+}) => {
     const button = context.page.getByRole('button', { name: text });
     await button.scrollIntoViewIfNeeded();
     await button.click();
@@ -820,15 +840,20 @@ const tryToContinueOnInvalidPage: ContinueWithInvalidEntriesTest = async ({ cont
  * @param {string} options.currentPageUrl - The URL of the current page.
  * @param {string} options.nextPageUrl - The URL of the page that the button would normally take us too.
  */
-export const tryToContinueWithInvalidInputs: ContinueWithInvalidEntriesTest = ({ context, text, currentPageUrl, nextPageUrl }) => {
+export const tryToContinueWithInvalidInputs: ContinueWithInvalidEntriesTest = ({
+    context,
+    text,
+    currentPageUrl,
+    nextPageUrl
+}) => {
     test(`Clicking ${text} when options are invalid should keep you on ${currentPageUrl} - ${getTestCounter(context, `${text} - ${currentPageUrl} - ${nextPageUrl}`)}`, async () => {
         await tryToContinueOnInvalidPage({ context, text, currentPageUrl, nextPageUrl });
-        const inputBoxes = context.page.locator('//div[contains(@class, \'form-container\')]');
+        const inputBoxes = context.page.locator("//div[contains(@class, 'form-container')]");
         const inputNumber = await inputBoxes.count();
         let hasInvalidClass = false;
         for (let i = 0; i < inputNumber; i++) {
             const inputClass = await inputBoxes.nth(i).getAttribute('class');
-            if (inputClass?.includes('question-invalid')){
+            if (inputClass?.includes('question-invalid')) {
                 hasInvalidClass = true;
                 break;
             }
@@ -845,7 +870,12 @@ export const tryToContinueWithInvalidInputs: ContinueWithInvalidEntriesTest = ({
  * @param {string} options.currentPageUrl - The URL of the current page.
  * @param {string} options.nextPageUrl - The URL of the page that the button would normally take us too.
  */
-export const tryToContinueWithPopup: ContinueWithInvalidEntriesTest = ({ context, text, currentPageUrl, nextPageUrl }) => {
+export const tryToContinueWithPopup: ContinueWithInvalidEntriesTest = ({
+    context,
+    text,
+    currentPageUrl,
+    nextPageUrl
+}) => {
     test(`Clicking ${text} should open a popup and keep you on ${currentPageUrl} - ${getTestCounter(context, `${text} - ${currentPageUrl} - ${nextPageUrl}`)}`, async () => {
         await tryToContinueOnInvalidPage({ context, text, currentPageUrl, nextPageUrl });
         const popup = context.page.getByRole('dialog');
