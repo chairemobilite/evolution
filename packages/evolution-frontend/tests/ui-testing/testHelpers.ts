@@ -143,6 +143,7 @@ const focusOut = async (page) => {
 // Test if the page has a title
 export const hasTitleTest: HasTitleTest = ({ context, title }) => {
     test(`Has title ${title}`, async () => {
+        await context.page.waitForLoadState(); // Wait for the page to load
         await expect(context.page).toHaveTitle(title);
     });
 };
