@@ -45,7 +45,7 @@ type PathAndValue = { path: Path; value: Value };
 type PathAndValueBoolOrStr = { path: Path; value: StringOrBoolean };
 type HasTitleTest = (params: { title: Title } & CommonTestParameters) => void;
 type HasFrenchTest = (params: CommonTestParameters) => void;
-type SwitchToEnglishTest = (params: CommonTestParameters) => void;
+type SwitchToLanguageTest = (params: CommonTestParameters) => void;
 type HasConsentTest = (params: CommonTestParameters) => void;
 type StartSurveyTest = (params: CommonTestParameters & { nextUrl?: string }) => void;
 type RegisterWithoutEmailTest = (params: CommonTestParameters) => void;
@@ -155,13 +155,33 @@ export const hasFrenchTest: HasFrenchTest = ({ context }) => {
     });
 };
 
-// Test if the page has a english language after switching
-export const switchToEnglishTest: SwitchToEnglishTest = ({ context }) => {
+/**
+ * Test if the page can switch to English language.
+ *
+ * @param {Object} context - The test context.
+ * @param {Object} context.page - The page object from the test context.
+ */
+export const switchToEnglishTest: SwitchToLanguageTest = ({ context }) => {
     test('Switch to English language', async () => {
         const englishButton = context.page.getByRole('button', { name: 'English' });
         await englishButton.click();
         const frenchButton = context.page.getByRole('button', { name: 'Français' });
         await expect(frenchButton).toHaveText('Français');
+    });
+};
+
+/**
+ * Test if the page can switch to French language.
+ *
+ * @param {Object} context - The test context.
+ * @param {Object} context.page - The page object from the test context.
+ */
+export const switchToFrenchTest: SwitchToLanguageTest = ({ context }) => {
+    test('Switch to French language', async () => {
+        const frenchButton = context.page.getByRole('button', { name: 'Français' });
+        await frenchButton.click();
+        const englishButton = context.page.getByRole('button', { name: 'English' });
+        await expect(englishButton).toHaveText('English');
     });
 };
 
@@ -174,11 +194,19 @@ export const hasConsentTest: HasConsentTest = ({ context }) => {
     });
 };
 
-// Test if the page has a start survey button
+/**
+ * Test if the page has a start survey button and navigates to the correct URL after clicking it.
+ *
+ * @param {Object} context - The test context.
+ * @param {Object} context.page - The page object from the test context.
+ * @param {string} [nextUrl] - The URL to navigate to after clicking the start survey button. Defaults to '/login'.
+ */
 export const startSurveyTest: StartSurveyTest = ({ context, nextUrl }) => {
     test('Start survey', async () => {
         const startPage = nextUrl || '/login';
-        const startSurvey = context.page.getByRole('button', { name: 'Start' });
+        const startSurvey = context.page.getByRole('button', {
+            name: i18n.t(['survey:homepage:start', 'homepage:start']) as string
+        });
         await startSurvey.click();
         await expect(context.page).toHaveURL(startPage);
     });
