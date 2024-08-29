@@ -80,13 +80,16 @@ type RedirectionTest = (
  * @param {Object} options - The options for the test.
  * @param {{ [param: string]: string} } options.urlSearchParams - Additional
  * parameters to add to the URL as query string question.
+ * @param {boolean} options.ignoreHTTPSErrors - Whether to ignore HTTPS errors.
+ * These can happen if running the tests on a remote server with HTTPs (for
+ * example test instances)
  */
 export const initializeTestPage = async (
     browser: Browser,
     surveyObjectDetector: SurveyObjectDetector,
-    options: { urlSearchParams?: { [param: string]: string } } = {}
+    options: { urlSearchParams?: { [param: string]: string }, ignoreHTTPSErrors?: boolean } = {}
 ): Promise<Page> => {
-    const context = await browser.newContext();
+    const context = await browser.newContext({ ignoreHTTPSErrors: options.ignoreHTTPSErrors === true });
     const page = await context.newPage();
 
     const baseUrlString = test.info().project.use.baseURL;
