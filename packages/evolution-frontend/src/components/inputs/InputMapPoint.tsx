@@ -171,7 +171,7 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
                         className="button refresh-geocode green large"
                         onClick={this.onGeocodeAddress}
                         ref={this.geocodeButtonRef}
-                        style={{display: this.state.renderGeoCodeButton ? 'inline' : 'none'}}
+                        style={{ display: this.state.renderGeoCodeButton ? 'inline' : 'none' }}
                     >
                         <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />
                         {surveyHelper.translateString(

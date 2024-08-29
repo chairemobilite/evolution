@@ -159,7 +159,7 @@ export class InputMapFindPlace extends React.Component<
         }*/
 
         // Do not render button until map is ready, to prevent flakiness when a test clicks the button too quickly.
-        this.setState({renderGeoCodeButton: true});
+        this.setState({ renderGeoCodeButton: true });
     };
 
     onBoundsChanged = (bbox?: [number, number, number, number]) => {
@@ -458,7 +458,7 @@ export class InputMapFindPlace extends React.Component<
                             onMouseUp={this.onSearchPlaceButtonMouseUp}
                             onKeyDown={this.onSearchPlaceButtonKeyDown}
                             ref={this.geocodeButtonRef}
-                            style={{display: this.state.renderGeoCodeButton ? 'inline' : 'none'}}
+                            style={{ display: this.state.renderGeoCodeButton ? 'inline' : 'none' }}
                         >
                             <FontAwesomeIcon icon={faMapMarkerAlt} className="faIconLeft" />
                             {surveyHelper.translateString(
