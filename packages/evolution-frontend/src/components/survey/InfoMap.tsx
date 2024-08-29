@@ -108,7 +108,8 @@ const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps &
         if (point.properties.icon) {
             markerParams.icon = {
                 url: point.properties.icon.url,
-                size: new google.maps.Size(point.properties.icon.size[0], point.properties.icon.size[1])
+                size: new google.maps.Size(point.properties.icon.size[0], point.properties.icon.size[1]),
+                scaledSize: new google.maps.Size(point.properties.icon.size[0], point.properties.icon.size[1])
             };
         }
         gMarkers.push(<Marker key={`gMarker_infoMap_${props.path}__${i}`} {...markerParams} />);
