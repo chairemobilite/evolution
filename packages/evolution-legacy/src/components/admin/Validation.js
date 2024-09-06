@@ -85,12 +85,12 @@ class Validation extends React.Component {
             </div>}
             {this.state.validationInterview !== null &&
             <InterviewSummary
+              key                          = {this.state.validationInterview.uuid}
               handleInterviewSummaryChange = {this.handleInterviewSummaryChange}
               interview                    = {this.state.validationInterview}
               prevInterviewUuid            = {this.state.prevInterviewUuid}
               nextInterviewUuid            = {this.state.nextInterviewUuid}
               interviewListChange          = {this.handleInterviewListChange}
-              showInterviewList            = {this.state.showInterviewList}
             />
             }
           </div>

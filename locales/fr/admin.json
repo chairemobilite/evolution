@@ -134,5 +134,6 @@
     "PrepareDataError": "Erreur inattendue en préparant les fichiers d'export",
     "UpdateOrWaitError": "Erreur lors de la mise à jour des fichiers d'export. Veuillez ré-essayer plus tard.",
     "WaitForFileError": "Erreur en attendant la fin de la préparation des fichiers d'export"
-  }
+  },
+  "UnknownError": "Une erreur s'est produite. Voir les logs de la console ou contacter les administrateurs de l'enquête."
 }
