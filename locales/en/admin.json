@@ -134,5 +134,6 @@
     "PrepareDataError": "Unexpected error while preparing data for export",
     "UpdateOrWaitError": "Error while updating export files. Please wait a few seconds and try again",
     "WaitForFileError": "Error getting the files to export from server"
-  }
+  },
+  "UnknownError": "An unknown error occurred. See console for logs or contact the administrators."
 }
