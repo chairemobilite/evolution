@@ -34,7 +34,7 @@ if (InterviewStats === undefined) {
 
 let InterviewMap = appConfig.getCustomInterviewMap();
 if (InterviewMap === undefined) {
-    InterviewMap = require('./InterviewMap').default;
+    InterviewMap = require('evolution-frontend/lib/components/admin/validations/InterviewMap').default;
 }
 
 export class ValidationOnePageSummary extends React.Component {
