@@ -135,6 +135,15 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
     }, [props.defaultCenter]);
 
     React.useEffect(() => {
+        if (!map || !props.defaultZoom) return;
+        // If the zoom is changed, we need to zoom to that level
+        const currentZoom = (map as google.maps.Map).getZoom();
+        if (currentZoom !== props.defaultZoom) {
+            (map as google.maps.Map).setZoom(props.defaultZoom);
+        }
+    }, [props.defaultZoom]);
+
+    React.useEffect(() => {
         if (map && props.markers.length >= 1) {
             const maxMapBounds = new google.maps.LatLngBounds();
             if (props.maxGeocodingResultsBounds !== undefined) {

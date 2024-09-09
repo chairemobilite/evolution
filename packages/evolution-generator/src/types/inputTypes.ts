@@ -288,6 +288,7 @@ export type InputMapFindPlaceBase = {
     showSearchPlaceButton: (interview, path) => boolean;
     afterRefreshButtonText: TextKey;
     validations?: Validations;
+    invalidGeocodingResultTypes?: string[];
 };
 export type InputMapFindPlace = InputMapFindPlaceBase & {
     path: Path;

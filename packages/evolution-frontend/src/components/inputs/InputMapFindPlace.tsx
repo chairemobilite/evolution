@@ -37,6 +37,9 @@ export type InputMapFindPlaceProps = CommonInputProps & {
 // Path to default icons
 const defaultMarkerUrl = '/dist/images/activities_icons/default_marker.svg';
 const defaultSelectedMarkerUrl = '/dist/images/activities_icons/default_selected_marker.svg';
+// Default max zoom and zoom
+const defaultZoom = 13;
+const defaultMaxZoom = 18;
 
 interface InputMapFindPlaceState {
     geocoding: boolean;
@@ -51,6 +54,7 @@ interface InputMapFindPlaceState {
     geocodingSpecificOptions: { [key: string]: unknown };
     displayMessage?: string;
     renderGeoCodeButton: boolean;
+    currentZoom?: number;
 }
 
 /**
@@ -190,15 +194,33 @@ export class InputMapFindPlace extends React.Component<
         const language = this.props.i18n.language;
 
         const geocodingQueryString = this.getGeocodingQueryString();
-        if (geocodingQueryString) {
+        const geocodingQueryStringArray =
+            typeof geocodingQueryString === 'string'
+                ? [{ queryString: geocodingQueryString, zoom: defaultZoom }]
+                : geocodingQueryString;
+        if (geocodingQueryStringArray) {
             try {
                 this.setState({ geocoding: true });
-                const features =
-                    (await geocodeMultiplePlaces(geocodingQueryString, {
-                        bbox,
-                        language,
-                        ...this.state.geocodingSpecificOptions
-                    })) || [];
+                const getGeocodingResult = async () => {
+                    // Try each geocoding query string until we get a result
+                    for (let i = 0; i < geocodingQueryStringArray.length; i++) {
+                        const features =
+                            (await geocodeMultiplePlaces(geocodingQueryStringArray[i].queryString, {
+                                bbox,
+                                language,
+                                ...this.state.geocodingSpecificOptions
+                            })) || [];
+                        if (features.length > 0) {
+                            return {
+                                features,
+                                geocodingQueryString: geocodingQueryStringArray[i].queryString,
+                                zoom: geocodingQueryStringArray[i].zoom
+                            };
+                        }
+                    }
+                    return { features: [], zoom: defaultZoom };
+                };
+                const { features, geocodingQueryString, zoom } = await getGeocodingResult();
                 const isSingleResult = features && features.length === 1;
 
                 // If there is only a single result, we check if it's precise enough using the location type information
@@ -228,6 +250,7 @@ export class InputMapFindPlace extends React.Component<
                         places: features,
                         selectedPlace: isSingleResult ? features[0] : undefined,
                         geocodingQueryString,
+                        currentZoom: zoom,
                         // Display a message if there are no results
                         displayMessage: features && features.length === 0 ? 'main:InputMapGeocodeNoResult' : undefined
                     },
@@ -325,7 +348,7 @@ export class InputMapFindPlace extends React.Component<
     };
 
     render() {
-        const maxZoom = this.props.widgetConfig.maxZoom || 18;
+        const maxZoom = this.props.widgetConfig.maxZoom || defaultMaxZoom;
         const places = this.state.places;
 
         const showSearchPlaceButton = this.props.widgetConfig.showSearchPlaceButton
@@ -526,7 +549,10 @@ export class InputMapFindPlace extends React.Component<
                         value={this.props.value}
                         onValueChange={this.onValueChange}
                         height={this.props.widgetConfig.height}
-                        defaultZoom={Math.min(this.props.widgetConfig.defaultZoom || 16, maxZoom)}
+                        defaultZoom={Math.min(
+                            this.state.currentZoom || this.props.widgetConfig.defaultZoom || defaultZoom,
+                            maxZoom
+                        )}
                         maxZoom={maxZoom}
                         markers={markers}
                         onMapReady={this.onMapReady}
