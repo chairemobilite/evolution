@@ -22,6 +22,10 @@ import InputMapGoogle from './maps/google/InputMapGoogle';
 import { geocodeSinglePoint } from './maps/google/GoogleGeocoder';
 import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
 
+// Default max zoom and zoom
+const defaultZoom = 13;
+const defaultMaxZoom = 18;
+
 export type InputMapPointProps = CommonInputProps & {
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
     inputRef?: React.LegacyRef<HTMLInputElement>;
@@ -129,9 +133,14 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
 
     geocodeAddress = async (bbox?: [number, number, number, number]) => {
         const geocodingQueryString = this.getGeocodingQueryString();
-        if (geocodingQueryString) {
+        const geocodingQueryStringArray =
+            typeof geocodingQueryString === 'string'
+                ? [{ queryString: geocodingQueryString, zoom: defaultZoom }]
+                : geocodingQueryString;
+        if (geocodingQueryStringArray) {
             try {
-                const feature = await geocodeSinglePoint(geocodingQueryString, { bbox });
+                // FIXME We may want to adapt this to support multiple geocoding queries, like in the inputMapFindPlace widget
+                const feature = await geocodeSinglePoint(geocodingQueryStringArray[0].queryString, { bbox });
                 this.onValueChange(feature);
                 this.setState({ displayMessage: feature === undefined ? 'main:InputMapGeocodeNoResult' : undefined });
             } catch (error) {
@@ -142,7 +151,7 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
     };
 
     render() {
-        const maxZoom = this.props.widgetConfig.maxZoom || 18;
+        const maxZoom = this.props.widgetConfig.maxZoom || defaultMaxZoom;
 
         const showSearchPlaceButton = this.props.widgetConfig.showSearchPlaceButton
             ? surveyHelper.parseBoolean(
@@ -191,7 +200,7 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
                         defaultCenter={this.state.defaultCenter}
                         value={this.props.value}
                         onValueChange={this.onValueChange}
-                        defaultZoom={Math.min(this.props.widgetConfig.defaultZoom || 16, maxZoom)}
+                        defaultZoom={Math.min(this.props.widgetConfig.defaultZoom || defaultZoom, maxZoom)}
                         markers={this.state.markers}
                         onMapReady={this.onMapReady}
                         onBoundsChanged={this.onBoundsChanged}

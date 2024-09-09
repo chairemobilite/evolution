@@ -206,7 +206,7 @@ export type InputDatePickerType = {
 
 type InputMapType = {
     defaultCenter: { lat: number; lon: number };
-    geocodingQueryString?: ParsingFunction<string | undefined>;
+    geocodingQueryString?: ParsingFunction<string | { queryString: string; zoom: number }[] | undefined>;
     refreshGeocodingLabel?: I18nData;
     afterRefreshButtonText?: I18nData;
     icon?: IconData;
