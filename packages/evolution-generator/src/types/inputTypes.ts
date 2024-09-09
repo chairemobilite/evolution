@@ -283,6 +283,7 @@ export type InputMapFindPlaceBase = {
     placesIcon: Icon;
     defaultValue?: DefaultValue;
     defaultCenter: DefaultCenter;
+    defaultZoom?: number;
     refreshGeocodingLabel: Label;
     showSearchPlaceButton: (interview, path) => boolean;
     afterRefreshButtonText: TextKey;
