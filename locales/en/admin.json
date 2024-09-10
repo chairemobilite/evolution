@@ -98,6 +98,12 @@
   "auditErrorFilter": {
     "title": "Errors"
   },
+  "interviewByHomeGeographyFilter": {
+    "Title": "Home geography",
+    "Button": "Filter homes inside polygon",
+    "NotAPolygonFeature": "Filter is not a valid geojson polygon feature",
+    "Placeholder": "Copy-paste a geojson polygon feature in this box. You can obtain it for example from https://geojson.io"
+  },
   "interviewer": {
     "refreshInterviewerCache": "Refresh interviewer cache",
     "error": "Error while refreshing the cache"

@@ -98,6 +98,12 @@
   "auditErrorFilter": {
     "title": "Erreurs"
   },
+  "interviewByHomeGeographyFilter": {
+    "Title": "Emplacement du domicile",
+    "Button": "Filtrer les domiciles dans le polygone",
+    "NotAPolygonFeature": "Le filtre n'est pas un feature de type polygone GeoJSON",
+    "Placeholder": "Vous pouvez copier-coller un feature polygone GeoJSON ici. Vous pouvez l'obtenir par exemple via https://geojson.io"
+  },
   "interviewer": {
     "refreshInterviewerCache": "Rafraîchir la cache interviewer",
     "error": "Une erreur s'est produite en rafraîchissant la cache"
