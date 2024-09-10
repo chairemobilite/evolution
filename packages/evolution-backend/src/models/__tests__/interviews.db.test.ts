@@ -758,25 +758,19 @@ describe('Queries with audits', () => {
             person: [
                 {
                     key: 'errorOne',
-                    cnt: '6',
-                    level: 'error',
-                    object_type: 'person'
+                    cnt: '6'
                 }
             ],
             interview: [
                 {
                     key: 'errorThree',
-                    cnt: '1',
-                    level: 'error',
-                    object_type: 'interview'
+                    cnt: '1'
                 }
             ],
             household: [
                 {
                     key: 'errorTwo',
-                    cnt: '1',
-                    level: 'error',
-                    object_type: 'household'
+                    cnt: '1'
                 }
             ]
         });
@@ -789,17 +783,13 @@ describe('Queries with audits', () => {
             person: [
                 {
                     key: 'errorOne',
-                    cnt: '3',
-                    level: 'error',
-                    object_type: 'person'
+                    cnt: '3'
                 }
             ],
             household: [
                 {
                     key: 'errorTwo',
-                    cnt: '1',
-                    level: 'error',
-                    object_type: 'household'
+                    cnt: '1'
                 }
             ]
         });
