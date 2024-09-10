@@ -37,6 +37,7 @@
     "dompurify": "^3.0.3",
     "evolution-common": "^0.2.2",
     "geojson": "^0.5.0",
+    "geojson-validation": "^1.0.2",
     "history": "^4.9.0",
     "i18next": "^22.4.15",
     "lodash": "^4.17.21",

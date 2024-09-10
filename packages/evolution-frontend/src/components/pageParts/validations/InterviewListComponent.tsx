@@ -15,6 +15,7 @@ import InterviewCompletedFilter from './InterviewCompletedFilter';
 import InterviewByCodeFilter from './InterviewByCodeFilter';
 import InterviewByDateFilter from './InterviewByDateFilter';
 import ValidationAuditFilter from './ValidationAuditFilter';
+import InteviewByHomeGeographyFilter from './InterviewByHomeGeographyFilter';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
 import { faEnvelope as faValidationComment } from '@fortawesome/free-solid-svg-icons/faEnvelope';
@@ -220,6 +221,13 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                     ) : (
                         <FontAwesomeIcon icon={faValidationComment} className="faIconNoMargin" title={value} />
                     )
+            },
+            {
+                accessor: 'responses.home.geography',
+                label: props.t('admin:interviewByHomeGeographyFilter:Title'),
+                Cell: () => '',
+                Filter: InteviewByHomeGeographyFilter,
+                enableSortBy: false
             }
         ];
 
