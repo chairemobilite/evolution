@@ -10,7 +10,7 @@ import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.qu
 import { _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 import dbQueries from '../interviews.db.queries';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes, InterviewListAttributes, InterviewResponses } from 'evolution-common/lib/services/interviews/interview';
 import moment from 'moment';
 
 const permission1 = 'role1';
@@ -715,6 +715,64 @@ describe('list interviews', () => {
             .rejects
             .toThrowError('Cannot get interview list in table sv_interviews database (knex error: Invalid field for where clause in sv_interviews database (DBQCR0005))');
 
+    });
+
+    test('Get list by geographic filter', async () => {
+        // Query home location on a polygon
+        const polygon = {
+            type: 'Feature' as const,
+            geometry: {
+                type: 'Polygon' as const,
+                coordinates: [
+                    [
+                        [-74, 45],
+                        [-73, 45],
+                        [-73, 46],
+                        [-74, 46],
+                        [-74, 45]
+                    ]
+                ]
+            },
+            properties: {}
+        }
+
+        // Add home location in polygon for 2 interviews, and outside the polygon for 1 interview, ignore the others
+        const { interviews, totalCount } = await dbQueries.getList({ filters: {}, pageIndex: 0, pageSize: -1 });
+        expect(totalCount).toBeGreaterThan(3);
+        const addHomeGeography = async (interview: InterviewListAttributes, homeGeography: Exclude<InterviewResponses['home'], undefined>['geography']) => {
+            const responses = { ...interview.responses, home: { ...interview.responses.home, geography: homeGeography } };
+            await dbQueries.update(interview.uuid, { responses }, 'uuid');
+        }
+        addHomeGeography(interviews[0], {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [-73.572, 45.511] },
+            properties: { lastAction: 'findPlace' }
+        });
+        addHomeGeography(interviews[1], {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [-73.472, 45.202] },
+            properties: { lastAction: 'findPlace' }
+        });
+        addHomeGeography(interviews[2], {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [-100.472, 25.202] },
+            properties: { lastAction: 'findPlace' }
+        });
+        const inPolygonUuids = [interviews[0].uuid, interviews[1].uuid];
+        
+        // Test filter on a valid geography field
+        const filter =  { 'responses.home.geography': { value: polygon } }
+        const { interviews: inPolygonInterviews, totalCount: countInPolygon } = await dbQueries.getList({ filters: filter, pageIndex: 0, pageSize: -1 });
+        expect(countInPolygon).toEqual(2);
+        expect(inPolygonInterviews.length).toEqual(2);
+        expect(inPolygonUuids.includes(inPolygonInterviews[0].uuid)).toBeTruthy();
+        expect(inPolygonUuids.includes(inPolygonInterviews[1].uuid)).toBeTruthy();
+
+        // Test filter on a non-geography field
+        const filterInvalid =  { 'responses.home': { value: polygon } }
+        const { interviews: invalidGeoInterview, totalCount: invalidGeoCount } = await dbQueries.getList({ filters: filterInvalid, pageIndex: 0, pageSize: -1 });
+        expect(invalidGeoCount).toEqual(0);
+        expect(invalidGeoInterview.length).toEqual(0);
     });
 
 });
