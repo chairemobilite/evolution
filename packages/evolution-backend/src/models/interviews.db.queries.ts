@@ -14,6 +14,10 @@ import {
 import { _booleish, _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
+import { isFeature, isPolygon } from 'geojson-validation';
+import knexPostgis from 'knex-postgis';
+
+const st = knexPostgis(knex);
 
 const tableName = 'sv_interviews';
 const participantTable = 'sv_participants';
@@ -34,7 +38,10 @@ export interface InterviewSearchAttributes {
     surveyId?: number;
 }
 
-export type ValueFilterType = { value: string | string[] | boolean | number | null; op?: keyof OperatorSigns };
+export type ValueFilterType = {
+    value: string | string[] | boolean | number | null | GeoJSON.Feature<GeoJSON.Polygon>;
+    op?: keyof OperatorSigns;
+};
 
 /** this will return the survey id or create a new survey in
  * table sv_surveys if no existing survey shortname matches
@@ -444,7 +451,12 @@ const getRawWhereClause = (
     // TODO only responses field order by is supported
     const prefix = jsonObject[0] === 'responses' ? `${tblAlias}.responses` : undefined;
     if (prefix !== undefined) {
-        const field = jsonObject.slice(1).join('.');
+        const field = jsonObject.slice(1).join('\'->\'');
+        if (isFeature(filter.value) && isPolygon((filter.value as GeoJSON.Feature).geometry)) {
+            return [
+                `${prefix}->'${field}' is not null AND ST_CONTAINS(${st.geomFromGeoJSON(JSON.stringify((filter.value as GeoJSON.Feature<GeoJSON.Polygon>).geometry))}, ST_GeomFromGeoJSON(${prefix}->'${field}'->'geometry'))`
+            ];
+        }
         return filter.value === null
             ? [`${prefix}->>'${field}' ${filter.op === 'not' ? ' IS NOT NULL' : ' IS NULL'}`]
             : Array.isArray(filter.value)
@@ -463,7 +475,7 @@ const getRawWhereClause = (
                                 ? `${operatorSigns[filter.op] || operatorSigns.eq} ?`
                                 : `${operatorSigns.eq} ?`
                         }`,
-                        addLikeBinding(filter.op, filter.value)
+                        addLikeBinding(filter.op, filter.value as string | number | boolean)
                     ]
                 ];
     }
