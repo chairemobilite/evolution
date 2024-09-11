@@ -12,15 +12,35 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
     strategy:
       matrix:
         node-version: [18.x, 20.x]
     env:
       PROJECT_CONFIG: ${{ github.workspace }}/example/demo_survey/config.js
+      PG_CONNECTION_STRING_PREFIX: postgres://testuser:testpassword@localhost:5432/
+      PG_DATABASE_PRODUCTION: testdb
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY_GITHUB_PUBLIC }}
+      CI: true ## This is to make sure that the tests run in CI mode
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: test env
+      run: env
     - name: copy env file
       run: cp .env.example .env
     - name: Use Node.js ${{ matrix.node-version }}
@@ -35,6 +55,27 @@ jobs:
       run: yarn build:prod
     - name: Unit Test
       run: yarn test
+    # Following configure the automated UI tests
+    - name: Create DB
+      run: yarn setup && yarn migrate
+      env:
+        NODE_ENV: production
+    - name: Get Playwright config
+      run: cp packages/evolution-frontend/playwright-example.config.ts example/demo_survey/playwright.config.ts
+    - name: Start application
+      run: yarn start &
+      env:
+        NODE_ENV: production
+    - name: Run tests
+      run: yarn test:survey
+    - name: Archive UI Test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-results-${{matrix.node-version}} # This is to make sure that the results are stored in a unique name
+        path: example/demo_survey/test-results
+        retention-days: 2
+    # End of automated UI tests
   
   code-lint:
     runs-on: ubuntu-latest

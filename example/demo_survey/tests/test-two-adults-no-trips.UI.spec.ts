@@ -31,6 +31,7 @@ testHelpers.inputStringTest({ context, path: 'home.country', value: 'Canada' });
 testHelpers.inputStringTest({ context, path: 'home.postalCode', value: 'H1S1V7' });
 //testHelpers.inputMapFindPlaceTest({ context, path: 'home.geography' });
 testHelpers.inputSelectTest({ context, path: 'home.dwellingType', value: 'tenantSingleDetachedHouse' });
+testHelpers.waitForMapToBeLoaded({ context });
 testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/householdMembers' });
 
 // Test the household page
