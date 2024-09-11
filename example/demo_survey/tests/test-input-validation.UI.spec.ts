@@ -25,15 +25,17 @@ surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: t
 
 // Test the home page
 testHelpers.tryToContinueWithInvalidInputs({ context, text: 'Save and continue', currentPageUrl: '/survey/home' , nextPageUrl: '/survey/householdMembers' });
-testHelpers.inputInvalidStringValueTest({ context, path: 'household.carNumber', value: '14' });
-testHelpers.inputInvalidStringValueTest({ context, path: 'home.postalCode', value: 'H1S1V77' });
-testHelpers.inputInvalidStringValueTest({ context, path: 'home.postalCode', value: 'H1S1V' });
-testHelpers.inputInvalidStringValueTest({ context, path: 'home.postalCode', value: '1H1S7V' });
+testHelpers.inputStringInvalidValueTest({ context, path: 'household.carNumber', value: '14' });
+testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'H1S1V77' });
+testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'H1S1V' });
+testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: '1H1S7V' });
+testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'A1S1V7' });
+testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'H1D1F7' });
 
 onePersonTestHelpers.completeHomePage(context);
 
 // Test the household page
-testHelpers.inputInvalidStringTypeTest({ context, path: 'household.persons.${personId[0]}.age', value: testHelpers.nonNumericString });
+testHelpers.inputStringInvalidTypeTest({ context, path: 'household.persons.${personId[0]}.age', value: testHelpers.nonNumericString });
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '15' });
 testHelpers.tryToContinueWithPopup({ context, text: 'Save and continue', currentPageUrl: '/survey/householdMembers' , nextPageUrl: '/survey/profile' });
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '30' });
