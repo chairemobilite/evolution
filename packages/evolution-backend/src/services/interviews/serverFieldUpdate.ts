@@ -75,12 +75,19 @@ export type ServerFieldUpdateCallback = {
         path: string,
         registerUpdateOperation?: RegisterUpdateOperationType
     ) => Promise<FieldUpdateCallbackReturnType>;
+    /**
+     * Indicate whether to run this field update callback on validated data as
+     * well, or if it is only for responses. Defaults to false, ie only
+     * responses from the survey participant will trigger this callback, not
+     * validations.
+     * */
+    runOnValidatedData?: boolean;
 };
 
 const waitExecuteCallback = async (
     interview: InterviewAttributes,
     callbackPromise: Promise<FieldUpdateCallbackReturnType>,
-    path: string
+    completePath: string
 ): Promise<[{ [affectedResponseFieldPath: string]: unknown }, string | undefined]> => {
     try {
         const serverValuesByPath = {};
@@ -90,28 +97,40 @@ const waitExecuteCallback = async (
             : [callbackResponse, undefined];
         Object.keys(updatedValuesByPath).forEach((key) => {
             if (getResponse(interview, key as any, undefined) !== updatedValuesByPath[key]) {
-                serverValuesByPath[`responses.${key}`] = updatedValuesByPath[key];
+                serverValuesByPath[
+                    completePath.startsWith('validated_data.') ? `validated_data.${key}` : `responses.${key}`
+                ] = updatedValuesByPath[key];
             }
         });
         return [serverValuesByPath, redirectUrl];
     } catch (error) {
-        console.error(`Error executing field update callback for path ${path}: ${error}`);
+        console.error(`Error executing field update callback for path ${completePath}: ${error}`);
         return [{}, undefined];
     }
 };
 
+type UpdateCallbackForPathResponseType = {
+    responsePath: string;
+    callback: ServerFieldUpdateCallback;
+    completePath: string;
+};
 const getUpdateCallbackForPath = (
     serverUpdateCallbacks: ServerFieldUpdateCallback[],
     path: string
-): [string, ServerFieldUpdateCallback] | undefined => {
-    if (!path.startsWith('responses.')) {
+): UpdateCallbackForPathResponseType | undefined => {
+    if (!path.startsWith('responses.') && !path.startsWith('validated_data.')) {
         return undefined;
     }
-    const responsePath = path.substring('responses.'.length);
+    const isValidatedData = path.startsWith('validated_data.');
+    const responsePath = !isValidatedData
+        ? path.substring('responses.'.length)
+        : path.substring('validated_data.'.length);
     const serverCallback = serverUpdateCallbacks.find(({ field }) =>
         typeof field === 'string' ? responsePath === field : responsePath.match(field.regex) !== null
     );
-    return serverCallback !== undefined ? [responsePath, serverCallback] : undefined;
+    return serverCallback !== undefined && (!isValidatedData || serverCallback.runOnValidatedData === true)
+        ? { responsePath, callback: serverCallback, completePath: path }
+        : undefined;
 };
 
 class InterviewUpdateOperation {
@@ -214,7 +233,7 @@ const updateFields = async (
 
     const callbacks = Object.keys(valuesByPath)
         .map((path) => getUpdateCallbackForPath(serverUpdateCallbacks, path))
-        .filter((callbackPair) => callbackPair !== undefined);
+        .filter((callbackPair) => callbackPair !== undefined) as UpdateCallbackForPathResponseType[];
 
     // Map callback results to responses before calling the asynchronous execution callback is specified
     const deferredCallback =
@@ -223,11 +242,11 @@ const updateFields = async (
             : undefined;
 
     for (let i = 0; i < callbacks.length; i++) {
-        const [path, serverCallback] = callbacks[i] as [string, ServerFieldUpdateCallback];
+        const { responsePath, callback, completePath } = callbacks[i];
         const [updatedValuesByPath, callbackUrl] = await waitExecuteCallback(
             interview,
-            serverCallback.callback(interview, valuesByPath[`responses.${path}`], path, deferredCallback),
-            path
+            callback.callback(interview, valuesByPath[completePath], responsePath, deferredCallback),
+            completePath
         );
         Object.assign(serverValuesByPath, updatedValuesByPath);
         if (callbackUrl !== undefined) {
@@ -237,13 +256,13 @@ const updateFields = async (
     if (unsetValues) {
         const callbacks = unsetValues
             .map((path) => getUpdateCallbackForPath(serverUpdateCallbacks, path))
-            .filter((callbackPair) => callbackPair !== undefined);
+            .filter((callbackPair) => callbackPair !== undefined) as UpdateCallbackForPathResponseType[];
         for (let i = 0; i < callbacks.length; i++) {
-            const [path, serverCallback] = callbacks[i] as [string, ServerFieldUpdateCallback];
+            const { responsePath, callback, completePath } = callbacks[i];
             const [updatedValuesByPath, callbackUrl] = await waitExecuteCallback(
                 interview,
-                serverCallback.callback(interview, undefined, path, deferredCallback),
-                path
+                callback.callback(interview, undefined, responsePath, deferredCallback),
+                completePath
             );
             Object.assign(serverValuesByPath, updatedValuesByPath);
             if (callbackUrl !== undefined) {

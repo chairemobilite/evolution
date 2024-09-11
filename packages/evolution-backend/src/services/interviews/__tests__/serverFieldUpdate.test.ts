@@ -37,6 +37,7 @@ const mockedOperation = jest.fn();
 const updateCallbacks = [
     {
         field: 'testFields.fieldA',
+        runOnValidatedData: true,
         callback: jest.fn().mockImplementation((interview, fieldValue) =>
             fieldValue === 'foo'
                 ? { 'testFields.fieldB': 'bar' }
@@ -79,18 +80,22 @@ describe('Simple field update', () => {
         ['Values by path, but field not updated', { 'responses.testFields.fieldB': 'abc' }, []],
         ['Unset path, but field not updated', { }, ['responses.testFields.fieldB']],
         ['Field set, should return empty', { 'responses.testFields.fieldA': '121' }, [], 0, {}],
+        ['Field set in validated data, should run for this callback', { 'validated_data.testFields.fieldA': '121' }, [], 0, {}],
         ['Field set to specific value, should return an update', { 'responses.testFields.fieldA': 'foo' }, [], 0, { 'responses.testFields.fieldB': 'bar' }],
+        ['Field set to specific value in validated_data, should return an update', { 'validated_data.testFields.fieldA': 'foo' }, [], 0, { 'validated_data.testFields.fieldB': 'bar' }],
         ['Field updated to same value, should not be returned', { 'responses.testFields.fieldA': 'same' }, [], 0, {}],
         ['Field unset, should return empty', { 'responses.testFields.fieldB': 'abc' }, ['responses.testFields.fieldA'], 0, {}],
         ['Field update, should return URL', { 'responses._isCompleted' : true }, [], 2, {}, testRedirectUrl],
         ['Field update, no URL return', { 'responses._isCompleted' : false }, [], 2, {}, undefined],
+        ['Field update in validated_data, should not run for this callback', { 'validated_data._isCompleted' : false }, [], false, {}, undefined],
+        ['Not a field in responses or validated_data', { '_isCompleted' : false }, [], false, {}, undefined],
         ['No data', { }, undefined],
     ]).test('%s', async (_description, valuesByPath, unsetPath, called: number | false = false, expectedFieldValues: { [path: string]: unknown } = {}, expectedUrl = undefined) => {
         expect(await updateServerFields(interviewAttributes, updateCallbacks, valuesByPath, unsetPath, deferredUpdateCallback)).toEqual([expectedFieldValues, expectedUrl]);
         if (called !== false) {
             expect(updateCallbacks[called].callback).toHaveBeenCalledTimes(1);
             if (called === 0) {
-                expect(updateCallbacks[called].callback).toHaveBeenCalledWith(interviewAttributes, valuesByPath['responses.testFields.fieldA'], 'testFields.fieldA', expect.anything());
+                expect(updateCallbacks[called].callback).toHaveBeenCalledWith(interviewAttributes, valuesByPath['responses.testFields.fieldA'] !== undefined ? valuesByPath['responses.testFields.fieldA'] : valuesByPath['validated_data.testFields.fieldA'], 'testFields.fieldA', expect.anything());
             } else if (called === 2) {
                 expect(updateCallbacks[called].callback).toHaveBeenCalledWith(interviewAttributes, valuesByPath['responses._isCompleted'], '_isCompleted', expect.anything());
             }
