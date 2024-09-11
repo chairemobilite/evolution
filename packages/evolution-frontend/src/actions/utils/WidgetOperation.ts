@@ -357,7 +357,12 @@ export const prepareWidgets = function (
     const sectionWidgets = sectionConfig.widgets;
 
     if (sectionWidgets === undefined) {
-        return [interview, {}, false, false];
+        // FIXME Previously this code path was returning empty valuesByPath, but
+        // when in the validationOnePager section, there may not be widgets
+        // defined, but we want to keep the valuesByPath to update validity or
+        // completion.  Why was it returning empty valuesByPath instead of the
+        // original? See if it should be `valuesByPath` instead.
+        return [interview, sectionShortname === 'validationOnePager' ? valuesByPath : {}, false, false];
     }
     const widgetPrepData = {
         affectedPaths,
