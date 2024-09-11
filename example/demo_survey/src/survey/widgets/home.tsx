@@ -480,7 +480,11 @@ export const homePostalCode = {
         }
       },
       {
-        validation: !(/^[GHJKghjk][0-9][A-Za-z]( )?[0-9][A-Za-z][0-9]\s*$/).test(value),
+        // To be valid in Canada, the postal code cannot have the letters D, F, I, O, Q, or U.
+        // Here, we also use G, H, J, or K in the first letter to only accept Quebec and Eastern Ontario.
+        // See: https://en.wikipedia.org/wiki/Postal_codes_in_Canada#Number_of_possible_postal_codes and https://www150.statcan.gc.ca/n1/pub/92-153-g/2011002/tech-eng.htm
+        // TODO: Instead of directly writing the validation, make a function that takes the country/region as input and returns the right regex.
+        validation: !/^[ghjk][0-9][abceghj-nprstv-z]( )?[0-9][abceghj-nprstv-z][0-9]\s*$/i.test(value),
         errorMessage: {
           fr: `Le code postal est invalide. Vous devez résider au Québec pour compléter ce questionnaire`,
           en: `Postal code is invalid. You need to live in Quebec to fill this questionnaire.`
