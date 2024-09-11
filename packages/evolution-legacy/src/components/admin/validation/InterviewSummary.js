@@ -26,7 +26,7 @@ class InterviewSummary extends React.Component {
     }
   }
 
-  refreshInterview() {
+  refreshInterview = () => {
     // FIXME was previously this line, but we are not using the interview from the global state, so we may just call the summary change again
     this.props.startSetValidateInterview(this.props.interview.uuid, (interview) => {
       this.setState({ loaded: true })
@@ -34,26 +34,26 @@ class InterviewSummary extends React.Component {
     this.props.handleInterviewSummaryChange(this.props.interview.uuid);
   }
 
-  resetInterview() {
+  resetInterview = () => {
     this.props.startResetValidateInterview(this.props.interview.uuid, (interview) => {
       this.props.handleInterviewSummaryChange(interview.uuid);
     });
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     this.refreshInterview();
 
     //this.forceUpdate();
   }
 
-  updateValuesByPath(valuesByPath, e) {
+  updateValuesByPath = (valuesByPath, e) => {
     if (e && e.preventDefault) {
         e.preventDefault();
     }
     this.props.startUpdateInterview(null, valuesByPath);
   }
 
-  render(){
+  render = () => {
 
     if (!(this.props.interview && this.state.loaded)) {
       surveyHelperNew.devLog('%c rendering empty survey', 'background: rgba(0,0,0,0.1);');
