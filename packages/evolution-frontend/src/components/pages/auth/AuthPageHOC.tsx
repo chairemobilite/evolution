@@ -72,6 +72,30 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
             setCurrentAuthMethod(authMethod);
         };
 
+        // Check if there are no auth methods except directToken
+        const hasNoAuthMethodsExeptDirectToken = React.useMemo(() => {
+            // Check if there are no auth methods
+            const hasNoAuthMethods = authMethods?.length === 0;
+
+            // Check if there are no auth methods in the config
+            const hasNoConfigAuth = !Object.entries(config?.auth || {}).some(([key, value]) => {
+                // Handle key separately
+                if (key === 'directToken') {
+                    // 'directToken' is not considered a login method with a widget, so return false
+                    return false;
+                } else if (key === 'passwordless') {
+                    // 'passwordless' is considered a login method with a widget, so return true
+                    return true;
+                } else {
+                    // For other keys like 'anonymous', 'google', 'facebook', etc., check if the value is true
+                    return value === true;
+                }
+            });
+
+            // Make sure that there are no auth methods and no auth methods in the config
+            return hasNoAuthMethods && hasNoConfigAuth;
+        }, [authMethods, config.auth]); // Update when authMethods or config.auth change
+
         const { isAuthenticated, ...restProps } = props;
 
         return (
@@ -101,6 +125,11 @@ const authPageHOC = <P extends AuthPageProps & WithTranslation>(WrappedComponent
                                 isAuthenticated={isAuthenticated}
                             />
                             <div className="apptr__separator"></div>
+                            {/* Show a message only if there are no login methods available */}
+                            {hasNoAuthMethodsExeptDirectToken && (
+                                <div>{props.t(['survey:auth:UseNoLoginAuthMethod', 'auth:UseNoLoginAuthMethod'])}</div>
+                            )}
+
                             {currentAuthMethod !== 'passwordless' && authMethods.includes('passwordless') && (
                                 <div>
                                     <a
