@@ -65,6 +65,7 @@ type InputStringTest = (params: PathAndValue & CommonTestParameters) => void | P
 type InputRangeTest = (params: { path: Path; value: number; sliderColor?: string } & CommonTestParameters) => void;
 type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestParameters) => void;
 type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => void;
+type WaitForMapLoadedTest = (params: CommonTestParameters) => void;
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
 type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
 type RedirectionTest = (
@@ -681,6 +682,16 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
         // Make sure that the the question widget have validations implemented
         // Check if the input has the question-valid class
         await expect(inputMap).toHaveClass(/question-valid/);
+    });
+};
+
+// Wait for the map to be fully loaded and be validated.
+export const waitForMapToBeLoaded: WaitForMapLoadedTest = ({ context }) => {
+    test(`Wait for map to be loaded`, async () => {
+        const mapContainer = context.page.locator("//div[contains(@class, 'question-type-mapPoint')]");
+        await expect(mapContainer).toBeVisible();
+        await mapContainer.scrollIntoViewIfNeeded();
+        await expect(mapContainer).toHaveClass(/question-filled question-valid/);
     });
 };
 
