@@ -59,7 +59,7 @@ const getToken = async () => {
  * @param parameters The parameters for the route calculation
  * @param withGeojson Whether to include the GeoJSON in the response
  */
-export default async (
+export const getTimeAndDistanceFromTransitionApi = async (
     modes: RoutingOrTransitMode[],
     parameters: RouteCalculationParameter
 ): Promise<RoutingTimeDistanceResultByMode> => {
