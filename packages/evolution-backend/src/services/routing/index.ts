@@ -12,7 +12,7 @@ import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes'
 import { getPointCoordinates } from 'chaire-lib-common/lib/services/geodata/GeoJSONUtils';
 import { RouteCalculationParameter, RoutingTimeDistanceResultByMode } from './types';
 import projectConfig from '../../config/projectConfig';
-import routeWithTransitionApi from './RouteCalculationFromTransition';
+import { getTimeAndDistanceFromTransitionApi } from './RouteCalculationFromTransition';
 
 /**
  * Calculate the times and distances between 2 points for a list of modes
@@ -49,7 +49,7 @@ export const calculateTimeDistanceByMode = async function (
     // supporting transition public API for now, but we could have more
     // eventually
     if (projectConfig.transitionApi !== undefined) {
-        return routeWithTransitionApi(modes, parameters);
+        return getTimeAndDistanceFromTransitionApi(modes, parameters);
     }
     // TODO Implement other routing methods
     // FIXME Should we fallback to turf and bird distance, with default speeds by mode if no routing found for a given mode?

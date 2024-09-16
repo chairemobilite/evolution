@@ -7,11 +7,13 @@
 
 import { calculateTimeDistanceByMode } from '../';
 import each from 'jest-each';
-import routeFromTransition from '../RouteCalculationFromTransition';
+import { getTimeAndDistanceFromTransitionApi } from '../RouteCalculationFromTransition';
 import projectConfig from '../../../config/projectConfig';
 
-jest.mock('../RouteCalculationFromTransition', () => jest.fn());
-const mockedRouteFromTransition = routeFromTransition as jest.MockedFunction<typeof routeFromTransition>;
+jest.mock('../RouteCalculationFromTransition', () => ({
+    getTimeAndDistanceFromTransitionApi: jest.fn()
+}));
+const mockedRouteFromTransition = getTimeAndDistanceFromTransitionApi as jest.MockedFunction<typeof getTimeAndDistanceFromTransitionApi>;
 
 beforeEach(() => {
     jest.clearAllMocks();

@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import route from '../RouteCalculationFromTransition';
+import { getTimeAndDistanceFromTransitionApi } from '../RouteCalculationFromTransition';
 import fetchMock from 'jest-fetch-mock';
 import projectConfig from '../../../config/projectConfig';
 
@@ -47,7 +47,7 @@ test('Get bearer token once', async () => {
     
     fetchMock.mockResponseOnce(bearerToken);
     fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
-    await route(['walking'], params);
+    await getTimeAndDistanceFromTransitionApi(['walking'], params);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock).toHaveBeenCalledWith(
         'https://transition.url/token', 
@@ -91,7 +91,7 @@ describe('Test various values for the Transition URL', () => {
 
     test('Undefined URL', async () => {
         projectConfig.transitionApi = undefined;
-        await expect(route(['walking'], params))
+        await expect(getTimeAndDistanceFromTransitionApi(['walking'], params))
             .rejects
             .toThrow('Transition URL not set in project config');
         expect(fetchMock).not.toHaveBeenCalled();
@@ -100,7 +100,7 @@ describe('Test various values for the Transition URL', () => {
     test('Complete URL', async () => {
         projectConfig.transitionApi!.url = 'https://transition.url';
         fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
-        await route(['walking'], params);
+        await getTimeAndDistanceFromTransitionApi(['walking'], params);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith('https://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ method: 'POST' }));
 
@@ -109,7 +109,7 @@ describe('Test various values for the Transition URL', () => {
     test('No HTTP', async () => {
         projectConfig.transitionApi!.url = 'transition.url';
         fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
-        await route(['walking'], params);
+        await getTimeAndDistanceFromTransitionApi(['walking'], params);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith('http://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ method: 'POST' }));
     });
@@ -117,7 +117,7 @@ describe('Test various values for the Transition URL', () => {
     test('With port', async () => {
         projectConfig.transitionApi!.url = 'https://localhost:8080';
         fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
-        await route(['walking'], params);
+        await getTimeAndDistanceFromTransitionApi(['walking'], params);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith('https://localhost:8080/api/v1/route?withGeojson=false', expect.objectContaining({ method: 'POST' }));
     });
@@ -139,7 +139,7 @@ describe('Test various Transition calls', () => {
 
     test('fetch failing', async () => {
         fetchMock.mockRejectedValueOnce(new Error('Failed to fetch'));
-        const result = await route(['walking'], params);
+        const result = await getTimeAndDistanceFromTransitionApi(['walking'], params);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith(
             'https://transition.url/api/v1/route?withGeojson=false',
@@ -166,7 +166,7 @@ describe('Test various Transition calls', () => {
     test('Bad request response', async () => {
         const badRequestMessage = 'Some parameter error';
         fetchMock.mockResponseOnce(JSON.stringify(badRequestMessage), { status: 400 });
-        const result = await route(['walking'], params);
+        const result = await getTimeAndDistanceFromTransitionApi(['walking'], params);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith(
             'https://transition.url/api/v1/route?withGeojson=false',
@@ -192,7 +192,7 @@ describe('Test various Transition calls', () => {
 
     test('Server error response', async () => {
         fetchMock.mockResponseOnce(JSON.stringify({}), { status: 500 });
-        const result = await route(['walking'], params);
+        const result = await getTimeAndDistanceFromTransitionApi(['walking'], params);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith(
             'https://transition.url/api/v1/route?withGeojson=false',
@@ -235,7 +235,7 @@ describe('Test various Transition calls', () => {
         }
 
         fetchMock.mockResponseOnce(JSON.stringify(response));
-        const result = await route(['walking', 'transit', 'cycling'], params);
+        const result = await getTimeAndDistanceFromTransitionApi(['walking', 'transit', 'cycling'], params);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith(
             'https://transition.url/api/v1/route?withGeojson=false',
@@ -290,7 +290,7 @@ describe('Test various Transition calls', () => {
         }
 
         fetchMock.mockResponseOnce(JSON.stringify(response));
-        const result = await route(['walking', 'transit', 'cycling', 'driving'], params);
+        const result = await getTimeAndDistanceFromTransitionApi(['walking', 'transit', 'cycling', 'driving'], params);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith(
             'https://transition.url/api/v1/route?withGeojson=false',
