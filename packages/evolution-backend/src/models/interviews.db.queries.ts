@@ -708,6 +708,7 @@ const getInterviewsStream = function (params: {
     };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }) {
+    // FIXME: Add the p.email and p.username
     const baseRawFilter = 'participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
     const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
     const sortFields = params.sort || [];
