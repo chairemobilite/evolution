@@ -8,7 +8,7 @@
 import { get } from 'lodash';
 import { Response } from 'express';
 import papaparse from 'papaparse';
-import moment from 'moment-timezone';
+import moment from 'moment';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 
 /**
@@ -48,7 +48,7 @@ export const downloadCsvFile = async ({
         await new Promise<void>((resolve, reject) => {
             queryStream
                 .on('error', (error) => {
-                    console.error('CSV file downloaded error for ${fileName}:`', error);
+                    console.error('Data prepared to generate CSV file error for ${fileName}:`', error);
                     reject(error);
                 })
                 .on('data', (row) => {
@@ -65,10 +65,9 @@ export const downloadCsvFile = async ({
                     });
 
                     csvContent.push(csvRow);
-                    queryStream.resume();
                 })
                 .on('end', () => {
-                    console.log(`CSV file downloaded successfully for ${fileName}.`);
+                    console.log(`Data prepared to generate CSV file for ${fileName}.`);
                     resolve();
                 });
         });

@@ -35,7 +35,6 @@
         "knex-postgis": "^0.14.3",
         "lodash": "^4.17.21",
         "moment": "^2.29.4",
-        "moment-timezone": "^0.5.35",
         "papaparse": "^5.3.0",
         "slugify": "^1.6.5",
         "typescript": "^4.9.4",
