@@ -6,11 +6,13 @@
  */
 
 // This file contains route calculation utilities that can be used by the
-// survey. The should call chaire-lib's routing services to calculate the route.
+// survey. They call the Transition public API, with the instance configuration
+// set in the project configuration or environment variables
 import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
-import { RouteCalculationParameter, RoutingTimeDistanceResultByMode } from './types';
+import { RouteCalculationParameter, RoutingTimeDistanceResultByMode, SummaryResult } from './types';
 import projectConfig from '../../config/projectConfig';
 import { URL } from 'url';
+import { SummaryResponse } from 'chaire-lib-common/lib/api/TrRouting/trRoutingApiV2';
 
 // A name for this calculation source
 const CALCULATION_SOURCE = 'transitionApi';
@@ -57,7 +59,6 @@ const getToken = async () => {
  * Calculate the routes for a list of modes
  * @param modes The list of modes to calculate the routes for
  * @param parameters The parameters for the route calculation
- * @param withGeojson Whether to include the GeoJSON in the response
  */
 export const getTimeAndDistanceFromTransitionApi = async (
     modes: RoutingOrTransitMode[],
@@ -127,5 +128,59 @@ export const getTimeAndDistanceFromTransitionApi = async (
             };
         });
         return routingResultsByMode;
+    }
+};
+
+/**
+ * Get a summary of the possibles lines to use for a route
+ * @param parameters The parameters for the summary calculation
+ */
+export const summaryFromTransitionApi = async (parameters: RouteCalculationParameter): Promise<SummaryResult> => {
+    const transitionUrl = projectConfig.transitionApi?.url;
+    if (transitionUrl === undefined) {
+        throw new Error('Transition URL not set in project config');
+    }
+
+    const transitionUrlObj = getTransitionUrl(transitionUrl);
+    transitionUrlObj.pathname = '/api/v1/summary';
+
+    try {
+        const response = await fetch(transitionUrlObj.toString(), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${await getToken()}`
+            },
+            body: JSON.stringify({
+                originGeojson: parameters.origin,
+                destinationGeojson: parameters.destination,
+                departureTimeSecondsSinceMidnight: parameters.departureSecondsSinceMidnight,
+                scenarioId: parameters.transitScenario
+            })
+        });
+
+        if (response.status !== 200) {
+            throw new Error(`Unsuccessful response code from transition: ${response.status}`);
+        }
+        const routingResponse = (await response.json()) as SummaryResponse;
+        return routingResponse.status === 'success'
+            ? {
+                status: 'success',
+                nbRoutes: routingResponse.result.nbRoutes,
+                lines: routingResponse.result.lines,
+                source: CALCULATION_SOURCE
+            }
+            : {
+                status: 'error',
+                error: routingResponse.errorCode,
+                source: CALCULATION_SOURCE
+            };
+    } catch (error) {
+        console.error('Error fetching transition summary', error);
+        return {
+            status: 'error',
+            error: String(error),
+            source: CALCULATION_SOURCE
+        };
     }
 };

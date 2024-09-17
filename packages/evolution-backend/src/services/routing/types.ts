@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
+import { SummaryResponse, SummarySuccessResult } from 'chaire-lib-common/lib/api/TrRouting/trRoutingApiV2';
 
 export type RouteCalculationParameter = {
     /**
@@ -51,3 +52,22 @@ type RoutingTimeDistanceResult = {
 export type RoutingTimeDistanceResultByMode = {
     [mode in RoutingOrTransitMode]?: RoutingTimeDistanceResult;
 };
+
+export type SummaryResult = {
+    // The source of the summary calculation. Can be used to identify the method
+    // called for this calculation
+    source: string;
+} & (
+    | {
+          status: 'no_routing_found';
+      }
+    | {
+          status: 'error';
+          error: string;
+      }
+    | {
+          status: 'success';
+          nbRoutes: number;
+          lines: SummarySuccessResult['result']['lines'];
+      }
+);

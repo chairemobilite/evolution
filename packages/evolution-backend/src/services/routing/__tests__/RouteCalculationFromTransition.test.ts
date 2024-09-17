@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { getTimeAndDistanceFromTransitionApi } from '../RouteCalculationFromTransition';
+import { getTimeAndDistanceFromTransitionApi, summaryFromTransitionApi } from '../RouteCalculationFromTransition';
 import fetchMock from 'jest-fetch-mock';
 import projectConfig from '../../../config/projectConfig';
 
@@ -123,7 +123,7 @@ describe('Test various values for the Transition URL', () => {
     });
 });
 
-describe('Test various Transition calls', () => {
+describe('getTimeAndDistanceFromTransitionApi: Test various Transition calls', () => {
     const params = {
         origin: {
             type: 'Point' as const,
@@ -319,3 +319,150 @@ describe('Test various Transition calls', () => {
 
 });
 
+describe('summaryFromTransitionApi', () => {
+    const params = {
+        origin: {
+            type: 'Point' as const,
+            coordinates: [0, 0]
+        },
+        destination: {
+            type: 'Point' as const,
+            coordinates: [1, 1]
+        },
+        departureSecondsSinceMidnight: 0,
+        departureDateString: '2022-01-01',
+        transitScenario: 'scenarioId'
+    }
+
+    test('fetch failing', async () => {
+        fetchMock.mockRejectedValueOnce(new Error('Failed to fetch'));
+        const result = await summaryFromTransitionApi(params);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/summary',
+            expect.objectContaining({ 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    originGeojson: params.origin,
+                    destinationGeojson: params.destination,
+                    departureTimeSecondsSinceMidnight: 0,
+                    scenarioId: params.transitScenario
+                })
+            })
+        );
+        expect(result).toEqual({ status: 'error', error: 'Error: Failed to fetch', source: 'transitionApi' });
+    });
+
+    test('Bad request response', async () => {
+        const badRequestMessage = 'Some parameter error';
+        fetchMock.mockResponseOnce(JSON.stringify(badRequestMessage), { status: 400 });
+        const result = await summaryFromTransitionApi(params);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/summary',
+            expect.objectContaining({ 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    originGeojson: params.origin,
+                    destinationGeojson: params.destination,
+                    departureTimeSecondsSinceMidnight: 0,
+                    scenarioId: params.transitScenario
+                })
+            })
+        );
+        expect(result).toEqual({ status: 'error', error: `Error: Unsuccessful response code from transition: 400`, source: 'transitionApi' });
+    });
+
+    test('Server error response', async () => {
+        fetchMock.mockResponseOnce(JSON.stringify({}), { status: 500 });
+        const result = await summaryFromTransitionApi(params);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/summary',
+            expect.objectContaining({ 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    originGeojson: params.origin,
+                    destinationGeojson: params.destination,
+                    departureTimeSecondsSinceMidnight: 0,
+                    scenarioId: params.transitScenario
+                })
+            })
+        );
+        expect(result).toEqual({ status: 'error', error: `Error: Unsuccessful response code from transition: 500`, source: 'transitionApi' });
+    });
+
+    test('Correct and complete response', async () => {
+        const response = {
+            status: 'success',
+            query: {
+                origin: params.origin,
+                destination: params.destination,
+                timeOfTrip: params.departureSecondsSinceMidnight,
+                timeType: 0
+            },
+            result: {
+                nbRoutes: 3,
+                lines: [
+                    {
+                        lineUuid: 'line1',
+                        lineShortname: 'l1',
+                        lineLongname: 'Line 1',
+                        agencyUuid: 'agency1',
+                        agencyName: 'Agency 1',
+                        agencyAcronym: 'AG',
+                        alternativeCount: 2
+                    },
+                    {
+                        lineUuid: 'line2',
+                        lineShortname: 'l2',
+                        lineLongname: 'Line 2',
+                        agencyUuid: 'agency1',
+                        agencyName: 'Agency 1',
+                        agencyAcronym: 'AG',
+                        alternativeCount: 1
+                    }
+                ]
+            }
+        }
+
+        fetchMock.mockResponseOnce(JSON.stringify(response));
+        const result = await summaryFromTransitionApi(params);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/summary',
+            expect.objectContaining({ 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    originGeojson: params.origin,
+                    destinationGeojson: params.destination,
+                    departureTimeSecondsSinceMidnight: 0,
+                    scenarioId: params.transitScenario
+                })
+            })
+        );
+        expect(result).toEqual({
+            status: 'success', 
+            nbRoutes: response.result.nbRoutes,
+            lines: response.result.lines,
+            source: 'transitionApi'
+        });
+    });
+
+});
