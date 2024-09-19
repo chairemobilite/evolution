@@ -65,11 +65,15 @@ type InputStringTest = (params: PathAndValue & CommonTestParameters) => void | P
 type InputRangeTest = (params: { path: Path; value: number; sliderColor?: string } & CommonTestParameters) => void;
 type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestParameters) => void;
 type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => void;
+type WaitForMapLoadedTest = (params: CommonTestParameters) => void;
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
 type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
 type RedirectionTest = (
     params: { buttonText: Text; expectedRedirectionUrl: Url; nextPageUrl: Url } & CommonTestParameters
 ) => void;
+type NavBarButtonStatusTest = (params: { buttonText: Text; buttonStatus: "completed" | "active" | "activeAndCompleted" | "inactive"; isDisabled: boolean } & CommonTestParameters) => void;
+type ChangePageFromNavBarTest = (params: { buttonText: Text; nextPageUrl: Url } & CommonTestParameters) => void;
+
 
 /**
  * Open the browser before all the tests and go to the home page
@@ -684,6 +688,21 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
     });
 };
 
+/**
+ * Waits for the google maps widget to be loaded and validated. 
+ * This is necessary for some tests that will try to go to the next page shortly after filling in the address, as we will stay on the page if the map isn't loaded.
+ *
+ * @param {Object} options - The options for the test.
+ */
+export const waitForMapToBeLoaded: WaitForMapLoadedTest = ({ context }) => {
+    test(`Wait for map to be loaded`, async () => {
+        const mapContainer = context.page.locator("//div[contains(@class, 'question-type-mapPoint')]");
+        await expect(mapContainer).toBeVisible();
+        await mapContainer.scrollIntoViewIfNeeded();
+        await expect(mapContainer).toHaveClass(/question-filled question-valid/);
+    });
+};
+
 // Test input button widget that go to the next page
 export const inputNextButtonTest: InputNextButtonTest = ({ context, text, nextPageUrl }) => {
     test(`Click ${text} and go to ${nextPageUrl} ${getTestCounter(context, `${text} - ${nextPageUrl}`)}`, async () => {
@@ -973,5 +992,62 @@ export const pageRedirectionTest: RedirectionTest = ({ context, buttonText, expe
 
         expect(redirectionCalled).toBe(true);
         expect(logoutCalled).toBe(true);
+    });
+};
+
+/**
+ * Verify that a button in the navigation bar has the expected status by checking its class.
+ * Also checks if the button is disabled, and thus unclickable.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.buttonText - The text of the nav bar button we are checking.
+ * @param {string} options.buttonStatus - The status we expect for the button. Can be one of four values: "completed", "active", "active and completed", and "inactive".
+ * @param {boolean} options.isDisabled - true if we expect the button to be disabled, false is not.
+ */
+export const verifyNavBarButtonStatus: NavBarButtonStatusTest = ({ context, buttonText, buttonStatus, isDisabled }) => {
+    test(`The ${buttonText} navigation button should have the '${buttonStatus}' status - ${getTestCounter(context, `${buttonText} - ${buttonStatus}`)}`, async () => {
+        const navBar = context.page.locator("div[class='survey-section-nav']");
+        const button = navBar.getByText(buttonText);
+        let expectedStatusClass;
+        switch(buttonStatus) {
+            case "completed":
+                expectedStatusClass = "nav-button completed-section";
+                break;
+            case "active":
+                expectedStatusClass = "nav-button active-section";
+                break;
+            case "activeAndCompleted":
+                expectedStatusClass = "nav-button active-section completed-section";
+                break;
+            case "inactive":
+                expectedStatusClass = "nav-button";
+                break;
+        }
+
+        expect(button).toHaveClass(expectedStatusClass);
+
+        if (isDisabled) {
+            await expect(button).toHaveAttribute("disabled");
+        } 
+        else {
+            await expect(button).not.toHaveAttribute("disabled");
+        }
+    });
+};
+
+/**
+ * Verify that clicking a button in the navigation bar takes you to the expected page.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.buttonText - The text of the nav bar button we are clicking.
+ * @param {string} options.nextPageUrl - The page we expect to be taken to after clicking.
+ */
+export const changePageFromNavBar: ChangePageFromNavBarTest = ({ context, buttonText, nextPageUrl }) => {
+    test(`Click ${buttonText} in the nav bar and check that it goes to ${nextPageUrl} ${getTestCounter(context, `${buttonText} - ${nextPageUrl}`)}`, async () => {
+        const navBar = context.page.locator("div[class='survey-section-nav']");
+        const button = navBar.getByText(buttonText);
+        await button.scrollIntoViewIfNeeded();
+        await button.click();
+        await expect(context.page).toHaveURL(nextPageUrl);
     });
 };
