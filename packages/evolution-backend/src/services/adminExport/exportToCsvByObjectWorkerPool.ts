@@ -26,6 +26,13 @@ type AttributeAndObjectPaths = {
     arrayPaths: string[];
 };
 
+// Test whether this attribute is an array of objects
+const isArrayOfObjects = function (data: unknown): data is object[] {
+    return (
+        Array.isArray(data) && data.length > 0 && data.every((obj) => typeof obj === 'object' && !Array.isArray(obj))
+    );
+};
+
 const getNestedAttributes = function (
     parentAttribute: string,
     _object: { [key: string]: unknown },
@@ -49,7 +56,18 @@ const getNestedAttributes = function (
         if (attributeIsUuid) {
             attributesAndObjectPaths.objectPaths.push(parentAttribute);
         }
-        if (Array.isArray(_object[attribute])) {
+        if (isArrayOfObjects(_object[attribute])) {
+            // This is an array of complex types. These will be exploded
+            // like an object, but at the same level as the parent object as
+            // all interviews should have the same indices (.0, .1 in the
+            // paths)
+            getNestedAttributes(
+                (parentAttribute ? parentAttribute + '.' : '') + attributeRenamed,
+                _object[attribute] as any,
+                attributesAndObjectPaths
+            );
+        } else if (Array.isArray(_object[attribute])) {
+            // Arrays of simple types will simply be joined in the CSV file, so just add the attribute
             attributesAndObjectPaths.arrayPaths.push((parentAttribute ? parentAttribute + '.' : '') + attributeRenamed);
         }
         if (
@@ -74,6 +92,10 @@ const getPaths = function (parentPath, _object, attributes: string[] = []) {
     for (const attribute in _object) {
         if (attribute === '_actions') {
             continue;
+        }
+        if (isArrayOfObjects(_object[attribute])) {
+            // This is an array of complex types that needs to be exploded like an object
+            getPaths((parentPath ? parentPath + '.' : '') + attribute, _object[attribute], attributes);
         }
         if (
             _object[attribute] !== undefined &&
