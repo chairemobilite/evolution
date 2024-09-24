@@ -4,9 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-const metersToMapboxPixelsAtMaxZoom = function(meters, latitude) {
-  return meters / 0.075 / Math.cos(latitude * Math.PI / 180);
-};
 
 // coordinates is a point, linestring, polygon or multipolygon
 // need to add tests:
@@ -45,7 +42,6 @@ const xYCoordinatesToGeojson = function(coordinates, scale = 1000000) {
 }
 
 export {
-  metersToMapboxPixelsAtMaxZoom,
   geojsonCoordinatesToXY,
   xYCoordinatesToGeojson
 };

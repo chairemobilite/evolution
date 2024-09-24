@@ -22,7 +22,6 @@ import {
     bezierSpline as turfBezierSpline,
     booleanPointInPolygon as turfBooleanPointInPolygon
 } from '@turf/turf';
-import '@react-google-maps/api';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 // import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';

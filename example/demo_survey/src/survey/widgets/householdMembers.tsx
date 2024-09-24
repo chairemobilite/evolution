@@ -22,7 +22,7 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import waterBoundaries  from '../waterBoundaries.json';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { GroupConfig } from 'evolution-common/src/services/widgets';
+import { GroupConfig } from 'evolution-common/lib/services/widgets';
 
 const personsWidgets = [
     'personNickname',

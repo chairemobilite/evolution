@@ -29,7 +29,6 @@
     "dependencies": {
         "@fortawesome/free-solid-svg-icons": "^5.15.1",
         "@fortawesome/react-fontawesome": "^0.1.11",
-        "@react-google-maps/api": "^2.12.1",
         "@turf/turf": "^6.3.0",
         "chaire-lib-backend": "0.2.2",
         "chaire-lib-common": "0.2.2",
