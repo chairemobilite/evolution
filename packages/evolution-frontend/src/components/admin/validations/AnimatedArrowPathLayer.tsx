@@ -241,11 +241,19 @@ export class AnimatedArrowPathLayer<DataT = any, ExtraProps extends object = nev
                 float percentSoFarOnSegment = (vPathPosition.y) / vPathLength;
                 float vPathLengthTruncated = vPathLength;
                 float distanceMSoFar = distanceMSoFarAtSegmentStart + percentSoFarOnSegment * (distanceMSoFarAtSegmentEnd - distanceMSoFarAtSegmentStart);
-                float arrowDistanceRatio = 3000.0;
+                float arrowDistanceRatio = 100000.0;
 
                 // TODO: would need a better function to interpolate between zooms and arrow distance ratios:
 
-                if (vZoom >= 10.0 && vZoom < 11.0) {
+                if (vZoom >= 3.0 && vZoom < 5.0) {
+                    arrowDistanceRatio = 50000.0;
+                } else if (vZoom >= 5.0 && vZoom < 8.0) {
+                    arrowDistanceRatio = 20000.0;
+                } else if (vZoom >= 8.0 && vZoom < 9.0) {
+                    arrowDistanceRatio = 10000.0;
+                } else if (vZoom >= 9.0 && vZoom < 10.0) {
+                    arrowDistanceRatio = 5000.0;
+                } else if (vZoom >= 10.0 && vZoom < 11.0) {
                     arrowDistanceRatio = 2500.0;
                 } else if (vZoom >= 11.0 && vZoom < 12.0) {
                     arrowDistanceRatio = 1000.0;
