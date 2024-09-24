@@ -22,7 +22,7 @@
         "sourceMap": true,
         "strict": true,
         "target": "es6",
-        "types": ["node", "jest"]
+        "types": ["node", "jest", "geojson"]
     },
     "exclude": [
         "node_modules"
