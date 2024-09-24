@@ -17,42 +17,106 @@ import { SummaryResponse } from 'chaire-lib-common/lib/api/TrRouting/trRoutingAp
 // A name for this calculation source
 const CALCULATION_SOURCE = 'transitionApi';
 
-// Cache the authentication token, as global variable for this file
-// FIXME Consider using a class to encapsulate the token and calculation method
-// TODO Handle token expiration. For now though, the evolution app will restart more often than the token expiration
-let token: string | undefined = undefined;
+/**
+ * A class that encapsulates the Transition URL and public API token. When the
+ * token expires, or if the user is not authorized, it will attempt to fetch a
+ * new token.
+ */
+class TransitionApiHandler {
+    private token: string | undefined = undefined;
+    private transitionUrl: URL;
+    private tokenFetchPromise: Promise<string> | undefined = undefined;
 
-const getTransitionUrl = (transitionUrl: string) =>
-    new URL(transitionUrl.startsWith('http') ? transitionUrl : `http://${transitionUrl}`);
-
-const getToken = async () => {
-    if (token !== undefined) {
-        return token;
+    constructor(transitionUrl: string) {
+        this.transitionUrl = new URL(transitionUrl.startsWith('http') ? transitionUrl : `http://${transitionUrl}`);
     }
 
-    const transitionUrlObj = getTransitionUrl(projectConfig.transitionApi!.url);
-    transitionUrlObj.pathname = '/token';
-    const response = await fetch(transitionUrlObj.toString(), {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            usernameOrEmail: projectConfig.transitionApi!.username,
-            password: projectConfig.transitionApi!.password
-        })
-    });
+    private async fetchToken(): Promise<string> {
+        const tokenUrl = new URL(this.transitionUrl.toString());
+        tokenUrl.pathname = '/token';
+        const response = await fetch(tokenUrl.toString(), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                usernameOrEmail: projectConfig.transitionApi!.username,
+                password: projectConfig.transitionApi!.password
+            })
+        });
 
-    // FIXME Every request will try to get a token, even if the previous one
-    // failed. Should we cache the error and not retry? Or retry only after x
-    // time, possibly using an exponential backoff?
-    if (response.status !== 200) {
-        throw new Error(`Cannot get token from transition: ${response.status}`);
+        if (response.status !== 200) {
+            throw new Error(`Cannot get token from transition: ${response.status}`);
+        }
+
+        const tokenResponse = await response.text();
+        this.token = tokenResponse;
+        return tokenResponse;
     }
 
-    const tokenResponse = await response.text();
-    token = tokenResponse;
-    return token;
+    public async getToken(): Promise<string> {
+        if (this.token !== undefined) {
+            return this.token;
+        }
+        // FIXME Every request will attempt to get a token, even if the previous one
+        // failed. Should we cache the error and not retry? Or retry only after x
+        // time, possibly using an exponential backoff?
+
+        // If we are already fetching the token, return the current fetch promise
+        if (this.tokenFetchPromise !== undefined) {
+            return this.tokenFetchPromise;
+        }
+        // Otherwise set the current promise and return it. This promise will
+        // reset to undefined at the end of the fetch
+        this.tokenFetchPromise = new Promise<string>((resolve, reject) => {
+            this.fetchToken()
+                .then((token) => resolve(token))
+                .catch((error) => reject(error))
+                .finally(() => {
+                    this.tokenFetchPromise = undefined;
+                });
+        });
+        return this.tokenFetchPromise;
+    }
+
+    public async fetchWithToken(url: string, options: RequestInit): Promise<Response> {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...options.headers,
+                Authorization: `Bearer ${await this.getToken()}`
+            }
+        });
+
+        if (response.status === 401) {
+            // Token might have expired, fetch a new one and retry
+            this.token = undefined;
+            const newToken = await this.getToken();
+            return fetch(url, {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    Authorization: `Bearer ${newToken}`
+                }
+            });
+        }
+
+        return response;
+    }
+
+    public getTransitionUrl(pathname: string): URL {
+        const url = new URL(this.transitionUrl.toString());
+        url.pathname = pathname;
+        return url;
+    }
+}
+
+const transitionApiHandler: { [url: string]: TransitionApiHandler } = {} as { [url: string]: TransitionApiHandler };
+const getTransitionApiHandler = (url: string | undefined): TransitionApiHandler | undefined => {
+    if (url !== undefined && transitionApiHandler[url] === undefined) {
+        transitionApiHandler[url] = new TransitionApiHandler(url);
+    }
+    return url === undefined ? undefined : transitionApiHandler[url];
 };
 
 /**
@@ -64,21 +128,19 @@ export const getTimeAndDistanceFromTransitionApi = async (
     modes: RoutingOrTransitMode[],
     parameters: RouteCalculationParameter
 ): Promise<RoutingTimeDistanceResultByMode> => {
-    const transitionUrl = projectConfig.transitionApi?.url;
-    if (transitionUrl === undefined) {
+    const transitionApiHandler = getTransitionApiHandler(projectConfig.transitionApi?.url);
+    if (transitionApiHandler === undefined) {
         throw new Error('Transition URL not set in project config');
     }
 
-    const transitionUrlObj = getTransitionUrl(transitionUrl);
-    transitionUrlObj.pathname = '/api/v1/route';
+    const transitionUrlObj = transitionApiHandler.getTransitionUrl('/api/v1/route');
     transitionUrlObj.searchParams.append('withGeojson', 'false');
 
     try {
-        const response = await fetch(transitionUrlObj.toString(), {
+        const response = await transitionApiHandler.fetchWithToken(transitionUrlObj.toString(), {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${await getToken()}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 routingModes: modes,
@@ -136,20 +198,18 @@ export const getTimeAndDistanceFromTransitionApi = async (
  * @param parameters The parameters for the summary calculation
  */
 export const summaryFromTransitionApi = async (parameters: RouteCalculationParameter): Promise<SummaryResult> => {
-    const transitionUrl = projectConfig.transitionApi?.url;
-    if (transitionUrl === undefined) {
+    const transitionApiHandler = getTransitionApiHandler(projectConfig.transitionApi?.url);
+    if (transitionApiHandler === undefined) {
         throw new Error('Transition URL not set in project config');
     }
 
-    const transitionUrlObj = getTransitionUrl(transitionUrl);
-    transitionUrlObj.pathname = '/api/v1/summary';
+    const transitionUrlObj = transitionApiHandler.getTransitionUrl('/api/v1/summary');
 
     try {
-        const response = await fetch(transitionUrlObj.toString(), {
+        const response = await transitionApiHandler.fetchWithToken(transitionUrlObj.toString(), {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${await getToken()}`
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 originGeojson: parameters.origin,

@@ -20,51 +20,6 @@ beforeEach(() => {
 
 const bearerToken = 'tokenDataFromTransition';
 
-test('Get bearer token once', async () => {
-    // This first should call the token endpoint first and it will be set for the next calls
-    const params = {
-        origin: {
-            type: 'Point' as const,
-            coordinates: [0, 0]
-        },
-        destination: {
-            type: 'Point' as const,
-            coordinates: [1, 1]
-        },
-        departureSecondsSinceMidnight: 0,
-        departureDateString: '2022-01-01'
-    }
-    const defaultResponse = {
-        result: {
-            'walking': {
-                paths: [{
-                    distanceMeters: 100,
-                    travelTimeSeconds: 120
-                }]
-            }
-        }
-    }
-    
-    fetchMock.mockResponseOnce(bearerToken);
-    fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
-    await getTimeAndDistanceFromTransitionApi(['walking'], params);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock).toHaveBeenCalledWith(
-        'https://transition.url/token', 
-        expect.objectContaining({
-            method: 'POST',
-            body: JSON.stringify({ usernameOrEmail: 'username', password: 'password' })
-        })
-    );
-    expect(fetchMock).toHaveBeenCalledWith('https://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ 
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${bearerToken}`
-        }
-    }));
-});
-
 describe('Test various values for the Transition URL', () => {
     const params = {
         origin: {
@@ -98,28 +53,122 @@ describe('Test various values for the Transition URL', () => {
     });
 
     test('Complete URL', async () => {
+        // Prepare test data
         projectConfig.transitionApi!.url = 'https://transition.url';
+        fetchMock.mockResponseOnce(bearerToken);
         fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
-        await getTimeAndDistanceFromTransitionApi(['walking'], params);
-        expect(fetchMock).toHaveBeenCalledTimes(1);
-        expect(fetchMock).toHaveBeenCalledWith('https://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ method: 'POST' }));
 
+        // Call the function
+        await getTimeAndDistanceFromTransitionApi(['walking'], params);
+
+        // Fetch mock should be called twice, once for the token, once for the route
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/token', 
+            expect.objectContaining({
+                method: 'POST',
+                body: JSON.stringify({ usernameOrEmail: 'username', password: 'password' })
+            })
+        );
+        expect(fetchMock).toHaveBeenCalledWith('https://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${bearerToken}`
+            }
+        }));
     });
 
     test('No HTTP', async () => {
+        // Prepare test data
         projectConfig.transitionApi!.url = 'transition.url';
+        fetchMock.mockResponseOnce(bearerToken);
         fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
+
+        // Call the function
         await getTimeAndDistanceFromTransitionApi(['walking'], params);
-        expect(fetchMock).toHaveBeenCalledTimes(1);
-        expect(fetchMock).toHaveBeenCalledWith('http://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ method: 'POST' }));
+
+        // Fetch mock should be called twice, once for the token, once for the route
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://transition.url/token', 
+            expect.objectContaining({
+                method: 'POST',
+                body: JSON.stringify({ usernameOrEmail: 'username', password: 'password' })
+            })
+        );
+        expect(fetchMock).toHaveBeenCalledWith('http://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${bearerToken}`
+            }
+        }));
     });
 
     test('With port', async () => {
+        // Prepare test data
         projectConfig.transitionApi!.url = 'https://localhost:8080';
+        fetchMock.mockResponseOnce(bearerToken);
         fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
+
+        // Call the function
         await getTimeAndDistanceFromTransitionApi(['walking'], params);
-        expect(fetchMock).toHaveBeenCalledTimes(1);
-        expect(fetchMock).toHaveBeenCalledWith('https://localhost:8080/api/v1/route?withGeojson=false', expect.objectContaining({ method: 'POST' }));
+
+        // Fetch mock should be called twice, once for the token, once for the route
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://localhost:8080/token', 
+            expect.objectContaining({
+                method: 'POST',
+                body: JSON.stringify({ usernameOrEmail: 'username', password: 'password' })
+            })
+        );
+        expect(fetchMock).toHaveBeenCalledWith('https://localhost:8080/api/v1/route?withGeojson=false', expect.objectContaining({ 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${bearerToken}`
+            }
+        }));
+    });
+
+    test('Expired token', async () => {
+        const newBearerToken = 'newTokenForTheHttpUrl';
+        // Prepare test data, this url already exists and should have a token already
+        projectConfig.transitionApi!.url = 'transition.url';
+        // First call will return 401, second call return a token, this call should be ok
+        const tokenExpiredMessage = 'DatabaseTokenExpired';
+        fetchMock.mockResponseOnce(JSON.stringify(tokenExpiredMessage), { status: 401 });
+        fetchMock.mockResponseOnce(newBearerToken);
+        fetchMock.mockResponseOnce(JSON.stringify(defaultResponse));
+
+        // Call the function
+        await getTimeAndDistanceFromTransitionApi(['walking'], params);
+
+        // Fetch mock should be called 3 times, once for the token and twice for the route, with different tokens
+        expect(fetchMock).toHaveBeenCalledTimes(3);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'http://transition.url/token', 
+            expect.objectContaining({
+                method: 'POST',
+                body: JSON.stringify({ usernameOrEmail: 'username', password: 'password' })
+            })
+        );
+        expect(fetchMock).toHaveBeenCalledWith('http://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${bearerToken}`
+            }
+        }));
+        expect(fetchMock).toHaveBeenCalledWith('http://transition.url/api/v1/route?withGeojson=false', expect.objectContaining({ 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${newBearerToken}`
+            }
+        }));
     });
 });
 
