@@ -112,10 +112,13 @@ export class ValidationOnePageSummary extends React.Component {
             mapCenter = homeGeography.geometry.coordinates;
             const path = 'responses.home.geography.geometry.coordinates';
             const place = {
-                path: path,
-                coordinates: homeGeography.geometry.coordinates,
-                activity: 'home',
-                active: (path === this.state.activePlacePath).toString()
+                type: 'Feature',
+                geometry: homeGeography.geometry,
+                properties: {
+                    path: path,
+                    activity: 'home',
+                    active: (path === this.state.activePlacePath).toString()
+                }
             };
             places.push(Object.assign({}, place));
         }
@@ -276,8 +279,8 @@ export class ValidationOnePageSummary extends React.Component {
                                 <InterviewMap
                                     user={this.props.user}
                                     interview={this.props.interview}
-                                    places={places}
-                                    tripShapes={tripShapes}
+                                    places={{type: 'FeatureCollection', features: places}}
+                                    trips={{type: 'FeatureCollection', features: tripShapes}}
                                     center={mapCenter}
                                     selectPlace={this.selectPlace}
                                     activePlacePath={this.state.activePlacePath}

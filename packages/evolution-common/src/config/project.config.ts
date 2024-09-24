@@ -23,6 +23,10 @@ export type EvolutionProjectConfiguration = {
      * respondents will be invited to complete their own trips. Defaults to 14
      * */
     selfResponseMinimumAge: number;
+    mapDefaultCenter: {
+        lat: number;
+        lon: number;
+    };
     // TODO Add more project configuration types
 };
 
@@ -32,7 +36,11 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
         {
             region: 'CA',
             logDatabaseUpdates: false,
-            selfResponseMinimumAge: 14
+            selfResponseMinimumAge: 14,
+            mapDefaultCenter: {
+                lat: 45.5,
+                lon: -73.6
+            }
         },
         projectConfig
     )

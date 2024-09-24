@@ -88,11 +88,86 @@
   }
 }
 
+.admin-errors-container p {
+  padding: 0.2rem 0.5rem 0.2rem 0.8rem;
+  margin-bottom: 1px;
+  border-radius: 1rem;
+}
+
+.admin-errors-container p._red, .admin-errors-container p._audit-error {
+  background: rgba(255,0,0,0.07);
+}
+
+.admin-errors-container p._yellow, .admin-errors-container p._audit-warning {
+  background: rgba(255,255,0,0.1);
+}
+
+.admin-errors-container p._blue, .admin-errors-container p._audit-info {
+  background: rgba(28, 136, 191, 0.1);
+}
+
+.admin__interview-stats-inner {
+  padding: 0;
+  margin: 0;
+}
+
+.admin__interview-stats._header {
+  background: rgba(0,0,0,0.05);
+  padding: 0.2rem 0.5rem;
+  margin-bottom: 1px;
+  border-radius: 1rem;
+  border-bottom: none;
+  border: 2px solid rgba(0,0,0,0.1);
+}
+
+.admin__interview-stats-inside {
+  background: rgba(255,255,255,1.0);
+  padding: 0.1rem 0.5rem;
+  margin-bottom: 1px;
+  border-radius: 1rem;
+  border-bottom: none;
+  border: 2px solid rgba(0,0,0,0.075);
+}
+
+.admin__interview-stats ._selected {
+  padding: 0 0.5rem;
+  border: 2px solid rgba(10, 43, 134, 0.9);
+  background: rgba(37, 95, 255, 0.2);
+  border-radius: 1rem;
+}
+
+._selectable:hover {
+  cursor: pointer;
+}
+
 .admin__interview-stats {
+
   h4 {
-    margin-top: 1rem;
-    font-weight: 700;
-    opacity: 0.7;
+      margin: 0 !important;
+      padding: 0;
+      font-weight: 700;
+      opacity: 0.7;
+  }
+
+  h5 {
+      margin: 0 !important;
+      padding: 0;
+      font-style: oblique;
+      font-weight: 400;
+      opacity: 0.7;
+  }
+
+  ._widget {
+      padding: 0 0.7rem;
+      margin-right: 0;
+  }
+
+  ._widget:first-of-type {
+      padding-left: 0;
+  }
+
+  ._widget:last-of-type {
+      border: none;
   }
 }
 
@@ -220,4 +295,70 @@ table {
 
 .pagination {
     padding: 0.5rem;
+}
+
+// collapsible: 
+
+//The link which when clicked opens the collapsable area
+.Collapsible__trigger {
+
+  display: block;
+  //font-weight: 400;
+  text-decoration: none;
+  //color: $grey;
+  position: relative;
+  border: none;
+  padding: 0.3rem;
+
+  &:before {
+    font-family: 'FontAwesome';
+    font-size: larger;
+    content: '\f107';
+    position: absolute;
+    right: 0.8rem;
+    top: 0.2rem;
+    display: block;
+    transition: transform 300ms;
+  }
+
+  &.is-open {
+    &:before {
+      transform: rotateZ(0deg); // Arrow points downwards
+    }
+  }
+  &.is-closed {
+    &:before {
+      transform: rotateZ(-90deg); // Arrow points to the right
+    }
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    background-color: grey;
+  }
+}
+
+// FIXME react-collapsible's lazyRender requires the children to have at least a minimum height to be rendered on the first click.
+// See https://github.com/glennflanagan/react-collapsible/issues/36
+.Collapsible__contentInner {
+  padding-top: 1px;
+}
+
+._list .Collapsible__trigger {
+    background: none; // For list items (ex. list of lines in agency) we have our own background color, so we disable react-collapsible's.
+}
+
+.survey.validation {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin__interview-map {
+  background: rgba(0,0,0,1.0);
+  position: relative;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
 }
