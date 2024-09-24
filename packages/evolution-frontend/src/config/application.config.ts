@@ -4,6 +4,7 @@ import appConfig, {
 } from 'chaire-lib-frontend/lib/config/application.config';
 import React from 'react';
 import { SurveySections, SurveyWidgets } from '../services/interviews/interview';
+import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 
 export type EvolutionApplicationConfiguration = {
     /**
@@ -41,6 +42,19 @@ export type EvolutionApplicationConfiguration = {
      * TODO Type the parsers and describe why it's used
      */
     getParsers: () => any[];
+    /**
+     * This function is provided by surveys to deserialize the survey objects
+     * and audits received from the backend.
+     *
+     * FIXME This is a temporary solution to allow the frontend to deserialize
+     * objects and use those objects to get features. When all objects are part
+     * of evolution, this won't be necessary, there will rather be an
+     * `unserialize` function here instead (or something like that).
+     */
+    generateMapFeatures?: (attributes: SurveyObjectsWithAudits) => {
+        placesCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
+        tripsCollection: GeoJSON.FeatureCollection<GeoJSON.LineString>;
+    };
 };
 
 setApplicationConfiguration({

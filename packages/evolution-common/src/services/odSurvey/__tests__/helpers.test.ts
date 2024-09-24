@@ -942,25 +942,29 @@ describe('getVisitedPlaceGeography', () => {
         [
             'Home place',
             interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1,
+            interviewAttributesForTestCases.responses.household!.persons!.personId1,
             interviewAttributesForTestCases.responses.home!.geography
         ],
         [
             'Place with a geography',
             interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1,
+            interviewAttributesForTestCases.responses.household!.persons!.personId1,
             interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.geography
         ],
         [
             'Place with a shortcut',
             interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2,
+            interviewAttributesForTestCases.responses.household!.persons!.personId2,
             interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2.geography
         ],
         [
             'Place without a geography',
             interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1,
+            interviewAttributesForTestCases.responses.household!.persons!.personId1,
             null
         ]
-    ]).test('%s', (_title, visitedPlace, expected) => {
-        const geography = Helpers.getVisitedPlaceGeography({ visitedPlace, interview: interviewAttributesForTestCases });
+    ]).test('%s', (_title, visitedPlace, person, expected) => {
+        const geography = Helpers.getVisitedPlaceGeography({ visitedPlace, interview: interviewAttributesForTestCases, person });
         if (expected) {
             expect(geography).toEqual(expected);
         } else {

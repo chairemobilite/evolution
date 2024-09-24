@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _get from 'lodash/get';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse } from '../../utils/helpers';
 import {
@@ -472,24 +473,36 @@ export const getVisitedPlaceName = function ({
  * @param {VisitedPlace} options.visitedPlace The visited place for which to get
  * the geography
  * @param {UserInterviewAttributes} options.interview The interview object
+ * @param {UserInterviewAttributes} options.person The person object
  * @returns {GeoJSON.Feature<GeoJSON.Point> | null} The visited place geography,
  * or `null` if it does not exist
  */
 export const getVisitedPlaceGeography = function ({
     visitedPlace,
-    interview
+    interview,
+    person
 }: {
     visitedPlace: VisitedPlace;
     interview: UserInterviewAttributes;
+    person: Person;
 }): GeoJSON.Feature<GeoJSON.Point> | null {
     let geojson: GeoJSON.Feature<GeoJSON.Point> | null = null;
-    // FIXME In some surveys, 'workUsual' and 'schoolUsual' are special cases, like
-    // 'home', but as long as it is not properly specified, this helper function
-    // cannot handle them properly
     if (visitedPlace.activity === 'home') {
         geojson = getResponse(interview, 'home.geography', null) as GeoJSON.Feature<GeoJSON.Point> | null;
     } else {
         geojson = (visitedPlace.geography || null) as GeoJSON.Feature<GeoJSON.Point> | null;
+        if (!geojson) {
+            // FIXME In some surveys, 'workUsual' and 'schoolUsual' are special
+            // cases, like 'home'. If the geography is not found with the
+            // default visitedPlace way, we look in the person's
+            // `usualWorkPlace` and `usualSchoolPlace` fields, but they are not
+            // specified. This is too custom. It needs to be generalized.
+            if (visitedPlace.activity === 'workUsual') {
+                geojson = _get(person, 'usualWorkPlace', null) as GeoJSON.Feature<GeoJSON.Point> | null;
+            } else if (visitedPlace.activity === 'schoolUsual') {
+                geojson = _get(person, 'usualSchoolPlace', null) as GeoJSON.Feature<GeoJSON.Point> | null;
+            }
+        }
     }
     return geojson;
 };
