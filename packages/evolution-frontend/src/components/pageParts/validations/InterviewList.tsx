@@ -17,6 +17,7 @@ import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
 import { faSortAmountDown } from '@fortawesome/free-solid-svg-icons/faSortAmountDown';
 import { faSortAmountDownAlt } from '@fortawesome/free-solid-svg-icons/faSortAmountDownAlt';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 interface UsersTableProps extends WithTranslation {
     columns: any[];
@@ -87,7 +88,7 @@ const InterviewList = (props: UsersTableProps) => {
             style={{
                 flexDirection: 'row',
                 flex: '0 0 auto',
-                display: props.showInterviewList || props.validationInterview === null ? 'block' : 'none'
+                display: props.showInterviewList || _isBlank(props.validationInterview) ? 'block' : 'none'
             }}
         >
             {props.validationInterview !== null && (

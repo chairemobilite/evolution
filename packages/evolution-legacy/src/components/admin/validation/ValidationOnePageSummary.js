@@ -11,8 +11,6 @@ import _get from 'lodash/get';
 
 import appConfig from 'evolution-frontend/lib/config/application.config';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewContext';
-import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import { startUpdateValidateInterview } from '../../../actions/survey/survey';
 import ValidationCommentForm from './ValidationCommentForm';
 import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/AdminErrorBoundary';
@@ -30,7 +28,6 @@ if (InterviewMap === undefined) {
 }
 
 export const ValidationOnePageSummary = (props) => {
-    const { state, dispatch } = React.useContext(InterviewContext);
     const [activePlacePath, setActivePlacePath] = React.useState(null);
     const [activeTripUuid, setActiveTripUuid] = React.useState(null);
 
@@ -99,4 +96,4 @@ const mapDispatchToProps = (dispatch, props) => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withTranslation()(withSurveyContext(ValidationOnePageSummary)));
+)(withTranslation()(ValidationOnePageSummary));

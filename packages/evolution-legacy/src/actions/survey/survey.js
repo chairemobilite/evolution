@@ -420,6 +420,7 @@ export const startUpdateSurveyValidateInterview = function(sectionShortname, val
   };
 };
 
+// TODO: The difference with `startUpdateSurveyValidateInterview` is the sectionShortname that is here forced to validationOnePageSummary. These 2 functions should be merged.
 export const startUpdateValidateInterview = function(sectionShortname, valuesByPath = null, unsetPaths = null, interview = null, callback) {
   return {
     queue: 'UPDATE_INTERVIEW',

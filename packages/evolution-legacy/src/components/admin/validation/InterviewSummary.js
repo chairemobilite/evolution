@@ -21,29 +21,14 @@ class InterviewSummary extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      loaded: false
-    }
   }
 
   refreshInterview = () => {
-    // FIXME was previously this line, but we are not using the interview from the global state, so we may just call the summary change again
-    this.props.startSetValidateInterview(this.props.interview.uuid, (interview) => {
-      this.setState({ loaded: true })
-    });
-    this.props.handleInterviewSummaryChange(this.props.interview.uuid);
+    this.props.startSetValidateInterview(this.props.interview.uuid)
   }
 
   resetInterview = () => {
-    this.props.startResetValidateInterview(this.props.interview.uuid, (interview) => {
-      this.props.handleInterviewSummaryChange(interview.uuid);
-    });
-  }
-
-  componentDidMount = () => {
-    this.refreshInterview();
-
-    //this.forceUpdate();
+    this.props.startResetValidateInterview(this.props.interview.uuid);
   }
 
   updateValuesByPath = (valuesByPath, e) => {
@@ -54,8 +39,7 @@ class InterviewSummary extends React.Component {
   }
 
   render = () => {
-
-    if (!(this.props.interview && this.state.loaded)) {
+    if (!(this.props.interview)) {
       surveyHelperNew.devLog('%c rendering empty survey', 'background: rgba(0,0,0,0.1);');
       return (
         <div className="admin-widget-container"><LoadingPage /></div>
@@ -105,6 +89,7 @@ class InterviewSummary extends React.Component {
 
 const mapStateToProps = (state, props) => {
   return {
+      interview: state.survey.interview,
       errors: state.survey.errors,
       submitted: state.survey.submitted,
       user: state.auth.user,
