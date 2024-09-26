@@ -106,7 +106,9 @@ def generate_UI_tests(input_file: str, output_file: str):
             # Check if we've moved to a new section
             if section != current_section:
                 current_section = section  # Update the current section tracker
-                ts_code += f"/********** Tests {current_section} section **********/\n\n"
+                ts_code += (
+                    f"/********** Tests {current_section} section **********/\n\n"
+                )
 
             # Adjust path for widgets in groups using mappings or '?' for unknown groups
             if group:
@@ -114,13 +116,11 @@ def generate_UI_tests(input_file: str, output_file: str):
                 group_path_mapping = {
                     "householdMembers": "household.persons.${personId[0]}"
                 }
-                group_path_prefix = (
-                    group_path_mapping.get(group, '?') if group else ""
-                )
+                group_path_prefix = group_path_mapping.get(group, "?") if group else ""
                 path = f"{group_path_prefix}.{path}" if group_path_prefix else path
 
             # Generate TypeScript code
-            
+
             # Generate widget message
             conditional_message = f""
             choices_message = f""
@@ -128,8 +128,8 @@ def generate_UI_tests(input_file: str, output_file: str):
                 conditional_message = f" with conditional {conditional}"
             if choices:
                 choices_message = f" witch choices {choices}"
-            ts_code += f"/* Test {input_type.lower()} widget {question_name}{conditional_message}{choices_message} */\n"
-            
+            ts_code += f"/* Test {input_type.lower() if input_type is not None else 'unknown'} widget {question_name}{conditional_message}{choices_message} */\n"
+
             # Generate input visible test
             if conditional and active:
                 ts_code += f"testHelpers.inputVisibleTest({{ context, path: '{path}', isVisible: true }});\n"

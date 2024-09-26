@@ -8,10 +8,7 @@ import os  # For interacting with the operating system
 from glob import glob, escape  # For file path matching
 import ruamel.yaml  # For working with YAML files
 import openpyxl  # For reading Excel files
-from helpers.generator_helpers import (
-    get_headers,
-    sheet_exists
-)
+from helpers.generator_helpers import get_headers, sheet_exists
 
 # Initialize YAML parser
 yaml = ruamel.yaml.YAML()
@@ -146,7 +143,9 @@ class TranslationLangNs:
 class TranslationData:
     def __init__(self, libelles_output_folder_path):
         self.translations = {}  # Dictionary to store translations
-        self.libelles_output_folder_path = libelles_output_folder_path  # Path to the locales directory
+        self.libelles_output_folder_path = (
+            libelles_output_folder_path  # Path to the locales directory
+        )
 
     # Add translations for a specific language and section
     def addTranslations(self, lang, section, translations):
@@ -161,25 +160,33 @@ class TranslationData:
                 self.translations[lang][section].save()
 
     # Add a new translation to the specified language, section, and path
-    def addTranslation(self, lang, section, path, value, overwrite, keepMarkdown):
+    def addTranslation(
+        self, lang, section, path, value, overwrite, keepMarkdown, rowNumber
+    ):
         try:
             if not lang in self.translations:
                 self.translations[lang] = {}
             if not section in self.translations[lang]:
                 self.translations[lang][section] = TranslationLangNs(
-                    os.path.join(self.libelles_output_folder_path, lang, section + ".yml")
+                    os.path.join(
+                        self.libelles_output_folder_path, lang, section + ".yml"
+                    )
                 )
             self.translations[lang][section].addTranslation(
                 path, value, overwrite, keepMarkdown
             )
         except Exception as e:
-            print(f"Exception occurred for {lang} {section} {path}: {e}")
+            print(
+                f"Exception occurred for section=Widgets rowNumber={rowNumber} lang={lang} section={section} path={path}: {e}"
+            )
             raise e
 
 
 # Class for managing the overall translation process
 class FillLocalesTranslations:
-    def __init__(self, excel_file_path, libelles_output_folder_path, overwrite, section):
+    def __init__(
+        self, excel_file_path, libelles_output_folder_path, overwrite, section
+    ):
         self.excel_file_path = excel_file_path
         self.libelles_output_folder_path = libelles_output_folder_path
         self.overwrite = overwrite
@@ -205,14 +212,14 @@ class FillLocalesTranslations:
 
     def __getTranslationsFromLocaleSheet(self):
         try:
-            
+
             workbook = openpyxl.load_workbook(self.excel_file_path, data_only=True)
             sheet_exists(workbook, "Labels")
             sheet = workbook["Labels"]  # Get Widgets sheet
 
             if len(list(sheet.rows)) <= 1:
                 raise Exception(f"Not enough rows in the Labels sheet")
-            
+
             # Add the locales from the locales sheet in a dictionary to be added when the key is met
             # Get headers from the first row
             headers = get_headers(
@@ -223,9 +230,9 @@ class FillLocalesTranslations:
 
             locales_dictionary = {}
             for row in list(sheet.rows)[1:]:
-                    # Create a dictionary from the row values and headers
-                    current_locale = dict(zip(headers, (cell.value for cell in row)))
-                    locales_dictionary[current_locale['key']] = current_locale
+                # Create a dictionary from the row values and headers
+                current_locale = dict(zip(headers, (cell.value for cell in row)))
+                locales_dictionary[current_locale["key"]] = current_locale
             return locales_dictionary
 
         except Exception as e:
@@ -234,27 +241,34 @@ class FillLocalesTranslations:
 
     def __addTranslationsFromLocales(self, section, question_name, row):
         try:
-            # Code copied from the fillLocales.py script 
-            keepMarkdown = row['md'] if 'md' in row else 0
-            if keepMarkdown == '1':
+            # Code copied from the fillLocales.py script
+            keepMarkdown = row["md"] if "md" in row else 0
+            if keepMarkdown == "1":
                 keepMarkdown = True
             else:
                 keepMarkdown = False
             for key in row:
                 # Skip known columns
-                if key == 'namespace' or key == 'key' or key == 'md':
+                if key == "namespace" or key == "key" or key == "md":
                     continue
                 # Do not process empty string
-                if row[key] == '' or row[key] is None:
+                if row[key] == "" or row[key] is None:
                     continue
-                lngContext = key.split('_', 1)
+                lngContext = key.split("_", 1)
                 # If language part does not have 2 characters, the column should not be processed
                 if len(lngContext[0]) > 2:
                     continue
                 translationKey = question_name
                 if len(lngContext) > 1:
-                    translationKey += '_' + lngContext[1]
-                self.allTranslations.addTranslation(lngContext[0], section, translationKey, row[key], self.overwrite, keepMarkdown)
+                    translationKey += "_" + lngContext[1]
+                self.allTranslations.addTranslation(
+                    lngContext[0],
+                    section,
+                    translationKey,
+                    row[key],
+                    self.overwrite,
+                    keepMarkdown,
+                )
 
         except Exception as e:
             print(f"Exception occurred in add Translations from locale: {e}")
@@ -265,6 +279,7 @@ class FillLocalesTranslations:
         try:
             workbook = openpyxl.load_workbook(self.excel_file_path, data_only=True)
             sheet = workbook["Widgets"]  # Get Widgets sheet
+            rowNumber = 2  # Start from the second row
 
             locales_dictionary = self.__getTranslationsFromLocaleSheet()
 
@@ -280,17 +295,31 @@ class FillLocalesTranslations:
                 keepMarkdown = False
 
                 if question_name in locales_dictionary:
-                    self.__addTranslationsFromLocales(section, question_name, locales_dictionary[question_name])
+                    self.__addTranslationsFromLocales(
+                        section, question_name, locales_dictionary[question_name]
+                    )
                 else:
                     if fr is not None:
                         self.allTranslations.addTranslation(
-                            "fr", section, path, fr, self.overwrite, keepMarkdown
+                            "fr",
+                            section,
+                            path,
+                            fr,
+                            self.overwrite,
+                            keepMarkdown,
+                            rowNumber,
                         )
                     if en is not None:
                         self.allTranslations.addTranslation(
-                            "en", section, path, en, self.overwrite, keepMarkdown
+                            "en",
+                            section,
+                            path,
+                            en,
+                            self.overwrite,
+                            keepMarkdown,
+                            rowNumber,
                         )
-                
+                rowNumber += 1  # Increment row number
 
         except Exception as e:
             print(f"Exception occurred in addTranslationsFromExcel: {e}")
