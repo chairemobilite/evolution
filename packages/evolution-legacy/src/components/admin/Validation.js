@@ -5,12 +5,13 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React               from 'react';
+import { connect } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 
 import InterviewSummary from './validation/InterviewSummary';
-import adminHelper from '../../helpers/admin/admin.helper';
+import { startSetValidateInterview } from '../../actions/survey/survey';
 import InterviewListComponent from 'evolution-frontend/lib/components/pageParts/validations/InterviewListComponent';
 
 class Validation extends React.Component {
@@ -18,7 +19,6 @@ class Validation extends React.Component {
     super(props);
     this.state = {
       showInterviewList: false,
-      validationInterview: null,
       prevInterviewUuid:   null,
       nextInterviewUuid:   null
     };
@@ -45,24 +45,13 @@ class Validation extends React.Component {
         nextInterviewUuid = listButton.getAttribute('data-next-uuid');
       }
 
-      return adminHelper.getJson(`/api/interviewSummary/${interviewUuid}`).then(function(response) {
-        if (response.status === 'success' && response.interview)
-        {
-          this.setState(function(state) {
-            return {
-              validationInterview: response.interview,
-              prevInterviewUuid,
-              nextInterviewUuid
-            };
-          });
-        }
-        else
-        {
-          throw response.error;
-        }
-      }.bind(this)).catch(function(error) {
-        console.log('InterviewSummary', error);
+      this.props.startSetValidateInterview(interviewUuid, (interview) => {
+        this.setState({
+          prevInterviewUuid,
+          nextInterviewUuid
+        });
       });
+
     }
     else
     {
@@ -77,17 +66,17 @@ class Validation extends React.Component {
       <div className="survey">
         <div className="admin">
           <div style={{ flexDirection: 'row', flex: '1 1 auto' }}>
-            {this.state.validationInterview !== null && !this.state.showInterviewList &&
+            {this.props.interview && !this.state.showInterviewList &&
             <div style={{float: "right", position: "relative", left: "-3rem"}}>
                 <button title={this.props.t("admin:ShowInterviewList")} onClick={() => this.handleInterviewListChange(true)}>
                     <FontAwesomeIcon icon={faFolderOpen} />
                 </button>
             </div>}
-            {this.state.validationInterview !== null &&
+            {this.props.interview &&
             <InterviewSummary
-              key                          = {this.state.validationInterview.uuid}
+              key                          = {this.props.interview.uuid}
               handleInterviewSummaryChange = {this.handleInterviewSummaryChange}
-              interview                    = {this.state.validationInterview}
+              interview                    = {this.props.interview}
               prevInterviewUuid            = {this.state.prevInterviewUuid}
               nextInterviewUuid            = {this.state.nextInterviewUuid}
               interviewListChange          = {this.handleInterviewListChange}
@@ -99,7 +88,7 @@ class Validation extends React.Component {
             initialSortBy={[{id: 'responses.accessCode'}]}
             interviewListChange={this.handleInterviewListChange}
             showInterviewList = {this.state.showInterviewList}
-            validationInterview = {this.state.validationInterview}
+            validationInterview = {this.props.interview}
           />
         </div>
       </div>
@@ -107,4 +96,20 @@ class Validation extends React.Component {
   }
 }
 
-export default withTranslation(['admin'])(Validation)
+const mapStateToProps = (state, props) => {
+    return {
+        interview: state.survey.interview,
+        interviewLoaded: state.survey.interviewLoaded,
+    };
+};
+
+const mapDispatchToProps = (dispatch, props) => ({
+    startSetValidateInterview: (interviewUuid, callback) => dispatch(startSetValidateInterview(interviewUuid, callback)),
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(withTranslation(['admin'])(Validation));
+
+

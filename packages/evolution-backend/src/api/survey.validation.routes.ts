@@ -170,32 +170,6 @@ router.post('/validationList', async (req, res) => {
     }
 });
 
-router.get('/interviewSummary/:interviewUuid', async (req: Request, res: Response) => {
-    if (req.params.interviewUuid) {
-        try {
-            const response = await Interviews.getAllMatching({
-                pageIndex: 0,
-                pageSize: -1,
-                filter: { uuid: req.params.interviewUuid }
-            });
-            if (response.interviews.length === 1) {
-                return res.status(200).json({
-                    status: 'success',
-                    interview: response.interviews[0]
-                });
-            } else {
-                console.log('Not found, got response', response);
-                return res.status(404).json({ status: 'failed', interview: null });
-            }
-        } catch (error) {
-            console.error(`Error getting interview summary: ${error}`);
-            return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });
-        }
-    } else {
-        return res.status(500).json({ status: 'failed', interview: null, error: 'wrong interview id' });
-    }
-});
-
 router.post('/validation/auditStats', async (req: Request, res: Response) => {
     try {
         const { ...filters } = req.body;
