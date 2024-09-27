@@ -124,7 +124,7 @@ export const carNumberValidation: Validations = (value, _customValue, interview,
                 fr: 'Le nombre de véhicules doit être au maximum 13.',
                 en: 'The number of vehicles must be at most 13.'
             }
-        },
+        }
     ];
 };
 
@@ -161,7 +161,7 @@ export const bikeNumberValidation: Validations = (value, _customValue, interview
                 !_isBlank(householdSize) &&
                 !isNaN(Number(householdSize)) &&
                 typeof householdSize === 'number' &&
-                (Number(value) / householdSize) > maxBikesPerPerson,
+                Number(value) / householdSize > maxBikesPerPerson,
             errorMessage: {
                 fr: `Le nombre de vélos doit être au maximum ${Number(householdSize) * maxBikesPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne sont pas utilisés régulièrement.`,
                 en: `The number of bikes must be at most ${Number(householdSize) * maxBikesPerPerson} for the number of people in the household. Do not include collection bikes or bikes that are not used on a regular basis.`
@@ -262,7 +262,9 @@ export const postalCodeValidation: Validations = (value) => {
             // To be valid in Canada, the postal code cannot have the letters D, F, I, O, Q, or U. It also cannot have W or Z in the first character.
             // See: https://en.wikipedia.org/wiki/Postal_codes_in_Canada#Number_of_possible_postal_codes
             // TODO: Instead of directly writing the validation, make a function that takes the country/region as input and returns the right regex.
-            validation: !/^[abceghj-nprstvxy][0-9][abceghj-nprstv-z]( )?[0-9][abceghj-nprstv-z][0-9]\s*$/i.test(String(value)),
+            validation: !/^[abceghj-nprstvxy][0-9][abceghj-nprstv-z]( )?[0-9][abceghj-nprstv-z][0-9]\s*$/i.test(
+                String(value)
+            ),
             errorMessage: {
                 fr: 'Le code postal est invalide. Vous devez résider au Canada pour compléter ce questionnaire.',
                 en: 'Postal code is invalid. You must live in Canada to fill this questionnaire.'

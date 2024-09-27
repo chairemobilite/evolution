@@ -31,6 +31,9 @@ urllib3 = "2.1.0"
 [tool.poetry.scripts]
 generateSurvey = "scripts.generate_survey:main"
 
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

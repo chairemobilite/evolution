@@ -101,7 +101,9 @@ def generate_choices(input_file: str, output_file: str):
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += generate_import_statements(has_conditionals_import, has_custom_conditionals_import)
+        ts_code += generate_import_statements(
+            has_conditionals_import, has_custom_conditionals_import
+        )
 
         for choice_name, choices in choices_by_name.items():
             # Create a TypeScript const statement for each choiceName
@@ -121,7 +123,9 @@ def generate_choices(input_file: str, output_file: str):
                     )
                     # Add the 'conditional' field only if it exists
                     if choice.get("conditional", None) is not None:
-                        ts_code += f"{INDENT}{INDENT}conditional: {choice['conditional']},\n"
+                        ts_code += (
+                            f"{INDENT}{INDENT}conditional: {choice['conditional']},\n"
+                        )
 
                     ts_code += f"{INDENT}}}"
                 if index < len(choices) - 1:

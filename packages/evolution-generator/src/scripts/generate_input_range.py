@@ -65,10 +65,14 @@ def generate_input_range(input_file: str, output_file: str):
             # Get values from the row dictionary
             input_range_name = row_dict["inputRangeName"]
             label_fr_min = replaces_quotes_and_stringify(row_dict.get("labelFrMin"))
-            label_fr_middle = replaces_quotes_and_stringify(row_dict.get("labelFrMiddle"))
+            label_fr_middle = replaces_quotes_and_stringify(
+                row_dict.get("labelFrMiddle")
+            )
             label_fr_max = replaces_quotes_and_stringify(row_dict.get("labelFrMax"))
             label_en_min = replaces_quotes_and_stringify(row_dict.get("labelEnMin"))
-            label_en_middle = replaces_quotes_and_stringify(row_dict.get("labelEnMiddle"))
+            label_en_middle = replaces_quotes_and_stringify(
+                row_dict.get("labelEnMiddle")
+            )
             label_en_max = replaces_quotes_and_stringify(row_dict.get("labelEnMax"))
             min_value = str(row_dict["minValue"])
             max_value = str(row_dict["maxValue"])
@@ -96,7 +100,9 @@ def generate_input_range(input_file: str, output_file: str):
 
             # Function to generate label
             def generate_label(label_fr: str, label_en: str, is_last: bool = False):
-                insert_comma = "," if not is_last else "" # Insert comma if not last label
+                insert_comma = (
+                    "," if not is_last else ""
+                )  # Insert comma if not last label
                 return f"{INDENT}{{\n{INDENT}{INDENT}fr: '{label_fr}',\n{INDENT}{INDENT}en: '{label_en}'\n{INDENT}}}{insert_comma}\n"
 
             # Generate TypeScript code

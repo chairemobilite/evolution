@@ -7,7 +7,7 @@
 # We use importation without "/" to avoid problems when using the package.json script.
 from collections import defaultdict  # Group data by name
 from helpers.generator_helpers import (
-    INDENT, # 4-space indentation
+    INDENT,  # 4-space indentation
     add_generator_comment,  # Add Generator comment at the start of the file
     get_data_from_excel,  # Read data from Excel
     get_values_from_row,  # Get values from the row
@@ -101,11 +101,15 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
                 new_value = (
                     "true"
                     if conditional["value"] is True
-                    else "false"
-                    if conditional["value"] is False
-                    else int(conditional["value"])
-                    if str(conditional["value"]).isdigit()
-                    else f"'{conditional['value']}'"
+                    else (
+                        "false"
+                        if conditional["value"] is False
+                        else (
+                            int(conditional["value"])
+                            if str(conditional["value"]).isdigit()
+                            else f"'{conditional['value']}'"
+                        )
+                    )
                 )
                 conditional_has_path = "${relativePath}" in conditional["path"]
                 quote = "`" if conditional_has_path else "'"

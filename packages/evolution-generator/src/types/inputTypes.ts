@@ -236,7 +236,14 @@ export type InputButtonBase = {
     // icon: IconProp | IconDefinition;
     // icon: IconDefinition;
     align: Align;
-    action: (callbacks: InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback: ParsingFunctionWithCallbacks<void>) => void;
+    action: (
+        callbacks: InterviewUpdateCallbacks,
+        interview: UserInterviewAttributes,
+        path: string,
+        section,
+        sections,
+        saveCallback: ParsingFunctionWithCallbacks<void>
+    ) => void;
 };
 export type InputButton = InputButtonBase & {
     path: Path;
