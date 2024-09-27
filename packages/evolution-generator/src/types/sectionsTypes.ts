@@ -5,8 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { GroupConfig } from "evolution-common/lib/services/widgets/WidgetConfig";
-import { StartUpdateInterview } from "evolution-common/lib/utils/helpers";
+import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
+import { StartUpdateInterview } from 'evolution-common/lib/utils/helpers';
 
 // Note: This file includes types for all the different sections types used in the evolution-generator
 

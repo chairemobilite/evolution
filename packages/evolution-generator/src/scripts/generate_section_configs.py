@@ -38,7 +38,7 @@ def generate_section_configs(excel_file_path: str):
                 "title_en",
                 "in_nav",
                 "template",
-                "parent_section"
+                "parent_section",
             ],
             sheet_name="Sections",
         )
@@ -76,7 +76,7 @@ def generate_section_configs(excel_file_path: str):
                 )
 
                 # Check if the sections has template
-                has_template = template is not None and template == True 
+                has_template = template is not None and template == True
 
                 # Add imports for template if the section has template
                 if has_template:

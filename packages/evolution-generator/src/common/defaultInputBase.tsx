@@ -28,14 +28,14 @@ export const inputRadioNumberBase: inputTypes.InputRadioNumberBase = {
     inputType: 'radioNumber',
     datatype: 'integer',
     columns: 1,
-    sameLine: true,
+    sameLine: true
 };
 
 // Input String default params
 export const inputStringBase: inputTypes.InputStringBase = {
     type: 'question',
     inputType: 'string',
-    datatype: 'string',
+    datatype: 'string'
 };
 
 // Input Number default params
@@ -60,7 +60,7 @@ export const infoTextBase: inputTypes.InfoTextBase = {
 export const inputRangeBase: inputTypes.InputRangeBase = {
     type: 'question',
     inputType: 'slider',
-    initValue: null,
+    initValue: null
 };
 
 // Checkbox default params
@@ -95,7 +95,7 @@ export const buttonNextBase: inputTypes.InputButtonBase = {
 export const textBase: inputTypes.TextBase = {
     type: 'question',
     inputType: 'text',
-    datatype: 'text',
+    datatype: 'text'
 };
 
 // Find map place default params

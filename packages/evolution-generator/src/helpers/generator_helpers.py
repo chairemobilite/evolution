@@ -179,6 +179,8 @@ def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str
     # Check if the headers are valid
     for expected in expected_headers:
         if not expected in current_headers:
-            raise Exception(f"Missing expected header in {sheet_name} sheet: {expected}")
+            raise Exception(
+                f"Missing expected header in {sheet_name} sheet: {expected}"
+            )
 
     return current_headers
