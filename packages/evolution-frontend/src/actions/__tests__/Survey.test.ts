@@ -4,6 +4,7 @@ import { addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/ut
 import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
 import * as SurveyActions from '../Survey';
 import { prepareWidgets } from '../utils';
+import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
 
 jest.mock('chaire-lib-frontend/lib/config/i18n.config', () => ({
     language: 'en'
@@ -21,6 +22,13 @@ jest.mock('evolution-common/lib/utils/helpers', () => {
 });
 const mockedAddGroupedObject = addGroupedObjects as jest.MockedFunction<typeof addGroupedObjects>;
 const mockedRemoveGroupedObject = removeGroupedObjects as jest.MockedFunction<typeof removeGroupedObjects>;
+// Mock wrong response code handler
+jest.mock('../../services/errorManagement/errorHandling', () => ({
+    handleHttpOtherResponseCode: jest.fn(),
+    handleClientError: jest.fn()
+}));
+const mockedHandleHttpOtherResponseCode = handleHttpOtherResponseCode as jest.MockedFunction<typeof handleHttpOtherResponseCode>;
+const mockedHandleClientError = handleClientError as jest.MockedFunction<typeof handleClientError>;
 
 // Default interview data
 const interviewAttributes: UserFrontendInterviewAttributes = {
@@ -291,8 +299,8 @@ describe('Update interview', () => {
         expect(mockNext).toHaveBeenCalledTimes(1);
     });
 
-    test('With exception', async () => {
-        // Prepare mock and test data
+    test('With local exception', async () => {
+        // Prepare mock and test data, the prepareWidget function will throw an exception
         const updateCallback = jest.fn();
         mockPrepareWidgets.mockImplementationOnce(() => { throw 'error' });
         const valuesByPath = { 'responses.section1.q1': 'foo' };
@@ -316,6 +324,37 @@ describe('Update interview', () => {
         });
         expect(updateCallback).not.toHaveBeenCalled();
         expect(mockNext).toHaveBeenCalledTimes(1);
+        expect(mockedHandleClientError).toHaveBeenCalledTimes(1);
+        expect(mockedHandleClientError).toHaveBeenCalledWith(new Error('error'), { history: undefined, interviewId: interviewAttributes.id });
+    });
+
+    test('With fetch exception', async () => {
+        // Prepare mock and test data, the fetch request will return a 401 error
+        const updateCallback = jest.fn();
+        fetchMock.mockOnce(JSON.stringify({ status: 'unauthorized' }), { status: 401 });
+        const valuesByPath = { 'responses.section1.q1': 'foo' };
+        const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
+        (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
+        
+        // Do the actual test
+        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        await callback(mockNext, mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockPrepareWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledTimes(2);
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, { 
+            type: 'INCREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, { 
+            type: 'DECREMENT_LOADING_STATE'
+        });
+        expect(updateCallback).not.toHaveBeenCalled();
+        expect(mockNext).toHaveBeenCalledTimes(1);
+        expect(mockedHandleHttpOtherResponseCode).toHaveBeenCalledTimes(1);
+        expect(mockedHandleHttpOtherResponseCode).toHaveBeenCalledWith(401, mockDispatch, undefined);
     });
 
     test('Test with no change and _all set to true (after confirmation', async () => {

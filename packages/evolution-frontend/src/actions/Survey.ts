@@ -248,7 +248,10 @@ const startUpdateInterviewCallback = async (
         // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
         // TODO Put in the finally block if we are sure there are no side effect in the code path that returns before the fetch
         dispatch(decrementLoadingState());
-        handleClientError(error instanceof Error ? error : new Error(String(error)), history);
+        handleClientError(error instanceof Error ? error : new Error(String(error)), {
+            history,
+            interviewId: getState().survey.interview!.id
+        });
     } finally {
         next();
     }

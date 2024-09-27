@@ -6,24 +6,38 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
+import thunk from 'redux-thunk';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
 import TestRenderer from 'react-test-renderer';
 import { mount } from 'enzyme';
 import { MemoryRouter } from 'react-router-dom';
 
 import ErrorBoundary from '../ErrorBoundary';
 
+const mockStore = configureStore([thunk]);
+let store;
 beforeEach(() => {
     jest.clearAllMocks();
+    store = mockStore({
+        survey: {
+            interview: {
+                id: 1
+            }
+        }
+    });
 });
 
 test('Render child widget if no error', () => {
     const NormalComponent = () => <div>Normal component</div>;
     const wrapper = TestRenderer.create(
-        <MemoryRouter>
-            <ErrorBoundary>
-                <NormalComponent />
-            </ErrorBoundary>
-        </MemoryRouter>
+        <Provider store={store}>
+            <MemoryRouter>
+                <ErrorBoundary>
+                    <NormalComponent />
+                </ErrorBoundary>
+            </MemoryRouter>
+        </Provider>
     );
     expect(wrapper).toMatchSnapshot();
 });
@@ -33,11 +47,13 @@ test('Render error page if widget has error', () => {
         throw new Error('Error component');
     };
     const wrapper = TestRenderer.create(
-        <MemoryRouter>
-            <ErrorBoundary>
-                <ErrorComponent />
-            </ErrorBoundary>
-        </MemoryRouter>
+        <Provider store={store}>
+            <MemoryRouter>
+                <ErrorBoundary>
+                    <ErrorComponent />
+                </ErrorBoundary>
+            </MemoryRouter>
+        </Provider>
     );
     expect(wrapper).toMatchSnapshot();
 });
@@ -53,11 +69,15 @@ test('Reset the error boundary when clicking', () => {
     };
 
     // Add initial keys for snapshots to work with enzyme without random keys (https://github.com/remix-run/react-router/issues/5579)
-    const surveyErrorPage = mount(<MemoryRouter initialEntries={[ { pathname: '/', key: 'testKey' } ]}>
-        <ErrorBoundary>
-            <ErrorComponent />
-        </ErrorBoundary>
-    </MemoryRouter>);
+    const surveyErrorPage = mount(
+        <Provider store={store}>
+            <MemoryRouter initialEntries={[ { pathname: '/', key: 'testKey' } ]}>
+                <ErrorBoundary>
+                    <ErrorComponent />
+                </ErrorBoundary>
+            </MemoryRouter>
+        </Provider>
+    );
 
     // This snapshot should be the error page
     expect(surveyErrorPage).toMatchSnapshot();
