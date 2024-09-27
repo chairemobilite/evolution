@@ -28,9 +28,17 @@ const redirectToErrorPage = (history?: History) => {
  * callers should take any appropriate action concerning the exception (like
  * logging) before calling this function.
  * @param error The client error object
- * @param history The browser history object, if available
+ * @param {Object} options The options object
+ * @param {number|undefined} options.interviewId The numeric ID of the current
+ * interview, if available
+ * @param {History|undefined} options.history The browser history object, if
+ * available
  */
-export const handleClientError = (error: Error, history?: History) => {
+export const handleClientError = (
+    error: Error,
+    { interviewId, history }: { interviewId?: number; history?: History }
+) => {
+    reportClientSideException(error, interviewId);
     redirectToErrorPage(history);
 };
 
@@ -60,4 +68,29 @@ export const handleHttpOtherResponseCode = async (responseCode: number, dispatch
         // TODO Should there be other use cases that lead to other pages?
         redirectToErrorPage(history);
     }
+};
+
+/**
+ * Send report of a client side exception to the server
+ *
+ * @param interviewId The numeric ID of the current interview
+ * @param exception The Error object that was thrown
+ * @returns
+ */
+export const reportClientSideException = async (exception: Error, interviewId?: number) => {
+    // We send the error message in the wild, not waiting for the answer as the
+    // network might be down, in which point the server will not know about this
+    // error anyway
+    return fetch('/api/survey/clientSideException', {
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        method: 'POST',
+        body: JSON.stringify({
+            exception: exception.message,
+            interviewId
+        })
+    });
 };

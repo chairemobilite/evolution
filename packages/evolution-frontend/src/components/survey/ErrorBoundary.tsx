@@ -6,9 +6,13 @@
  */
 import React from 'react';
 import SurveyErrorPage from '../pages/SurveyErrorPage';
+import { connect } from 'react-redux';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { reportClientSideException } from '../../services/errorManagement/errorHandling';
 
 interface ErrorProps {
     // No props required
+    interview?: UserInterviewAttributes;
 }
 
 interface ErrorState {
@@ -29,6 +33,8 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<Error
         // Display fallback UI
         this.setState({ hasError: true });
         console.log('An exception occurred in a react component', error, info);
+        // Send update responses to the server
+        reportClientSideException(error, this.props.interview?.id);
     }
 
     resetErrorBoundary = () => {
@@ -44,4 +50,10 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<Error
     }
 }
 
-export default ErrorBoundary;
+const mapStateToProps = (state, props) => {
+    return {
+        interview: state.survey.interview
+    };
+};
+
+export default connect(mapStateToProps)(ErrorBoundary);

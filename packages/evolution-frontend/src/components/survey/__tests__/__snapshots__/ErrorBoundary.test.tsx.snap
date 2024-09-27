@@ -76,264 +76,308 @@ exports[`Render error page if widget has error 1`] = `
 `;
 
 exports[`Reset the error boundary when clicking 1`] = `
-<MemoryRouter
-  initialEntries={
-    [
-      {
-        "key": "testKey",
-        "pathname": "/",
-      },
-    ]
+<Provider
+  store={
+    {
+      "clearActions": [Function],
+      "dispatch": [Function],
+      "getActions": [Function],
+      "getState": [Function],
+      "replaceReducer": [Function],
+      "subscribe": [Function],
+    }
   }
 >
-  <Router
-    history={
-      {
-        "action": "POP",
-        "block": [Function],
-        "canGo": [Function],
-        "createHref": [Function],
-        "entries": [
-          {
+  <MemoryRouter
+    initialEntries={
+      [
+        {
+          "key": "testKey",
+          "pathname": "/",
+        },
+      ]
+    }
+  >
+    <Router
+      history={
+        {
+          "action": "POP",
+          "block": [Function],
+          "canGo": [Function],
+          "createHref": [Function],
+          "entries": [
+            {
+              "hash": "",
+              "key": "testKey",
+              "pathname": "/",
+              "search": "",
+            },
+          ],
+          "go": [Function],
+          "goBack": [Function],
+          "goForward": [Function],
+          "index": 0,
+          "length": 1,
+          "listen": [Function],
+          "location": {
             "hash": "",
             "key": "testKey",
             "pathname": "/",
             "search": "",
           },
-        ],
-        "go": [Function],
-        "goBack": [Function],
-        "goForward": [Function],
-        "index": 0,
-        "length": 1,
-        "listen": [Function],
-        "location": {
-          "hash": "",
-          "key": "testKey",
-          "pathname": "/",
-          "search": "",
-        },
-        "push": [Function],
-        "replace": [Function],
+          "push": [Function],
+          "replace": [Function],
+        }
       }
-    }
-  >
-    <ErrorBoundary>
-      <withI18nextTranslation(SurveyErrorPage)
-        onRedirect={[Function]}
-      >
-        <SurveyErrorPage
-          i18n={
+    >
+      <Connect(ErrorBoundary)>
+        <ErrorBoundary
+          dispatch={[Function]}
+          interview={
             {
-              "language": "en",
-              "languages": [
-                "en",
-              ],
-              "options": {
-                "appendNamespaceToCIMode": false,
-                "appendNamespaceToMissingKey": false,
-                "contextSeparator": "_",
-                "debug": false,
-                "defaultNS": "translations",
-                "fallbackLng": [
-                  "en",
-                ],
-                "fallbackNS": false,
-                "ignoreJSONStructure": true,
-                "initImmediate": true,
-                "interpolation": {
-                  "escapeValue": false,
-                  "format": [Function],
-                  "formatSeparator": ",",
-                  "maxReplaces": 1000,
-                  "nestingOptionsSeparator": ",",
-                  "nestingPrefix": "$t(",
-                  "nestingSuffix": ")",
-                  "prefix": "{{",
-                  "skipOnVariables": true,
-                  "suffix": "}}",
-                  "unescapePrefix": "-",
-                },
-                "joinArrays": false,
-                "keySeparator": ".",
-                "lng": "en",
-                "load": "all",
-                "missingInterpolationHandler": false,
-                "missingKeyHandler": false,
-                "nonExplicitSupportedLngs": false,
-                "ns": [
-                  "translations",
-                ],
-                "nsSeparator": ":",
-                "overloadTranslationOptionHandler": [Function],
-                "parseMissingKeyHandler": false,
-                "partialBundledLanguages": false,
-                "pluralSeparator": "_",
-                "postProcess": false,
-                "postProcessPassResolved": false,
-                "preload": false,
-                "resources": {
-                  "en": {
-                    "translations": {},
-                  },
-                },
-                "returnEmptyString": true,
-                "returnNull": true,
-                "returnObjects": false,
-                "returnedObjectHandler": false,
-                "saveMissing": false,
-                "saveMissingPlurals": true,
-                "saveMissingTo": "fallback",
-                "simplifyPluralSuffix": true,
-                "supportedLngs": false,
-                "updateMissing": false,
-              },
-              "resolvedLanguage": undefined,
-              "store": {
-                "en": {
-                  "translations": {},
-                },
-              },
+              "id": 1,
             }
           }
-          onRedirect={[Function]}
-          t={[Function]}
-          tReady={true}
         >
-          <div
-            className="survey"
-            id="surveyErrorPage"
-            style={
-              {
-                "display": "block",
-              }
-            }
+          <withI18nextTranslation(SurveyErrorPage)
+            onRedirect={[Function]}
           >
-            <div
-              className="apptr__form"
+            <SurveyErrorPage
+              i18n={
+                {
+                  "language": "en",
+                  "languages": [
+                    "en",
+                  ],
+                  "options": {
+                    "appendNamespaceToCIMode": false,
+                    "appendNamespaceToMissingKey": false,
+                    "contextSeparator": "_",
+                    "debug": false,
+                    "defaultNS": "translations",
+                    "fallbackLng": [
+                      "en",
+                    ],
+                    "fallbackNS": false,
+                    "ignoreJSONStructure": true,
+                    "initImmediate": true,
+                    "interpolation": {
+                      "escapeValue": false,
+                      "format": [Function],
+                      "formatSeparator": ",",
+                      "maxReplaces": 1000,
+                      "nestingOptionsSeparator": ",",
+                      "nestingPrefix": "$t(",
+                      "nestingSuffix": ")",
+                      "prefix": "{{",
+                      "skipOnVariables": true,
+                      "suffix": "}}",
+                      "unescapePrefix": "-",
+                    },
+                    "joinArrays": false,
+                    "keySeparator": ".",
+                    "lng": "en",
+                    "load": "all",
+                    "missingInterpolationHandler": false,
+                    "missingKeyHandler": false,
+                    "nonExplicitSupportedLngs": false,
+                    "ns": [
+                      "translations",
+                    ],
+                    "nsSeparator": ":",
+                    "overloadTranslationOptionHandler": [Function],
+                    "parseMissingKeyHandler": false,
+                    "partialBundledLanguages": false,
+                    "pluralSeparator": "_",
+                    "postProcess": false,
+                    "postProcessPassResolved": false,
+                    "preload": false,
+                    "resources": {
+                      "en": {
+                        "translations": {},
+                      },
+                    },
+                    "returnEmptyString": true,
+                    "returnNull": true,
+                    "returnObjects": false,
+                    "returnedObjectHandler": false,
+                    "saveMissing": false,
+                    "saveMissingPlurals": true,
+                    "saveMissingTo": "fallback",
+                    "simplifyPluralSuffix": true,
+                    "supportedLngs": false,
+                    "updateMissing": false,
+                  },
+                  "resolvedLanguage": undefined,
+                  "store": {
+                    "en": {
+                      "translations": {},
+                    },
+                  },
+                }
+              }
+              onRedirect={[Function]}
+              t={[Function]}
+              tReady={true}
             >
-              <p
-                className="_large _strong _blue"
+              <div
+                className="survey"
+                id="surveyErrorPage"
+                style={
+                  {
+                    "display": "block",
+                  }
+                }
               >
                 <div
-                  dangerouslySetInnerHTML={
-                    {
-                      "__html": "AnErrorOccurred",
-                    }
-                  }
-                />
-              </p>
-            </div>
-            <div
-              className="apptr__separator"
-            />
-            <div
-              className="apptr__form"
-            >
-              <div
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "MakeSureReliableConnection",
-                  }
-                }
-              />
-            </div>
-            <div
-              className="apptr__separator"
-            />
-            <div
-              className="apptr__form"
-            >
-              <div
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "ErrorPersistsWhatToDo",
-                  }
-                }
-              />
-            </div>
-            <div
-              className="apptr__separator"
-            />
-            <div
-              className="apptr__form"
-            >
-              <Link
-                onClick={[Function]}
-                to="/survey"
-              >
-                <LinkAnchor
-                  href="/survey"
-                  navigate={[Function]}
-                  onClick={[Function]}
+                  className="apptr__form"
                 >
-                  <a
-                    href="/survey"
-                    onClick={[Function]}
+                  <p
+                    className="_large _strong _blue"
                   >
-                    BackToSurveyPage
-                  </a>
-                </LinkAnchor>
-              </Link>
-            </div>
-          </div>
-        </SurveyErrorPage>
-      </withI18nextTranslation(SurveyErrorPage)>
-    </ErrorBoundary>
-  </Router>
-</MemoryRouter>
+                    <div
+                      dangerouslySetInnerHTML={
+                        {
+                          "__html": "AnErrorOccurred",
+                        }
+                      }
+                    />
+                  </p>
+                </div>
+                <div
+                  className="apptr__separator"
+                />
+                <div
+                  className="apptr__form"
+                >
+                  <div
+                    dangerouslySetInnerHTML={
+                      {
+                        "__html": "MakeSureReliableConnection",
+                      }
+                    }
+                  />
+                </div>
+                <div
+                  className="apptr__separator"
+                />
+                <div
+                  className="apptr__form"
+                >
+                  <div
+                    dangerouslySetInnerHTML={
+                      {
+                        "__html": "ErrorPersistsWhatToDo",
+                      }
+                    }
+                  />
+                </div>
+                <div
+                  className="apptr__separator"
+                />
+                <div
+                  className="apptr__form"
+                >
+                  <Link
+                    onClick={[Function]}
+                    to="/survey"
+                  >
+                    <LinkAnchor
+                      href="/survey"
+                      navigate={[Function]}
+                      onClick={[Function]}
+                    >
+                      <a
+                        href="/survey"
+                        onClick={[Function]}
+                      >
+                        BackToSurveyPage
+                      </a>
+                    </LinkAnchor>
+                  </Link>
+                </div>
+              </div>
+            </SurveyErrorPage>
+          </withI18nextTranslation(SurveyErrorPage)>
+        </ErrorBoundary>
+      </Connect(ErrorBoundary)>
+    </Router>
+  </MemoryRouter>
+</Provider>
 `;
 
 exports[`Reset the error boundary when clicking 2`] = `
-<MemoryRouter
-  initialEntries={
-    [
-      {
-        "key": "testKey",
-        "pathname": "/",
-      },
-    ]
+<Provider
+  store={
+    {
+      "clearActions": [Function],
+      "dispatch": [Function],
+      "getActions": [Function],
+      "getState": [Function],
+      "replaceReducer": [Function],
+      "subscribe": [Function],
+    }
   }
 >
-  <Router
-    history={
-      {
-        "action": "POP",
-        "block": [Function],
-        "canGo": [Function],
-        "createHref": [Function],
-        "entries": [
-          {
+  <MemoryRouter
+    initialEntries={
+      [
+        {
+          "key": "testKey",
+          "pathname": "/",
+        },
+      ]
+    }
+  >
+    <Router
+      history={
+        {
+          "action": "POP",
+          "block": [Function],
+          "canGo": [Function],
+          "createHref": [Function],
+          "entries": [
+            {
+              "hash": "",
+              "key": "testKey",
+              "pathname": "/",
+              "search": "",
+            },
+          ],
+          "go": [Function],
+          "goBack": [Function],
+          "goForward": [Function],
+          "index": 0,
+          "length": 1,
+          "listen": [Function],
+          "location": {
             "hash": "",
             "key": "testKey",
             "pathname": "/",
             "search": "",
           },
-        ],
-        "go": [Function],
-        "goBack": [Function],
-        "goForward": [Function],
-        "index": 0,
-        "length": 1,
-        "listen": [Function],
-        "location": {
-          "hash": "",
-          "key": "testKey",
-          "pathname": "/",
-          "search": "",
-        },
-        "push": [Function],
-        "replace": [Function],
+          "push": [Function],
+          "replace": [Function],
+        }
       }
-    }
-  >
-    <ErrorBoundary>
-      <ErrorComponent>
-        <div>
-          Correct component
-        </div>
-      </ErrorComponent>
-    </ErrorBoundary>
-  </Router>
-</MemoryRouter>
+    >
+      <Connect(ErrorBoundary)>
+        <ErrorBoundary
+          dispatch={[Function]}
+          interview={
+            {
+              "id": 1,
+            }
+          }
+        >
+          <ErrorComponent>
+            <div>
+              Correct component
+            </div>
+          </ErrorComponent>
+        </ErrorBoundary>
+      </Connect(ErrorBoundary)>
+    </Router>
+  </MemoryRouter>
+</Provider>
 `;
