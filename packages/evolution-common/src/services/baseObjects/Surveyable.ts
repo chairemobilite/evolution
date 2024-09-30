@@ -15,12 +15,18 @@ import { Survey } from './Survey';
  * sample batch number (lot number)
  */
 
+/**
+ * @deprecated surveyable interviews should know in which survey they occur
+ */
 export type SurveyableAttributes = {
     sample: Sample;
     survey: Survey;
     sampleBatchNumber?: number;
 };
 
+/**
+ * @deprecated surveyable interviews should know in which survey they occur
+ */
 export class Surveyable extends Uuidable {
     sample: Sample;
     survey: Survey;
