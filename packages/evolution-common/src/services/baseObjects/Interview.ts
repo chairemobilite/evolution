@@ -33,7 +33,7 @@ export const interviewAttributes = [
     '_device'
 ];
 
-export const interviewAttributesWithComposedAttributes = [
+const interviewAttributesWithComposedAttributes = [
     ...interviewAttributes,
     'household',
     'person',
