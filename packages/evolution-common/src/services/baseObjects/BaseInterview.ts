@@ -13,10 +13,15 @@ import { Sample, SampleAttributes } from './Sample';
 import { Uuidable } from './Uuidable';
 import { parseDate } from '../../utils/DateUtils';
 
+/**
+ * @deprecated use Interview instead
+ */
 export const devices = ['tablet', 'mobile', 'desktop', 'other', 'unknown'] as const;
-
 export type Device = (typeof devices)[number];
 
+/**
+ * @deprecated use Interview instead
+ */
 export type BaseInterviewAttributes = {
     _uuid?: string;
 
@@ -36,8 +41,14 @@ export type BaseInterviewAttributes = {
     _device?: Device;
 };
 
+/**
+ * @deprecated use Interview instead
+ */
 export type ExtendedInterviewAttributes = BaseInterviewAttributes & { [key: string]: any };
 
+/**
+ * @deprecated use Interview instead
+ */
 export class BaseInterview extends Surveyable implements IValidatable {
     _isValid: Optional<boolean>;
 

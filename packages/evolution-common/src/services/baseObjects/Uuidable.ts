@@ -14,7 +14,7 @@ export type UuidableAttributes = {
 };
 
 export class Uuidable {
-    _uuid?: Optional<string>; // UUID v4 // required, will be generated if undefined in constructor
+    readonly _uuid?: Optional<string>; // UUID v4 // required, will be generated if undefined in constructor
 
     constructor(_uuid?: Optional<string>) {
         this._uuid = Uuidable.getUuid(_uuid);

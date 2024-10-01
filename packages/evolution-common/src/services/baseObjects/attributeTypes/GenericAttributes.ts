@@ -5,6 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+export const yesNoDontKnowValues = ['yes', 'no', 'dontKnow'];
+export type YesNoDontKnow = (typeof yesNoDontKnowValues)[number];
+
 export const yesNoDontKnowNonApplicableValues = ['yes', 'no', 'dontKnow', 'nonApplicable'];
 export type YesNoDontKnowNonApplicable = (typeof yesNoDontKnowNonApplicableValues)[number];
 
@@ -12,3 +15,8 @@ export const yesNoDontKnowPreferNotToAnswerValues = ['yes', 'no', 'dontKnow', 'p
 export type YesNoDontKnowPreferNotToAnswer = (typeof yesNoDontKnowPreferNotToAnswerValues)[number];
 
 export type TimePeriod = string; // TODO: normalize time periods (when time is too precise, like for long distance journeys)
+
+export type StartEndTimestampable = {
+    startTimestamp?: number;
+    endTimestamp?: number; // could be calculated from the next start timestamp
+};
