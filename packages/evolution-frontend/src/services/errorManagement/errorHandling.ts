@@ -11,6 +11,38 @@ import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAu
 const unauthorizedPage = '/unauthorized';
 const errorPage = '/error';
 
+const redirectToErrorPage = (history?: History) => {
+    if (history) {
+        // History avoids reload the page to get to the error page, it keeps the
+        // current state of the interview.
+        history.push(errorPage);
+    } else {
+        // if history is not available, we still need to redirect to error page
+        window.location.href = errorPage;
+    }
+};
+
+/**
+ * Centralized function to handle any caught client exceptions. This function
+ * will redirect to the generic error page. Since this is for caught exceptions,
+ * callers should take any appropriate action concerning the exception (like
+ * logging) before calling this function.
+ * @param error The client error object
+ * @param history The browser history object, if available
+ */
+export const handleClientError = (error: Error, history?: History) => {
+    redirectToErrorPage(history);
+};
+
+/**
+ * Properly handles the response code received from the server. If the response
+ * is 'unauthorized', the user should be logged out and redirected to the
+ * unauthorized page. Other response codes will redirect to the generic error
+ * page.
+ * @param responseCode The response code received from the server
+ * @param dispatch The dispatch redux object
+ * @param history The browser history object, if available
+ */
 export const handleHttpOtherResponseCode = async (responseCode: number, dispatch: Dispatch, history?: History) => {
     if (responseCode === 401) {
         // Verify authentication, so that we get the new authentication status
@@ -24,12 +56,8 @@ export const handleHttpOtherResponseCode = async (responseCode: number, dispatch
         // the application, the proper flow of the application will redirect him
         // to the right page (login or unauthorized). We don't need to set href
         // to 'unauthorized' here.
-    } else if (history) {
-        // TODO Should there be other use cases that lead to other pages?
-        history.push(errorPage);
     } else {
-        // Error messages need proper handling, if history is not available, we
-        // still need to redirect to error page
-        window.location.href = errorPage;
+        // TODO Should there be other use cases that lead to other pages?
+        redirectToErrorPage(history);
     }
 };
