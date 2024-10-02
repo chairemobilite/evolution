@@ -216,8 +216,8 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
         try {
             // FIXME: Extract this to a function when we do more than just console.error
             const content = req.body;
-            const interviewId = content.interviewId || -1;
-            if (content.exception) {
+            const interviewId = content?.interviewId || -1;
+            if (content?.exception) {
                 const exceptionString =
                     typeof content.exception !== 'string' ? String(content.exception) : content.exception;
                 // Log up to 1000 characters of the exception to avoid spamming the logs
@@ -225,6 +225,12 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                     'Client-side exception in interview %d: %s',
                     interviewId,
                     exceptionString.substring(0, 1000)
+                );
+            } else {
+                console.error(
+                    'Client-side exception in interview %d: missing exception but content was \'%s\'',
+                    interviewId,
+                    String(content).substring(0, 1000)
                 );
             }
             return res.status(200);
