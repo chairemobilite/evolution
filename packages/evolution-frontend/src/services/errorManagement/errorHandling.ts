@@ -35,7 +35,7 @@ const redirectToErrorPage = (history?: History) => {
  * available
  */
 export const handleClientError = (
-    error: Error,
+    error: unknown,
     { interviewId, history }: { interviewId?: number; history?: History }
 ) => {
     reportClientSideException(error, interviewId);
@@ -74,10 +74,16 @@ export const handleHttpOtherResponseCode = async (responseCode: number, dispatch
  * Send report of a client side exception to the server
  *
  * @param interviewId The numeric ID of the current interview
- * @param exception The Error object that was thrown
+ * @param exception The exception that was thrown
  * @returns
  */
-export const reportClientSideException = async (exception: Error, interviewId?: number) => {
+export const reportClientSideException = async (exception: unknown, interviewId?: number) => {
+    const exceptionMessage =
+        exception instanceof Error
+            ? exception.message
+            : typeof exception === 'object'
+                ? JSON.stringify(exception)
+                : String(exception);
     // We send the error message in the wild, not waiting for the answer as the
     // network might be down, in which point the server will not know about this
     // error anyway
@@ -89,7 +95,7 @@ export const reportClientSideException = async (exception: Error, interviewId?: 
         credentials: 'include',
         method: 'POST',
         body: JSON.stringify({
-            exception: exception.message,
+            exception: exceptionMessage,
             interviewId
         })
     });
