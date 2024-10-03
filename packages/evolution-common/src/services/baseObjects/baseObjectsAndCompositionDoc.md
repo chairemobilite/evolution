@@ -1,3 +1,5 @@
+# This documentation is deprecated. See README.md in this folder for the latest documentation.
+
 # Documentation on base objects (Household, Person, etc.)
 These objects will be implemented first in admin/validation and will be created live during validation using the responses json data from the interview. However, later on, we willl migrate these to the questionnaire/client itself so we can have better typing and validations and make sure the data is more robust during data collection.
 The BaseHousehold, BasePerson, etc. are deprecated but are kept for compatibility with older surveys which are still using them like od_mtl_2023 and od_qc_2023.

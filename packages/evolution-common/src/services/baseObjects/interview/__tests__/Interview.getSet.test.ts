@@ -5,9 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Interview } from '../../Interview';
+import { Interview } from '../Interview';
+import { create } from '../InterviewUnserializer';
 import { Result, isOk, unwrap } from '../../../../types/Result.type';
-import { Language, Browser, SectionMetadata } from '../../attributeTypes/InterviewAttributes';
 
 describe('Interview - Getters and Setters', () => {
     let interview: Interview;
@@ -21,9 +21,9 @@ describe('Interview - Getters and Setters', () => {
             assignedDate: '2023-09-30',
             _startedAt: 1632929461
         };
-        const result = Interview.create(validParams) as Result<Interview>;
-        if (isOk(result)) {
-            interview = unwrap(result) as Interview;
+        const interviewResult = create(validParams) as Result<Interview>;
+        if (isOk(interviewResult)) {
+            interview = unwrap(interviewResult) as Interview;
         } else {
             throw new Error('Failed to create interview');
         }
@@ -34,7 +34,7 @@ describe('Interview - Getters and Setters', () => {
         const validParamsWithoutIdAndParticipantId = {
             _uuid: '123e4567-e89b-12d3-a456-426614174001',
         };
-        const result = Interview.create(validParamsWithoutIdAndParticipantId) as Result<Interview>;
+        const result = create(validParamsWithoutIdAndParticipantId) as Result<Interview>;
         if (isOk(result)) {
             _interview = unwrap(result) as Interview;
         } else {
@@ -115,11 +115,11 @@ describe('Interview - Getters and Setters', () => {
         expect(interview.interviewerComments).toBeUndefined();
     });
 
-    it('should get and set validatorComments', () => {
-        interview.validatorComments = 'Validator note';
-        expect(interview.validatorComments).toBe('Validator note');
-        interview.validatorComments = undefined;
-        expect(interview.validatorComments).toBeUndefined();
+    it('should get and set auditorComments', () => {
+        interview.auditorComments = 'Auditor note';
+        expect(interview.auditorComments).toBe('Auditor note');
+        interview.auditorComments = undefined;
+        expect(interview.auditorComments).toBeUndefined();
     });
 
     it('should get and set durationRange', () => {
@@ -164,108 +164,4 @@ describe('Interview - Getters and Setters', () => {
         expect(interview.consideredToAbandonRange).toBeUndefined();
     });
 
-    it('should get and set _startedAt', () => {
-        interview._startedAt = 1633015861;
-        expect(interview._startedAt).toBe(1633015861);
-        interview._startedAt = undefined;
-        expect(interview._startedAt).toBeUndefined();
-    });
-
-    it('should get and set _updatedAt', () => {
-        interview._updatedAt = 1633015962;
-        expect(interview._updatedAt).toBe(1633015962);
-        interview._updatedAt = undefined;
-        expect(interview._updatedAt).toBeUndefined();
-    });
-
-    it('should get and set _completedAt', () => {
-        interview._completedAt = 1633016063;
-        expect(interview._completedAt).toBe(1633016063);
-        interview._completedAt = undefined;
-        expect(interview._completedAt).toBeUndefined();
-    });
-
-    it('should get and set _isValid', () => {
-        interview._isValid = false;
-        expect(interview._isValid).toBe(false);
-        interview._isValid = undefined;
-        expect(interview._isValid).toBeUndefined();
-    });
-
-    it('should get and set _isCompleted', () => {
-        interview._isCompleted = true;
-        expect(interview._isCompleted).toBe(true);
-        interview._isCompleted = undefined;
-        expect(interview._isCompleted).toBeUndefined();
-    });
-
-    it('should get and set _isQuestionable', () => {
-        interview._isQuestionable = true;
-        expect(interview._isQuestionable).toBe(true);
-        interview._isQuestionable = undefined;
-        expect(interview._isQuestionable).toBeUndefined();
-    });
-
-    it('should get and set _source', () => {
-        interview._source = 'web';
-        expect(interview._source).toBe('web');
-        interview._source = undefined;
-        expect(interview._source).toBeUndefined();
-    });
-
-    it('should get and set _personsRandomSequence', () => {
-        const sequence = ['uuid1', 'uuid2', 'uuid3'];
-        interview._personsRandomSequence = sequence;
-        expect(interview._personsRandomSequence).toEqual(sequence);
-        interview._personsRandomSequence = undefined;
-        expect(interview._personsRandomSequence).toBeUndefined();
-    });
-
-    it('should get and set _languages', () => {
-        const languages = [{ language: 'en', startTimestamp: 1632929461, endTimestamp: 1632929761 } as Language ];
-        interview._languages = languages;
-        expect(interview._languages).toEqual(languages);
-        interview._languages = undefined;
-        expect(interview._languages).toEqual([]);
-    });
-
-    it('should get and set _browsers', () => {
-        const browsers = [{
-            _ua: 'Mozilla/5.0',
-            browser: { name: 'Chrome', version: '94.0.4606.61' },
-            os: { name: 'Windows', version: '10' },
-            platform: { type: 'desktop' },
-            startTimestamp: 1632929461,
-            endTimestamp: 1632929761
-        } as Browser];
-        interview._browsers = browsers;
-        expect(interview._browsers).toEqual(browsers);
-        interview._browsers = undefined;
-        expect(interview._browsers).toEqual([]);
-    });
-
-    it('should get and set _sections', () => {
-        let sections = {
-            home: [{
-                startTimestamp: 1632929461,
-                endTimestamp: 1632929761,
-                widgets: {
-                    widgetShortname: [{ startTimestamp: 1632929461, endTimestamp: 1632929561 }]
-                }
-            } as SectionMetadata]
-        };
-        interview._sections = sections;
-        expect(interview._sections).toEqual(sections);
-        sections = {
-            home: [{
-                startTimestamp: 1632929461,
-                endTimestamp: 1632929761,
-                widgets: {}
-            } as SectionMetadata]
-        };
-        interview._sections = sections;
-        expect(interview._sections).toEqual(sections);
-        interview._sections = undefined;
-        expect(interview._sections).toEqual({});
-    });
 });
