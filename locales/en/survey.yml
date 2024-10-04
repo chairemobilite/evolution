@@ -1,5 +1,7 @@
 destination: destination
 origin: origin
+Yes: Yes
+No: No
 
 # Gendered strings
 suffixE: 
@@ -36,3 +38,6 @@ pastToday_one: "yesterday"
 pastToday: "{{count}} days ago"
 futureToday_one: "tomorrow"
 futureToday: "in {{count}} days"
+
+# Error message
+ResponseIsRequired: "This response is required."
