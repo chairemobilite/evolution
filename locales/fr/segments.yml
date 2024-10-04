@@ -19,3 +19,4 @@ ModeThen: Quel mode de transport a été utilisé ensuite?
 ModeThen_cati: >-
     Quel mode de transport a été utilisé ensuite pour se rendre de
     {{originName}} à {{destinationName}}?
+ModeSpecify: 'Veuillez préciser:'
