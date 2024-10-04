@@ -184,6 +184,7 @@ export const interviewAttributesForTestCases: UserInterviewAttributes = {
                                         segmentId1P2T1: {
                                             _uuid: 'segmentId1P2T1',
                                             _sequence: 1,
+                                            _isNew: false,
                                             modePre: 'walk'
                                         }
                                     }
@@ -197,18 +198,22 @@ export const interviewAttributesForTestCases: UserInterviewAttributes = {
                                         segmentId1P2T2: {
                                             _uuid: 'segmentId1P2T2',
                                             _sequence: 1,
+                                            _isNew: false,
                                             modePre: 'walk'
                                         },
                                         segmentId2P2T2: {
                                             _uuid: 'segmentId2P2T2',
                                             _sequence: 2,
+                                            _isNew: false,
                                             modePre: 'bus'
                                         }
                                     }
                                 },
                                 tripId3P2: {
                                     _uuid: 'tripId3P2',
-                                    _sequence: 3
+                                    _sequence: 3,
+                                    _originVisitedPlaceUuid: 'otherWorkPlace1P2',
+                                    _destinationVisitedPlaceUuid: 'homePlace2P2'
                                 }
                             }
                         }
