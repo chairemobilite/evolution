@@ -874,7 +874,10 @@ describe('getOrigin/getDestination', () => {
     });
 
     test('getOrigin, trip without origin', () => {
-        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2;
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const journey = interview.responses.household!.persons!.personId2.journeys!.journeyId2;
+        // Unset origin
+        delete journey.trips!.tripId3P2._originVisitedPlaceUuid;
         expect(Helpers.getOrigin({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(null);
     });
 
@@ -885,11 +888,15 @@ describe('getOrigin/getDestination', () => {
 
     test('getDestination: unexisting', () => {
         const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
+        // Pass an empty visited places object
         expect(Helpers.getDestination({ trip: journey.trips!.tripId1P1, visitedPlaces: {} })).toEqual(null);
     });
 
-    test('getDestination, trip without origin', () => {
-        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2;
+    test('getDestination, trip without destination', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const journey = interview.responses.household!.persons!.personId2.journeys!.journeyId2;
+        // Unset destination
+        delete journey.trips!.tripId3P2._destinationVisitedPlaceUuid;
         expect(Helpers.getDestination({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(null);
     });
 
@@ -984,11 +991,13 @@ describe('getTrips', () => {
     const segments = {
         segment1: {
             _uuid: 'segment1',
-            _sequence: 2
+            _sequence: 2,
+            _isNew: false
         },
         segment2: {
             _uuid: 'segment2',
-            _sequence: 1
+            _sequence: 1,
+            _isNew: false
         }
     }
 

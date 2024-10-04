@@ -109,6 +109,7 @@ export type Trip = TripAttributes & {
 
 export type Segment = SegmentAttributes & {
     _sequence: number;
+    _isNew: boolean;
     modePre?: string;
     sameModeAsReverseTrip?: boolean;
 };
