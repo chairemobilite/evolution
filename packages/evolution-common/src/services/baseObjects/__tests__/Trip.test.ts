@@ -542,7 +542,7 @@ describe('Trip', () => {
             });
 
             test('should return true if segments has transit mode and multiple non-transit modes, not including walking', () => {
-                trip.segments = [new Segment({ mode: 'carDriver' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'carDriverPersonal' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
                 expect(trip.isTransitMultimodal()).toBe(true);
             });
 
