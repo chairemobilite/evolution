@@ -26,12 +26,9 @@ const interviewParadataAttributes = [
     'sections'
 ];
 
-const interviewParadataAttributesWithComposedAttributes = [
-    ...interviewParadataAttributes
-];
+const interviewParadataAttributesWithComposedAttributes = [...interviewParadataAttributes];
 
 export type InterviewParadataAttributes = {
-
     startedAt?: number; // unix epoch timestamp;
     updatedAt?: number; // unix epoch timestamp;
     completedAt?: number; // unix epoch timestamp; updated at the end of the interview. Needs auditing before assuming the interview is really completed.
@@ -83,7 +80,6 @@ export class InterviewParadata {
 
     // Use InterviewParadataUnserializer create function to generate/validate InterviewParadata object from json data
     constructor(params: InterviewParadataAttributes) {
-
         this._attributes = {} as InterviewParadataAttributes;
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
@@ -92,7 +88,6 @@ export class InterviewParadata {
             interviewParadataAttributesWithComposedAttributes
         );
         this._attributes = attributes;
-
     }
 
     get attributes(): InterviewParadataAttributes {
@@ -164,7 +159,4 @@ export class InterviewParadata {
     set sections(value: Optional<{ [sectionShortname: string]: SectionMetadata[] }>) {
         this._attributes.sections = value || {};
     }
-
 }
-
-

@@ -91,5 +91,4 @@ export class InterviewAudited implements IAudited<Interview> {
     getOriginalInterviewId(): number {
         return this._originalInterviewId;
     }
-
 }
