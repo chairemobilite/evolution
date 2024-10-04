@@ -29,7 +29,7 @@ const personsWidgets = [
     'personAge',
     'personGender',
     'personOccupation',
-    'personDrivingLicenseOwner',
+    'personDrivingLicenseOwnership',
     'personTransitPassOwner',
     'personTransitPasses',
     'personCarsharingMember',
@@ -607,9 +607,9 @@ export const personCellphoneOwner = {
   }
 };
 
-export const personDrivingLicenseOwner = {
+export const personDrivingLicenseOwnership = {
   type: "question",
-  path: "drivingLicenseOwner",
+  path: "drivingLicenseOwnership",
   inputType: "radio",
   datatype: "string",
   twoColumns: true,
