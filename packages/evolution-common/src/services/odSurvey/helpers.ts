@@ -68,24 +68,21 @@ export const getHousehold = ({ interview }: { interview: UserInterviewAttributes
 /**
  * Get the currently active person, as defined in the interview responses. If
  * the active person is not set but there are persons defined, the first one
- * will be returned. If the person is not found, an empty object will be
- * returned.
+ * will be returned. If the person is not found, `null` will be returned
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns The current person object
+ * @returns The current person object or `null` if the person is not found
  */
-export const getActivePerson = ({ interview }: { interview: UserInterviewAttributes }): Partial<Person> => {
+export const getActivePerson = ({ interview }: { interview: UserInterviewAttributes }): Person | null => {
     const currentPerson = interview.responses._activePersonId;
     const hh = getHousehold({ interview });
     if (currentPerson !== undefined) {
-        return (hh.persons || {})[currentPerson] || {};
+        return (hh.persons || {})[currentPerson] || null;
     } else {
         // Get first person
-        const persons = Object.values(hh.persons || {});
-        // TODO: Fix this type, it should be a Person[] or {}
-        // but I need it like that for now because it's not working with Generator
-        return persons.length !== 0 ? (persons[0] as Partial<Person>) : ({} as Partial<Person>);
+        const persons = getPersonsArray({ interview });
+        return persons.length !== 0 ? persons[0] : null;
     }
 };
 

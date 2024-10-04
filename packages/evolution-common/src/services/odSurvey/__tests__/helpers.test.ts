@@ -95,10 +95,10 @@ each([
     ['Person 1', interviewAttributesWithHh.responses, 'personId1', (interviewAttributesWithHh.responses as any).household.persons.personId1],
     ['Person 2', interviewAttributesWithHh.responses, 'personId2', (interviewAttributesWithHh.responses as any).household.persons.personId2],
     ['Undefined active person', interviewAttributesWithHh.responses, undefined, (interviewAttributesWithHh.responses as any).household.persons.personId1],
-    ['Empty persons', { household: { ...interviewAttributesWithHh.responses.household, persons: {} } }, 'personId1', {}],
-    ['Empty household', { household: {} }, undefined, {}],
-    ['Empty responses', {}, 'personId', {}]
-]).test('getCurrentPerson: %s', (_title, responses, currentPersonId, expected) => {
+    ['Empty persons', { household: { ...interviewAttributesWithHh.responses.household, persons: {} } }, 'personId1', null],
+    ['Empty household', { household: {} }, undefined, null],
+    ['Empty responses', {}, 'personId', null]
+]).test('getActivePerson: %s', (_title, responses, currentPersonId, expected) => {
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
     interview.responses._activePersonId = currentPersonId;
