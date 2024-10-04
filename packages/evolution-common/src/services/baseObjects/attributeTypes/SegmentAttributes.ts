@@ -46,7 +46,8 @@ export const modeValues = [
     'plane',
     'otherActiveMode', // Skateboard, kick scooter, rollerblade, etc.
     'other',
-    'dontKnow'
+    'dontKnow',
+    'preferNotToAnswer'
 ] as const;
 
 export type Mode = (typeof modeValues)[number];
@@ -85,7 +86,8 @@ export const mapModeToModeCategory: { [mode in Mode]: ModeCategory } = {
     motorcycle: 'other',
     ferryWithCar: 'other',
     other: 'other',
-    dontKnow: 'dontKnow'
+    dontKnow: 'dontKnow',
+    preferNotToAnswer: 'preferNotToAnswer'
 };
 
 // not in questionnaire, generated from mode by parser using mapModeToModeCategory:
@@ -99,7 +101,8 @@ export const modeCategoryValues = [
     'carPassenger',
     'taxi',
     'other',
-    'dontKnow'
+    'dontKnow',
+    'preferNotToAnswer'
 ] as const;
 export type ModeCategory = (typeof modeCategoryValues)[number];
 

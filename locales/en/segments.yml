@@ -12,16 +12,85 @@ modePre:
     PreferNotToAnswer: <strong>Prefer not to answer</strong>
 mode:
     Walk: <strong>Walking</strong>
-    WalkOrMobilityHelp: <strong>Walking</strong> or <strong>wheeling</strong> (eg. wheelchair)
+    Bicycle: <strong>Bicycle</strong>
+    BicycleElectric: <strong>Electric bicycle</strong>
+    BicycleBikesharing: <strong>Bike sharing</strong>
+    BicycleBikesharingElectric: <strong>Electric bike sharing</strong>
+    BicyclePassenger: <strong>Passenger on bike</strong>
+    ScooterElectric: <strong>E-Scooter</strong> (electric scooter)
+    CarDriverPersonal: <strong>Driver</strong> with personal vehicle (car/moto/scooter/truck)
+    CarDriverRental: <strong>Driver</strong> with rental vehicle (car/moto/scooter/truck)
+    CarDriverCarsharingStationBased: <strong>Carsharing</strong> station based
+    CarDriverCarsharingFreeFloating: <strong>Carsharing</strong> free floating
+    CarDriverCarsharingUnspecified: <strong>Carsharing</strong>
+    CarPassenger: <strong>Passenger</strong> (car/motorcycle/moped/truck)
+    TransitBus: <strong>Bus</strong>
+    TransitBRT: <strong>Bus rapid service</strong>
+    TransitSchoolBus: <strong>Bus</strong> (<strong>school service</strong> operated by transit agency)
+    TransitStreetCar: <strong>Tramway</strong> on street
+    TransitFerry: <strong>Ferry</strong>
+    TransitGondola: <strong>Gondola</strong>
+    TransitMonorail: <strong>Monorail</strong>
+    TransitRRT: <strong>Rapid rail transit</strong>, category A
+    TransitLRT: <strong>Light rail transit</strong>, category B
+    TransitLRRT: <strong>Light Rail Rapid Transit</strong>, category A
+    TransitHSR: <strong>High speed rail</strong>
+    TransitRegionalRail: <strong>Regional train</strong>
+    TransitOnDemand: <strong>On-demand transport</strong>
+    TransitTaxi: <strong>Taxibus</strong>
+    IntercityBus: <strong>Intercity bus</strong>
+    IntercityTrain: <strong>Intercity train</strong>
+    SchoolBus: <strong>School bus</strong>
+    OtherBus: <strong>Chartered</strong> or private <strong>bus</strong>
+    Taxi: <strong>Taxi</strong> or equivalent (eg. Uber, Lyft)
+    Paratransit: <strong>Paratransit</strong>
+    Wheelchair: <strong>Wheelchair</strong>
+    MobilityScooter: <strong>Mobility scooter</strong>
+    Motorcycle: <strong>Motorcycle</strong> (or motorized scooter/moped)
+    FerryWithCar: <strong>Ferry</strong> with vehicle
+    Plane: <strong>Airplane</strong>
+    OtherActiveMode: Other <strong>active mode</strong>
     Other: <strong>Other</strong>
-    DontKnow: <strong>I don\'t know</strong> / Prefer not to answer
-    CarDriver: <strong>Driver</strong> (car/moto/scooter)
-    CarPassenger: <strong>Passenger (car/moto/scooter)</strong>
-    Taxi: <strong>Taxi</strong> or equivalent (eg. Uber)
-    Bicycle: <strong>Bicycle</strong> or <strong>electric bicycle</strong>
-    Bus: <strong>Bus</strong>
-    Transit: <strong>Public transit</strong>
-    Ferry: <strong>Ferry</strong>
+    DontKnow: <strong>I don't know</strong>
+    PreferNotToAnswer: <strong>Prefer not to answer</strong>
+    short:
+        walk: Walking
+        bicycle: Bicycle
+        bicycleElectric: E-Bike
+        scooterElectric: E-Scooter
+        bicycleBikeSharing: BIXI
+        bicycleBikeSharingElectric: BIXI E-Bike
+        bus: Bus
+        transitHeavy: Metro, REM or train
+        transitBus: Transit bus
+        intercityBus: Intercity bus
+        schoolBus: Yellow school bus
+        integratedSchoolLines: Integrated school lines
+        busOther: Chartered or private bus
+        transitTram: Tramway
+        transitSubway: Metro (subway)
+        transitREM: REM
+        transitRail: Commuter train
+        intercityRail: Intercity train
+        personalCar: Car driver with personal car
+        carDriver: Car driver
+        carPassenger: Car passenger
+        carDriverCarsharing: Carsharing
+        carDriverCarsharingStationBased: Station-based carsharing
+        carDriverCarsharingFreeFloating: Free floating carsharing
+        rentalCar: Rental car
+        transitTaxi: Taxibus / On-demand
+        taxi: Taxi
+        paratransit: Paratransit
+        plane: Airplane
+        otherActiveModes: Other active mode
+        motorcycle: Motorcycle or motorized scooter/moped
+        ferryNoCar: River shuttle or ferry without vehicle
+        ferryWithCar: Ferry with vehicle
+        other: Other
+        unknown: Unknown
+        dontKnow: Don't know
+        preferNotToAnswer: Prefer not to answer
 ModeFirst: Which mode of transport was used first?
 ModeFirst_cati: >-
     Which mode of transport was used first to go from {{originName}} to
@@ -30,3 +99,4 @@ ModeThen: Which mode of transport was used after?
 ModeThen_cati: >-
     Which mode of transport was used after to go from {{originName}} to
     {{destinationName}}?
+ModeSpecify: 'Please specify:'
