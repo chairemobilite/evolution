@@ -38,6 +38,9 @@ const baseInterviewAttributes: Pick<
  *
  * _activerPersonId, _activerJourneyId, etc are not set and should be set by
  * individual tests, after cloning this object
+ *
+ * This base interview is used by many unit tests to test the behavior of the
+ * widgets. Do not change it too much, as it may impact other tests.
  */
 export const interviewAttributesForTestCases: UserInterviewAttributes = {
     ...baseInterviewAttributes,

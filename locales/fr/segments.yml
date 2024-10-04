@@ -105,3 +105,7 @@ ModeThen_cati: >-
     Quel mode de transport a été utilisé ensuite pour se rendre de
     {{originName}} à {{destinationName}}?
 ModeSpecify: 'Veuillez préciser:'
+SegmentSameModeReturnHome: >-
+    Était-ce le même mode de transport utilisé pour le retour au domicile ({{previousMode}})?
+SegmentSameModeReturn: >-
+    Était-ce le même mode de transport utilisé que le déplacement précédent ({{previousMode}})?
