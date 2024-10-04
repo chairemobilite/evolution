@@ -11,6 +11,7 @@ export const modeValues = [
     'bicycleElectric',
     'bicycleBikeSharing',
     'bicycleBikeSharingElectric',
+    'scooterElectric',
     'transitBus', // category C
     'transitBRT', // category B
     'transitSchoolBus', // for school lines operated by transit agencies
@@ -26,10 +27,12 @@ export const modeValues = [
     'otherBus',
     'carDriver', // type of car (free-floating, station-based, personal car, rental car) separated
     'carPassenger',
-    'transitTaxi',
+    'transitTaxi', // Collective taxi
     'taxi',
     'uber',
     'paratransit',
+    'wheelchair',
+    'mobilityScooter',
     'plane',
     'otherActiveMode',
     'motorcycle',
@@ -47,6 +50,7 @@ export const mapModeToModeCategory: { [mode in Mode]: ModeCategory } = {
     bicycleElectric: 'bicycle',
     bicycleBikeSharing: 'bicycle',
     bicycleBikeSharingElectric: 'bicycle',
+    scooterElectric: 'bicycle',
     transitBus: 'transit',
     transitBRT: 'transit',
     transitSchoolBus: 'schoolBus', // TODO: decide  if we should use schoolBus or transit here.
@@ -66,6 +70,8 @@ export const mapModeToModeCategory: { [mode in Mode]: ModeCategory } = {
     taxi: 'taxi',
     uber: 'taxi',
     paratransit: 'other',
+    wheelchair: 'walk',
+    mobilityScooter: 'walk',
     plane: 'other',
     otherActiveMode: 'other',
     motorcycle: 'other',

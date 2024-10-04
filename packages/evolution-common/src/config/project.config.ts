@@ -23,10 +23,16 @@ export type EvolutionProjectConfiguration = {
      * respondents will be invited to complete their own trips. Defaults to 14
      * */
     selfResponseMinimumAge: number;
+    /**
+     * Age at which a person could possibly own a driving license in the survey
+     * area. Defaults to 16
+     * */
+    drivingLicenseAge: number;
     mapDefaultCenter: {
         lat: number;
         lon: number;
     };
+
     // TODO Add more project configuration types
 };
 
@@ -37,6 +43,7 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             region: 'CA',
             logDatabaseUpdates: false,
             selfResponseMinimumAge: 14,
+            drivingLicenseAge: 16,
             mapDefaultCenter: {
                 lat: 45.5,
                 lon: -73.6

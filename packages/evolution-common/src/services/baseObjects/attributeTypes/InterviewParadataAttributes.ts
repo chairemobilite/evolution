@@ -43,5 +43,3 @@ export type SectionMetadata = {
 export type Language = {
     language?: string; // ISO 639-1 two letters language code
 } & StartEndTimestampable;
-
-

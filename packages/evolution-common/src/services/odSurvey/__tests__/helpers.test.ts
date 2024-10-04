@@ -95,10 +95,10 @@ each([
     ['Person 1', interviewAttributesWithHh.responses, 'personId1', (interviewAttributesWithHh.responses as any).household.persons.personId1],
     ['Person 2', interviewAttributesWithHh.responses, 'personId2', (interviewAttributesWithHh.responses as any).household.persons.personId2],
     ['Undefined active person', interviewAttributesWithHh.responses, undefined, (interviewAttributesWithHh.responses as any).household.persons.personId1],
-    ['Empty persons', { household: { ...interviewAttributesWithHh.responses.household, persons: {} } }, 'personId1', {}],
-    ['Empty household', { household: {} }, undefined, {}],
-    ['Empty responses', {}, 'personId', {}]
-]).test('getCurrentPerson: %s', (_title, responses, currentPersonId, expected) => {
+    ['Empty persons', { household: { ...interviewAttributesWithHh.responses.household, persons: {} } }, 'personId1', null],
+    ['Empty household', { household: {} }, undefined, null],
+    ['Empty responses', {}, 'personId', null]
+]).test('getActivePerson: %s', (_title, responses, currentPersonId, expected) => {
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
     interview.responses._activePersonId = currentPersonId;
@@ -364,6 +364,81 @@ each([
     interview.responses = responses;
     const person = typeof personIdOrPerson === 'string' ? responses.household!.persons![personIdOrPerson] : personIdOrPerson;
     expect(Helpers.getCountOrSelfDeclared({ interview, person })).toEqual(expected);
+});
+
+each([
+    ['Undefined disability', undefined, false],
+    ['Disability yes', 'yes', true],
+    ['Disability no', 'no', false],
+    ['Disability dont know', 'dontKnow', true],
+    ['Disability prefer not to answer', 'preferNotToAnswer', true]
+]).test('personMayHaveDisability: %s', (_title, hasDisabilityValue, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    const person = interview.responses.household!.persons!.personId1;
+    person.hasDisability = hasDisabilityValue;
+    expect(Helpers.personMayHaveDisability({ person })).toEqual(expected);
+});
+
+each([
+    ['Undefined household', {
+        ...interviewAttributesWithHh.responses,
+        household: undefined
+    }, false],
+    ['Empty persons object', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: { }
+        }
+    }, false],
+    ['One person with disability', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5, hasDisability: 'yes' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20, hasDisability: 'no' }
+            }
+        }
+    }, true],
+    ['All persons with disability', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5, hasDisability: 'yes' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3', hasDisability: 'yes' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20, hasDisability: 'yes' }
+            }
+        }
+    }, true],
+    ['No one with disability', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5, hasDisability: 'no' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3', hasDisability: 'no' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20, hasDisability: 'no' }
+            }
+        }
+    }, false],
+    ['All undefined disability question', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20 }
+            }
+        }
+    }, false]
+]).test('householdMayHaveDisability: %s', (_title, responses, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.responses = responses;
+    expect(Helpers.householdMayHaveDisability({ interview })).toEqual(expected);
 });
 
 describe('getJourneys', () => {
@@ -874,7 +949,10 @@ describe('getOrigin/getDestination', () => {
     });
 
     test('getOrigin, trip without origin', () => {
-        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2;
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const journey = interview.responses.household!.persons!.personId2.journeys!.journeyId2;
+        // Unset origin
+        delete journey.trips!.tripId3P2._originVisitedPlaceUuid;
         expect(Helpers.getOrigin({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(null);
     });
 
@@ -885,11 +963,15 @@ describe('getOrigin/getDestination', () => {
 
     test('getDestination: unexisting', () => {
         const journey = interviewAttributesForTestCases.responses.household!.persons!.personId1.journeys!.journeyId1;
+        // Pass an empty visited places object
         expect(Helpers.getDestination({ trip: journey.trips!.tripId1P1, visitedPlaces: {} })).toEqual(null);
     });
 
-    test('getDestination, trip without origin', () => {
-        const journey = interviewAttributesForTestCases.responses.household!.persons!.personId2.journeys!.journeyId2;
+    test('getDestination, trip without destination', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const journey = interview.responses.household!.persons!.personId2.journeys!.journeyId2;
+        // Unset destination
+        delete journey.trips!.tripId3P2._destinationVisitedPlaceUuid;
         expect(Helpers.getDestination({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(null);
     });
 
@@ -984,11 +1066,13 @@ describe('getTrips', () => {
     const segments = {
         segment1: {
             _uuid: 'segment1',
-            _sequence: 2
+            _sequence: 2,
+            _isNew: false
         },
         segment2: {
             _uuid: 'segment2',
-            _sequence: 1
+            _sequence: 1,
+            _isNew: false
         }
     }
 

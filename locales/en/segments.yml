@@ -1,0 +1,26 @@
+ModeIsRequired: Mode of transportation is required.
+mode:
+    Walk: <strong>Walking</strong>
+    WalkOrMobilityHelp: <strong>Walking</strong> or <strong>wheeling</strong> (eg. wheelchair)
+    Other: <strong>Other</strong>
+    DontKnow: <strong>I don\'t know</strong> / Prefer not to answer
+    CarDriver: <strong>Driver</strong> (car/moto/scooter)
+    CarPassenger: <strong>Passenger (car/moto/scooter)</strong>
+    Taxi: <strong>Taxi</strong> or equivalent (eg. Uber)
+    Bicycle: <strong>Bicycle</strong> or <strong>electric bicycle</strong>
+    Bus: <strong>Bus</strong>
+    Transit: <strong>Public transit</strong>
+    Ferry: <strong>Ferry</strong>
+PremierModeChoix: Which mode of transportation was used first?
+PremierModeChoix_cati: >-
+    Which mode of transportation was used first to go from {{originName}} to
+    {{destinationName}}?
+ModeChoixAutre: Which mode of transportation was used after?
+ModeChoixAutre_cati: >-
+    Which mode of transportation was used after to go from {{originName}} to
+    {{destinationName}}?
+ModeSpecify: 'Please specify:'
+SegmentSameModeReturnHome: >-
+    Was it the same mode of transport used for the return home trip ({{previousMode}})?
+SegmentSameModeReturn: >-
+    Was it the same mode of transport used as the previous trip ({{previousMode}})?

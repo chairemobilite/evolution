@@ -14,11 +14,11 @@
         "i18next"
     ],
     "i18n-ally.enabledParsers": [
-        "json"
+        "json", "yaml"
     ],
     "i18n-ally.keystyle": "nested",
     "i18n-ally.review.enabled": false,
     "i18n-ally.namespace": true,
-    "i18n-ally.pathMatcher": "{locale}/{namespaces}.json",
+    "i18n-ally.pathMatcher": "{locale}/{namespaces}.(json|yml)",
     "i18n-ally.indent": 4
 }
