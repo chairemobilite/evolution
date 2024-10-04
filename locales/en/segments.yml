@@ -20,3 +20,7 @@ ModeChoixAutre_cati: >-
     Which mode of transportation was used after to go from {{originName}} to
     {{destinationName}}?
 ModeSpecify: 'Please specify:'
+SegmentSameModeReturnHome: >-
+    Was it the same mode of transport used for the return home trip ({{previousMode}})?
+SegmentSameModeReturn: >-
+    Was it the same mode of transport used as the previous trip ({{previousMode}})?
