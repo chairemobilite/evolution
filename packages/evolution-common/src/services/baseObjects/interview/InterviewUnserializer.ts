@@ -1,4 +1,3 @@
-
 import { Optional } from '../../../types/Optional.type';
 import { Result, createErrors, createOk, hasErrors, isOk } from '../../../types/Result.type';
 import { ParamsValidatorUtils } from '../../../utils/ParamsValidatorUtils';
@@ -35,15 +34,11 @@ export const validateParams = function (dirtyParams: { [key: string]: unknown },
     errors.push(...Uuidable.validateParams(dirtyParams));
 
     errors.push(...ParamsValidatorUtils.isPositiveNumber('_id', dirtyParams._id, displayName));
-    errors.push(
-        ...ParamsValidatorUtils.isPositiveNumber('_participant_id', dirtyParams._participant_id, displayName)
-    );
+    errors.push(...ParamsValidatorUtils.isPositiveNumber('_participant_id', dirtyParams._participant_id, displayName));
 
     errors.push(...ParamsValidatorUtils.isString('accessCode', dirtyParams.accessCode, displayName));
     errors.push(...ParamsValidatorUtils.isDateString('assignedDate', dirtyParams.assignedDate, displayName));
-    errors.push(
-        ...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName)
-    );
+    errors.push(...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName));
     errors.push(
         ...ParamsValidatorUtils.isString('helpContactPhoneNumber', dirtyParams.helpContactPhoneNumber, displayName)
     );
@@ -58,27 +53,29 @@ export const validateParams = function (dirtyParams: { [key: string]: unknown },
         )
     );
     errors.push(...ParamsValidatorUtils.isString('respondentComments', dirtyParams.respondentComments, displayName));
-    errors.push(
-        ...ParamsValidatorUtils.isString(
-            'interviewerComments',
-            dirtyParams.interviewerComments,
-            displayName
-        )
-    );
-    errors.push(
-        ...ParamsValidatorUtils.isString(
-            'auditorComments',
-            dirtyParams.auditorComments,
-            displayName
-        )
-    );
+    errors.push(...ParamsValidatorUtils.isString('interviewerComments', dirtyParams.interviewerComments, displayName));
+    errors.push(...ParamsValidatorUtils.isString('auditorComments', dirtyParams.auditorComments, displayName));
 
     errors.push(...ParamsValidatorUtils.isPositiveInteger('durationRange', dirtyParams.durationRange, displayName));
-    errors.push(...ParamsValidatorUtils.isPositiveInteger('durationRespondentEstimationMin', dirtyParams.durationRespondentEstimationMin, displayName));
+    errors.push(
+        ...ParamsValidatorUtils.isPositiveInteger(
+            'durationRespondentEstimationMin',
+            dirtyParams.durationRespondentEstimationMin,
+            displayName
+        )
+    );
     errors.push(...ParamsValidatorUtils.isPositiveInteger('interestRange', dirtyParams.interestRange, displayName));
     errors.push(...ParamsValidatorUtils.isPositiveInteger('difficultyRange', dirtyParams.difficultyRange, displayName));
     errors.push(...ParamsValidatorUtils.isPositiveInteger('burdenRange', dirtyParams.burdenRange, displayName));
-    errors.push(...ParamsValidatorUtils.isIn('consideredToAbandonRange', dirtyParams.consideredToAbandonRange, displayName, yesNoDontKnowValues, 'YesNoDontKnow'));
+    errors.push(
+        ...ParamsValidatorUtils.isIn(
+            'consideredToAbandonRange',
+            dirtyParams.consideredToAbandonRange,
+            displayName,
+            yesNoDontKnowValues,
+            'YesNoDontKnow'
+        )
+    );
 
     return errors;
 };
@@ -124,7 +121,8 @@ export const create = function (dirtyParams: { [key: string]: unknown }): Result
             errors.push(...paradataResult.errors);
         }
     }
-    const interview = errors.length === 0 ? new Interview(dirtyParams as ExtendedInterviewAttributesWithComposedObjects) : undefined;
+    const interview =
+        errors.length === 0 ? new Interview(dirtyParams as ExtendedInterviewAttributesWithComposedObjects) : undefined;
     if (errors.length > 0) {
         return createErrors(errors);
     }
