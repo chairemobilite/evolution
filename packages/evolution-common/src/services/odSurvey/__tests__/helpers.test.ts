@@ -366,6 +366,81 @@ each([
     expect(Helpers.getCountOrSelfDeclared({ interview, person })).toEqual(expected);
 });
 
+each([
+    ['Undefined disability', undefined, false],
+    ['Disability yes', 'yes', true],
+    ['Disability no', 'no', false],
+    ['Disability dont know', 'dontKnow', true],
+    ['Disability prefer not to answer', 'preferNotToAnswer', true]
+]).test('personMayHaveDisability: %s', (_title, hasDisabilityValue, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    const person = interview.responses.household!.persons!.personId1;
+    person.hasDisability = hasDisabilityValue;
+    expect(Helpers.personMayHaveDisability({ person })).toEqual(expected);
+});
+
+each([
+    ['Undefined household', {
+        ...interviewAttributesWithHh.responses,
+        household: undefined
+    }, false],
+    ['Empty persons object', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: { }
+        }
+    }, false],
+    ['One person with disability', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5, hasDisability: 'yes' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20, hasDisability: 'no' }
+            }
+        }
+    }, true],
+    ['All persons with disability', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5, hasDisability: 'yes' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3', hasDisability: 'yes' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20, hasDisability: 'yes' }
+            }
+        }
+    }, true],
+    ['No one with disability', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5, hasDisability: 'no' },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3', hasDisability: 'no' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20, hasDisability: 'no' }
+            }
+        }
+    }, false],
+    ['All undefined disability question', {
+        ...interviewAttributesWithHh.responses,
+        household: {
+            ...interviewAttributesWithHh.responses.household,
+            persons: {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: 5 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3' },
+                personId3: { _uuid: 'personId3', _sequence: 3, age: 20 }
+            }
+        }
+    }, false]
+]).test('householdMayHaveDisability: %s', (_title, responses, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.responses = responses;
+    expect(Helpers.householdMayHaveDisability({ interview })).toEqual(expected);
+});
+
 describe('getJourneys', () => {
 
     const person: Person = {
