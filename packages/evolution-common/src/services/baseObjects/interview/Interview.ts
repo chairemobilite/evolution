@@ -173,7 +173,7 @@ export class Interview extends Uuidable {
         'interestRange', // only for analysis/admin exports
         'difficultyRange', // only for analysis/admin exports
         'burdenRange', // only for analysis/admin exports
-        'consideredToAbandonRange', // only for analysis/admin exports
+        'consideredToAbandonRange' // only for analysis/admin exports
     ];
 
     // Use InterviewUnserializer create function to generate/validate Interview object from json data with nested composed objects
@@ -378,5 +378,4 @@ export class Interview extends Uuidable {
     set paradata(value: Optional<InterviewParadata>) {
         this._paradata = value;
     }
-
 }

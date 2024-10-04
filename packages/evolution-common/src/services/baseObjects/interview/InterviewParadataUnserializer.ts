@@ -15,7 +15,10 @@ import { InterviewParadata, InterviewParadataAttributes } from './InterviewParad
  * @param displayName the name of the object for error messages
  * @returns a list of errors if any, or an empty list if the params are valid
  */
-export const validateParams = function (dirtyParams: { [key: string]: unknown }, displayName = 'InterviewParadata'): Error[] {
+export const validateParams = function (
+    dirtyParams: { [key: string]: unknown },
+    displayName = 'InterviewParadata'
+): Error[] {
     const errors: Error[] = [];
 
     errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
@@ -171,7 +174,13 @@ export const validateParams = function (dirtyParams: { [key: string]: unknown },
                     );
                     for (const widgetShortname in section.widgets as any[]) {
                         const widgets = section.widgets[widgetShortname] || [];
-                        errors.push(...ParamsValidatorUtils.isArray(`sections.${sectionShortname}.[${i}].widgets.${widgetShortname}`, widgets, displayName));
+                        errors.push(
+                            ...ParamsValidatorUtils.isArray(
+                                `sections.${sectionShortname}.[${i}].widgets.${widgetShortname}`,
+                                widgets,
+                                displayName
+                            )
+                        );
                         if (widgets && Array.isArray(widgets)) {
                             for (let j = 0; j < widgets.length; j++) {
                                 const widget = widgets[j];
@@ -209,7 +218,8 @@ export const validateParams = function (dirtyParams: { [key: string]: unknown },
  */
 export const create = function (dirtyParams: { [key: string]: unknown }): Result<InterviewParadata> {
     const errors = validateParams(dirtyParams);
-    const interview = errors.length === 0 ? new InterviewParadata(dirtyParams as InterviewParadataAttributes) : undefined;
+    const interview =
+        errors.length === 0 ? new InterviewParadata(dirtyParams as InterviewParadataAttributes) : undefined;
     if (errors.length > 0) {
         return createErrors(errors);
     }
