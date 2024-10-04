@@ -785,7 +785,7 @@ export default {
           'personAge',
           'personGender',
           'personOccupation',
-          'personDrivingLicenseOwner',
+          'personDrivingLicenseOwnership',
           'personTransitPassOwner',
           'personTransitPasses',
           'personCarsharingMember',
