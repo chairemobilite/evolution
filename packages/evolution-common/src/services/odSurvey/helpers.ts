@@ -178,6 +178,27 @@ export const getCountOrSelfDeclared = ({
     return personsCount;
 };
 
+/**
+ * Return whether this person may have a disability
+ *
+ * @param {Object} options - The options object.
+ * @param {Person} options.person The current person being interviews
+ * @returns `true` if the person may have a disability, `false` otherwise
+ */
+export const personMayHaveDisability = ({ person }: { person: Person }): boolean =>
+    // FIXME Do we want undefined to return `true`? ie surveys without this question everyone potentially disabled
+    person.hasDisability !== undefined && ['yes', 'preferNotToAnswer', 'dontKnow'].includes(person.hasDisability);
+
+/**
+ * Return whether there are persons in the household that may have disabilities
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns `true` if anyone in the household may have disabilities
+ */
+export const householdMayHaveDisability = ({ interview }: { interview: UserInterviewAttributes }): boolean =>
+    getPersonsArray({ interview }).some((person) => personMayHaveDisability({ person }));
+
 // *** Journey-related functions
 
 /**
@@ -458,7 +479,6 @@ export const getVisitedPlaceName = function ({
         visitedPlace.alreadyVisitedBySelfOrAnotherHouseholdMember && visitedPlace.shortcut !== undefined
             ? getResponse(interview, visitedPlace.shortcut, null)
             : visitedPlace;
-    console.log('visitedPlace', visitedPlace, actualVisitedPlace);
     if (actualVisitedPlace && (actualVisitedPlace as VisitedPlace).name) {
         return (actualVisitedPlace as VisitedPlace).name as string;
     }
