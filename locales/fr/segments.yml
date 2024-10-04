@@ -11,6 +11,43 @@ mode:
     Bus: <strong>Autobus</strong>
     Ferry: <strong>Traversier</strong>
     Transit: <strong>Transport collectif</strong>
+    short:
+        bicycle: Vélo
+        bicycleElectric: Vélo électrique
+        scooterElectric: Trottinette électrique
+        bicycleBikeSharing: BIXI
+        bicycleBikeSharingElectric: BIXI Électrique
+        bus: Bus
+        transitHeavy: Métro, REM ou train
+        transitBus: Bus TC
+        intercityBus: Bus interurbain
+        schoolBus: Autobus jaune
+        integratedSchoolLines: Lignes scolaires intégrées
+        busOther: Bus nolisé ou privé
+        transitTram: Tramway
+        transitSubway: Métro
+        transitREM: REM
+        transitRail: Train de banlieue
+        intercityRail: Train interurbain
+        personalCar: Auto conducteur avec voiture personnelle
+        carDriver: Auto conducteur
+        carPassenger: Auto passager
+        carDriverCarsharing: Autopartage
+        carDriverCarsharingStationBased: Autopartage basé station
+        carDriverCarsharingFreeFloating: Autopartage en libre service
+        rentalCar: Voiture de location
+        transitTaxi: Taxi collectif / à la demande
+        taxi: Taxi
+        paratransit: Transport adapté
+        plane: Avion
+        otherActiveModes: Autre mode actif
+        motorcycle: Moto ou scooter
+        ferryNoCar: Navette fluviale ou traversier sans véhicule
+        ferryWithCar: Traversier avec véhicule
+        walk: Marche
+        other: Autre
+        unknown: Inconnu
+        dontKnow: Je ne sais pas
 ModeFirst: Quel mode de transport a été utilisé en premier?
 ModeFirst_cati: >-
     Quel mode de transport a été utilisé en premier pour se rendre de
@@ -20,3 +57,7 @@ ModeThen_cati: >-
     Quel mode de transport a été utilisé ensuite pour se rendre de
     {{originName}} à {{destinationName}}?
 ModeSpecify: 'Veuillez préciser:'
+SegmentSameModeReturnHome: >-
+    Était-ce le même mode de transport utilisé pour le retour au domicile ({{previousMode}})?
+SegmentSameModeReturn: >-
+    Était-ce le même mode de transport utilisé que le déplacement précédent ({{previousMode}})?

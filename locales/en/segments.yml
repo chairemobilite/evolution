@@ -11,6 +11,43 @@ mode:
     Bus: <strong>Bus</strong>
     Transit: <strong>Public transit</strong>
     Ferry: <strong>Ferry</strong>
+    short:
+        walk: Walking
+        bicycle: Bicycle
+        bicycleElectric: E-Bike
+        scooterElectric: E-Scooter
+        bicycleBikeSharing: BIXI
+        bicycleBikeSharingElectric: BIXI E-Bike
+        bus: Bus
+        transitHeavy: Metro, REM or train
+        transitBus: Transit bus
+        intercityBus: Intercity bus
+        schoolBus: Yellow school bus
+        integratedSchoolLines: Integrated school lines
+        busOther: Chartered or private bus
+        transitTram: Tramway
+        transitSubway: Metro (subway)
+        transitREM: REM
+        transitRail: Commuter train
+        intercityRail: Intercity train
+        personalCar: Car driver with personal car
+        carDriver: Car driver
+        carPassenger: Car passenger
+        carDriverCarsharing: Carsharing
+        carDriverCarsharingStationBased: Station-based carsharing
+        carDriverCarsharingFreeFloating: Free floating carsharing
+        rentalCar: Rental car
+        transitTaxi: Taxibus / On-demand
+        taxi: Taxi
+        paratransit: Paratransit
+        plane: Airplane
+        otherActiveModes: Other active mode
+        motorcycle: Motorcycle or motorized scooter/moped
+        ferryNoCar: River shuttle or ferry without vehicle
+        ferryWithCar: Ferry with vehicle
+        other: Other
+        unknown: Unknown
+        dontKnow: Don't know
 ModeFirst: Which mode of transportation was used first?
 ModeFirst_cati: >-
     Which mode of transportation was used first to go from {{originName}} to
@@ -20,3 +57,7 @@ ModeThen_cati: >-
     Which mode of transportation was used after to go from {{originName}} to
     {{destinationName}}?
 ModeSpecify: 'Please specify:'
+SegmentSameModeReturnHome: >-
+    Was it the same mode of transport used for the return home trip ({{previousMode}})?
+SegmentSameModeReturn: >-
+    Was it the same mode of transport used as the previous trip ({{previousMode}})?
