@@ -12,16 +12,90 @@ modePre:
     PreferNotToAnswer: <strong>Préfère ne pas répondre</strong>
 mode:
     Walk: <strong>Marche</strong>
-    WalkOrMobilityHelp: <strong>Marche</strong> ou <strong>aide à la mobilité</strong>
+    Bicycle: <strong>Vélo</strong>
+    BicycleElectric: <strong>Vélo électrique</strong>
+    BicycleBikesharing: <strong>Vélo partage</strong>
+    BicycleBikesharingElectric: <strong>Vélo partage électrique</strong>
+    BicyclePassenger: <strong>Vélo passager</strong>
+    ScooterElectric: <strong>Trottinette électrique</strong>
+    CarDriverPersonal: <strong>Auto conducteur</strong> avec voiture personnelle
+    CarDriverRental: <strong>Auto conducteur</strong> avec voiture de location
+    CarDriverCarsharingStationBased: <strong>Autopartage</strong> basé station
+    CarDriverCarsharingFreeFloating: <strong>Autopartage</strong> en libre service
+    CarDriverCarsharingUnspecified: <strong>Autopartage</strong>
+    CarPassenger: <strong>Passager</strong> (voiture/moto/scooter/camion)
+    TransitBus: <strong>Bus</strong>
+    TransitBRT: <strong>Service rapide par bus</strong>
+    TransitSchoolBus: <strong>Bus</strong> (<strong>Lignes scolaires</strong> opérée par une agence de transport collectif)
+    TransitStreetCar: <strong>Tramway</strong> sur rue
+    TransitFerry: <strong>Traversier</strong>
+    TransitGondola: <strong>Gondole</strong>
+    TransitMonorail: <strong>Monorail</strong>
+    TransitRRT: <strong>Transit rapide sur rail</strong>, catégorie A
+    TransitLRT: <strong>Transit léger sur rail</strong>, catégorie B
+    TransitLRRT: <strong>Train léger sur rail</strong>, catégorie A
+    TransitHSR: <strong>Train grande vitesse</strong>
+    TransitRegionalRail: <strong>Train de banlieue</strong>
+    TransitOnDemand: <strong>Transport à la demande</strong>
+    TransitTaxi: <strong>Taxi collectif</strong>
+    IntercityBus: <strong>Bus interurbain</strong>
+    IntercityTrain: <strong>Train interurbain</strong>
+    SchoolBus: <strong>Autobus scolaire</strong>
+    OtherBus: <strong>Bus nolisé ou privé</strong>
+    Taxi: <strong>Taxi</strong> ou équivalent (ex. Uber, Lyft)
+    Paratransit: <strong>Transport adapté</strong>
+    Wheelchair: <strong>Chaise roulante</strong>
+    MobilityScooter: <strong>Quadriporteur/triporteur</strong>
+    Motorcycle: <strong>Moto</strong> (ou scooter)
+    FerryWithCar: <strong>Traversier</strong> avec véhicule
+    Plane: <strong>Avion</strong>
+    OtherActiveMode: Autre <strong>mode actif</strong>
     Other: <strong>Autre</strong>
-    DontKnow: <strong>Je ne sais pas</strong> / Préfère ne pas répondre
-    CarDriver: <strong>Conducteur</strong> (voiture/moto/scooter)
-    CarPassenger: <strong>Passager</strong> (voiture/moto/scooter)
-    Taxi: <strong>Taxi</strong> ou équivalent (ex. Uber)
-    Bicycle: <strong>Vélo</strong> ou <strong> Vélo électrique</strong>
-    Bus: <strong>Autobus</strong>
-    Ferry: <strong>Traversier</strong>
-    Transit: <strong>Transport collectif</strong>
+    DontKnow: <strong>Je ne sais pas</strong>
+    PreferNotToAnswer: <strong>Préfère ne pas répondre</strong>
+    short:
+        walk: Marche
+        bicycle: Vélo
+        bicycleElectric: Vélo électrique
+        bicycleBikesharing: Vélo partage
+        bicycleBikesharingElectric: Vélo partage électrique
+        bicyclePassenger: Vélo passager
+        scooterElectric: Trottinette électrique
+        carDriverPersonal: Auto conducteur avec voiture personnelle
+        carDriverRental: Auto conducteur avec voiture de location
+        carDriverCarsharingStationBased: Autopartage basé station
+        carDriverCarsharingFreeFloating: Autopartage en libre service
+        carDriverCarsharingUnspecified: Autopartage
+        carPassenger: Auto passager
+        transitBus: Bus
+        transitBRT: Service rapide par bus
+        transitSchoolBus: Lignes scolaires intégrées
+        transitStreetCar: Tramway sur rue
+        transitFerry: Traversier
+        transitGondola: Gondole
+        transitMonorail: Monorail
+        transitRRT: Transit rapide sur rail, catégorie A
+        transitLRT: Transit léger sur rail, catégorie B
+        transitLRRT: Train léger sur rail, catégorie A
+        transitHSR: Train grande vitesse
+        transitRegionalRail: Train de banlieue
+        transitOnDemand: Transport à la demande
+        transitTaxi: Taxi collectif
+        intercityBus: Bus interurbain
+        intercityTrain: Train interurbain
+        schoolBus: Autobus scolaire
+        otherBus: Bus nolisé ou privé
+        taxi: Taxi
+        paratransit: Transport adapté
+        wheelchair: Chaise roulante
+        mobilityScooter: Chaise roulante électrique, quadriporteur, etc.
+        motorcycle: Moto ou scooter
+        ferryWithCar: Traversier avec véhicule
+        plane: Avion
+        otherActiveMode: Autre mode actif
+        other: Autre
+        dontKnow: Inconnu
+        preferNotToAnswer: Préfère ne pas répondre
 ModeFirst: Quel mode de transport a été utilisé en premier?
 ModeFirst_cati: >-
     Quel mode de transport a été utilisé en premier pour se rendre de
@@ -30,3 +104,4 @@ ModeThen: Quel mode de transport a été utilisé ensuite?
 ModeThen_cati: >-
     Quel mode de transport a été utilisé ensuite pour se rendre de
     {{originName}} à {{destinationName}}?
+ModeSpecify: 'Veuillez préciser:'
