@@ -19,3 +19,4 @@ ModeChoixAutre: Which mode of transportation was used after?
 ModeChoixAutre_cati: >-
     Which mode of transportation was used after to go from {{originName}} to
     {{destinationName}}?
+ModeSpecify: 'Please specify:'
