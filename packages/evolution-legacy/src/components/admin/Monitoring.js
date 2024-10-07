@@ -9,7 +9,7 @@ import { withTranslation } from 'react-i18next';
 import moment from 'moment';
 
 import appConfig from 'evolution-frontend/lib/config/application.config';
-import StartedAndCompletedInterviewsByDay from './monitoring/StartedAndCompletedInterviewByDay';
+import StartedAndCompletedInterviewsByDay from 'evolution-frontend/lib/components/admin/monitoring/StartedAndCompletedInterviewByDay';
 import ExportInterviewData from 'evolution-frontend/lib/components/admin/ExportInterviewData';
 // FIXME Commented 2023-11-07 because of od_mtl_2023, it takes too long. Should it be a default widget? Or rather a widget implemented in evolution that surveys can optionally add?
 //import InterviewsByHouseholdSize          from './monitoring/InterviewsByHouseholdSize';
@@ -23,7 +23,7 @@ class Monitoring extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-        lastUpdateAt: null
+        lastUpdateAt: undefined
     }
     this.onUpdate = this.onUpdate.bind(this);
   }
