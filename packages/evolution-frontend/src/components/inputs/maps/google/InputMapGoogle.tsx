@@ -16,6 +16,7 @@ import { getCurrentGoogleMapConfig } from '../../../../config/googleMaps.config'
 import InputLoading from '../../InputLoading';
 import { FeatureGeocodedProperties, MarkerData, InfoWindow } from '../InputMapTypes';
 import { geojson, toLatLng } from './GoogleMapUtils';
+import { reportClientSideException } from '../../../../services/errorManagement/errorHandling';
 
 export interface InputGoogleMapPointProps {
     defaultCenter: { lat: number; lon: number };
@@ -60,7 +61,12 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
     // loaded (for language change for example). see
     // https://stackoverflow.com/questions/7065420/how-can-i-change-the-language-of-google-maps-on-the-run
     const googleMapConfig = React.useMemo(() => getCurrentGoogleMapConfig(props.i18n.language), []);
-    const { isLoaded } = useJsApiLoader(googleMapConfig);
+    const { isLoaded, loadError } = useJsApiLoader(googleMapConfig);
+    if (loadError !== undefined) {
+        const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
+        const errorMessage = `Google Maps API could not be loaded. Browser: ${JSON.stringify(browserTechData)}, error: ${loadError.message}`;
+        reportClientSideException(errorMessage);
+    }
 
     const [map, setMap] = React.useState<google.maps.Map | null>(null);
     const [center, setCenter] = React.useState<{ lat: number; lng: number } | google.maps.LatLng>({
