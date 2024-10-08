@@ -21,7 +21,7 @@ const loader = function Loading(props) {
 };
 
 const LoadableComponent = Loadable({
-  loader: () => import('../admin/Monitoring'),
+  loader: () => import('evolution-frontend/lib/components/admin/Monitoring'),
   loading: loader
 });
 
