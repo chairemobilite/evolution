@@ -11,7 +11,7 @@ import ReactHighcharts     from 'react-highcharts';
 import config       from 'chaire-lib-common/lib/config/shared/project.config';
 import adminHelper  from '../../../helpers/admin/admin.helper';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import LoadingPage  from '../../shared/LoadingPage';
+import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 
 class InterviewsByHouseholdSize extends React.Component { 
   constructor(props) {

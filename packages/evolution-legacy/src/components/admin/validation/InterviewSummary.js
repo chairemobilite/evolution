@@ -8,7 +8,7 @@ import React               from 'react';
 import { withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 
-import LoadingPage      from '../../shared/LoadingPage';
+import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import ValidationOnePageSummary from './ValidationOnePageSummary';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { startSetValidateInterview, startUpdateValidateInterview, startResetValidateInterview } from '../../../actions/survey/survey';

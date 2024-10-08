@@ -18,7 +18,7 @@ import InfoMap          from 'evolution-frontend/lib/components/survey/InfoMap';
 import Button           from 'evolution-frontend/lib/components/survey/Button';
 import Question         from 'evolution-frontend/lib/components/survey/Question';
 import { Group }        from 'evolution-frontend/lib/components/survey/GroupWidgets';
-import LoadingPage      from '../shared/LoadingPage';
+import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
 
 export class Section extends React.Component {

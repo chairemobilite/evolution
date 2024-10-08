@@ -27,7 +27,7 @@ import Button          from 'evolution-frontend/lib/components/survey/Button';
 import Question        from 'evolution-frontend/lib/components/survey/Question';
 import { Group, GroupedObject } from 'evolution-frontend/lib/components/survey/GroupWidgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
+import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import helper          from '../helper';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
