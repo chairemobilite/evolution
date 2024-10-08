@@ -16,7 +16,7 @@ import { getCurrentGoogleMapConfig } from '../../../../config/googleMaps.config'
 import InputLoading from '../../InputLoading';
 import { FeatureGeocodedProperties, MarkerData, InfoWindow } from '../InputMapTypes';
 import { geojson, toLatLng } from './GoogleMapUtils';
-import { reportClientSideException } from '../../../../services/errorManagement/errorHandling';
+import { logClientSideMessage } from '../../../../services/errorManagement/errorHandling';
 
 export interface InputGoogleMapPointProps {
     defaultCenter: { lat: number; lon: number };
@@ -65,7 +65,7 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
     if (loadError !== undefined) {
         const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
         const errorMessage = `Google Maps API could not be loaded. Browser: ${JSON.stringify(browserTechData)}, error: ${loadError.message}`;
-        reportClientSideException(errorMessage);
+        logClientSideMessage(errorMessage);
     }
 
     const [map, setMap] = React.useState<google.maps.Map | null>(null);

@@ -38,7 +38,7 @@ export const handleClientError = (
     error: unknown,
     { interviewId, history }: { interviewId?: number; history?: History }
 ) => {
-    reportClientSideException(error, interviewId);
+    logClientSideMessage(error, { interviewId });
     redirectToErrorPage(history);
 };
 
@@ -71,23 +71,38 @@ export const handleHttpOtherResponseCode = async (responseCode: number, dispatch
 };
 
 /**
- * Send report of a client side exception to the server
+ * Send messages and exceptions to the server
  *
- * @param interviewId The numeric ID of the current interview
- * @param exception The exception that was thrown
+ * @param clientMessage The message to log or exception that was thrown
+ * @param {Object} options The options object
+ * @param {number|undefined} options.interviewId The numeric ID of the current
+ * interview, if available
+ * @param {'error'|'warn'|'info'|'log'} options.logLevel The log level of the message. default is 'error'
  * @returns
  */
-export const reportClientSideException = async (exception: unknown, interviewId?: number) => {
-    const exceptionMessage =
-        exception instanceof Error
-            ? exception.message
-            : typeof exception === 'object'
-                ? JSON.stringify(exception)
-                : String(exception);
+export const logClientSideMessage = async (
+    clientMessage: unknown,
+    {
+        interviewId = undefined,
+        logLevel = 'error'
+    }: { interviewId?: number; logLevel?: 'error' | 'warn' | 'info' | 'log' } = {}
+) => {
+    // TODO This started by logging only Error objects, but now it logs anything
+    // and just converts to string. See if we can do better, more formal logging
+    // and send something other than a simple string to the server to let it
+    // handle the logging format.
+    const message =
+        clientMessage instanceof Error
+            ? clientMessage.message
+            : Array.isArray(clientMessage)
+                ? clientMessage.map((e) => String(e)).join('') // Concatenate all elements of the array
+                : typeof clientMessage === 'object'
+                    ? JSON.stringify(clientMessage)
+                    : String(clientMessage);
     // We send the error message in the wild, not waiting for the answer as the
     // network might be down, in which point the server will not know about this
     // error anyway
-    return fetch('/api/survey/clientSideException', {
+    return fetch('/api/survey/logClientSideMessage', {
         headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json'
@@ -95,8 +110,9 @@ export const reportClientSideException = async (exception: unknown, interviewId?
         credentials: 'include',
         method: 'POST',
         body: JSON.stringify({
-            exception: exceptionMessage,
-            interviewId
+            message,
+            interviewId,
+            logLevel
         })
     });
 };
