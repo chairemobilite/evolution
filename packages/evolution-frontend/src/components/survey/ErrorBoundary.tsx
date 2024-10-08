@@ -8,7 +8,7 @@ import React from 'react';
 import SurveyErrorPage from '../pages/SurveyErrorPage';
 import { connect } from 'react-redux';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
-import { reportClientSideException } from '../../services/errorManagement/errorHandling';
+import { logClientSideMessage } from '../../services/errorManagement/errorHandling';
 
 interface ErrorProps {
     // No props required
@@ -34,7 +34,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<Error
         this.setState({ hasError: true });
         console.log('An exception occurred in a react component', error, info);
         // Send update responses to the server
-        reportClientSideException(error, this.props.interview?.id);
+        logClientSideMessage(error, { interviewId: this.props.interview?.id });
     }
 
     resetErrorBoundary = () => {

@@ -18,6 +18,7 @@ import { addRolesToInterview, updateInterview } from '../services/interviews/int
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import serverConfig from '../config/projectConfig';
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
+import { logClientSide } from '../services/logging/messageLogging';
 
 export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMiddlewares): Router => {
     const router = express.Router();
@@ -211,29 +212,13 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
         }
     );
 
-    router.post('/survey/clientSideException/', async (req: Request, res: Response) => {
+    router.post('/survey/logClientSideMessage/', async (req: Request, res: Response) => {
         // Try/catch to avoid undocumented default behavior in case of an exception, even if we don't expect one
         try {
-            // FIXME: Extract this to a function when we do more than just console.error
             const content = req.body;
-            const interviewId = content?.interviewId || -1;
-            if (content?.exception) {
-                const exceptionString =
-                    typeof content.exception !== 'string' ? String(content.exception) : content.exception;
-                // Log up to 1000 characters of the exception to avoid spamming the logs
-                console.error(
-                    'Client-side exception in interview %d: %s',
-                    interviewId,
-                    exceptionString.substring(0, 1000)
-                );
-            } else {
-                console.error(
-                    'Client-side exception in interview %d: missing exception but content was \'%s\'',
-                    interviewId,
-                    String(content).substring(0, 1000)
-                );
-            }
-            return res.status(200);
+            logClientSide(content);
+            // Need to return a json response status (or at least something), otherwise the client will wait undefinitely and the survey will block
+            return res.status(200).json({ status: 'success' });
         } catch (error) {
             console.error(`Error logging client side exception: ${error}`);
             return res.status(500).json({ status: 'failed' });
