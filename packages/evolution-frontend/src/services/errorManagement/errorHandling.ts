@@ -116,3 +116,73 @@ export const logClientSideMessage = async (
         })
     });
 };
+
+const originalConsoleFunctions: {
+    log: typeof console.log;
+    info: typeof console.info;
+    warn: typeof console.warn;
+    error: typeof console.error;
+} = {
+    log: window.console.log,
+    info: window.console.info,
+    warn: window.console.warn,
+    error: window.console.error
+};
+let consoleOverridden = false;
+
+/**
+ * Override the console functions to send data to the server
+ * @param options
+ * @param {function|undefined} options.getInterviewId An optional function to
+ * retrieve the interview ID to send to the server along with the logs.
+ * @returns
+ */
+export const overrideConsoleLogs = ({ getInterviewId }: { getInterviewId?: () => number | undefined } = {}) => {
+    if (consoleOverridden) {
+        return;
+    }
+    const callClientSideMessage = (data: any[], logLevel: 'log' | 'error' | 'warn' | 'info') => {
+        logClientSideMessage(data.length === 1 ? data[0] : data, {
+            interviewId: getInterviewId !== undefined ? getInterviewId() : undefined,
+            logLevel
+        });
+    };
+    // Do not override console.log in dev mode, as the `devLog` helper method
+    // makes the console very verbose and has pretty formatted messages which do
+    // not transform well into simple strings on the server.
+    // TODO This is a bit arbitrary. Maybe we could configure the log levels to override instead of hardcoding it and per environment.
+    if (process.env.NODE_ENV !== 'development') {
+        window.console.log = (...data: any[]) => {
+            originalConsoleFunctions.log(...data);
+            callClientSideMessage(data, 'log');
+        };
+    }
+    window.console.error = (...data: any[]) => {
+        originalConsoleFunctions.error(...data);
+        callClientSideMessage(data, 'error');
+    };
+    window.console.warn = (...data: any[]) => {
+        originalConsoleFunctions.warn(...data);
+        callClientSideMessage(data, 'warn');
+    };
+    window.console.info = (...data: any[]) => {
+        originalConsoleFunctions.info(...data);
+        callClientSideMessage(data, 'info');
+    };
+    consoleOverridden = true;
+};
+
+/**
+ * Restore the console functions to their original state
+ * @returns
+ */
+export const restoreConsoleLogs = () => {
+    if (!consoleOverridden) {
+        return;
+    }
+    window.console.log = originalConsoleFunctions.log;
+    window.console.error = originalConsoleFunctions.error;
+    window.console.warn = originalConsoleFunctions.warn;
+    window.console.info = originalConsoleFunctions.info;
+    consoleOverridden = false;
+};
