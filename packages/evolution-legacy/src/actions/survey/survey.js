@@ -32,7 +32,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import applicationConfiguration from 'evolution-frontend/lib/config/application.config';
 import surveyHelper                                     from '../../helpers/survey/survey';
 import * as surveyHelperNew                             from 'evolution-common/lib/utils/helpers';
-import { incrementLoadingState, decrementLoadingState } from '../shared/loadingState.js';
+import { incrementLoadingState, decrementLoadingState } from 'evolution-frontend/lib/actions/LoadingState';
 import config                                           from 'chaire-lib-common/lib/config/shared/project.config';
 import { 
     updateSection as updateSectionTs,
