@@ -21,6 +21,8 @@ import { validateAllWidgets } from 'evolution-frontend/lib/actions/utils';
 import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewContext';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import { withPreferencesHOC } from 'evolution-frontend/lib/components/hoc/WithPreferencesHoc';
+import { overrideConsoleLogs } from 'evolution-frontend/lib/services/errorManagement/errorHandling';
+import { restoreConsoleLogs } from 'evolution-frontend/lib/services/errorManagement/errorHandling';
 
 export class Survey extends React.Component {
   static contextType = InterviewContext;
@@ -58,6 +60,14 @@ export class Survey extends React.Component {
     const pathSectionParentSection = pathSectionShortname && this.surveyContext.sections[pathSectionShortname] ? this.surveyContext.sections[pathSectionShortname].parentSection : null;
     const { state } = this.context;
     this.props.startSetInterview(existingActiveSection || pathSectionParentSection, surveyUuid, state.status === 'entering' && Object.keys(state.responses).length > 0 ? state.responses : undefined);
+
+    // Override the window.console functions to log errors and warnings to the server. It is here because it's the top most component with an interview to associate with
+    overrideConsoleLogs({ getInterviewId: () => this.props.interview ? this.props.interview.id : undefined });
+  }
+
+  componentWillUnmount() {
+    // Reset the console functions to their original values
+    restoreConsoleLogs();
   }
 
   onChangeSection(parentSection, activeSection, allWidgetsValid, e) {

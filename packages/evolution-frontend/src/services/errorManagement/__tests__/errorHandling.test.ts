@@ -101,3 +101,72 @@ describe('logClientSideMessage', () => {
     });
 
 });
+
+describe('Console log overwriting', () => {
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        ErrorHandlingFct.restoreConsoleLogs();
+        jest.spyOn(ErrorHandlingFct, 'logClientSideMessage').mockResolvedValue(true as any);
+    })
+
+    test('should override console.log, console.warn and console.error', () => {
+        const logSpy = jest.spyOn(window.console, 'log').mockImplementation(() => {});
+        const warnSpy = jest.spyOn(window.console, 'warn').mockImplementation(() => {});
+        const errorSpy = jest.spyOn(window.console, 'error').mockImplementation(() => {});
+        const infoSpy = jest.spyOn(window.console, 'info').mockImplementation(() => {});
+
+        ErrorHandlingFct.overrideConsoleLogs({ getInterviewId: () => 1 });
+
+        expect(logSpy).not.toEqual(window.console.log);
+        expect(warnSpy).not.toEqual(window.console.warn);
+        expect(errorSpy).not.toEqual(window.console.error);
+        expect(infoSpy).not.toEqual(window.console.info);
+    });
+
+    test('Call to console.log should report client side exception', () => {
+        ErrorHandlingFct. overrideConsoleLogs({ getInterviewId: () => 1 });
+
+        window.console.log('This is a log message');
+
+        expect(ErrorHandlingFct.logClientSideMessage).toHaveBeenCalledWith('This is a log message', { interviewId: 1, logLevel: 'log' });
+    });
+
+    test('Call to console.warn should report client side exception, no interview id getter', () => {
+        ErrorHandlingFct. overrideConsoleLogs();
+
+        window.console.warn('This is a log message');
+
+        expect(ErrorHandlingFct.logClientSideMessage).toHaveBeenCalledWith('This is a log message', { interviewId: undefined, logLevel: 'warn' });
+    });
+
+    test('Call to console.info with multiple arguments should report client side exception, no interview id getter', () => {
+        ErrorHandlingFct. overrideConsoleLogs();
+
+        window.console.info('This is a log message', 'with other data', { a: '2', b: '3'});
+
+        expect(ErrorHandlingFct.logClientSideMessage).toHaveBeenCalledWith(['This is a log message', 'with other data', { a: '2', b: '3' }], { interviewId: undefined, logLevel: 'info' });
+    });
+
+    test('Call to console.info with multiple arguments should report client side exception, no interview id getter', () => {
+        ErrorHandlingFct. overrideConsoleLogs();
+
+        window.console.info('This is a log message', 'with other data', { a: '2', b: '3'});
+
+        expect(ErrorHandlingFct.logClientSideMessage).toHaveBeenCalledWith(['This is a log message', 'with other data', { a: '2', b: '3' }], { interviewId: undefined, logLevel: 'info' });
+    });
+
+    test('Restore console functions should not report client side exception anymore', () => {
+        ErrorHandlingFct. overrideConsoleLogs();
+
+        ErrorHandlingFct.restoreConsoleLogs();
+
+        window.console.log('Hello');
+        window.console.info('Hello');
+        window.console.warn('Hello');
+        window.console.error('Hello');
+
+        expect(ErrorHandlingFct.logClientSideMessage).not.toHaveBeenCalled();
+    });
+
+});
