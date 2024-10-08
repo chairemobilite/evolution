@@ -8,6 +8,7 @@ import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import ReactHighcharts from 'react-highcharts';
 import _max from 'lodash/max';
+import Loader from 'react-spinners/HashLoader';
 
 type StartedAndCompletedInterviewsByDayState = {
     data: {
@@ -71,7 +72,7 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
 
     render() {
         if (!(this.state.data.started.length > 0)) {
-            return null;
+            return <Loader size={'30px'} color={'#aaaaaa'} loading={true} />;
         }
 
         // generate cumulative counts arrays:

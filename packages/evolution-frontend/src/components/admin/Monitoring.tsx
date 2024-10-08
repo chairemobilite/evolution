@@ -7,7 +7,6 @@
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import moment from 'moment';
-
 import appConfig from '../../config/application.config';
 import StartedAndCompletedInterviewsByDay from './monitoring/StartedAndCompletedInterviewByDay';
 import ExportInterviewData from './ExportInterviewData';
@@ -25,25 +24,29 @@ type CustomMonitoringComponentProps = {
 
 type CustomMonitoringComponent = React.ComponentType<Partial<CustomMonitoringComponentProps>>;
 
-// TODO: type custom monitoring components correctly.
-const customMonitoringComponents: CustomMonitoringComponent[] = appConfig.getAdminMonitoringComponents() as any;
-
-type MonitoringProps = {
-    onUpdate: () => void;
-    lastUpdateAt?: number;
-} & WithTranslation;
+type MonitoringProps = WithTranslation;
 
 type MonitoringState = {
     lastUpdateAt?: number;
+    customMonitoringComponents: CustomMonitoringComponent[];
 };
 
 class Monitoring extends React.Component<MonitoringProps, MonitoringState> {
     constructor(props: MonitoringProps) {
         super(props);
         this.state = {
-            lastUpdateAt: undefined
+            lastUpdateAt: undefined,
+            customMonitoringComponents: []
         };
         this.onUpdate = this.onUpdate.bind(this);
+    }
+
+    componentDidMount() {
+        const customMonitoringComponents: CustomMonitoringComponent[] = appConfig.getAdminMonitoringComponents() as any;
+
+        this.setState({
+            customMonitoringComponents
+        });
     }
 
     onUpdate() {
@@ -53,7 +56,7 @@ class Monitoring extends React.Component<MonitoringProps, MonitoringState> {
     }
 
     render() {
-        const customMonitoringComponentsArray = customMonitoringComponents.map((Component, i) => (
+        const customMonitoringComponentsArray = this.state.customMonitoringComponents.map((Component, i) => (
             <Component
                 onUpdate={this.onUpdate}
                 lastUpdateAt={this.state.lastUpdateAt}

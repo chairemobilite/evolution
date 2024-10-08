@@ -30,6 +30,7 @@ const loader = function Loading() {
 };
 
 const InterviewsComponent = Loadable({
+    // TODO: move this to componentDidMount like in Monitoring.tsx
     loader: () => import('../pageParts/interviews/InterviewSearchList'),
     loading: loader
 });
