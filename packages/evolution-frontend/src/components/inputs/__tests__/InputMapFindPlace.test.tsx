@@ -137,17 +137,17 @@ describe('Test geocoding requests', () => {
     const placeFeature1 = { 
         type: 'Feature' as const, 
         geometry: { type: 'Point' as const, coordinates: [-73.2, 45.1] },
-        properties: { placeData: { place_id: 2, formatted_address: '123 test street', name: 'Foo extra good restaurant' } }
+        properties: { placeData: { place_id: '1', formatted_address: '123 test street', name: 'Foo extra good restaurant' } }
     };
     const placeFeature2 = {
         type: 'Feature' as const, 
         geometry: { type: 'Point' as const, coordinates: [-73.2, 45.1] },
-        properties: { placeData: { place_id: 2, formatted_address: '123 foo street', types: ['street_address'] } }
+        properties: { placeData: { place_id: '2', formatted_address: '123 foo street', types: ['street_address'] } }
     };
     const placeFeature3 = {
         type: 'Feature' as const, 
         geometry: { type: 'Point' as const, coordinates: [ -73.5673919, 45.5018869] },
-        properties: { placeData: { place_id: 3, formatted_address: 'Montreal, QC, Canada', types: ['locality', 'political'] } }
+        properties: { placeData: { place_id: '3', formatted_address: 'Montreal, QC, Canada', types: ['locality', 'political'] } }
     };
 
     beforeEach(() => {
