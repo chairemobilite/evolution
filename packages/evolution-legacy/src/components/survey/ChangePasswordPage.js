@@ -10,7 +10,7 @@ import { withTranslation } from 'react-i18next';
 
 import Button                  from 'evolution-frontend/lib/components/survey/Button';
 import config                  from 'chaire-lib-common/lib/config/shared/project.config';
-import { startChangePassword } from '../../actions/shared/auth';
+import { startChangePassword } from 'evolution-frontend/lib/actions/Auth';
 
 export class ChangePasswordPage extends React.Component {
   constructor(props) {

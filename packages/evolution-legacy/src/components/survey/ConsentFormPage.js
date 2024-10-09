@@ -10,7 +10,7 @@ import { withTranslation } from 'react-i18next';
 import { connect }         from 'react-redux';
 import moment              from 'moment-business-days';
 
-import { startRegister } from '../../actions/shared/auth';
+import { startRegister } from 'evolution-frontend/lib/actions/Auth';
 import config            from 'chaire-lib-common/lib/config/shared/project.config';
 import Button            from 'evolution-frontend/lib/components/survey/Button';
 
