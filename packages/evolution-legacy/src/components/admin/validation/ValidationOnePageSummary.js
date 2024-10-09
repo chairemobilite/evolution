@@ -11,7 +11,7 @@ import _get from 'lodash/get';
 
 import appConfig from 'evolution-frontend/lib/config/application.config';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { startUpdateValidateInterview } from '../../../actions/survey/survey';
+import { startUpdateSurveyValidateInterview } from 'evolution-frontend/lib/actions/Survey';
 import ValidationCommentForm from './ValidationCommentForm';
 import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/AdminErrorBoundary';
 import { generateMapFeatureFromInterview } from 'evolution-frontend/lib/services/admin/odSurveyAdminHelper';
@@ -90,7 +90,7 @@ const mapStateToProps = (state, props) => {
 };
 
 const mapDispatchToProps = (dispatch, props) => ({
-    startUpdateInterview: (sectionShortname, valuesByPath, unsetPaths, interview, callback) => dispatch(startUpdateValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback)),
+    startUpdateInterview: (sectionShortname, valuesByPath, unsetPaths, interview, callback) => dispatch(startUpdateSurveyValidateInterview('validationOnePager', valuesByPath, unsetPaths, interview, callback)),
 });
 
 export default connect(

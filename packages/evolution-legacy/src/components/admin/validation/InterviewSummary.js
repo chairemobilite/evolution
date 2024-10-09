@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import ValidationOnePageSummary from './ValidationOnePageSummary';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import { startSetValidateInterview, startUpdateValidateInterview, startResetValidateInterview } from '../../../actions/survey/survey';
+import { startSetValidateInterview, startUpdateSurveyValidateInterview, startResetValidateInterview } from 'evolution-frontend/lib/actions/Survey';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationLinks from 'evolution-frontend/lib/components/admin/validations/ValidationLinks';
 import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/AdminErrorBoundary';
@@ -99,7 +99,7 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => ({
   startSetValidateInterview: (interviewUuid, callback) => dispatch(startSetValidateInterview(interviewUuid, callback)),
-  startUpdateInterview: (sectionShortname, valuesByPath, unsetPaths, interview, callback) => dispatch(startUpdateValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback)),
+  startUpdateInterview: (sectionShortname, valuesByPath, unsetPaths, interview, callback) => dispatch(startUpdateSurveyValidateInterview('validationOnePager', valuesByPath, unsetPaths, interview, callback)),
   startResetValidateInterview: (interviewUuid, callback) => dispatch(startResetValidateInterview(interviewUuid, callback))
 });
 

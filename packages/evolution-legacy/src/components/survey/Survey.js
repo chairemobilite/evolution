@@ -14,7 +14,7 @@ import config                                                                   
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import Section                                                                                        from './Section';
 import SectionNav                                                                                     from './SectionNav';
-import { startSetInterview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects } from '../../actions/survey/survey';
+import { startSetInterview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects } from 'evolution-frontend/lib/actions/Survey';
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { validateAllWidgets } from 'evolution-frontend/lib/actions/utils';
