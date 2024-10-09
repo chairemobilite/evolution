@@ -63,8 +63,8 @@ export const checkConditional = (
             }
         } catch (error) {
             // If there is an error during conditional check, just ignore the error and hide the field to reduce probability of side-effects.
-            // TODO: add a server-side log of the error and define a better way to deal with errors.
-            console.log('conditional error', error);
+            // TODO: define a better way to deal with errors.
+            console.log(`conditional error for ${path}`, error);
             return [false, undefined, undefined];
         }
     } else {
