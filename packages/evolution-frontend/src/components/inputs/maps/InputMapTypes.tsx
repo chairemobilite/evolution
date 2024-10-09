@@ -15,8 +15,15 @@ export interface FeatureGeocodedProperties {
 }
 
 export type PlaceGeocodedProperties = FeatureGeocodedProperties & {
-    // TODO type this when we support more than google geocoders
-    placeData: { [key: string]: unknown };
+    // FIXME These are typed directly from the google.maps.places.PlaceResult
+    // interface. Make it more generic when we support more
+    placeData: {
+        types?: string[];
+        place_id?: string;
+        formatted_address?: string;
+        name?: string;
+        photos?: any[];
+    };
 };
 
 export interface MarkerData {
