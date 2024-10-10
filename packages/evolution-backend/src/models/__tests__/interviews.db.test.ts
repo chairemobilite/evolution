@@ -1089,3 +1089,174 @@ describe('stream interviews query', () => {
     });
 
 });
+
+describe('Stream logs', () => {
+
+    beforeEach(async () => {
+        // Set all logs to null
+        await knex('sv_interviews').update({ logs: null });
+    });
+
+    test('Stream interview logs, no logs in database', (done) => {
+        let nbLogs = 0;
+        const queryStream = dbQueries.getInterviewLogsStream();
+        queryStream.on('error', (error) => {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        })
+            .on('data', (row) => {
+                nbLogs++;
+            })
+            .on('end', () => {
+                expect(nbLogs).toEqual(0);
+                done();
+            });
+    });
+
+    test('Stream interview logs, only one interview has logs', (done) => {
+        // Add a few logs to one of the interview, with/without valuesByPath, with/without unsetPaths
+        const logs = [
+            {
+                timestamp: 0,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true }
+            },
+            {
+                timestamp: 1,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true },
+                unsetPaths: []
+            },
+            {
+                timestamp: 10,
+                valuesByPath: { },
+                unsetPaths: [ 'responses.data' ]
+            },
+            {
+                timestamp: 4,
+                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+            }
+
+        ];
+        dbQueries.update(localUserInterviewAttributes.uuid, { logs: logs as any }).then(() => {
+            let nbLogs = 0;
+            let lastTimestamp = -1;
+            const queryStream = dbQueries.getInterviewLogsStream();
+            queryStream.on('error', (error) => {
+                console.error(error);
+                expect(true).toBe(false);
+                done();
+            })
+                .on('data', (row) => {
+                    // Check the data
+                    expect(row.uuid).toEqual(localUserInterviewAttributes.uuid);
+                    // Expected sort by timestamp, timestamp should be greater than previous
+                    const rowTimestamp = Number(row.timestamp);
+                    expect(rowTimestamp).toBeGreaterThan(lastTimestamp);
+                    lastTimestamp = Number(rowTimestamp);
+                    // Expected valuesByPath and unsetPaths to match the log data
+                    const log = logs.find(l => l.timestamp === rowTimestamp);
+                    expect(log).toBeDefined();
+                    expect(row.values_by_path).toEqual(log?.valuesByPath ? log.valuesByPath : null);
+                    expect(row.unset_paths).toEqual(log?.unsetPaths ? log.unsetPaths : null);
+
+                    nbLogs++;
+                })
+                .on('end', () => {
+                    expect(nbLogs).toEqual(logs.length);
+                    done();
+                });
+        }).catch((error) => {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        });
+        
+    });
+
+    test('Stream interview logs, many interview logs, should be sorted by interview/time', (done) => {
+        // Add a few logs to one of the interview, with/without valuesByPath, with/without unsetPaths
+        const logsFor1 = [
+            {
+                timestamp: 0,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true }
+            },
+            {
+                timestamp: 1,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true },
+                unsetPaths: []
+            },
+            {
+                timestamp: 10,
+                valuesByPath: { },
+                unsetPaths: [ 'responses.data' ]
+            },
+            {
+                timestamp: 4,
+                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+            }
+        ];
+        const logsFor2 = [
+            {
+                timestamp: 2,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 2, 2 ]}, 'validations.home.geography': false }
+            },
+            {
+                timestamp: 4,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 3, 3 ]}, 'validations.home.geography': true },
+                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+            }
+        ];
+        dbQueries.update(localUserInterviewAttributes.uuid, { logs: logsFor1 as any }).then(() => {
+            dbQueries.update(facebookUserInterviewAttributes.uuid, { logs: logsFor2 as any }).then(() => {
+                let nbLogs = 0;
+                let lastTimestamp = -1;
+                let currentInterviewUuid = undefined;
+                let interviewLogsForFirstCompleted = false;
+                const queryStream = dbQueries.getInterviewLogsStream();
+                queryStream.on('error', (error) => {
+                    console.error(error);
+                    expect(true).toBe(false);
+                    done();
+                })
+                    .on('data', (row) => {
+                        // Check the data
+                        // Sorted by interview ID, all logs for first interview should be before all logs for second interview, so we should only switch once
+                        if (nbLogs === 0) {
+                            currentInterviewUuid = row.uuid;
+                        }
+                        if (currentInterviewUuid !== row.uuid) {
+                            currentInterviewUuid = row.uuid;
+                            lastTimestamp = -1;
+                            expect(interviewLogsForFirstCompleted).toEqual(false);
+                            interviewLogsForFirstCompleted = true;
+                        }
+                        // Expected sort by timestamp, timestamp should be greater than previous
+                        const rowTimestamp = Number(row.timestamp);
+                        expect(rowTimestamp).toBeGreaterThan(lastTimestamp);
+                        lastTimestamp = Number(rowTimestamp);
+                        // Expected valuesByPath and unsetPaths to match the log data
+                        const logArrayToCheck = currentInterviewUuid === localUserInterviewAttributes.uuid ? logsFor1 : logsFor2;
+                        const log = (logArrayToCheck as any[]).find(l => l.timestamp === rowTimestamp);
+                        expect(log).toBeDefined();
+                        expect(row.values_by_path).toEqual(log?.valuesByPath ? log.valuesByPath : null);
+                        expect(row.unset_paths).toEqual(log?.unsetPaths ? log.unsetPaths : null);
+    
+                        nbLogs++;
+                    })
+                    .on('end', () => {
+                        expect(nbLogs).toEqual(logsFor1.length + logsFor2.length);
+                        done();
+                    });
+            }).catch((error) => {
+                console.error(error);
+                expect(true).toBe(false);
+                done();
+            });
+        }).catch((error) => {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        });
+    });
+
+});
