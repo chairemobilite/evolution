@@ -8,6 +8,7 @@ import { BaseUser } from 'chaire-lib-common/lib/services/user/userType';
 import { History, Location } from 'history';
 import { login, redirectAfterLogin } from 'chaire-lib-frontend/lib/actions/Auth';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import * as AuthBase from 'chaire-lib-frontend/lib/actions/Auth';
 
 export const startDirectTokenLogin = (history: History, location: Location, callback?: () => void) => {
     return async (dispatch) => {
@@ -42,5 +43,77 @@ export const startDirectTokenLogin = (history: History, location: Location, call
             dispatch(login(null, false, false, true));
             console.log('Error logging in.', err);
         }
+    };
+};
+
+// TODO: Is commented in chaire-lib-frontend
+export const startRegister = (data: any, history: History) => {
+    return (dispatch, getState) => {
+        return fetch('/register', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    response.json().then((body) => {
+                        if (body.user) {
+                            dispatch(login(body.user, true, true, false));
+                            const defaultPath = process.env.APP_NAME === 'survey' ? '/survey' : '/dashboard';
+                            history.push(defaultPath);
+                        } else {
+                            dispatch(login(null, false, true, false));
+                        }
+                    });
+                } else {
+                    dispatch(login(null, false, true, false));
+                }
+            })
+            .catch((err) => {
+                console.log('Error during registration.', err);
+            });
+    };
+};
+
+export const startRegisterWithPassword = AuthBase.startRegisterWithPassword;
+
+export const startForgotPasswordRequest = AuthBase.startForgotPasswordRequest;
+
+// TODO This does not exist in chaire-lib-frontend
+export const startChangePassword = (data: any, history: History) => {
+    return (dispatch, getState) => {
+        return fetch('/change_password', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    response.json().then((body) => {
+                        if (body.user) {
+                            if (process.env.APP_NAME === 'survey') {
+                                dispatch(login(body.user, true, true, false));
+                                history.push('/survey');
+                            } else {
+                                dispatch(login(body.user, true, true, false));
+                                history.push('/dashboard');
+                            }
+                        } else {
+                            dispatch(login(null, false, true, false));
+                        }
+                    });
+                } else {
+                    dispatch(login(null, false, true, false));
+                }
+            })
+            .catch((err) => {
+                console.log('Error during password change.', err);
+            });
     };
 };

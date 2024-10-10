@@ -7,7 +7,7 @@
 import React from 'react';
 import { Switch } from 'react-router-dom';
 
-import AdminMonitoringPage from '../../../components/shared/AdminMonitoringPage';
+import AdminMonitoringPage from 'evolution-frontend/lib/components/admin/AdminMonitoringPage';
 import AdminValidationPage from '../../../components/shared/AdminValidationPage';
 import AdminValidateSurveyPage from '../../../components/shared/AdminValidateSurveyPage';
 import NotFoundPage from 'chaire-lib-frontend/lib/components/pages/NotFoundPage';

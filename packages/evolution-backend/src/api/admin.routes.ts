@@ -27,6 +27,7 @@ router.all('/data/widgets/:widget/', (req, res, next) => {
     }
 });
 
+// TODO: add CSV export for this widget:
 const getStartedAndCompletedInterviewsByDay = async (res) => {
     // Get the sum directly from the DB, using the started_at date for grouping
     const subquery = knex('sv_interviews').select(

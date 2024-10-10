@@ -38,7 +38,7 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import helper          from '../helper';
 import ConfirmModal    from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
-import LoadingPage     from 'evolution-legacy/lib/components/shared/LoadingPage';
+import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
 
 export class VisitedPlacesSection extends React.Component<any, any> {

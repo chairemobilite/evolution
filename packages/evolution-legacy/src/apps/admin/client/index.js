@@ -15,7 +15,7 @@ import config from 'chaire-lib-frontend/lib/config/project.config';
 import i18n              from '../../../config/survey/i18n.config';
 import SurveyRouter      from './SurveyRouter';
 import configureStore    from '../../../store/survey/configureStore';
-import LoadingPage       from '../../../components/shared/LoadingPage';
+import LoadingPage       from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { InterviewContext, interviewReducer, initialState } from 'evolution-frontend/lib/contexts/InterviewContext';
 // TODO When the project is the root of the application (instead of evolution directly importing project files), this should go in the project
 import { SurveyContext, surveyReducer } from 'evolution-frontend/lib/contexts/SurveyContext';

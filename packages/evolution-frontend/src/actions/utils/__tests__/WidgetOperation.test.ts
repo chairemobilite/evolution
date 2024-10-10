@@ -1,3 +1,10 @@
+/*
+ * Copyright 2023, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
 import _cloneDeep from 'lodash/cloneDeep';
 import { prepareWidgets } from '../WidgetOperation';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';

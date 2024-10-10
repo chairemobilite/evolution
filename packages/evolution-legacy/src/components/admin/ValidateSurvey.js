@@ -15,8 +15,8 @@ import * as surveyHelperNew   from 'evolution-common/lib/utils/helpers';
 import Section                from '../survey/Section';
 import SectionNav             from '../survey/SectionNav';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import LoadingPage            from '../shared/LoadingPage';
-import { startSetSurveyValidateInterview, startUpdateSurveyValidateInterview, startSurveyValidateAddGroupedObjects, startSurveyValidateRemoveGroupedObjects } from '../../actions/survey/survey';
+import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
+import { startSetSurveyValidateInterview, startUpdateSurveyValidateInterview, startSurveyValidateAddGroupedObjects, startSurveyValidateRemoveGroupedObjects } from 'evolution-frontend/lib/actions/SurveyAdmin';
 import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewContext';
 import { withPreferencesHOC } from 'evolution-frontend/lib/components/hoc/WithPreferencesHoc';
 

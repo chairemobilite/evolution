@@ -10,7 +10,7 @@ import { connect }         from 'react-redux';
 import moment              from 'moment-business-days';
 import {v4 as uuidv4}      from 'uuid'
 
-import { startRegister } from '../../actions/shared/auth';
+import { startRegister } from 'evolution-frontend/lib/actions/Auth';
 import config            from 'chaire-lib-common/lib/config/shared/project.config';
 import ConsentAndStartForm from 'evolution-frontend/lib/components/pageParts/ConsentAndStartForm';
 import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewContext';

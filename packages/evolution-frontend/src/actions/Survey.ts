@@ -1,8 +1,17 @@
+/*
+ * Copyright 2022, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
 import _set from 'lodash/set';
+import _get from 'lodash/get';
 import _cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import _unset from 'lodash/unset';
 import { History } from 'history';
+import bowser from 'bowser';
 
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
 // TODO Default options for retry are as high as 15 seconds, during which the
@@ -12,8 +21,7 @@ const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
 // the page and will not see that the updated values have been udpated. With 4
 // retries, the user will get feedback within 3 seconds and the queue will empty
 // much faster, reducing the risk of invisible updates. The risk is still
-// present if the server is quickly back online and the user is fast enough. See
-// https://github.com/chairemobilite/transition/issues/1266
+// present if the server is quickly back online and the user is fast enough.
 const fetch = async (url, opts) => {
     return await fetchRetry(url, Object.assign({ retry: { retries: 4 }, ...opts }));
 };
@@ -26,8 +34,11 @@ import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
 import { handleClientError, handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
+import applicationConfiguration from '../config/application.config';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 
 // called whenever an update occurs in interview responses or when section is switched to
+// TODO: unit test
 export const updateSection = (
     sectionShortname: string,
     _interview: UserFrontendInterviewAttributes,
@@ -39,7 +50,7 @@ export const updateSection = (
     let interview = _cloneDeep(_interview);
     let needToUpdate = true; // will stay true if an assigned value changed the initial value after a conditional failed
     let updateCount = 0;
-    let foundOneOpenedModal = false;
+    let foundOneOpenedModal = false; // TODO Remove this variable, it is not used? Why is it there?
 
     while (needToUpdate && updateCount < 10 /* security against infinite loops */) {
         [interview, valuesByPath, needToUpdate, foundOneOpenedModal] = prepareWidgets(
@@ -285,6 +296,7 @@ export const updateInterview = (
  * provided, with the updated interview.
  * @returns The dispatched action
  */
+// TODO: unit test
 export const startUpdateInterview = (
     sectionShortname: string | null,
     valuesByPath?: { [path: string]: unknown },
@@ -330,6 +342,7 @@ export const addConsent = (consented: boolean) => ({
  * instead of dispatching the update to the server
  * @returns The dispatched action
  */
+// TODO: unit test
 export const startAddGroupedObjects = (
     newObjectsCount: number,
     insertSequence: number | undefined,
@@ -368,6 +381,7 @@ export const startAddGroupedObjects = (
  * instead of dispatching the update to the server
  * @returns
  */
+// TODO: unit test
 export const startRemoveGroupedObjects = function (
     paths: string | string[],
     callback?: (interview: UserFrontendInterviewAttributes) => void,
@@ -382,5 +396,121 @@ export const startRemoveGroupedObjects = function (
         } else {
             dispatch(startUpdateInterview(null, valuesByPath, unsetPaths, undefined, callback));
         }
+    };
+};
+
+// TODO: unit test
+export const startSetInterview = (
+    activeSection: string | null = null,
+    surveyUuid: string | undefined = undefined,
+    _history: History | undefined = undefined,
+    preFilledResponses: { [key: string]: unknown } | undefined = undefined
+) => {
+    return (dispatch, _getState) => {
+        const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
+        return fetch(`/api/survey/activeInterview/${surveyUuid ? `${encodeURI(surveyUuid)}` : ''}`, {
+            credentials: 'include'
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    response.json().then((body) => {
+                        if (body.interview) {
+                            const interview = body.interview;
+                            if (!activeSection) {
+                                for (const sectionShortname in applicationConfiguration.sections) {
+                                    if (config.isPartTwo === true) {
+                                        if (
+                                            applicationConfiguration.sections[sectionShortname]
+                                                .isPartTwoFirstSection === true
+                                        ) {
+                                            activeSection = sectionShortname;
+                                            break;
+                                        }
+                                    } else {
+                                        if (
+                                            applicationConfiguration.sections[sectionShortname].previousSection === null
+                                        ) {
+                                            activeSection = sectionShortname;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            const valuesByPath = {
+                                'responses._activeSection': activeSection
+                            };
+                            if (preFilledResponses) {
+                                Object.keys(preFilledResponses).forEach((key) => {
+                                    valuesByPath[`responses.${key}`] = preFilledResponses[key];
+                                });
+                            }
+                            // update browser data if different:
+                            const existingBrowserUa = _get(interview, 'responses._browser._ua', null);
+                            const newBrowserUa = browserTechData.getUA();
+                            if (existingBrowserUa !== newBrowserUa) {
+                                valuesByPath['responses._browser'] = browserTechData;
+                            }
+                            dispatch(startUpdateInterview(activeSection, valuesByPath, undefined, interview));
+                        } else {
+                            dispatch(
+                                startCreateInterview(preFilledResponses as { [key: string]: unknown } | undefined)
+                            );
+                        }
+                    });
+                } else {
+                    console.log(`Get active interview: wrong responses status: ${response.status}`);
+                    handleHttpOtherResponseCode(response.status, dispatch);
+                }
+            })
+            .catch((err) => {
+                surveyHelper.devLog('Error fetching interview.', err);
+            });
+    };
+};
+
+// TODO: unit test
+export const startCreateInterview = (preFilledResponses: { [key: string]: unknown } | undefined = undefined) => {
+    const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
+    return (dispatch, _getState) => {
+        return fetch('/api/survey/createInterview', {
+            credentials: 'include'
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    response.json().then((body) => {
+                        if (body.interview) {
+                            let activeSection: string | null = null;
+                            if (applicationConfiguration.sections['registrationCompleted']) {
+                                activeSection = 'registrationCompleted';
+                            } else {
+                                for (const sectionShortname in applicationConfiguration.sections) {
+                                    if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
+                                        activeSection = sectionShortname;
+                                        break;
+                                    }
+                                }
+                            }
+                            const responses = {
+                                'responses._activeSection': activeSection,
+                                'responses._browser': browserTechData
+                            };
+                            if (preFilledResponses) {
+                                Object.keys(preFilledResponses).forEach((key) => {
+                                    responses[`responses.${key}`] = preFilledResponses[key];
+                                });
+                            }
+                            dispatch(startUpdateInterview(activeSection, responses, undefined, body.interview));
+                        } else {
+                            // we need to do something if no interview is returned (error)
+                        }
+                    });
+                } else {
+                    console.log(`Creating interview: wrong responses status: ${response.status}`);
+                    handleHttpOtherResponseCode(response.status, dispatch);
+                }
+            })
+            .catch((err) => {
+                surveyHelper.devLog('Error creating interview.', err);
+            });
     };
 };

@@ -1,3 +1,10 @@
+/*
+ * Copyright 2024, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
 import fetchMock from 'jest-fetch-mock';
 import _cloneDeep from 'lodash/cloneDeep';
 import { addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
