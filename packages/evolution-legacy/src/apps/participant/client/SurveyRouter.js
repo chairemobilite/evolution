@@ -23,7 +23,6 @@ import ResetPasswordPage from 'chaire-lib-frontend/lib/components/pages/ResetPas
 import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute';
 import ConsentedRoute from 'evolution-frontend/lib/components/routers/ConsentedRoute';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import ConsentFormPage from '../../../components/survey/ConsentFormPage';
 import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
 
 // Only show user info for users that are not simple respondents
@@ -40,7 +39,6 @@ const SurveyRouter = () => (
     <ConsentedRoute   path="/login" component={LoginPage} />
     <PublicRoute   path="/forgot" component={ForgotPasswordPage} />
     <PublicRoute   path="/reset/:token" component={ResetPasswordPage} />
-    <PublicRoute   path="/consent_form" component={config.consentFormPage === true ? ConsentFormPage : NotFoundPage}/>
     <PublicRoute   path="/unauthorized" component={UnauthorizedPage} />
     <PublicRoute   path="/error" component={SurveyErrorPage} />
     <PublicRoute   path="/magic/verify" component={MagicLinkVerifyPage} />
