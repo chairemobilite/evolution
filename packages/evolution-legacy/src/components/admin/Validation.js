@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 
 import InterviewSummary from './validation/InterviewSummary';
-import { startSetValidateInterview } from 'evolution-frontend/lib/actions/Survey';
+import { startSetValidateInterview } from 'evolution-frontend/lib/actions/SurveyAdmin';
 import InterviewListComponent from 'evolution-frontend/lib/components/pageParts/validations/InterviewListComponent';
 
 class Validation extends React.Component {

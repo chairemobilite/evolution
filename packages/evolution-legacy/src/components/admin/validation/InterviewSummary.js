@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import ValidationOnePageSummary from './ValidationOnePageSummary';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import { startSetValidateInterview, startUpdateSurveyValidateInterview, startResetValidateInterview } from 'evolution-frontend/lib/actions/Survey';
+import { startSetValidateInterview, startUpdateSurveyValidateInterview, startResetValidateInterview } from 'evolution-frontend/lib/actions/SurveyAdmin';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationLinks from 'evolution-frontend/lib/components/admin/validations/ValidationLinks';
 import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/AdminErrorBoundary';

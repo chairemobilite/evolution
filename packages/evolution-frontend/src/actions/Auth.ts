@@ -46,13 +46,6 @@ export const startDirectTokenLogin = (history: History, location: Location, call
     };
 };
 
-/*
- * Copyright 2023, Polytechnique Montreal and contributors
- *
- * This file is licensed under the MIT License.
- * License text available at https://opensource.org/licenses/MIT
- */
-
 // TODO: Is commented in chaire-lib-frontend
 export const startRegister = (data: any, history: History) => {
     return (dispatch, getState) => {

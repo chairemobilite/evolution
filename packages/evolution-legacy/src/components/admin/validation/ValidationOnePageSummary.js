@@ -11,7 +11,7 @@ import _get from 'lodash/get';
 
 import appConfig from 'evolution-frontend/lib/config/application.config';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { startUpdateSurveyValidateInterview } from 'evolution-frontend/lib/actions/Survey';
+import { startUpdateSurveyValidateInterview } from 'evolution-frontend/lib/actions/SurveyAdmin';
 import ValidationCommentForm from './ValidationCommentForm';
 import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/AdminErrorBoundary';
 import { generateMapFeatureFromInterview } from 'evolution-frontend/lib/services/admin/odSurveyAdminHelper';
