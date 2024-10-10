@@ -1,3 +1,10 @@
+/*
+ * Copyright 2024, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
 import _set from 'lodash/set';
 import _get from 'lodash/get';
 import _cloneDeep from 'lodash/cloneDeep';
@@ -31,6 +38,7 @@ import applicationConfiguration from '../config/application.config';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 
 // called whenever an update occurs in interview responses or when section is switched to
+// TODO: unit test
 export const updateSection = (
     sectionShortname: string,
     _interview: UserFrontendInterviewAttributes,
@@ -288,6 +296,7 @@ export const updateInterview = (
  * provided, with the updated interview.
  * @returns The dispatched action
  */
+// TODO: unit test
 export const startUpdateInterview = (
     sectionShortname: string | null,
     valuesByPath?: { [path: string]: unknown },
@@ -333,6 +342,7 @@ export const addConsent = (consented: boolean) => ({
  * instead of dispatching the update to the server
  * @returns The dispatched action
  */
+// TODO: unit test
 export const startAddGroupedObjects = (
     newObjectsCount: number,
     insertSequence: number | undefined,
@@ -371,6 +381,7 @@ export const startAddGroupedObjects = (
  * instead of dispatching the update to the server
  * @returns
  */
+// TODO: unit test
 export const startRemoveGroupedObjects = function (
     paths: string | string[],
     callback?: (interview: UserFrontendInterviewAttributes) => void,
@@ -388,6 +399,7 @@ export const startRemoveGroupedObjects = function (
     };
 };
 
+// TODO: unit test
 export const startSetInterview = (
     activeSection: string | null = null,
     surveyUuid: string | undefined = undefined,
@@ -456,6 +468,7 @@ export const startSetInterview = (
     };
 };
 
+// TODO: unit test
 export const startCreateInterview = (preFilledResponses: { [key: string]: unknown } | undefined = undefined) => {
     const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
     return (dispatch, _getState) => {

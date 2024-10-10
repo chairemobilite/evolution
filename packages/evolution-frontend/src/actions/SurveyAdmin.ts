@@ -1,3 +1,10 @@
+/*
+ * Copyright 2024, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
 import _set from 'lodash/set';
 import _cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
@@ -185,6 +192,7 @@ export const startUpdateSurveyValidateInterview = function (
  * @returns
  */
 // Almost the same as startSetValidateInterview, TODO: refactor to use the same function
+// TODO: unit test
 export const startSetSurveyValidateInterview = (
     interviewUuid: string,
     callback: (interview: UserFrontendInterviewAttributes) => void = function () {
@@ -211,6 +219,7 @@ export const startSetSurveyValidateInterview = (
     };
 };
 
+// TODO: unit test
 export const startValidateAddGroupedObjects = (
     newObjectsCount,
     insertSequence,
@@ -240,6 +249,7 @@ export const startValidateAddGroupedObjects = (
 };
 
 // Almost the same as startValidateRemoveGroupedObjects, TODO: refactor to use the same function
+// TODO: unit test
 export const startSurveyValidateRemoveGroupedObjects = function (paths, callback, returnOnly = false) {
     surveyHelper.devLog('Remove grouped objects at paths', paths);
     return (dispatch, getState) => {
@@ -256,6 +266,7 @@ export const startSurveyValidateRemoveGroupedObjects = function (paths, callback
 };
 
 // Almost the same as startValidateAddGroupedObjects, TODO: refactor to use the same function
+// TODO: unit test
 export const startSurveyValidateAddGroupedObjects = (
     newObjectsCount,
     insertSequence,
@@ -282,6 +293,7 @@ export const startSurveyValidateAddGroupedObjects = (
     };
 };
 
+// TODO: unit test
 export const startValidateRemoveGroupedObjects = function (paths, callback, returnOnly = false) {
     surveyHelper.devLog('Remove grouped objects at paths', paths);
     return (dispatch, getState) => {
@@ -307,6 +319,7 @@ export const startValidateRemoveGroupedObjects = function (paths, callback, retu
  * @param {*} callback
  * @returns
  */
+// TODO: unit test
 export const startResetValidateInterview = (
     interviewUuid,
     callback = function () {
@@ -344,6 +357,7 @@ export const startResetValidateInterview = (
  * @param {*} callback
  * @returns
  */
+// TODO: unit test
 export const startSetValidateInterview = (
     interviewUuid,
     callback = function () {

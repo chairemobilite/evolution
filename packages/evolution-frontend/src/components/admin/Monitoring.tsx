@@ -10,12 +10,7 @@ import moment from 'moment';
 import appConfig from '../../config/application.config';
 import StartedAndCompletedInterviewsByDay from './monitoring/StartedAndCompletedInterviewByDay';
 import ExportInterviewData from './ExportInterviewData';
-// FIXME Commented 2023-11-07 because of od_mtl_2023, it takes too long. Should it be a default widget? Or rather a widget implemented in evolution that surveys can optionally add?
-//import InterviewsByHouseholdSize          from './monitoring/InterviewsByHouseholdSize';
-//import config                             from 'chaire-lib-common/lib/config/shared/project.config';
-
 // import custom admin monitoring components if available in the project directory:
-// TODO Add an admin component object mapper to replace these try catch
 
 type CustomMonitoringComponentProps = {
     onUpdate: () => void;

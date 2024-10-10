@@ -1,3 +1,10 @@
+/*
+ * Copyright 2024, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { ValidationFunction } from 'evolution-common/lib/services/widgets';
 import { I18nData } from 'evolution-common/lib/utils/helpers';
