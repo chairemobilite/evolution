@@ -26,7 +26,6 @@ import ResetPasswordPage from 'chaire-lib-frontend/lib/components/pages/ResetPas
 import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute';
 import AdminRoute from 'chaire-lib-frontend/lib/components/routers/AdminRoute';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import ConsentFormPage from '../../../components/survey/ConsentFormPage';
 import UsersPage from 'chaire-lib-frontend/lib/components/pages/admin/UsersPage';
 import InterviewsByAccessCode from 'evolution-frontend/lib/components/pages/InterviewsByAccessCode';
 import InterviewsPage from 'evolution-frontend/lib/components/pages/InterviewsPage';
@@ -57,7 +56,6 @@ const SurveyRouter = () => (
     <PublicRoute   path="/register" component={AdminRegisterPage} config={adminLoginConfig}/>
     <PublicRoute   path="/forgot" component={ForgotPasswordPage} />
     <PublicRoute   path="/reset/:token" component={ResetPasswordPage} />
-    <PublicRoute   path="/consent_form" component={config.consentFormPage === true ? ConsentFormPage : NotFoundPage}/>
     <PublicRoute   path="/unauthorized" component={UnauthorizedPage} />
     <PublicRoute   path="/maintenance" component={() => <MaintenancePage linkPath={'/survey'}/>} />
     <PublicRoute   path="/magic/verify" component={MagicLinkVerifyPage} />
