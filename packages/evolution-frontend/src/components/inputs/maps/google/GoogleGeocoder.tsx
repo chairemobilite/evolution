@@ -88,8 +88,7 @@ export const geocodeMultiplePlaces = (
             (results, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK && results !== null) {
                     const places = results
-                        .map(({ geometry, ...googlePlace }) => {
-                            const { types, place_id, formatted_address, name, photos } = googlePlace;
+                        .map(({ geometry, types, place_id, formatted_address, name, photos }) => {
                             const feature = geojson(geometry?.location) as GeoJSON.Feature<
                                 GeoJSON.Point,
                                 PlaceGeocodedProperties
@@ -97,7 +96,7 @@ export const geocodeMultiplePlaces = (
                             if (!feature) {
                                 return undefined;
                             }
-                            feature.id = googlePlace.place_id;
+                            feature.id = place_id;
                             feature.properties.placeData = {
                                 types,
                                 place_id,
