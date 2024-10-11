@@ -21,7 +21,6 @@ import CheckMagicEmailPage from 'chaire-lib-frontend/lib/components/forms/auth/p
 import Survey from '../../../components/survey/SurveyWithErrorBoundary';
 //import RegistrationCompleted from '../../components/survey/RegistrationCompleted';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
-import ChangePasswordPage from '../../../components/survey/ChangePasswordPage';
 import ResetPasswordPage from 'chaire-lib-frontend/lib/components/pages/ResetPasswordPage';
 import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute';
 import AdminRoute from 'chaire-lib-frontend/lib/components/routers/AdminRoute';
@@ -68,7 +67,6 @@ const SurveyRouter = () => (
     <PrivateRoute  path="/interviews/byCode/:accessCode" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsByAccessCode} exact={true} />
     <PrivateRoute  path="/interviews/byCode" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsByAccessCode} exact={true} />
     <PrivateRoute  path="/interviews" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsPage} exact={false} />
-    <PrivateRoute  path="/change_password" component={ChangePasswordPage} />
     <AdminRoute    path="/admin/monitoring" component={AdminMonitoringPage} />
     <PrivateRoute  path="/admin/validation" permissions={{ 'Interviews': ['validate'] }} component={AdminValidationPage} />
     <AdminRoute    path="/admin/users" component={UsersPage} exact={true} />
