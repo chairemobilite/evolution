@@ -14,7 +14,7 @@ import { exportInterviewLogTask } from '../exportInterviewLogs';
 jest.mock('../../../models/interviews.db.queries', () => ({
     getInterviewLogsStream: jest.fn().mockImplementation(() => new ObjectReadableMock([]))
 }));
-const getInterviewLogsStreamMock = interviewsDbQueries.getInterviewLogsStream as jest.MockedFunction<typeof interviewsDbQueries.getInterviewLogsStream>;
+const mockGetInterviewLogsStream = interviewsDbQueries.getInterviewLogsStream as jest.MockedFunction<typeof interviewsDbQueries.getInterviewLogsStream>;
 
 // Mock the csv file stream
 let fileStreams: {[key: string]: ObjectWritableMock } = {};
@@ -110,12 +110,13 @@ describe('exportInterviewLogTask', () => {
 
     test('Test default, all updates, no values', async () => {
         // Add the logs to the stream
-        getInterviewLogsStreamMock.mockReturnValue(new ObjectReadableMock(logs) as any);
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs) as any);
 
         const fileName = await exportInterviewLogTask({});
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
         
         const csvFileName = Object.keys(fileStreams).find(filename => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -141,12 +142,13 @@ describe('exportInterviewLogTask', () => {
 
     test('Test only participant responses, no values', async () => {
         // Add the logs to the stream
-        getInterviewLogsStreamMock.mockReturnValue(new ObjectReadableMock(logs) as any);
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs) as any);
 
         const fileName = await exportInterviewLogTask({ participantResponsesOnly: true });
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
         
         const csvFileName = Object.keys(fileStreams).find(filename => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -172,12 +174,13 @@ describe('exportInterviewLogTask', () => {
 
     test('Test all log data, with values', async () => {
         // Add the logs to the stream
-        getInterviewLogsStreamMock.mockReturnValue(new ObjectReadableMock(logs) as any);
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs) as any);
 
         const fileName = await exportInterviewLogTask({ withValues: true });
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
         
         const csvFileName = Object.keys(fileStreams).find(filename => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -222,12 +225,13 @@ describe('exportInterviewLogTask', () => {
 
     test('Test only participant responses, with values', async () => {
         // Add the logs to the stream
-        getInterviewLogsStreamMock.mockReturnValue(new ObjectReadableMock(logs) as any);
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs) as any);
 
         const fileName = await exportInterviewLogTask({ withValues: true, participantResponsesOnly: true });
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
         
         const csvFileName = Object.keys(fileStreams).find(filename => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -277,6 +281,21 @@ describe('exportInterviewLogTask', () => {
                 
             }
         }
+    });
+
+    test('Test with interview ID in parameter', async () => {
+        // Add the logs to the stream
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs) as any);
+
+        // Request logs for a specific interview
+        const interviewId = 3;
+        const fileName = await exportInterviewLogTask({ interviewId });
+
+        // Check the file content of the exported logs
+        expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(interviewId);
+        
+        // The data is already tested in other tests, checking the parameter of the stream is enough
     });
 
 });

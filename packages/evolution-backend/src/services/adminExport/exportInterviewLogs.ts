@@ -18,6 +18,7 @@ export const filePathOnServer = 'exports';
 type ExportLogOptions = {
     participantResponsesOnly?: boolean;
     withValues?: boolean;
+    interviewId?: number;
 };
 
 const filterLogData = (
@@ -88,7 +89,8 @@ const exportLogToRows = (
  */
 export const exportInterviewLogTask = async function ({
     participantResponsesOnly = false,
-    withValues = false
+    withValues = false,
+    interviewId
 }: ExportLogOptions): Promise<string> {
     // create csv files and streams:
     const csvFilePath = `${filePathOnServer}/interviewLogs.csv`;
@@ -98,7 +100,7 @@ export const exportInterviewLogTask = async function ({
 
     console.log('reading interview log data...');
 
-    const queryStream = interviewsDbQueries.getInterviewLogsStream();
+    const queryStream = interviewsDbQueries.getInterviewLogsStream(interviewId);
     let i = 0;
     return new Promise((resolve, reject) => {
         queryStream
