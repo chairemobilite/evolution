@@ -28,7 +28,6 @@ import { createBrowserHistory } from 'history';
 
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import sectionTemplate from 'evolution-legacy/lib/components/survey/SectionTemplateHOC';
 import Text            from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap         from 'evolution-frontend/lib/components/survey/InfoMap';
 import Button          from 'evolution-frontend/lib/components/survey/Button';
@@ -454,4 +453,4 @@ export class VisitedPlacesSection extends React.Component<any, any> {
   }
 };
 
-export default withTranslation()(sectionTemplate(withSurveyContext(VisitedPlacesSection)))
+export default withTranslation()(withSurveyContext(VisitedPlacesSection));
