@@ -13,8 +13,9 @@ class ExportInterviewLogs {
     async run(argv) {
         const withValues = argv.withValues === true;
         const participantResponsesOnly = argv.participantResponsesOnly === true;
+        const interviewId = argv.interviewId as number | undefined;
         // TODO Support options from the command line
-        const csvFilePath = await exportInterviewLogTask({ withValues, participantResponsesOnly });
+        const csvFilePath = await exportInterviewLogTask({ withValues, participantResponsesOnly, interviewId });
 
         console.log('Interview logs exported to:', fileManager.getAbsolutePath(csvFilePath));
     }

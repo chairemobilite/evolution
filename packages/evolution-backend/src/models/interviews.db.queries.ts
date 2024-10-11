@@ -763,12 +763,13 @@ const getInterviewsStream = function (params: {
  * Streams the interview logs.  Logs will be split such that each row is a
  * single timestamped log data from the logs array.
  *
+ * @param {number|undefined} interviewId The id of the interview to get the logs for
  * @returns An interview logs stream. Returned fields are the interview id,
  * uuid, updated_at, is_valid, is_completed, is_validated, is_questionable, as
  * well as for each log entry the timestamp and the values_by_path and
  * unset_paths data
  */
-const getInterviewLogsStream = function () {
+const getInterviewLogsStream = function (interviewId?: number) {
     // FIXME: Add the p.email and p.username
     const select = [
         'i.id',
@@ -785,6 +786,9 @@ const getInterviewLogsStream = function () {
         .select(...select)
         .from(`${tableName} as i`)
         .whereNotNull('logs');
+    if (interviewId) {
+        interviewsLogEntriesQuery.andWhere('i.id', interviewId);
+    }
     return knex
         .select([
             'id',

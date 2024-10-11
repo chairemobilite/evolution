@@ -1259,4 +1259,82 @@ describe('Stream logs', () => {
         });
     });
 
+    test('Stream interview logs for single interview, many interview logs, should be sorted by interview/time', (done) => {
+        // Add a few logs to one of the interview, with/without valuesByPath, with/without unsetPaths
+        const logsFor1 = [
+            {
+                timestamp: 0,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true }
+            },
+            {
+                timestamp: 1,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true },
+                unsetPaths: []
+            },
+            {
+                timestamp: 10,
+                valuesByPath: { },
+                unsetPaths: [ 'responses.data' ]
+            },
+            {
+                timestamp: 4,
+                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+            }
+        ];
+        const logsFor2 = [
+            {
+                timestamp: 2,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 2, 2 ]}, 'validations.home.geography': false }
+            },
+            {
+                timestamp: 4,
+                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 3, 3 ]}, 'validations.home.geography': true },
+                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+            }
+        ];
+        dbQueries.update(localUserInterviewAttributes.uuid, { logs: logsFor1 as any }, 'id').then((interviewInDb) => {
+            dbQueries.update(facebookUserInterviewAttributes.uuid, { logs: logsFor2 as any }).then(() => {
+                let nbLogs = 0;
+                let lastTimestamp = -1;
+                let currentInterviewUuid = undefined;
+                let interviewLogsForFirstCompleted = false;
+                // Get logs only for one interview
+                const queryStream = dbQueries.getInterviewLogsStream((interviewInDb as any).id);
+                queryStream.on('error', (error) => {
+                    console.error(error);
+                    expect(true).toBe(false);
+                    done();
+                })
+                    .on('data', (row) => {
+                        // Check the data, only the logs for the first interview should be returned
+                        expect(row.uuid).toEqual(localUserInterviewAttributes.uuid);
+                        // Expected sort by timestamp, timestamp should be greater than previous
+                        const rowTimestamp = Number(row.timestamp);
+                        expect(rowTimestamp).toBeGreaterThan(lastTimestamp);
+                        lastTimestamp = Number(rowTimestamp);
+                        // Expected valuesByPath and unsetPaths to match the log data
+                        const log = logsFor1.find(l => l.timestamp === rowTimestamp);
+                        expect(log).toBeDefined();
+                        expect(row.values_by_path).toEqual(log?.valuesByPath ? log.valuesByPath : null);
+                        expect(row.unset_paths).toEqual(log?.unsetPaths ? log.unsetPaths : null);
+
+                        nbLogs++;
+                    })
+                    .on('end', () => {
+                        // Only the logs for the first interview should be returned
+                        expect(nbLogs).toEqual(logsFor1.length);
+                        done();
+                    });
+            }).catch((error) => {
+                console.error(error);
+                expect(true).toBe(false);
+                done();
+            });
+        }).catch((error) => {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        });
+    });
+
 });
