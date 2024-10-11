@@ -20,7 +20,6 @@ import { createBrowserHistory } from 'history';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import sectionTemplate from 'evolution-legacy/lib/components/survey/SectionTemplateHOC';
 import Text            from 'evolution-frontend/lib/components/survey/Text';
 import InfoMap         from 'evolution-frontend/lib/components/survey/InfoMap';
 import Button          from 'evolution-frontend/lib/components/survey/Button';
@@ -287,4 +286,4 @@ export class SegmentsSection extends React.Component<any, any> {
   }
 };
 
-export default withTranslation()(sectionTemplate(withSurveyContext(SegmentsSection)))
+export default withTranslation()(withSurveyContext(SegmentsSection));

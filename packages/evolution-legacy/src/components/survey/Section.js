@@ -10,7 +10,6 @@ import { createBrowserHistory } from 'history';
 import _get                     from 'lodash/get';
 import _shuffle                 from 'lodash/shuffle';
 
-import sectionTemplate  from './SectionTemplateHOC';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import Text             from 'evolution-frontend/lib/components/survey/Text';
@@ -221,4 +220,4 @@ export class Section extends React.Component {
 }
 
 
-export default withTranslation()(sectionTemplate(withSurveyContext(Section)))
+export default withTranslation()(withSurveyContext(Section));
