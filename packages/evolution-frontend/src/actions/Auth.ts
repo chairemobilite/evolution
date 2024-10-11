@@ -81,39 +81,3 @@ export const startRegister = (data: any, history: History) => {
 export const startRegisterWithPassword = AuthBase.startRegisterWithPassword;
 
 export const startForgotPasswordRequest = AuthBase.startForgotPasswordRequest;
-
-// TODO This does not exist in chaire-lib-frontend
-export const startChangePassword = (data: any, history: History) => {
-    return (dispatch, getState) => {
-        return fetch('/change_password', {
-            method: 'POST',
-            body: JSON.stringify(data),
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    response.json().then((body) => {
-                        if (body.user) {
-                            if (process.env.APP_NAME === 'survey') {
-                                dispatch(login(body.user, true, true, false));
-                                history.push('/survey');
-                            } else {
-                                dispatch(login(body.user, true, true, false));
-                                history.push('/dashboard');
-                            }
-                        } else {
-                            dispatch(login(null, false, true, false));
-                        }
-                    });
-                } else {
-                    dispatch(login(null, false, true, false));
-                }
-            })
-            .catch((err) => {
-                console.log('Error during password change.', err);
-            });
-    };
-};
