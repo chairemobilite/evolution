@@ -18,7 +18,7 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import interviewsDbQueries from '../../models/interviews.db.queries';
 
-export const filePathOnServer = 'exports';
+export const filePathOnServer = 'exports/interviewData';
 
 type AttributeAndObjectPaths = {
     attributes: string[];
@@ -276,6 +276,8 @@ export const exportAllToCsvByObjectTask = async function (
     }
 
     // create csv files and streams:
+    // Make sure the file path exists
+    fileManager.directoryManager.createDirectoryIfNotExists(filePathOnServer);
     const csvFilePathByObjectPath: {
         [objectName: string]: fs.WriteStream;
     } = {};
@@ -432,4 +434,4 @@ export const exportAllToCsvByObject = function (options: ExportOptions) {
 
 export const isExportRunning = () => runningExportNonce !== undefined;
 
-export const getExportFiles = () => fileManager.directoryManager.getFiles(filePathOnServer);
+export const getExportFiles = () => fileManager.directoryManager.getFiles(filePathOnServer) || [];
