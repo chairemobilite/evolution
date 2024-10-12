@@ -29,9 +29,9 @@ export const addExportRoutes = () => {
             res.set('Content-Type', 'text/csv');
             return res.status(200).sendFile(fileManager.getAbsolutePath(projectRelativeFilePath));
         } else {
-            return res.status(500).json({
-                status: 'error',
-                error: 'file does not exist'
+            return res.status(404).json({
+                status: 'notFound',
+                message: 'file does not exist'
             });
         }
     });

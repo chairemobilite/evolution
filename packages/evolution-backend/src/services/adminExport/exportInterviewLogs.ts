@@ -13,7 +13,7 @@ import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager
 import interviewsDbQueries from '../../models/interviews.db.queries';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
-export const filePathOnServer = 'exports';
+export const filePathOnServer = 'exports/interviewLogs';
 
 type ExportLogOptions = {
     participantResponsesOnly?: boolean;
@@ -93,6 +93,8 @@ export const exportInterviewLogTask = async function ({
     interviewId
 }: ExportLogOptions): Promise<string> {
     // create csv files and streams:
+    // Make sure the file path exists
+    fileManager.directoryManager.createDirectoryIfNotExists(filePathOnServer);
     const csvFilePath = `${filePathOnServer}/interviewLogs.csv`;
     const csvStream = fs.createWriteStream(fileManager.getAbsolutePath(csvFilePath));
     csvStream.on('error', console.error);
@@ -177,4 +179,4 @@ export const exportInterviewLogs = function (options: ExportLogOptions) {
 
 export const isExportRunning = () => runningExportNonce !== undefined;
 
-export const getExportFiles = () => fileManager.directoryManager.getFiles(filePathOnServer);
+export const getExportFiles = () => fileManager.directoryManager.getFiles(filePathOnServer) || [];
