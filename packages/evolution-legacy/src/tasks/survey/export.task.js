@@ -7,6 +7,7 @@
 const knex     = require('knex')(require('../../../knexfile'));
 const moment   = require('moment');
 const fs       = require('fs');
+// NOTE: no legacy import, can be moved to evolution-backend
 
 const exportJsonFileDirectory = __dirname + '/../../../monitoring/interviews/';
 const createDirectoryIfNotExists = function(absoluteDirectoryPath) {

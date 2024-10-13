@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 // TODO This file should be replaced with the chaire-lib's dotenv
+// NOTE: no legacy import, use chaire-lib instead
 const path = require('path');
 
 if (!process.env.NODE_ENV)

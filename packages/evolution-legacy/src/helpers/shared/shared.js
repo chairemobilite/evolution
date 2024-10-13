@@ -10,6 +10,7 @@ const transform = require('lodash/transform');
 import * as Helpers from 'evolution-common/lib/utils/helpers';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as DateTimeUtils from 'chaire-lib-common/lib/utils/DateTimeUtils';
+// NOTE: no legacy import, can be moved to evolution-common or deleted if unused
 
 // TODO Is this used? It is only in commented code. Leaving this here.
 const differences = function(object, base) {

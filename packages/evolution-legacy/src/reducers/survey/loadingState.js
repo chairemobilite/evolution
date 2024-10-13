@@ -4,6 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+// NOTE: no legacy import, can be moved to evolution-frontend
 export default (state = {}, action) => {
   switch (action.type) {
     case 'INCREMENT_LOADING_STATE':

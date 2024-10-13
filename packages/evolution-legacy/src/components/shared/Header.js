@@ -4,6 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+// NOTE: no legacy import except auth (use evolution-frontend), can be moved to evolution-frontend
 import React               from 'react';
 import { NavLink }         from 'react-router-dom';
 import { connect }         from 'react-redux';

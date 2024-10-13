@@ -7,4 +7,5 @@
 //const path = require('path');
 //require('dotenv').config({ path: path.join(__dirname, '../..', '.env') });
 // TODO Import from chaire-lib-common directly
+// NOTE: no legacy import, use chaire-lib instead
 module.exports = require(`chaire-lib-common/lib/config/shared/project.config.js`);

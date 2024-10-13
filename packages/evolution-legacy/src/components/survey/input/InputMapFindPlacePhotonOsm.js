@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 /* eslint no-undef: 0 */ // --> OFF
-
+// NOTE: no legacy import, can be moved to evolution-frontend
 import React from 'react';
 import {
     fitBounds,

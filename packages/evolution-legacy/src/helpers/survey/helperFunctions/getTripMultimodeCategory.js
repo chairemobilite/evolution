@@ -4,6 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+// NOTE: no legacy import, can be moved to evolution-common or deleted if unused
 const _uniq = require('lodash/uniq')
 
 module.exports = function(segments) { // segments array

@@ -4,6 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+// NOTE: no legacy import, can be moved to evolution-backend or deleted if unused
 const getJson = function(url) {
   return fetch(url).then(function(response) {
     if (response.status === 200) {
