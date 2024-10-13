@@ -4,6 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+// NOTE: no legacy import, can be moved to evolution-backend or deleted if unused
 const isObject   = require('lodash/isObject');
 const isEmpty    = require('lodash/isEmpty');
 import _cloneDeep from 'lodash/cloneDeep';

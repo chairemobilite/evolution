@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 // TODO Replace with chaire-lib's main import
+// NOTE: no legacy import, use chaire-lib
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import moment from 'moment-business-days';

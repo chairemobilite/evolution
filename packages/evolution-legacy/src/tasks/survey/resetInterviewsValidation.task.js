@@ -6,6 +6,7 @@
  */
 import '../../config/shared/dotenv.config';
 import Interviews from 'evolution-backend/lib/services/interviews/interviews';
+// NOTE: no legacy import, can be moved to evolution-backend (update dotenv import)
 
 // this task will remove all validated data from every valid interviews and replace validated data with original responses (not modified by validators/admins)
 

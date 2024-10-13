@@ -4,6 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+// NOTE: no legacy import, can be moved to evolution-frontend
 import React                          from 'react';
 import { withTranslation }            from 'react-i18next';
 
