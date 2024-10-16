@@ -7,18 +7,16 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import ReduxAsyncQueue from 'redux-async-queue';
-//import LogRocket from 'logrocket';
-//LogRocket.init('9w4ag0/od_mtl_2018');
 
 import { authReducer } from 'chaire-lib-frontend/lib/store/auth';
 import { surveyReducer } from 'evolution-frontend/lib/store/survey';
-import loadingStateReducer from '../../reducers/survey/loadingState';
-//import config from 'chaire-lib-common/lib/config/shared/project.config';
+import { loadingStateReducer } from 'evolution-frontend/lib/store/loadingState';
+
+// NOTE: no legacy import, can be moved to evolution-frontend
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const initialState = {
-  //config
   survey: {},
   loadingState: { loadingState: 0 }
 };
@@ -41,11 +39,6 @@ export default () => {
     rootReducer,
     initialState,
     composeEnhancers(applyMiddleware(thunk), applyMiddleware(ReduxAsyncQueue))
-    //composeEnhancers(applyMiddleware(thunk, LogRocket.reduxMiddleware()))
   );
   return store;
 };
-
-
-
- 
