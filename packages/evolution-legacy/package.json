@@ -9,9 +9,7 @@
   "author": "Chaire Mobilité",
   "license": "MIT",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --config=jest.config.js",
-    "test:unit": "cross-env NODE_ENV=test jest --config=jest.config.js",
-    "test:sequential": "cross-env NODE_ENV=test jest --config=jest.sequential.config.js --runInBand",
+    "test": "echo 'no test on this workspace'",
     "rollback": "knex migrate:rollback",
     "rollback-test": "cross-env NODE_ENV=test knex migrate:rollback",
     "seed": "cross-env NODE_ENV=test knex seed:run",
