@@ -11,8 +11,8 @@ import { I18nextProvider }      from 'react-i18next';
 import { createBrowserHistory } from 'history';
 import { Router }               from 'react-router-dom';
 
-import config from 'chaire-lib-frontend/lib/config/project.config';
-import i18n              from '../../../config/survey/i18n.config';
+import config from 'evolution-common/lib/config/project.config';
+import i18n              from 'evolution-frontend/lib/config/i18n.config';
 import SurveyRouter      from './SurveyRouter';
 import configureStore    from '../../../store/survey/configureStore';
 import LoadingPage       from 'chaire-lib-frontend/lib/components/pages/LoadingPage';

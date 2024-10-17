@@ -7,7 +7,7 @@
 import { TFunction } from 'i18next';
 import moment from 'moment';
 
-import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
+import i18n from '../../config/i18n.config';
 import { Person } from 'evolution-common/lib/services/interviews/interview';
 
 type GenderedData = {

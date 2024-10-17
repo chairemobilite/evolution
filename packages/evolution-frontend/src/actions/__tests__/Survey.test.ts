@@ -13,14 +13,14 @@ import * as SurveyActions from '../Survey';
 import { prepareWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
 
-jest.mock('chaire-lib-frontend/lib/config/i18n.config', () => ({
+jest.mock('../../config/i18n.config', () => ({
     language: 'en'
 }));
 jest.mock('evolution-common/lib/utils/helpers', () => {
     // Require the original module to not be mocked...
     const originalModule =
         jest.requireActual<typeof import('evolution-common/lib/utils/helpers')>('evolution-common/lib/utils/helpers');
-  
+
     return {
         ...originalModule,
         addGroupedObjects: jest.fn(),

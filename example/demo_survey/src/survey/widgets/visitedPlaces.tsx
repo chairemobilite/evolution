@@ -31,7 +31,7 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
-import i18n              from 'chaire-lib-frontend/lib/config/i18n.config';
+import i18n              from 'evolution-frontend/lib/config/i18n.config';
 import helper from '../helper';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';

@@ -32,7 +32,7 @@ import { prepareWidgets } from './utils';
 import { UserFrontendInterviewAttributes } from '../services/interviews/interview';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
+import i18n from '../config/i18n.config';
 import { handleClientError, handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import applicationConfiguration from '../config/application.config';
 import config from 'chaire-lib-common/lib/config/shared/project.config';

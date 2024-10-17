@@ -5,12 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment';
-import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
+import i18n from '../../../config/i18n.config';
 
 import { TFunction } from 'i18next';
 import { getGenderedStrings, getFormattedDate } from '../frontendHelper';
 
-jest.mock('chaire-lib-frontend/lib/config/i18n.config', () => ({
+jest.mock('../../../config/i18n.config', () => ({
     t: jest.fn((key, options) => `${key}${options && options.context ? `_${options.context}` : ''}${options && options.count !== undefined ? `_${options.count}` : '' }`)
 }));
 const mockedT = i18n.t as jest.MockedFunction<TFunction>;
