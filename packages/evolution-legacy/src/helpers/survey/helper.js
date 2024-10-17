@@ -16,7 +16,7 @@ import { distance as turfDistance } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import i18n                     from 'chaire-lib-frontend/lib/config/i18n.config';
+import i18n                     from 'evolution-frontend/lib/config/i18n.config';
 import * as surveyHelperNew     from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper     from 'evolution-common/lib/services/odSurvey/helpers';
 import surveyHelper             from './survey';

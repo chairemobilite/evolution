@@ -8,7 +8,7 @@
  * function. This context comes from the interviewMode preference, which can be
  * either an interviewer or participant mode */
 import Preferences from 'chaire-lib-common/lib/config/Preferences';
-import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
+import i18n from 'evolution-frontend/lib/config/i18n.config';
 
 const getContextParticipant = (context?: string) => context;
 const getContextInterviewer = (context?: string) => (context === undefined ? 'cati' : `cati_${context}`);
