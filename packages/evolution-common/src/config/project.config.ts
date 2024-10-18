@@ -33,6 +33,24 @@ export type EvolutionProjectConfiguration = {
         lon: number;
     };
 
+    hideStartButtonOnHomePage: boolean;
+    introductionTwoParagraph: boolean; // whether to show a second paragraph on the home page
+    introBanner: boolean;
+    bannerPaths: {
+        [key: string]: string;
+    };
+    introLogoAfterStartButton: boolean; // whether to show the logo after the start button on the home page
+    logoPaths: {
+        [key: string]: string;
+    };
+
+    /**
+     * The names of the languages, used in the language selector on the home page
+     */
+    languageNames: {
+        [key: string]: string;
+    };
+
     // TODO Add more project configuration types
 };
 
