@@ -18,10 +18,10 @@ import { addConsent } from '../../../actions/Survey';
 let translatedString = '';
 jest.mock('react-i18next', () => ({
     // this mock makes sure any components using the translate HoC receive the t function as a prop
-    withTranslation: () => Component => {
-      Component.defaultProps = { ...Component.defaultProps, t: (str: string | string[]) => typeof str === 'string' ? str : str.findIndex(s => s.includes('AgreementText')) !== -1 ? translatedString : str[0] };
-      return Component;
-    },
+    withTranslation: () => (Component) => {
+        Component.defaultProps = { ...Component.defaultProps, t: (str: string | string[]) => typeof str === 'string' ? str : str.findIndex((s) => s.includes('AgreementText')) !== -1 ? translatedString : str[0] };
+        return Component;
+    }
 }));
 
 const mockStore = configureStore([thunk]);
@@ -54,7 +54,7 @@ describe('Render ConsentAndStartForm', () => {
                     afterClicked={jest.fn()}
                 />
             </Provider>
-            
+
         );
         expect(wrapper).toMatchSnapshot();
     });
@@ -70,7 +70,7 @@ describe('Render ConsentAndStartForm', () => {
         );
         expect(wrapper).toMatchSnapshot();
     });
-    
+
 });
 
 
@@ -90,7 +90,7 @@ describe('Button click', () => {
                 afterClicked={afterClick}
             />
         </Provider>);
-    
+
         // Click on button and make sure it accepts the change
         const formButton = consentAndStartForm.find(`.survey-section__button`).at(0);
         formButton.simulate('click');
@@ -113,11 +113,11 @@ describe('Button click', () => {
                 afterClicked={afterClick}
             />
         </Provider>);
-    
+
         // Click on button, it should not agree
         const formButton = consentAndStartForm.find(`.survey-section__button`).at(0);
         formButton.simulate('click');
-        
+
         // Make sure the callback was not called and the error message appears
         expect(afterClick).not.toHaveBeenCalled();
         consentAndStartForm.update();
@@ -138,7 +138,7 @@ describe('State update', () => {
                 afterClicked={afterClick}
             />
         </Provider>);
-    
+
         // the addConsent survey action should have been called
         expect(mockAddConsent).toHaveBeenCalledTimes(1);
         expect(mockAddConsent).toHaveBeenCalledWith(true);
@@ -169,7 +169,7 @@ describe('State update', () => {
         // the addConsent survey action should have been called
         expect(mockAddConsent).toHaveBeenCalledTimes(1);
         expect(mockAddConsent).toHaveBeenCalledWith(true);
-    
+
     });
 
     test('With consent, initially checked, then unchecked', () => {
@@ -186,7 +186,7 @@ describe('State update', () => {
                 afterClicked={afterClick}
             />
         </Provider>);
-    
+
         // the addConsent survey action should not have been called yet
         expect(mockAddConsent).not.toHaveBeenCalled();
 

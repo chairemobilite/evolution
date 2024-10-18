@@ -7,8 +7,7 @@
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
 
-import HomePage from '../../../components/survey/HomePage';
-import NotFoundPage from 'chaire-lib-frontend/lib/components/pages/NotFoundPage';
+import HomePage from 'evolution-frontend/lib/components/pages/HomePage';
 import UnauthorizedPage from 'evolution-frontend/lib/components/pages/UnauthorizedPage';
 import SurveyErrorPage from 'evolution-frontend/lib/components/pages/SurveyErrorPage';
 import LoginPage from 'evolution-frontend/lib/components/pages/auth/LoginPage';
@@ -16,8 +15,7 @@ import RegisterWithPasswordPage from 'evolution-frontend/lib/components/pages/au
 import ForgotPasswordPage from 'chaire-lib-frontend/lib/components/pages/ForgotPasswordPage';
 import MagicLinkVerifyPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/MagicLinkVerify';
 import CheckMagicEmailPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/CheckMagicEmail';
-import Survey from '../../../components/survey/SurveyWithErrorBoundary';
-//import RegistrationCompleted from '../../components/survey/RegistrationCompleted';
+import Survey from 'evolution-frontend/lib/components/hoc/SurveyWithErrorBoundary';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
 import ResetPasswordPage from 'chaire-lib-frontend/lib/components/pages/ResetPasswordPage';
 import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute';
