@@ -58,8 +58,12 @@ export class Section extends React.Component {
     if (!this.props.allWidgetsValid && this.props.submitted && this.props.loadingState === 0)
     {
       const invalidInputs = document.querySelectorAll('.question-invalid input');
-      if (invalidInputs.length > 0 && invalidInputs[0].id) {
-        // Focus on invalid input if found and it has an ID (inputRanges do not have IDs, the library used does not support it)
+      // Not all widgets types focus correclty on all browsers, so we do the
+      // actual focus only on text widgets. For the others, we scroll to the
+      // position of the first invalid question to make sure it is in view. This
+      // works for all widgets types.
+      if (invalidInputs.length > 0 && invalidInputs[0].id && invalidInputs[0].type === 'text') {
+        // Focus on invalid input if found, it has an ID, and is of type text
         const inputElement = document.getElementById(invalidInputs[0].id);
         if (inputElement) {
           inputElement.focus();
@@ -67,11 +71,10 @@ export class Section extends React.Component {
       } else {
         // Otherwise scroll to the position of the first invalid question
         const scrollPosition = _get(document.getElementsByClassName('question-invalid'), '[0].offsetTop', null);
-        if (scrollPosition && scrollPosition >= 0)
-        {
+        if (scrollPosition && scrollPosition >= 0) {
           window.scrollTo(0,scrollPosition);
         }
-      }   
+      }
     }
   }
 
