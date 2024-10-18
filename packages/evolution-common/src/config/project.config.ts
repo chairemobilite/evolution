@@ -33,6 +33,24 @@ export type EvolutionProjectConfiguration = {
         lon: number;
     };
 
+    hideStartButtonOnHomePage: boolean;
+    introductionTwoParagraph: boolean; // whether to show a second paragraph on the home page
+    introBanner: boolean; // seems obsolete. TODO/FIXME: find if this is still useful
+    bannerPaths: { // seems obsolete. TODO/FIXME: find if this is still useful
+        [key: string]: string;
+    };
+    introLogoAfterStartButton: boolean; // whether to show the logo after the start button on the home page
+    logoPaths: {
+        [key: string]: string;
+    };
+
+    /**
+     * The names of the languages, used in the language selector on the home page
+     */
+    languageNames: {
+        [key: string]: string;
+    };
+
     // TODO Add more project configuration types
 };
 
@@ -47,7 +65,14 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             mapDefaultCenter: {
                 lat: 45.5,
                 lon: -73.6
-            }
+            },
+            hideStartButtonOnHomePage: false,
+            introductionTwoParagraph: false,
+            introBanner: false,
+            bannerPaths: {},
+            introLogoAfterStartButton: false,
+            logoPaths: {},
+            languageNames: { 'en': 'English', 'fr': 'Français' }
         },
         projectConfig
     )

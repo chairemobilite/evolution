@@ -15,7 +15,14 @@ jest.mock('chaire-lib-common/lib/config/shared/project.config', () => ({
     default: {
         region: 'FR',
         selfResponseMinimumAge: 18,
-        logDatabaseUpdates: true
+        logDatabaseUpdates: true,
+        hideStartButtonOnHomePage: true,
+        introductionTwoParagraph: true,
+        introBanner: true,
+        bannerPaths: { 'en': 'banner-en.png', 'fr': 'banner-fr.png' },
+        introLogoAfterStartButton: true,
+        logoPaths: { 'en': 'logo-en.png', 'fr': 'logo-fr.png' },
+        languageNames: { 'en': 'English', 'fr': 'Français' }
     }
 }));
 
@@ -23,6 +30,13 @@ test('test initialized values', () => {
     expect(projectConfig).toEqual(expect.objectContaining({
         region: 'FR',
         selfResponseMinimumAge: 18,
-        logDatabaseUpdates: true
+        logDatabaseUpdates: true,
+        hideStartButtonOnHomePage: true,
+        introductionTwoParagraph: true,
+        introBanner: true,
+        bannerPaths: { 'en': 'banner-en.png', 'fr': 'banner-fr.png' },
+        introLogoAfterStartButton: true,
+        logoPaths: { 'en': 'logo-en.png', 'fr': 'logo-fr.png' },
+        languageNames: { 'en': 'English', 'fr': 'Français' }
     }));
 });

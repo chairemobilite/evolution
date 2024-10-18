@@ -18,7 +18,7 @@ import AdminRegisterPage from 'chaire-lib-frontend/lib/components/pages/Register
 import ForgotPasswordPage from 'chaire-lib-frontend/lib/components/pages/ForgotPasswordPage';
 import MagicLinkVerifyPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/MagicLinkVerify';
 import CheckMagicEmailPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/CheckMagicEmail';
-import Survey from '../../../components/survey/SurveyWithErrorBoundary';
+import Survey from 'evolution-frontend/lib/components/hoc/SurveyWithErrorBoundary';
 //import RegistrationCompleted from '../../components/survey/RegistrationCompleted';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
 import ResetPasswordPage from 'chaire-lib-frontend/lib/components/pages/ResetPasswordPage';
