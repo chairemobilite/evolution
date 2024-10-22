@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment-business-days';
-import React from 'react';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import _get from 'lodash/get';
 import { distance as turfDistance } from '@turf/turf';
@@ -20,6 +19,9 @@ import subwayStations from '../subwayStations.json';
 import trainStations  from '../trainStations.json';
 import busRoutes  from '../busRoutes.json';
 import { GroupConfig } from 'evolution-common/lib/services/widgets';
+import { getModePreWidgetConfig } from 'evolution-frontend/lib/services/sections/segments/widgetSegmentModePre';
+import { getModeWidgetConfig } from 'evolution-frontend/lib/services/sections/segments/widgetSegmentMode';
+import { getSameAsReverseTripWidgetConfig } from 'evolution-frontend/lib/services/sections/segments/widgetSameAsReverseTrip';
 
 export const personTrips: GroupConfig = {
   type: "group",
@@ -115,6 +117,8 @@ export const segments: GroupConfig = {
   },
   addButtonLocation: 'bottom' as const,
   widgets: [
+    'segmentSameModeAsReverseTrip',
+    'segmentModePre',
     'segmentMode',
     //'segmentParkingType',
     'segmentParkingPaymentType',
@@ -146,226 +150,11 @@ export const segmentIntro = {
   }
 };
 
-export const segmentMode = {
-  type: "question",
-  path: "mode",
-  inputType: 'select',
-  twoColumns: function(interview, path) {
-    const mode = surveyHelperNew.getResponse(interview, path, null);
-    return !_isBlank(mode);
-  },
-  datatype: "string",
-  iconSize: '1.5em',
-  columns: 2,
-  label: {
-    fr: function(interview, path) { 
-      const sequence = surveyHelperNew.getResponse(interview, path, null, '../_sequence');
-      return sequence === 1 ? "Quel mode de transport a été utilisé en premier?" : "Quel mode de transport a été utilisé ensuite?";
-    },
-    en: function(interview, path) { 
-      const sequence = surveyHelperNew.getResponse(interview, path, null, '../_sequence');
-      return sequence === 1 ? "Which mode of transport was used first?" : "Which mode of transport was used next?";
-    }
-  },
-  choices: [
-    {
-      value: "walk",
-      label: {
-        fr: "Marche",
-        en: "Walking"
-      },
-      internalId: 14,
-      iconPath: '/dist/images/modes_icons/walk.png'
-    },
-    {
-      value: "carDriver",
-      label: {
-        fr: "Auto conducteur",
-        en: "Car driver"
-      },
-      internalId: 1,
-      conditional: function(interview, path) {
-        const person = helper.getPerson(interview);
-        const drivingLicenseOwner = person ? person.drivingLicenseOwner : 'dontKnow';
-        return drivingLicenseOwner === 'yes';
-      },
-      iconPath: '/dist/images/modes_icons/carDriver.png'
-    },
-    {
-      value: "carPassenger",
-      label: {
-        fr: "Auto passager",
-        en: "Car passenger"
-      },
-      internalId: 2,
-      iconPath: '/dist/images/modes_icons/carPassenger.png'
-    },
-    {
-      value: "bicycle",
-      label: {
-        fr: "Vélo",
-        en: "Bicycle"
-      },
-      internalId: 13,
-      iconPath: '/dist/images/modes_icons/bicycle.png'
-    },
-    {
-      value: "transitSubway",
-      label: {
-        fr: "Métro",
-        en: "Subway (Metro)"
-      },
-      internalId: 4,
-      iconPath: '/dist/images/modes_icons/subway.png'
-    },
-    {
-      value: "transitBus",
-      label: {
-        fr: "Bus (transport en commun)",
-        en: "Transit bus"
-      },
-      internalId: null,
-      iconPath: '/dist/images/modes_icons/bus.png'
-    },
-    {
-      value: "transitRail",
-      label: {
-        fr: "Train de banlieue",
-        en: "Commuter train"
-      },
-      internalId: 8,
-      iconPath: '/dist/images/modes_icons/train.png'
-    },
-    {
-      value: "transitTaxi",
-      label: {
-        fr: "Taxi collectif",
-        en: "Taxibus"
-      },
-      internalId: 11,
-      iconPath: '/dist/images/modes_icons/taxi.png'
-    },
-    {
-      value: "schoolBus",
-      label: {
-        fr: "Bus scolaire",
-        en: "School bus"
-      },
-      internalId: 9,
-      iconPath: '/dist/images/modes_icons/schoolBus.png'
-    },
-    {
-      value: "paratransit",
-      label: {
-        fr: "Transport adapté",
-        en: "Paratransit"
-      },
-      internalId: 15,
-      iconPath: '/dist/images/modes_icons/paratransit.png'
-    },
-    {
-      value: "intercityBus",
-      label: {
-        fr: "Bus interurbain",
-        en: "Intercity bus"
-      },
-      internalId: 16,
-      iconPath: '/dist/images/modes_icons/intercityBus.png'
-    },
-    {
-      value: "intercityRail",
-      label: {
-        fr: "Train interurbain (VIA Rail)",
-        en: "Intercity train (VIA Rail)"
-      },
-      internalId: 16,
-      iconPath: '/dist/images/modes_icons/train.png'
-    },
-    {
-      value: "motorcycle",
-      label: {
-        fr: "Moto ou scooter",
-        en: "Motorcycle or scooter"
-      },
-      internalId: 12,
-      iconPath: '/dist/images/modes_icons/motorcycle.png'
-    },
-    {
-      value: "plane",
-      label: {
-        fr: "Avion",
-        en: "Airplane"
-      },
-      internalId: 16,
-      iconPath: '/dist/images/modes_icons/plane.png'
-    },
-    {
-      value: "ferry",
-      label: {
-        fr: "Traversier",
-        en: "Ferry"
-      },
-      internalId: 18,
-      iconPath: '/dist/images/modes_icons/ferry.png'
-    },
-    {
-      value: "taxi",
-      label: {
-        fr: "Taxi",
-        en: "Taxi"
-      },
-      internalId: 11,
-      iconPath: '/dist/images/modes_icons/taxi.png'
-    },
-    {
-      value: "uber",
-      label: {
-        fr: "Uber",
-        en: "Uber"
-      },
-      internalId: 11,
-      iconPath: '/dist/images/modes_icons/taxi.png'
-    },
-    {
-      value: "busOther",
-      label: {
-        fr: "Autre bus (nolisé ou privé)",
-        en: "Other bus (charter or private)"
-      },
-      internalId: 10,
-      iconPath: '/dist/images/modes_icons/bus.png'
-    },
-    {
-      value: "other",
-      label: {
-        fr: "Autre",
-        en: "Other"
-      },
-      internalId: 18,
-      iconPath: '/dist/images/modes_icons/other.png'
-    },
-    {
-      value: "dontKnow",
-      label: {
-        fr: "Je ne sais pas",
-        en: "I don't know"
-      },
-      internalId: 18,
-      iconPath: '/dist/images/modes_icons/dontKnow.png'
-    }
-  ],
-  validations: function(value, customValue, interview, path, customPath) {
-    return [
-      {
-        validation: _isBlank(value),
-        errorMessage: {
-          fr: `Le mode de transport est requis.`,
-          en: `Mode of transport is required.`
-        }
-      }
-    ];
-  }
-};
+export const segmentSameModeAsReverseTrip = getSameAsReverseTripWidgetConfig();
+
+export const segmentModePre = getModePreWidgetConfig();
+
+export const segmentMode = getModeWidgetConfig();
 
 export const segmentIsNotLast = {
   type: "question",

@@ -609,7 +609,7 @@ export const personCellphoneOwner = {
 
 export const personDrivingLicenseOwner = {
   type: "question",
-  path: "drivingLicenseOwner",
+  path: "drivingLicenseOwnership",
   inputType: "radio",
   datatype: "string",
   twoColumns: true,
