@@ -50,10 +50,22 @@ const exportLogToRows = (
 ): { [key: string]: any }[] => {
     const { values_by_path, unset_paths, ...rest } = logData;
     if (!withValues) {
+        const { valuesByPath, valuesByPathInit } = Object.entries(values_by_path).reduce(
+            (acc: { valuesByPath: string[]; valuesByPathInit: string[] }, [key, value]) => {
+                if (value === null) {
+                    acc.valuesByPathInit.push(key);
+                } else {
+                    acc.valuesByPath.push(key);
+                }
+                return acc;
+            },
+            { valuesByPath: [], valuesByPathInit: [] }
+        );
         return [
             {
                 ...rest,
-                modifiedFields: !_isBlank(values_by_path) ? Object.keys(values_by_path).join('|') : '',
+                modifiedFields: !_isBlank(valuesByPath) ? valuesByPath.join('|') : '',
+                initializedFields: !_isBlank(valuesByPathInit) ? valuesByPathInit.join('|') : '',
                 unsetFields: (unset_paths || []).join('|')
             }
         ];
@@ -95,7 +107,8 @@ export const exportInterviewLogTask = async function ({
     // create csv files and streams:
     // Make sure the file path exists
     fileManager.directoryManager.createDirectoryIfNotExists(filePathOnServer);
-    const csvFilePath = `${filePathOnServer}/interviewLogs.csv`;
+    const fileName = `interviewLogs${interviewId ? `_${interviewId}` : ''}${participantResponsesOnly ? '_responses' : '_all'}${withValues ? '_withValues' : ''}_${new Date().toISOString().replace(/:/g, '-')}`;
+    const csvFilePath = `${filePathOnServer}/${fileName}.csv`;
     const csvStream = fs.createWriteStream(fileManager.getAbsolutePath(csvFilePath));
     csvStream.on('error', console.error);
     let headerWritten = false;

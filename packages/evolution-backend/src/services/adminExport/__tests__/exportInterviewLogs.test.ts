@@ -46,10 +46,10 @@ describe('exportInterviewLogTask', () => {
 
     const logs: { [key: string]: any }[] = [
         {
-            // Normal log with a bit of everything
+            // Normal log with a bit of everything, including null values
             ...commonInterviewData,
             timestamp: 1,
-            values_by_path: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true, 'responses.household.size': 3 },
+            values_by_path: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true, 'responses.household.size': 3, 'responses._activeTripId': null },
             unset_paths: [ 'responses.home.someField', 'validations.home.someField' ]
         }, {
             // No unset paths
@@ -134,8 +134,11 @@ describe('exportInterviewLogTask', () => {
             expect(logRows[i]).toEqual(expect.objectContaining({
                 ...commonInterviewDataInRows
             }));
+            const modifiedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
+            const initializedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
             expect(logRows[i].timestamp).toEqual(String(i+1));
-            expect(logRows[i].modifiedFields).toEqual(Object.keys(logs[i].values_by_path).join('|'));
+            expect(logRows[i].modifiedFields).toEqual(modifiedKeys);
+            expect(logRows[i].initializedFields).toEqual(initializedKeys);
             expect(logRows[i].unsetFields).toEqual(logs[i].unset_paths !== undefined ? logs[i].unset_paths.join('|') : '');
         }
     });
@@ -166,8 +169,11 @@ describe('exportInterviewLogTask', () => {
             expect(logRows[i]).toEqual(expect.objectContaining({
                 ...commonInterviewDataInRows
             }));
+            const modifiedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value !== null).filter(([key, value]) => key.startsWith('responses.')).map(([key, value]) => key).join('|');
+            const initializedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value === null).filter(([key, value]) => key.startsWith('responses.')).map(([key, value]) => key).join('|');
             expect(logRows[i].timestamp).toEqual(String(i+1));
-            expect(logRows[i].modifiedFields).toEqual(Object.keys(logs[i].values_by_path).filter(key => key.startsWith('responses.')).join('|'));
+            expect(logRows[i].modifiedFields).toEqual(modifiedKeys);
+            expect(logRows[i].initializedFields).toEqual(initializedKeys);
             expect(logRows[i].unsetFields).toEqual(logs[i].unset_paths !== undefined ? logs[i].unset_paths.filter(key => key.startsWith('responses.')).join('|') : '');
         }
     });
