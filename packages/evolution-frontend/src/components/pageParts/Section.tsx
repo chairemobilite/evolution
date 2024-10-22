@@ -21,7 +21,12 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getPathForSection } from '../../services/url';
 import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { StartUpdateInterview, StartAddGroupedObjects, StartRemoveGroupedObjects, InterviewUpdateCallbacks } from 'evolution-common/lib/utils/helpers';
+import {
+    StartUpdateInterview,
+    StartAddGroupedObjects,
+    StartRemoveGroupedObjects,
+    InterviewUpdateCallbacks
+} from 'evolution-common/lib/utils/helpers';
 
 export type SectionProps = {
     shortname: string;

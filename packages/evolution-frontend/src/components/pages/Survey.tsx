@@ -31,7 +31,11 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { History, Location } from 'history';
 import { InterviewContext } from '../../contexts/InterviewContext';
-import { StartUpdateInterview, StartAddGroupedObjects, StartRemoveGroupedObjects } from 'evolution-common/lib/utils/helpers';
+import {
+    StartUpdateInterview,
+    StartAddGroupedObjects,
+    StartRemoveGroupedObjects
+} from 'evolution-common/lib/utils/helpers';
 
 export type SurveyProps = {
     interview: UserFrontendInterviewAttributes;

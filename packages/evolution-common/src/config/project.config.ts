@@ -36,7 +36,8 @@ export type EvolutionProjectConfiguration = {
     hideStartButtonOnHomePage: boolean;
     introductionTwoParagraph: boolean; // whether to show a second paragraph on the home page
     introBanner: boolean; // seems obsolete. TODO/FIXME: find if this is still useful
-    bannerPaths: { // seems obsolete. TODO/FIXME: find if this is still useful
+    bannerPaths: {
+        // seems obsolete. TODO/FIXME: find if this is still useful
         [key: string]: string;
     };
     introLogoAfterStartButton: boolean; // whether to show the logo after the start button on the home page
@@ -72,7 +73,7 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             bannerPaths: {},
             introLogoAfterStartButton: false,
             logoPaths: {},
-            languageNames: { 'en': 'English', 'fr': 'Français' }
+            languageNames: { en: 'English', fr: 'Français' }
         },
         projectConfig
     )
