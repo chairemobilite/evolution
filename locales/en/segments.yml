@@ -104,3 +104,5 @@ SegmentSameModeReturnHome: >-
     Was it the same mode of transport used for the return home trip ({{previousMode}})?
 SegmentSameModeReturn: >-
     Was it the same mode of transport used as the previous trip ({{previousMode}})?
+SegmentHasNextModeLoop: Other mode of transport used to complete {{thisTrip}}?
+SegmentHasNextMode: Other mode of transport used to complete {{thisTrip}}?

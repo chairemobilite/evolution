@@ -135,6 +135,7 @@ export const interviewAttributesForTestCases: UserInterviewAttributes = {
                 personId2: {
                     _uuid: 'personId2',
                     _sequence: 2,
+                    nickname: 'p2',
                     age: 45,
                     drivingLicenseOwnership: 'no',
                     journeys: {

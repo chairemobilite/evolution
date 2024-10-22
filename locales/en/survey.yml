@@ -2,6 +2,9 @@ destination: destination
 origin: origin
 Yes: Yes
 No: No
+thisTrip: this trip
+thisTrip_workOnTheRoad: the on the road trips
+thisTrip_leisureStroll: the stroll
 
 # Gendered strings
 suffixE: 
