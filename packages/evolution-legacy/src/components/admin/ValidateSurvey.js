@@ -12,8 +12,8 @@ import _get                from 'lodash/get';
 
 import config                 from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew   from 'evolution-common/lib/utils/helpers';
-import Section                from '../survey/Section';
-import SectionNav             from '../survey/SectionNav';
+import Section                from 'evolution-frontend/lib/components/pageParts/Section';
+import SectionNav             from 'evolution-frontend/lib/components/pageParts/SectionNav';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { startSetSurveyValidateInterview, startUpdateSurveyValidateInterview, startSurveyValidateAddGroupedObjects, startSurveyValidateRemoveGroupedObjects } from 'evolution-frontend/lib/actions/SurveyAdmin';
