@@ -13,7 +13,7 @@ import { Router }               from 'react-router-dom';
 
 import config from 'evolution-common/lib/config/project.config';
 import i18n              from 'evolution-frontend/lib/config/i18n.config';
-import SurveyRouter      from './SurveyRouter';
+import SurveyRouter      from 'evolution-frontend/lib/components/routers/ParticipantSurveyRouter';
 import configureStore    from 'evolution-frontend/lib/store/configureStore';
 import LoadingPage       from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { InterviewContext, interviewReducer, initialState } from 'evolution-frontend/lib/contexts/InterviewContext';
