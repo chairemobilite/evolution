@@ -112,6 +112,7 @@ export type Segment = SegmentAttributes & {
     _isNew: boolean;
     modePre?: string;
     sameModeAsReverseTrip?: boolean;
+    hasNextMode?: boolean;
 };
 
 type SectionStatus = {
