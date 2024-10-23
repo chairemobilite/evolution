@@ -9,7 +9,7 @@ import { withTranslation, WithTranslation } from 'react-i18next';
 import { History } from 'history';
 import Loadable from 'react-loadable';
 import Loader from 'react-spinners/HashLoader';
-import { InterviewContext } from '../../contexts/InterviewContext';
+import { InterviewContext } from '../../../contexts/InterviewContext';
 import InputString from 'chaire-lib-frontend/lib/components/input/InputString';
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { _booleish } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -31,7 +31,7 @@ const loader = function Loading() {
 
 const InterviewsComponent = Loadable({
     // TODO: move this to componentDidMount like in Monitoring.tsx
-    loader: () => import('../pageParts/interviews/InterviewSearchList'),
+    loader: () => import('./InterviewSearchList'),
     loading: loader
 });
 

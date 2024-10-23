@@ -7,8 +7,8 @@
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import moment from 'moment';
-import appConfig from '../../config/application.config';
-import StartedAndCompletedInterviewsByDay from './monitoring/StartedAndCompletedInterviewByDay';
+import appConfig from '../../../config/application.config';
+import StartedAndCompletedInterviewsByDay from '../monitoring/StartedAndCompletedInterviewByDay';
 import ExportInterviewData from './ExportInterviewData';
 // import custom admin monitoring components if available in the project directory:
 

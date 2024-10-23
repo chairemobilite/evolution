@@ -7,10 +7,9 @@
 import React from 'react';
 import { Switch } from 'react-router-dom';
 
-import AdminMonitoringPage from 'evolution-frontend/lib/components/admin/AdminMonitoringPage';
+import AdminMonitoringPage from 'evolution-frontend/lib/components/admin/pages/AdminMonitoringPage';
 import AdminValidationPage from '../../../components/shared/AdminValidationPage';
 import AdminValidateSurveyPage from '../../../components/shared/AdminValidateSurveyPage';
-import NotFoundPage from 'chaire-lib-frontend/lib/components/pages/NotFoundPage';
 import UnauthorizedPage from 'chaire-lib-frontend/lib/components/pages/UnauthorizedPage';
 import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/MaintenancePage';
 import { LoginPage as AdminLoginPage } from 'chaire-lib-frontend/lib/components/pages';
@@ -26,10 +25,10 @@ import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute'
 import AdminRoute from 'chaire-lib-frontend/lib/components/routers/AdminRoute';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import UsersPage from 'chaire-lib-frontend/lib/components/pages/admin/UsersPage';
-import InterviewsByAccessCode from 'evolution-frontend/lib/components/pages/InterviewsByAccessCode';
-import InterviewsPage from 'evolution-frontend/lib/components/pages/InterviewsPage';
+import InterviewsByAccessCode from 'evolution-frontend/lib/components/admin/interviews/InterviewsByAccessCode';
+import InterviewsPage from 'evolution-frontend/lib/components/admin/pages/InterviewsPage';
 import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
-import AdminHomePage from 'evolution-frontend/lib/components/pages/AdminHomePage';
+import AdminHomePage from 'evolution-frontend/lib/components/admin/pages/AdminHomePage';
 
 // Only show user info for users that are not simple respondents
 setShowUserInfoPerm({ 'Interviews': ['read', 'update'] });
@@ -59,7 +58,6 @@ const SurveyRouter = () => (
     <PublicRoute   path="/maintenance" component={() => <MaintenancePage linkPath={'/survey'}/>} />
     <PublicRoute   path="/magic/verify" component={MagicLinkVerifyPage} />
     <PublicRoute   path="/checkMagicEmail" component={CheckMagicEmailPage} />
-    {/*<PrivateRoute  path="/postregistration" component={RegistrationCompleted} />*/}
     <PrivateRoute  path="/survey/edit/:uuid" permissions={{ 'Interviews': ['read', 'update'] }} component={Survey} />
     <PrivateRoute  path="/survey/edit/:uuid/:sectionShortname" permissions={{ 'Interviews': ['read', 'update'] }} component={Survey} />
     <PrivateRoute  path="/admin/survey/:sectionShortname" permissions={{ 'Interviews': ['validate'] }} component={AdminValidateSurveyPage} exact={true} />
