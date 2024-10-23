@@ -6,11 +6,11 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
-import * as odHelpers from 'evolution-common/lib/services/odSurvey/helpers';
-import { interviewAttributesForTestCases } from 'evolution-common/lib/tests/surveys';
-import { setResponse } from 'evolution-common/lib/utils/helpers';
+import * as odHelpers from '../../../odSurvey/helpers';
+import { interviewAttributesForTestCases } from '../../../../tests/surveys';
+import { getResponse, setResponse } from '../../../../utils/helpers';
 import * as helpers from '../helpers';
-import { Journey, Person } from 'evolution-common/lib/services/interviews/interview';
+import { Journey, Person } from '../../../interviews/interview';
 
 describe('getPreviousTripSingleSegment', () => {
 
@@ -305,3 +305,75 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
     })
 });
 
+describe('shouldShowSameAsReverseTripQuestion', () => {
+
+    // Prepare test data with default active person/journey/trip, tripId2P1 is return trip of a simple chain
+    const baseTestInterview = _cloneDeep(interviewAttributesForTestCases);
+    baseTestInterview.responses._activePersonId = 'personId1';
+    baseTestInterview.responses._activeJourneyId = 'journeyId1';
+    baseTestInterview.responses._activeTripId = 'tripId2P1';
+    // Add a segment for tripId1P1, with simple mode
+    baseTestInterview.responses.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId1P1.segments = {
+        segmentId1P1T1: { _isNew: false, modePre: 'walk', mode: 'walk', _uuid: 'segmentId1P1T1', _sequence: 1 }
+    };
+
+    // Add a segment for tripId2P1, tests will initialize it
+    const baseTestSegment = { _uuid: 'segmentId1P1T2', _sequence: 1, _isNew: true }
+    baseTestInterview.responses.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId2P1.segments = {
+        segmentId1P1T2: baseTestSegment
+    };
+
+    test('Segment is not new, but simple chain', () => {
+        // Prepare interview data, setting segment as not new
+        const testSegment = _cloneDeep(baseTestSegment);
+        testSegment._isNew = false;
+
+        // Test conditional
+        const result = helpers.shouldShowSameAsReverseTripQuestion!({ interview: baseTestInterview, segment: testSegment });
+        expect(result).toEqual(false);
+    });
+
+    test('Segment is new, trip is null, previousTrip is null', () => {
+        // Unset active trip
+        const interview = _cloneDeep(baseTestInterview);
+        delete interview.responses._activeTripId;
+
+        // Test conditional
+        const result = helpers.shouldShowSameAsReverseTripQuestion!({ interview, segment: baseTestSegment });
+        expect(result).toEqual(false);
+    });
+
+    test('Segment is new, trip not null, previousTrip is null', () => {
+        // Prepare interview data, use the segment from the first trip of P1
+        const interview = _cloneDeep(baseTestInterview);
+        // Unset active trip
+        interview.responses._activeTripId = 'tripId1P1';
+        setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1._isNew', true);
+        const segment = getResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1') as any;
+
+        // Test conditional
+        const result = helpers.shouldShowSameAsReverseTripQuestion!({ interview, segment });
+        expect(result).toEqual(false);
+    });
+
+    test('Segment is new, with previous trip, not simple chain', () => {
+        // Prepare interview data, take tripId2P2, it is not a simple chain
+        const interview = _cloneDeep(baseTestInterview);
+        interview.responses._activePersonId = 'personId2';
+        interview.responses._activeJourneyId = 'journeyId2';
+        interview.responses._activeTripId = 'tripId2P2';
+        setResponse(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2._isNew', true);
+        const segment = getResponse(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2') as any;
+
+        // Test conditional
+        const result = helpers.shouldShowSameAsReverseTripQuestion!({ interview, segment });
+        expect(result).toEqual(false);
+    });
+
+    test('Segment is new, simple chain', () => {
+        // Test conditional
+        const result = helpers.shouldShowSameAsReverseTripQuestion!({ interview: baseTestInterview, segment: baseTestSegment });
+        expect(result).toEqual(true);
+    });
+
+});
