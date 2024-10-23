@@ -6,16 +6,10 @@
  */
 
 import _isEqual from 'lodash/isEqual';
-import {
-    Journey,
-    Person,
-    Segment,
-    Trip,
-    UserInterviewAttributes
-} from 'evolution-common/lib/services/interviews/interview';
-import * as helper from 'evolution-common/lib/services/odSurvey/helpers';
-import { loopActivities, simpleModes } from 'evolution-common/lib/services/odSurvey/types';
-import { Optional } from 'evolution-common/lib/types/Optional.type';
+import { Journey, Person, Segment, Trip, UserInterviewAttributes } from '../../interviews/interview';
+import * as helper from '../../odSurvey/helpers';
+import { loopActivities, simpleModes } from '../../odSurvey/types';
+import { Optional } from '../../../types/Optional.type';
 
 /**
  * Get the mode used in the single segment of the previous trip of the active
@@ -128,4 +122,28 @@ export const isSimpleChainSingleModeReturnTrip = ({
         }
     }
     return false;
+};
+
+export const shouldShowSameAsReverseTripQuestion = ({
+    interview,
+    segment
+}: {
+    interview: UserInterviewAttributes;
+    segment: Segment;
+}): boolean => {
+    // Do not display if segment is not new
+    if (segment._isNew === false) {
+        return false;
+    }
+    // Display this question if the segment is new and the previous and current
+    // trips form a simple chain with a single mode
+    const person = helper.getPerson({ interview }) as Person;
+    const journey = helper.getActiveJourney({ interview, person }) as Journey;
+    const trip = helper.getActiveTrip({ interview, journey });
+    const previousTrip = trip !== null ? helper.getPreviousTrip({ currentTrip: trip, journey }) : null;
+    return (
+        trip !== null &&
+        previousTrip !== null &&
+        isSimpleChainSingleModeReturnTrip({ interview, journey, person, trip, previousTrip })
+    );
 };
