@@ -7,7 +7,7 @@
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import InterviewsCreateLink from '../pageParts/interviews/InterviewsCreateLink';
+import InterviewsCreateLink from '../interviews/InterviewsCreateLink';
 
 export const InterviewsPage: React.FunctionComponent<WithTranslation & RouteComponentProps> = (
     props: WithTranslation & RouteComponentProps

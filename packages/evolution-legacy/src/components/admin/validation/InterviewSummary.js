@@ -14,7 +14,7 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { startSetValidateInterview, startUpdateSurveyValidateInterview, startResetValidateInterview } from 'evolution-frontend/lib/actions/SurveyAdmin';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationLinks from 'evolution-frontend/lib/components/admin/validations/ValidationLinks';
-import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/AdminErrorBoundary';
+import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/hoc/AdminErrorBoundary';
 
 
 class InterviewSummary extends React.Component {
