@@ -5,36 +5,55 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+/**
+ * Modes of transportation. These are the basic modes
+ *
+ * TODO many of those modes have supplementary questions that will be asked to
+ * get more details on the information, eg. carDriver and bicycle They are
+ * currently all specified separately here
+ *
+ * TODO Add autonomous car type
+ */
 export const modeValues = [
     'walk',
     'bicycle',
     'bicycleElectric',
-    'bicycleBikeSharing',
-    'bicycleBikeSharingElectric',
-    'transitBus', // category C
-    'transitBRT', // category B
-    'transitSchoolBus', // for school lines operated by transit agencies
+    'bicycleBikesharing',
+    'bicycleBikesharingElectric',
+    'bicyclePassenger',
+    'scooterElectric',
+    'carDriverPersonal',
+    'carDriverRental',
+    'carDriverCarsharingStationBased',
+    'carDriverCarsharingFreeFloating',
+    'carDriverCarsharingUnspecified',
+    'carPassenger',
+    'transitBus', // includes Bus Transit System (BTS) category C
+    'transitBRT', // Bus Rapid Transit category B
+    'transitSchoolBus', // for school lines managed by transit agencies
     'transitStreetCar', // category C
-    'transitFerry',
+    'transitFerry', // Ferry, without a car
     'transitGondola', // category A
     'transitMonorail', // category A
-    'transitRRT', // category A
+    'transitRRT', // Rapid Rail Transit (metro, submway, aerial train), category A
+    'transitLRT', // Light Rail Transit, category B
+    'transitLRRT', // Light Rail Rapid Transit, category A
+    'transitHSR', // High Speed Rail, category A
     'transitRegionalRail', // category A
+    'transitOnDemand', // On demand services (bus, minivan, taxi), usually managed by transit agencies
+    'transitTaxi', // Collective taxi
     'intercityBus',
     'intercityTrain',
     'schoolBus',
-    'otherBus',
-    'carDriver', // type of car (free-floating, station-based, personal car, rental car) separated
-    'carPassenger',
-    'transitTaxi',
+    'otherBus', // Private buses, like hired buses for events, groups, etc.
     'taxi',
-    'uber',
     'paratransit',
-    'plane',
-    'otherActiveMode',
-    'motorcycle',
-    'ferryNoCar',
+    'wheelchair',
+    'mobilityScooter', // Electric wheelchair, mobility scooter, etc.
+    'motorcycle', // includes motorbike, scooter, moped, etc.
     'ferryWithCar',
+    'plane',
+    'otherActiveMode', // Skateboard, kick scooter, rollerblade, etc.
     'other',
     'dontKnow'
 ] as const;
@@ -45,8 +64,10 @@ export const mapModeToModeCategory: { [mode in Mode]: ModeCategory } = {
     walk: 'walk',
     bicycle: 'bicycle',
     bicycleElectric: 'bicycle',
-    bicycleBikeSharing: 'bicycle',
-    bicycleBikeSharingElectric: 'bicycle',
+    bicycleBikesharing: 'bicycle',
+    bicycleBikesharingElectric: 'bicycle',
+    bicyclePassenger: 'bicycle',
+    scooterElectric: 'bicycle',
     transitBus: 'transit',
     transitBRT: 'transit',
     transitSchoolBus: 'schoolBus', // TODO: decide  if we should use schoolBus or transit here.
@@ -55,21 +76,29 @@ export const mapModeToModeCategory: { [mode in Mode]: ModeCategory } = {
     transitGondola: 'transit',
     transitMonorail: 'transit',
     transitRRT: 'transit',
+    transitLRT: 'transit',
+    transitLRRT: 'transit',
+    transitHSR: 'transit',
     transitRegionalRail: 'transit',
+    transitOnDemand: 'transit',
     intercityBus: 'transit',
     intercityTrain: 'transit',
     schoolBus: 'schoolBus',
     otherBus: 'other',
-    carDriver: 'carDriver',
+    carDriverPersonal: 'carDriver',
+    carDriverRental: 'carDriver',
+    carDriverCarsharingStationBased: 'carDriver',
+    carDriverCarsharingFreeFloating: 'carDriver',
+    carDriverCarsharingUnspecified: 'carDriver',
     carPassenger: 'carPassenger',
     transitTaxi: 'transit',
     taxi: 'taxi',
-    uber: 'taxi',
     paratransit: 'other',
+    wheelchair: 'walk',
+    mobilityScooter: 'walk',
     plane: 'other',
     otherActiveMode: 'other',
     motorcycle: 'other',
-    ferryNoCar: 'transit',
     ferryWithCar: 'other',
     other: 'other',
     dontKnow: 'dontKnow'
