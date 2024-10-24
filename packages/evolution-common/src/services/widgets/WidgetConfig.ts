@@ -10,12 +10,18 @@ import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { UserInterviewAttributes, InterviewResponsePath, InterviewResponses } from '../interviews/interview';
 import { ParsingFunction, I18nData, InterviewUpdateCallbacks, ParsingFunctionWithCallbacks } from '../../utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { TFunction, i18n } from 'i18next';
+import { TFunction } from 'i18next';
 
 type IconData = {
     url: string | ParsingFunction<string>;
     size?: [number, number];
 };
+
+type WidgetSize = 'small' | 'medium' | 'large';
+// ChatGPT: This could represent the directional alignment options as it "is focused on the direction in which elements are aligned"
+type WidgetDirectionAlign = 'center' | 'left' | 'right';
+// ChatGPT: This would represent the spatial alignment options as it "pertains to the spatial orientation"
+type WidgetSpaceAlign = 'vertical' | 'horizontal' | 'auto';
 
 /**
  * Validation function, which validates the value with potentially multiple
@@ -47,7 +53,7 @@ export type InputStringType = {
     defaultValue?: string | ParsingFunction<string>;
     maxLength?: number;
     datatype?: 'string' | 'integer' | 'float';
-    size?: 'large' | 'small' | 'medium';
+    size?: WidgetSize;
     textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
     placeholder?: string;
     inputFilter?: (input: string) => string;
@@ -72,7 +78,7 @@ type BaseChoiceType = {
     iconPath?: string;
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
     color?: string;
-    size?: 'large' | 'small' | 'medium';
+    size?: WidgetSize;
 };
 export type ChoiceType = BaseChoiceType & {
     value: string;
@@ -106,7 +112,7 @@ export type InputCheckboxType = {
     datatype?: 'string' | 'integer' | 'float' | 'text';
     columns?: number;
     rows?: number;
-    alignment?: 'vertical' | 'horizontal' | 'auto';
+    alignment?: WidgetSpaceAlign;
     customAlignmentLengths?: number[];
 };
 
@@ -121,10 +127,11 @@ export type InputRadioType = {
     sameLine?: boolean;
     customLabel?: I18nData;
     customChoice?: string;
+    customPath?: string;
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
     columns?: number;
     rows?: number;
-    alignment?: 'vertical' | 'horizontal' | 'auto';
+    alignment?: WidgetSpaceAlign;
     customAlignmentLengths?: number[];
 };
 
@@ -167,7 +174,7 @@ export type InputButtonType = {
     inputType: 'button';
     choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
     hideWhenRefreshing?: boolean;
-    align?: 'center' | 'left' | 'right';
+    align?: WidgetDirectionAlign;
     isModal?: boolean;
     sameLine?: boolean;
 };
@@ -201,11 +208,11 @@ export type InputDatePickerType = {
     maxDate?: Date | ParsingFunction<Date>;
     minDate?: Date | ParsingFunction<Date>;
     locale?: { [languageCode: string]: string };
-    size?: 'small' | 'medium' | 'large';
+    size?: WidgetSize;
 };
 
 type InputMapType = {
-    defaultCenter: { lat: number; lon: number };
+    defaultCenter: { lat: number; lon: number } | ParsingFunction<{ lat: number; lon: number }>;
     geocodingQueryString?: ParsingFunction<string | { queryString: string; zoom: number }[] | undefined>;
     refreshGeocodingLabel?: I18nData;
     afterRefreshButtonText?: I18nData;
@@ -215,6 +222,7 @@ type InputMapType = {
     defaultZoom?: number;
     canBeCollapsed?: boolean;
     shortname?: string;
+    defaultValue?: GeoJSON.Point | ParsingFunction<GeoJSON.Point>;
 };
 
 export type InputMapPointType = InputMapType & {
@@ -238,9 +246,18 @@ export type InputMapFindPlaceType = InputMapType & {
     updateDefaultValueWhenResponded?: boolean;
 };
 
-export type QuestionWidgetConfig = {
+export type BaseQuestionType = {
     type: 'question';
     twoColumns?: boolean;
+    /**
+     * Specify the shortname of the widget with which to visually connect this
+     * one.  This is useful for widgets that are related to each other, like all
+     * fields of the address for example. In the form, they will be visually
+     * connected in the same box instead of each widget in a separate box. The
+     * widget to join with needs to be the very next or previous one in the
+     * form. To join multiple widgets, each must specify the name of its own
+     * previous or next widget.
+     */
     joinWith?: string;
     path: InterviewResponsePath;
     containsHtml?: boolean;
@@ -260,25 +277,28 @@ export type QuestionWidgetConfig = {
     };
     validations?: ValidationFunction;
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
-} & (
-    | InputStringType
-    | InputTextType
-    | InputCheckboxType
-    | InputMultiselectType
-    | InputRadioType
-    | InputButtonType
-    | InputTimeType
-    | InputMapPointType
-    | InputMapFindPlaceType
-    | InputRangeType
-    | InputDatePickerType
-    | InputSelectType
-    | InputRadioNumberType
-);
+};
+
+export type QuestionWidgetConfig = BaseQuestionType &
+    (
+        | InputStringType
+        | InputTextType
+        | InputCheckboxType
+        | InputMultiselectType
+        | InputRadioType
+        | InputButtonType
+        | InputTimeType
+        | InputMapPointType
+        | InputMapFindPlaceType
+        | InputRangeType
+        | InputDatePickerType
+        | InputSelectType
+        | InputRadioNumberType
+    );
 
 export type TextWidgetConfig = {
     type: 'text';
-    align?: 'center' | 'left' | 'right';
+    align?: WidgetDirectionAlign;
     path?: string;
     containsHtml?: boolean;
     text: I18nData;
@@ -299,7 +319,7 @@ export type ButtonWidgetConfig = {
     hideWhenRefreshing?: boolean;
     icon?: IconProp;
     iconPath?: string;
-    align?: 'center' | 'left' | 'right';
+    align?: WidgetDirectionAlign;
     // FIXME: Type the sections parameters
     action: (
         callbacks: InterviewUpdateCallbacks,
@@ -322,7 +342,7 @@ export type ButtonWidgetConfig = {
         confirmButtonColor?: string;
         conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
     };
-    size?: 'small' | 'medium' | 'large';
+    size?: WidgetSize;
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
 };
 
