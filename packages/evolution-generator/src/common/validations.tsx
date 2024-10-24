@@ -22,7 +22,7 @@ export const requiredValidation: Validations = (value) => {
 };
 
 // Optional question
-export const optionalValidation: Validations = () => [{ validation: false }];
+export const optionalValidation: Validations = () => [];
 
 // Make sure the InputRange is answered with a positive number
 export const inputRangeValidation: Validations = (value) => {
