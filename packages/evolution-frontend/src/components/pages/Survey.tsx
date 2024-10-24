@@ -50,7 +50,6 @@ export type SurveyProps = {
     startSetInterview: (
         activeSection: string | null,
         surveyUuid: string | undefined,
-        history: History | undefined,
         preFilledResponses: { [key: string]: unknown } | undefined
     ) => void;
     startUpdateInterview: StartUpdateInterview;
@@ -105,7 +104,6 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
         this.props.startSetInterview(
             existingActiveSection || pathSectionParentSection,
             surveyUuid,
-            this.props.history,
             state.status === 'entering' && Object.keys(state.responses).length > 0 ? state.responses : undefined
         );
 
