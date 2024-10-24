@@ -10,12 +10,24 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import * as inputTypes from '../types/inputTypes';
+import {
+    BaseQuestionType,
+    ButtonWidgetConfig,
+    InputCheckboxType,
+    InputMapFindPlaceType,
+    InputRadioNumberType,
+    InputRadioType,
+    InputRangeType,
+    InputSelectType,
+    InputStringType,
+    InputTextType,
+    TextWidgetConfig
+} from 'evolution-common/lib/services/widgets/WidgetConfig';
 
 // TODO: Make sure to add tests for these default inputs
 
 // Input Radio default params
-export const inputRadioBase: inputTypes.InputRadioBase = {
+export const inputRadioBase: Pick<BaseQuestionType & InputRadioType, 'type' | 'inputType' | 'datatype' | 'columns'> = {
     type: 'question',
     inputType: 'radio',
     datatype: 'string',
@@ -23,23 +35,28 @@ export const inputRadioBase: inputTypes.InputRadioBase = {
 };
 
 // Input Radio Number default params
-export const inputRadioNumberBase: inputTypes.InputRadioNumberBase = {
+export const inputRadioNumberBase: Pick<
+    BaseQuestionType & InputRadioNumberType,
+    'type' | 'inputType' | 'columns' | 'sameLine'
+> = {
     type: 'question',
     inputType: 'radioNumber',
-    datatype: 'integer',
     columns: 1,
     sameLine: true
 };
 
 // Input String default params
-export const inputStringBase: inputTypes.InputStringBase = {
+export const inputStringBase: Pick<BaseQuestionType & InputStringType, 'type' | 'inputType' | 'datatype'> = {
     type: 'question',
     inputType: 'string',
     datatype: 'string'
 };
 
 // Input Number default params
-export const inputNumberBase: inputTypes.InputStringBase = {
+export const inputNumberBase: Pick<
+    BaseQuestionType & InputStringType,
+    'type' | 'inputType' | 'datatype' | 'size' | 'inputFilter' | 'keyboardInputMode'
+> = {
     type: 'question',
     inputType: 'string',
     datatype: 'integer',
@@ -52,36 +69,39 @@ export const inputNumberBase: inputTypes.InputStringBase = {
 };
 
 // InfoText default params
-export const infoTextBase: inputTypes.InfoTextBase = {
+export const infoTextBase: Pick<TextWidgetConfig, 'type'> = {
     type: 'text'
 };
 
 // InputRange default params
-export const inputRangeBase: inputTypes.InputRangeBase = {
+export const inputRangeBase: Pick<BaseQuestionType & InputRangeType, 'type' | 'inputType'> = {
     type: 'question',
-    inputType: 'slider',
-    initValue: null
+    inputType: 'slider'
 };
 
 // Checkbox default params
-export const inputCheckboxBase: inputTypes.InputCheckboxBase = {
+export const inputCheckboxBase: Pick<
+    BaseQuestionType & InputCheckboxType,
+    'type' | 'inputType' | 'datatype' | 'columns'
+> = {
     type: 'question',
     inputType: 'checkbox',
     datatype: 'string',
-    multiple: true,
     columns: 1
 };
 
 // Select default params
-export const inputSelectBase: inputTypes.InputSelectBase = {
+export const inputSelectBase: Pick<BaseQuestionType & InputSelectType, 'type' | 'inputType' | 'datatype'> = {
     type: 'question',
     inputType: 'select',
-    datatype: 'string',
-    hasGroups: true
+    datatype: 'string'
 };
 
 // Next button default params
-export const buttonNextBase: inputTypes.InputButtonBase = {
+export const buttonNextBase: Pick<
+    ButtonWidgetConfig,
+    'type' | 'color' | 'hideWhenRefreshing' | 'icon' | 'align' | 'action'
+> = {
     type: 'button',
     color: 'green',
     hideWhenRefreshing: true,
@@ -92,17 +112,29 @@ export const buttonNextBase: inputTypes.InputButtonBase = {
 };
 
 // Text textarea default params
-export const textBase: inputTypes.TextBase = {
+export const textBase: Pick<BaseQuestionType & InputTextType, 'type' | 'inputType' | 'datatype'> = {
     type: 'question',
     inputType: 'text',
     datatype: 'text'
 };
 
 // Find map place default params
-export const inputMapFindPlaceBase: inputTypes.InputMapFindPlaceBase = {
+export const inputMapFindPlaceBase: Pick<
+    BaseQuestionType & InputMapFindPlaceType,
+    | 'type'
+    | 'inputType'
+    | 'height'
+    | 'containsHtml'
+    | 'autoConfirmIfSingleResult'
+    | 'placesIcon'
+    | 'defaultCenter'
+    | 'refreshGeocodingLabel'
+    | 'showSearchPlaceButton'
+    | 'afterRefreshButtonText'
+    | 'validations'
+> = {
     type: 'question',
     inputType: 'mapFindPlace',
-    datatype: 'geojson',
     height: '32rem',
     containsHtml: true,
     autoConfirmIfSingleResult: true,
