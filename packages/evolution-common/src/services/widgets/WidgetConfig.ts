@@ -121,6 +121,7 @@ export type InputRadioType = {
     sameLine?: boolean;
     customLabel?: I18nData;
     customChoice?: string;
+    customPath?: string;
     datatype?: 'string' | 'integer' | 'float' | 'text' | 'boolean';
     columns?: number;
     rows?: number;
@@ -205,7 +206,7 @@ export type InputDatePickerType = {
 };
 
 type InputMapType = {
-    defaultCenter: { lat: number; lon: number };
+    defaultCenter: { lat: number; lon: number } | ParsingFunction<{ lat: number; lon: number }>;
     geocodingQueryString?: ParsingFunction<string | { queryString: string; zoom: number }[] | undefined>;
     refreshGeocodingLabel?: I18nData;
     afterRefreshButtonText?: I18nData;
@@ -215,6 +216,7 @@ type InputMapType = {
     defaultZoom?: number;
     canBeCollapsed?: boolean;
     shortname?: string;
+    defaultValue?: GeoJSON.Point | ParsingFunction<GeoJSON.Point>;
 };
 
 export type InputMapPointType = InputMapType & {
@@ -238,7 +240,7 @@ export type InputMapFindPlaceType = InputMapType & {
     updateDefaultValueWhenResponded?: boolean;
 };
 
-export type QuestionWidgetConfig = {
+export type BaseQuestionType = {
     type: 'question';
     twoColumns?: boolean;
     joinWith?: string;
@@ -260,21 +262,24 @@ export type QuestionWidgetConfig = {
     };
     validations?: ValidationFunction;
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
-} & (
-    | InputStringType
-    | InputTextType
-    | InputCheckboxType
-    | InputMultiselectType
-    | InputRadioType
-    | InputButtonType
-    | InputTimeType
-    | InputMapPointType
-    | InputMapFindPlaceType
-    | InputRangeType
-    | InputDatePickerType
-    | InputSelectType
-    | InputRadioNumberType
-);
+};
+
+export type QuestionWidgetConfig = BaseQuestionType &
+    (
+        | InputStringType
+        | InputTextType
+        | InputCheckboxType
+        | InputMultiselectType
+        | InputRadioType
+        | InputButtonType
+        | InputTimeType
+        | InputMapPointType
+        | InputMapFindPlaceType
+        | InputRangeType
+        | InputDatePickerType
+        | InputSelectType
+        | InputRadioNumberType
+    );
 
 export type TextWidgetConfig = {
     type: 'text';

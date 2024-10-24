@@ -23,7 +23,13 @@ type ConditionalsType = SingleConditionalsType[];
 
 // TODO: Make sure to add tests for this function
 // Check interview responses with conditions, returning the result and null.
-export const createConditionals = ({ interview, conditionals }: { interview; conditionals: ConditionalsType }) => {
+export const createConditionals = ({
+    interview,
+    conditionals
+}: {
+    interview;
+    conditionals: ConditionalsType;
+}): boolean | [boolean] | [boolean, unknown] => {
     let mathExpression = ''; // Construct the math expression to be evaluated
 
     // Iterate through the provided conditionals
