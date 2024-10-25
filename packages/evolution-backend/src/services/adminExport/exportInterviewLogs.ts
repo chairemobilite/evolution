@@ -25,16 +25,17 @@ const filterLogData = (
     logData: { values_by_path: { [key: string]: any }; unset_paths: string[] },
     participantResponsesOnly: boolean
 ) => {
+    const valuesByPath = logData.values_by_path || {};
     if (participantResponsesOnly === false) {
         return {
-            filteredValuesByPath: logData.values_by_path,
+            filteredValuesByPath: valuesByPath,
             filteredUnsetPaths: logData.unset_paths
         };
     }
-    const filteredValuesByPath = Object.keys(logData.values_by_path)
+    const filteredValuesByPath = Object.keys(valuesByPath)
         .filter((key) => key.startsWith('responses.'))
         .reduce((acc, key) => {
-            acc[key] = logData.values_by_path[key];
+            acc[key] = valuesByPath[key];
             return acc;
         }, {});
     const filteredUnsetPaths = (logData.unset_paths || []).filter((path) => path.startsWith('responses.'));
