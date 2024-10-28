@@ -12,11 +12,7 @@ import _shuffle from 'lodash/shuffle';
 
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
-import Text from '../survey/Text';
-import InfoMap from '../survey/InfoMap';
-import Button from '../survey/Button';
-import Question from '../survey/Question';
-import { Group } from '../survey/GroupWidgets';
+import { Widget } from '../survey/Widget';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getPathForSection } from '../../services/url';
 import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
@@ -175,84 +171,22 @@ export class Section extends React.Component<SectionProps, SectionState> {
         surveyHelper.devLog('%c rendering section ' + this.props.shortname, 'background: rgba(0,0,255,0.1);');
         for (let i = 0, count = this.props.widgets.length; i < count; i++) {
             const widgetShortname = this.props.widgets[i];
-            surveyHelper.devLog('%c rendering widget ' + widgetShortname, 'background: rgba(0,255,0,0.1);');
-            const widgetConfig = this.props.surveyContext.widgets[widgetShortname];
-            if (widgetConfig === undefined) {
-                console.error(`Widget is undefined: ${widgetShortname}`);
-                if (this.props.surveyContext.devMode) {
-                    widgetsComponentByShortname[widgetShortname] = (
-                        <div className="apptr__form-container two-columns question-invalid">{`Widget is undefined: ${widgetShortname}`}</div>
-                    );
-                }
-                continue;
-            }
 
-            const path = surveyHelper.interpolatePath(
-                this.props.interview,
-                widgetConfig.path || `${this.props.shortname}.${widgetShortname}`
+            widgetsComponentByShortname[widgetShortname] = (
+                <Widget
+                    key={widgetShortname}
+                    currentWidgetShortname={widgetShortname}
+                    nextWidgetShortname={this.props.widgets[i + 1]}
+                    sectionName={this.props.shortname}
+                    interview={this.props.interview}
+                    errors={this.props.errors}
+                    user={this.props.user}
+                    loadingState={this.props.loadingState}
+                    startUpdateInterview={this.props.startUpdateInterview}
+                    startAddGroupedObjects={this.props.startAddGroupedObjects}
+                    startRemoveGroupedObjects={this.props.startRemoveGroupedObjects}
+                />
             );
-            const customPath = widgetConfig.customPath
-                ? surveyHelper.interpolatePath(this.props.interview, widgetConfig.customPath)
-                : null;
-            const widgetStatus = _get(this.props.interview, `widgets.${widgetShortname}`, {}) as any; // TODO: type WidgetStatus
-            const [isServerValid, serverErrorMessage] =
-                this.props.errors && this.props.errors[path] ? [false, this.props.errors[path]] : [true, undefined];
-            // Overwrite widget status with server validation data if invalid
-            if (!isServerValid) {
-                widgetStatus.isValid = false;
-                widgetStatus.errorMessage = widgetStatus.errorMessage || serverErrorMessage;
-            }
-
-            // check for joined widgets:
-            const nextWidgetShortname = this.props.widgets[i + 1];
-            const nextWidgetConfig = this.props.surveyContext.widgets[nextWidgetShortname];
-            const nextWidgetStatus = nextWidgetShortname
-                ? (_get(this.props.interview, `widgets.${nextWidgetShortname}`, {}) as any)
-                : undefined; // TODO: type WidgetStatus
-            const join =
-                nextWidgetStatus &&
-                ((nextWidgetConfig.joinWith === widgetShortname && nextWidgetStatus.isVisible) ||
-                    (widgetConfig.joinWith === nextWidgetShortname && nextWidgetStatus.isVisible));
-
-            const defaultProps: any = {
-                // TODO: type default props
-                path: path,
-                customPath: customPath,
-                key: path,
-                shortname: widgetShortname,
-                loadingState: this.props.loadingState,
-                groupShortname: null,
-                groupedObjectId: null,
-                widgetConfig: widgetConfig,
-                join: join,
-                widgetStatus: widgetStatus,
-                section: this.props.shortname,
-                interview: this.props.interview,
-                user: this.props.user,
-                startUpdateInterview: this.props.startUpdateInterview,
-                startAddGroupedObjects: this.props.startAddGroupedObjects,
-                startRemoveGroupedObjects: this.props.startRemoveGroupedObjects
-            };
-
-            switch (widgetConfig.type) {
-            case 'text':
-                widgetsComponentByShortname[widgetShortname] = <Text {...defaultProps} />;
-                break;
-            case 'infoMap':
-                widgetsComponentByShortname[widgetShortname] = <InfoMap {...defaultProps} />;
-                break;
-            case 'button':
-                widgetsComponentByShortname[widgetShortname] = <Button {...defaultProps} />;
-                break;
-            case 'question':
-                widgetsComponentByShortname[widgetShortname] = <Question {...defaultProps} />;
-                break;
-            case 'group':
-                widgetsComponentByShortname[widgetShortname] = (
-                    <Group {...defaultProps} parentObjectIds={{}} shortname={widgetShortname} />
-                );
-                break;
-            }
         }
 
         const sortedWidgetsComponents: React.ReactNode[] = [];

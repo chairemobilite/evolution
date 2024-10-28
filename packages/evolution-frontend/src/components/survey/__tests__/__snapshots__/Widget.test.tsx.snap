@@ -1,0 +1,345 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Widget of type Button Render in group widget 1`] = `
+<div>
+  Mocked 
+  Button
+   Widget: path: 
+  myGroupName.test
+  customPath: 
+  section: 
+  myGroupName
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"button","label":"test button label"}
+  widgetStatus: 
+  {"path":"myGroupPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type Button Render widget 1`] = `
+<div>
+  Mocked 
+  Button
+   Widget: path: 
+  Test.test
+  customPath: 
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"button","label":"test button label"}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type Group Render in group widget 1`] = `
+<div>
+  Mocked 
+  Group
+   Widget: path: 
+  groupPath.uuid.groupName.test
+  customPath: 
+  section: 
+  myGroupName
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"group","path":"test","widgets":["testNext"]}
+  widgetStatus: 
+  {"path":"myGroupPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+  shortname: 
+  test
+  parentObjectIds: 
+  {"myGroupName":"myGroupId"}
+  errors: 
+  {}
+</div>
+`;
+
+exports[`Widget of type Group Render widget 1`] = `
+<div>
+  Mocked 
+  Group
+   Widget: path: 
+  test
+  customPath: 
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"group","path":"test","widgets":["testNext"]}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+  shortname: 
+  test
+  parentObjectIds: 
+  {}
+  errors: 
+  {}
+</div>
+`;
+
+exports[`Widget of type InfoMap Render in group widget 1`] = `
+<div>
+  Mocked 
+  InfoMap
+   Widget: path: 
+  myGroupName.test
+  customPath: 
+  section: 
+  myGroupName
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"infoMap","title":"info map title"}
+  widgetStatus: 
+  {"path":"myGroupPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type InfoMap Render widget 1`] = `
+<div>
+  Mocked 
+  InfoMap
+   Widget: path: 
+  Test.test
+  customPath: 
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"infoMap","title":"info map title"}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type Question Render in group widget 1`] = `
+<div>
+  Mocked 
+  Question
+   Widget: path: 
+  groupPath.uuid.groupName.test
+  customPath: 
+  section: 
+  myGroupName
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"question","path":"test","label":"test question","inputType":"string"}
+  widgetStatus: 
+  {"path":"myGroupPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type Question Render widget 1`] = `
+<div>
+  Mocked 
+  Question
+   Widget: path: 
+  test
+  customPath: 
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"question","path":"test","label":"test question","inputType":"string"}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type Question with custom path Render in group widget 1`] = `
+<div>
+  Mocked 
+  Question
+   Widget: path: 
+  groupPath.uuid.groupName.test
+  customPath: 
+  groupPath.uuid.groupName.test.custom
+  section: 
+  myGroupName
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"question","path":"test","customPath":"test.custom","label":"test question","inputType":"string"}
+  widgetStatus: 
+  {"path":"myGroupPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type Question with custom path Render widget 1`] = `
+<div>
+  Mocked 
+  Question
+   Widget: path: 
+  test
+  customPath: 
+  test.custom
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"question","path":"test","customPath":"test.custom","label":"test question","inputType":"string"}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type Question with join Render in group widget 1`] = `
+<div>
+  Mocked 
+  Question
+   Widget: path: 
+  groupPath.uuid.groupName.test
+  customPath: 
+  section: 
+  myGroupName
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"question","path":"test","label":"test question","inputType":"string","joinWith":"testNext"}
+  widgetStatus: 
+  {"path":"myGroupPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  true
+</div>
+`;
+
+exports[`Widget of type Question with join Render widget 1`] = `
+<div>
+  Mocked 
+  Question
+   Widget: path: 
+  test
+  customPath: 
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"question","path":"test","label":"test question","inputType":"string","joinWith":"testNext"}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  true
+</div>
+`;
+
+exports[`Widget of type Text Render in group widget 1`] = `
+<div>
+  Mocked 
+  Text
+   Widget: path: 
+  myGroupName.test
+  customPath: 
+  section: 
+  myGroupName
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"text","text":"test text"}
+  widgetStatus: 
+  {"path":"myGroupPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type Text Render widget 1`] = `
+<div>
+  Mocked 
+  Text
+   Widget: path: 
+  Test.test
+  customPath: 
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"text","text":"test text"}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":true,"isResponded":true,"isCustomResponded":false,"currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
+
+exports[`Widget of type undefined Render in group widget 1`] = `null`;
+
+exports[`Widget of type undefined Render widget 1`] = `null`;
+
+exports[`With server errors Render Group with server error, shoud be passed along 1`] = `
+<div>
+  Mocked 
+  Group
+   Widget: path: 
+  test
+  customPath: 
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"group","path":"test","widgets":["testNext"]}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":false,"isResponded":true,"isCustomResponded":false,"errorMessage":"Server error message","currentUpdateKey":1,"value":null}
+  join: 
+  false
+  shortname: 
+  test
+  parentObjectIds: 
+  {}
+  errors: 
+  {"test":"Server error message"}
+</div>
+`;
+
+exports[`With server errors Render Question with server error 1`] = `
+<div>
+  Mocked 
+  Question
+   Widget: path: 
+  test
+  customPath: 
+  section: 
+  Test
+  loadingState: 
+  0
+  widgetConfig: 
+  {"type":"question","path":"test","label":"test question","inputType":"string"}
+  widgetStatus: 
+  {"path":"myTestPath","isVisible":true,"modalIsOpen":false,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":false,"isResponded":true,"isCustomResponded":false,"errorMessage":"Server error message","currentUpdateKey":1,"value":null}
+  join: 
+  false
+</div>
+`;
