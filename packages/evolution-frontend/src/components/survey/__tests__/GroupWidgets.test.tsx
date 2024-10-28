@@ -14,6 +14,7 @@ expect.extend(toHaveNoViolations);
 import { Group, GroupedObject } from '../GroupWidgets';
 import each from 'jest-each';
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
+import { UserFrontendInterviewAttributes } from '../../../services/interviews/interview';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
@@ -88,7 +89,7 @@ const startAddGroupedObjectsMock = jest.fn();
 const startRemoveGroupedObjectsMock = jest.fn();
 
 // Add some grouped object data in the interview
-const interview = _cloneDeep(interviewAttributes);
+const interview = _cloneDeep(interviewAttributes) as UserFrontendInterviewAttributes;
 const groupedObjectIds = [ 'obj0Uuid', 'obj1Uuid', 'obj2Uuid' ];
 interview.responses.myGroups = {
     [groupedObjectIds[0]]: {
@@ -229,7 +230,7 @@ describe('Group', () => {
     });
 
     test('Nested groups, should display widgets with right path', () => {
-        const interviewWithNested = _cloneDeep(interviewAttributes);
+        const interviewWithNested = _cloneDeep(interviewAttributes) as UserFrontendInterviewAttributes;
         const groupedObjectIds = [ 'obj0Uuid', 'obj1Uuid', 'obj2Uuid' ];
         const nestedGroupObjectIds = [ 'nestedObj0Uuid', 'nestedObj1Uuid' ];
         interviewWithNested.responses.myGroups = {

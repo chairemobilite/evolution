@@ -22,20 +22,16 @@ import {
     translateString
 } from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
-import Text from './Text';
-import Button from './Button';
-import Question from './Question';
-import InfoMap from './InfoMap';
 import { checkConditional } from '../../actions/utils/Conditional';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { WidgetStatus } from '../../services/interviews/interview';
+import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
 import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
 import DeleteGroupedObjectButton from './widgets/DeleteGroupedObjectButton';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { InGroupWidget } from './Widget';
 
 type GroupedObjectProps = InterviewUpdateCallbacks & {
-    interview: UserInterviewAttributes;
+    interview: UserFrontendInterviewAttributes;
     user: CliUser;
     path: string;
     label?: string;
@@ -48,6 +44,8 @@ type GroupedObjectProps = InterviewUpdateCallbacks & {
     parentObjectIds: { [widgetShortname: string]: string };
     objectId: string;
     sequence: number;
+    /** Server-side errors FIXME Maybe they should not be passed by props, they should be better handled */
+    errors?: { [path: string]: string };
 };
 
 export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & WithSurveyContextProps> = (props) => {
@@ -59,54 +57,26 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
     const path = props.path;
     const groupedObjectId = props.objectId;
     const parentObjectIds = props.parentObjectIds;
-    const sectionShortname = props.section;
     parentObjectIds[groupedObjectShortname] = groupedObjectId;
-    const widgetsComponents = props.widgetConfig.widgets.map((widgetShortname) => {
-        const widgetPath = `${path}.${widgetShortname}`;
-        const widgetConfig = props.surveyContext.widgets[widgetShortname];
-        const customPath = widgetConfig.customPath ? `${path}.${widgetConfig.customPath}` : undefined;
-        const widgetStatus = _get(
-            props.interview,
-            `groups.${props.shortname}.${groupedObjectId}.${widgetShortname}`,
-            {}
-        ) as WidgetStatus;
-        const defaultProps = {
-            path: widgetPath,
-            customPath: customPath,
-            key: widgetPath,
-            loadingState: props.loadingState,
-            widgetConfig: widgetConfig,
-            widgetStatus: widgetStatus,
-            section: sectionShortname,
-            groupedObjectId: groupedObjectId,
-            interview: props.interview,
-            user: props.user,
-            startUpdateInterview: props.startUpdateInterview,
-            startAddGroupedObjects: props.startAddGroupedObjects,
-            startRemoveGroupedObjects: props.startRemoveGroupedObjects
-        };
-
-        switch (widgetConfig.type) {
-        case 'text':
-            return <Text {...defaultProps} />;
-        case 'infoMap':
-            return <InfoMap {...defaultProps} />;
-        case 'button':
-            return <Button {...defaultProps} />;
-        case 'question':
-            return <Question {...defaultProps} path={`${path}.${widgetConfig.path}`} />;
-        case 'group':
-            return (
-                <Group
-                    {...defaultProps}
-                    shortname={widgetShortname}
-                    path={`${path}.${widgetConfig.path}`}
-                    widgetConfig={widgetConfig}
-                    parentObjectIds={parentObjectIds}
-                />
-            );
-        }
-    });
+    const widgetsComponents = props.widgetConfig.widgets.map((widgetShortname, idx) => (
+        <InGroupWidget
+            key={widgetShortname}
+            currentWidgetShortname={widgetShortname}
+            nextWidgetShortname={props.widgetConfig.widgets[idx + 1]}
+            sectionName={groupedObjectShortname}
+            interview={props.interview}
+            errors={props.errors}
+            user={props.user}
+            loadingState={props.loadingState}
+            pathPrefix={path}
+            widgetStatusPath={`groups.${props.shortname}.${groupedObjectId}`}
+            groupedObjectId={groupedObjectId}
+            parentObjectIds={parentObjectIds}
+            startUpdateInterview={props.startUpdateInterview}
+            startAddGroupedObjects={props.startAddGroupedObjects}
+            startRemoveGroupedObjects={props.startRemoveGroupedObjects}
+        />
+    ));
 
     let title = '';
     const localizedName = props.widgetConfig.name;
@@ -158,13 +128,15 @@ type GroupProps = InterviewUpdateCallbacks & {
     /** The name of the widget, to be used as key for translations */
     shortname: string;
     customPath?: string;
-    interview: UserInterviewAttributes;
+    interview: UserFrontendInterviewAttributes;
     user: CliUser;
     widgetConfig: GroupConfig;
     loadingState: number;
     /** Associates a widget shortname with the parent UUID */
     parentObjectIds: { [widgetShortname: string]: string };
     section: string;
+    /** Server-side errors FIXME Maybe they should not be passed by props, they should be better handled */
+    errors?: { [path: string]: string };
 };
 
 const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyContextProps> = (props) => {
@@ -234,6 +206,7 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
                     section={props.section}
                     interview={props.interview}
                     user={props.user}
+                    errors={props.errors}
                     startUpdateInterview={props.startUpdateInterview}
                     startAddGroupedObjects={props.startAddGroupedObjects}
                     startRemoveGroupedObjects={props.startRemoveGroupedObjects}

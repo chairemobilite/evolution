@@ -28,11 +28,8 @@ import { createBrowserHistory } from 'history';
 
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import Text            from 'evolution-frontend/lib/components/survey/Text';
-import InfoMap         from 'evolution-frontend/lib/components/survey/InfoMap';
-import Button          from 'evolution-frontend/lib/components/survey/Button';
-import Question        from 'evolution-frontend/lib/components/survey/Question';
-import { Group, GroupedObject } from 'evolution-frontend/lib/components/survey/GroupWidgets';
+import { GroupedObject } from 'evolution-frontend/lib/components/survey/GroupWidgets';
+import { Widget } from 'evolution-frontend/lib/components/survey/Widget';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import helper          from '../helper';
@@ -237,37 +234,23 @@ export class VisitedPlacesSection extends React.Component<any, any> {
 
     for (let i = 0, count = this.props.widgets.length; i < count; i++)
     {
-      const widgetShortname = this.props.widgets[i];
-      const widgetStatus    = _get(this.props.interview, `widgets.${widgetShortname}`, {});
-      const path            = surveyHelper.interpolatePath(this.props.interview, (this.props.surveyContext.widgets[widgetShortname].path || `${this.props.shortname}.${widgetShortname}`));
-      const customPath      = this.props.surveyContext.widgets[widgetShortname].customPath ? surveyHelper.interpolatePath(this.props.interview, this.props.surveyContext.widgets[widgetShortname].customPath) : null;
-      let   component;
-      const defaultProps = {
-        path                           : path,
-        customPath                     : customPath,
-        key                            : path,
-        shortname                      : widgetShortname,
-        loadingState                   : this.props.loadingState,
-        widgetConfig                   : this.props.surveyContext.widgets[widgetShortname],
-        widgetStatus                   : widgetStatus,
-        section                        : this.props.shortname,
-        interview                      : this.props.interview,
-        user                           : this.props.user,
-        startUpdateInterview           : this.props.startUpdateInterview,
-        startAddGroupedObjects         : this.props.startAddGroupedObjects,
-        startRemoveGroupedObjects      : this.props.startRemoveGroupedObjects
-      };
-      switch(this.props.surveyContext.widgets[widgetShortname].type)
-      {
-        case 'text':     component = <Text     {...defaultProps} />; break;
-        case 'infoMap':  component = <InfoMap  {...defaultProps} />; break;
-        case 'button':   component = <Button   {...defaultProps} />; break;
-        case 'question': component = <Question {...defaultProps} />; break;
-        case 'group':    component = <Group    {...defaultProps}
-          parentObjectIds = {{}}
-        />;
-      }
-      widgetsComponentsByShortname[widgetShortname] = component;
+        const widgetShortname = this.props.widgets[i];
+
+        widgetsComponentsByShortname[widgetShortname] = (
+            <Widget
+                key={widgetShortname}
+                currentWidgetShortname={widgetShortname}
+                nextWidgetShortname={this.props.widgets[i + 1]}
+                sectionName={this.props.shortname}
+                interview={this.props.interview}
+                errors={this.props.errors}
+                user={this.props.user}
+                loadingState={this.props.loadingState}
+                startUpdateInterview={this.props.startUpdateInterview}
+                startAddGroupedObjects={this.props.startAddGroupedObjects}
+                startRemoveGroupedObjects={this.props.startRemoveGroupedObjects}
+            />
+        );
     }
 
     // setup visited places:
@@ -364,6 +347,7 @@ export class VisitedPlacesSection extends React.Component<any, any> {
               section                     = {'visitedPlaces'}
               interview                   = {this.props.interview}
               user                        = {this.props.user}
+              errors                      = {this.props.errors}
               startUpdateInterview        = {this.props.startUpdateInterview}
               startAddGroupedObjects      = {this.props.startAddGroupedObjects}
               startRemoveGroupedObjects   = {this.props.startRemoveGroupedObjects}
