@@ -15,42 +15,27 @@ import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyCont
 import { Widget } from '../survey/Widget';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getPathForSection } from '../../services/url';
-import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
+import { SectionConfig, UserFrontendInterviewAttributes } from '../../services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import {
-    StartUpdateInterview,
-    StartAddGroupedObjects,
-    StartRemoveGroupedObjects,
-    InterviewUpdateCallbacks
-} from 'evolution-common/lib/utils/helpers';
+import { InterviewUpdateCallbacks } from 'evolution-common/lib/utils/helpers';
 
 export type SectionProps = {
     shortname: string;
-    widgets: string[];
+    sectionConfig: SectionConfig;
     interview: UserFrontendInterviewAttributes;
     errors: { [path: string]: string };
     user: CliUser;
-    preload: (
-        interview: UserFrontendInterviewAttributes,
-        startUpdateInterview: StartUpdateInterview,
-        startAddGroupedObjects: StartAddGroupedObjects,
-        startRemoveGroupedObjects: StartRemoveGroupedObjects,
-        callback: (interview: UserFrontendInterviewAttributes) => void,
-        user: CliUser
-    ) => void;
     allWidgetsValid?: boolean;
     submitted?: boolean;
     loadingState: number;
-} & WithTranslation &
-    InterviewUpdateCallbacks &
-    WithSurveyContextProps;
+} & InterviewUpdateCallbacks;
 
 export type SectionState = {
     preloaded: boolean;
     sortedWidgetShortnames: string[];
 };
 
-export class Section extends React.Component<SectionProps, SectionState> {
+export class Section extends React.Component<SectionProps & WithTranslation & WithSurveyContextProps, SectionState> {
     constructor(props) {
         super(props);
         this.state = {
@@ -63,8 +48,8 @@ export class Section extends React.Component<SectionProps, SectionState> {
 
     componentDidMount() {
         const sortedWidgetShortnames = this.getSortedWidgetShortnames();
-        if (typeof this.props.preload === 'function') {
-            this.props.preload.call(
+        if (typeof this.props.sectionConfig.preload === 'function') {
+            this.props.sectionConfig.preload.call(
                 this,
                 this.props.interview,
                 this.props.startUpdateInterview,
@@ -116,12 +101,12 @@ export class Section extends React.Component<SectionProps, SectionState> {
         const randomGroupsIndexes: { [key: string]: number[] } = {};
         const randomGroupsStartIndexes: { [key: string]: number } = {};
         const sortedShortnames: string[] = [];
-        const countWidgets = this.props.widgets.length;
+        const countWidgets = this.props.sectionConfig.widgets.length;
         const unsortedWidgetShortnames: string[] = [];
 
         // shuffle random groups indexes:
         for (let i = 0; i < countWidgets; i++) {
-            const widgetShortname = this.props.widgets[i];
+            const widgetShortname = this.props.sectionConfig.widgets[i];
             const widgetConfig = this.props.surveyContext.widgets[widgetShortname];
             unsortedWidgetShortnames.push(widgetShortname);
             if (widgetConfig === undefined) {
@@ -169,14 +154,14 @@ export class Section extends React.Component<SectionProps, SectionState> {
         const widgetsComponentByShortname: { [key: string]: React.ReactNode } = {};
 
         surveyHelper.devLog('%c rendering section ' + this.props.shortname, 'background: rgba(0,0,255,0.1);');
-        for (let i = 0, count = this.props.widgets.length; i < count; i++) {
-            const widgetShortname = this.props.widgets[i];
+        for (let i = 0, count = this.props.sectionConfig.widgets.length; i < count; i++) {
+            const widgetShortname = this.props.sectionConfig.widgets[i];
 
             widgetsComponentByShortname[widgetShortname] = (
                 <Widget
                     key={widgetShortname}
                     currentWidgetShortname={widgetShortname}
-                    nextWidgetShortname={this.props.widgets[i + 1]}
+                    nextWidgetShortname={this.props.sectionConfig.widgets[i + 1]}
                     sectionName={this.props.shortname}
                     interview={this.props.interview}
                     errors={this.props.errors}

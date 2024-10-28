@@ -418,21 +418,9 @@ export const startSetInterview = (
                             const interview = body.interview;
                             if (!activeSection) {
                                 for (const sectionShortname in applicationConfiguration.sections) {
-                                    if (config.isPartTwo === true) {
-                                        if (
-                                            applicationConfiguration.sections[sectionShortname]
-                                                .isPartTwoFirstSection === true
-                                        ) {
-                                            activeSection = sectionShortname;
-                                            break;
-                                        }
-                                    } else {
-                                        if (
-                                            applicationConfiguration.sections[sectionShortname].previousSection === null
-                                        ) {
-                                            activeSection = sectionShortname;
-                                            break;
-                                        }
+                                    if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
+                                        activeSection = sectionShortname;
+                                        break;
                                     }
                                 }
                             }

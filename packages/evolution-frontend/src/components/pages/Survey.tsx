@@ -173,8 +173,8 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
         const sectionShortname = activeSection;
         const sectionConfig = this.props.surveyContext.sections[sectionShortname];
         // TODO: type template components:
-        const SectionComponent: React.ComponentType<any> = sectionConfig.template
-            ? (sectionConfig.template as React.ComponentType<any>)
+        const SectionComponent: React.ComponentType<SectionProps> = sectionConfig.template
+            ? (sectionConfig.template as React.ComponentType<SectionProps>)
             : (Section as React.ComponentType<SectionProps>);
         let navActiveSection: string | null = activeSection;
 
@@ -246,17 +246,13 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
                             key={sectionShortname}
                             loadingState={this.props.loadingState}
                             shortname={sectionShortname}
-                            previousSection={sectionConfig.previousSection}
-                            nextSection={sectionConfig.nextSection}
-                            widgets={sectionConfig.widgets}
-                            preload={sectionConfig.preload}
+                            sectionConfig={sectionConfig}
                             interview={this.props.interview}
                             errors={this.props.errors}
                             user={this.props.user}
                             startUpdateInterview={this.props.startUpdateInterview}
                             startAddGroupedObjects={this.props.startAddGroupedObjects}
                             startRemoveGroupedObjects={this.props.startRemoveGroupedObjects}
-                            location={this.props.location}
                             submitted={this.props.submitted}
                         />
                     </form>

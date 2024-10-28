@@ -152,10 +152,7 @@ export class ValidateSurvey extends React.Component {
                   key                         = {sectionShortname}
                   loadingState                = {this.props.loadingState}
                   shortname                   = {sectionShortname}
-                  previousSection             = {sectionConfig.previousSection}
-                  nextSection                 = {sectionConfig.nextSection}
-                  widgets                     = {sectionConfig.widgets}
-                  preload                     = {sectionConfig.preload}
+                  sectionConfig               = {sectionConfig}
                   interview                   = {this.props.interview}
                   errors                      = {this.props.errors}
                   user                        = {this.props.user}

@@ -7,19 +7,16 @@
 import React                    from 'react';
 import _cloneDeep from 'lodash/cloneDeep';
 import _get                     from 'lodash/get';
-import { withTranslation }      from 'react-i18next';
+import { WithTranslation, withTranslation }      from 'react-i18next';
 import { FontAwesomeIcon }      from '@fortawesome/react-fontawesome';
 import { faPencilAlt }          from '@fortawesome/free-solid-svg-icons/faPencilAlt';
 import { faClock }              from '@fortawesome/free-solid-svg-icons/faClock';
 import { faArrowRight }         from '@fortawesome/free-solid-svg-icons/faArrowRight';
 import { createBrowserHistory } from 'history';
 
-//import HTMLEllipsis from 'react-lines-ellipsis/lib/html';
-//import responsiveHOC from 'react-lines-ellipsis/lib/responsiveHOC';
-
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
+import { withSurveyContext, WithSurveyContextProps } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import { GroupedObject } from 'evolution-frontend/lib/components/survey/GroupWidgets';
 import { Widget } from 'evolution-frontend/lib/components/survey/Widget';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -27,10 +24,23 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import helper          from '../helper';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
+import { SectionConfig, UserFrontendInterviewAttributes } from 'evolution-frontend/lib/services/interviews/interview';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
-//const ResponsiveEllipsis = responsiveHOC()(HTMLEllipsis);
+export type SectionProps = {
+    shortname: string;
+    sectionConfig: SectionConfig
+    interview: UserFrontendInterviewAttributes;
+    errors: { [path: string]: string };
+    user: CliUser;
+    allWidgetsValid?: boolean;
+    submitted?: boolean;
+    loadingState: number;
+} & WithTranslation &
+    surveyHelper.InterviewUpdateCallbacks &
+    WithSurveyContextProps;
 
-export class SegmentsSection extends React.Component<any, any> {
+export class SegmentsSection extends React.Component<SectionProps & WithTranslation & WithSurveyContextProps, any> {
 
   private iconPathsByMode: any;
 
@@ -66,9 +76,9 @@ export class SegmentsSection extends React.Component<any, any> {
   }
 
   componentDidMount() {
-    if (typeof this.props.preload === 'function')
+    if (typeof this.props.sectionConfig.preload === 'function')
     {
-      this.props.preload.call(this, this.props.interview, this.props.startUpdateInterview, this.props.startAddGroupedObjects, this.props.startRemoveGroupedObjects, function() {
+      this.props.sectionConfig.preload.call(this, this.props.interview, this.props.startUpdateInterview, this.props.startAddGroupedObjects, this.props.startRemoveGroupedObjects, function() {
         this.setState(() => ({
           preloaded: true
         }));
@@ -117,15 +127,15 @@ export class SegmentsSection extends React.Component<any, any> {
 
     // setup widgets:
 
-    for (let i = 0, count = this.props.widgets.length; i < count; i++)
+    for (let i = 0, count = this.props.sectionConfig.widgets.length; i < count; i++)
     {
-        const widgetShortname = this.props.widgets[i];
+        const widgetShortname = this.props.sectionConfig.widgets[i];
 
         widgetsComponentsByShortname[widgetShortname] = (
             <Widget
                 key={widgetShortname}
                 currentWidgetShortname={widgetShortname}
-                nextWidgetShortname={this.props.widgets[i + 1]}
+                nextWidgetShortname={this.props.sectionConfig.widgets[i + 1]}
                 sectionName={this.props.shortname}
                 interview={this.props.interview}
                 errors={this.props.errors}
@@ -220,7 +230,7 @@ export class SegmentsSection extends React.Component<any, any> {
 
       if (selectedTripId && trip._uuid === selectedTripId)
       {
-        const parentObjectIds = _cloneDeep(this.props.parentObjectIds) || {};
+        const parentObjectIds = {};
         parentObjectIds['personTrips'] = trip._uuid;
         selectedTrip = (
           <li className="no-bullet" style={{marginTop: "-0.4rem"}} key={`survey-trip-item-selected__${i}`}>

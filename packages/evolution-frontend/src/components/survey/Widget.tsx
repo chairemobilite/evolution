@@ -156,7 +156,7 @@ const BaseSingleWidget: React.FC<
         return <InfoMap {...widgetProps} />;
     case 'button':
         return <Button {...widgetProps} />;
-    case 'question':
+    case 'question': {
         // check for joined widgets:
         const nextWidgetConfig = props.nextWidgetShortname
             ? props.surveyContext.widgets[props.nextWidgetShortname]
@@ -170,6 +170,7 @@ const BaseSingleWidget: React.FC<
                     (widgetConfig.joinWith === props.nextWidgetShortname && nextWidgetStatus.isVisible));
         widgetProps.join = join;
         return <Question {...widgetProps} />;
+    }
     case 'group':
         return (
             <Group

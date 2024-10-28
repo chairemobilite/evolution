@@ -5,9 +5,15 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { WidgetConfig } from 'evolution-common/lib/services/widgets';
-import { I18nData, ParsingFunction } from 'evolution-common/lib/utils/helpers';
+import {
+    I18nData,
+    StartAddGroupedObjects,
+    StartRemoveGroupedObjects,
+    StartUpdateInterview
+} from 'evolution-common/lib/utils/helpers';
 
 export type WidgetStatus = {
     path: string;
@@ -63,12 +69,26 @@ export type FrontendInterviewAttributes = {
 
 export type UserFrontendInterviewAttributes = FrontendInterviewAttributes & UserInterviewAttributes;
 
-// TODO Properly type this
-export type SurveySection = {
+export type SectionConfig = {
     widgets: string[];
-    [key: string]: unknown;
+    previousSection?: string;
+    nextSection?: string;
+    // FIXME: change for a single named option argument instead of 6 arguments
+    preload?: (
+        interview: UserFrontendInterviewAttributes,
+        startUpdateInterview: StartUpdateInterview,
+        startAddGroupedObjects: StartAddGroupedObjects,
+        startRemoveGroupedObjects: StartRemoveGroupedObjects,
+        callback: (interview: UserFrontendInterviewAttributes) => void,
+        user: CliUser
+    ) => void;
+    template?: React.ComponentType;
+    hiddenInNav?: boolean;
+    parentSection?: string;
+    // FIXME Type this
+    customStyle?: any;
 };
-export type SurveySections = { [sectionName: string]: SurveySection };
+export type SurveySections = { [sectionName: string]: SectionConfig };
 export type SurveyWidgets = {
     [widgetName: string]: WidgetConfig;
 };
