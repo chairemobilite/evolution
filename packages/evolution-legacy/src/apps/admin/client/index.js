@@ -26,7 +26,7 @@ import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAu
 // TODO This is a workaround to get the links to the user, until some more complete solution is implemented (see https://github.com/chairemobilite/transition/issues/1516)
 const pages = [
     { path: '/admin/monitoring', permissions: { Interviews: ['manage'] }, title: 'admin:monitoringPageTitle' },
-    { path: '/admin/review', permissions: { Interviews: ['validate'] }, title: 'admin:reviewPageTitle' },
+    { path: '/admin/review', permissions: { Interviews: ['review'] }, title: 'admin:reviewPageTitle' },
     { path: '/admin/export', permissions: { Interviews: ['manage'] }, title: 'admin:exportPageTitle' },
     { path: '/admin/users', permissions: { Users: ['read', 'update'] }, title: 'admin:usersPageTitle' }
 ];

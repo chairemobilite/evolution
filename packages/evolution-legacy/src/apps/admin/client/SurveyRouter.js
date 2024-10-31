@@ -61,13 +61,13 @@ const SurveyRouter = () => (
     <PublicRoute   path="/checkMagicEmail" component={CheckMagicEmailPage} />
     <PrivateRoute  path="/survey/edit/:uuid" permissions={{ 'Interviews': ['read', 'update'] }} component={Survey} />
     <PrivateRoute  path="/survey/edit/:uuid/:sectionShortname" permissions={{ 'Interviews': ['read', 'update'] }} component={Survey} />
-    <PrivateRoute  path="/admin/survey/:sectionShortname" permissions={{ 'Interviews': ['validate'] }} component={AdminValidateSurveyPage} exact={true} />
-    <PrivateRoute  path="/admin/survey/interview/:interviewUuid" permissions={{ 'Interviews': ['validate'] }} component={AdminValidateSurveyPage} exact={true} />
+    <PrivateRoute  path="/admin/survey/:sectionShortname" permissions={{ 'Interviews': ['review'] }} component={AdminValidateSurveyPage} exact={true} />
+    <PrivateRoute  path="/admin/survey/interview/:interviewUuid" permissions={{ 'Interviews': ['correct'] }} component={AdminValidateSurveyPage} exact={true} />
     <PrivateRoute  path="/interviews/byCode/:accessCode" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsByAccessCode} exact={true} />
     <PrivateRoute  path="/interviews/byCode" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsByAccessCode} exact={true} />
     <PrivateRoute  path="/interviews" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsPage} exact={false} />
     <AdminRoute    path="/admin/monitoring" component={AdminMonitoringPageContainer} />
-    <PrivateRoute  path="/admin/validation" permissions={{ 'Interviews': ['validate'] }} component={AdminValidationPage} />
+    <PrivateRoute  path="/admin/review" permissions={{ 'Interviews': ['review'] }} component={AdminValidationPage} />
     <AdminRoute    path="/admin/users" component={UsersPage} exact={true} />
     <AdminRoute    path="/admin/export" component={AdminExportPage} exact={true} />
     <AdminRoute    path="/admin" component={AdminHomePage} exact={true} />

@@ -29,18 +29,18 @@ const defineDefaultRoles = function (): void {
     addRole(VALIDATOR_LVL1_ROLE, ({ can }, user) => {
         addDefaultPermissions();
         // Required permissions to list interviews to validate
-        can(['read', 'validate'], InterviewsSubject);
+        can(['read', 'review', 'correct'], InterviewsSubject);
         // Required permissions to validate any user's interviews
-        can(['read', 'validate'], InterviewSubject);
+        can(['read', 'review', 'correct'], InterviewSubject);
     });
 
     // Add an interviewer role
     addRole(VALIDATOR_LVL2_ROLE, ({ can }, user) => {
         addDefaultPermissions();
         // Required permissions to list interviews to validate and confirm
-        can(['read', 'validate', 'confirm'], InterviewsSubject);
+        can(['read', 'review', 'correct', 'confirm'], InterviewsSubject);
         // Required permissions to validate and confirm any user's interviews
-        can(['read', 'validate', 'confirm'], InterviewSubject);
+        can(['read', 'review', 'correct', 'confirm'], InterviewSubject);
     });
 
     // Try adding custom project roles

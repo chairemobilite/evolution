@@ -45,12 +45,12 @@ describe('User interview access', () => {
         ['Get params, Normal user, interview exists', mockUser, defaultGetParams, defaultPermissions, true, 401],
         ['Get params, Admin user, interview not found', mockAdmin, defaultGetParams, defaultPermissions, undefined, 404],
         ['Get params, Admin user, interview exists', mockAdmin, defaultGetParams, defaultPermissions, true, true],
-        ['Get params, Admin user, interview with extra permissions', mockAdmin, defaultGetParams, [...defaultPermissions, 'validate'], true, true],
+        ['Get params, Admin user, interview with extra permissions', mockAdmin, defaultGetParams, [...defaultPermissions, 'review', 'correct'], true, true],
         ['Get params, Normal user, interview not found', mockUser, defaultPostParams, defaultPermissions, undefined, 404],
         ['Get params, Normal user, interview exists', mockUser, defaultPostParams, defaultPermissions, true, 401],
         ['Get params, Admin user, interview not found', mockAdmin, defaultPostParams, defaultPermissions, undefined, 404],
         ['Get params, Admin user, interview exists', mockAdmin, defaultPostParams, defaultPermissions, true, true],
-        ['Get params, Admin user, interview with extra permissions', mockAdmin, defaultPostParams, [...defaultPermissions, 'validate'], true, true],
+        ['Get params, Admin user, interview with extra permissions', mockAdmin, defaultPostParams, [...defaultPermissions, 'review', 'correct'], true, true],
         ['Post and get params, identical, ok', mockAdmin, { ...defaultPostParams, ...defaultGetParams }, defaultPermissions, true, true],
         ['Post and get params, not identical, not ok', mockAdmin, { ...defaultGetParams, body: { interviewId: uuidV4() } }, defaultPermissions, true, 400]
     ]).test('%s', async (_title, user, reqParams, requestedPermissions, retUndefined, expectedNextOrCode, is_active = true) => {
@@ -75,7 +75,7 @@ describe('is User allowed', () => {
     each([
         ['Normal user', mockUser, defaultPermissions, false],
         ['Admin user', mockAdmin, defaultPermissions, true],
-        ['Admin user, with extra permissions', mockAdmin, [...defaultPermissions, 'validate'], true],
+        ['Admin user, with extra permissions', mockAdmin, [...defaultPermissions, 'review', 'correct'], true],
     ]).test('%s', async (_title, user, requestedPermissions, expectedResult, is_active = true) => {
         const interview = {
             id: 3,
