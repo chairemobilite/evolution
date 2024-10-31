@@ -38,7 +38,7 @@ class AdminValidationPage extends React.Component {
   }
 
   render(){
-    
+    return <p>AdminValidationPage.js legacy (to be replaced)</p>;
     return (
       <div className="admin">
         <LoadableComponent />

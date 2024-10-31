@@ -31,7 +31,7 @@ const ValidationCommentForm = ({ interview, startUpdateInterview, t }) => {
         startUpdateInterview(undefined, valuesByPath, null, null);
 
     }
-
+    return <p>ValidationCommentForm.js legacy (to be replaced)</p>;
     return (
         <React.Fragment>
             <label htmlFor={`surveyValidationComment`}>{t('admin:validatorComment')}</label><br/>

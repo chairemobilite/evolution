@@ -63,6 +63,8 @@ class InterviewStats extends React.Component {
 
   render() {
 
+    return <p>InterviewStats.js legacy (to be replaced)</p>;
+
     //if (!this.state.parsed)
     //{
     //  return null;

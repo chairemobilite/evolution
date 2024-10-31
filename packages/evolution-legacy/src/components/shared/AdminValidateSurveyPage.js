@@ -39,6 +39,7 @@ class AdminValidateSurveyPage extends React.Component {
   }
 
   render(){
+    return <p>AdminValidateSurveyPage.js legacy (to be replaced)</p>;
     const interviewUuid = _get(this.props.match, 'params.interviewUuid', null);
 
     return (

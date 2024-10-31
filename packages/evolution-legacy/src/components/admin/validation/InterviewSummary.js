@@ -13,7 +13,7 @@ import ValidationOnePageSummary from './ValidationOnePageSummary';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { startSetValidateInterview, startUpdateSurveyValidateInterview, startResetValidateInterview } from 'evolution-frontend/lib/actions/SurveyAdmin';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import ValidationLinks from 'evolution-frontend/lib/components/admin/validations/ValidationLinks';
+import ValidationLinks from 'evolution-frontend/lib/components/admin/review/ValidationLinks';
 import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/hoc/AdminErrorBoundary';
 
 
@@ -39,6 +39,7 @@ class InterviewSummary extends React.Component {
   }
 
   render = () => {
+    return <p>InterviewSummary.js legacy (to be replaced)</p>;
     if (!(this.props.interview)) {
       surveyHelperNew.devLog('%c rendering empty survey', 'background: rgba(0,0,0,0.1);');
       return (

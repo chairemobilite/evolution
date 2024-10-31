@@ -35,6 +35,7 @@ class KeepDiscard extends React.Component {
   }
 
   render () {
+      return <p>KeepDiscard.js legacy (to be replaced)</p>;
       return (
           <div className='_member-survey-keeper'>
               <button style={this.state.choice === KeepDiscard.KEEP ? {background: 'lightgreen'} : {}} className='_member-survey-keeper-left' type="button" onClick={this.onClick.bind(this, KeepDiscard.KEEP)}>

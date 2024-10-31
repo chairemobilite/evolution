@@ -97,6 +97,7 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
                 }
             },
             title: {
+                align: 'left',
                 text: this.props.t('admin:StartedAndCompletedInterviewsPerDay')
             },
             subtitle: {
@@ -132,7 +133,8 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
                 }
             ],
             legend: {
-                enabled: true
+                enabled: true,
+                align: 'left'
             },
             plotOptions: {
                 series: {
@@ -191,8 +193,8 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
 
         const completionRate =
             this.state.data.startedCount !== undefined &&
-                this.state.data.completedCount !== undefined &&
-                this.state.data.startedCount > 0
+            this.state.data.completedCount !== undefined &&
+            this.state.data.startedCount > 0
                 ? this.state.data.completedCount / this.state.data.startedCount
                 : null;
 

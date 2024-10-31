@@ -12,7 +12,7 @@ import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 
 import InterviewSummary from './validation/InterviewSummary';
 import { startSetValidateInterview } from 'evolution-frontend/lib/actions/SurveyAdmin';
-import InterviewListComponent from 'evolution-frontend/lib/components/admin/validations/InterviewListComponent';
+import InterviewListComponent from 'evolution-frontend/lib/components/admin/review/InterviewListComponent';
 
 class Validation extends React.Component {
   constructor(props) {
@@ -62,6 +62,7 @@ class Validation extends React.Component {
   }
 
   render() {
+    return <p>Validation.js legacy (to be replaced)</p>;
     return (
       <div className="survey">
         <div className="admin">
