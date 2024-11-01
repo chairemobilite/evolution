@@ -43,13 +43,20 @@ export const InputRadioNumber = ({
         // "blur" is the event triggered when the input loses focus.
         // When this happens, if the text field contains "" (an empty string), then the text box is left empty
         // and it's not clear what is the true value recorded by the widget. Therefore, if the event is 'blur',
-        // we change the value of the widget to "" to make it appear unanswered.
+        // we change the value of the widget to `undefined` to make it appear unanswered.
         if (event.type !== 'blur' && event.target.value === '') {
             return;
         }
-        setCurrentValue(Number(event.target.value));
-        onValueChange(event, Number(event.target.value).toString());
-        Number(event.target.value) <= maxValue ? setIsOverMax(false) : setIsOverMax(true);
+        const newCurrentValue = event.target.value === '' ? undefined : Number(event.target.value);
+        setCurrentValue(newCurrentValue === undefined ? -1 : newCurrentValue);
+        // FIXME onValueChange in the Question should not have to receive the
+        // event itself or its structure. InputDatePicker already does not send
+        // the target.value.  We should type and document it. Here we are
+        // recreating the part of interest of the event so that unit test can
+        // pass (because events are being re-used and validating its content
+        // later does not work as it has been changed).
+        onValueChange({ target: { value: newCurrentValue } });
+        newCurrentValue && newCurrentValue <= maxValue ? setIsOverMax(false) : setIsOverMax(true);
     };
 
     // TODO: The three functions below are copied from InputRadio.tsx.

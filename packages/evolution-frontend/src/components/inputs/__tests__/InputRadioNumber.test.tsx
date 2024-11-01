@@ -8,6 +8,28 @@ import React from 'react';
 import TestRenderer from 'react-test-renderer';
 import InputRadioNumber from "../InputRadioNumber";
 import {UserPermissions} from "chaire-lib-common/lib/services/user/userType";
+import { render, fireEvent } from '@testing-library/react';
+
+const interview = {
+    id: 1,
+    uuid: "",
+    participant_id: 1,
+    is_completed: false,
+    responses: {},
+    validations: {},
+    is_valid: true
+}
+
+const user = {
+    id: 1,
+    username: '',
+    serializedPermissions: [],
+    preferences: {},
+    isAuthorized: (permissions: UserPermissions) => false,
+    is_admin: false,
+    pages: [],
+    showUserInfo: false,
+}
 
 describe('Render InputRadioNumber', () => {
     const widgetConfig = {
@@ -20,27 +42,6 @@ describe('Render InputRadioNumber', () => {
         inputType: 'radioNumber' as const,
         valueRange: { min: 1, max: 3 },
         overMaxAllowed: true
-    }
-
-    const interview = {
-        id: 1,
-        uuid: "",
-        participant_id: 1,
-        is_completed: false,
-        responses: {},
-        validations: {},
-        is_valid: true
-    }
-
-    const user = {
-        id: 1,
-        username: '',
-        serializedPermissions: [],
-        preferences: {},
-        isAuthorized: (permissions: UserPermissions) => false,
-        is_admin: false,
-        pages: [],
-        showUserInfo: false,
     }
 
     test('InputRadioNumber without "over max" option', () => {
@@ -77,5 +78,74 @@ describe('Render InputRadioNumber', () => {
             />
         );
         expect(wrapper).toMatchSnapshot();
+    });
+});
+
+describe('InputRadioNumber onChange', () => {
+    const widgetConfig = {
+        inputType: 'radioNumber' as const,
+        valueRange: { min: 1, max: 3 },
+        overMaxAllowed: true
+    };
+
+    test('Test with a radio option', () => {
+        const mockOnValueChange = jest.fn();
+        const { queryByText } = render(
+            <InputRadioNumber
+                id={'test'}
+                onValueChange={mockOnValueChange}
+                widgetConfig={widgetConfig}
+                value={3}
+                interview={interview} path={''} user={user}
+            />
+        );
+
+        // Find the "1" option
+        const option1 = queryByText("1");
+        expect(option1).toBeTruthy();
+    
+        // Click on the option 1
+        fireEvent.click(option1 as any);
+        expect(mockOnValueChange).toHaveBeenCalledTimes(1);
+        expect(mockOnValueChange).toHaveBeenCalledWith(expect.objectContaining({ target: { value: 1 }}));
+    });
+
+    test('Test entering the max option', () => {
+        const mockOnValueChange = jest.fn();
+        const { queryByText, getByLabelText } = render(
+            <InputRadioNumber
+                id={'test'}
+                onValueChange={mockOnValueChange}
+                widgetConfig={widgetConfig}
+                value={3}
+                interview={interview} path={''} user={user}
+            />
+        );
+
+        // Find the "4+" option
+        const optionMax = queryByText("4+");
+        expect(optionMax).toBeTruthy();
+    
+        // Click on the option button
+        fireEvent.click(optionMax as any);
+        expect(mockOnValueChange).toHaveBeenCalledTimes(1);
+        expect(mockOnValueChange).toHaveBeenCalledWith(expect.objectContaining({ target: { value: 4 }}));
+
+        // Find the text input
+        const input = getByLabelText("SpecifyAboveLimit:");
+        expect(input).toBeTruthy();
+
+        // Enter a value in the input
+        fireEvent.change(input as any, { target: { value: '5' } });
+        fireEvent.blur(input as any);
+        expect(mockOnValueChange).toHaveBeenCalledTimes(2);
+        expect(mockOnValueChange).toHaveBeenCalledWith(expect.objectContaining({ target: { value: 5 }}));
+
+        // Reset to empty string so it appears unanswered
+        fireEvent.change(input as any, { target: { value: '' } });
+        fireEvent.blur(input as any);
+        expect(mockOnValueChange).toHaveBeenCalledTimes(3);
+        expect(mockOnValueChange).toHaveBeenCalledWith(expect.objectContaining({ target: { value: undefined }}));
+
     });
 });
