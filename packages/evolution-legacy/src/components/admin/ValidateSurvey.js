@@ -93,6 +93,8 @@ export class ValidateSurvey extends React.Component {
 
   render() {
 
+    return <p>ValidationSurvey.js legacy (to be replaced)</p>;
+
     if (this.props.interviewLoaded && this.props.interview && this.props.interview.sectionLoaded)
     {
       const activeSection = surveyHelperNew.getResponse(this.props.interview, "_activeSection", null);

@@ -18,7 +18,7 @@ const interview = {
     uuid: 'arbitrary',
     participant_id: 1,
     is_active: true
-}
+};
 
 describe('default role', () => {
     const user = {
@@ -32,13 +32,17 @@ describe('default role', () => {
         ['update same id', true, 'update'],
         ['delete same id', true, 'delete'],
         ['create same id', true, 'create'],
-        ['validate same id', true, 'validate'],
+        ['review same id', true, 'review'],
+        ['correct same id', true, 'correct'],
+        ['export same id', true, 'export'],
         ['confirm same id', true, 'confirm'],
         ['cannot read other', false, 'read'],
         ['cannot update other', false, 'update'],
         ['cannot delete other', false, 'delete'],
         ['cannot create other', false, 'create'],
-        ['cannot validate other', false, 'validate'],
+        ['cannot review other', false, 'review'],
+        ['cannot correct other', false, 'correct'],
+        ['cannot export other', false, 'export'],
         ['cannot confirm other', false, 'confirm'],
     ]).test('Default has no permission: %s', (_title, same, permission) => {
         const testUser = _cloneDeep(user);
@@ -53,7 +57,9 @@ describe('default role', () => {
         expect(permissions.can('read', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('update', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('delete', InterviewsSubject)).toBeFalsy();
-        expect(permissions.can('validate', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('review', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('correct', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('export', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('confirm', InterviewsSubject)).toBeFalsy();
     });
 });
@@ -70,7 +76,9 @@ describe('admin role', () => {
         ['can update other', 'update'],
         ['can delete other', 'delete'],
         ['can create other', 'create'],
-        ['can validate other', 'validate'],
+        ['can review other', 'review'],
+        ['can correct other', 'correct'],
+        ['can export other', 'export'],
         ['can confirm other', 'confirm'],
     ]).test('%s', (_title, permission) => {
         const permissions = defineAbilitiesFor(user);
@@ -83,9 +91,11 @@ describe('admin role', () => {
         expect(permissions.can('read', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('update', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('delete', InterviewsSubject)).toBeTruthy();
-        expect(permissions.can('validate', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('review', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('correct', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('export', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('confirm', InterviewsSubject)).toBeTruthy();
-    })
+    });
 });
 
 describe('validator Lvl 1', () => {
@@ -101,7 +111,9 @@ describe('validator Lvl 1', () => {
         ['cannot update other', 'update', false],
         ['cannot delete other', 'delete', false],
         ['cannot create other', 'create', false],
-        ['can validate other', 'validate', true],
+        ['can review other', 'review', true],
+        ['can correct other', 'correct', true],
+        ['cannot export other', 'export', false],
         ['cannot confirm other', 'confirm', false],
     ]).test('%s', (_title, permission, expectedResult) => {
         const permissions = defineAbilitiesFor(user);
@@ -113,7 +125,9 @@ describe('validator Lvl 1', () => {
         expect(permissions.can('create', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('read', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('update', InterviewsSubject)).toBeFalsy();
-        expect(permissions.can('validate', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('review', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('correct', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('export', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('confirm', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('delete', InterviewsSubject)).toBeFalsy();
     });
@@ -132,8 +146,10 @@ describe('validator Lvl 2', () => {
         ['cannot update other', 'update', false],
         ['cannot delete other', 'delete', false],
         ['cannot create other', 'create', false],
-        ['can validate other', 'validate', true],
-        ['cannot confirm other', 'confirm', true],
+        ['can review other', 'review', true],
+        ['can correct other', 'correct', true],
+        ['cannot export other', 'export', false],
+        ['can confirm other', 'confirm', true],
     ]).test('%s', (_title, permission, expectedResult) => {
         const permissions = defineAbilitiesFor(user);
         expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(expectedResult);
@@ -144,7 +160,9 @@ describe('validator Lvl 2', () => {
         expect(permissions.can('create', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('read', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('update', InterviewsSubject)).toBeFalsy();
-        expect(permissions.can('validate', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('review', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('correct', InterviewsSubject)).toBeTruthy();
+        expect(permissions.can('export', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('confirm', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('delete', InterviewsSubject)).toBeFalsy();
     });

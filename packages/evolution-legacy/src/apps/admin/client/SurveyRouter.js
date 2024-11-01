@@ -7,7 +7,8 @@
 import React from 'react';
 import { Switch } from 'react-router-dom';
 
-import AdminMonitoringPage from 'evolution-frontend/lib/components/admin/pages/AdminMonitoringPage';
+import AdminMonitoringPageContainer from 'evolution-frontend/lib/components/admin/monitoring/AdminMonitoringPageContainer';
+import AdminExportPage from 'evolution-frontend/lib/components/admin/export/AdminExportPage';
 import AdminValidationPage from '../../../components/shared/AdminValidationPage';
 import AdminValidateSurveyPage from '../../../components/shared/AdminValidateSurveyPage';
 import UnauthorizedPage from 'chaire-lib-frontend/lib/components/pages/UnauthorizedPage';
@@ -25,8 +26,8 @@ import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute'
 import AdminRoute from 'chaire-lib-frontend/lib/components/routers/AdminRoute';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import UsersPage from 'chaire-lib-frontend/lib/components/pages/admin/UsersPage';
-import InterviewsByAccessCode from 'evolution-frontend/lib/components/admin/interviews/InterviewsByAccessCode';
-import InterviewsPage from 'evolution-frontend/lib/components/admin/pages/InterviewsPage';
+import InterviewsByAccessCode from 'evolution-frontend/lib/components/admin/review/InterviewsByAccessCode';
+import InterviewsPage from 'evolution-frontend/lib/components/admin/review/InterviewsPage';
 import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
 import AdminHomePage from 'evolution-frontend/lib/components/admin/pages/AdminHomePage';
 
@@ -60,15 +61,16 @@ const SurveyRouter = () => (
     <PublicRoute   path="/checkMagicEmail" component={CheckMagicEmailPage} />
     <PrivateRoute  path="/survey/edit/:uuid" permissions={{ 'Interviews': ['read', 'update'] }} component={Survey} />
     <PrivateRoute  path="/survey/edit/:uuid/:sectionShortname" permissions={{ 'Interviews': ['read', 'update'] }} component={Survey} />
-    <PrivateRoute  path="/admin/survey/:sectionShortname" permissions={{ 'Interviews': ['validate'] }} component={AdminValidateSurveyPage} exact={true} />
-    <PrivateRoute  path="/admin/survey/interview/:interviewUuid" permissions={{ 'Interviews': ['validate'] }} component={AdminValidateSurveyPage} exact={true} />
+    <PrivateRoute  path="/admin/survey/:sectionShortname" permissions={{ 'Interviews': ['review'] }} component={AdminValidateSurveyPage} exact={true} />
+    <PrivateRoute  path="/admin/survey/interview/:interviewUuid" permissions={{ 'Interviews': ['correct'] }} component={AdminValidateSurveyPage} exact={true} />
     <PrivateRoute  path="/interviews/byCode/:accessCode" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsByAccessCode} exact={true} />
     <PrivateRoute  path="/interviews/byCode" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsByAccessCode} exact={true} />
     <PrivateRoute  path="/interviews" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsPage} exact={false} />
-    <AdminRoute    path="/admin/monitoring" component={AdminMonitoringPage} />
-    <PrivateRoute  path="/admin/validation" permissions={{ 'Interviews': ['validate'] }} component={AdminValidationPage} />
+    <AdminRoute    path="/admin/monitoring" component={AdminMonitoringPageContainer} />
+    <PrivateRoute  path="/admin/review" permissions={{ 'Interviews': ['review'] }} component={AdminValidationPage} />
     <AdminRoute    path="/admin/users" component={UsersPage} exact={true} />
-    <AdminRoute    path="/admin" component={AdminMonitoringPage} exact={true} />
+    <AdminRoute    path="/admin/export" component={AdminExportPage} exact={true} />
+    <AdminRoute    path="/admin" component={AdminHomePage} exact={true} />
     <PrivateRoute  path="/home" component={AdminHomePage} />
     <PrivateRoute  component={AdminHomePage} />
   </Switch>

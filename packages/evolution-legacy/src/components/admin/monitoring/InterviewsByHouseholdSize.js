@@ -58,6 +58,7 @@ class InterviewsByHouseholdSize extends React.Component {
 
   render(){
 
+    return <p>InterviewsByHouseholdSize.js legacy (to be replaced)</p>;
     if (_isBlank(this.state.interviewsStatus))
     {
       return null;

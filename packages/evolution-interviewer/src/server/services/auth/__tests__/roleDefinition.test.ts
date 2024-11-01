@@ -19,7 +19,7 @@ const interview = {
     uuid: 'arbitrary',
     participant_id: 1,
     is_active: true
-}
+};
 
 describe('Interviewer role', () => {
     const user = {
@@ -34,8 +34,10 @@ describe('Interviewer role', () => {
         ['can update other', 'update', true],
         ['cannot delete other', 'delete', false],
         ['can create other', 'create', true],
-        ['cannot validate other', 'validate', false],
+        ['cannot correct other', 'correct', false],
+        ['cannot review other', 'correct', false],
         ['cannot confirm other', 'confirm', false],
+        ['cannot export other', 'export', false],
     ]).test('%s', (_title, permission, expectedResult) => {
         const permissions = defineAbilitiesFor(user);
         expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(expectedResult);
@@ -46,7 +48,9 @@ describe('Interviewer role', () => {
         expect(permissions.can('create', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('read', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('update', InterviewsSubject)).toBeTruthy();
-        expect(permissions.can('validate', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('correct', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('review', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('export', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('confirm', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('delete', InterviewsSubject)).toBeFalsy();
     });
@@ -70,7 +74,9 @@ describe('Interviewer supervisor role', () => {
         ['can update other', 'update', true],
         ['cannot delete other', 'delete', false],
         ['can create other', 'create', true],
-        ['cannot validate other', 'validate', false],
+        ['cannot review other', 'review', false],
+        ['cannot correct other', 'correct', false],
+        ['cannot export other', 'export', false],
         ['cannot confirm other', 'confirm', false],
     ]).test('%s', (_title, permission, expectedResult) => {
         const permissions = defineAbilitiesFor(user);
@@ -82,7 +88,9 @@ describe('Interviewer supervisor role', () => {
         expect(permissions.can('create', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('read', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('update', InterviewsSubject)).toBeTruthy();
-        expect(permissions.can('validate', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('review', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('correct', InterviewsSubject)).toBeFalsy();
+        expect(permissions.can('export', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('confirm', InterviewsSubject)).toBeFalsy();
         expect(permissions.can('delete', InterviewsSubject)).toBeFalsy();
     });

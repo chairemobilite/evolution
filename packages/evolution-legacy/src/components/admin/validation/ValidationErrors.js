@@ -19,6 +19,7 @@ export default withTranslation()(function({ errors, t}) {
         return (<p key={`warning_${i}`} className={`_warning _orange _strong`}><FontAwesomeIcon icon={faExclamationTriangle} className="faIconLeft" />{t(`survey:validations:${warningId}`)}</p>);
     });
 
+    return <p>ValidationErrors.js legacy (to be replaced)</p>;
     return (
         <React.Fragment>
             <div className="admin-errors-container">

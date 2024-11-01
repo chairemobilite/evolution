@@ -24,7 +24,7 @@ if (InterviewStats === undefined) {
 // FIXME There shouldn't be any need for custom maps now, but keeping this for compatibility with older surveys
 let InterviewMap = appConfig.getCustomInterviewMap();
 if (InterviewMap === undefined) {
-    InterviewMap = require('evolution-frontend/lib/components/admin/validations/InterviewMap').default;
+    InterviewMap = require('evolution-frontend/lib/components/admin/review/InterviewMap').default;
 }
 
 export const ValidationOnePageSummary = (props) => {
@@ -36,6 +36,8 @@ export const ValidationOnePageSummary = (props) => {
         : generateMapFeatureFromInterview(props.interview, { activePlacePath, activeTripUuid });
 
     const mapCenter = placesCollection.features.length > 0 ? placesCollection.features[0].geometry.coordinates : [config.mapDefaultCenter.lon, config.mapDefaultCenter.lat];
+    
+    return <p>ValidationOnePageSummary.js legacy (to be replaced)</p>;
 
     return (
         <div className="survey validation">

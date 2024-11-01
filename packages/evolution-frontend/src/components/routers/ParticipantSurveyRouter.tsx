@@ -25,7 +25,7 @@ import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
 
 // Only show user info for users that are not simple respondents FIXME: do we still need this?
 // Seems to be obsolete now that we differenciate between participant and admin routes
-setShowUserInfoPerm({ 'Interviews': ['read', 'update'] });
+setShowUserInfoPerm({ Interviews: ['read', 'update'] });
 
 const localesString = `/:locale(${config.languages.join('|')})?`;
 

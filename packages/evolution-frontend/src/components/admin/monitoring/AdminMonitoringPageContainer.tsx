@@ -6,13 +6,13 @@
  */
 import React from 'react';
 import { withTranslation, WithTranslationProps } from 'react-i18next';
-import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { History } from 'history';
-import Monitoring from './Monitoring';
+import Monitoring from './AdminMonitoringPage';
 
 type AdminMonitoringPageProps = {
     isAuthenticated: boolean;
-    user: UserAttributes;
+    user: CliUser;
     history: History;
 } & WithTranslationProps;
 

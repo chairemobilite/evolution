@@ -7,7 +7,7 @@
 import { NextFunction, Request, Response } from 'express';
 import Interviews from '../interviews/interviews';
 
-export type permissionType = 'read' | 'update' | 'validate' | 'confirm' | 'delete' | 'create';
+export type permissionType = 'read' | 'update' | 'review' | 'correct' | 'export' | 'confirm' | 'delete' | 'create';
 
 /**
  * Authorization middleware to make sure a participant is allowed to access the

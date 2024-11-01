@@ -13,10 +13,11 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 export interface AdminHomePageProps {
     user: CliUser;
-    path: any;
-    appName: string;
+    path: any; // TODO: type this
+    appName: string; // FIXME/TODO: Is this used somewhere?
 }
 
+/** This is the home page for admin users. It includes a list of links to the different admin pages. */
 const AdminHomePage: React.FunctionComponent<AdminHomePageProps & WithTranslation> = (
     props: AdminHomePageProps & WithTranslation
 ) => (

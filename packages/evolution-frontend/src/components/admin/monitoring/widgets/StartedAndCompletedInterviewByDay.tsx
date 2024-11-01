@@ -97,6 +97,7 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
                 }
             },
             title: {
+                align: 'left',
                 text: this.props.t('admin:StartedAndCompletedInterviewsPerDay')
             },
             subtitle: {
@@ -132,7 +133,8 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
                 }
             ],
             legend: {
-                enabled: true
+                enabled: true,
+                align: 'left'
             },
             plotOptions: {
                 series: {
@@ -197,32 +199,31 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
                 : null;
 
         return (
-            <div
-                className="admin-widget-container"
-                style={{ width: `${Math.min(1600, Math.max(250, this.state.data.dates.length * 30 + 150))}px` }}
-            >
-                <ReactHighcharts
-                    config={chartOptions}
-                    domProps={{ id: 'highchartStartedAndCompletedInterviewsByDay' }}
-                    callback={null}
-                    ref={'highchart-started-and-completed-interviews-by-day'}
-                ></ReactHighcharts>
-                <p className="no-bottom-margin">
-                    {this.state.data.startedCount && (
-                        <React.Fragment>
-                            <span>{this.props.t('admin:StartedFem')} : </span>
-                            <strong>{this.state.data.startedCount}</strong>
-                        </React.Fragment>
-                    )}
-                    {this.state.data.completedCount && (
-                        <React.Fragment>
-                            {' '}
-                            • <span>{this.props.t('admin:CompletedFem')} : </span>
-                            <strong>{this.state.data.completedCount}</strong>
-                            {completionRate ? <span> ({(completionRate * 100).toFixed(1)}%)</span> : ''}
-                        </React.Fragment>
-                    )}
-                </p>
+            <div className="admin-widget-container _overflow-scroll">
+                <div style={{ width: `${Math.min(1600, Math.max(250, this.state.data.dates.length * 30 + 150))}px` }}>
+                    <ReactHighcharts
+                        config={chartOptions}
+                        domProps={{ id: 'highchartStartedAndCompletedInterviewsByDay' }}
+                        callback={null}
+                        ref={'highchart-started-and-completed-interviews-by-day'}
+                    ></ReactHighcharts>
+                    <p className="no-bottom-margin">
+                        {this.state.data.startedCount && (
+                            <React.Fragment>
+                                <span>{this.props.t('admin:StartedFem')} : </span>
+                                <strong>{this.state.data.startedCount}</strong>
+                            </React.Fragment>
+                        )}
+                        {this.state.data.completedCount && (
+                            <React.Fragment>
+                                {' '}
+                                • <span>{this.props.t('admin:CompletedFem')} : </span>
+                                <strong>{this.state.data.completedCount}</strong>
+                                {completionRate ? <span> ({(completionRate * 100).toFixed(1)}%)</span> : ''}
+                            </React.Fragment>
+                        )}
+                    </p>
+                </div>
             </div>
         );
     }

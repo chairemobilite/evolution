@@ -12,7 +12,7 @@ import { InterviewSubject } from './roleDefinition';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 
-export type permissionType = 'read' | 'update' | 'validate' | 'confirm' | 'delete' | 'create';
+export type permissionType = 'read' | 'update' | 'review' | 'correct'| 'export' | 'confirm' | 'delete' | 'create';
 
 /**
  * Authorization middleware to authorize a user on an interview

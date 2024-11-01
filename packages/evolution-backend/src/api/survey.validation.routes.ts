@@ -22,7 +22,7 @@ import { Audits } from '../services/audits/Audits';
 
 const router = express.Router();
 
-router.use(interviewUserIsAuthorized(['validate', 'read']));
+router.use(interviewUserIsAuthorized(['correct', 'review', 'read']));
 
 router.get(
     '/survey/validateInterview/:interviewUuid',
@@ -170,7 +170,7 @@ router.post('/validationList', async (req, res) => {
     }
 });
 
-router.post('/validation/auditStats', async (req: Request, res: Response) => {
+router.post('/review/auditStats', async (req: Request, res: Response) => {
     try {
         const { ...filters } = req.body;
         const actualFilters: { [key: string]: string | string[] } = {};
@@ -194,7 +194,7 @@ router.post('/validation/auditStats', async (req: Request, res: Response) => {
     }
 });
 
-router.post('/validation/updateAudits/:uuid', async (req, res, next) => {
+router.post('/review/updateAudits/:uuid', async (req, res, next) => {
     try {
         const audits = req.body.audits;
         const interview = await Interviews.getInterviewByUuid(req.params.uuid);
