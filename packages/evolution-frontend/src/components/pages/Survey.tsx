@@ -12,7 +12,7 @@ import _get from 'lodash/get';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import Section, { SectionProps } from '../pageParts/Section';
+import Section from '../pageParts/Section';
 import SectionNav from '../pageParts/SectionNav';
 import {
     startSetInterview,
@@ -36,6 +36,7 @@ import {
     StartAddGroupedObjects,
     StartRemoveGroupedObjects
 } from 'evolution-common/lib/utils/helpers';
+import { SectionProps } from '../hooks/useSectionTemplate';
 
 export type SurveyProps = {
     interview: UserFrontendInterviewAttributes;

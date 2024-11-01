@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React                    from 'react';
+import _upperFirst from 'lodash/upperFirst';
 import _cloneDeep from 'lodash/cloneDeep';
 import _get                     from 'lodash/get';
 import { WithTranslation, withTranslation }      from 'react-i18next';
@@ -12,7 +13,6 @@ import { FontAwesomeIcon }      from '@fortawesome/react-fontawesome';
 import { faPencilAlt }          from '@fortawesome/free-solid-svg-icons/faPencilAlt';
 import { faClock }              from '@fortawesome/free-solid-svg-icons/faClock';
 import { faArrowRight }         from '@fortawesome/free-solid-svg-icons/faArrowRight';
-import { createBrowserHistory } from 'history';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
@@ -23,96 +23,44 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import helper          from '../helper';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import { getPathForSection } from 'evolution-frontend/lib/services/url';
-import { SectionConfig, UserFrontendInterviewAttributes } from 'evolution-frontend/lib/services/interviews/interview';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
 
-export type SectionProps = {
-    shortname: string;
-    sectionConfig: SectionConfig
-    interview: UserFrontendInterviewAttributes;
-    errors: { [path: string]: string };
-    user: CliUser;
-    allWidgetsValid?: boolean;
-    submitted?: boolean;
-    loadingState: number;
-} & WithTranslation &
-    surveyHelper.InterviewUpdateCallbacks &
-    WithSurveyContextProps;
+export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (
+    props: SectionProps & WithTranslation & WithSurveyContextProps
+) => {
+    const { preloaded } = useSectionTemplate(props);
+    const iconPathsByMode = React.useMemo(() => {
+        const iconPathsByMode = {};
+        const modes           = props.surveyContext.widgets['segmentMode'].choices;
+        for (let i = 0, count = modes.length; i < count; i++)
+        {
+            const mode     = modes[i].value;
+            const iconPath = modes[i].iconPath;
+            iconPathsByMode[mode] = iconPath;
+        }
+        return iconPathsByMode;
+    }, []);
 
-export class SegmentsSection extends React.Component<SectionProps & WithTranslation & WithSurveyContextProps, any> {
-
-  private iconPathsByMode: any;
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      preloaded: (typeof props.preload === 'function' ? false : true)
-    };
-    this.selectTrip = this.selectTrip.bind(this);
-    this.iconPathsByMode = this.getIconPathsByMode();
-  }
-
-  getIconPathsByMode() {
-    const iconPathsByMode = {};
-    const modes           = this.props.surveyContext.widgets['segmentMode'].choices;
-    for (let i = 0, count = modes.length; i < count; i++)
-    {
-      const mode     = modes[i].value;
-      const iconPath = modes[i].iconPath;
-      iconPathsByMode[mode] = iconPath;
+    const selectTrip = (tripUuid, e) => {
+        if (e)
+        {
+            e.preventDefault();
+        }
+        props.startUpdateInterview('segments', {
+            [`responses._activeTripId`]: tripUuid
+        });
     }
-    return iconPathsByMode;
-  }
 
-  selectTrip(tripUuid, e) {
-    if (e)
-    {
-      e.preventDefault();
-    }
-    this.props.startUpdateInterview('segments', {
-      [`responses._activeTripId`]: tripUuid
-    });
-  }
 
-  componentDidMount() {
-    if (typeof this.props.sectionConfig.preload === 'function')
-    {
-      this.props.sectionConfig.preload.call(this, this.props.interview, this.props.startUpdateInterview, this.props.startAddGroupedObjects, this.props.startRemoveGroupedObjects, function() {
-        this.setState(() => ({
-          preloaded: true
-        }));
-      }.bind(this));
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (!this.props.allWidgetsValid)
-    {
-      const scrollPosition = _get(document.getElementsByClassName('question-invalid'), '[0].offsetTop', null);
-      if (scrollPosition && scrollPosition >= 0)
-      {
-        window.scrollTo(0,scrollPosition);
-      }
-    }
-  }
-
-  render() {
-    if (!this.state.preloaded)
+    if (!preloaded)
     {
       return <LoadingPage />;
     }
-    const history = createBrowserHistory();
-
-    const path = getPathForSection(history.location.pathname, this.props.shortname);
-    if (path) {
-        history.push(path);
-    }
-    
-    surveyHelper.devLog('%c rendering section ' + this.props.shortname, 'background: rgba(0,0,255,0.1);')
+   
+    surveyHelper.devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);')
     const widgetsComponentsByShortname = {};
-    const personTripsConfig            = this.props.surveyContext.widgets['personTrips'];
-    const person                       = helper.getPerson(this.props.interview);
+    const personTripsConfig            = props.surveyContext.widgets['personTrips'];
+    const person                       = helper.getPerson(props.interview);
     const journeys = odSurveyHelper.getJourneysArray({ person });
     const currentJourney = journeys[0];
 
@@ -120,30 +68,30 @@ export class SegmentsSection extends React.Component<SectionProps & WithTranslat
     const tripsList  = [];
 
     const visitedPlaces = currentJourney.visitedPlaces || {};
-    const selectedTripId  = helper.getActiveTripId(this.props.interview);
+    const selectedTripId  = helper.getActiveTripId(props.interview);
     let   selectedTrip    = selectedTripId ? trips[selectedTripId] : null;
 
     //console.log('selectedTripId', selectedTripId);
 
     // setup widgets:
 
-    for (let i = 0, count = this.props.sectionConfig.widgets.length; i < count; i++)
+    for (let i = 0, count = props.sectionConfig.widgets.length; i < count; i++)
     {
-        const widgetShortname = this.props.sectionConfig.widgets[i];
+        const widgetShortname = props.sectionConfig.widgets[i];
 
         widgetsComponentsByShortname[widgetShortname] = (
             <Widget
                 key={widgetShortname}
                 currentWidgetShortname={widgetShortname}
-                nextWidgetShortname={this.props.sectionConfig.widgets[i + 1]}
-                sectionName={this.props.shortname}
-                interview={this.props.interview}
-                errors={this.props.errors}
-                user={this.props.user}
-                loadingState={this.props.loadingState}
-                startUpdateInterview={this.props.startUpdateInterview}
-                startAddGroupedObjects={this.props.startAddGroupedObjects}
-                startRemoveGroupedObjects={this.props.startRemoveGroupedObjects}
+                nextWidgetShortname={props.sectionConfig.widgets[i + 1]}
+                sectionName={props.shortname}
+                interview={props.interview}
+                errors={props.errors}
+                user={props.user}
+                loadingState={props.loadingState}
+                startUpdateInterview={props.startUpdateInterview}
+                startAddGroupedObjects={props.startAddGroupedObjects}
+                startRemoveGroupedObjects={props.startRemoveGroupedObjects}
             />
         );
     }
@@ -168,7 +116,7 @@ export class SegmentsSection extends React.Component<SectionProps & WithTranslat
           {
             modeIcons.push(
               <React.Fragment key={segment._uuid}>
-                <img src={this.iconPathsByMode[segment.mode]} style={{height: '1.5em', marginLeft: '0.3em'}} alt={this.props.t(`survey:trip:modes:${segment.mode}`)} />
+                <img src={iconPathsByMode[segment.mode]} style={{height: '1.5em', marginLeft: '0.3em'}} alt={props.t([`customSurvey:segments:mode:${_upperFirst(segment.mode)}`, `segments:mode:${_upperFirst(segment.mode)}`])} />
               </React.Fragment>
             );
           }
@@ -178,19 +126,19 @@ export class SegmentsSection extends React.Component<SectionProps & WithTranslat
       const tripItem         = (
         <li className={`no-bullet survey-trip-item survey-trip-item-name${trip._uuid === selectedTripId ? ' survey-trip-item-selected' : ''}`} key={`survey-trip-item__${i}`}>
           <span className="survey-trip-item-element survey-trip-item-sequence-and-icon">
-            <em>{this.props.t('survey:trip:trip')} {trip['_sequence']}</em>
+            <em>{props.t('survey:trip:trip')} {trip['_sequence']}</em>
           </span>
           <span className="survey-trip-item-element survey-trip-item-buttons">
             <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem'}} />
             {origin && origin.departureTime && secondsSinceMidnightToTimeStr(origin.departureTime)}
             <FontAwesomeIcon icon={faArrowRight} style={{ marginRight: '0.3rem', marginLeft: '0.3rem'}} />
             {destination && destination.arrivalTime && secondsSinceMidnightToTimeStr(destination.arrivalTime)}
-            {!selectedTripId && this.props.loadingState === 0 && <button
+            {!selectedTripId && props.loadingState === 0 && <button
               type      = "button"
               className = {`survey-section__button button blue small`}
-              onClick   = {(e) => this.selectTrip(trip._uuid, e)}
+              onClick   = {(e) => selectTrip(trip._uuid, e)}
               style     = {{marginLeft: '0.5rem'}}
-              title     = {this.props.t('survey:trip:editTrip')}
+              title     = {props.t('survey:trip:editTrip')}
             >
               <FontAwesomeIcon icon={faPencilAlt} className="" />
             </button>}
@@ -203,9 +151,9 @@ export class SegmentsSection extends React.Component<SectionProps & WithTranslat
         tripsList.push(
           <li className={`no-bullet survey-trip-item survey-trip-item-description${trip._uuid === selectedTripId ? ' survey-trip-item-selected' : ''}`} key={`survey-trip-item-origin-destination__${i}`}>
             <span className="survey-trip-item-element survey-trip-item-origin-description">
-              <img src={`/dist/images/activities_icons/${origin.activity}_marker.svg`} style={{height: '4rem'}} alt={this.props.t(`visitedPlaces/activities/${origin.activity}`)} />
+              <img src={`/dist/images/activities_icons/${origin.activity}_marker.svg`} style={{height: '4rem'}} alt={props.t(`visitedPlaces/activities/${origin.activity}`)} />
               <span>
-                {this.props.t(`survey:visitedPlace:activities:${origin.activity}`)}
+                {props.t(`survey:visitedPlace:activities:${origin.activity}`)}
                 { origin.name && (<React.Fragment><br /><em>&nbsp;• {origin.name}</em></React.Fragment>) }
               </span>
             </span>
@@ -213,9 +161,9 @@ export class SegmentsSection extends React.Component<SectionProps & WithTranslat
               <FontAwesomeIcon icon={faArrowRight} style={{ marginRight: '0.3rem', marginLeft: '0.3rem'}} />
             </span>
             <span className="survey-trip-item-element survey-trip-item-destination-description">
-              <img src={`/dist/images/activities_icons/${destination.activity}_marker.svg`} style={{height: '4rem'}} alt={this.props.t(`visitedPlaces/activities/${destination.activity}`)} />
+              <img src={`/dist/images/activities_icons/${destination.activity}_marker.svg`} style={{height: '4rem'}} alt={props.t(`visitedPlaces/activities/${destination.activity}`)} />
               <span>
-                {this.props.t(`survey:visitedPlace:activities:${destination.activity}`)}
+                {props.t(`survey:visitedPlace:activities:${destination.activity}`)}
                 { destination.name && (<React.Fragment><br /><em>&nbsp;• {destination.name}</em></React.Fragment>) }
               </span>
             </span>
@@ -238,18 +186,18 @@ export class SegmentsSection extends React.Component<SectionProps & WithTranslat
               widgetConfig                = {personTripsConfig}
               shortname                   = 'personTrips'
               path                        = {tripPath}
-              loadingState                = {this.props.loadingState}
+              loadingState                = {props.loadingState}
               objectId                    = {trip._uuid}
               parentObjectIds             = {parentObjectIds}
               key                         = {`survey-trip-item-selected-${trip._uuid}`}
               sequence                    = {trip['_sequence']}
               section                     = {'segments'}
-              interview                   = {this.props.interview}
-              user                        = {this.props.user}
-              errors                      = {this.props.errors}
-              startUpdateInterview        = {this.props.startUpdateInterview}
-              startAddGroupedObjects      = {this.props.startAddGroupedObjects}
-              startRemoveGroupedObjects   = {this.props.startRemoveGroupedObjects}
+              interview                   = {props.interview}
+              user                        = {props.user}
+              errors                      = {props.errors}
+              startUpdateInterview        = {props.startUpdateInterview}
+              startAddGroupedObjects      = {props.startAddGroupedObjects}
+              startRemoveGroupedObjects   = {props.startRemoveGroupedObjects}
             />
           </li>
         );
@@ -257,7 +205,7 @@ export class SegmentsSection extends React.Component<SectionProps & WithTranslat
       }
     }
     return (
-      <section className = {`survey-section survey-section-shortname-${this.props.shortname}`}>
+      <section className = {`survey-section survey-section-shortname-${props.shortname}`}>
         <div className="survey-section__content">
           {widgetsComponentsByShortname['activePersonTitle']}
           {widgetsComponentsByShortname['buttonSwitchPerson']}
@@ -276,7 +224,6 @@ export class SegmentsSection extends React.Component<SectionProps & WithTranslat
         </div>
       </section>
     );
-  }
 };
 
 export default withTranslation()(withSurveyContext(SegmentsSection));

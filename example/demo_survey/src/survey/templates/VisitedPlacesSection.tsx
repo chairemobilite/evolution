@@ -36,135 +36,90 @@ import helper          from '../helper';
 import ConfirmModal    from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
-import { SectionConfig, UserFrontendInterviewAttributes } from 'evolution-frontend/lib/services/interviews/interview';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
 
-export type SectionProps = {
-    shortname: string;
-    sectionConfig: SectionConfig
-    interview: UserFrontendInterviewAttributes;
-    errors: { [path: string]: string };
-    user: CliUser;
-    allWidgetsValid?: boolean;
-    submitted?: boolean;
-    loadingState: number;
-} & WithTranslation &
-    surveyHelper.InterviewUpdateCallbacks &
-    WithSurveyContextProps;
+export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (
+    props: SectionProps & WithTranslation & WithSurveyContextProps
+) => {
+    const { preloaded } = useSectionTemplate(props);
+    const [ confirmDeleteVisitedPlace, setConfirmDeleteVisitedPlace ] = React.useState<string | null>(null)
 
-export class VisitedPlacesSection extends React.Component<SectionProps & WithTranslation & WithSurveyContextProps, any> {
+    const addVisitedPlace = (sequence, path, e) => {
+        if (e)
+        {
+            e.preventDefault();
+        }
+        props.startAddGroupedObjects(1, sequence, path, [], (function(interview) {
+        const person             = helper.getPerson(interview);
+        const journeys           = odSurveyHelper.getJourneysArray({ person });
+        const currentJourney     = journeys[0];
+        const visitedPlaces      = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
+        const lastVisitedPlace   = visitedPlaces[visitedPlaces.length - 1];
+        const updateValuesByPath = {}; const history = createBrowserHistory();
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      preloaded: (typeof props.preload === 'function' ? false : true),
-      confirmDeleteVisitedPlace: null
-    };
-    this.addVisitedPlace          = this.addVisitedPlace.bind(this);
-    this.selectVisitedPlace       = this.selectVisitedPlace.bind(this);
-    this.deleteVisitedPlace       = this.deleteVisitedPlace.bind(this);
-    this.mergeVisitedPlace       = this.mergeVisitedPlace.bind(this);
-  }
-
-  addVisitedPlace(sequence, path, e) {
-    if (e)
-    {
-      e.preventDefault();
-    }
-    this.props.startAddGroupedObjects(1, sequence, path, [], (function(interview) {
-      const person             = helper.getPerson(interview);
-      const journeys           = odSurveyHelper.getJourneysArray({ person });
-      const currentJourney     = journeys[0];
-      const visitedPlaces      = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
-      const lastVisitedPlace   = visitedPlaces[visitedPlaces.length - 1];
-      const updateValuesByPath = {};
-      if (lastVisitedPlace && sequence === lastVisitedPlace._sequence) // we are inserting a new visited place at the end
-      {
-        const beforeLastVisitedPlace     = visitedPlaces[visitedPlaces.length - 2];
-        const beforeLastVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${beforeLastVisitedPlace._uuid}`;
-        updateValuesByPath[`responses.${beforeLastVisitedPlacePath}.nextPlaceCategory`] = null;
-      }
-      updateValuesByPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
-      this.props.startUpdateInterview('visitedPlaces', updateValuesByPath);
-    }).bind(this));
-  }
-
-  selectVisitedPlace(visitedPlaceUuid, e) {
-    if (e)
-    {
-      e.preventDefault();
-    }
-    this.props.startUpdateInterview('visitedPlaces', {
-      [`responses._activeVisitedPlaceId`]: visitedPlaceUuid
-    });
-  }
-  
-  deleteVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces, e = undefined) {
-    if (e)
-    {
-      e.preventDefault();
-    }
-    helper.deleteVisitedPlace(visitedPlacePath, this.props.interview, this.props.startRemoveGroupedObjects, this.props.startUpdateInterview);
-  }
-
-  mergeVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces, e = undefined) {
-    if (e)
-    {
-      e.preventDefault();
-    }
-    helper.mergeVisitedPlace(visitedPlacePath, this.props.interview, this.props.startRemoveGroupedObjects, this.props.startUpdateInterview);
-  }
-
-  componentDidMount() {
-    if (typeof this.props.sectionConfig.preload === 'function')
-    {
-      this.props.sectionConfig.preload.call(this, this.props.interview, this.props.startUpdateInterview, this.props.startAddGroupedObjects, this.props.startRemoveGroupedObjects, function() {
-        this.setState(() => ({
-          preloaded: true
+        const path = getPathForSection(history.location.pathname, props.shortname);
+        if (path) {
+            history.push(path);
+        }
+        if (lastVisitedPlace && sequence === lastVisitedPlace._sequence) // we are inserting a new visited place at the end
+        {
+            const beforeLastVisitedPlace     = visitedPlaces[visitedPlaces.length - 2];
+            const beforeLastVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${beforeLastVisitedPlace._uuid}`;
+            updateValuesByPath[`responses.${beforeLastVisitedPlacePath}.nextPlaceCategory`] = null;
+        }
+        updateValuesByPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
+        props.startUpdateInterview('visitedPlaces', updateValuesByPath);
         }));
-      }.bind(this));
     }
-  }
 
-  componentDidUpdate(prevProps) {
-    if (!this.props.allWidgetsValid)
-    {
-      const scrollPosition = _get(document.getElementsByClassName('question-invalid'), '[0].offsetTop', null);
-      if (scrollPosition && scrollPosition >= 0)
-      {
-        window.scrollTo(0,scrollPosition);
-      }
+    const selectVisitedPlace = (visitedPlaceUuid, e) => {
+        if (e)
+        {
+            e.preventDefault();
+        }
+        props.startUpdateInterview('visitedPlaces', {
+            [`responses._activeVisitedPlaceId`]: visitedPlaceUuid
+        });
     }
-  }
+  
+    const deleteVisitedPlace = (person, visitedPlacePath, visitedPlace, visitedPlaces, e = undefined) => {
+        if (e)
+        {
+            e.preventDefault();
+        }
+        helper.deleteVisitedPlace(visitedPlacePath, props.interview, props.startRemoveGroupedObjects, props.startUpdateInterview);
+    }
 
-  render() {
-    if (!this.state.preloaded)
+    const mergeVisitedPlace = (person, visitedPlacePath, visitedPlace, visitedPlaces, e = undefined) => {
+        if (e)
+        {
+            e.preventDefault();
+        }
+        helper.mergeVisitedPlace(visitedPlacePath, props.interview, props.startRemoveGroupedObjects, props.startUpdateInterview);
+    }
+
+  
+    if (!preloaded)
     {
       return <LoadingPage />;
     }
-    const history = createBrowserHistory();
 
-    const path = getPathForSection(history.location.pathname, this.props.shortname);
-    if (path) {
-        history.push(path);
-    }
-
-    surveyHelper.devLog('%c rendering section ' + this.props.shortname, 'background: rgba(0,0,255,0.1);')
+    surveyHelper.devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);')
     const widgetsComponentsByShortname = {};
-    const personVisitedPlacesConfig    = this.props.surveyContext.widgets['personVisitedPlaces'];
-    const person                       = helper.getPerson(this.props.interview);
+    const personVisitedPlacesConfig    = props.surveyContext.widgets['personVisitedPlaces'];
+    const person                       = helper.getPerson(props.interview);
     const journeys = odSurveyHelper.getJourneysArray({ person });
     const currentJourney = journeys[0];
-    const householdSize                = surveyHelper.getResponse(this.props.interview, 'household.size', null);
+    const householdSize                = surveyHelper.getResponse(props.interview, 'household.size', null);
     const isAlone                      = householdSize === 1;
 
     // setup schedules:
 
     const widgetsSchedules         = [];
     const percentLengthOfOneSecond = 100.0 / (28 * 3600);
-    const persons                  = helper.getPersons(this.props.interview);
+    const persons                  = helper.getPersons(props.interview);
     let   activePersonSchedule     = null;
-    const selectedVisitedPlaceId = helper.getActiveVisitedPlaceId(this.props.interview);
+    const selectedVisitedPlaceId = helper.getActiveVisitedPlaceId(props.interview);
     for (let _personId in persons)
     {
       const _person                         = persons[_personId];
@@ -203,10 +158,10 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
             key       = {visitedPlace._uuid}
             style     = {{left: startAtPercent.toString() + '%', width: width.toString() + '%'}}
             title     = {visitedPlaceDescription}
-            onClick   = {this.props.interview.allWidgetsValid && person._uuid === _personId && !selectedVisitedPlaceId ? (e) => this.selectVisitedPlace(visitedPlace._uuid, e) : null}
+            onClick   = {props.interview.allWidgetsValid && person._uuid === _personId && !selectedVisitedPlaceId ? (e) => selectVisitedPlace(visitedPlace._uuid, e) : null}
           >
             <div className="survey-visited-places-schedule-visited-place-icon">
-              <img src={`/dist/images/activities_icons/${visitedPlace.activity}_plain.svg`} style={{height: '2em'}} alt={visitedPlace.activity ? this.props.t(`survey:visitedPlace:activities:${visitedPlace.activity}`) : ''} />
+              <img src={`/dist/images/activities_icons/${visitedPlace.activity}_plain.svg`} style={{height: '2em'}} alt={visitedPlace.activity ? props.t(`survey:visitedPlace:activities:${visitedPlace.activity}`) : ''} />
               <p>
                 <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem'}} />
                 {visitedPlace.arrivalTime && secondsSinceMidnightToTimeStr(visitedPlace.arrivalTime)}
@@ -223,8 +178,8 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
       {
         const personSchedule = (
           <div className="survey-visited-places-schedule-person-container" key={_personId}>
-            {!isAlone && <p className={_personId === person._uuid ? ' _orange' : ''}>{this.props.t('survey:person:dayScheduleFor')} <span className="_strong">{_person.nickname}</span></p>}
-            {isAlone  && <p className='_orange'>{this.props.t('survey:person:yourDaySchedule')}</p>}
+            {!isAlone && <p className={_personId === person._uuid ? ' _orange' : ''}>{props.t('survey:person:dayScheduleFor')} <span className="_strong">{_person.nickname}</span></p>}
+            {isAlone  && <p className='_orange'>{props.t('survey:person:yourDaySchedule')}</p>}
             <div className="survey-visited-places-schedule-person">
               {personVisitedPlacesSchedules}
             </div>
@@ -247,23 +202,23 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
 
     // setup widgets:
 
-    for (let i = 0, count = this.props.sectionConfig.widgets.length; i < count; i++)
+    for (let i = 0, count = props.sectionConfig.widgets.length; i < count; i++)
     {
-        const widgetShortname = this.props.sectionConfig.widgets[i];
+        const widgetShortname = props.sectionConfig.widgets[i];
 
         widgetsComponentsByShortname[widgetShortname] = (
             <Widget
                 key={widgetShortname}
                 currentWidgetShortname={widgetShortname}
-                nextWidgetShortname={this.props.sectionConfig.widgets[i + 1]}
-                sectionName={this.props.shortname}
-                interview={this.props.interview}
-                errors={this.props.errors}
-                user={this.props.user}
-                loadingState={this.props.loadingState}
-                startUpdateInterview={this.props.startUpdateInterview}
-                startAddGroupedObjects={this.props.startAddGroupedObjects}
-                startRemoveGroupedObjects={this.props.startRemoveGroupedObjects}
+                nextWidgetShortname={props.sectionConfig.widgets[i + 1]}
+                sectionName={props.shortname}
+                interview={props.interview}
+                errors={props.errors}
+                user={props.user}
+                loadingState={props.loadingState}
+                startUpdateInterview={props.startUpdateInterview}
+                startAddGroupedObjects={props.startAddGroupedObjects}
+                startRemoveGroupedObjects={props.startRemoveGroupedObjects}
             />
         );
     }
@@ -282,11 +237,11 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
       const visitedPlaceItem     = (
         <li className={`no-bullet survey-visited-place-item${visitedPlace._uuid === selectedVisitedPlaceId ? ' survey-visited-place-item-selected' : ''}`} key={`survey-visited-place-item__${i}`}>
           <span className="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon">
-            {visitedPlace['_sequence']}. {activity && <img src={`/dist/images/activities_icons/${activity}_marker.svg`} style={{height: '4rem'}} alt={activity ? this.props.t(`survey:visitedPlace:activities:${activity}`) : ""} />}
+            {visitedPlace['_sequence']}. {activity && <img src={`/dist/images/activities_icons/${activity}_marker.svg`} style={{height: '4rem'}} alt={activity ? props.t(`survey:visitedPlace:activities:${activity}`) : ""} />}
           </span>
           <span className="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis">
             <span className={visitedPlace._uuid === selectedVisitedPlaceId ? '_strong' : ''}>
-              {activity && this.props.t(`survey:visitedPlace:activities:${activity}`)}
+              {activity && props.t(`survey:visitedPlace:activities:${activity}`)}
               {visitedPlace.name && <em>&nbsp;• {visitedPlace.name}</em>}
             </span>
           </span>
@@ -297,43 +252,43 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
             {visitedPlace.arrivalTime && secondsSinceMidnightToTimeStr(visitedPlace.arrivalTime)}
             {visitedPlace.departureTime && <FontAwesomeIcon icon={faArrowRight} style={{ marginRight: '0.3rem', marginLeft: '0.3rem'}} />}
             {visitedPlace.departureTime && secondsSinceMidnightToTimeStr(visitedPlace.departureTime)}
-            {!selectedVisitedPlaceId/*this.state.editActivated*/ && this.props.loadingState === 0 && <button
+            {!selectedVisitedPlaceId/*state.editActivated*/ && props.loadingState === 0 && <button
               type      = "button"
               className = {`survey-section__button button blue small`}
-              onClick   = {(e) => this.selectVisitedPlace(visitedPlace._uuid, e)}
+              onClick   = {(e) => selectVisitedPlace(visitedPlace._uuid, e)}
               style     = {{marginLeft: '0.5rem'}}
-              title     = {this.props.t('survey:visitedPlace:editVisitedPlace')}
+              title     = {props.t('survey:visitedPlace:editVisitedPlace')}
             >
               <FontAwesomeIcon icon={faPencilAlt} className="" />
-              {/*this.props.t('survey:visitedPlace:editVisitedPlace')*/}
+              {/*props.t('survey:visitedPlace:editVisitedPlace')*/}
             </button>}
-            {!selectedVisitedPlaceId/*this.state.editActivated*/ && this.props.loadingState === 0 && visitedPlaces.length > 1 && <button
+            {!selectedVisitedPlaceId/*state.editActivated*/ && props.loadingState === 0 && visitedPlaces.length > 1 && <button
               type      = "button"
               className = {`survey-section__button button red small`}
-              onClick   = {(e) => this.setState({confirmDeleteVisitedPlace: visitedPlacePath})}
-              title     = {this.props.t('survey:visitedPlace:deleteVisitedPlace')}
+              onClick   = {(e) => setConfirmDeleteVisitedPlace(visitedPlacePath)}
+              title     = {props.t('survey:visitedPlace:deleteVisitedPlace')}
             >
               <FontAwesomeIcon icon={faTrashAlt} className="" />
-              {/*this.props.t('survey:visitedPlace:deleteVisitedPlace')*/}
+              {/*props.t('survey:visitedPlace:deleteVisitedPlace')*/}
             </button>}
-            {!selectedVisitedPlaceId/*this.state.editActivated*/ && visitedPlace['_sequence'] !== 1 && visitedPlace['_sequence'] !== visitedPlaces.length && visitedPlaces.length > 3 && this.props.user && this.props.user.is_admin === true && this.props.loadingState === 0 && visitedPlaces.length > 1 && <button
+            {!selectedVisitedPlaceId/*state.editActivated*/ && visitedPlace['_sequence'] !== 1 && visitedPlace['_sequence'] !== visitedPlaces.length && visitedPlaces.length > 3 && props.user && props.user.is_admin === true && props.loadingState === 0 && visitedPlaces.length > 1 && <button
               type      = "button"
               className = {`survey-section__button button red small`}
-              onClick   = {() => this.mergeVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces)}
-              title     = {this.props.t('survey:visitedPlace:mergeVisitedPlace')}
+              onClick   = {() => mergeVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces)}
+              title     = {props.t('survey:visitedPlace:mergeVisitedPlace')}
             >
               <FontAwesomeIcon icon={faArrowsAltV} className="" />
             </button>}
             { /* confirmPopup below: */ }
-            { this.state.confirmDeleteVisitedPlace === visitedPlacePath
+            { confirmDeleteVisitedPlace === visitedPlacePath
               && (<div>
                   <ConfirmModal 
                     isOpen        = {true}
-                    closeModal    = {() => this.setState({confirmDeleteVisitedPlace: null})}
-                    text          = {surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.content[this.props.i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.content, this.props.interview, this.props.shortname)}
-                    title         = {personVisitedPlacesConfig.deleteConfirmPopup.title && personVisitedPlacesConfig.deleteConfirmPopup.title[this.props.i18n.language] ? surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.title[this.props.i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.title, this.props.interview, this.props.shortname) : null}
+                    closeModal    = {() => setConfirmDeleteVisitedPlace(null)}
+                    text          = {surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.content[props.i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.content, props.interview, props.shortname)}
+                    title         = {personVisitedPlacesConfig.deleteConfirmPopup.title && personVisitedPlacesConfig.deleteConfirmPopup.title[props.i18n.language] ? surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.title[props.i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.title, props.interview, props.shortname) : null}
                     cancelAction  = {null}
-                    confirmAction = {() => this.deleteVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces)}
+                    confirmAction = {() => deleteVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces)}
                     containsHtml  = {personVisitedPlacesConfig.deleteConfirmPopup.containsHtml}
                   />
                 </div>)
@@ -354,18 +309,18 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
               widgetConfig                 = {personVisitedPlacesConfig}
               shortname                   = 'personVisitedPlaces'
               path                        = {visitedPlacePath}
-              loadingState                = {this.props.loadingState}
+              loadingState                = {props.loadingState}
               objectId                    = {visitedPlace._uuid}
               parentObjectIds             = {parentObjectIds}
               key                         = {`survey-visited-place-item-selected-${visitedPlace._uuid}`}
               sequence                    = {visitedPlace['_sequence']}
               section                     = {'visitedPlaces'}
-              interview                   = {this.props.interview}
-              user                        = {this.props.user}
-              errors                      = {this.props.errors}
-              startUpdateInterview        = {this.props.startUpdateInterview}
-              startAddGroupedObjects      = {this.props.startAddGroupedObjects}
-              startRemoveGroupedObjects   = {this.props.startRemoveGroupedObjects}
+              interview                   = {props.interview}
+              user                        = {props.user}
+              errors                      = {props.errors}
+              startUpdateInterview        = {props.startUpdateInterview}
+              startAddGroupedObjects      = {props.startAddGroupedObjects}
+              startRemoveGroupedObjects   = {props.startRemoveGroupedObjects}
             />
           </li>
         );
@@ -374,7 +329,7 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
 
       if (
            !selectedVisitedPlaceId
-        && this.props.loadingState === 0 
+        && props.loadingState === 0 
         && visitedPlaces.length > 1 
         && (lastVisitedPlace._uuid !== visitedPlace._uuid || (lastVisitedPlace._uuid === visitedPlace._uuid && visitedPlace.nextPlaceCategory === 'stayedThereUntilTheNextDay'))
       )
@@ -388,18 +343,18 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
             <button
               type      = "button"
               className = "button blue center small"
-              onClick   = {(e) => this.addVisitedPlace(visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, e)}
-              title     = {this.props.t('survey:visitedPlace:insertVisitedPlace')}
+              onClick   = {(e) => addVisitedPlace(visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, e)}
+              title     = {props.t('survey:visitedPlace:insertVisitedPlace')}
             >
               <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
-              {this.props.t('survey:visitedPlace:insertVisitedPlace')}
+              {props.t('survey:visitedPlace:insertVisitedPlace')}
             </button>
           </li>
         );
       }
     }
     return (
-      <section className = {`survey-section survey-section-shortname-${this.props.shortname}`}>
+      <section className = {`survey-section survey-section-shortname-${props.shortname}`}>
         <div className="survey-section__content">
           {widgetsComponentsByShortname['activePersonTitle']}
           {widgetsComponentsByShortname['buttonSwitchPerson']}
@@ -410,15 +365,15 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
             <ul className={`survey-visited-places-list ${selectedVisitedPlaceId || visitedPlaces.length <= 1 ? 'full-width' : ''}`}>
               {widgetsComponentsByShortname['personVisitedPlacesTitle']}
               {visitedPlacesList}
-              {!selectedVisitedPlaceId && (lastVisitedPlace && lastVisitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay' || visitedPlaces.length === 1) && this.props.loadingState === 0 
+              {!selectedVisitedPlaceId && (lastVisitedPlace && lastVisitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay' || visitedPlaces.length === 1) && props.loadingState === 0 
               && <button
                 type      = "button"
                 className = "button blue center large"
-                onClick   = {(e) => this.addVisitedPlace(-1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, e)}
-                title     = {this.props.t('survey:visitedPlace:addVisitedPlace')}
+                onClick   = {(e) => addVisitedPlace(-1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, e)}
+                title     = {props.t('survey:visitedPlace:addVisitedPlace')}
               >
                 <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
-                {this.props.t('survey:visitedPlace:addVisitedPlace')}
+                {props.t('survey:visitedPlace:addVisitedPlace')}
               </button>}
               <li className="no-bullet" key='survey-visited-places-list-last-visited-place-not-home-question'>{widgetsComponentsByShortname['personLastVisitedPlaceNotHome']}</li>
               {visitedPlaces.length > 1 && <li className="no-bullet" key='survey-visited-places-list-confirm-button'>
@@ -430,8 +385,8 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
             </div>}
           </div>
         </div>
-        { process.env.APP_NAME === 'survey' && this.props.user
-        && (this.props.user.is_admin === true)
+        { process.env.APP_NAME === 'survey' && props.user
+        && (props.user.is_admin === true)
         && (<div className="center"><button
           type      = "button"
           className = "menu-button _oblique _red"
@@ -444,12 +399,11 @@ export class VisitedPlacesSection extends React.Component<SectionProps & WithTra
               [`validations.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`]: {},
               [`responses._activeSection`]: 'tripsIntro'
             };
-            this.props.startUpdateInterview('visitedPlaces', valuesByPath);
+            props.startUpdateInterview('visitedPlaces', valuesByPath);
           }.bind(this)
-        }>{this.props.t('survey:visitedPlace:resetVisitedPlaces')}</button></div>)}
+        }>{props.t('survey:visitedPlace:resetVisitedPlaces')}</button></div>)}
       </section>
     );
-  }
 };
 
 export default withTranslation()(withSurveyContext(VisitedPlacesSection));
