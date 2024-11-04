@@ -105,7 +105,7 @@ export default {
       ...homeWidgets,
       'buttonSaveNextSection'
     ],
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, { startUpdateInterview, callback }) {
       if (!getResponse(interview, 'tripsDate')) {
         startUpdateInterview('home', {
           'responses.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),
@@ -137,7 +137,7 @@ export default {
       'householdMembers',
       'buttonSaveNextSectionHouseholdMembers'
     ],
-    preload: function(interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function(interview, { startAddGroupedObjects, startRemoveGroupedObjects, callback }) {
       const groupedObjects       = getResponse(interview, 'household.persons');
       const groupedObjectIds     = groupedObjects ? Object.keys(groupedObjects) : [];
       const countGroupedObjects  = groupedObjectIds.length;
@@ -194,7 +194,7 @@ export default {
       'partTwoIntroText',
       'partOneConfirmed'
     ],
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, {startUpdateInterview, callback}) {
       const updateValuesByPath = {};
       if (_isBlank(getResponse(interview, 'tripsDate', null)))
       {
@@ -233,7 +233,7 @@ export default {
       'selectPerson',
       'buttonSelectPersonConfirm'
     ],
-    preload: function(interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function(interview, { startUpdateInterview, callback }) {
       const personsCount = helper.countPersons(interview);
       if (personsCount === 1)
       {
@@ -270,7 +270,7 @@ export default {
     },
     hiddenInNav: true,
     widgets: profileWidgets,
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, { startUpdateInterview, callback }) {
       if (config.isPartTwo === true)
       {
         callback();
@@ -324,7 +324,7 @@ export default {
       'buttonContinueNextSection',
       'visitedPlacesOutro'
     ],
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, { startUpdateInterview, callback }) {
       const person = helper.getPerson(interview);
       if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
       {
@@ -405,7 +405,7 @@ export default {
       //'personLastVisitedPlaceNotHome',
       'buttonVisitedPlacesConfirmNextSection'
     ],
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, { startUpdateInterview, callback }) {
       
       const person = helper.getPerson(interview);
       if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
@@ -489,7 +489,7 @@ export default {
       'personVisitedPlacesMap',
       'buttonConfirmNextSection'
     ],
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, { startUpdateInterview, callback }) {
       
       const person = helper.getPerson(interview);
       if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
@@ -595,7 +595,7 @@ export default {
       'personWhoAnsweredForThisPerson',
       'buttonContinueNextSection'
     ],
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, { startUpdateInterview,callback }) {
       const person = helper.getPerson(interview);
       if (interview.visibleWidgets.indexOf(`household.persons.${person._uuid}.noSchoolTripReason`) <= -1 && interview.visibleWidgets.indexOf(`household.persons.${person._uuid}.noWorkTripReason`) <= -1 && interview.visibleWidgets.indexOf(`household.persons.${person._uuid}.whoAnsweredForThisPerson`) <= -1)
       {
@@ -641,7 +641,7 @@ export default {
       'householdCommentsOnSurvey',
       'buttonCompleteInterview'
     ],
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, { startUpdateInterview, callback }) {
       
       const persons = helper.getPersons(interview);
       for (let personId in persons)
@@ -694,13 +694,12 @@ export default {
     widgets: [
       'completedText'
     ],
-    preload: function (interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function (interview, { startUpdateInterview, callback, user }) {
       if (config.isPartTwo === true)
       {
-        if (!this.props.user || (this.props.user && this.props.user.is_admin !== true))
+        if (!user || (user && user.is_admin !== true))
         {
           startUpdateInterview('end', {
-            'responses._language'   : this.props.i18n.language,
             'responses._partTwoCompletedAt': moment().unix(),
             'responses._partTwoIsCompleted': true,
             'responses._completedAt': moment().unix(),
@@ -710,10 +709,9 @@ export default {
       }
       else
       {
-        if (!this.props.user || (this.props.user && this.props.user.is_admin !== true))
+        if (!user || (user && user.is_admin !== true))
         {
           startUpdateInterview('end', {
-            'responses._language'   : this.props.i18n.language,
             'responses._completedAt': moment().unix(),
             'responses._isCompleted': true
           }, null, null, callback);
@@ -804,7 +802,7 @@ export default {
         ]
       }
     },
-    preload: function(interview, startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback) {
+    preload: function(interview, { startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback }) {
       if (!getResponse(interview, 'tripsDate')) {
         startUpdateInterview('home', {
           'responses.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),

@@ -45,12 +45,13 @@ describe('useSectionTemplate', () => {
     it('should call preload function on mount', () => {
         renderHook(() => useSectionTemplate(props));
         expect(props.sectionConfig.preload).toHaveBeenCalledWith(
-            props.interview,
-            props.startUpdateInterview,
-            props.startAddGroupedObjects,
-            props.startRemoveGroupedObjects,
-            expect.any(Function),
-            props.user
+            props.interview, {
+                startUpdateInterview: props.startUpdateInterview,
+                startAddGroupedObjects: props.startAddGroupedObjects,
+                startRemoveGroupedObjects: props.startRemoveGroupedObjects,
+                callback: expect.any(Function),
+                user: props.user
+            }
         );
     });
 

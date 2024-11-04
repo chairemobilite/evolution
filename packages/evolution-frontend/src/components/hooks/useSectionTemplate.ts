@@ -29,15 +29,13 @@ export function useSectionTemplate(props: SectionProps) {
     // Call preload upon the first mount of the component
     useEffect(() => {
         if (typeof props.sectionConfig.preload === 'function') {
-            props.sectionConfig.preload.call(
-                null,
-                props.interview,
-                props.startUpdateInterview,
-                props.startAddGroupedObjects,
-                props.startRemoveGroupedObjects,
-                () => setPreloaded(true),
-                props.user
-            );
+            props.sectionConfig.preload(props.interview, {
+                startUpdateInterview: props.startUpdateInterview,
+                startAddGroupedObjects: props.startAddGroupedObjects,
+                startRemoveGroupedObjects: props.startRemoveGroupedObjects,
+                callback: () => setPreloaded(true),
+                user: props.user
+            });
         } else {
             setPreloaded(true);
         }

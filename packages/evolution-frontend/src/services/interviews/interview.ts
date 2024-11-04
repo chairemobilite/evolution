@@ -69,19 +69,22 @@ export type FrontendInterviewAttributes = {
 
 export type UserFrontendInterviewAttributes = FrontendInterviewAttributes & UserInterviewAttributes;
 
+export type SectionPreload = (
+    interview: UserInterviewAttributes,
+    args: {
+        startUpdateInterview: StartUpdateInterview;
+        startAddGroupedObjects: StartAddGroupedObjects;
+        startRemoveGroupedObjects: StartRemoveGroupedObjects;
+        callback: (interview: UserInterviewAttributes) => void;
+        user: CliUser;
+    }
+) => void;
+
 export type SectionConfig = {
     widgets: string[];
     previousSection?: string;
     nextSection?: string;
-    // FIXME: change for a single named option argument instead of 6 arguments
-    preload?: (
-        interview: UserFrontendInterviewAttributes,
-        startUpdateInterview: StartUpdateInterview,
-        startAddGroupedObjects: StartAddGroupedObjects,
-        startRemoveGroupedObjects: StartRemoveGroupedObjects,
-        callback: (interview: UserFrontendInterviewAttributes) => void,
-        user: CliUser
-    ) => void;
+    preload?: SectionPreload;
     template?: React.ComponentType;
     hiddenInNav?: boolean;
     parentSection?: string;
