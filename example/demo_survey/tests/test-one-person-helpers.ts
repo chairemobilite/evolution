@@ -21,7 +21,7 @@ export function completeHouseholdPage(context) {
     testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '30' });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'male' });
     testHelpers.inputSelectTest({ context, path: 'household.persons.${personId[0]}.occupation', value: 'fullTimeWorker' });
-    testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwner', value: 'no' });
+    testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwnership', value: 'no' });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.transitPassOwner', value: 'no' });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.bikesharingMember', value: 'yes' });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.hasDisability', value: 'no' });
