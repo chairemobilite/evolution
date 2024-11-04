@@ -524,6 +524,32 @@ export const getVisitedPlaceGeography = function ({
     return geojson;
 };
 
+/**
+ * Get the place visited after the requested visited place id, in the journey
+ *
+ * @param {Object} options - The options object.
+ * @param {Journey} options.journey The journey the visited place is part of
+ * @param {string} options.visitedPlaceId The ID of the visited place
+ * from which we want the next place id
+ * @returns {VisitedPlace | null} The next visited place, or `null` if the is no
+ * visited place after
+ */
+export const getNextVisitedPlace = function ({
+    journey,
+    visitedPlaceId
+}: {
+    journey: Journey;
+    visitedPlaceId: string;
+}): VisitedPlace | null {
+    const visitedPlacesArray = getVisitedPlacesArray({ journey });
+    for (let i = 0, count = visitedPlacesArray.length - 1; i < count; i++) {
+        if (visitedPlacesArray[i]._uuid === visitedPlaceId) {
+            return visitedPlacesArray[i + 1];
+        }
+    }
+    return null; // provided visitedPlace was the last or not part of this journey
+};
+
 // *** Segments-related functions
 
 /**
