@@ -9,6 +9,7 @@ import moment from 'moment';
 
 import i18n from '../../config/i18n.config';
 import { Person } from 'evolution-common/lib/services/interviews/interview';
+import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 
 type GenderedData = {
     [gender: string]: {
@@ -94,4 +95,26 @@ export const getFormattedDate = (
         }
     }
     return formattedTripsDate;
+};
+
+/**
+ * Get the human readable time from the seconds since midnight. If the time is
+ * the next day, it appends a suffix to the time.
+ *
+ * @param {number} secondsSinceMidnight The number of seconds since midnight to
+ * convert to a time string
+ * @param {string} [suffixAfterMidnight='the next day'] The suffix to append to
+ * the time if it is the next
+ * @returns A human readable time string
+ */
+export const secondsSinceMidnightToTimeStrWithSuffix = function (
+    secondsSinceMidnight: number,
+    suffixAfterMidnight: string = i18n.t('main:theNextDay')
+): string {
+    if (secondsSinceMidnight >= 24 * 3600) {
+        secondsSinceMidnight -= 24 * 3600;
+        return `${secondsSinceMidnightToTimeStr(secondsSinceMidnight)} ${suffixAfterMidnight}`;
+    } else {
+        return `${secondsSinceMidnightToTimeStr(secondsSinceMidnight)}`;
+    }
 };
