@@ -163,7 +163,7 @@ export default function(router) {
               gender              : person.gender,
               occupation          : person.occupation,
               numberOfTrips       : tripIds.length,
-              drivingLicenseOwner : person.drivingLicenseOwner,
+              drivingLicenseOwnership : person.drivingLicenseOwnership,
               transitPassOwner    : person.transitPassOwner,
               carsharingMember    : person.carsharingMember,
               bikesharingMember   : person.bikesharingMember,

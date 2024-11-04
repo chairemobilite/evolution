@@ -510,7 +510,7 @@ const validations =  {
       },
       errorCode: "P_M_DRIVINGLICENSEOWNER",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.age >= 5 && sharedHelper.isBlank(person.drivingLicenseOwner));
+        const isValid = !(person.age >= 5 && sharedHelper.isBlank(person.drivingLicenseOwnership));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_DRIVINGLICENSEOWNER', responses.accessCode);
@@ -525,7 +525,7 @@ const validations =  {
       },
       errorCode: "P_I_DRIVINGLICENSEOWNERTOOYOUNG",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.age < 16 && person.drivingLicenseOwner === 'yes');
+        const isValid = !(person.age < 16 && person.drivingLicenseOwnership === 'yes');
         if (interview.is_completed && !isValid)
         {
           console.log('P_I_DRIVINGLICENSEOWNERTOOYOUNG', responses.accessCode);
@@ -540,7 +540,7 @@ const validations =  {
       },
       errorCode: "P_I_DRIVINGLICENSEOWNEREMPTY",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.age >= 16 && sharedHelper.isBlank(person.drivingLicenseOwner));
+        const isValid = !(person.age >= 16 && sharedHelper.isBlank(person.drivingLicenseOwnership));
         if (interview.is_completed && !isValid)
         {
           console.log('P_I_DRIVINGLICENSEOWNEREMPTY', responses.accessCode);
@@ -1404,7 +1404,7 @@ const validations =  {
       },
       errorCode: "S_I_MODECARDRIVERWITHOUTLICENSE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'carDriver' && person.drivingLicenseOwner !== 'yes');
+        const isValid = !(segment.mode === 'carDriver' && person.drivingLicenseOwnership !== 'yes');
         if (interview.is_completed && !isValid)
         {
           console.log('S_I_MODECARDRIVERWITHOUTLICENSE', responses.accessCode);
@@ -1452,7 +1452,7 @@ const validations =  {
         if (segment.mode === 'carPassenger' && uuidValidate(segment.driver) && !sharedHelper.isBlank(personsById[segment.driver]))
         {
           const driver = personsById[segment.driver];
-          if (driver.drivingLicenseOwner !== 'yes')
+          if (driver.drivingLicenseOwnership !== 'yes')
           {
             if (interview.is_completed)
             {

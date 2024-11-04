@@ -40,7 +40,7 @@ testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.n
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '30' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'male' });
 testHelpers.inputSelectTest({ context, path: 'household.persons.${personId[0]}.occupation', value: 'fullTimeWorker' });
-testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwner', value: 'no' });
+testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwnership', value: 'no' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.transitPassOwner', value: 'no' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.bikesharingMember', value: 'yes' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.hasDisability', value: 'no' });
@@ -52,7 +52,7 @@ testHelpers.inputStringTest({ context, path: 'household.persons.${personId[1]}.n
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[1]}.age', value: '60' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.gender', value: 'female' });
 testHelpers.inputSelectTest({ context, path: 'household.persons.${personId[1]}.occupation', value: 'fullTimeWorker' });
-testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.drivingLicenseOwner', value: 'yes' });
+testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.drivingLicenseOwnership', value: 'yes' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.carsharingMember', value: 'yes' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.transitPassOwner', value: 'no' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.bikesharingMember', value: 'yes' });

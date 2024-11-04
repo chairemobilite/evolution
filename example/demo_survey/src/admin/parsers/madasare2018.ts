@@ -499,7 +499,7 @@ export default {
         return person._sequence;
       },
       [`${prefix}glo_pers.permis`]: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const internalId = getInternalId('personDrivingLicenseOwner', interview, person.drivingLicenseOwner, 0);
+        const internalId = getInternalId('personDrivingLicenseOwner', interview, person.drivingLicenseOwnership, 0);
         if (internalId)
         {
           return internalId;
@@ -614,7 +614,7 @@ export default {
         return 10;
       },
       [`${prefix}glo_pers.abon_ap`]: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        if (person.age < 16 || person.drivingLicenseOwner !== 'yes')
+        if (person.age < 16 || person.drivingLicenseOwnership !== 'yes')
         {
           return 4;
         }

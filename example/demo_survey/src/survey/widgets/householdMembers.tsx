@@ -733,16 +733,16 @@ export const personCarsharingMember = {
     }
   },
   conditional: function(interview, path) {
-    const drivingLicenseOwner = surveyHelperNew.getResponse(interview, path, null, '../drivingLicenseOwner');
-    if (_isBlank(drivingLicenseOwner)) { return [false, null]; }
-    if (!_isBlank(drivingLicenseOwner) && drivingLicenseOwner !== 'yes') { return [false, 'nonApplicable']; }
+    const drivingLicenseOwnership = surveyHelperNew.getResponse(interview, path, null, '../drivingLicenseOwnership');
+    if (_isBlank(drivingLicenseOwnership)) { return [false, null]; }
+    if (!_isBlank(drivingLicenseOwnership) && drivingLicenseOwnership !== 'yes') { return [false, 'nonApplicable']; }
     return [true, null];
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const drivingLicenseOwner = surveyHelperNew.getResponse(interview, path, null, '../drivingLicenseOwner');
+    const drivingLicenseOwnership = surveyHelperNew.getResponse(interview, path, null, '../drivingLicenseOwnership');
     return [
       {
-        validation: _isBlank(value) && drivingLicenseOwner == 'yes',
+        validation: _isBlank(value) && drivingLicenseOwnership === 'yes',
         errorMessage: {
           fr: `Cette réponse est requise.`,
           en: `This field is required.`
