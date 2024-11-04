@@ -9,7 +9,7 @@ import isEmpty from 'lodash/isEmpty';
 import _get from 'lodash/get';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import SegmentsSection from './templates/SegmentsSection';
+import SegmentsSection from 'evolution-frontend/lib/components/survey/sectionTemplates/TripsAndSegmentsSection';
 import VisitedPlacesSection from './templates/VisitedPlacesSection';
 import { getResponse, getValidation, addGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
