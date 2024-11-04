@@ -58,39 +58,38 @@ mode:
         bicycle: Bicycle
         bicycleElectric: E-Bike
         scooterElectric: E-Scooter
-        bicycleBikeSharing: BIXI
-        bicycleBikeSharingElectric: BIXI E-Bike
-        bus: Bus
-        transitHeavy: Metro, REM or train
-        transitBus: Transit bus
-        intercityBus: Intercity bus
-        schoolBus: Yellow school bus
-        integratedSchoolLines: Integrated school lines
-        busOther: Chartered or private bus
-        transitTram: Tramway
-        transitSubway: Metro (subway)
-        transitREM: REM
-        transitRail: Commuter train
-        intercityRail: Intercity train
-        personalCar: Car driver with personal car
+        bicyclePassenger: Passenger on bike
         carDriver: Car driver
         carPassenger: Car passenger
-        carDriverCarsharing: Carsharing
-        carDriverCarsharingStationBased: Station-based carsharing
-        carDriverCarsharingFreeFloating: Free floating carsharing
-        rentalCar: Rental car
-        transitTaxi: Taxibus / On-demand
+        transitBus: Transit bus
+        transitBRT: Bus rapid transit
+        transitSchoolBus: School service operated by transit agency
+        transitStreetCar: Tramway on street
+        transitFerry: River shuttle or ferry without vehicle
+        transitGondola: Gondola
+        transitMonorail: Monorail
+        transitRRT: Rapid rail transit, category A
+        transitLRT: Light rail transit, category B
+        transitLRRT: Light Rail Rapid Transit, category A
+        transitHSR: High speed rail
+        transitRegionalRail: Regional train
+        transitOnDemand: On-demand transport
+        transitTaxi: Taxibus
+        intercityBus: Intercity bus
+        intercityTrain: Intercity train
+        schoolBus: School bus
+        otherBus: Chartered or private bus
         taxi: Taxi
         paratransit: Paratransit
+        wheelchair: Wheelchair
+        mobilityScooter: Mobility scooter
+        motorcycle: Motorcycle or motorized scooter/moped
+        ferryWithCar: Ferry with vehicle
         plane: Airplane
         otherActiveModes: Other active mode
-        motorcycle: Motorcycle or motorized scooter/moped
-        ferryNoCar: River shuttle or ferry without vehicle
-        ferryWithCar: Ferry with vehicle
         other: Other
-        unknown: Unknown
         dontKnow: Don't know
-        preferNotToAnswer: Prefer not to answer
+        preferNotToAnswer: Prefer not to answer    
 ModeFirst: Which mode of transport was used first?
 ModeFirst_cati: >-
     Which mode of transport was used first to go from {{originName}} to
