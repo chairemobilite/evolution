@@ -8,7 +8,7 @@ import moment from 'moment';
 import i18n from '../../../config/i18n.config';
 
 import { TFunction } from 'i18next';
-import { getGenderedStrings, getFormattedDate } from '../frontendHelper';
+import { getGenderedStrings, getFormattedDate, secondsSinceMidnightToTimeStrWithSuffix } from '../frontendHelper';
 
 jest.mock('../../../config/i18n.config', () => ({
     t: jest.fn((key, options) => `${key}${options && options.context ? `_${options.context}` : ''}${options && options.count !== undefined ? `_${options.count}` : '' }`)
@@ -106,5 +106,38 @@ describe('getFormattedi18nDate', () => {
         const date = moment().add(1, 'days').format('YYYY-MM-DD');
         const result = getFormattedDate(date, { withRelative: true });
         expect(result).toContain(i18n.t('survey:futureToday_1'));
+    });
+});
+
+describe('secondsSinceMidnightToTimeStrWithSuffix', () => {
+    it('should return time string for seconds since midnight within the same day', () => {
+        const secondsSinceMidnight = 3600; // 1 hour
+        const result = secondsSinceMidnightToTimeStrWithSuffix(secondsSinceMidnight);
+        expect(result).toBe('1:00');
+    });
+
+    it('should return time string for seconds since midnight with suffix for the next day', () => {
+        const secondsSinceMidnight = 25 * 3600; // 25 hours
+        const result = secondsSinceMidnightToTimeStrWithSuffix(secondsSinceMidnight);
+        expect(result).toBe(`1:00 ${i18n.t('main:theNextDay')}`);
+    });
+
+    it('should return time string for seconds since midnight with custom suffix for the next day', () => {
+        const secondsSinceMidnight = 26 * 3600; // 26 hours
+        const customSuffix = 'the following day';
+        const result = secondsSinceMidnightToTimeStrWithSuffix(secondsSinceMidnight, customSuffix);
+        expect(result).toBe('2:00 the following day');
+    });
+
+    it('should return time string for exactly midnight', () => {
+        const secondsSinceMidnight = 0; // 0 hours
+        const result = secondsSinceMidnightToTimeStrWithSuffix(secondsSinceMidnight);
+        expect(result).toBe('0:00');
+    });
+
+    it('should return time string for exactly 24 hours', () => {
+        const secondsSinceMidnight = 24 * 3600; // 24 hours
+        const result = secondsSinceMidnightToTimeStrWithSuffix(secondsSinceMidnight);
+        expect(result).toBe(`0:00 ${i18n.t('main:theNextDay')}`);
     });
 });
