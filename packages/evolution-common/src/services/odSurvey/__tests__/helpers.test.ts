@@ -648,6 +648,42 @@ describe('getVisitedPlaces', () => {
 
 });
 
+describe('getNextVisitedPlace', () => {
+
+    const journey: Journey = {
+        _uuid: 'arbitraryJourney',
+        _sequence: 1,
+    }
+
+    const visitedPlaces = {
+        visitedPlace1: {
+            _uuid: 'visitedPlace1',
+            _sequence: 1,
+            activity: 'home',
+        },
+        visitedPlace2: {
+            _uuid: 'visitedPlace2',
+            _sequence: 2,
+            activity: 'work',
+        }
+    }
+
+    test('Without visited places', () => {
+        expect(Helpers.getNextVisitedPlace({ journey, visitedPlaceId: 'place' })).toBeNull();
+    });
+
+    each([
+        ['With place after', 'visitedPlace1', visitedPlaces.visitedPlace2],
+        ['without place after', 'visitedPlace2', null],
+        ['Non-existent place', 'nonExistentPlace', null]
+    ]).test('With places: %s', (_title, visitedPlaceId, expected) => {
+        const attributes = _cloneDeep(journey);
+        attributes.visitedPlaces = visitedPlaces;
+        expect(Helpers.getNextVisitedPlace({ journey: attributes, visitedPlaceId })).toEqual(expected);
+    });
+
+});
+
 describe('replaceVisitedPlaceShortcuts', () => {
 
     const shortcutInterview = _cloneDeep(interviewAttributes);
