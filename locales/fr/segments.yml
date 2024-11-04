@@ -57,15 +57,9 @@ mode:
         walk: Marche
         bicycle: Vélo
         bicycleElectric: Vélo électrique
-        bicycleBikesharing: Vélo partage
-        bicycleBikesharingElectric: Vélo partage électrique
-        bicyclePassenger: Vélo passager
         scooterElectric: Trottinette électrique
-        carDriverPersonal: Auto conducteur avec voiture personnelle
-        carDriverRental: Auto conducteur avec voiture de location
-        carDriverCarsharingStationBased: Autopartage basé station
-        carDriverCarsharingFreeFloating: Autopartage en libre service
-        carDriverCarsharingUnspecified: Autopartage
+        bicyclePassenger: Vélo passager
+        carDriver: Auto conducteur
         carPassenger: Auto passager
         transitBus: Bus
         transitBRT: Service rapide par bus
