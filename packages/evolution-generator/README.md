@@ -384,7 +384,7 @@ The corresponding TypeScript code for this conditional is shown below:
 // conditionals.tsx
 export const hasDrivingLicenseConditional: Conditional = (interview, path) => {
     const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path
-    return createConditionals({
+    return checkConditionals({
         interview,
         conditionals: [
             {

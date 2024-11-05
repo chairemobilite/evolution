@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { getResponse } from 'evolution-common/lib/utils/helpers';
+import { getResponse, interpolatePath } from '../../utils/helpers';
 
 // Type definitions for conditionals, logical operators and comparison operators
 type PathType = string;
@@ -21,9 +21,8 @@ type SingleConditionalsType = {
 };
 type ConditionalsType = SingleConditionalsType[];
 
-// TODO: Make sure to add tests for this function
 // Check interview responses with conditions, returning the result and null.
-export const createConditionals = ({
+export const checkConditionals = ({
     interview,
     conditionals
 }: {
@@ -31,12 +30,16 @@ export const createConditionals = ({
     conditionals: ConditionalsType;
 }): boolean | [boolean] | [boolean, unknown] => {
     let mathExpression = ''; // Construct the math expression to be evaluated
-
     // Iterate through the provided conditionals
     conditionals.forEach((conditional, index) => {
         // Extract components of the conditional
         const { logicalOperator, path, comparisonOperator, value, parentheses } = conditional;
-        const response = getResponse(interview, path, null);
+
+        // Replace response placeholders specified between brackets in a path by the corresponding value in the interview responses.
+        const interpolatedPath = interpolatePath(interview, path);
+
+        // Get the response for the interpolated path
+        const response = getResponse(interview, interpolatedPath, null);
         let conditionMet: boolean;
 
         // Evaluate if the condition is met

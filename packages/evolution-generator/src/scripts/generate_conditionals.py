@@ -79,7 +79,7 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += f"import {{ createConditionals }} from 'evolution-generator/lib/helpers/createConditionals';{NEWLINE}"
+        ts_code += f"import {{ checkConditionals }} from 'evolution-common/lib/services/conditionals/checkConditionals';{NEWLINE}"
         ts_code += f"import {{ Conditional }} from 'evolution-generator/lib/types/inputTypes';{NEWLINE}"
 
         # Create a TypeScript function for each conditional_name
@@ -92,7 +92,7 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
 
             ts_code += f"\nexport const {conditional_name}: Conditional = (interview{', path' if conditionals_has_path else ''}) => {{{NEWLINE}"
             ts_code += declare_relative_path if conditionals_has_path else ""
-            ts_code += INDENT + "return createConditionals({" + NEWLINE
+            ts_code += INDENT + "return checkConditionals({" + NEWLINE
             ts_code += INDENT + INDENT + "interview," + NEWLINE
             ts_code += INDENT + INDENT + "conditionals: [" + NEWLINE
 
