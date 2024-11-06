@@ -6,7 +6,7 @@
  */
 
 import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
-import { StartUpdateInterview } from 'evolution-common/lib/utils/helpers';
+import { SectionPreload } from 'evolution-frontend/lib/services/interviews/interview';
 
 // Note: This file includes types for all the different sections types used in the evolution-generator
 
@@ -17,15 +17,9 @@ export type Group = GroupConfig;
 export type Groups = {
     [groupName: string]: Group;
 };
-// TODO: Add better types for Preload
-export type Preload = (
-    interview: any,
-    startUpdateInterview: StartUpdateInterview,
-    startAddGroupedObjects: any,
-    startRemoveGroupedObjects: any,
-    callback: any
-) => null;
+export type Preload = SectionPreload;
 
+// FIXME: Use SectionConfig from evolution-frontend instead of defining it here.
 // Config for the section
 export type SectionConfig = {
     previousSection: SectionName;
