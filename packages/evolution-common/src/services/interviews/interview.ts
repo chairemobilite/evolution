@@ -16,6 +16,12 @@ import { Optional } from '../../types/Optional.type';
 import { SegmentAttributes } from '../baseObjects/Segment';
 import { HouseholdAttributes } from '../baseObjects/Household';
 
+/**
+ * Prefix used for the username of the participants created for a
+ * computer-aided telephone interview (CATI)
+ * */
+export const INTERVIEWER_PARTICIPANT_PREFIX = 'telephone';
+
 type Required<T> = { [P in keyof T]-?: T[P] };
 // This recursive generic type is taken from this stack overflow question:
 // https://stackoverflow.com/questions/65332597/typescript-is-there-a-recursive-keyof

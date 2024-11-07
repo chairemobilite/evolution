@@ -9,6 +9,7 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 import InterviewsCreateNew from './InterviewsCreateNew';
 import { InterviewContext } from '../../../contexts/InterviewContext';
 import { URLSearchParams } from 'url';
+import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 
 type InterviewCreateLinkProps = {
     queryData: URLSearchParams;
@@ -30,7 +31,7 @@ const InterviewCreateLink: React.FunctionComponent<WithTranslation & InterviewCr
                     e.preventDefault();
                     dispatch({
                         type: 'createNew',
-                        username: `telephone_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`,
+                        username: `${INTERVIEWER_PARTICIPANT_PREFIX}_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`,
                         queryData: props.queryData
                     });
                 }}
