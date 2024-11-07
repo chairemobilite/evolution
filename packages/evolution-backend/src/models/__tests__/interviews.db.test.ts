@@ -10,7 +10,7 @@ import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.qu
 import { _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 import dbQueries from '../interviews.db.queries';
-import { InterviewAttributes, InterviewListAttributes, InterviewResponses } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes, INTERVIEWER_PARTICIPANT_PREFIX, InterviewListAttributes, InterviewResponses } from 'evolution-common/lib/services/interviews/interview';
 import moment from 'moment';
 
 const permission1 = 'role1';
@@ -72,6 +72,12 @@ const localUser2WithPermission = {
         [permission1]: true,
         [permission2]: true
     }
+};
+
+const interviewerParticipant = {
+    id: 330,
+    username: `${INTERVIEWER_PARTICIPANT_PREFIX}_1234`,
+    is_valid: true
 };
 
 const localUserInterviewAttributes = {
@@ -143,6 +149,7 @@ beforeAll(async () => {
     await create(knex, 'sv_participants', undefined, googleParticipant3 as any);
     await create(knex, 'sv_participants', undefined, googleParticipant4 as any);
     await create(knex, 'sv_participants', undefined, localUser2 as any);
+    await create(knex, 'sv_participants', undefined, interviewerParticipant as any);
     await truncate(knex, 'users');
     await create(knex, 'users', undefined, localUserWithPermission as any);
     await create(knex, 'users', undefined, localUser2WithPermission as any);
@@ -927,8 +934,29 @@ describe('Queries with audits', () => {
 describe('stream interviews query', () => {
 
     // There are 6 interviews in the DB
-    const nbInterviews = 6;
+    const nbInterviews = 7;
     let i = 0;
+    
+    const interviewerInterviewAttributes = {
+        uuid: uuidV4(),
+        participant_id: interviewerParticipant.id,
+        is_valid: true,
+        is_active: true,
+        is_completed: undefined,
+        responses: {
+            accessCode: '11111',
+            booleanField: true
+        },
+        validations: {},
+        logs: [],
+    } as any;
+    
+    beforeAll(async () => {
+        // Add an interviewer from a phone interviewer, with some interview accesses
+        const { id } = await dbQueries.create(interviewerInterviewAttributes, 'id');
+        await knex('sv_interviews_accesses').insert({ interview_id: id, user_id: localUserWithPermission.id, for_validation: false, update_count: 3 });
+    });
+
     beforeEach(() => {
         i = 0;
     });
@@ -1084,6 +1112,40 @@ describe('stream interviews query', () => {
             })
             .on('end', () => {
                 expect(i).toBe(nbInterviews);
+                done();
+            });
+    });
+
+    test('Get the interviewer data', (done) => {
+        let foundInterviewerInterview = false;
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { includeInterviewerData: true } });
+        queryStream.on('error', (error) => {
+            console.error(error);
+            expect(true).toBe(false);
+            done();
+        })
+            .on('data', (row) => {
+                expect(row.audits).toBeDefined();
+                expect(row.responses).toBeDefined();
+                expect(row.validated_data).toBeDefined();
+                if (row.validated_data_available) {
+                    expect(row.validated_data).not.toBeNull();
+                } else {
+                    expect(row.validated_data).toBeNull();
+                }
+                if (row.uuid === interviewerInterviewAttributes.uuid) {
+                    expect(row.interviewer_created).toEqual(true);
+                    expect(row.interviewer_count).toEqual('1');
+                    foundInterviewerInterview = true;
+                } else {
+                    expect(row.interviewer_created).toEqual(false);
+                    expect(row.interviewer_count).toEqual(null);
+                }
+                i++;
+            })
+            .on('end', () => {
+                expect(i).toBe(nbInterviews);
+                expect(foundInterviewerInterview).toEqual(true);
                 done();
             });
     });

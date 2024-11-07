@@ -8,6 +8,7 @@ import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
 import {
     InterviewAttributes,
+    INTERVIEWER_PARTICIPANT_PREFIX,
     InterviewListAttributes,
     UserInterviewAttributes
 } from 'evolution-common/lib/services/interviews/interview';
@@ -16,12 +17,14 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 import { isFeature, isPolygon } from 'geojson-validation';
 import knexPostgis from 'knex-postgis';
+import { QueryBuilder } from 'knex';
 
 const st = knexPostgis(knex);
 
 const tableName = 'sv_interviews';
 const participantTable = 'sv_participants';
 const surveyTable = 'sv_surveys';
+const accessTable = 'sv_interviews_accesses';
 
 let _surveyId: number | undefined = undefined;
 
@@ -690,20 +693,28 @@ const getValidationAuditStats = async (params: {
  * necessary to pause the stream to avoid deadlocks and resume after the
  * updates. Use `queryStream.pause()` and `queryStream.resume()` to do so.
  *
- * @param {({ filters: { [key: string]: { value: string | boolean | number, op:
- * keyof OperatorSigns } }; select: { includeAudits?: boolean, responses?:
- * ('none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable') };
- * sort?: (string | { field: string; order: 'asc' | 'desc' })[] })} params
- * filters specifies the fields on which to filter the interviews to stream,
- * select allows to fine-tune the fields to return, including or excluding
- * audits, and some combination or responses and validated_data, sort specifies
- * which field to sort the interviews by
+ * @param {Object} params The parameters of the stream query
+ * @param {{ [key: string]: ValueFilterType }} params.filters specifies the
+ * fields on which to filter the interviews to stream.
+ * @param {Object} [params.select] allows to fine-tune the fields to return,
+ * including or excluding audits, and some combination or responses and
+ * validated_data
+ * @param {boolean} [params.select.includeAudits=true] whether to include the
+ * audits in the stream
+ * @param {boolean} [params.select.includeInterviewerData=false] whether to
+ * include the interviewer accesses data in the stream
+ * @param {'none' | 'participant' | 'validated' | 'both' |
+ * 'validatedIfAvailable'} [params.select.responses='both'] which responses to
+ * include in the stream
+ * @param {(string | { field: string; order: 'asc' | 'desc' })[]} [params.sort]
+ * specifies which field to sort the interviews by. By default, it is not sorted
  * @returns An interview stream
  */
 const getInterviewsStream = function (params: {
     filters: { [key: string]: ValueFilterType };
     select?: {
         includeAudits?: boolean;
+        includeInterviewerData?: boolean;
         responses?: 'none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable';
     };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
@@ -712,7 +723,10 @@ const getInterviewsStream = function (params: {
     const baseRawFilter = 'participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
     const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
     const sortFields = params.sort || [];
-    const selectFields = params.select || { includeAudits: true, responses: 'both' };
+    const selectFields = Object.assign(
+        { includeAudits: true, responses: 'both', includeInterviewerData: false },
+        params.select || {}
+    );
     const responseType = selectFields.responses || 'both';
     const select = [
         'i.id',
@@ -747,11 +761,30 @@ const getInterviewsStream = function (params: {
     case 'none':
         break;
     }
+    let accessJoinTbl: undefined | QueryBuilder = undefined;
+    if (selectFields.includeInterviewerData) {
+        accessJoinTbl = knex(accessTable)
+            .select('interview_id')
+            .count('interview_id', { as: 'interviewer_count' })
+            .where('for_validation', false)
+            .groupBy('interview_id')
+            .as('accesses');
+        select.push('interviewer_count');
+        select.push(
+            knex.raw(
+                `case when participant.username like '${INTERVIEWER_PARTICIPANT_PREFIX}_%' then true else false end as interviewer_created`
+            )
+        );
+    }
     const interviewsQuery = knex
         .select(...select)
         .from(`${tableName} as i`)
-        .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
-        .whereRaw(rawFilter, bindings);
+        .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id');
+    if (accessJoinTbl !== undefined) {
+        interviewsQuery.leftJoin(accessJoinTbl as any, 'i.id', 'accesses.interview_id');
+    }
+
+    interviewsQuery.whereRaw(rawFilter, bindings);
     sortFields.forEach((field) => {
         addOrderByClause(interviewsQuery, field, 'i');
     });
