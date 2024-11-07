@@ -11,6 +11,7 @@ import Interview from './InterviewSearchResult';
 import { InterviewContext } from '../../../contexts/InterviewContext';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import InterviewsCreateLink from './InterviewsCreateLink';
+import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 
 type InterviewSearchListProps = {
     autoCreateIfNoData: boolean;
@@ -55,7 +56,7 @@ const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & Wi
                             // automatically create new interview with this access code
                             dispatch({
                                 type: 'createNew',
-                                username: `telephone_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`,
+                                username: `${INTERVIEWER_PARTICIPANT_PREFIX}_${(Math.ceil(Math.random() * 8999) + 1000).toString()}`,
                                 queryData: props.queryData
                             });
                         }
