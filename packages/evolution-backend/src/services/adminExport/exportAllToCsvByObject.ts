@@ -17,6 +17,7 @@ import { execJob } from '../../tasks/serverWorkerPool';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import interviewsDbQueries from '../../models/interviews.db.queries';
+import config from 'evolution-common/lib/config/project.config';
 
 export const filePathOnServer = 'exports/interviewData';
 
@@ -285,8 +286,7 @@ export const exportAllToCsvByObjectTask = async function (
     const csvFilePaths: string[] = [];
     const fileNamePrefix = options.responseType === 'validatedIfAvailable' ? 'validated' : 'participant';
     for (const objectPath in pathsByObject) {
-        const csvFilePath =
-            `${filePathOnServer}/${fileNamePrefix}_` + objectPath.replaceAll('._.', '_').replaceAll('.', '_') + '.csv';
+        const csvFilePath = `${filePathOnServer}/${fileNamePrefix}_${objectPath.replaceAll('._.', '_').replaceAll('.', '_')}_${config.projectShortname}.csv`;
         const csvStream = fs.createWriteStream(fileManager.getAbsolutePath(csvFilePath));
         csvStream.on('error', console.error);
         csvFilePathByObjectPath[objectPath] = csvStream;
