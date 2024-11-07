@@ -149,6 +149,16 @@ const getLastUuidFromPath = function (path) {
     return undefined;
 };
 
+const getInterviewStream = (options: ExportOptions) =>
+    interviewsDbQueries.getInterviewsStream({
+        filters: {},
+        select: {
+            includeAudits: false,
+            responses: options.responseType,
+            includeInterviewerData: true
+        }
+    });
+
 const getRenamedPaths = async (
     options: ExportOptions
 ): Promise<{ attributes: string[]; objectPaths: string[]; arrayPaths: string[] }> => {
@@ -157,13 +167,7 @@ const getRenamedPaths = async (
         objectPaths: [],
         arrayPaths: []
     };
-    const queryStream = interviewsDbQueries.getInterviewsStream({
-        filters: {},
-        select: {
-            includeAudits: false,
-            responses: options.responseType
-        }
-    });
+    const queryStream = getInterviewStream(options);
     let i = 0;
     return new Promise((resolve, reject) => {
         queryStream
@@ -210,7 +214,15 @@ const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: str
     const paths = await getRenamedPaths(options);
 
     const pathsByObject = {
-        interview: ['hasValidatedData', 'is_valid', 'is_completed', 'is_validated', 'is_questionable']
+        interview: [
+            'hasValidatedData',
+            'is_valid',
+            'is_completed',
+            'is_validated',
+            'is_questionable',
+            '_interviewer_created',
+            '_interviewer_count'
+        ]
     };
 
     for (let i = 0, count = paths.objectPaths.length; i < count; i++) {
@@ -296,13 +308,7 @@ export const exportAllToCsvByObjectTask = async function (
 
     console.log('reading interview data...');
 
-    const queryStream = interviewsDbQueries.getInterviewsStream({
-        filters: {},
-        select: {
-            includeAudits: false,
-            responses: options.responseType
-        }
-    });
+    const queryStream = getInterviewStream(options);
     let i = 0;
     return new Promise((resolve, reject) => {
         queryStream
@@ -325,6 +331,8 @@ export const exportAllToCsvByObjectTask = async function (
                 objectsByObjectPath.interview.is_validated = interview.is_validated;
                 objectsByObjectPath.interview.is_questionable = interview.is_questionable;
                 objectsByObjectPath.interview._interviewUuid = interview.uuid;
+                objectsByObjectPath.interview._interviewer_count = interview.interviewer_count;
+                objectsByObjectPath.interview._interviewer_created = interview.interviewer_created;
                 //console.log('interviewPaths', interviewPaths);
 
                 for (let j = 0, countJ = interviewPaths.length; j < countJ; j++) {
