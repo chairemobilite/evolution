@@ -1,3 +1,5 @@
+GroupTitle: Modes
+GroupName: Mode of transport {{sequence}}
 ModeIsRequired: Mode of transport is required.
 modePre:
     CarDriver: <strong>Driver</strong> (car/moto/scooter/truck)
@@ -105,3 +107,5 @@ SegmentSameModeReturn: >-
     Was it the same mode of transport used as the previous trip ({{previousMode}})?
 SegmentHasNextModeLoop: Other mode of transport used to complete {{thisTrip}}?
 SegmentHasNextMode: Other mode of transport used to complete {{thisTrip}}?
+AddButtonLabel_zero: Select the first (or only) mode of transport used during this trip
+AddButtonLabel: Select the next mode of transport
