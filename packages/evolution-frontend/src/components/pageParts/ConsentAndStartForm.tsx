@@ -12,6 +12,7 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import FormErrors from 'chaire-lib-frontend/lib/components/pageParts/FormErrors';
 import { addConsent } from '../../actions/Survey';
+import { SurveyContext } from '../../contexts/SurveyContext';
 
 export type ConsentAndStartFormProps = {
     hasConsented: boolean;
@@ -60,8 +61,10 @@ const AgreementCheckbox = (props: AgreementCheckboxProps) => {
 
 const ConsentAndStartForm = (props: ConsentAndStartFormProps & WithTranslation) => {
     const [showError, setShowError] = React.useState(false);
+    const { appContext } = React.useContext(SurveyContext);
+
     const color = config.startButtonColor ? config.startButtonColor : 'green';
-    const agreementText = props.t(['survey:homepage:AgreementText', 'main:AgreementText']);
+    const agreementText = props.t(['survey:homepage:AgreementText', 'main:AgreementText'], { context: appContext });
     React.useEffect(() => {
         if (_isBlank(agreementText)) {
             props.addConsent(true);
@@ -89,7 +92,9 @@ const ConsentAndStartForm = (props: ConsentAndStartFormProps & WithTranslation) 
             )}
             {showError && (
                 <FormErrors
-                    errors={[props.t(['survey:homepage:ErrorNotAgreed', 'main:ErrorNotAgreed'])]}
+                    errors={[
+                        props.t(['survey:homepage:ErrorNotAgreed', 'main:ErrorNotAgreed'], { context: appContext })
+                    ]}
                     errorType="Error"
                 />
             )}
@@ -99,7 +104,7 @@ const ConsentAndStartForm = (props: ConsentAndStartFormProps & WithTranslation) 
                     className={`survey-section__button button ${color} large`}
                     onClick={onButtonClicked}
                 >
-                    {props.t(['survey:homepage:start', 'auth:Start'])}
+                    {props.t(['survey:homepage:start', 'auth:Start'], { context: appContext })}
                 </button>
             </div>
         </div>

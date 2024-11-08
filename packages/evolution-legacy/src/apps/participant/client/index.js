@@ -25,7 +25,15 @@ import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAu
   
 setApplicationConfiguration({ homePage: '/survey' });
 
-export default () => {
+/*
+type AppProps = {
+  // Additional app context, that can be used as context in basic translations strings
+  appContext: string;
+};
+ */
+
+// Type of props AppProps
+export default (props = {}) => {
     document.title = config.title[i18n.language];
 
     const history = createBrowserHistory();
@@ -35,7 +43,7 @@ export default () => {
       const [state, dispatch] = React.useReducer(interviewReducer, initialState);
       const [devMode, dispatchSurvey] = React.useReducer(surveyReducer, { devMode: false });
       return(
-        <SurveyContext.Provider value={{ sections: appConfig.sections, widgets: appConfig.widgets, ...devMode, dispatch: dispatchSurvey }}>
+        <SurveyContext.Provider value={{ sections: appConfig.sections, widgets: appConfig.widgets, ...devMode, appContext: props.appContext, dispatch: dispatchSurvey }}>
         <InterviewContext.Provider value={{ state, dispatch }}>
           <Provider store={store}>
             <I18nextProvider i18n={ i18n }>

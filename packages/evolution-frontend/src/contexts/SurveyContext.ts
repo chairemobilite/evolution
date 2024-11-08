@@ -14,6 +14,11 @@ export type SurveyContextType = {
     sections: SurveySections;
     widgets: SurveyWidgets;
     devMode: boolean;
+    /**
+     * Additional app context, that can be used as context in translations
+     * strings of core components
+     */
+    appContext?: string;
     dispatch: React.Dispatch<SurveyAction>;
 };
 
