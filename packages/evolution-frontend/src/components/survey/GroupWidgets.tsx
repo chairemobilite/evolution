@@ -220,14 +220,8 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
         props.loadingState === 0 &&
         parseBoolean(props.widgetConfig.showGroupedObjectAddButton, props.interview, props.path, props.user);
     const addButtonLabel =
-        parseString(
-            props.widgetConfig.groupedObjectAddButtonLabel
-                ? props.widgetConfig.groupedObjectAddButtonLabel[props.i18n.language] ||
-                      props.widgetConfig.groupedObjectAddButtonLabel
-                : null,
-            props.interview,
-            props.path
-        ) || props.t(`survey:${props.shortname}:addGroupedObject`);
+        translateString(props.widgetConfig.groupedObjectAddButtonLabel, props.i18n, props.interview, props.path) ||
+        props.t(`survey:${props.shortname}:addGroupedObject`);
     const addButtonLocation = props.widgetConfig.addButtonLocation || 'bottom';
     const addButtonSize = props.widgetConfig.addButtonSize || 'large';
 

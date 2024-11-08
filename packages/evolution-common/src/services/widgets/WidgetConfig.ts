@@ -418,8 +418,19 @@ export type GroupConfig = {
      * FIXME: Is this redundant with filter?
      */
     groupedObjectConditional?: boolean | ParsingFunction<boolean>;
+    /**
+     * This function is called for the whole group and must return whether to
+     * show the add button. The path received in the parsing function is the
+     * path to the current group and not one of the individual element of the
+     * group.
+     */
     showGroupedObjectAddButton?: boolean | ParsingFunction<boolean>;
     groupedObjectAddButtonLabel?: I18nData;
+    /**
+     * This function is called for each individual group object and must return
+     * whether to show the delete button for the current object. The path
+     * received in the parsing function is the path to the current object.
+     */
     showGroupedObjectDeleteButton?: boolean | ParsingFunction<boolean>;
     groupedObjectDeleteButtonLabel?: I18nData;
     deleteConfirmPopup?: {

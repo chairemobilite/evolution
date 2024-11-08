@@ -23,6 +23,7 @@ import { getModePreWidgetConfig } from 'evolution-common/lib/services/sections/s
 import { getModeWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSegmentMode';
 import { getSameAsReverseTripWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSameAsReverseTrip';
 import { getSegmentHasNextModeWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSegmentHasNextMode';
+import { getSegmentsModeConfig } from 'evolution-common/lib/services/sections/segments/groupSegments';
 
 export const personTrips: GroupConfig = {
   type: "group",
@@ -65,59 +66,10 @@ export const personTrips: GroupConfig = {
   ]
 };
 
-export const segments: GroupConfig = {
-  type: "group",
-  path: "segments",
-  title: {
-    fr: "Modes",
-    en: "Modes"
-  },
-  name: {
-    fr: (groupedObject, sequence, interview, path) => (`Mode de transport ${sequence}`),
-    en: (groupedObject, sequence, interview, path) => (`Mode of transport ${sequence}`)
-  },
-  showTitle: false,
-  showGroupedObjectDeleteButton: function(interview, path) {
-    const segment = surveyHelperNew.getResponse(interview, path, {});
-    return (segment && segment['_sequence'] > 1);
-  },
-  showGroupedObjectAddButton: function(interview, path) {
-    const segments      = surveyHelperNew.getResponse(interview, path, {});
-    const segmentsArray = Object.values(segments).sort((segmentA, segmentB) => {
-      return segmentA['_sequence'] - segmentB['_sequence'];
-    });
-    const segmentsCount = segmentsArray.length;
-    const lastSegment   = segmentsArray[segmentsCount - 1];
-    return segmentsCount === 0 || (lastSegment  && lastSegment.hasNextMode === true);
-  },
-  groupedObjectAddButtonLabel: {
-    fr: function(interview, path) {
-      const segments      = surveyHelperNew.getResponse(interview, path, {});
-      const segmentsCount = Object.keys(segments).length;
-      if (segmentsCount === 0)
-      {
-        return 'Sélectionner le premier (ou le seul) mode de transport utilisé pour ce déplacement';
-      }
-      else
-      {
-        return 'Sélectionner le mode de transport suivant';
-      }
-    },
-    en: function(interview, path) {
-      const segments = surveyHelperNew.getResponse(interview, path, {});
-      const segmentsCount = Object.keys(segments).length;
-      if (segmentsCount === 0)
-      {
-        return 'Select the first mode of transport used during this trip';
-      }
-      else
-      {
-        return 'Select the next mode of transport';
-      }
-    }
-  },
-  addButtonLocation: 'bottom' as const,
-  widgets: [
+export const segments: GroupConfig = getSegmentsModeConfig();
+/*
+TODO These were the original widgets for the group, as well as some from other surveys, that should eventually be configurable
+widgets: [
     'segmentSameModeAsReverseTrip',
     'segmentModePre',
     'segmentMode',
@@ -134,10 +86,15 @@ export const segments: GroupConfig = {
     'segmentSubwayTransferStations',
     'segmentTrainStationStart',
     'segmentTrainStationEnd',
+    'segmentHowToBus',
     'segmentBusLines',
+    'segmentBusLinesWarning',
+    'segmentOnDemandType',
+    'tripJunctionQueryString',
+    'tripJunctionGeography',
     'segmentHasNextMode'
   ]
-}
+    */
 
 export const segmentIntro = {
   type: "text",
