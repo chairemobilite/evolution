@@ -11,6 +11,7 @@ import * as Helpers from 'evolution-common/lib/utils/helpers';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as DateTimeUtils from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { getPerson } from 'evolution-common/lib/services/odSurvey/helpers';
+import { validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 export default {
   
@@ -108,30 +109,7 @@ export default {
 
   removeGroupedObjects: Helpers.removeGroupedObjects,
 
-  validateButtonAction: function(callbacks, _interview, path, section, sections, saveCallback) {
-    callbacks.startUpdateInterview(section, { '_all': true }, null, null, (interview) => {
-      if (interview.allWidgetsValid)
-      {
-        if (typeof saveCallback === 'function')
-        {
-          saveCallback(callbacks, interview, path);
-        }
-        else // go to next section
-        {
-          window.scrollTo(0, 0);
-          callbacks.startUpdateInterview(section, {
-            'responses._activeSection': sections[section].nextSection
-          });
-        }
-      }
-      else
-      {
-        //this.props.startUpdateInterview(section, { '_all': true }, null, null, null);
-      }
-    });
-
-    
-  },
+  validateButtonAction: validateButtonAction,
 
   validateButtonActionWithCompleteSection: function(callbacks, _interview, path, section, sections, saveCallback) {
     callbacks.startUpdateInterview(section, { '_all': true }, null, null, (interview) => {

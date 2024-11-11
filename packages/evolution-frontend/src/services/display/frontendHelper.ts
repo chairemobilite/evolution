@@ -10,6 +10,7 @@ import moment from 'moment';
 import i18n from '../../config/i18n.config';
 import { Person } from 'evolution-common/lib/services/interviews/interview';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
+import { ButtonAction } from 'evolution-common/lib/utils/helpers';
 
 type GenderedData = {
     [gender: string]: {
@@ -117,4 +118,20 @@ export const secondsSinceMidnightToTimeStrWithSuffix = function (
     } else {
         return `${secondsSinceMidnightToTimeStr(secondsSinceMidnight)}`;
     }
+};
+
+export const validateButtonAction: ButtonAction = (callbacks, interview, path, section, sections, saveCallback) => {
+    callbacks.startUpdateInterview(section, { _all: true }, undefined, interview, (updatedInterview) => {
+        if ((updatedInterview as any).allWidgetsValid) {
+            if (typeof saveCallback === 'function') {
+                saveCallback(callbacks, updatedInterview, path);
+            } // go to next section
+            else {
+                window.scrollTo(0, 0);
+                callbacks.startUpdateInterview(section, {
+                    'responses._activeSection': sections[section].nextSection
+                });
+            }
+        }
+    });
 };
