@@ -90,6 +90,15 @@ export type ParsingFunctionWithCallbacks<T> = (
     user?: CliUser
 ) => T;
 
+export type ButtonAction = (
+    callbacks: InterviewUpdateCallbacks,
+    interview: UserInterviewAttributes,
+    path: string,
+    section: string,
+    sections: { [key: string]: any },
+    saveCallback?: ParsingFunctionWithCallbacks<void>
+) => void;
+
 export const translateString = (
     i18nData: I18nData | undefined,
     i18nObj: i18n,
