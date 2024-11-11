@@ -8,7 +8,13 @@
 
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { UserInterviewAttributes, InterviewResponsePath, InterviewResponses } from '../interviews/interview';
-import { ParsingFunction, I18nData, InterviewUpdateCallbacks, ParsingFunctionWithCallbacks } from '../../utils/helpers';
+import {
+    ParsingFunction,
+    I18nData,
+    InterviewUpdateCallbacks,
+    ParsingFunctionWithCallbacks,
+    ButtonAction
+} from '../../utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { TFunction } from 'i18next';
 
@@ -320,15 +326,7 @@ export type ButtonWidgetConfig = {
     icon?: IconProp;
     iconPath?: string;
     align?: WidgetDirectionAlign;
-    // FIXME: Type the sections parameters
-    action: (
-        callbacks: InterviewUpdateCallbacks,
-        interview: UserInterviewAttributes,
-        path: string,
-        section: string,
-        sections: { [key: string]: any },
-        saveCallback?: ParsingFunctionWithCallbacks<void>
-    ) => void;
+    action: ButtonAction;
     saveCallback?: ParsingFunctionWithCallbacks<void>;
     confirmPopup?: {
         title?: I18nData;
