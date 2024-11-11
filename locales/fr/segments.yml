@@ -110,3 +110,12 @@ SegmentHasNextModeLoop: Autre mode utilisé pour compléter {{thisTrip}}
 SegmentHasNextMode: Autre mode utilisé pour compléter {{thisTrip}} avant l'arrivée?
 AddButtonLabel_zero: Sélectionner le premier (ou le seul) mode de transport utilisé pour ce déplacement
 AddButtonLabel: Sélectionner le mode de transport suivant
+CurrentTripSegmentsIntro: >-
+    Veuillez indiquer tous les modes de transport utilisés pour effectuer ce déplacement
+    (de {{originName}} à {{destinationName}}), dans l'ordre chronologique:
+CurrentTripSegmentsIntro_workOnTheRoad: >-
+    Veuillez indiquer tous les modes de transport utilisés pour effectuer les déplacements
+    sur la route, dans l'ordre chronologique:
+CurrentTripSegmentsIntro_leisureStroll: >-
+    Veuillez indiquer tous les modes de transport utilisés pour effectuer la promenade,
+    dans l'ordre chronologique:

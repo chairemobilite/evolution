@@ -24,6 +24,7 @@ import { getModeWidgetConfig } from 'evolution-common/lib/services/sections/segm
 import { getSameAsReverseTripWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSameAsReverseTrip';
 import { getSegmentHasNextModeWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSegmentHasNextMode';
 import { getSegmentsModeConfig } from 'evolution-common/lib/services/sections/segments/groupSegments';
+import { getTripSegmentsIntro } from 'evolution-common/lib/services/sections/segments/widgetTripSegmentsIntro';
 
 export const personTrips: GroupConfig = {
   type: "group",
@@ -96,17 +97,7 @@ widgets: [
   ]
     */
 
-export const segmentIntro = {
-  type: "text",
-  text: {
-    fr: function(interview, path) {
-      return `Veuillez sélectionner **tous** les modes de transport utilisés pour effectuer ce déplacement, **dans l'ordre chronologique**:`;
-    },
-    en: function(interview, path) {
-      return `Please select **all** modes of transport used for this trip, **in chronological order**:`;
-    }
-  }
-};
+export const segmentIntro = getTripSegmentsIntro();;
 
 export const segmentSameModeAsReverseTrip = getSameAsReverseTripWidgetConfig();
 
