@@ -25,6 +25,7 @@ import { getSameAsReverseTripWidgetConfig } from 'evolution-common/lib/services/
 import { getSegmentHasNextModeWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSegmentHasNextMode';
 import { getSegmentsModeConfig } from 'evolution-common/lib/services/sections/segments/groupSegments';
 import { getTripSegmentsIntro } from 'evolution-common/lib/services/sections/segments/widgetTripSegmentsIntro';
+import { getButtonSaveTripSegmentsConfig } from 'evolution-common/lib/services/sections/segments/buttonSaveTripSegments';
 
 export const personTrips: GroupConfig = {
   type: "group",
@@ -2528,29 +2529,8 @@ export const introButtonSaveTrip = {
   }
 };
 
-export const buttonSaveTrip = {
-  type: "button",
-  color: "green",
-  label: {
-    fr: "Confirmer ce déplacement",
-    en: "Confirm this trip"
-  },
-  hideWhenRefreshing: true,
-  path: "buttonSaveTrip",
-  icon: faCheckCircle,
-  align: 'center',
-  action: surveyHelper.validateButtonAction,
-  saveCallback: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks) {
-    callbacks.startUpdateInterview("segments", {
-      'responses._activeTripId': null
-    });
-  },
-  conditional: function(interview, path) {
-    const segments      = surveyHelperNew.getResponse(interview, path, {}, '../segments');
-    const segmentsArray = Object.values(segments).sort((segmentA, segmentB) => {
-      return segmentA['_sequence'] - segmentB['_sequence'];
-    });
-    const lastSegment   = segmentsArray[segmentsArray.length - 1];
-    return [lastSegment && lastSegment.hasNextMode === false, undefined];
-  }
-};
+// FIXME The options should be in a config somewhere for frontend mapping
+export const buttonSaveTrip = getButtonSaveTripSegmentsConfig({
+    iconMapper: { 'check-circle': faCheckCircle },
+    buttonActions: { validateButtonAction: surveyHelper.validateButtonAction },
+});
