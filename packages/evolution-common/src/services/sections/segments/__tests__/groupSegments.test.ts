@@ -6,14 +6,14 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 
-import { getSegmentsModeConfig } from '../groupSegments';
+import { getSegmentsGroupConfig } from '../groupSegments';
 import { interviewAttributesForTestCases } from '../../../../tests/surveys';
 import * as utilHelpers from '../../../../utils/helpers';
 
-describe('getSegmentsModeConfig', () => {
+describe('getSegmentsGroupConfig', () => {
 
     test('should return the correct widget config', () => {
-        const widgetConfig = getSegmentsModeConfig();
+        const widgetConfig = getSegmentsGroupConfig();
         expect(widgetConfig).toEqual({
             type: 'group',
             path: 'segments',
@@ -35,8 +35,8 @@ describe('getSegmentsModeConfig', () => {
 
 });
 
-describe('getSegmentsModeConfig labels', () => {
-    const widgetConfig = getSegmentsModeConfig({});
+describe('getSegmentsGroupConfig labels', () => {
+    const widgetConfig = getSegmentsGroupConfig({});
 
     test('should return the right label for title', () => {
         const mockedT = jest.fn();
@@ -76,8 +76,8 @@ describe('getSegmentsModeConfig labels', () => {
     });
 });
 
-describe('getSegmentsModeConfig show add button', () => {
-    const widgetConfig = getSegmentsModeConfig({});
+describe('getSegmentsGroupConfig show add button', () => {
+    const widgetConfig = getSegmentsGroupConfig({});
 
     jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
     const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;
@@ -120,8 +120,8 @@ describe('getSegmentsModeConfig show add button', () => {
 
 });
 
-describe('getSegmentsModeConfig show delete button', () => {
-    const widgetConfig = getSegmentsModeConfig({});
+describe('getSegmentsGroupConfig show delete button', () => {
+    const widgetConfig = getSegmentsGroupConfig({});
 
     jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
     const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;

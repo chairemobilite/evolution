@@ -10,7 +10,7 @@ import { Segment } from '../../interviews/interview';
 import { getResponse } from '../../../utils/helpers';
 import { TFunction } from 'i18next';
 
-export const getSegmentsModeConfig = (
+export const getSegmentsGroupConfig = (
     // FIXME: Type this when there is a few more widgets implemented
     options: { context?: () => string } = {}
 ): GroupConfig => {
