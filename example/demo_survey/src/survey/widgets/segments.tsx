@@ -23,7 +23,7 @@ import { getModePreWidgetConfig } from 'evolution-common/lib/services/sections/s
 import { getModeWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSegmentMode';
 import { getSameAsReverseTripWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSameAsReverseTrip';
 import { getSegmentHasNextModeWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetSegmentHasNextMode';
-import { getSegmentsModeConfig } from 'evolution-common/lib/services/sections/segments/groupSegments';
+import { getSegmentsGroupConfig } from 'evolution-common/lib/services/sections/segments/groupSegments';
 import { getTripSegmentsIntro } from 'evolution-common/lib/services/sections/segments/widgetTripSegmentsIntro';
 import { getButtonSaveTripSegmentsConfig } from 'evolution-common/lib/services/sections/segments/buttonSaveTripSegments';
 
@@ -68,7 +68,7 @@ export const personTrips: GroupConfig = {
   ]
 };
 
-export const segments: GroupConfig = getSegmentsModeConfig();
+export const segments: GroupConfig = getSegmentsGroupConfig();
 /*
 TODO These were the original widgets for the group, as well as some from other surveys, that should eventually be configurable
 widgets: [
