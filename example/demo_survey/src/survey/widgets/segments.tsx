@@ -26,47 +26,9 @@ import { getSegmentHasNextModeWidgetConfig } from 'evolution-common/lib/services
 import { getSegmentsGroupConfig } from 'evolution-common/lib/services/sections/segments/groupSegments';
 import { getTripSegmentsIntro } from 'evolution-common/lib/services/sections/segments/widgetTripSegmentsIntro';
 import { getButtonSaveTripSegmentsConfig } from 'evolution-common/lib/services/sections/segments/buttonSaveTripSegments';
+import { getPersonsTripsGroupConfig } from 'evolution-common/lib/services/sections/segments/groupPersonTrips'
 
-export const personTrips: GroupConfig = {
-  type: "group",
-  path: "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.trips",
-  title: {
-    fr: "Déplacements",
-    en: "Trips"
-  },
-  filter: function(interview, groupedObjects) {
-    const activeTripId = surveyHelperNew.getResponse(interview, '_activeTripId', null);
-    if (activeTripId)
-    {
-      const filteredGroupedObject = {};
-      for (const groupedObjectId in groupedObjects)
-      {
-        if (groupedObjectId === activeTripId)
-        {
-          filteredGroupedObject[groupedObjectId] = groupedObjects[groupedObjectId];
-        }
-      }
-      return filteredGroupedObject;
-    }
-    else
-    {
-      return {};
-    }
-  },
-  name: {
-    fr: "",
-    en: ""
-  },
-  showGroupedObjectDeleteButton: false,
-  showGroupedObjectAddButton: false,
-  widgets: [
-    'segmentIntro',
-    'segments',
-    'tripJunctionGeography',
-    //'introButtonSaveTrip',
-    'buttonSaveTrip'
-  ]
-};
+export const personTrips: GroupConfig = getPersonsTripsGroupConfig();
 
 export const segments: GroupConfig = getSegmentsGroupConfig();
 /*
