@@ -6,6 +6,7 @@
  */
 
 import _get from 'lodash/get';
+import _isEmpty from 'lodash/isEmpty';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse } from '../../utils/helpers';
 import {
@@ -19,6 +20,7 @@ import {
 } from '../interviews/interview';
 import { TFunction } from 'i18next';
 import config from '../../config/project.config';
+import { loopActivities } from './types';
 
 // This file contains helper function that retrieves various data from the
 // responses field of the interview
@@ -315,6 +317,49 @@ export const getPreviousTrip = ({ currentTrip, journey }: { currentTrip: Trip; j
     const trips = getTripsArray({ journey });
     const indexOfTrip = trips.findIndex((trip) => trip._uuid === currentTrip._uuid);
     return indexOfTrip > 0 ? trips[indexOfTrip - 1] : null;
+};
+
+/**
+ * Get the next incomplete trip from a journey
+ *
+ * @param {Object} options - The options object.
+ * @param {Journey} options.journey The journey for which to get the next
+ * incomplete trips
+ * @returns {Trip|null} The next incomplete trips, or `null` if all trips have
+ * been completed
+ */
+export const selectNextIncompleteTrip = ({ journey }: { journey: Journey }): Trip | null => {
+    const trips = getTripsArray({ journey });
+    const visitedPlaces = getVisitedPlaces({ journey });
+    for (let i = 0, count = trips.length; i < count; i++) {
+        const trip = trips[i];
+        const origin = getOrigin({ trip, visitedPlaces });
+
+        // ignore on the road/leisure stroll second trip:
+        // FIXME Review how we handle loop activities in trips
+        if (origin && origin.activity && loopActivities.includes(origin.activity)) {
+            continue;
+        }
+        // FIXME The content of this function should depend on the survey's
+        // segment section configuration. Now we suppose there should be
+        // segments and only the mode is mandatory
+        const segments = getSegmentsArray({ trip });
+        if (segments.length === 0) {
+            return trip;
+        } else {
+            // Return the trip if one of the segments does not have a mode
+            const incompleteSegment = segments.find((segment) => _isBlank(segment) || _isBlank(segment.mode));
+            if (incompleteSegment) {
+                return trip;
+            }
+            // Return the trip if the last segment does not have the next mode to `false`
+            const lastSegment = segments[segments.length - 1];
+            if (lastSegment.hasNextMode !== false) {
+                return trip;
+            }
+        }
+    }
+    return null;
 };
 
 /**

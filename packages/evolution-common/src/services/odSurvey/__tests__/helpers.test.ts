@@ -972,6 +972,50 @@ describe('getTrips', () => {
 
 });
 
+describe('selectNextIncompleteTrip', () => {
+
+    const segments = {
+        segment1: { _uuid: 'segment1', _sequence: 1, mode: 'carDriver' as const, hasNextMode: true, _isNew: false },
+        segment2: { _uuid: 'segment1', _sequence: 1, mode: 'carDriver' as const, hasNextMode: false, _isNew: false }
+    };
+
+    const trips = {
+        trip1: { _uuid: 'trip1', _sequence: 1, segments },
+        trip2: { _uuid: 'trip2', _sequence: 2 }
+    };
+
+    const journey: Journey = { _uuid: 'arbitraryJourney', _sequence: 1, trips };
+
+    test('should select trip with no segment', () => {
+        const attributes = _cloneDeep(journey);
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip2);
+    });
+
+    test('should select trip where one segment does not have a mode', () => {
+        const attributes = _cloneDeep(journey);
+        delete attributes.trips!.trip1.segments!.segment2.mode;
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip1);
+    });
+
+    test('should select trip with segment with hasNextMode not set or true', () => {
+        const attributes = _cloneDeep(journey);
+        // Set hasNextMode to false to last segment
+        attributes.trips!.trip1.segments!.segment2.hasNextMode = true;
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip1);
+
+        // Delete hasNextMode in last segment
+        delete attributes.trips!.trip1.segments!.segment2.hasNextMode;
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip1);
+    });
+
+    test('should return null if all trips complete', () => {
+        const attributes = _cloneDeep(journey);
+        // segments of trip2
+        attributes.trips!.trip2.segments = segments;
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(null);
+    });
+})
+
 describe('getOrigin/getDestination', () => {
 
     test('getOrigin, existing', () => {
