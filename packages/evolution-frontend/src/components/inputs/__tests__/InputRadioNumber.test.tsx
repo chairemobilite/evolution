@@ -84,7 +84,7 @@ describe('Render InputRadioNumber', () => {
 describe('InputRadioNumber onChange', () => {
     const widgetConfig = {
         inputType: 'radioNumber' as const,
-        valueRange: { min: 1, max: 3 },
+        valueRange: { min: 0, max: 3 },
         overMaxAllowed: true
     };
 
@@ -112,7 +112,7 @@ describe('InputRadioNumber onChange', () => {
 
     test('Test entering the max option', () => {
         const mockOnValueChange = jest.fn();
-        const { queryByText, getByLabelText } = render(
+        const { queryByText, queryByLabelText } = render(
             <InputRadioNumber
                 id={'test'}
                 onValueChange={mockOnValueChange}
@@ -132,7 +132,7 @@ describe('InputRadioNumber onChange', () => {
         expect(mockOnValueChange).toHaveBeenCalledWith(expect.objectContaining({ target: { value: 4 }}));
 
         // Find the text input
-        const input = getByLabelText("SpecifyAboveLimit:");
+        const input = queryByLabelText("SpecifyAboveLimit:");
         expect(input).toBeTruthy();
 
         // Enter a value in the input
@@ -147,5 +147,37 @@ describe('InputRadioNumber onChange', () => {
         expect(mockOnValueChange).toHaveBeenCalledTimes(3);
         expect(mockOnValueChange).toHaveBeenCalledWith(expect.objectContaining({ target: { value: undefined }}));
 
+        // Find the text input
+        const inputAfterReset = queryByLabelText("SpecifyAboveLimit:");
+        expect(inputAfterReset).toBeFalsy();
+
     });
+
+    test('Test entering the 0 option', () => {
+        const mockOnValueChange = jest.fn();
+        const { queryByText, queryByLabelText } = render(
+            <InputRadioNumber
+                id={'test'}
+                onValueChange={mockOnValueChange}
+                widgetConfig={widgetConfig}
+                value={3}
+                interview={interview} path={''} user={user}
+            />
+        );
+
+        // Find the "0" option
+        const option0 = queryByText("0");
+        expect(option0).toBeTruthy();
+    
+        // Click on the option 0
+        fireEvent.click(option0 as any);
+        expect(mockOnValueChange).toHaveBeenCalledTimes(1);
+        expect(mockOnValueChange).toHaveBeenCalledWith(expect.objectContaining({ target: { value: 0 }}));
+
+        // Find the text input
+        const input = queryByLabelText("SpecifyAboveLimit:");
+        expect(input).toBeFalsy();
+
+    });
+
 });
