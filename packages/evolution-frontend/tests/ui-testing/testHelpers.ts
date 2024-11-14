@@ -87,19 +87,36 @@ type ChangePageFromNavBarTest = (params: { buttonText: Text; nextPageUrl: Url } 
  * @param {boolean} options.ignoreHTTPSErrors - Whether to ignore HTTPS errors.
  * These can happen if running the tests on a remote server with HTTPs (for
  * example test instances)
+ * @param {{[cookieName: string]: string}} options.cookies - The cookies to set
  */
 export const initializeTestPage = async (
     browser: Browser,
     surveyObjectDetector: SurveyObjectDetector,
-    options: { urlSearchParams?: { [param: string]: string }, ignoreHTTPSErrors?: boolean } = {}
+    options: { urlSearchParams?: { [param: string]: string }, ignoreHTTPSErrors?: boolean, cookies?: { [cookieName: string]: string } } = {}
 ): Promise<Page> => {
     const context = await browser.newContext({ ignoreHTTPSErrors: options.ignoreHTTPSErrors === true });
     const page = await context.newPage();
 
     const baseUrlString = test.info().project.use.baseURL;
-    if (typeof baseUrlString === 'string' && options.urlSearchParams) {
+    const baseURL = typeof baseUrlString === 'string' ? new URL(baseUrlString) : new URL('http://localhost:8080');
+
+    // Add cookies to the context, they have to be set at this point if they need to be present at the beginning of the app
+    if (options.cookies) {
+        const cookiesToSet = Object.entries(options.cookies).map(([name, value]) => ({
+            name,
+            value,
+            domain: baseURL.hostname,
+            path: '/',
+            httpOnly: false,
+            secure: false,
+            sameSite: 'Lax' as const
+        }));
+        await context.addCookies(cookiesToSet);
+    }
+
+    // Add url search params if necessary
+    if (options.urlSearchParams) {
         // Add the search params to the base URL
-        const baseURL = new URL(baseUrlString);
         Object.keys(options.urlSearchParams).forEach((param) => {
             baseURL.searchParams.append(param, options.urlSearchParams![param]);
         });
