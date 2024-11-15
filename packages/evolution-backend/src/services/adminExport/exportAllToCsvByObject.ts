@@ -191,7 +191,7 @@ const getRenamedPaths = async (
                 allAttributes.arrayPaths = _uniq(allAttributes.arrayPaths);
 
                 //fs.writeFileSync(exportJsonFileDirectory + '/' + interview.id + '__' + interview.uuid + '.json', JSON.stringify(responses));
-                if (i % 1000 === 0) {
+                if ((i + 1) % 1000 === 0) {
                     console.log(`reading paths for interview ${i + 1}`);
                 }
                 i++;
@@ -257,6 +257,36 @@ const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: str
 };
 
 /**
+ * Handle the coordinates to be exported to CSV as separate lat and lon columns
+ * @param container The object to add the coordinates to
+ * @param pathKey The path key to use to add the coordinates to
+ * @param value The value to add to the coordinates
+ */
+const handleCoordinates = (container: any, pathKey: string, value: unknown) => {
+    // force create the fields even if empty otherwise you may end up with an empty header for the lat/lon column if the first row has an empty geometry:
+    container[pathKey.replace('.coordinates', '') + '.lon'] = undefined;
+    container[pathKey.replace('.coordinates', '') + '.lat'] = undefined;
+
+    if (Array.isArray(value)) {
+        container[pathKey.replace('.coordinates', '') + '.lon'] = value[0];
+        container[pathKey.replace('.coordinates', '') + '.lat'] = value[1];
+    }
+};
+
+/**
+ * Format the value to be exported to CSV (remove newlines and quotes)
+ * @param value The value to format
+ * @returns The formatted value
+ */
+const formatValue = (value: unknown): unknown => {
+    let valueString = value;
+    if (Array.isArray(valueString)) {
+        valueString = valueString.join('|');
+    }
+    return valueString && isString(valueString) ? valueString.replaceAll('\n', ' ').replaceAll('\r', '').replaceAll('"', '') : valueString;
+};
+
+/**
  * Task to generate the CSV files by object.
  *
  * NOTE: THIS SHOULD ONLY BE CALLED FROM A WORKERPOOL OR TASKS, NOT THE MAIN
@@ -279,12 +309,16 @@ export const exportAllToCsvByObjectTask = async function (
         exportedDataByObjectPath[objectPath] = {};
         for (let i = 0, count = pathsByObject[objectPath].length; i < count; i++) {
             if (objectPath !== 'interview') {
+                exportedDataByObjectPath[objectPath]._interviewUuid = undefined;
                 exportedDataByObjectPath[objectPath]._parentUuid = undefined;
             } else {
                 exportedDataByObjectPath[objectPath]._interviewUuid = undefined;
             }
-            exportedDataByObjectPath[objectPath][pathsByObject[objectPath][i].replace(objectPath + '._.', '')] =
-                undefined;
+            const pathWithoutObjectPath = pathsByObject[objectPath][i].replace(objectPath + '._.', '');
+            if (pathWithoutObjectPath.endsWith('.geometry.coordinates')) {
+                handleCoordinates(exportedDataByObjectPath[objectPath], pathWithoutObjectPath, undefined);
+            }
+            exportedDataByObjectPath[objectPath][pathWithoutObjectPath] = undefined;
         }
     }
 
@@ -349,6 +383,7 @@ export const exportAllToCsvByObjectTask = async function (
                                 objectsByObjectPath[objectPath][pathUuid] = _cloneDeep(
                                     exportedInterviewDataByObjectPath[objectPath]
                                 );
+                                objectsByObjectPath[objectPath][pathUuid]._interviewUuid = interview.uuid;
                             }
                             if (path.endsWith('._uuid') && !objectsByObjectPath[objectPath][pathUuid]._parentUuid) {
                                 const parentUuid = _get(
@@ -359,24 +394,25 @@ export const exportAllToCsvByObjectTask = async function (
                                     ? parentUuid
                                     : interview.uuid;
                             }
-                            let value = _get(responses, path);
-                            if (Array.isArray(value)) {
-                                value = value.join('|');
+                            const value = _get(responses, path);
+                            const pathSuffix = pathWithoutUuids.replace(objectPath + '._.', '');
+
+                            if (pathSuffix.endsWith('.geometry.coordinates')) {
+                                handleCoordinates(objectsByObjectPath[objectPath][pathUuid], pathSuffix, value);
+                            } else {
+                                objectsByObjectPath[objectPath][pathUuid][pathSuffix] = formatValue(value);
                             }
-                            objectsByObjectPath[objectPath][pathUuid][
-                                pathWithoutUuids.replace(objectPath + '._.', '')
-                            ] = value && isString(value) ? value.replace('\n', ' ') : value;
                             foundObjectPath = true;
                             break;
                         }
                     }
                     if (!foundObjectPath) {
-                        let value = _get(responses, path);
-                        if (Array.isArray(value)) {
-                            value = value.join('|');
+                        const value = _get(responses, path);
+                        if (pathWithoutUuids.endsWith('.geometry.coordinates')) {
+                            handleCoordinates(objectsByObjectPath.interview, pathWithoutUuids, value);
+                        } else {
+                            objectsByObjectPath.interview[pathWithoutUuids] = formatValue(value);
                         }
-                        objectsByObjectPath.interview[pathWithoutUuids] =
-                            value && isString(value) ? value.replace('\n', ' ') : value;
                     }
                 }
 
@@ -385,7 +421,11 @@ export const exportAllToCsvByObjectTask = async function (
                         for (const _uuid in objectsByObjectPath[objectPath]) {
                             csvFilePathByObjectPath[objectPath].write(
                                 unparse([objectsByObjectPath[objectPath][_uuid]], {
-                                    header: !wroteHeaderByObjectPath[objectPath]
+                                    header: !wroteHeaderByObjectPath[objectPath],
+                                    newline: '\n',
+                                    quoteChar: '"',
+                                    delimiter: ',',
+                                    quotes: true
                                 }) + '\n'
                             );
                             wroteHeaderByObjectPath[objectPath] = true;
@@ -393,14 +433,18 @@ export const exportAllToCsvByObjectTask = async function (
                     } else {
                         csvFilePathByObjectPath[objectPath].write(
                             unparse([objectsByObjectPath[objectPath]], {
-                                header: !wroteHeaderByObjectPath[objectPath]
+                                header: !wroteHeaderByObjectPath[objectPath],
+                                newline: '\n',
+                                quoteChar: '"',
+                                delimiter: ',',
+                                quotes: true
                             }) + '\n'
                         );
                         wroteHeaderByObjectPath[objectPath] = true;
                     }
                 }
 
-                if (i % 1000 === 0) {
+                if ((i + 1) % 1000 === 0) {
                     console.log(`interview ${i + 1}`);
                 }
                 i++;
