@@ -8,6 +8,7 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
+import { getSwitchPersonWidgets } from 'evolution-common/lib/services/sections/common/widgetsSwitchPerson';
 
 const registrationCompletedWidgets = require('./widgets/registrationCompleted.js');
 
@@ -49,8 +50,9 @@ export const personDidTrips: any                        = householdMembersWidget
 export const buttonSaveNextSectionHouseholdMembers: any = householdMembersWidgets.buttonSaveNextSectionHouseholdMembers;
 export const selectPerson: any                          = householdMembersWidgets.selectPerson;
 export const buttonSelectPersonConfirm: any             = householdMembersWidgets.buttonSelectPersonConfirm;
-export const activePersonTitle: any                     = householdMembersWidgets.activePersonTitle;
-export const buttonSwitchPerson: any                    = householdMembersWidgets.buttonSwitchPerson;
+const switchPersonsWidget = getSwitchPersonWidgets();
+export const activePersonTitle: any                     = switchPersonsWidget.activePersonTitle;
+export const buttonSwitchPerson: any                    = switchPersonsWidget.buttonSwitchPerson;
 
 import * as profileWidgets from './widgets/profile';
 

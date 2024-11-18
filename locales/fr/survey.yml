@@ -5,6 +5,12 @@ No: Non
 thisTrip: ce déplacement
 thisTrip_workOnTheRoad: les déplacements sur la route
 thisTrip_leisureStroll: la promenade
+SwitchPersonTitle: Changer de personne
+SwitchPersonNeedComplete: Veuillez compléter cette section avant de changer de personne.
+ActivePersonTitle: >-
+    <p class="_orange center _em" style="margin-bottom: 0;">Entrevue de <strong>{{name}}</strong></p>
+ActivePersonTitle_unnamed: >-
+    <p class="_orange center _em" style="margin-bottom: 0;">Entrevue de personne <strong>{{name}}</strong></p>
 
 # Gendered strings
 suffixE: "(e)"
