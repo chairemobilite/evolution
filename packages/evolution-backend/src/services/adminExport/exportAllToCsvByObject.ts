@@ -283,7 +283,9 @@ const formatValue = (value: unknown): unknown => {
     if (Array.isArray(valueString)) {
         valueString = valueString.join('|');
     }
-    return valueString && isString(valueString) ? valueString.replaceAll('\n', ' ').replaceAll('\r', '').replaceAll('"', '') : valueString;
+    return valueString && isString(valueString)
+        ? valueString.replaceAll('\n', ' ').replaceAll('\r', '').replaceAll('"', '')
+        : valueString;
 };
 
 /**
