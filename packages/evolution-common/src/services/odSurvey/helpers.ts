@@ -116,6 +116,24 @@ export const getPersonsArray = ({ interview }: { interview: UserInterviewAttribu
 };
 
 /**
+ * Get the interviewable persons array from the interview responses, or an empty
+ * array if there are no persons with the interviewable age in the survey. The
+ * person is considered interviewable if the age is greater than the
+ * interviewable age defined in the configuration or if the age is not set.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns {Person[]}
+ */
+export const getInterviewablePersonsArray = ({ interview }: { interview: UserInterviewAttributes }): Person[] => {
+    const persons = getPersons({ interview });
+    const personsArray = Object.values(persons).sort((personA, personB) => {
+        return personA._sequence - personB._sequence;
+    });
+    return personsArray.filter((person) => typeof person.age !== 'number' || person.age >= config.interviewableAge);
+};
+
+/**
  * Count the number of persons in the household. This function uses the person
  * defined in the household and not the household size specified by the
  * respondent.

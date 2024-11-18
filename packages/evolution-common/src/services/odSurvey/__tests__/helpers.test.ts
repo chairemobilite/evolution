@@ -10,6 +10,7 @@ import { Journey, Person, Trip, UserInterviewAttributes } from '../../interviews
 import { interviewAttributesForTestCases } from '../../../tests/surveys';
 
 import * as Helpers from '../helpers';
+import projectConfig from '../../../config/project.config';
 
 const baseInterviewAttributes: Pick<UserInterviewAttributes, 'id' | 'uuid' | 'participant_id' | 'is_completed' | 'is_questionable' | 'is_valid'> = {
     id: 1,
@@ -204,6 +205,37 @@ each([
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.responses = responses;
     expect(Helpers.countPersons({ interview })).toEqual(expected);
+});
+
+describe('getInterviewablePersonsArray', () => {
+
+    test('No household', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        interview.responses.household = undefined;
+        expect(Helpers.getInterviewablePersonsArray({ interview })).toEqual([]);
+    });
+
+    each([
+        ['Have ages, one interviewable person', {
+            personId1: { _uuid: 'personId1', _sequence: 1, age: 23 }
+        }, ['personId1']],
+        ['Have ages, some non-interviewable persons', {
+            personId1: { _uuid: 'personId1', _sequence: 1, age: 23 },
+            personId2: { _uuid: 'personId2', _sequence: 2, age: 4 },
+            personId3: { _uuid: 'personId3', _sequence: 3, age: 23 },
+        }, ['personId1', 'personId3']],
+        ['No age, all interviewable', {
+            personId1: { _uuid: 'personId1', _sequence: 1 },
+            personId2: { _uuid: 'personId2', _sequence: 2 }
+        }, ['personId1', 'personId2']],
+        ['No persons', { }, []]
+    ]).test('getInterviewablePersonsArray with persons: %s', (_title, persons, expectedPersonIds: string[]) => {
+        projectConfig.interviewableAge = 5;
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        interview.responses.household!.persons = persons;
+        expect(Helpers.getInterviewablePersonsArray({ interview })).toEqual(expectedPersonIds.map(id => persons[id]));
+    });
+
 });
 
 each([
