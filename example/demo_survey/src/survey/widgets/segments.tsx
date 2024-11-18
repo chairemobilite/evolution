@@ -26,7 +26,9 @@ import { getSegmentHasNextModeWidgetConfig } from 'evolution-common/lib/services
 import { getSegmentsGroupConfig } from 'evolution-common/lib/services/sections/segments/groupSegments';
 import { getTripSegmentsIntro } from 'evolution-common/lib/services/sections/segments/widgetTripSegmentsIntro';
 import { getButtonSaveTripSegmentsConfig } from 'evolution-common/lib/services/sections/segments/buttonSaveTripSegments';
-import { getPersonsTripsGroupConfig } from 'evolution-common/lib/services/sections/segments/groupPersonTrips'
+import { getPersonsTripsGroupConfig } from 'evolution-common/lib/services/sections/segments/groupPersonTrips';
+import { getPersonsTripsTitleWidgetConfig } from 'evolution-common/lib/services/sections/segments/widgetPersonTripsTitle';
+import { getFormattedDate } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 export const personTrips: GroupConfig = getPersonsTripsGroupConfig();
 
@@ -2452,34 +2454,7 @@ export const segmentParkingPaymentType = {
   }
 };
 
-export const personTripsTitle = {
-  type: "text",
-  align: "left",
-  text: {
-    fr: function(interview, path) {
-      const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
-      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate')).format('LL');
-      if (householdSize === 1)
-      {
-        return `Vos déplacements du ${formattedTripsDate}&nbsp;:`;
-      }
-      const personId           = surveyHelperNew.getResponse(interview, '_activePersonId');
-      const person : any            = surveyHelperNew.getResponse(interview, `household.persons.${personId}`);
-      return `Déplacements de **${person.nickname}** le ${formattedTripsDate}&nbsp;:`;
-    },
-    en: function(interview, path) {
-      const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
-      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate')).format('LL');
-      if (householdSize === 1)
-      {
-        return `Trips you made on${formattedTripsDate}&nbsp;:`;
-      }
-      const personId           = surveyHelperNew.getResponse(interview, '_activePersonId');
-      const person: any             = surveyHelperNew.getResponse(interview, `household.persons.${personId}`);
-      return `Trips made by **${person.nickname}** on ${formattedTripsDate}&nbsp;:`;
-    }
-  }
-};
+export const personTripsTitle = getPersonsTripsTitleWidgetConfig({ getFormattedDate })
 
 export const introButtonSaveTrip = {
   type: "text",

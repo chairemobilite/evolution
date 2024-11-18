@@ -2,6 +2,10 @@ TripsTitle: Déplacements
 GroupTitle: Modes
 GroupName: Mode de transport {{sequence}}
 ModeIsRequired: Le mode de transport est requis.
+Description: Déplacements de {{nickname}} le {{journeyDates}}
+Description_one: Vos déplacements le {{journeyDates}}
+Description_undated: Déplacements de {{nickname}}
+Description_undated_one: Vos déplacements
 modePre:
     CarDriver: <strong>Conducteur</strong> (voiture/moto/scooter/camion)
     CarPassenger: <strong>Passager</strong> (voiture/moto/scooter/camion)
