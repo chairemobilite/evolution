@@ -355,7 +355,7 @@ export default {
         } else {
             // Make sure to set initialize a journey for this person if it does not exist
             startUpdateInterview('tripsIntro', {
-                ...(addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys`, [])),
+                ...(addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys`, [{ startDate: getResponse(interview, 'tripsDate') }])),
             }, null, null, (updatedInterview) => {
                 const _person = helper.getPerson(updatedInterview);
                 const journeys = odSurveyHelper.getJourneysArray({ person: _person });
