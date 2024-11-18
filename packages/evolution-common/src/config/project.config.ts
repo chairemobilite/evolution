@@ -24,6 +24,12 @@ export type EvolutionProjectConfiguration = {
      * */
     selfResponseMinimumAge: number;
     /**
+     * Age from which a person can be interviewed. Applies to household surveys
+     * only. Below that age, the survey questions will not be asked for this
+     * person. Defaults to 0, which means all persons are interviewable.
+     */
+    interviewableAge: number;
+    /**
      * Age at which a person could possibly own a driving license in the survey
      * area. Defaults to 16
      * */
@@ -62,6 +68,7 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             region: 'CA',
             logDatabaseUpdates: false,
             selfResponseMinimumAge: 14,
+            interviewableAge: 5,
             drivingLicenseAge: 16,
             mapDefaultCenter: {
                 lat: 45.5,
