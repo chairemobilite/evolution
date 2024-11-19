@@ -107,7 +107,7 @@ export class ValidateSurvey extends React.Component {
         let   navActiveSection = activeSection;
 
         // use parent section name as active section if active section is set to be hidden in navigation:
-        if (this.surveyContext.sections[activeSection] && this.surveyContext.sections[activeSection].hiddenInNav)
+        if (this.surveyContext.sections[activeSection] && this.surveyContext.sections[activeSection].parentSection !== undefined)
         {
           navActiveSection = this.surveyContext.sections[activeSection].parentSection;
         }

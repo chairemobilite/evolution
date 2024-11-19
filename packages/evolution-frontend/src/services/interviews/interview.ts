@@ -89,7 +89,10 @@ export type SectionConfig = {
     menuName?: I18nData;
     preload?: SectionPreload;
     template?: React.ComponentType;
-    hiddenInNav?: boolean;
+    /**
+     * If set, this section is a sub-section of the parent section. It will not
+     * be displayed in the section navigation.
+     */
     parentSection?: string;
     // FIXME Type this
     customStyle?: any;

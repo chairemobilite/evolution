@@ -78,7 +78,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
   //registrationCompleted: {
   //  previousSection: 'register',
   //  nextSection: 'home',
-  //  hiddenInNav: true,
   //  title: {
   //    fr: "Enregistrement",
   //    en: "Registration"
@@ -190,7 +189,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
       fr: "Profil",
       en: "Profile"
     },
-    hiddenInNav: true,
     widgets: [
       'partTwoIntroText',
       'partOneConfirmed'
@@ -269,7 +267,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
       fr: "Profil",
       en: "Profile"
     },
-    hiddenInNav: true,
     widgets: profileWidgets,
     preload: function (interview, { startUpdateInterview, callback }) {
       if (config.isPartTwo === true)
@@ -383,7 +380,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
   visitedPlaces: {
     previousSection: 'tripsIntro',
     nextSection: "segments",
-    hiddenInNav: true,
     parentSection: 'tripsIntro',
     template: VisitedPlacesSection,
     title: {
@@ -473,7 +469,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
     previousSection: 'visitedPlaces',
     template: SegmentsSection,
     nextSection: "travelBehavior",
-    hiddenInNav: true,
     parentSection: 'tripsIntro',
     title: {
       fr: "Modes de transport",
@@ -582,7 +577,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
   travelBehavior: {
     previousSection: 'segments',
     nextSection: "end",
-    hiddenInNav: true,
     parentSection: 'tripsIntro',
     title: {
       fr: "Mobilité",
@@ -686,7 +680,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
   completed: {
     previousSection: 'end',
     nextSection: null,
-    hiddenInNav: true,
     parentSection: 'end',
     title: {
       fr: "Entrevue complétée",
