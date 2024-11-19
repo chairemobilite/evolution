@@ -16,6 +16,12 @@ TripsMap_one: Carte de vos déplacements le {{journeyDates}}
 TripsMap_undated: Carte des déplacements de {{nickname}}
 TripsMap_undated_one: Carte de vos déplacements
 
+# Button texts
+ConfirmAndContinue: Confirmer et continuer
+Continue: Continuer
+CompleteInterview: Terminer l'entrevue
+SaveAndContinue: Sauvegarder et continuer
+
 # Gendered strings
 suffixE: "(e)"
 suffixE_male: ""

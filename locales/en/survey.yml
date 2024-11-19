@@ -16,6 +16,12 @@ TripsMap_one: Map of your trips on {{journeyDates}}
 TripsMap_undated: Map of {{nickname}}'s trips
 TripsMap_undated_one: Map of your trips
 
+# Button texts
+ConfirmAndContinue: Confirm and continue
+Continue: Continue
+CompleteInterview: Complete interview
+SaveAndContinue: Save and continue
+
 # Gendered strings
 suffixE: 
 suffixEurRice: 
