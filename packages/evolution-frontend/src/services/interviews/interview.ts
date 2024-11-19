@@ -10,6 +10,7 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/interview
 import { WidgetConfig } from 'evolution-common/lib/services/widgets';
 import {
     I18nData,
+    ParsingFunction,
     StartAddGroupedObjects,
     StartRemoveGroupedObjects,
     StartUpdateInterview
@@ -82,14 +83,18 @@ export type SectionPreload = (
 
 export type SectionConfig = {
     widgets: string[];
-    previousSection?: string;
-    nextSection?: string;
+    previousSection: string | null;
+    nextSection: string | null;
+    title?: I18nData;
+    menuName?: I18nData;
     preload?: SectionPreload;
     template?: React.ComponentType;
     hiddenInNav?: boolean;
     parentSection?: string;
     // FIXME Type this
     customStyle?: any;
+    enableConditional?: boolean | ParsingFunction<boolean>;
+    completionConditional?: boolean | ParsingFunction<boolean>;
 };
 export type SurveySections = { [sectionName: string]: SectionConfig };
 export type SurveyWidgets = {

@@ -79,6 +79,8 @@ beforeEach(() => {
     props = {
         shortname: 'testShortname',
         sectionConfig: {
+            previousSection: null,
+            nextSection: null,
             widgets: ['activePersonTitle', 'buttonSwitchPerson', 'personTripsTitle', 'personTrips', 'personVisitedPlacesMap', 'buttonConfirmNextSection']
         },
         interview: {

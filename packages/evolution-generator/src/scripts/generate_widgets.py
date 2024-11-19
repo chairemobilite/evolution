@@ -283,7 +283,7 @@ def generate_widgets_names_statements(section_rows):
 
     # Start the widgets names statements with the import statement
     widgets_names_statements = (
-        "import { WidgetsNames } from 'evolution-generator/lib/types/sectionsTypes';\n"
+        "import { SectionConfig } from 'evolution-frontend/lib/services/interviews/interview';\n"
     )
 
     # For each group in the dictionary, generate the widgets names
@@ -292,11 +292,11 @@ def generate_widgets_names_statements(section_rows):
         # Otherwise, append 'WidgetsNames' to the group name to create the variable name
         if group == "":
             widgets_names_statements += (
-                "\nexport const widgetsNames: WidgetsNames = [\n"
+                "\nexport const widgetsNames: SectionConfig['widgets'] = [\n"
             )
         else:
             widgets_names_statements += (
-                f"\nexport const {group}WidgetsNames: WidgetsNames = [\n"
+                f"\nexport const {group}WidgetsNames: SectionConfig['widgets'] = [\n"
             )
 
         # For each row in the group, generate the widget name and add it to the widgets names statements

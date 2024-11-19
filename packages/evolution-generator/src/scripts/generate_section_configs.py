@@ -51,7 +51,7 @@ def generate_section_configs(excel_file_path: str):
 
         # Add imports
         ts_code += f"import {{ isSectionComplete }} from 'evolution-generator/lib/helpers/configsHelpers';\n"
-        ts_code += f"import {{ SectionConfig, SectionName }} from 'evolution-generator/lib/types/sectionsTypes';\n"
+        ts_code += f"import {{ SectionConfig }} from 'evolution-frontend/lib/services/interviews/interview';\n"
         ts_code += f"import {{ widgetsNames }} from './widgetsNames';\n"
         ts_code += f"import {{ preload }} from './preload';\n"
 
@@ -84,15 +84,15 @@ def generate_section_configs(excel_file_path: str):
 
                 # Generate currentSectionName
                 ts_section_code += (
-                    f"\nexport const currentSectionName: SectionName = '{section}';\n"
+                    f"\nexport const currentSectionName: string = '{section}';\n"
                 )
 
                 # Generate previousSectionName
                 if previousSection is not None:
-                    ts_section_code += f"const previousSectionName: SectionName = '{previousSection}';\n"
+                    ts_section_code += f"const previousSectionName: SectionConfig['previousSection'] = '{previousSection}';\n"
                 else:
                     ts_section_code += (
-                        "const previousSectionName: SectionName = null;\n"
+                        "const previousSectionName: SectionConfig['previousSection'] = null;\n"
                     )
 
                 # Generate nextSectionName
@@ -102,15 +102,15 @@ def generate_section_configs(excel_file_path: str):
                     # Get the next section from the next row
                     nextSection = get_values_from_row(next_row, headers)[0]
                     ts_section_code += (
-                        f"const nextSectionName: SectionName = '{nextSection}';\n"
+                        f"const nextSectionName: SectionConfig['nextSection'] = '{nextSection}';\n"
                     )
                 else:
-                    ts_section_code += "const nextSectionName: SectionName = null;\n"
+                    ts_section_code += "const nextSectionName: SectionConfig['nextSection'] = null;\n"
 
                 # Generate parentSectionName
                 if parent_section is not None:
                     ts_section_code += (
-                        f"const parentSectionName: SectionName = '{parent_section}';\n"
+                        f"const parentSectionName: SectionConfig['parentSection'] = '{parent_section}';\n"
                     )
 
                 # Generate config for the section

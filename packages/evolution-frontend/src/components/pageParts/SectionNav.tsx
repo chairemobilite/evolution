@@ -10,15 +10,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { SurveyContext } from '../../contexts/SurveyContext';
-import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
+import { SectionConfig, UserFrontendInterviewAttributes } from '../../services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { StartUpdateInterview } from 'evolution-common/lib/utils/helpers';
+import { devLog, parseBoolean, StartUpdateInterview, translateString } from 'evolution-common/lib/utils/helpers';
 
 type SectionNavProps = {
     activeSection: string;
-    sections: { [sectionShortname: string]: any }; // TODO: type the section config. See generator/types/sectionsTypes. The generator does not yet include all possible config.
+    sections: { [sectionShortname: string]: SectionConfig };
     onChangeSection: (
         parentSection: string,
         activeSection: string,
@@ -45,7 +44,7 @@ const SectionNav = function ({
     user
 }: SectionNavProps) {
     const { devMode, dispatch } = React.useContext(SurveyContext);
-    surveyHelperNew.devLog('%c rendering section nav', 'background: rgba(0,255,255,0.1); font-size: 7px;');
+    devLog('%c rendering section nav', 'background: rgba(0,255,255,0.1); font-size: 7px;');
 
     const sectionShortnames = Object.keys(sections);
 
@@ -58,29 +57,23 @@ const SectionNav = function ({
         const sectionShortname = sectionShortnames[i];
         firstSectionShortname = firstSectionShortname || sectionShortname;
         const sectionConfig = sections[sectionShortname];
-        const previousSection: string | undefined = sectionConfig.previousSection;
+        const previousSection: string | null = sectionConfig.previousSection;
         const previousSectionCompleted = previousSection ? !!completedStatusBySectionShortname[previousSection] : true;
-        let enabled = previousSectionCompleted === false ? false : true; // previous section must be completed
-        let completed = previousSectionCompleted === false ? false : true;
-        if (enabled && typeof sectionConfig.enableConditional === 'function') {
-            enabled = sectionConfig.enableConditional(interview);
-        } else if (enabled && !_isBlank(sectionConfig.enableConditional)) {
-            // simple boolean conditional
-            enabled = sectionConfig.enableConditional;
-        }
-        if (completed && typeof sectionConfig.completionConditional === 'function') {
-            completed = sectionConfig.completionConditional(interview);
-        } else if (completed && !_isBlank(sectionConfig.completionConditional)) {
-            // simple boolean conditional
-            completed = sectionConfig.completionConditional;
-        }
+        const enabled =
+            previousSectionCompleted === false
+                ? false
+                : parseBoolean(sectionConfig.enableConditional, interview, sectionShortname); // previous section must be completed
+        const completed =
+            previousSectionCompleted === false
+                ? false
+                : parseBoolean(sectionConfig.completionConditional, interview, sectionShortname);
+
         completedStatusBySectionShortname[sectionShortname] = completed;
 
         const parentSection = sectionConfig.parentSection || sectionShortname;
         const activeSectionConfig = sections[activeSection];
         const activeParentSection = activeSectionConfig.parentSection;
-        // FIXME The isAdmin property of the section should not exist. The demo_survey used this kind of section, but it may not even be used anymore.
-        if (sectionConfig.hiddenInNav !== true && sectionConfig.isAdmin !== true) {
+        if (sectionConfig.hiddenInNav !== true) {
             // Add a separator before adding the link if it is not the first section
             if (sectionNavLinks.length > 0) {
                 sectionNavLinks.push(
@@ -105,7 +98,7 @@ const SectionNav = function ({
                     }
                     disabled={!enabled || loadingState > 0}
                 >
-                    {sectionConfig.menuName[i18n.language]}
+                    {translateString(sectionConfig.menuName, i18n, interview, sectionShortname)}
                 </button>
             );
         }

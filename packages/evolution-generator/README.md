@@ -300,9 +300,9 @@ In this example, we define a section named `household`. This section is visible 
 ```typescript
 // household/sectionConfigs.ts
 
-export const currentSectionName: SectionName = 'household';
-const previousSectionName: SectionName = 'home';
-const nextSectionName: SectionName = 'end';
+export const currentSectionName: string = 'household';
+const previousSectionName: SectionConfig['previousSection'] = 'home';
+const nextSectionName: SectionConfig['nextSection'] = 'end';
 
 // Config for the section
 export const sectionConfig: SectionConfig = {
@@ -326,9 +326,6 @@ export const sectionConfig: SectionConfig = {
     // Allow to click on the section menu
     completionConditional: function (interview) {
         return isSectionComplete({ interview, sectionName: currentSectionName });
-    },
-    groups: {
-        householdMembers: groups.householdMembers
     }
 };
 
@@ -339,7 +336,7 @@ export default sectionConfig;
 // sections.ts
 
 // Export all the sections configs
-const sectionsConfigs: SectionsConfigs = {
+const sectionsConfigs: SurveySections = {
     home: homeConfigs,
     household: householdConfigs,
     end: endConfigs,

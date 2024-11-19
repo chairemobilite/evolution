@@ -16,6 +16,7 @@ import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers'
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from './helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
+import { SectionConfig } from 'evolution-frontend/lib/services/interviews/interview';
 
 
 const homeWidgets = [
@@ -72,7 +73,7 @@ if (config.askForAccessCode)
   homeWidgets.unshift('accessCode');
 }
 
-export default {
+const sections: { [sectionName: string]: SectionConfig } = {
 
   //registrationCompleted: {
   //  previousSection: 'register',
@@ -113,7 +114,7 @@ export default {
         }, null, null, callback);
         return null;
       }
-      callback();
+      callback(interview);
       return null;
     },
     enableConditional: true,
@@ -165,7 +166,7 @@ export default {
           }
         }
       }
-      callback();
+      callback(interview);
       return null;
     },
     enableConditional: function(interview) {
@@ -176,7 +177,7 @@ export default {
     }
   },
 
-  partTwoIntro: {
+/*  partTwoIntro: {
     isPartTwoFirstSection: true,
     previousSection: 'householdMembers',
     nextSection: "selectPerson",
@@ -213,10 +214,10 @@ export default {
         startUpdateInterview('partTwoIntro', updateValuesByPath, null, null, callback);
         return null;
       }
-      callback();
+      callback(interview);
       return null;
     }
-  },
+  },*/
 
   selectPerson: {
     previousSection: 'householdMembers',
@@ -244,7 +245,7 @@ export default {
         }, null, null, callback);
         return null;
       }
-      callback();
+      callback(interview);
       return null;
     },
     enableConditional: function(interview) {
@@ -273,7 +274,7 @@ export default {
     preload: function (interview, { startUpdateInterview, callback }) {
       if (config.isPartTwo === true)
       {
-        callback();
+        callback(interview);
         return null;
       }
       const person = helper.getPerson(interview);
@@ -293,7 +294,7 @@ export default {
         }
         return null;
       }
-      callback();
+      callback(interview);
       return null;
     },
     enableConditional: function(interview) {
@@ -366,7 +367,7 @@ export default {
             });
         }
       }
-      callback();
+      callback(interview);
       return null;
     },
     enableConditional: function(interview) {
@@ -597,7 +598,7 @@ export default {
     ],
     preload: function (interview, { startUpdateInterview,callback }) {
       const person = helper.getPerson(interview);
-      if (interview.visibleWidgets.indexOf(`household.persons.${person._uuid}.noSchoolTripReason`) <= -1 && interview.visibleWidgets.indexOf(`household.persons.${person._uuid}.noWorkTripReason`) <= -1 && interview.visibleWidgets.indexOf(`household.persons.${person._uuid}.whoAnsweredForThisPerson`) <= -1)
+      if ((interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noSchoolTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noWorkTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.whoAnsweredForThisPerson`) <= -1)
       {
         const person = helper.getPerson(interview);
         startUpdateInterview('travelBehavior', {
@@ -606,7 +607,7 @@ export default {
         }, null, null, callback);
         return null;
       }
-      callback();
+      callback(interview);
       return null;
     },
     enableConditional: function(interview) {
@@ -664,7 +665,7 @@ export default {
         }, null, null, callback);
         return null;
       }
-      callback();
+      callback(interview);
       return null;
     },
     enableConditional: function(interview) {
@@ -722,126 +723,7 @@ export default {
     }
     
   },
-  
-
-
-
-
-
-
-  // admin validation section (one pager)
-  validationOnePager: {
-    isAdmin: true,
-    previousSection: null,
-    nextSection: null,
-    title: {
-      fr: "Validation",
-      en: "Validation"
-    },
-    menuName: {
-      fr: "Validation",
-      en: "Validation"
-    },
-    widgets: [
-      'interviewLanguage',
-      ...homeWidgets,
-      'householdResidentialPhoneType',
-      'householdDidAlsoRespondByPhone',
-      'householdWouldLikeToParticipateInOtherSurveys',
-      'householdContactEmail',
-      'householdDateNextContact',
-      'householdIncome',
-      'householdSurveyAppreciation',
-      'householdCommentsOnSurvey',
-      'householdMembers',
-      "selectPerson"
-    ],
-    groups: {
-      'householdMembers': {
-        showGroupedObjectDeleteButton: function(interview, path) { 
-          const countPersons = helper.countPersons(interview);
-          if (config.isPartTwo === true)
-          {
-            return countPersons > 1;
-          }
-          const householdSize = getResponse(interview, 'household.size', null);
-          return countPersons > householdSize;
-        },
-        showGroupedObjectAddButton: function(interview, path) {
-          //const hasGroupedObjects = Object.keys(_get(interview, `groups.householdMembers`, {})).length > 0;
-          //const householdSize     = getResponse(interview, 'household.size', null);
-          //const persons           = getResponse(interview, path, {});
-          return true;//hasGroupedObjects && Object.keys(persons).length < householdSize;
-        },
-        groupedObjectAddButtonLabel: {
-          fr: "Ajouter une personne manquante",
-          en: "Add a missing person"
-        },
-        addButtonSize: 'small' as const,
-        widgets: [
-          'personNickname',
-          'personAge',
-          'personGender',
-          'personOccupation',
-          'personDrivingLicenseOwnership',
-          'personTransitPassOwner',
-          'personTransitPasses',
-          'personCarsharingMember',
-          'personBikesharingMember',
-          'personHasDisability',
-          'personCellphoneOwner', 
-          "groupedPersonWorkOnTheRoad",
-          "groupedPersonUsualWorkPlaceIsHome",
-          "groupedPersonUsualWorkPlaceName",
-          "groupedPersonUsualWorkPlaceGeography",
-          "groupedPersonUsualSchoolPlaceName",
-          "groupedPersonUsualSchoolPlaceGeography",
-          "groupedPersonNoWorkTripReason",
-          "groupedPersonNoSchoolTripReason",
-          "groupedPersonWhoAnsweredForThisPerson"
-        ]
-      }
-    },
-    preload: function(interview, { startUpdateInterview, startAddGroupedObjects, startRemoveGroupedObjects, callback }) {
-      if (!getResponse(interview, 'tripsDate')) {
-        startUpdateInterview('home', {
-          'responses.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),
-          'responses._startedAt': moment().unix()
-        }, null, null, callback);
-        return null;
-      }
-      const groupedObjects       = getResponse(interview, 'household.persons');
-      const groupedObjectIds     = groupedObjects ? Object.keys(groupedObjects) : [];
-      const countGroupedObjects  = groupedObjectIds.length;
-      const householdSize: any   = getResponse(interview, 'household.size');
-      const householdSizeIsValid = getValidation(interview, 'household.size');
-      const emptyGroupedObjects  = groupedObjectIds.filter((groupedObjectId) => isEmpty(groupedObjects[groupedObjectId]));
-      if (householdSizeIsValid && householdSize) {
-        if (countGroupedObjects < householdSize) {
-          // auto create objects according to household size:
-          startAddGroupedObjects(householdSize - countGroupedObjects, -1, 'household.persons', null, callback);
-          return null;
-        }
-        else if (countGroupedObjects > householdSize) {
-          const pathsToDelete = [];
-          // auto remove empty objects according to household size:
-          for (let i = 0; i < countGroupedObjects; i++) {
-            if (emptyGroupedObjects[i]) {
-              pathsToDelete.push(`household.persons.${emptyGroupedObjects[i]}`);            
-            }
-          }
-          if (pathsToDelete.length > 0)
-          {
-            startRemoveGroupedObjects(pathsToDelete, callback);
-            return null;
-          }
-        }
-      }
-      callback();
-      return null;
-    },
-    enableConditional: true,
-    completionConditional: true
-  }
 
 };
+
+export default sections;
