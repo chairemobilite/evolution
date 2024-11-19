@@ -11,6 +11,10 @@ ActivePersonTitle: >-
     <p class="_orange center _em" style="margin-bottom: 0;">Entrevue de <strong>{{name}}</strong></p>
 ActivePersonTitle_unnamed: >-
     <p class="_orange center _em" style="margin-bottom: 0;">Entrevue de personne <strong>{{name}}</strong></p>
+TripsMap: Carte des déplacements de {{nickname}} le {{journeyDates}}
+TripsMap_one: Carte de vos déplacements le {{journeyDates}}
+TripsMap_undated: Carte des déplacements de {{nickname}}
+TripsMap_undated_one: Carte de vos déplacements
 
 # Gendered strings
 suffixE: "(e)"

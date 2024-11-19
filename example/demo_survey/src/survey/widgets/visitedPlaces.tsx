@@ -13,15 +13,7 @@ import _get from 'lodash/get';
 import _min from 'lodash/min';
 import _max from 'lodash/max';
 import isEmpty from 'lodash/isEmpty';
-import { 
-    lineString as turfLineString,
-    distance as turfDistance,
-    destination as turfDestination,
-    midpoint as turfMidpoint,
-    bearing as turfBearing,
-    bezierSpline as turfBezierSpline,
-    booleanPointInPolygon as turfBooleanPointInPolygon
-} from '@turf/turf';
+import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 // import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
@@ -36,6 +28,8 @@ import helper from '../helper';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/widgets';
+import { getPersonVisitedPlacesMapConfig } from 'evolution-common/lib/services/sections/common/widgetPersonVisitedPlacesMap';
+import { getFormattedDate } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 export const visitedPlacesIntro = {
   type: "text",
@@ -194,100 +188,7 @@ export const personVisitedPlacesTitle = {
   }
 };
 
-export const personVisitedPlacesMap = {
-  type: "infoMap",
-  path: "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.visitedPlacesMap",
-  defaultCenter: config.mapDefaultCenter,
-  title: {
-    fr: function(interview, path) {
-      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate') as any).format('LL');
-      const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
-      if (householdSize === 1)
-      {
-        return `Carte de vos déplacements le ${formattedTripsDate}`;
-      }
-      const person = helper.getPerson(interview);
-      return `Carte des déplacements de **${person.nickname}** le ${formattedTripsDate}`;
-    },
-    en: function(interview, path) {
-      const formattedTripsDate = moment(surveyHelperNew.getResponse(interview, 'tripsDate') as any).format('LL');
-      const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
-      if (householdSize === 1)
-      {
-        return `Map of your trips on ${formattedTripsDate}`;
-      }
-      const person = helper.getPerson(interview);
-      return `Map of **${person.nickname}**'s travel on ${formattedTripsDate}`;
-    },
-  },
-  linestringColor: "#0000ff",
-  geojsons: function(interview, path) {
-    const person             = helper.getPerson(interview);
-    const visitedPlaces      = helper.getVisitedPlaces(person);
-    const tripsGeojsonFeatures: any[]         = [];
-    const visitedPlacesGeojsonFeatures: any[] = [];
-
-    const trips = helper.getTrips(person);
-    const selectedTripId: any = helper.getActiveTripId(interview);
-    const selectedTrip = selectedTripId ? trips[selectedTripId] : null;
-    const activeUuid = selectedTrip ? selectedTrip._originVisitedPlaceUuid : null
-    
-    for (let i = 0, count = visitedPlaces.length; i < count; i++)
-    {
-      const visitedPlace              = visitedPlaces[i];
-      const nextVisitedPlace          = visitedPlaces[i + 1];
-      const visitedPlaceGeography     = helper.getGeography(visitedPlace, person, interview);
-      const nextVisitedPlaceGeography = helper.getGeography(nextVisitedPlace, person, interview);
-      if (visitedPlaceGeography)
-      {
-        const visitedPlaceGeojson = visitedPlaceGeography;
-        visitedPlaceGeojson.properties.icon = {
-          url: `/dist/images/activities_icons/${visitedPlace.activity}_marker.svg`,
-          size: [40, 40]
-        };
-        visitedPlaceGeojson.properties.highlighted = false;
-        visitedPlaceGeojson.properties.label       = visitedPlace.name;
-        visitedPlaceGeojson.properties.sequence    = visitedPlace['_sequence'];
-        visitedPlacesGeojsonFeatures.push(visitedPlaceGeojson);
-        
-        if (i < count - 1 && visitedPlaceGeography && nextVisitedPlaceGeography)
-        {
-          const originGeojson      = visitedPlaceGeography;
-          const destinationGeojson = nextVisitedPlaceGeography;
-          if (originGeojson && destinationGeojson)
-          {
-            const midpoint           = turfMidpoint(originGeojson.geometry.coordinates, destinationGeojson.geometry.coordinates);
-            const distance           = turfDistance(originGeojson.geometry.coordinates, destinationGeojson.geometry.coordinates);
-            const bearing            = turfBearing(originGeojson.geometry.coordinates, destinationGeojson.geometry.coordinates);
-            const bezierBearing      = bearing + 90;
-            const offsetMidPoint     = turfDestination(midpoint, 0.15 * distance, bezierBearing);
-            const bezierLine         = turfLineString([originGeojson.geometry.coordinates, offsetMidPoint.geometry.coordinates, destinationGeojson.geometry.coordinates])
-            const bezierCurve        = turfBezierSpline(bezierLine, {sharpness: 1.5});
-            bezierCurve.properties   = { 
-              highlighted : false,
-              birdDistance: distance,
-              sequence    : visitedPlace['_sequence'],
-              active      : (visitedPlace._uuid === activeUuid),
-              bearing
-            };
-            tripsGeojsonFeatures.push(bezierCurve);
-          }
-        }
-      }
-    }
-
-    return {
-      points: {
-        type: "FeatureCollection",
-        features: visitedPlacesGeojsonFeatures
-      },
-      linestrings: {
-        type: "FeatureCollection",
-        features: tripsGeojsonFeatures
-      }
-    };
-  }
-};
+export const personVisitedPlacesMap = getPersonVisitedPlacesMapConfig({ getFormattedDate });
 
 export const personVisitedPlaces: GroupConfig = {
   type: "group",
