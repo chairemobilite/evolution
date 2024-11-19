@@ -579,7 +579,7 @@ export default {
   },
 
   travelBehavior: {
-    previousSection: 'modes',
+    previousSection: 'segments',
     nextSection: "end",
     hiddenInNav: true,
     parentSection: 'tripsIntro',

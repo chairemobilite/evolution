@@ -47,16 +47,13 @@ const SectionNav = function ({
     const { devMode, dispatch } = React.useContext(SurveyContext);
     surveyHelperNew.devLog('%c rendering section nav', 'background: rgba(0,255,255,0.1); font-size: 7px;');
 
-    const sectionShortnames = Object.keys(sections).filter((sectionShortname) => {
-        return (
-            sections[sectionShortname] && !sections[sectionShortname].hiddenInNav && !sections[sectionShortname].isAdmin
-        );
-    });
+    const sectionShortnames = Object.keys(sections);
 
     const completedStatusBySectionShortname = {};
 
     const sectionNavLinks: React.ReactNode[] = [];
     let firstSectionShortname: string | null = null;
+    // FIXME Extract the sections to navigate and their status to a function, but not now as we may revisit the structure of the survey flow
     for (let i = 0, count = sectionShortnames.length; i < count; i++) {
         const sectionShortname = sectionShortnames[i];
         firstSectionShortname = firstSectionShortname || sectionShortname;
@@ -82,30 +79,34 @@ const SectionNav = function ({
         const parentSection = sectionConfig.parentSection || sectionShortname;
         const activeSectionConfig = sections[activeSection];
         const activeParentSection = activeSectionConfig.parentSection;
-        sectionNavLinks.push(
-            <button
-                type="button"
-                key={`sectionNavLink__${sectionShortname}`}
-                className={`nav-button${sectionShortname === activeSection || (activeParentSection && activeParentSection === parentSection) ? ' active-section' : ''}${completed === true ? ' completed-section' : ''}`}
-                onClick={
-                    enabled && loadingState === 0
-                        ? () => onChangeSection(parentSection, activeSection, allWidgetsValid)
-                        : () => {
-                            return;
-                        }
-                }
-                disabled={!enabled || loadingState > 0}
-            >
-                {sectionConfig.menuName[i18n.language]}
-            </button>
-        );
-        if (i < count - 1) {
+        // FIXME The isAdmin property of the section should not exist. The demo_survey used this kind of section, but it may not even be used anymore.
+        if (sectionConfig.hiddenInNav !== true && sectionConfig.isAdmin !== true) {
+            // Add a separator before adding the link if it is not the first section
+            if (sectionNavLinks.length > 0) {
+                sectionNavLinks.push(
+                    <FontAwesomeIcon
+                        icon={faAngleRight}
+                        style={{ marginRight: '0.5rem', marginLeft: '0.5rem' }}
+                        key={`sectionNavLinkArrowSeparator__${sectionShortname}`}
+                    />
+                );
+            }
             sectionNavLinks.push(
-                <FontAwesomeIcon
-                    icon={faAngleRight}
-                    style={{ marginRight: '0.5rem', marginLeft: '0.5rem' }}
-                    key={`sectionNavLinkArrowSeparator__${sectionShortname}`}
-                />
+                <button
+                    type="button"
+                    key={`sectionNavLink__${sectionShortname}`}
+                    className={`nav-button${sectionShortname === activeSection || (activeParentSection && activeParentSection === parentSection) ? ' active-section' : ''}${completed === true ? ' completed-section' : ''}`}
+                    onClick={
+                        enabled && loadingState === 0
+                            ? () => onChangeSection(parentSection, activeSection, allWidgetsValid)
+                            : () => {
+                                return;
+                            }
+                    }
+                    disabled={!enabled || loadingState > 0}
+                >
+                    {sectionConfig.menuName[i18n.language]}
+                </button>
             );
         }
     }
@@ -113,7 +114,7 @@ const SectionNav = function ({
     return (
         <div className="survey-section-nav">
             {sectionNavLinks}
-            {process.env.APP_NAME === 'survey' && user && user.isAuthorized({ Interviews: ['confirm'] }) && (
+            {user && user.isAuthorized({ Interviews: ['confirm'] }) && (
                 <React.Fragment>
                     {' '}
                     •{' '}
