@@ -10,7 +10,7 @@
 import _get from 'lodash/get';
 import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import { pointsToBezierCurve } from '../geodata/SurveyGeographyUtils';
+import { pointsToBezierCurve } from 'evolution-common/lib/services/geodata/SurveyGeographyUtils';
 
 export const generateMapFeatureFromInterview = (
     interview: InterviewAttributes,
