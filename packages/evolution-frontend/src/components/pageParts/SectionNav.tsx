@@ -73,7 +73,8 @@ const SectionNav = function ({
         const parentSection = sectionConfig.parentSection || sectionShortname;
         const activeSectionConfig = sections[activeSection];
         const activeParentSection = activeSectionConfig.parentSection;
-        if (sectionConfig.hiddenInNav !== true) {
+        // Display in the navigation if the section is a top-level one
+        if (sectionConfig.parentSection === undefined) {
             // Add a separator before adding the link if it is not the first section
             if (sectionNavLinks.length > 0) {
                 sectionNavLinks.push(

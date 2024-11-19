@@ -183,9 +183,9 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
         // Right now this is ignored. TODO/FIXME: implement? Find what it should do?
         if (
             this.props.surveyContext.sections[activeSection] &&
-            this.props.surveyContext.sections[activeSection].hiddenInNav
+            this.props.surveyContext.sections[activeSection].parentSection !== undefined
         ) {
-            navActiveSection = this.props.surveyContext.sections[activeSection].parentSection as string | null;
+            navActiveSection = this.props.surveyContext.sections[activeSection].parentSection as string;
         }
 
         let customStyle: React.CSSProperties = {};

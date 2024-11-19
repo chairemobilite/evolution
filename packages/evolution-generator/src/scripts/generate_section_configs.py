@@ -120,8 +120,6 @@ def generate_section_configs(excel_file_path: str):
                 ts_section_code += f"{INDENT}nextSection: nextSectionName,\n"
                 if parent_section is not None:
                     ts_section_code += f"{INDENT}parentSection: parentSectionName,\n"
-                if in_nav == False:
-                    ts_section_code += f"{INDENT}hiddenInNav: true,\n"
                 if title_en and title_fr is not None and in_nav == True:
                     ts_section_code += f"{INDENT}title: {{\n"
                     ts_section_code += f"{INDENT}{INDENT}fr: '{title_fr}',\n"
