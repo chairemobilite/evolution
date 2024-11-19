@@ -344,7 +344,7 @@ export type ButtonWidgetConfig = {
     conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
 };
 
-type SurveyMapObjectProperty = {
+export type SurveyMapObjectProperty = {
     highlighted?: boolean;
     label?: I18nData;
     sequence?: number;
