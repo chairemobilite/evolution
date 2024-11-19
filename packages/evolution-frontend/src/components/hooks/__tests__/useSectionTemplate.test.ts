@@ -27,6 +27,8 @@ describe('useSectionTemplate', () => {
         props = {
             shortname: 'testSection',
             sectionConfig: {
+                previousSection: null,
+                nextSection: null,
                 preload: jest.fn(),
                 widgets: []
             },
