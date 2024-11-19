@@ -9,6 +9,7 @@ import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import { getSwitchPersonWidgets } from 'evolution-common/lib/services/sections/common/widgetsSwitchPerson';
+import { getButtonValidateAndGotoNextSection } from 'evolution-common/lib/services/sections/common/buttonValidateAndGotoNextSection';
 
 const registrationCompletedWidgets = require('./widgets/registrationCompleted.js');
 
@@ -152,33 +153,14 @@ export const completedText: any                                 = endWidgets.com
 
 // multi-sections widgets:
 
-export const buttonSaveNextSection: any = {
-  type: "button",
-  path: "buttonSaveNextSection",
-  color: "green",
-  label: {
-    fr: "Sauvegarder et continuer",
-    en: "Save and continue"
-  },
-  hideWhenRefreshing: true,
-  icon: faCheckCircle,
-  align: 'center',
-  action: surveyHelper.validateButtonAction
-};
+const buttonOptions = {
+    iconMapper: { 'check-circle': faCheckCircle },
+    buttonActions: { validateButtonAction: surveyHelper.validateButtonAction },
+}
 
-export const buttonSaveNextSection2: any = {
-  type: "button",
-  path: "buttonSaveNextSection2",
-  color: "green",
-  label: {
-    fr: "Sauvegarder et continuer",
-    en: "Save and continue"
-  },
-  hideWhenRefreshing: true,
-  icon: faCheckCircle,
-  align: 'center',
-  action: surveyHelper.validateButtonAction
-};
+export const buttonSaveNextSection = getButtonValidateAndGotoNextSection('survey:SaveAndContinue', buttonOptions);
+
+export const buttonSaveNextSection2 = getButtonValidateAndGotoNextSection('survey:SaveAndContinue', buttonOptions);
 
 export const buttonStartNextSection: any = {
   type: "button",
@@ -194,44 +176,8 @@ export const buttonStartNextSection: any = {
   action: surveyHelper.validateButtonAction
 }
 
-export const buttonContinueNextSection: any = {
-  type: "button",
-  path: "buttonContinueNextSection",
-  color: "green",
-  label: {
-    fr: "Continuer",
-    en: "Continue"
-  },
-  hideWhenRefreshing: true,
-  icon: faCheckCircle,
-  align: 'center',
-  action: surveyHelper.validateButtonAction
-};
+export const buttonContinueNextSection = getButtonValidateAndGotoNextSection('survey:Continue', buttonOptions);;
 
-export const buttonConfirmNextSection: any = {
-  type: "button",
-  path: "buttonConfirmNextSection",
-  color: "green",
-  label: {
-    fr: "Confirmer et continuer",
-    en: "Confirm and continue"
-  },
-  hideWhenRefreshing: true,
-  icon: faCheckCircle,
-  align: 'center',
-  action: surveyHelper.validateButtonAction
-};
+export const buttonConfirmNextSection = getButtonValidateAndGotoNextSection('survey:ConfirmAndContinue', buttonOptions);
 
-export const buttonCompleteInterview: any = {
-  type: "button",
-  path: "buttonCompleteInterview",
-  color: "green",
-  label: {
-    fr: "Terminer l'entrevue",
-    en: "Complete interview"
-  },
-  hideWhenRefreshing: true,
-  icon: faCheckCircle,
-  align: 'center',
-  action: surveyHelper.validateButtonAction
-};
+export const buttonCompleteInterview = getButtonValidateAndGotoNextSection('survey:CompleteInterview', buttonOptions);
