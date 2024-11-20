@@ -1,5 +1,5 @@
 # Build Node app
-FROM node:18-bullseye
+FROM node:22-bullseye
 WORKDIR /app
 
 # TODO split package.json copy and yarn install to have some intermediary images
