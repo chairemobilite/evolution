@@ -25,7 +25,7 @@ import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers'
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import i18n              from 'evolution-frontend/lib/config/i18n.config';
 import helper from '../helper';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/widgets';
 import { getPersonVisitedPlacesMapConfig } from 'evolution-common/lib/services/sections/common/widgetPersonVisitedPlacesMap';
@@ -1446,7 +1446,7 @@ export const buttonCancelVisitedPlace = {
   //icon: faCheckCircle,
   align: 'center',
   size: 'small',
-  action: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback) {
+  action: function(callbacks: InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback) {
     const visitedPlacePath = surveyHelperNew.getPath(path, '../');
     helper.deleteVisitedPlace(visitedPlacePath, interview, callbacks.startRemoveGroupedObjects, callbacks.startUpdateInterview);
   }
@@ -1480,7 +1480,7 @@ export const buttonDeleteVisitedPlace = {
       }
     }
   },
-  action: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback) {
+  action: function(callbacks: InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, section, sections, saveCallback) {
     const visitedPlacePath = surveyHelperNew.getPath(path, '../');
     helper.deleteVisitedPlace(visitedPlacePath, interview, callbacks.startRemoveGroupedObjects, callbacks.startUpdateInterview);
   }
@@ -1498,7 +1498,7 @@ export const buttonSaveVisitedPlace = {
   path: 'saveVisitedPlace',
   icon: faCheckCircle,
   align: 'center',
-  saveCallback: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
+  saveCallback: function(callbacks: InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
     const person                   = helper.getPerson(interview);
     const journeys = odSurveyHelper.getJourneysArray({ person });
     const currentJourney = journeys[0];

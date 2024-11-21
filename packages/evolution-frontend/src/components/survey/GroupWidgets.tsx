@@ -14,24 +14,18 @@ import _cloneDeep from 'lodash/cloneDeep';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import {
-    devLog,
-    InterviewUpdateCallbacks,
-    parseBoolean,
-    parseString,
-    translateString
-} from 'evolution-common/lib/utils/helpers';
+import { devLog, parseBoolean, translateString } from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { checkConditional } from '../../actions/utils/Conditional';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
-import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { GroupConfig, InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
 import DeleteGroupedObjectButton from './widgets/DeleteGroupedObjectButton';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InGroupWidget } from './Widget';
 
 type GroupedObjectProps = InterviewUpdateCallbacks & {
-    interview: UserFrontendInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     user: CliUser;
     path: string;
     label?: string;
@@ -128,7 +122,7 @@ type GroupProps = InterviewUpdateCallbacks & {
     /** The name of the widget, to be used as key for translations */
     shortname: string;
     customPath?: string;
-    interview: UserFrontendInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     user: CliUser;
     widgetConfig: GroupConfig;
     loadingState: number;

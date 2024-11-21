@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { UserInterviewAttributes } from "evolution-common/lib/services/interviews/interview";
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import each from 'jest-each';
 
 import { checkValidations } from "../Validation";

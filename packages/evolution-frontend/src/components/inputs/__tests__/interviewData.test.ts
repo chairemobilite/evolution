@@ -1,4 +1,4 @@
-import { UserInterviewAttributes } from "evolution-common/lib/services/interviews/interview";
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 type CustomSurvey = {
     section1?: {

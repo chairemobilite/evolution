@@ -5,11 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { ButtonWidgetConfig } from '../../widgets';
-import { Segment, UserInterviewAttributes } from '../../interviews/interview';
-import { ButtonAction, getPath, getResponse, InterviewUpdateCallbacks } from '../../../utils/helpers';
+import { getPath, getResponse } from '../../../utils/helpers';
 import * as odHelpers from '../../odSurvey/helpers';
 import { TFunction } from 'i18next';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { ButtonAction, InterviewUpdateCallbacks, Segment, UserInterviewAttributes } from '../../questionnaire/types';
 
 export const getButtonSaveTripSegmentsConfig = (
     // FIXME: Type this when there is a few more widgets implemented

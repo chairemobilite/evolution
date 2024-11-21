@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 

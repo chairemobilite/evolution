@@ -10,9 +10,9 @@ import { WidgetConfig } from '../../widgets';
 import { getResponse } from '../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../odSurvey/helpers';
-import { Journey, Person } from '../../interviews/interview';
 import { loopActivities } from '../../odSurvey/types';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
+import { Journey, Person } from '../../questionnaire/types';
 
 export const getSegmentHasNextModeWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented

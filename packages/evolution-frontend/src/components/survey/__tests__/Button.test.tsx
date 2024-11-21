@@ -15,7 +15,7 @@ expect.extend(toHaveNoViolations);
 
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 import Button from '../Button';
-import { WidgetStatus } from '../../../services/interviews/interview';
+import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');

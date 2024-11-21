@@ -12,6 +12,7 @@ import {
     ButtonWidgetConfig,
     ChoiceType,
     GroupConfig,
+    I18nData,
     InfoMapWidgetConfig,
     InputCheckboxType,
     InputDatePickerType,
@@ -23,10 +24,10 @@ import {
     InputSelectType,
     InputStringType,
     InputTextType,
+    ParsingFunction,
     TextWidgetConfig,
     ValidationFunction
-} from 'evolution-common/lib/services/widgets/WidgetConfig';
-import { I18nData, ParsingFunction } from 'evolution-common/lib/utils/helpers';
+} from 'evolution-common/lib/services/questionnaire/types';
 
 /* Define types for all the different input types */
 type ContainsHtml = boolean;

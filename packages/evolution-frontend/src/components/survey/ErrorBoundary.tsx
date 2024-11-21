@@ -7,7 +7,7 @@
 import React from 'react';
 import SurveyErrorPage from '../pages/SurveyErrorPage';
 import { connect } from 'react-redux';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { logClientSideMessage } from '../../services/errorManagement/errorHandling';
 
 interface ErrorProps {

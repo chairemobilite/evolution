@@ -4,19 +4,18 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-// TODO As code migrates to typescript, those types will evolve
-
+// Contains types for the widgets
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { UserInterviewAttributes, InterviewResponsePath, InterviewResponses } from '../interviews/interview';
-import {
-    ParsingFunction,
-    I18nData,
-    InterviewUpdateCallbacks,
-    ParsingFunctionWithCallbacks,
-    ButtonAction
-} from '../../utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { TFunction } from 'i18next';
+import {
+    ButtonAction,
+    I18nData,
+    InterviewResponsePath,
+    ParsingFunction,
+    ParsingFunctionWithCallbacks,
+    UserInterviewAttributes
+} from './Data';
 
 type IconData = {
     url: string | ParsingFunction<string>;

@@ -21,7 +21,7 @@ import helper from '../helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import waterBoundaries  from '../waterBoundaries.json';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { GroupConfig } from 'evolution-common/lib/services/widgets';
 
 const personsWidgets = [
@@ -1086,7 +1086,7 @@ export const buttonSaveNextSectionHouseholdMembers = {
       return allPersonHaveAge && !atLeastOnePersonOlderThan16;
     }
   },
-  saveCallback: function(callbacks: surveyHelperNew.InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
+  saveCallback: function(callbacks: InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
     
     const personsCount  = helper.countPersons(interview);
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);

@@ -8,96 +8,24 @@ import _get from 'lodash/get';
 import _set from 'lodash/set';
 import { v4 as uuidV4 } from 'uuid';
 import sortBy from 'lodash/sortBy';
-import { i18n, TFunction } from 'i18next';
+import { i18n } from 'i18next';
 import moment from 'moment';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InterviewResponses, UserInterviewAttributes } from '../services/interviews/interview';
 import { Uuidable } from '../services/baseObjects/Uuidable';
 import * as odSurveyHelpers from '../services/odSurvey/helpers';
+import {
+    I18nData,
+    InterviewResponses,
+    ParsingFunction,
+    UserInterviewAttributes
+} from '../services/questionnaire/types';
 
 // The helpers in this file are used to manipulate and parse the survey model,
 // regardless of the data it contains. The involve the higher level interview
 // object and the widget data and functions.
-
-// For data manipulation, see the helpers in the odSurvey folder.
-
-export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
-
-export type LangData = {
-    [lang: string]: string | ParsingFunction<string>;
-};
-
-export type TranslatableStringFunction = (
-    t: TFunction,
-    interview: UserInterviewAttributes,
-    path: string,
-    user?: CliUser
-) => string;
-
-export type I18nData = string | LangData | TranslatableStringFunction;
-
-/**
- * Type of the callback to send interview updates to the server
- *
- * @param sectionShortname The shortname of the current section
- * @param valuesByPath The values to update in the interview. The key is the
- * path to update and the value is the new value. A dot-separated path will be
- * exploded to the corresponding nested object path.
- * @param unsetPaths The paths to unset in the interview. A dot-separated path
- * will be exploded to the corresponding nested object path.
- * @param interview The current interview
- * @param callback An optional function to call after the interview has been updated
- * @param history The history object to redirect the user in case of error
- * @returns void
- */
-export type StartUpdateInterview = (
-    sectionShortname: string | null,
-    valuesByPath?: { [path: string]: unknown },
-    unsetPaths?: string[],
-    interview?: UserInterviewAttributes,
-    callback?: (interview: UserInterviewAttributes) => void,
-    history?: History
-) => void;
-
-export type StartAddGroupedObjects = (
-    newObjectsCount: number,
-    insertSequence: number | undefined,
-    path: string,
-    attributes?: { [objectField: string]: unknown }[],
-    callback?: (interview: UserInterviewAttributes) => void,
-    returnOnly?: boolean
-) => any;
-
-export type StartRemoveGroupedObjects = (
-    paths: string | string[],
-    callback?: (interview: UserInterviewAttributes) => void,
-    returnOnly?: boolean
-) => any;
-
-export type InterviewUpdateCallbacks = {
-    startUpdateInterview: StartUpdateInterview;
-    startAddGroupedObjects: StartAddGroupedObjects;
-    startRemoveGroupedObjects: StartRemoveGroupedObjects;
-};
-
-export type ParsingFunctionWithCallbacks<T> = (
-    callbacks: InterviewUpdateCallbacks,
-    interview: UserInterviewAttributes,
-    path: string,
-    user?: CliUser
-) => T;
-
-export type ButtonAction = (
-    callbacks: InterviewUpdateCallbacks,
-    interview: UserInterviewAttributes,
-    path: string,
-    section: string,
-    sections: { [key: string]: any },
-    saveCallback?: ParsingFunctionWithCallbacks<void>
-) => void;
 
 export const translateString = (
     i18nData: I18nData | undefined,

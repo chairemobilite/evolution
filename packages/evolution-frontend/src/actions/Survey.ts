@@ -29,24 +29,23 @@ const fetch = async (url, opts) => {
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { prepareWidgets } from './utils';
-import { UserFrontendInterviewAttributes } from '../services/interviews/interview';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import i18n from '../config/i18n.config';
 import { handleClientError, handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import applicationConfiguration from '../config/application.config';
-import config from 'chaire-lib-common/lib/config/shared/project.config';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 // called whenever an update occurs in interview responses or when section is switched to
 // TODO: unit test
 export const updateSection = (
     sectionShortname: string,
-    _interview: UserFrontendInterviewAttributes,
+    _interview: UserRuntimeInterviewAttributes,
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
     user?: CliUser
-): [UserFrontendInterviewAttributes, { [path: string]: unknown }] => {
+): [UserRuntimeInterviewAttributes, { [path: string]: unknown }] => {
     let interview = _cloneDeep(_interview);
     let needToUpdate = true; // will stay true if an assigned value changed the initial value after a conditional failed
     let updateCount = 0;
@@ -74,8 +73,8 @@ const startUpdateInterviewCallback = async (
     requestedSectionShortname: string | null,
     valuesByPath: { [path: string]: unknown } = {},
     unsetPaths?: string[],
-    initialInterview?: UserFrontendInterviewAttributes,
-    callback?: (interview: UserFrontendInterviewAttributes) => void,
+    initialInterview?: UserRuntimeInterviewAttributes,
+    callback?: (interview: UserRuntimeInterviewAttributes) => void,
     history?: History
 ) => {
     try {
@@ -269,7 +268,7 @@ const startUpdateInterviewCallback = async (
 };
 
 export const updateInterview = (
-    interview: UserFrontendInterviewAttributes,
+    interview: UserRuntimeInterviewAttributes,
     errors: {
         [path: string]: {
             [lang: string]: string;
@@ -301,8 +300,8 @@ export const startUpdateInterview = (
     sectionShortname: string | null,
     valuesByPath?: { [path: string]: unknown },
     unsetPaths?: string[],
-    interview?: UserFrontendInterviewAttributes,
-    callback?: (interview: UserFrontendInterviewAttributes) => void,
+    interview?: UserRuntimeInterviewAttributes,
+    callback?: (interview: UserRuntimeInterviewAttributes) => void,
     history?: History
 ) => ({
     queue: 'UPDATE_INTERVIEW',
@@ -348,7 +347,7 @@ export const startAddGroupedObjects = (
     insertSequence: number | undefined,
     path: string,
     attributes: { [objectField: string]: unknown }[] = [],
-    callback?: (interview: UserFrontendInterviewAttributes) => void,
+    callback?: (interview: UserRuntimeInterviewAttributes) => void,
     returnOnly = false
 ) => {
     surveyHelper.devLog(`Add ${newObjectsCount} grouped objects for path ${path} at sequence ${insertSequence}`);
@@ -384,7 +383,7 @@ export const startAddGroupedObjects = (
 // TODO: unit test
 export const startRemoveGroupedObjects = function (
     paths: string | string[],
-    callback?: (interview: UserFrontendInterviewAttributes) => void,
+    callback?: (interview: UserRuntimeInterviewAttributes) => void,
     returnOnly = false
 ) {
     surveyHelper.devLog('Remove grouped objects at paths', paths);

@@ -8,7 +8,7 @@
  * de-serialized interview object, when the admin's Interview objects are ready
  * to be used with sufficient defaults in evolution */
 import _get from 'lodash/get';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { pointsToBezierCurve } from 'evolution-common/lib/services/geodata/SurveyGeographyUtils';
 

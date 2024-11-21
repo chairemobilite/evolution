@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { ValidationFunction } from './WidgetConfig';
+import { ValidationFunction } from '../questionnaire/types/WidgetConfig';
 import { ParserFunction } from '../parsers/ParserFunction';
 
 /**

@@ -15,15 +15,15 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import applicationConfiguration from '../../config/application.config';
 import { checkConditional, checkChoicesConditional } from './Conditional';
 import { checkValidations } from './Validation';
-import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
+import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 
 // Data for the survey, with values to update
 type CurrentPreparationData = {
     affectedPaths: { [path: string]: boolean };
     valuesByPath: { [path: string]: unknown };
-    interview: UserFrontendInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     foundOneOpenedModal: boolean;
     needToUpdate: boolean;
     updateKey: boolean;
@@ -347,12 +347,12 @@ const prepareWidget = function (data: CurrentPreparationData, widgetPrepData: Wi
 
 export const prepareWidgets = function (
     sectionShortname: string,
-    interview: UserFrontendInterviewAttributes,
+    interview: UserRuntimeInterviewAttributes,
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
     user?: CliUser
-): [UserFrontendInterviewAttributes, { [path: string]: unknown }, boolean, boolean] {
+): [UserRuntimeInterviewAttributes, { [path: string]: unknown }, boolean, boolean] {
     interview.previousWidgets = _cloneDeep(interview.widgets || {});
     interview.previousGroups = _cloneDeep(interview.groups || {});
     interview.widgets = {};

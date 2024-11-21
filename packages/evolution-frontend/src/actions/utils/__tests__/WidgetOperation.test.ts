@@ -8,8 +8,8 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import { prepareWidgets } from '../WidgetOperation';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
-import { SurveyWidgets, UserFrontendInterviewAttributes } from '../../../services/interviews/interview';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { SurveyWidgets, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { checkConditional, checkChoicesConditional } from '../Conditional';
 import { checkValidations } from '../Validation';
 
@@ -144,7 +144,7 @@ const userInterviewAttributes: UserInterviewAttributes = {
     } as any,
     is_valid: true,
 }
-const interviewAttributes: UserFrontendInterviewAttributes = {
+const interviewAttributes: UserRuntimeInterviewAttributes = {
     ...userInterviewAttributes,
     widgets: {},
     groups: {},

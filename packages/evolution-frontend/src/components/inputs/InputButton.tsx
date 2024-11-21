@@ -9,7 +9,7 @@ import React from 'react';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { ChoiceType, InputButtonType } from 'evolution-common/lib/services/widgets';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

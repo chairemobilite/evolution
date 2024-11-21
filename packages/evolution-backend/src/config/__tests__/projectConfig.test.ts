@@ -4,7 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { InterviewListAttributes, InterviewStatusAttributesBase } from 'evolution-common/lib/services/interviews/interview';
+
+import { InterviewListAttributes, InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 import projectConfig, { defaultConfig, setProjectConfig } from '../projectConfig';
 
 const interview: InterviewListAttributes = {

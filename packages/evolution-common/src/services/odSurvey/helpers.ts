@@ -17,7 +17,7 @@ import {
     Trip,
     UserInterviewAttributes,
     VisitedPlace
-} from '../interviews/interview';
+} from '../questionnaire/types';
 import { TFunction } from 'i18next';
 import config from '../../config/project.config';
 import { loopActivities } from './types';

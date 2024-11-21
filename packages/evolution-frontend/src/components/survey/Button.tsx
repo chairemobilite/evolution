@@ -11,12 +11,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import { ButtonWidgetConfig } from 'evolution-common/lib/services/widgets';
-import { WidgetStatus } from '../../services/interviews/interview';
+import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
-type ButtonProps = surveyHelper.InterviewUpdateCallbacks & {
+type ButtonProps = InterviewUpdateCallbacks & {
     widgetConfig: ButtonWidgetConfig;
     widgetStatus: WidgetStatus;
     loadingState: number;

@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import * as React from 'react';
-import { SurveySections } from '../services/interviews/interview';
+import { SurveySections } from 'evolution-common/lib/services/questionnaire/types';
 
 // TODO This type is probably WidgetConfig from '../services/widgets'. But it is not complete yet and it's to be confirmed
 export type SurveyWidgets = { [key: string]: any };

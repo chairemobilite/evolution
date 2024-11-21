@@ -5,12 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { GroupedChoiceType, ChoiceType, isGroupedChoice } from 'evolution-common/lib/services/widgets/WidgetConfig';
-import { ParsingFunction } from 'evolution-common/lib/utils/helpers';
+import { GroupedChoiceType, ChoiceType, isGroupedChoice } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { ParsingFunction, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 // FIXME: This type is very close to the ParsingFunction type in the frontendHelpers, but it has also a customPath. Is it required? Ideally, we could use the ParsingFunction type
 export type ConditionalFunction = (

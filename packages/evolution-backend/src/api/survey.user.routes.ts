@@ -14,11 +14,12 @@ import moment from 'moment';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import Interviews from '../services/interviews/interviews';
-import { addRolesToInterview, updateInterview } from '../services/interviews/interview';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import serverConfig from '../config/projectConfig';
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
 import { logClientSide } from '../services/logging/messageLogging';
+import { addRolesToInterview, updateInterview } from '../services/interviews/interview';
 
 export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMiddlewares): Router => {
     const router = express.Router();

@@ -10,7 +10,7 @@ import Interviews from '../interviews/interviews';
 import definePermissionsFor from 'chaire-lib-backend/lib/services/auth/userPermissions';
 import { InterviewSubject } from './roleDefinition';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 export type permissionType = 'read' | 'update' | 'validate' | 'confirm' | 'delete' | 'create';
 

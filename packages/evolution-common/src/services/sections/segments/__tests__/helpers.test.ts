@@ -10,7 +10,7 @@ import * as odHelpers from '../../../odSurvey/helpers';
 import { interviewAttributesForTestCases } from '../../../../tests/surveys';
 import { getResponse, setResponse } from '../../../../utils/helpers';
 import * as helpers from '../helpers';
-import { Journey, Person } from '../../../interviews/interview';
+import { Journey, Person } from '../../../questionnaire/types';
 
 describe('getPreviousTripSingleSegment', () => {
 

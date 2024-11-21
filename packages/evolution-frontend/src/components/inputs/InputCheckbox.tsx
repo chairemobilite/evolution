@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { InputCheckboxType, ChoiceType } from 'evolution-common/lib/services/widgets';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { CommonInputProps } from './CommonInputProps';
 import { sortByParameters } from './InputChoiceSorting';

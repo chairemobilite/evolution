@@ -8,7 +8,6 @@ import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/interviews/interview';
 import InterviewList from './InterviewList';
 import ValidityColumnFilter from './ValidityColumnFilter';
 import InterviewCompletedFilter from './InterviewCompletedFilter';
@@ -22,6 +21,7 @@ import { faEnvelope as faValidationComment } from '@fortawesome/free-solid-svg-i
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { handleHttpOtherResponseCode } from '../../../services/errorManagement/errorHandling';
 import { Dispatch } from 'redux';
+import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 
 interface InterviewListComponentProps extends WithTranslation {
     onInterviewSummaryChanged: (uuid: string, prevUuid?: string, nextUuid?: string) => void;

@@ -18,14 +18,14 @@ import interviewsDbQueries, {
     ValueFilterType
 } from '../../models/interviews.db.queries';
 import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.queries';
+import { UserInterviewAccesses } from '../logging/loggingTypes';
+import { Audits } from '../../services/audits/Audits';
+import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 import {
     InterviewAttributes,
     InterviewListAttributes,
     UserInterviewAttributes
-} from 'evolution-common/lib/services/interviews/interview';
-import { UserInterviewAccesses } from '../logging/loggingTypes';
-import { Audits } from '../../services/audits/Audits';
-import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
+} from 'evolution-common/lib/services/questionnaire/types';
 
 export type FilterType = string | string[] | ValueFilterType;
 

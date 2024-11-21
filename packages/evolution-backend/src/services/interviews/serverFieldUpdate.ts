@@ -1,4 +1,4 @@
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import prefilledDbQueries from '../../models/interviewsPreFill.db.queries';
 

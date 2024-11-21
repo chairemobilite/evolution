@@ -16,7 +16,7 @@ import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers'
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from './helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { SectionConfig } from 'evolution-frontend/lib/services/interviews/interview';
+import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 
 
 const homeWidgets = [
