@@ -14,10 +14,10 @@ import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { getCurrentGoogleMapConfig } from '../../config/googleMaps.config';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import InputLoading from '../inputs/InputLoading';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { WidgetStatus } from '../../services/interviews/interview';
-import { InfoMapWidgetConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
+import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
+import { InfoMapWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 
 // TODO This is a google info map. Either it remains google and we should see if
 // we can extract common code with the InputMapGoogle widget, or transform to

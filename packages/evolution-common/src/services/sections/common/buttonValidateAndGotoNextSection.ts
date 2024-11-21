@@ -5,9 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { ButtonWidgetConfig } from '../../widgets';
-import { ButtonAction } from '../../../utils/helpers';
 import { TFunction } from 'i18next';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { ButtonAction } from '../../questionnaire/types';
 
 /**
  * Get the configuration for a button that will call the `validateButtonAction`

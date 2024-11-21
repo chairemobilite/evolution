@@ -6,9 +6,9 @@
  */
 
 import { GroupConfig } from '../../widgets';
-import { Segment } from '../../interviews/interview';
 import { getResponse } from '../../../utils/helpers';
 import { TFunction } from 'i18next';
+import { Segment } from '../../questionnaire/types';
 
 export const getSegmentsGroupConfig = (
     // FIXME: Type this when there is a few more widgets implemented

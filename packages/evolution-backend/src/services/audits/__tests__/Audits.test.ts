@@ -9,7 +9,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import auditsDbQueries from '../../../models/audits.db.queries';
 import { Audits } from '../Audits';
 import { setProjectConfig } from '../../../config/projectConfig';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 jest.mock('../../../models/audits.db.queries', () => ({
     setAuditsForInterview: jest.fn(),

@@ -10,7 +10,6 @@
 import React from 'react';
 import { useTable, usePagination, useFilters, useSortBy } from 'react-table';
 import { WithTranslation, withTranslation } from 'react-i18next';
-import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/interviews/interview';
 import { LoadingPage } from 'chaire-lib-frontend/lib/components/pages';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
@@ -18,6 +17,7 @@ import { faSortAmountDown } from '@fortawesome/free-solid-svg-icons/faSortAmount
 import { faSortAmountDownAlt } from '@fortawesome/free-solid-svg-icons/faSortAmountDownAlt';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 
 interface UsersTableProps extends WithTranslation {
     columns: any[];

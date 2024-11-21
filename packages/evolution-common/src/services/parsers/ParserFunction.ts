@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { UserInterviewAttributes, InterviewResponses, Household, Person } from '../interviews/interview';
+import { UserInterviewAttributes, InterviewResponses, Household, Person } from '../questionnaire/types';
 
 /**
  * Parser function to change/manipulate/enhance values for export.

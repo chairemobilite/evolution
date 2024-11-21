@@ -8,7 +8,7 @@ import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FilterProps } from 'react-table';
 
-import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 /**
  * Textbox input for column filter

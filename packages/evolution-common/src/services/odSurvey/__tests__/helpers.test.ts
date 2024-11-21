@@ -6,11 +6,11 @@
  */
 import each from 'jest-each';
 import _cloneDeep from 'lodash/cloneDeep';
-import { Journey, Person, Trip, UserInterviewAttributes } from '../../interviews/interview';
 import { interviewAttributesForTestCases } from '../../../tests/surveys';
 
 import * as Helpers from '../helpers';
 import projectConfig from '../../../config/project.config';
+import { Journey, Person, Trip, UserInterviewAttributes } from '../../questionnaire/types';
 
 const baseInterviewAttributes: Pick<UserInterviewAttributes, 'id' | 'uuid' | 'participant_id' | 'is_completed' | 'is_questionable' | 'is_valid'> = {
     id: 1,

@@ -10,10 +10,10 @@ import { FilterProps } from 'react-table';
 import _isEqual from 'lodash/isEqual';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 
-import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
 import InputString from 'chaire-lib-frontend/lib/components/input/InputString';
 import InputButton from 'chaire-lib-frontend/lib/components/input/Button';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 /**
  * Textbox input for access code filter

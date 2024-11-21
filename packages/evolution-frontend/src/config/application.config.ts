@@ -3,7 +3,7 @@ import appConfig, {
     setApplicationConfiguration
 } from 'chaire-lib-frontend/lib/config/application.config';
 import React from 'react';
-import { SurveySections, SurveyWidgets } from '../services/interviews/interview';
+import { SurveySections, SurveyWidgets } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 
 export type EvolutionApplicationConfiguration = {

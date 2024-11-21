@@ -8,7 +8,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { v4 as uuidV4 } from 'uuid';
 import { updateInterview, setInterviewFields, copyResponsesToValidatedData } from '../interview';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import interviewsQueries from '../../../models/interviews.db.queries';
 import serverValidate from '../../validations/serverValidation';
 import serverUpdate from '../serverFieldUpdate';

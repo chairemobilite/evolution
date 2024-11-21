@@ -6,10 +6,10 @@
  */
 
 import _isEqual from 'lodash/isEqual';
-import { Journey, Person, Segment, Trip, UserInterviewAttributes } from '../../interviews/interview';
 import * as helper from '../../odSurvey/helpers';
 import { loopActivities, simpleModes } from '../../odSurvey/types';
 import { Optional } from '../../../types/Optional.type';
+import { Journey, Person, Segment, Trip, UserInterviewAttributes } from '../../questionnaire/types';
 
 /**
  * Get the mode used in the single segment of the previous trip of the active

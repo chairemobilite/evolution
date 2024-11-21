@@ -6,18 +6,18 @@
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
-import {
-    InterviewAttributes,
-    INTERVIEWER_PARTICIPANT_PREFIX,
-    InterviewListAttributes,
-    UserInterviewAttributes
-} from 'evolution-common/lib/services/interviews/interview';
+import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 import { _booleish, _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 import { isFeature, isPolygon } from 'geojson-validation';
 import knexPostgis from 'knex-postgis';
 import { QueryBuilder } from 'knex';
+import {
+    InterviewAttributes,
+    InterviewListAttributes,
+    UserInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 
 const st = knexPostgis(knex);
 

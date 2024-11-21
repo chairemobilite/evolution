@@ -10,7 +10,7 @@ import { interviewAttributesForTestCases } from '../../../../tests/surveys';
 import * as odHelpers from '../../../odSurvey/helpers';
 import projectConfig from '../../../../config/project.config';
 import { pointsToBezierCurve } from '../../../geodata/SurveyGeographyUtils';
-import { VisitedPlace } from '../../../interviews/interview';
+import { VisitedPlace } from '../../../questionnaire/types';
 
 jest.mock('../../../odSurvey/helpers', () => ({
     getActivePerson: jest.fn().mockReturnValue({}),

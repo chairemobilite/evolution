@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 // TODO Projects define server-side validations for fields. For now, we will use something similar to the client-side validation, for ease of use, but there should be a better way to do this, without having all validations in a single file
 export type ServerValidation =

@@ -22,7 +22,7 @@ import {
     InputStringType,
     InputTextType,
     TextWidgetConfig
-} from 'evolution-common/lib/services/widgets/WidgetConfig';
+} from 'evolution-common/lib/services/questionnaire/types';
 
 // TODO: Make sure to add tests for these default inputs
 

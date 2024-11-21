@@ -5,9 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { I18nData, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { ValidationFunction } from 'evolution-common/lib/services/widgets';
-import { I18nData } from 'evolution-common/lib/utils/helpers';
 
 /**
  * Check the validations for a specific value

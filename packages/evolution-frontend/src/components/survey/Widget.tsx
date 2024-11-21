@@ -15,16 +15,16 @@ import Button from '../survey/Button';
 import Question from '../survey/Question';
 import { Group } from '../survey/GroupWidgets';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
-import { UserFrontendInterviewAttributes, WidgetStatus } from '../../services/interviews/interview';
+import { UserRuntimeInterviewAttributes, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { InterviewUpdateCallbacks } from 'evolution-common/lib/utils/helpers';
 import { WidgetConfig } from 'evolution-common/lib/services/widgets';
+import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
 
 export type WidgetProps = {
     currentWidgetShortname: string;
     nextWidgetShortname?: string;
     sectionName: string;
-    interview: UserFrontendInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     errors?: { [path: string]: string };
     user: CliUser;
     loadingState: number;

@@ -29,10 +29,10 @@ import InputText from '../inputs/InputText';
 import Modal from 'react-modal';
 import { checkValidations } from '../../actions/utils';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { StartUpdateInterview, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
-import { WidgetStatus } from '../../services/interviews/interview';
+import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import InputWidgetWrapper from './widgets/InputWidgetWrapper';
 
 interface QuestionProps {
@@ -45,7 +45,7 @@ interface QuestionProps {
     interview: UserInterviewAttributes;
     user: CliUser;
     widgetStatus: WidgetStatus;
-    startUpdateInterview: surveyHelper.StartUpdateInterview;
+    startUpdateInterview: StartUpdateInterview;
 }
 
 type QuestionState = {

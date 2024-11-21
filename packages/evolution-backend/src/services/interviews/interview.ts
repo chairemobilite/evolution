@@ -13,9 +13,9 @@ import serverValidate, { ServerValidation } from '../validations/serverValidatio
 import serverUpdateField from './serverFieldUpdate';
 import config from 'chaire-lib-backend/lib/config/server.config';
 import interviewsDbQueries from '../../models/interviews.db.queries';
-import { UserInterviewAttributes, InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import projectConfig from '../../config/projectConfig';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { InterviewAttributes, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 export const addRolesToInterview = (interview: UserInterviewAttributes, user: UserAttributes) => {
     // Add the userRoles in the interview object

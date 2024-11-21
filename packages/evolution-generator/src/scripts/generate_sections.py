@@ -28,7 +28,7 @@ def generate_sections(excel_file_path: str, sections_output_file_path: str):
         ts_code += add_generator_comment()
 
         # Generate the import statements
-        ts_code += f"import {{ SurveySections }} from 'evolution-frontend/lib/services/interviews/interview';\n"
+        ts_code += f"import {{ SurveySections }} from 'evolution-common/lib/services/questionnaire/types';\n"
         # Loop through each section and generate an import statement
         for section in sections_names:
             ts_code += (

@@ -13,7 +13,7 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { Widget } from '../survey/Widget';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
-import { SectionConfig, UserFrontendInterviewAttributes } from '../../services/interviews/interview';
+import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { SectionProps, useSectionTemplate } from '../hooks/useSectionTemplate';
 

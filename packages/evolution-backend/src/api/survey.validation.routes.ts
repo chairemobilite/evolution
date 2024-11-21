@@ -15,10 +15,10 @@ import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userA
 import projectConfig from '../config/projectConfig';
 import { mapResponsesToValidatedData } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
 import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Audits } from '../services/audits/Audits';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 const router = express.Router();
 

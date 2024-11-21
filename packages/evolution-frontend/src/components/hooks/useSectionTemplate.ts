@@ -8,14 +8,14 @@ import { useEffect, useState } from 'react';
 import { createBrowserHistory } from 'history';
 import { getPathForSection } from '../../services/url'; // Adjust the import path
 import _get from 'lodash/get';
-import { SectionConfig, UserFrontendInterviewAttributes } from '../../services/interviews/interview';
+import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { InterviewUpdateCallbacks } from 'evolution-common/lib/utils/helpers';
+import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
 
 export type SectionProps = {
     shortname: string;
     sectionConfig: SectionConfig;
-    interview: UserFrontendInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     errors: { [path: string]: string };
     user: CliUser;
     allWidgetsValid?: boolean;

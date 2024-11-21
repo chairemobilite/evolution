@@ -9,9 +9,9 @@ import { InfoMapWidgetConfig, SurveyMapObjectProperty } from '../../widgets';
 
 import * as odHelpers from '../../odSurvey/helpers';
 import { TFunction } from 'i18next';
-import { UserInterviewAttributes } from '../../interviews/interview';
 import projectConfig from '../../../config/project.config';
 import { pointsToBezierCurve } from '../../geodata/SurveyGeographyUtils';
+import { UserInterviewAttributes } from '../../questionnaire/types';
 
 export const getPersonVisitedPlacesMapConfig = (
     // FIXME: Type this when there is a few more widgets implemented

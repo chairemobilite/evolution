@@ -4,14 +4,14 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { AuditForObject, SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+import { ServerFieldUpdateCallback } from '../services/interviews/serverFieldUpdate';
+import { ServerValidation } from '../services/validations/serverValidation';
 import {
     InterviewAttributes,
     InterviewListAttributes,
     InterviewStatusAttributesBase
-} from 'evolution-common/lib/services/interviews/interview';
-import { ServerFieldUpdateCallback } from '../services/interviews/serverFieldUpdate';
-import { ServerValidation } from '../services/validations/serverValidation';
+} from 'evolution-common/lib/services/questionnaire/types';
 
 interface ProjectServerConfig {
     /**

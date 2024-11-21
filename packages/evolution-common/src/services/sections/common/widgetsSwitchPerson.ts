@@ -7,9 +7,8 @@
 
 import { ButtonWidgetConfig, TextWidgetConfig } from '../../widgets';
 import * as odHelpers from '../../odSurvey/helpers';
-import { InterviewUpdateCallbacks } from '../../../utils/helpers';
 import { TFunction } from 'i18next';
-import { UserInterviewAttributes } from '../../interviews/interview';
+import { InterviewUpdateCallbacks, UserInterviewAttributes } from '../../questionnaire/types';
 
 const hasMoreThanOneInterviewablePerson = (interview: UserInterviewAttributes): boolean =>
     odHelpers.getInterviewablePersonsArray({ interview }).length > 1;

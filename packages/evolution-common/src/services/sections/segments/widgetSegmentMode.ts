@@ -7,13 +7,13 @@
 import _upperFirst from 'lodash/upperFirst';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { WidgetConfig } from '../../widgets';
-import { getResponse, ParsingFunction } from '../../../utils/helpers';
+import { getResponse } from '../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../odSurvey/helpers';
-import { Person, Segment } from '../../interviews/interview';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
 import { Mode, modeValues } from '../../baseObjects/attributeTypes/SegmentAttributes';
 import { modePreToModeMap } from '../../odSurvey/types';
+import { ParsingFunction, Person, Segment } from '../../questionnaire/types';
 
 // FIXME Move in helpers if required
 const conditionalPersonMayHaveDisability = (interview) => {

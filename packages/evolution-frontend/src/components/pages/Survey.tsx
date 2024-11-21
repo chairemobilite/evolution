@@ -26,20 +26,20 @@ import { validateAllWidgets } from '../../actions/utils';
 import { withPreferencesHOC } from '../hoc/WithPreferencesHoc';
 import { overrideConsoleLogs } from '../../services/errorManagement/errorHandling';
 import { restoreConsoleLogs } from '../../services/errorManagement/errorHandling';
-import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { History, Location } from 'history';
 import { InterviewContext } from '../../contexts/InterviewContext';
-import {
-    StartUpdateInterview,
-    StartAddGroupedObjects,
-    StartRemoveGroupedObjects
-} from 'evolution-common/lib/utils/helpers';
 import { SectionProps } from '../hooks/useSectionTemplate';
+import {
+    StartAddGroupedObjects,
+    StartRemoveGroupedObjects,
+    StartUpdateInterview
+} from 'evolution-common/lib/services/questionnaire/types';
 
 export type SurveyProps = {
-    interview: UserFrontendInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     interviewLoaded: boolean;
     errors: { [path: string]: string };
     submitted: boolean;

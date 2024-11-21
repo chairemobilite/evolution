@@ -10,9 +10,9 @@ import { WidgetConfig } from '../../widgets';
 import { getResponse } from '../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../odSurvey/helpers';
-import { Person, Segment } from '../../interviews/interview';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
+import { Person, Segment } from '../../questionnaire/types';
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
 const getModePreChoices = () => [

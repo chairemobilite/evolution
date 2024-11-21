@@ -11,9 +11,10 @@ import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { SurveyContext } from '../../contexts/SurveyContext';
-import { SectionConfig, UserFrontendInterviewAttributes } from '../../services/interviews/interview';
+import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { devLog, parseBoolean, StartUpdateInterview, translateString } from 'evolution-common/lib/utils/helpers';
+import { devLog, parseBoolean, translateString } from 'evolution-common/lib/utils/helpers';
+import { StartUpdateInterview } from 'evolution-common/lib/services/questionnaire/types';
 
 type SectionNavProps = {
     activeSection: string;
@@ -24,7 +25,7 @@ type SectionNavProps = {
         allWidgetsValid: boolean,
         e?: React.FormEvent<HTMLFormElement>
     ) => void;
-    interview: UserFrontendInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     allWidgetsValid: boolean;
     loadingState: number;
     startUpdateInterview: StartUpdateInterview;

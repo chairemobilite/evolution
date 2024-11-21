@@ -7,7 +7,7 @@
 import { v4 as uuidV4 } from 'uuid';
 
 import Interviews from '../interviews';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import interviewsQueries from '../../../models/interviews.db.queries';
 import interviewsAccessesQueries from '../../../models/interviewsAccesses.db.queries';
 import { registerAccessCodeValidationFunction } from '../../accessCode';

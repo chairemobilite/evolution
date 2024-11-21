@@ -8,7 +8,7 @@
 import { TextWidgetConfig } from '../../widgets';
 import * as odHelpers from '../../odSurvey/helpers';
 import { TFunction } from 'i18next';
-import { UserInterviewAttributes } from '../../interviews/interview';
+import { UserInterviewAttributes } from '../../questionnaire/types';
 
 export const getPersonsTripsTitleWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented

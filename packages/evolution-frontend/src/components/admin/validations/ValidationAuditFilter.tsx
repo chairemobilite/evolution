@@ -12,7 +12,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import Select from 'react-select';
 
 import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
-import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 const auditLevels = ['error', 'warning', 'info'];
 

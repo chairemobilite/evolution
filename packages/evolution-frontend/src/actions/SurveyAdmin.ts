@@ -25,7 +25,7 @@ const fetch = async (url, opts) => {
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { UserFrontendInterviewAttributes } from '../services/interviews/interview';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import { updateSection, updateInterview } from './Survey';
@@ -34,8 +34,8 @@ export const startUpdateSurveyValidateInterview = function (
     sectionShortname: string | null,
     valuesByPath: { [path: string]: unknown } | null = null,
     unsetPaths: string[] | null = null,
-    interview: UserFrontendInterviewAttributes | null = null,
-    callback: (interview: UserFrontendInterviewAttributes) => void
+    interview: UserRuntimeInterviewAttributes | null = null,
+    callback: (interview: UserRuntimeInterviewAttributes) => void
 ) {
     return {
         queue: 'UPDATE_INTERVIEW',
@@ -98,7 +98,7 @@ export const startUpdateSurveyValidateInterview = function (
                     sectionShortname === 'validationOnePager'
                         ? 'validationOnePager'
                         : (surveyHelper.getResponse(
-                              interview as UserFrontendInterviewAttributes,
+                              interview as UserRuntimeInterviewAttributes,
                               '_activeSection',
                               sectionShortname
                         ) as string);
@@ -108,7 +108,7 @@ export const startUpdateSurveyValidateInterview = function (
                 //}
                 const updatedInterviewAndValuesByPath = updateSection(
                     sectionShortname,
-                    interview as UserFrontendInterviewAttributes,
+                    interview as UserRuntimeInterviewAttributes,
                     affectedPaths,
                     valuesByPath as { [path: string]: unknown }
                 );
@@ -195,7 +195,7 @@ export const startUpdateSurveyValidateInterview = function (
 // TODO: unit test
 export const startSetSurveyValidateInterview = (
     interviewUuid: string,
-    callback: (interview: UserFrontendInterviewAttributes) => void = function () {
+    callback: (interview: UserRuntimeInterviewAttributes) => void = function () {
         return;
     }
 ) => {

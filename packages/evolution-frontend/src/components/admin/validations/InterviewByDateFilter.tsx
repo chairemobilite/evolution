@@ -9,7 +9,7 @@ import { WithTranslation, withTranslation } from 'react-i18next';
 import { FilterProps } from 'react-table';
 import _isEqual from 'lodash/isEqual';
 
-import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import DatePicker from 'react-datepicker';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 

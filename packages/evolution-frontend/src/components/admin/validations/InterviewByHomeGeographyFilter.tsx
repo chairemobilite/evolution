@@ -10,7 +10,7 @@ import { FilterProps } from 'react-table';
 import _isEqual from 'lodash/isEqual';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 
-import { InterviewListAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import InputText from 'chaire-lib-frontend/lib/components/input/InputText';
 import InputButton from 'chaire-lib-frontend/lib/components/input/Button';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';

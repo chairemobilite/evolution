@@ -17,14 +17,14 @@ import { GroupedObject } from '../GroupWidgets';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { withSurveyContext, WithSurveyContextProps } from '../../hoc/WithSurveyContextHoc';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
-import { SectionConfig, UserFrontendInterviewAttributes } from '../../../services/interviews/interview';
+import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import * as helpers from 'evolution-common/lib/utils/helpers';
 import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../services/display/frontendHelper';
-import { VisitedPlace } from 'evolution-common/lib/services/interviews/interview';
 import { loopActivities } from 'evolution-common/lib/services/odSurvey/types';
+import { VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 
 export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (
     props: SectionProps & WithTranslation & WithSurveyContextProps

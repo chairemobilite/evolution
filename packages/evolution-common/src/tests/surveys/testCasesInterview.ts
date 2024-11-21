@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { UserInterviewAttributes } from '../../services/interviews/interview';
+import { UserInterviewAttributes } from '../../services/questionnaire/types';
 
 const baseInterviewAttributes: Pick<
     UserInterviewAttributes,

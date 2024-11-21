@@ -8,7 +8,7 @@
 import fetchMock from 'jest-fetch-mock';
 import _cloneDeep from 'lodash/cloneDeep';
 import { addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
-import { UserFrontendInterviewAttributes } from '../../services/interviews/interview';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import * as SurveyActions from '../Survey';
 import { prepareWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
@@ -38,7 +38,7 @@ const mockedHandleHttpOtherResponseCode = handleHttpOtherResponseCode as jest.Mo
 const mockedHandleClientError = handleClientError as jest.MockedFunction<typeof handleClientError>;
 
 // Default interview data
-const interviewAttributes: UserFrontendInterviewAttributes = {
+const interviewAttributes: UserRuntimeInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,

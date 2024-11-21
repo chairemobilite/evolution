@@ -8,9 +8,8 @@ import { TFunction } from 'i18next';
 import moment from 'moment';
 
 import i18n from '../../config/i18n.config';
-import { Person } from 'evolution-common/lib/services/interviews/interview';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import { ButtonAction } from 'evolution-common/lib/utils/helpers';
+import { ButtonAction, Person } from 'evolution-common/lib/services/questionnaire/types';
 
 type GenderedData = {
     [gender: string]: {

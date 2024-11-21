@@ -6,7 +6,7 @@
  */
 import serverValidation from '../serverValidation';
 import each from 'jest-each';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 const validations = {
     testField: {

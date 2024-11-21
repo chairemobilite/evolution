@@ -8,17 +8,12 @@ import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import {
-    InterviewUpdateCallbacks,
-    parseBoolean,
-    parseString,
-    translateString
-} from 'evolution-common/lib/utils/helpers';
+import { parseBoolean, parseString, translateString } from 'evolution-common/lib/utils/helpers';
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { GroupConfig } from 'evolution-common/lib/services/widgets/WidgetConfig';
+import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 
 type DeleteGroupedObjectButton = InterviewUpdateCallbacks & {
     interview: UserInterviewAttributes;

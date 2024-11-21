@@ -9,10 +9,10 @@ import i18n from 'i18next';
 import moment from 'moment';
 import { v4 as uuidV4 } from 'uuid';
 import _cloneDeep from 'lodash/cloneDeep';
-import { Person, UserInterviewAttributes } from '../../services/interviews/interview';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 
 import * as Helpers from '../helpers';
+import { UserInterviewAttributes } from '../../services/questionnaire/types';
 
 jest.mock('i18next', () => ({
     t: jest.fn(),

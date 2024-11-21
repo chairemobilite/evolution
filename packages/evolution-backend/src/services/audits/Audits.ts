@@ -5,9 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { AuditForObject, SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
 import auditsDbQueries from '../../models/audits.db.queries';
 import serverConfig from '../../config/projectConfig';
+import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 /**
  * Static class to manage various audits operations
