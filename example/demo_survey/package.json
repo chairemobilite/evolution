@@ -10,9 +10,9 @@
     "repository": "github.com/chairemobilite/evolution",
     "scripts": {
         "build:dev": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=4096 --openssl-legacy-provider\" webpack watch --progress --color --node-env development --mode development",
-        "build:prod": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=4096 --openssl-legacy-provider\" webpack --progress --color --node-env production --mode production",
+        "build:prod": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=1024 --openssl-legacy-provider\" webpack --progress --color --node-env production --mode production",
         "build:admin:dev": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=4096 --openssl-legacy-provider\" webpack watch --config webpack.admin.config.js --progress --color --node-env development --mode development",
-        "build:admin:prod": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=4096 --openssl-legacy-provider\" webpack --config webpack.admin.config.js --progress --color --node-env production --mode production",
+        "build:admin:prod": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=1024 --openssl-legacy-provider\" webpack --config webpack.admin.config.js --progress --color --node-env production --mode production",
         "clean": "rimraf lib/",
         "cleanModules": "rimraf node_modules/",
         "copy-files": "copyfiles -u 1 src/survey/*.json src/survey/*.geojson src/styles/*.scss ./lib/",
