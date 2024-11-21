@@ -17,7 +17,7 @@ from helpers.generator_helpers import (
 
 
 # Function to generate sectionConfigs.ts for each section
-def generate_section_configs(excel_file_path: str):
+def generate_section_configs(excel_file_path: str, section_config_output_folder: str):
     try:
         is_excel_file(excel_file_path)  # Check if the input file path is an Excel file
         workbook = get_workbook(excel_file_path)  # Get workbook from Excel file
@@ -53,7 +53,6 @@ def generate_section_configs(excel_file_path: str):
         ts_code += f"import {{ isSectionComplete }} from 'evolution-generator/lib/helpers/configsHelpers';\n"
         ts_code += f"import {{ SectionConfig }} from 'evolution-frontend/lib/services/interviews/interview';\n"
         ts_code += f"import {{ widgetsNames }} from './widgetsNames';\n"
-        ts_code += f"import {{ preload }} from './preload';\n"
 
         # Iterate through each row in the sheet, starting from the second row
         for row_number, row in enumerate(rows[1:], start=2):
@@ -65,14 +64,19 @@ def generate_section_configs(excel_file_path: str):
             in_nav = row_dict.get("in_nav")
             template = row_dict.get("template")
             parent_section = row_dict.get("parent_section")
+            section_has_preload = row_dict.get("has_preload")
+            has_preload = section_has_preload is None or section_has_preload == True
 
             # Generate code for section
             def generate_section_code(previousSection, nextSection):
                 ts_section_code = ""  # TypeScript code for the section
-                # TODO: Do this with survey_folder_path
-                # Get section output file
+                # Add the custom preload import if the section has a preload function
+                # FIXME Should the generator provide a default preload function? Currently there are none
+                if has_preload: 
+                    ts_section_code += f"import {{ preload }} from './preload';\n"
+                    
                 section_output_file = (
-                    f"../../../survey/src/survey/sections/{section}/sectionConfigs.ts"
+                    f"{section_config_output_folder}/{section}/sectionConfigs.ts"
                 )
 
                 # Check if the sections has template
@@ -135,7 +139,8 @@ def generate_section_configs(excel_file_path: str):
                 ts_section_code += (
                     f"{INDENT}// Do some actions before the section is loaded\n"
                 )
-                ts_section_code += f"{INDENT}preload: preload,\n"
+                if has_preload:
+                    ts_section_code += f"{INDENT}preload: preload,\n"
                 ts_section_code += f"{INDENT}// Allow to click on the section menu\n"
                 if previousSection is None:
                     ts_section_code += f"{INDENT}enableConditional:true,\n"

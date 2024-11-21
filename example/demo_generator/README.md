@@ -1,0 +1,1 @@
+This directory is a placeholder directory with basic package.json and files where the demo_generator code will be generated. It is used to showcase what the evolution-generator can produce from nothing, and that is not yet a complete working application. It just generates the configs for the questionnaire: sections, widgets and labels.

@@ -259,7 +259,7 @@ def generate_widget_statement(row):
 def generate_widget_name(row, group, is_last):
     question_name = row["questionName"]
     active = row["active"]
-    rowGroup = row["group"]
+    rowGroup = row.get("group") if row.get("group") else ""
 
     # Return the question_name commented if not active
     if group == rowGroup:
@@ -276,7 +276,7 @@ def generate_widgets_names_statements(section_rows):
 
     # Populate the dictionary with groups and their corresponding rows
     for row in section_rows:
-        group = row["group"] if row["group"] else ""
+        group = row.get("group") if row.get("group") else ""
         if group not in group_question_dict:
             group_question_dict[group] = []
         group_question_dict[group].append(row)

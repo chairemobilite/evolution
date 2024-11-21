@@ -127,3 +127,8 @@ __pycache__/
 **/playwright-report/
 **/test-results/
 **/playwright.config.ts
+
+# demo_generator example generated files
+example/demo_generator/locales
+example/demo_generator/src
+example/demo_generator/tests

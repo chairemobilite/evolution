@@ -69,7 +69,10 @@ def generate_survey(config_path):
 
     # Call the generate_section_configs function to generate sectionConfigs.ts if script enabled
     if enabled_generate_section_configs:
-        generate_section_configs(excel_file_path)
+        section_config_output_folder = os.path.join(
+            survey_folder_path, "src", "survey", "sections"
+        )
+        generate_section_configs(excel_file_path, section_config_output_folder)
 
     # Call the generate_sections function to generate sections.tsx if script enabled
     if enabled_generate_sections:
