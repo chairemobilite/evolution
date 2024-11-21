@@ -34,6 +34,11 @@ def generate_folders(excel_file_path: str, survey_folder_path: str):
         tests_folder_path = os.path.join(survey_folder_path, "tests")
         generate_folder(tests_folder_path)
 
+        # Create the locales folder
+        # TODO Find the supported locales from the excel file
+        generate_folder(os.path.join(survey_folder_path, "locales", "fr"))
+        generate_folder(os.path.join(survey_folder_path, "locales", "en"))
+
         for section in sections_names:
             # Create the section folder
             section_folder_path = os.path.join(

@@ -11,7 +11,8 @@
         "packages/evolution-legacy",
         "packages/evolution-interviewer",
         "packages/evolution-generator",
-        "example/demo_survey"
+        "example/demo_survey",
+        "example/demo_generator"
     ],
     "scripts": {
         "setup": "yarn workspace chaire-lib-backend run setup",
@@ -42,7 +43,7 @@
         "list-tasks": "yarn workspace evolution-legacy run list-tasks",
         "generate-migration": "knex migrate:make",
         "reset-submodules": "rimraf transition/ && git submodule init && git submodule update",
-        "generateSurvey:example": "yarn worspace evolution-generator run generateSurvey --config_path src/examples/generatorExampleConfigs.yaml"
+        "generateSurvey:example": "yarn workspace evolution-generator run generateSurvey --config_path src/examples/generatorExampleConfigs.yaml"
     },
     "dependencies": {},
     "devDependencies": {

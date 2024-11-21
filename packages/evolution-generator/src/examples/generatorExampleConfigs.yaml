@@ -1,33 +1,14 @@
-survey:
-    excel_file: ../../packages/generator/src/examples/Example_Generate_Survey.xlsx
+survey_folder_path: ../../example/demo_generator
+excel_file_path: ../../packages/evolution-generator/src/examples/Example_Generate_Survey.xlsx
 
-excel:
-    active_script: false
-
-sections:
-    output_file: ../../../survey/src/survey/sections.ts
-    sections:
-        - home
-        - end
-
-widgets:
-    output_file: ../../../survey/src/survey/widgetsConfig.tsx
-    output_info_list:
-        - output_folder: ../../example/demo_survey_generator/sections/home
-          section: home
-        - output_folder: ../../example/demo_survey_generator/sections/end
-          section: end
-
-conditionals:
-    output_file: ../../example/demo_survey_generator/common/conditionals.tsx
-
-choices:
-    output_file: ../../example/demo_survey_generator/common/choices.tsx
-
-input_range:
-    output_file: ../../example/demo_survey_generator/common/inputRange.tsx
-
-libelles:
-    output_folder: ../../example/demo_survey_generator/locales
-    overwrite: true
-    section: null
+enabled_scripts:
+    generate_excel: false
+    generate_section_configs: true
+    generate_sections: true
+    generate_widgets_configs: true
+    generate_widgets: true
+    generate_conditionals: true
+    generate_choices: true
+    generate_input_range: true
+    generate_libelles: true
+    generate_UI_tests: true

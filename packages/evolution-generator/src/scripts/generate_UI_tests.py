@@ -33,7 +33,7 @@ def generate_UI_tests(input_file: str, output_file: str):
                 "inputType",
                 "active",
                 "section",
-                "group",
+                #"group",
                 "path",
                 # "fr",
                 # "en",
@@ -98,7 +98,7 @@ def generate_UI_tests(input_file: str, output_file: str):
             input_type = row_dict["inputType"]
             active = row_dict["active"]
             section = row_dict["section"]
-            group = row_dict["group"]
+            group = row_dict.get("group") if row_dict.get("group") else None
             path = row_dict["path"]
             conditional = row_dict["conditional"]
             choices = row_dict["choices"]
