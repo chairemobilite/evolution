@@ -1,0 +1,37 @@
+# Workflow to verify the code style of the commit, that it builds correctly
+# and make sure unit tests run too with all supported node versions
+
+name: CI-Generator
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  generate-and-build:
+    runs-on: ubuntu-24.04 # As of Nov 2024, ubuntu-latest is too old for peotry
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: copy env file
+      run: cp .env.example .env
+    - name: Use Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22.x # Latest stable as of Nov 2024
+    - name: Install poetry
+      run: pipx install poetry
+    - name: Run Poetry
+      working-directory: packages/evolution-generator
+      run: poetry install
+    - name: Generate survey
+      run: yarn generateSurvey:example
+    - name: Install
+      run: yarn
+    - name: Compile Evolution
+      run: yarn compile
+    - name: Compile Generated survey
+      run: yarn workspace demo_generator run compile:example
