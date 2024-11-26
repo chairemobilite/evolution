@@ -27,6 +27,56 @@ type AttributeAndObjectPaths = {
     arrayPaths: string[];
 };
 
+/**
+ * This modifies the responses _sections object to calculate the total duration
+ * of sections as otherwise, only the latest start time of each section will be
+ * available.
+ *
+ * FIXME This won't be necessary once section logs are in a separate table
+ *
+ * FIXME In the case of the validated interview data, the durations will
+ * probably include the time a validation may have spent looking at an interview
+ * and will add up to the durations. To get the participant's duration, the file
+ * with the participant data should be used. But that should not be a problem
+ * when the first FIXME is fixed as we can prevent logging section logs or log
+ * differently if it comes from a validator.
+ *
+ * @param responses
+ * @returns
+ */
+const replaceSectionsWithDurations = (responses) => {
+    // For each section, keep the first start time, the total duration, number of entries and whether it is completed
+    const actualSections: {
+        [sectionName: string]: { duration: number; firstStart: number; numberOfEntries: number; isCompleted: boolean };
+    } = {};
+    const sectionLogs = responses._sections;
+    if (sectionLogs === undefined) {
+        return;
+    }
+    const sectionActions = sectionLogs._actions || [];
+    // There should only be start actions, but we never know
+    const sectionStartActions = sectionActions.filter((sectionAction: any) => sectionAction.action === 'start');
+    sectionStartActions.forEach((action: any, index: number) => {
+        const nextAction = sectionActions[index + 1];
+        if (nextAction) {
+            const sectionName = action.section;
+            if (actualSections[sectionName] === undefined) {
+                actualSections[sectionName] = {
+                    duration: 0,
+                    firstStart: action.ts,
+                    numberOfEntries: 0,
+                    isCompleted: sectionLogs[sectionName] ? sectionLogs[sectionName]._isCompleted : false
+                };
+            }
+            // Increase duration and increment number of entries
+            actualSections[sectionName].duration += nextAction.ts - action.ts;
+            actualSections[sectionName].numberOfEntries += 1;
+        }
+    });
+    // Replace the current _sections object with the new one, the exporter will do the rest.
+    responses._sections = actualSections;
+};
+
 // Test whether this attribute is an array of objects
 const isArrayOfObjects = function (data: unknown): data is object[] {
     return (
@@ -178,6 +228,7 @@ const getRenamedPaths = async (
             .on('data', (row) => {
                 const interview = row;
                 const responses = interview.responses;
+                replaceSectionsWithDurations(responses);
                 const newAttributes = getNestedAttributes('', responses, undefined);
                 allAttributes.attributes.push(...newAttributes.attributes);
                 allAttributes.arrayPaths.push(...newAttributes.arrayPaths);
@@ -355,6 +406,7 @@ export const exportAllToCsvByObjectTask = async function (
             .on('data', (row) => {
                 const interview = row;
                 const responses = interview.responses;
+                replaceSectionsWithDurations(responses);
                 const exportedInterviewDataByObjectPath = _cloneDeep(exportedDataByObjectPath);
 
                 const interviewPaths = getPaths('', responses, undefined);
