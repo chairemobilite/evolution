@@ -397,7 +397,27 @@ export const exportAllToCsvByObjectTask = async function (
 
     const queryStream = getInterviewStream(options);
     let i = 0;
+
     return new Promise((resolve, reject) => {
+        let pauseCount = 0;
+        const writeToFile = (stream: fs.WriteStream, data: string) => {
+            const fileOk = stream.write(data);
+            if (!fileOk) {
+                // Buffer full, pause the db stream and wait for a drain event.
+                // Since many streams can reach buffer full at the same time, we
+                // count the number of pauses and resume only when all drain
+                // events have been reached.
+                pauseCount++;
+                queryStream.pause();
+                stream.once('drain', () => {
+                    pauseCount--;
+                    if (pauseCount === 0) {
+                        queryStream.resume();
+                    }
+                });
+            }
+        };
+
         queryStream
             .on('error', (error) => {
                 console.error('queryStream failed', error);
@@ -472,20 +492,21 @@ export const exportAllToCsvByObjectTask = async function (
 
                 for (const objectPath in objectsByObjectPath) {
                     if (objectPath !== 'interview') {
-                        for (const _uuid in objectsByObjectPath[objectPath]) {
-                            csvFilePathByObjectPath[objectPath].write(
-                                unparse([objectsByObjectPath[objectPath][_uuid]], {
-                                    header: !wroteHeaderByObjectPath[objectPath],
-                                    newline: '\n',
-                                    quoteChar: '"',
-                                    delimiter: ',',
-                                    quotes: true
-                                }) + '\n'
-                            );
-                            wroteHeaderByObjectPath[objectPath] = true;
-                        }
+                        const objectsToWrite = Object.values(objectsByObjectPath[objectPath]) as any[];
+                        writeToFile(
+                            csvFilePathByObjectPath[objectPath],
+                            unparse(objectsToWrite, {
+                                header: !wroteHeaderByObjectPath[objectPath],
+                                newline: '\n',
+                                quoteChar: '"',
+                                delimiter: ',',
+                                quotes: true
+                            }) + '\n'
+                        );
+                        wroteHeaderByObjectPath[objectPath] = true;
                     } else {
-                        csvFilePathByObjectPath[objectPath].write(
+                        writeToFile(
+                            csvFilePathByObjectPath[objectPath],
                             unparse([objectsByObjectPath[objectPath]], {
                                 header: !wroteHeaderByObjectPath[objectPath],
                                 newline: '\n',
@@ -505,8 +526,12 @@ export const exportAllToCsvByObjectTask = async function (
             })
             .on('end', () => {
                 console.log('All interview objects exported for response type: ', options.responseType);
-                Object.keys(csvFilePathByObjectPath).forEach((object) => csvFilePathByObjectPath[object].end());
-                resolve(csvFilePaths);
+                const csvStreamEndPromises = Object.keys(csvFilePathByObjectPath).map(
+                    (object) => new Promise<void>((resolve) => csvFilePathByObjectPath[object].end(() => resolve()))
+                );
+                Promise.all(csvStreamEndPromises)
+                    .then(() => resolve(csvFilePaths))
+                    .catch((error) => reject(error));
             });
     });
 };
