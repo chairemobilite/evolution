@@ -2,7 +2,6 @@
     "home":"Accueil",
     "login":"Se connecter",
     "logout":"Quitter",
-    "resetInterview": "Réinitialiser l'entrevue",
     "setDevModeOn": "Mode développement d'enquête",
     "setDevModeOff": "Mode normal",
     "User":"Connecté",

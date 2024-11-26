@@ -2,7 +2,6 @@
     "home":"Home",
     "login":"Login",
     "logout":"Logout",
-    "resetInterview":"Reset interview",
     "setDevModeOn": "Survey development mode",
     "setDevModeOff": "Normal mode",
     "User":"Connected",

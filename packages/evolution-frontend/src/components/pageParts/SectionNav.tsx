@@ -115,25 +115,6 @@ const SectionNav = function ({
                     <button
                         type="button"
                         className="menu-button _oblique _red"
-                        key={'header__nav-reset'}
-                        onClick={() =>
-                            startUpdateInterview(
-                                activeSection,
-                                { responses: {}, validations: {} },
-                                undefined,
-                                undefined,
-                                () => {
-                                    startUpdateInterview(null, { 'responses._activeSection': firstSectionShortname });
-                                }
-                            )
-                        }
-                    >
-                        {t('menu:resetInterview')}
-                    </button>{' '}
-                    •{' '}
-                    <button
-                        type="button"
-                        className="menu-button _oblique _red"
                         key={'header__nav-devMode'}
                         onClick={() => dispatch({ type: 'setDevMode', value: !devMode })}
                     >
