@@ -143,12 +143,19 @@ export const exportInterviewLogTask = async function ({
                     withValues
                 );
 
-                csvStream.write(
+                const fileOk = csvStream.write(
                     unparse(exportLog, {
                         header: !headerWritten,
                         newline: '\n'
                     }) + '\n'
                 );
+                if (!fileOk) {
+                    // Buffer full, pause the db stream and wait for a drain event
+                    queryStream.pause();
+                    csvStream.once('drain', () => {
+                        queryStream.resume();
+                    });
+                }
                 headerWritten = true;
 
                 if (i % 5000 === 0) {
@@ -158,8 +165,9 @@ export const exportInterviewLogTask = async function ({
             })
             .on('end', () => {
                 console.log('All interview logs exported');
-                csvStream.end();
-                resolve(csvFilePath);
+                csvStream.end(() => {
+                    resolve(csvFilePath);
+                });
             });
     });
 };
