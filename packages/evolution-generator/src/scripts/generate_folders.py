@@ -39,6 +39,10 @@ def generate_folders(excel_file_path: str, survey_folder_path: str):
         generate_folder(os.path.join(survey_folder_path, "locales", "fr"))
         generate_folder(os.path.join(survey_folder_path, "locales", "en"))
 
+        # Create the references folder
+        references_folder_path = os.path.join(survey_folder_path, "references")
+        generate_folder(references_folder_path)
+
         for section in sections_names:
             # Create the section folder
             section_folder_path = os.path.join(
