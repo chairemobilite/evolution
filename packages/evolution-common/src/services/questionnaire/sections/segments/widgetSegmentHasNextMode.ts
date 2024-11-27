@@ -6,13 +6,13 @@
  */
 import _upperFirst from 'lodash/upperFirst';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { WidgetConfig } from '../../widgets';
-import { getResponse } from '../../../utils/helpers';
+import { WidgetConfig } from '../../../widgets';
+import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
-import * as odHelpers from '../../odSurvey/helpers';
-import { loopActivities } from '../../odSurvey/types';
+import * as odHelpers from '../../../odSurvey/helpers';
+import { loopActivities } from '../../../odSurvey/types';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
-import { Journey, Person } from '../../questionnaire/types';
+import { Journey, Person } from '../../types';
 
 export const getSegmentHasNextModeWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented

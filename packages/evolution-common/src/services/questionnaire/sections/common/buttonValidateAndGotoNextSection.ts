@@ -4,10 +4,10 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { ButtonWidgetConfig } from '../../widgets';
+import { ButtonWidgetConfig } from '../../../widgets';
 import { TFunction } from 'i18next';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { ButtonAction } from '../../questionnaire/types';
+import { ButtonAction } from '../../types';
 
 /**
  * Get the configuration for a button that will call the `validateButtonAction`

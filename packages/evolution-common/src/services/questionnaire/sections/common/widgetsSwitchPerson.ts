@@ -5,10 +5,10 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { ButtonWidgetConfig, TextWidgetConfig } from '../../widgets';
-import * as odHelpers from '../../odSurvey/helpers';
+import { ButtonWidgetConfig, TextWidgetConfig } from '../../../widgets';
+import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
-import { InterviewUpdateCallbacks, UserInterviewAttributes } from '../../questionnaire/types';
+import { InterviewUpdateCallbacks, UserInterviewAttributes } from '../../types';
 
 const hasMoreThanOneInterviewablePerson = (interview: UserInterviewAttributes): boolean =>
     odHelpers.getInterviewablePersonsArray({ interview }).length > 1;

@@ -7,8 +7,8 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { getSegmentsGroupConfig } from '../groupSegments';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import * as utilHelpers from '../../../../utils/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import * as utilHelpers from '../../../../../utils/helpers';
 
 describe('getSegmentsGroupConfig', () => {
 

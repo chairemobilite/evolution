@@ -8,10 +8,10 @@ import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
 
 import { getSameAsReverseTripWidgetConfig } from '../widgetSameAsReverseTrip';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../widgets';
-import { translateString } from '../../../../utils/helpers';
-import * as surveyHelper from '../../../odSurvey/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../widgets';
+import { translateString } from '../../../../../utils/helpers';
+import * as surveyHelper from '../../../../odSurvey/helpers';
 
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 

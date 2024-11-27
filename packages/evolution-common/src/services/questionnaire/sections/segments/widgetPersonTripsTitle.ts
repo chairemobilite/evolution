@@ -5,10 +5,10 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { TextWidgetConfig } from '../../widgets';
-import * as odHelpers from '../../odSurvey/helpers';
+import { TextWidgetConfig } from '../../../widgets';
+import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
-import { UserInterviewAttributes } from '../../questionnaire/types';
+import { UserInterviewAttributes } from '../../types';
 
 export const getPersonsTripsTitleWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented

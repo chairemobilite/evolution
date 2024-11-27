@@ -28,7 +28,7 @@ import helper from '../helper';
 import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/widgets';
-import { getPersonVisitedPlacesMapConfig } from 'evolution-common/lib/services/sections/common/widgetPersonVisitedPlacesMap';
+import { getPersonVisitedPlacesMapConfig } from 'evolution-common/lib/services/questionnaire/sections/common/widgetPersonVisitedPlacesMap';
 import { getFormattedDate } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 export const visitedPlacesIntro = {

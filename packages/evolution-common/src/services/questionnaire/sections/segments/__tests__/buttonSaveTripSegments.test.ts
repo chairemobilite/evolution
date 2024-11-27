@@ -7,11 +7,11 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { getButtonSaveTripSegmentsConfig } from '../buttonSaveTripSegments';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import * as utilHelpers from '../../../../utils/helpers';
-import * as odHelpers from '../../../odSurvey/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import * as utilHelpers from '../../../../../utils/helpers';
+import * as odHelpers from '../../../../odSurvey/helpers';
 
-jest.mock('../../../odSurvey/helpers', () => ({
+jest.mock('../../../../odSurvey/helpers', () => ({
     getPerson: jest.fn().mockReturnValue({}),
     getActiveJourney: jest.fn().mockReturnValue({}),
     selectNextIncompleteTrip: jest.fn().mockReturnValue(null)

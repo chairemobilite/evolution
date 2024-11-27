@@ -6,10 +6,10 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import { getTripSegmentsIntro } from '../widgetTripSegmentsIntro';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import * as odHelpers from '../../../odSurvey/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import * as odHelpers from '../../../../odSurvey/helpers';
 
-jest.mock('../../../odSurvey/helpers', () => ({
+jest.mock('../../../../odSurvey/helpers', () => ({
     getPerson: jest.fn().mockReturnValue({}),
     getActiveJourney: jest.fn().mockReturnValue({}),
     getActiveTrip: jest.fn().mockReturnValue({}),

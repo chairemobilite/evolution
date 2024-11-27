@@ -7,15 +7,15 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { getSwitchPersonWidgets } from '../widgetsSwitchPerson';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import * as utilHelpers from '../../../../utils/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import * as utilHelpers from '../../../../../utils/helpers';
 import { t } from 'i18next';
-import { ButtonWidgetConfig, TextWidgetConfig } from '../../../widgets';
+import { ButtonWidgetConfig, TextWidgetConfig } from '../../../../widgets';
 
-import * as odHelpers from '../../../odSurvey/helpers';
+import * as odHelpers from '../../../../odSurvey/helpers';
 import { start } from 'repl';
 
-jest.mock('../../../odSurvey/helpers', () => ({
+jest.mock('../../../../odSurvey/helpers', () => ({
     getInterviewablePersonsArray: jest.fn().mockReturnValue([]),
     getActivePerson: jest.fn().mockReturnValue(null),
     countPersons: jest.fn().mockReturnValue(0)

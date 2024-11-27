@@ -7,13 +7,13 @@
 import _upperFirst from 'lodash/upperFirst';
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
-import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../widgets';
+import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../widgets';
 import { getModeWidgetConfig } from '../widgetSegmentMode';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import { getResponse, setResponse, translateString } from '../../../../utils/helpers';
-import * as surveyHelper from '../../../odSurvey/helpers';
-import { modeValues } from '../../../baseObjects/attributeTypes/SegmentAttributes';
-import { modePreToModeMap, modeToModePreMap } from '../../../odSurvey/types';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { getResponse, setResponse, translateString } from '../../../../../utils/helpers';
+import * as surveyHelper from '../../../../odSurvey/helpers';
+import { modeValues } from '../../../../baseObjects/attributeTypes/SegmentAttributes';
+import { modePreToModeMap, modeToModePreMap } from '../../../../odSurvey/types';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 
 jest.mock('../helpers', () => ({

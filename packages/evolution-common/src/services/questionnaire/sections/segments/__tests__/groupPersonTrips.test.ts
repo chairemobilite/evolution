@@ -7,8 +7,8 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { getPersonsTripsGroupConfig } from '../groupPersonTrips';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import * as utilHelpers from '../../../../utils/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import * as utilHelpers from '../../../../../utils/helpers';
 import { t } from 'i18next';
 
 describe('getPersonsTripsGroupConfig', () => {

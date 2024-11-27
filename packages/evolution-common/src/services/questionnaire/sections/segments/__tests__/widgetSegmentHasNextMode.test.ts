@@ -5,11 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _cloneDeep from 'lodash/cloneDeep';
-import { InputRadioType, QuestionWidgetConfig } from '../../../widgets';
+import { InputRadioType, QuestionWidgetConfig } from '../../../../widgets';
 import { getSegmentHasNextModeWidgetConfig } from '../widgetSegmentHasNextMode';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import { getResponse, setResponse, translateString } from '../../../../utils/helpers';
-import * as surveyHelper from '../../../odSurvey/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { getResponse, setResponse, translateString } from '../../../../../utils/helpers';
+import * as surveyHelper from '../../../../odSurvey/helpers';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 
 jest.mock('../helpers', () => ({
