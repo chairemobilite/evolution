@@ -3,8 +3,13 @@ import appConfig, {
     setApplicationConfiguration
 } from 'chaire-lib-frontend/lib/config/application.config';
 import React from 'react';
-import { SurveySections, SurveyWidgets } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    SurveySections,
+    SurveyWidgets,
+    BuiltinSectionTemplates
+} from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+import { SectionProps } from '../components/hooks/useSectionTemplate';
 
 export type EvolutionApplicationConfiguration = {
     /**
@@ -55,6 +60,13 @@ export type EvolutionApplicationConfiguration = {
         placesCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
         tripsCollection: GeoJSON.FeatureCollection<GeoJSON.LineString>;
     };
+
+    /**
+     * Mapping between section template names and React components.
+     */
+    templateMapping: {
+        [templateName: BuiltinSectionTemplates | string]: React.ComponentType<SectionProps>;
+    };
 };
 
 setApplicationConfiguration({
@@ -66,7 +78,8 @@ setApplicationConfiguration({
     getCustomInterviewMap: () => undefined,
     getAdminValidations: () => undefined,
     getAdminMonitoringComponents: () => [],
-    getParsers: () => []
+    getParsers: () => [],
+    templateMapping: {}
 });
 
 export default appConfig as ApplicationConfiguration<EvolutionApplicationConfiguration>;

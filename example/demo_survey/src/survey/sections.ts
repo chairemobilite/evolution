@@ -9,8 +9,6 @@ import isEmpty from 'lodash/isEmpty';
 import _get from 'lodash/get';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import SegmentsSection from 'evolution-frontend/lib/components/survey/sectionTemplates/TripsAndSegmentsSection';
-import VisitedPlacesSection from './templates/VisitedPlacesSection';
 import { getResponse, getValidation, addGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
@@ -381,7 +379,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
     previousSection: 'tripsIntro',
     nextSection: "segments",
     parentSection: 'tripsIntro',
-    template: VisitedPlacesSection,
+    template: 'visitedPlaces',
     title: {
       fr: "Déplacements",
       en: "Trips"
@@ -467,7 +465,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
 
   segments: {
     previousSection: 'visitedPlaces',
-    template: SegmentsSection,
+    template: 'tripsAndSegmentsWithMap',
     nextSection: "travelBehavior",
     parentSection: 'tripsIntro',
     title: {

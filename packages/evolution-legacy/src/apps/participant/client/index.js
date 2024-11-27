@@ -22,8 +22,9 @@ import { SurveyContext, surveyReducer } from 'evolution-frontend/lib/contexts/Su
 import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 import '../../../styles/survey/styles-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
-  
-setApplicationConfiguration({ homePage: '/survey' });
+import SegmentsSection from 'evolution-frontend/lib/components/survey/sectionTemplates/TripsAndSegmentsSection';
+
+setApplicationConfiguration({ homePage: '/survey', templateMapping: { 'tripsAndSegmentsWithMap': SegmentsSection } });
 
 /*
 type AppProps = {
