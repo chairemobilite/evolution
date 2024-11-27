@@ -22,14 +22,15 @@ import { SurveyContext, surveyReducer } from 'evolution-frontend/lib/contexts/Su
 import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 import '../../../styles/survey/styles-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
-  
+import SegmentsSection from 'evolution-frontend/lib/components/survey/sectionTemplates/TripsAndSegmentsSection';
+
 // TODO This is a workaround to get the links to the user, until some more complete solution is implemented (see https://github.com/chairemobilite/transition/issues/1516)
 const pages = [
     { path: '/admin/validation', permissions: { Interviews: ['validate'] }, title: 'admin:validationPageTitle' },
     { path: '/admin/monitoring', permissions: { Interviews: ['manage'] }, title: 'admin:monitoringPageTitle' },
     { path: '/admin/users', permissions: { Users: ['read', 'update'] }, title: 'admin:usersPageTitle' }
 ];
-setApplicationConfiguration({ homePage: '/home', pages });
+setApplicationConfiguration({ homePage: '/home', pages, templateMapping: { 'tripsAndSegmentsWithMap': SegmentsSection } });
 
 export default () => {
     document.title = config.title[i18n.language];

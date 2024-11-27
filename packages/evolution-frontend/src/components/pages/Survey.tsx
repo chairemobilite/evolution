@@ -11,6 +11,7 @@ import moment from 'moment';
 import _get from 'lodash/get';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
+import appConfig from '../../config/application.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import Section from '../pageParts/Section';
 import SectionNav from '../pageParts/SectionNav';
@@ -173,10 +174,15 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
 
         const sectionShortname = activeSection;
         const sectionConfig = this.props.surveyContext.sections[sectionShortname];
-        // TODO: type template components:
-        const SectionComponent: React.ComponentType<SectionProps> = sectionConfig.template
-            ? (sectionConfig.template as React.ComponentType<SectionProps>)
-            : (Section as React.ComponentType<SectionProps>);
+
+        let SectionComponent: React.ComponentType<SectionProps> = Section;
+        if (sectionConfig.template) {
+            if (appConfig.templateMapping[sectionConfig.template]) {
+                SectionComponent = appConfig.templateMapping[sectionConfig.template];
+            } else {
+                console.error(`Template ${sectionConfig.template} not found in appConfig.templateMapping`);
+            }
+        }
         let navActiveSection: string | null = activeSection;
 
         // use parent section name as active section if active section is set to be hidden in navigation:

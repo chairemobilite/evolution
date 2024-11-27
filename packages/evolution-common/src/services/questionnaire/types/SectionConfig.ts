@@ -28,6 +28,8 @@ export type SectionPreload = (
     }
 ) => void;
 
+export type BuiltinSectionTemplates = 'tripsAndSegmentsWithMap';
+
 export type SectionConfig = {
     widgets: string[];
     previousSection: string | null;
@@ -35,7 +37,13 @@ export type SectionConfig = {
     title?: I18nData;
     menuName?: I18nData;
     preload?: SectionPreload;
-    template?: React.ComponentType;
+    /**
+     * The name of the template to use for this section. Surveys should provide
+     * a mapping for the frontend between the template name and the actual
+     * component it should map to. The builtin templates are already provided by
+     * `evolution`, but can be overridden by the survey.
+     */
+    template?: BuiltinSectionTemplates | string;
     /**
      * If set, this section is a sub-section of the parent section. It will not
      * be displayed in the section navigation.

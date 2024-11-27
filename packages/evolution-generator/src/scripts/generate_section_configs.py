@@ -14,6 +14,8 @@ from helpers.generator_helpers import (
     get_data_from_excel,
     get_values_from_row,
 )
+import os
+import shutil
 
 
 # Function to generate sectionConfigs.ts for each section
@@ -80,11 +82,31 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                 )
 
                 # Check if the sections has template
-                has_template = template is not None and template == True
+                has_custom_template = template is not None and template == True
+                has_builtin_template = isinstance(template, str)
 
-                # Add imports for template if the section has template
-                if has_template:
+                # Add imports for template if the section has custom template and add it to the templateMapping in the configuration. For builtin templates, it should be already set
+                if has_custom_template:
                     ts_section_code += f"import SectionTemplate from './template';\n"
+                    ts_section_code += f"import appConfig from 'evolution-frontend/lib/config/application.config';\n\n"
+                    ts_section_code += f"appConfig.templateMapping['{section}Section'] = SectionTemplate;\n"
+
+                    # Copy the skeleton template file if the section has a custom template and it does not exist
+                    # Define the destination path for the template file
+                    destination_template_file = os.path.join(section_config_output_folder, section, "template.tsx")
+
+                    # Check if the template file exists in the destination folder
+                    if not os.path.exists(destination_template_file):
+                        # Define the source path for the template file
+                        source_template_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "../skeleton/template.tsx"))
+                        if not os.path.exists(source_template_file):
+                            raise FileNotFoundError(f"Template file not found: {source_template_file}")
+                        # Ensure the destination directory exists
+                        os.makedirs(os.path.dirname(destination_template_file), exist_ok=True)
+                        # If the template file does not exist, copy it from the source
+                        shutil.copyfile(source_template_file, destination_template_file)
+                        print(f"Copied template.tsx to {destination_template_file}")
+
 
                 # Generate currentSectionName
                 ts_section_code += (
@@ -133,8 +155,11 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                     ts_section_code += f"{INDENT}{INDENT}fr: '{title_fr}',\n"
                     ts_section_code += f"{INDENT}{INDENT}en: '{title_en}'\n"
                     ts_section_code += f"{INDENT}}},\n"
-                if has_template:
-                    ts_section_code += f"{INDENT}template: SectionTemplate,\n"
+                if has_custom_template:
+                    ts_section_code += f"{INDENT}// The template to fill is in the 'template.tsx' file of this section\n"
+                    ts_section_code += f"{INDENT}template: '{section}Section',\n"
+                elif has_builtin_template:
+                    ts_section_code += f"{INDENT}template: '{template}',\n"
                 ts_section_code += f"{INDENT}widgets: widgetsNames,\n"
                 ts_section_code += (
                     f"{INDENT}// Do some actions before the section is loaded\n"
