@@ -8,8 +8,8 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
-import { getSwitchPersonWidgets } from 'evolution-common/lib/services/sections/common/widgetsSwitchPerson';
-import { getButtonValidateAndGotoNextSection } from 'evolution-common/lib/services/sections/common/buttonValidateAndGotoNextSection';
+import { getSwitchPersonWidgets } from 'evolution-common/lib/services/questionnaire/sections/common/widgetsSwitchPerson';
+import { getButtonValidateAndGotoNextSection } from 'evolution-common/lib/services/questionnaire/sections/common/buttonValidateAndGotoNextSection';
 
 const registrationCompletedWidgets = require('./widgets/registrationCompleted.js');
 

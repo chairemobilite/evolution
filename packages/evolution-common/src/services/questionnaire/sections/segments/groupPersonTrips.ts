@@ -5,8 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { GroupConfig } from '../../widgets';
-import { getResponse } from '../../../utils/helpers';
+import { GroupConfig } from '../../../widgets';
+import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 
 export const getPersonsTripsGroupConfig = (

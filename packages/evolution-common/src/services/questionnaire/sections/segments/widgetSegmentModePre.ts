@@ -6,13 +6,13 @@
  */
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { WidgetConfig } from '../../widgets';
-import { getResponse } from '../../../utils/helpers';
+import { WidgetConfig } from '../../../widgets';
+import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
-import * as odHelpers from '../../odSurvey/helpers';
+import * as odHelpers from '../../../odSurvey/helpers';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
-import { Person, Segment } from '../../questionnaire/types';
+import { Person, Segment } from '../../types';
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
 const getModePreChoices = () => [

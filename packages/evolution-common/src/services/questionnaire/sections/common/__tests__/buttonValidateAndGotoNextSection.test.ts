@@ -7,8 +7,8 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { getButtonValidateAndGotoNextSection } from '../buttonValidateAndGotoNextSection';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import * as utilHelpers from '../../../../utils/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import * as utilHelpers from '../../../../../utils/helpers';
 
 // Prepare configuration options
 const mockButtonValidate = jest.fn();

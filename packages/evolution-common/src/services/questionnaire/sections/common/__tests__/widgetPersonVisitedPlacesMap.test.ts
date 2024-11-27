@@ -6,13 +6,13 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import { getPersonVisitedPlacesMapConfig } from '../widgetPersonVisitedPlacesMap';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import * as odHelpers from '../../../odSurvey/helpers';
-import projectConfig from '../../../../config/project.config';
-import { pointsToBezierCurve } from '../../../geodata/SurveyGeographyUtils';
-import { VisitedPlace } from '../../../questionnaire/types';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import * as odHelpers from '../../../../odSurvey/helpers';
+import projectConfig from '../../../../../config/project.config';
+import { pointsToBezierCurve } from '../../../../geodata/SurveyGeographyUtils';
+import { VisitedPlace } from '../../../types';
 
-jest.mock('../../../odSurvey/helpers', () => ({
+jest.mock('../../../../odSurvey/helpers', () => ({
     getActivePerson: jest.fn().mockReturnValue({}),
     getActiveJourney: jest.fn().mockReturnValue({}),
     getCountOrSelfDeclared: jest.fn().mockReturnValue(1),
@@ -26,7 +26,7 @@ const mockedGetVisitedPlacesArray = odHelpers.getVisitedPlacesArray as jest.Mock
 const mockedGetVisitedPlaceGeography = odHelpers.getVisitedPlaceGeography as jest.MockedFunction<typeof odHelpers.getVisitedPlaceGeography>;
 
 // Mock points to Bezier by returning a simple line string with the coordinates
-jest.mock('../../../geodata/SurveyGeographyUtils', () => ({
+jest.mock('../../../../geodata/SurveyGeographyUtils', () => ({
     pointsToBezierCurve: jest.fn().mockImplementation((points: GeoJSON.Point[]) => ({ type: 'Feature', geometry: { type: 'LineString', properties: {}, coordinates: points.map(point => point.coordinates) } }))
 }));
 const mockedPointsToBezierCurve = pointsToBezierCurve as jest.MockedFunction<typeof pointsToBezierCurve>;

@@ -5,10 +5,10 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { TextWidgetConfig } from '../../widgets';
-import * as odHelpers from '../../odSurvey/helpers';
+import { TextWidgetConfig } from '../../../widgets';
+import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
-import { loopActivities } from '../../odSurvey/types';
+import { loopActivities } from '../../../odSurvey/types';
 
 export const getTripSegmentsIntro = (
     // FIXME: Type this when there is a few more widgets implemented

@@ -6,11 +6,11 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
-import * as odHelpers from '../../../odSurvey/helpers';
-import { interviewAttributesForTestCases } from '../../../../tests/surveys';
-import { getResponse, setResponse } from '../../../../utils/helpers';
+import * as odHelpers from '../../../../odSurvey/helpers';
+import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { getResponse, setResponse } from '../../../../../utils/helpers';
 import * as helpers from '../helpers';
-import { Journey, Person } from '../../../questionnaire/types';
+import { Journey, Person } from '../../../types';
 
 describe('getPreviousTripSingleSegment', () => {
 
