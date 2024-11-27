@@ -69,7 +69,7 @@ def generate_survey(config_path):
         )
 
     # Call the generate_folders function to generate the folders for the survey
-    generate_folders(excel_file_path, survey_folder_path)
+    generate_folders(excel_file_path, survey_folder_path, enabled_scripts)
 
     # Call the generate_section_configs function to generate sectionConfigs.ts if script enabled
     if enabled_generate_section_configs:
@@ -134,12 +134,18 @@ def generate_survey(config_path):
         )
         generate_UI_tests(excel_file_path, UI_tests_output_file_path)
 
+    ## TODO: Add this to the config file ?
     # Call the generate_questionnaire_list function to generate the questionnaire_list_en.txt if script enabled
     if enabled_generate_questionnaire_list:
         questionnaire_list_output_folder = os.path.join(
             survey_folder_path, "references"
         )
-        generate_questionnaire_list(excel_file_path, questionnaire_list_output_folder)
+        generate_questionnaire_list(
+            excel_file_path, questionnaire_list_output_folder, language="en"
+        )
+        generate_questionnaire_list(
+            excel_file_path, questionnaire_list_output_folder, language="fr"
+        )
 
 
 # Call the generate_survey function with the config_path argument

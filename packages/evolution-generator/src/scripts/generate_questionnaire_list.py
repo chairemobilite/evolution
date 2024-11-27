@@ -5,6 +5,7 @@
 # Note: This script includes functions that generate all the questions labels and choices list for the survey.
 # These functions are intended to be invoked from the generate_survey.py script.
 import os
+from typing import Literal
 from helpers.generator_helpers import get_data_from_excel
 
 
@@ -22,7 +23,7 @@ def clean_text(text):
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_list(
-    excel_file_path: str, questionnaire_list_output_folder: str
+    excel_file_path: str, questionnaire_list_output_folder: str, language: Literal['en', 'fr']
 ):
     try:
         # Read data from Excel and return rows and headers
@@ -37,19 +38,19 @@ def generate_questionnaire_list(
         )
 
         # Find the index
-        widgets_en_index = widgets_headers.index("en")
+        widgets_language_index = widgets_headers.index(language)
         widgets_section_index = widgets_headers.index("section")
         widgets_active_index = widgets_headers.index("active")
         widgets_choices_index = widgets_headers.index("choices")
         section_name_index = sections_headers.index("section")
-        section_title_en_index = sections_headers.index("title_en")
+        section_title_language_index = sections_headers.index(f"title_{language}")
         choices_name_index = choices_headers.index("choicesName")
-        choices_en_index = choices_headers.index("en")
+        choices_language_index = choices_headers.index(language)
         choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
 
         # Map section names to their titles
         section_titles = {
-            row[section_name_index].value: row[section_title_en_index].value
+            row[section_name_index].value: row[section_title_language_index].value
             for row in sections_rows[1:]
         }
 
@@ -57,7 +58,7 @@ def generate_questionnaire_list(
         choices_map = {}
         for row in choices_rows[1:]:
             choices_name = row[choices_name_index].value
-            choice_text = clean_text(row[choices_en_index].value)
+            choice_text = clean_text(row[choices_language_index].value)
             choices_spread_choices_name = row[choices_spread_choices_name_index].value
 
             if choice_text is not None:
@@ -81,7 +82,7 @@ def generate_questionnaire_list(
         sections = {}
         for row in widgets_rows[1:]:
             section_name = row[widgets_section_index].value
-            question_text = clean_text(row[widgets_en_index].value)
+            question_text = clean_text(row[widgets_language_index].value)
             active = row[widgets_active_index].value
             choices_name = row[widgets_choices_index].value
 
@@ -110,7 +111,7 @@ def generate_questionnaire_list(
 
         # Save the questionnaire text to questionnaire_list_en.txt
         questionnaire_list_path = os.path.join(
-            questionnaire_list_output_folder, "questionnaire_list_en.txt"
+            questionnaire_list_output_folder, f"questionnaire_list_{language}.txt"
         )
         with open(
             questionnaire_list_path, mode="w", encoding="utf-8", newline="\n"
