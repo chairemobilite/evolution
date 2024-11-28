@@ -24,7 +24,6 @@ export const filePathOnServer = 'exports/interviewData';
 type AttributeAndObjectPaths = {
     attributes: string[];
     objectPaths: string[];
-    arrayPaths: string[];
 };
 
 /**
@@ -89,8 +88,7 @@ const getNestedAttributes = function (
     _object: { [key: string]: unknown },
     attributesAndObjectPaths: AttributeAndObjectPaths = {
         attributes: [],
-        objectPaths: [],
-        arrayPaths: []
+        objectPaths: []
     }
 ) {
     for (const attribute in _object) {
@@ -107,6 +105,7 @@ const getNestedAttributes = function (
         if (attributeIsUuid) {
             attributesAndObjectPaths.objectPaths.push(parentAttribute);
         }
+
         if (isArrayOfObjects(_object[attribute])) {
             // This is an array of complex types. These will be exploded
             // like an object, but at the same level as the parent object as
@@ -117,11 +116,7 @@ const getNestedAttributes = function (
                 _object[attribute] as any,
                 attributesAndObjectPaths
             );
-        } else if (Array.isArray(_object[attribute])) {
-            // Arrays of simple types will simply be joined in the CSV file, so just add the attribute
-            attributesAndObjectPaths.arrayPaths.push((parentAttribute ? parentAttribute + '.' : '') + attributeRenamed);
-        }
-        if (
+        } else if (
             _object[attribute] !== undefined &&
             _object[attribute] !== null &&
             typeof _object[attribute] === 'object' &&
@@ -147,8 +142,7 @@ const getPaths = function (parentPath, _object, attributes: string[] = []) {
         if (isArrayOfObjects(_object[attribute])) {
             // This is an array of complex types that needs to be exploded like an object
             getPaths((parentPath ? parentPath + '.' : '') + attribute, _object[attribute], attributes);
-        }
-        if (
+        } else if (
             _object[attribute] !== undefined &&
             _object[attribute] !== null &&
             typeof _object[attribute] === 'object' &&
@@ -209,13 +203,10 @@ const getInterviewStream = (options: ExportOptions) =>
         }
     });
 
-const getRenamedPaths = async (
-    options: ExportOptions
-): Promise<{ attributes: string[]; objectPaths: string[]; arrayPaths: string[] }> => {
+const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndObjectPaths> => {
     const allAttributes: AttributeAndObjectPaths = {
         attributes: [],
-        objectPaths: [],
-        arrayPaths: []
+        objectPaths: []
     };
     const queryStream = getInterviewStream(options);
     let i = 0;
@@ -231,7 +222,6 @@ const getRenamedPaths = async (
                 replaceSectionsWithDurations(responses);
                 const newAttributes = getNestedAttributes('', responses, undefined);
                 allAttributes.attributes.push(...newAttributes.attributes);
-                allAttributes.arrayPaths.push(...newAttributes.arrayPaths);
                 allAttributes.objectPaths.push(...newAttributes.objectPaths);
                 allAttributes.attributes = _uniq(allAttributes.attributes).sort((a, b) => {
                     return a.localeCompare(b);
@@ -239,7 +229,6 @@ const getRenamedPaths = async (
                 allAttributes.objectPaths = _uniq(allAttributes.objectPaths).sort((a, b) => {
                     return b.split('._.').length - a.split('._.').length;
                 });
-                allAttributes.arrayPaths = _uniq(allAttributes.arrayPaths);
 
                 //fs.writeFileSync(exportJsonFileDirectory + '/' + interview.id + '__' + interview.uuid + '.json', JSON.stringify(responses));
                 if ((i + 1) % 1000 === 0) {
@@ -276,18 +265,21 @@ const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: str
         ]
     };
 
+    // Initialise the pathsByObject, which should create a file per object
     for (let i = 0, count = paths.objectPaths.length; i < count; i++) {
         const objectPath = paths.objectPaths[i];
         pathsByObject[objectPath] = [];
     }
 
+    // For each attribute path, see if it is part of an object, otherwise, it is added to the interviews paths
     for (let i = 0, count = paths.attributes.length; i < count; i++) {
         let foundObjectPath = false;
         const attribute = paths.attributes[i];
         let attributeNamespace = '';
         for (let j = 0; j < paths.objectPaths.length; j++) {
             const objectPath = paths.objectPaths[j];
-            if (attribute.startsWith(objectPath) && objectPath.length > attributeNamespace.length) {
+            // Object paths are sorted by length, so the first one that is a prefix of the attribute is the one we want
+            if (attribute.startsWith(objectPath + '.') && objectPath.length > attributeNamespace.length) {
                 attributeNamespace = objectPath;
                 pathsByObject[objectPath].push(attribute);
                 foundObjectPath = true;
@@ -357,6 +349,9 @@ export const exportAllToCsvByObjectTask = async function (
 ) {
     const pathsByObject = await getPathsByObject(options);
 
+    // Initialize export data objects with all possible fields for each path.
+    // Those will be the base object to fill for each interview, to make sure all
+    // keys are available for each exported row.
     const exportedDataByObjectPath: any = {};
     for (const objectPath in pathsByObject) {
         exportedDataByObjectPath[objectPath] = {};
@@ -370,8 +365,9 @@ export const exportAllToCsvByObjectTask = async function (
             const pathWithoutObjectPath = pathsByObject[objectPath][i].replace(objectPath + '._.', '');
             if (pathWithoutObjectPath.endsWith('.geometry.coordinates')) {
                 handleCoordinates(exportedDataByObjectPath[objectPath], pathWithoutObjectPath, undefined);
+            } else {
+                exportedDataByObjectPath[objectPath][pathWithoutObjectPath] = undefined;
             }
-            exportedDataByObjectPath[objectPath][pathWithoutObjectPath] = undefined;
         }
     }
 
@@ -449,7 +445,7 @@ export const exportAllToCsvByObjectTask = async function (
                     const pathWithoutUuids = removeUuidsFromPath(path);
                     let foundObjectPath = false;
                     for (const objectPath in exportedInterviewDataByObjectPath) {
-                        if (pathWithoutUuids.startsWith(objectPath)) {
+                        if (pathWithoutUuids.startsWith(objectPath + '.')) {
                             if (!objectsByObjectPath[objectPath]) {
                                 objectsByObjectPath[objectPath] = {};
                             }
