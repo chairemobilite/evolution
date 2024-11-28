@@ -19,6 +19,7 @@ from scripts.generate_choices import generate_choices
 from scripts.generate_input_range import generate_input_range
 from scripts.generate_libelles import generate_libelles
 from scripts.generate_UI_tests import generate_UI_tests
+from scripts.generate_questionnaire_list import generate_questionnaire_list
 
 
 # TODO: Add some validation for the config file
@@ -53,6 +54,9 @@ def generate_survey(config_path):
         )
         enabled_generate_libelles = enabled_scripts.get("generate_libelles", False)
         enabled_generate_UI_tests = enabled_scripts.get("generate_UI_tests", False)
+        enabled_generate_questionnaire_list = enabled_scripts.get(
+            "generate_questionnaire_list", False
+        )
 
     # Call the generate_excel function to generate the Excel file if script enabled
     if enabled_generate_excel:
@@ -65,7 +69,7 @@ def generate_survey(config_path):
         )
 
     # Call the generate_folders function to generate the folders for the survey
-    generate_folders(excel_file_path, survey_folder_path)
+    generate_folders(excel_file_path, survey_folder_path, enabled_scripts)
 
     # Call the generate_section_configs function to generate sectionConfigs.ts if script enabled
     if enabled_generate_section_configs:
@@ -129,6 +133,19 @@ def generate_survey(config_path):
             survey_folder_path, "tests", "template-tests-UI.ts"
         )
         generate_UI_tests(excel_file_path, UI_tests_output_file_path)
+
+    ## TODO: Add this to the config file ?
+    # Call the generate_questionnaire_list function to generate the questionnaire_list_en.txt if script enabled
+    if enabled_generate_questionnaire_list:
+        questionnaire_list_output_folder = os.path.join(
+            survey_folder_path, "references"
+        )
+        generate_questionnaire_list(
+            excel_file_path, questionnaire_list_output_folder, language="en"
+        )
+        generate_questionnaire_list(
+            excel_file_path, questionnaire_list_output_folder, language="fr"
+        )
 
 
 # Call the generate_survey function with the config_path argument

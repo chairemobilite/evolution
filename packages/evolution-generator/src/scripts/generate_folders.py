@@ -13,8 +13,12 @@ from helpers.generator_helpers import (
 
 
 # Function to generate the folders for the survey
-def generate_folders(excel_file_path: str, survey_folder_path: str):
+def generate_folders(excel_file_path: str, survey_folder_path: str, enabled_scripts: dict):
     try:
+        enabled_generate_questionnaire_list = enabled_scripts.get(
+            "generate_questionnaire_list", False
+        )
+
         # Read data from Excel and return rows and headers
         rows, headers = get_data_from_excel(excel_file_path, sheet_name="Sections")
 
@@ -38,6 +42,11 @@ def generate_folders(excel_file_path: str, survey_folder_path: str):
         # TODO Find the supported locales from the excel file
         generate_folder(os.path.join(survey_folder_path, "locales", "fr"))
         generate_folder(os.path.join(survey_folder_path, "locales", "en"))
+
+        # Create the references folder
+        if enabled_generate_questionnaire_list:
+            references_folder_path = os.path.join(survey_folder_path, "references")
+            generate_folder(references_folder_path)
 
         for section in sections_names:
             # Create the section folder
