@@ -11,7 +11,7 @@ import _get from 'lodash/get';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse, getValidation, addGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
+import { getSegmentsSectionConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/sectionSegments';
 import helper from './helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
@@ -463,114 +463,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
     }
   },
 
-  segments: {
-    previousSection: 'visitedPlaces',
-    template: 'tripsAndSegmentsWithMap',
-    nextSection: "travelBehavior",
-    parentSection: 'tripsIntro',
-    title: {
-      fr: "Modes de transport",
-      en: "Travel modes"
-    },
-    customStyle: {
-      maxWidth: '120rem'
-    },
-    widgets: [
-      'activePersonTitle',
-      'buttonSwitchPerson',
-      'personTripsTitle',
-      'personTrips',
-      'personVisitedPlacesMap',
-      'buttonConfirmNextSection'
-    ],
-    preload: function (interview, { startUpdateInterview, callback }) {
-      
-      const person = helper.getPerson(interview);
-      if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
-      {
-        startUpdateInterview('tripsIntro', {
-          'responses._activeSection': 'travelBehavior'
-        }, null, null, callback);
-        return null;
-      }
-      const journeys = odSurveyHelper.getJourneysArray({ person });
-      const currentJourney = journeys[0];
-      let   tripsUpdatesValueByPath  = {};
-      let   tripsUpdatesUnsetPaths   = [];
-      const tripsPath                = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`;
-      const visitedPlaces            = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
-      let   trips                    = helper.getTrips(currentJourney);
-      //const activeTripId             = getResponse(interview, '_activeTripId', null);
-      //let   foundSelectedTrip        = false;
-      
-      for (let tripSequence = 1, count = visitedPlaces.length - 1; tripSequence <= count; tripSequence++)
-      {
-        const origin      = visitedPlaces[tripSequence - 1];
-        const destination = visitedPlaces[tripSequence];
-        const trip        = trips[tripSequence - 1];
-        if (_isBlank(trip))
-        {
-          // create trip if not exists for this sequence:
-          const addValuesByPath = addGroupedObjects(interview, 1, tripSequence, tripsPath, [{
-            _originVisitedPlaceUuid:      origin._uuid,
-            _destinationVisitedPlaceUuid: destination._uuid,
-          }]);
-          tripsUpdatesValueByPath = Object.assign(tripsUpdatesValueByPath, addValuesByPath);
-        }
-        else if (trip._originVisitedPlaceUuid !== origin._uuid || trip._destinationVisitedPlaceUuid !== destination._uuid)
-        {
-          // update origin and destination if wrong for this sequence:
-          tripsUpdatesValueByPath[`responses.${tripsPath}.${trip._uuid}._originVisitedPlaceUuid`]      = origin._uuid;
-          tripsUpdatesValueByPath[`responses.${tripsPath}.${trip._uuid}._destinationVisitedPlaceUuid`] = destination._uuid;
-          // also delete existing segments:
-          tripsUpdatesValueByPath[`responses.${tripsPath}.${trip._uuid}.segments`] = undefined;
-        }
-      }
-      if (trips.length >= visitedPlaces.length)
-      {
-        // remove superfluous trips:
-        let tripsPathsToRemove = [];
-        for (let tripSequence = visitedPlaces.length, count = trips.length; tripSequence <= count; tripSequence++)
-        {
-          const trip = trips[tripSequence - 1];
-          tripsPathsToRemove.push(`${tripsPath}.${trip._uuid}`);
-        }
-        if (tripsPathsToRemove.length > 0)
-        {
-          const [updateValuePaths, unsetValuePaths] = surveyHelper.removeGroupedObjects(interview, tripsPathsToRemove);
-          tripsUpdatesUnsetPaths  = tripsUpdatesUnsetPaths.concat(unsetValuePaths);
-          tripsUpdatesValueByPath = Object.assign(tripsUpdatesValueByPath, updateValuePaths);
-        }
-      }
-      // update needed origin and destination visited places uuids:
-      if (!isEmpty(tripsUpdatesValueByPath) || !isEmpty(tripsUpdatesUnsetPaths))
-      {
-        startUpdateInterview('segments', tripsUpdatesValueByPath, tripsUpdatesUnsetPaths, null, function(_interview) {
-          const _person        = helper.getPerson(_interview);
-          const selectedTripId = helper.selectNextTripId(helper.getTrips(_person));
-          startUpdateInterview('segments', {
-            [`responses._activeTripId`]: (!_isBlank(selectedTripId) ? selectedTripId : null)
-          }, null, null, callback);
-        });
-      }
-      else
-      {
-        const selectedTripId = helper.selectNextTripId(helper.getTrips(person));
-        startUpdateInterview('segments', {
-          [`responses._activeTripId`]: (!_isBlank(selectedTripId) ? selectedTripId : null)
-        }, null, null, callback);
-      }
-      return null;
-    },
-    enableConditional: function(interview) {
-      const person = helper.getPerson(interview);
-      return helper.householdMembersSectionComplete(interview) && helper.visitedPlacesForPersonComplete(person, interview);
-    },
-    completionConditional: function(interview) {
-      const person = helper.getPerson(interview);
-      return helper.householdMembersSectionComplete(interview) && helper.tripsForPersonComplete(person, interview);
-    }
-  },
+  segments: getSegmentsSectionConfig({}),
 
   travelBehavior: {
     previousSection: 'segments',
