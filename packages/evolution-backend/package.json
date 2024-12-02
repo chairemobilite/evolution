@@ -3,7 +3,7 @@
         "node": ">=18.0.0"
     },
     "name": "evolution-backend",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "description": "Backend library for Evolution",
     "repository": "github.com/chairemobilite/evolution",
     "license": "MIT",
@@ -27,7 +27,7 @@
         "@casl/ability": "^5.4.3",
         "chaire-lib-backend": "^0.2.2",
         "chaire-lib-common": "^0.2.2",
-        "evolution-common": "^0.2.2",
+        "evolution-common": "^0.3.0",
         "express": "^4.19.2",
         "express-session": "^1.17.1",
         "geojson-validation": "^1.0.2",
