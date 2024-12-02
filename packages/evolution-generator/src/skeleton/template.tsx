@@ -21,16 +21,13 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
 ) => {
     const { preloaded } = useSectionTemplate(props);
 
-    if (!preloaded)
-    {
+    if (!preloaded) {
         return <LoadingPage />;
     }
-    
+
     return (
         <section className={`survey-section survey-section-shortname-${props.shortname}`}>
-            <div className="survey-section__content">
-                Empty content
-            </div>
+            <div className="survey-section__content">Empty content</div>
         </section>
     );
 };

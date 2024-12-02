@@ -1,5 +1,6 @@
 TripsTitle: Trips
 GroupTitle: Modes
+SegmentsTitle: Modes of transport
 GroupName: Mode of transport {{sequence}}
 ModeIsRequired: Mode of transport is required.
 Description: Trips made by {{nickname}} on {{journeyDates}}
