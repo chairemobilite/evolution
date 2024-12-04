@@ -61,12 +61,12 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
           class="ReactModalPortal"
         >
           <div
-            class="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+            class="ReactModal__Overlay react-modal-overlay"
           >
             <div
               aria-label="popupTitle"
               aria-modal="true"
-              class="ReactModal__Content ReactModal__Content--after-open react-modal"
+              class="ReactModal__Content react-modal"
               role="dialog"
               tabindex="-1"
             >
@@ -167,7 +167,7 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
         }
       >
         <div
-          className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+          className="ReactModal__Overlay react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
           style={{}}
@@ -175,7 +175,7 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
           <div
             aria-label="popupTitle"
             aria-modal={true}
-            className="ReactModal__Content ReactModal__Content--after-open react-modal"
+            className="ReactModal__Content react-modal"
             onClick={[Function]}
             onKeyDown={[Function]}
             onMouseDown={[Function]}
@@ -303,7 +303,7 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
     }
   >
     <div
-      className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+      className="ReactModal__Overlay react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
       style={{}}
@@ -311,7 +311,7 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
       <div
         aria-label="popupTitle"
         aria-modal={true}
-        className="ReactModal__Content ReactModal__Content--after-open react-modal"
+        className="ReactModal__Content react-modal"
         onClick={[Function]}
         onKeyDown={[Function]}
         onMouseDown={[Function]}
@@ -387,7 +387,7 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
   <div
     aria-label="popupTitle"
     aria-modal={true}
-    className="ReactModal__Content ReactModal__Content--after-open react-modal"
+    className="ReactModal__Content react-modal"
     onClick={[Function]}
     onKeyDown={[Function]}
     onMouseDown={[Function]}
@@ -489,12 +489,12 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
           class="ReactModalPortal"
         >
           <div
-            class="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+            class="ReactModal__Overlay react-modal-overlay"
           >
             <div
               aria-label="popupTitle"
               aria-modal="true"
-              class="ReactModal__Content ReactModal__Content--after-open react-modal"
+              class="ReactModal__Content react-modal"
               role="dialog"
               tabindex="-1"
             >
@@ -595,7 +595,7 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
         }
       >
         <div
-          className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+          className="ReactModal__Overlay react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
           style={{}}
@@ -603,7 +603,7 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
           <div
             aria-label="popupTitle"
             aria-modal={true}
-            className="ReactModal__Content ReactModal__Content--after-open react-modal"
+            className="ReactModal__Content react-modal"
             onClick={[Function]}
             onKeyDown={[Function]}
             onMouseDown={[Function]}
@@ -731,7 +731,7 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
     }
   >
     <div
-      className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+      className="ReactModal__Overlay react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
       style={{}}
@@ -739,7 +739,7 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
       <div
         aria-label="popupTitle"
         aria-modal={true}
-        className="ReactModal__Content ReactModal__Content--after-open react-modal"
+        className="ReactModal__Content react-modal"
         onClick={[Function]}
         onKeyDown={[Function]}
         onMouseDown={[Function]}
@@ -815,7 +815,7 @@ exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`]
   <div
     aria-label="popupTitle"
     aria-modal={true}
-    className="ReactModal__Content ReactModal__Content--after-open react-modal"
+    className="ReactModal__Content react-modal"
     onClick={[Function]}
     onKeyDown={[Function]}
     onMouseDown={[Function]}

@@ -46,13 +46,7 @@ const AgreementCheckbox = (props: AgreementCheckboxProps) => {
                 checked={checked}
                 onChange={onChange}
             />
-            <label
-                htmlFor="surveyConsent"
-                onClick={() => {
-                    onChange;
-                    setUpdateKey(updateKey + 1);
-                }}
-            >
+            <label htmlFor="surveyConsent" onClick={() => setUpdateKey(updateKey + 1)}>
                 <span>{props.text}</span>
             </label>
         </React.Fragment>

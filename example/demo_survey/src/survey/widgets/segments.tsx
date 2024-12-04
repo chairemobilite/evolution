@@ -139,7 +139,7 @@ export const segmentVehicleType = {
         en: "Vehicle possessed by my household"
       },
       conditional: function(interview, path) {
-        const householdCarNumber = surveyHelperNew.getResponse(interview, 'household.carNumber', null);
+        const householdCarNumber = surveyHelperNew.getResponse(interview, 'household.carNumber', null) as any;
         return householdCarNumber > 0;
       }
     },
@@ -222,7 +222,7 @@ export const segmentVehicleType = {
     const mode               = segment ? segment.mode : null;
     const person             = helper.getPerson(interview);
     const isCarsharingMember = person.carsharingMember === 'yes';
-    const householdCarNumber = surveyHelperNew.getResponse(interview, 'household.carNumber', null);
+    const householdCarNumber = surveyHelperNew.getResponse(interview, 'household.carNumber', null) as any;
     if (mode !== 'carDriver')
     {
       return [false, "notACarDriverMode"];
@@ -2196,7 +2196,7 @@ export const tripJunctionGeography = {
     const person               = helper.getPerson(interview);
     const originVisitedPlaceId = surveyHelperNew.getResponse(interview, path, null, '../_originVisitedPlaceUuid');
     const visitedPlaces        = helper.getVisitedPlaces(person, false);
-    if (originVisitedPlaceId)
+    if (typeof originVisitedPlaceId === 'string')
     {
       const originVisitedPlace = visitedPlaces[originVisitedPlaceId];
       if (originVisitedPlace)
