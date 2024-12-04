@@ -267,6 +267,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
           aria-live="polite"
           aria-relevant="additions text"
           className="css-1f43avz-a11yText-A11yText"
+          role="log"
         />
         <div
           className="react-select__control css-13cymwt-control"
@@ -331,6 +332,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
               data-value=""
             >
               <input
+                aria-activedescendant=""
                 aria-autocomplete="list"
                 aria-expanded={false}
                 aria-haspopup={true}
@@ -1156,12 +1158,12 @@ exports[`With help popup and link Open modal 1`] = `
           class="ReactModalPortal"
         >
           <div
-            class="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+            class="ReactModal__Overlay react-modal-overlay"
           >
             <div
               aria-label="Help title"
               aria-modal="true"
-              class="ReactModal__Content ReactModal__Content--after-open react-modal"
+              class="ReactModal__Content react-modal"
               role="dialog"
               tabindex="-1"
             >
@@ -1249,7 +1251,7 @@ exports[`With help popup and link Open modal 1`] = `
         }
       >
         <div
-          className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+          className="ReactModal__Overlay react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
           style={{}}
@@ -1257,7 +1259,7 @@ exports[`With help popup and link Open modal 1`] = `
           <div
             aria-label="Help title"
             aria-modal={true}
-            className="ReactModal__Content ReactModal__Content--after-open react-modal"
+            className="ReactModal__Content react-modal"
             onClick={[Function]}
             onKeyDown={[Function]}
             onMouseDown={[Function]}
@@ -1369,7 +1371,7 @@ exports[`With help popup and link Open modal 1`] = `
     }
   >
     <div
-      className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+      className="ReactModal__Overlay react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
       style={{}}
@@ -1377,7 +1379,7 @@ exports[`With help popup and link Open modal 1`] = `
       <div
         aria-label="Help title"
         aria-modal={true}
-        className="ReactModal__Content ReactModal__Content--after-open react-modal"
+        className="ReactModal__Content react-modal"
         onClick={[Function]}
         onKeyDown={[Function]}
         onMouseDown={[Function]}
@@ -1437,7 +1439,7 @@ exports[`With help popup and link Open modal 1`] = `
   <div
     aria-label="Help title"
     aria-modal={true}
-    className="ReactModal__Content ReactModal__Content--after-open react-modal"
+    className="ReactModal__Content react-modal"
     onClick={[Function]}
     onKeyDown={[Function]}
     onMouseDown={[Function]}
@@ -1527,8 +1529,8 @@ exports[`With help popup and link Test widget with help 1`] = `
       >
         <svg
           aria-hidden="true"
-          className="svg-inline--fa fa-question-circle fa-w-16 faIconLeft"
-          data-icon="question-circle"
+          className="svg-inline--fa fa-circle-question faIconLeft"
+          data-icon="circle-question"
           data-prefix="fas"
           focusable="false"
           role="img"
@@ -1537,7 +1539,7 @@ exports[`With help popup and link Test widget with help 1`] = `
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            d="M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z"
+            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"
             fill="currentColor"
             style={{}}
           />

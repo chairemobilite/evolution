@@ -170,7 +170,7 @@ const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps &
                             offset: '50%'
                         }
                     ],
-                    zIndex: 300 || Math.ceil((1000.0 / i) * 1000.0)
+                    zIndex: Math.ceil((1000.0 / i) * 1000.0) || 300
                 }}
             />
         );
@@ -189,7 +189,7 @@ const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps &
                             offset: '50%'
                         }
                     ],
-                    zIndex: 400 || Math.ceil((1000.0 / i) * 1000.0)
+                    zIndex: Math.ceil((1000.0 / i) * 1000.0) || 400
                 }}
             />
         );
@@ -209,7 +209,7 @@ const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps &
                             offset: '50%'
                         }
                     ],
-                    zIndex: 500 || Math.ceil((1000.0 / i) * 1000.0)
+                    zIndex: Math.ceil((1000.0 / i) * 1000.0) || 500
                 }}
             />
         );

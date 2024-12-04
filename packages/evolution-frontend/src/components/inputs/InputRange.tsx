@@ -74,16 +74,12 @@ export const InputRange = (props: InputRangeProps & WithTranslation) => {
                         ? (value) => formatLabelFct(value, props.i18n.language)
                         : (value) => String(value)
                 }
-                value={
-                    !_isBlank(value) && value !== undefined && typeof value !== 'string' && value >= minValue
-                        ? value
-                        : minValue
-                }
+                value={typeof value === 'number' && value >= minValue ? value : minValue}
                 classNames={defaultClassNames}
                 disabled={typeof value === 'string'}
                 onChange={(value) => setValue(value)}
                 onChangeComplete={(value) => {
-                    if (value < minValue) {
+                    if (typeof value === 'number' && value < minValue) {
                         props.onValueChange({ target: { value: null } });
                     } else {
                         props.onValueChange({ target: { value } });

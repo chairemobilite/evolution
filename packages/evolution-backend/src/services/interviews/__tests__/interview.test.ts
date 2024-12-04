@@ -493,7 +493,7 @@ describe('Update Interview', () => {
     });
 
     test('With logs', async() => {
-        config.logDatabaseUpdates = true;
+        (config as any).logDatabaseUpdates = true;
         try {
             const updatedAt = 1234; // Update timestamp
             const testAttributes = _cloneDeep(interviewAttributes);
@@ -524,12 +524,12 @@ describe('Update Interview', () => {
             expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
         } finally {
-            config.logDatabaseUpdates = false;
+            (config as any).logDatabaseUpdates = false;
         }
     });
 
     test('With default logs', async() => {
-        config.logDatabaseUpdates = true;
+        (config as any).logDatabaseUpdates = true;
         try {
             const updatedAt = 1234; // Update timestamp
             const testAttributes = _cloneDeep(interviewAttributes);
@@ -561,7 +561,7 @@ describe('Update Interview', () => {
             expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
         } finally {
-            config.logDatabaseUpdates = false;
+            (config as any).logDatabaseUpdates = false;
         }
     });
 

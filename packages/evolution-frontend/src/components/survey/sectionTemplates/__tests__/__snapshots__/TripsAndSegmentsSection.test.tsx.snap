@@ -46,7 +46,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-clock fa-w-16 "
+              className="svg-inline--fa fa-clock "
               data-icon="clock"
               data-prefix="fas"
               focusable="false"
@@ -61,7 +61,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"
+                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                 fill="currentColor"
                 style={{}}
               />
@@ -69,7 +69,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             timeStr
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -84,7 +84,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -103,8 +103,8 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <svg
                 aria-hidden="true"
-                className="svg-inline--fa fa-pencil-alt fa-w-16 "
-                data-icon="pencil-alt"
+                className="svg-inline--fa fa-pencil "
+                data-icon="pencil"
                 data-prefix="fas"
                 focusable="false"
                 role="img"
@@ -113,7 +113,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"
+                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
                   fill="currentColor"
                   style={{}}
                 />
@@ -150,7 +150,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -165,7 +165,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -219,7 +219,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-clock fa-w-16 "
+              className="svg-inline--fa fa-clock "
               data-icon="clock"
               data-prefix="fas"
               focusable="false"
@@ -234,14 +234,14 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"
+                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                 fill="currentColor"
                 style={{}}
               />
             </svg>
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -256,7 +256,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -275,8 +275,8 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <svg
                 aria-hidden="true"
-                className="svg-inline--fa fa-pencil-alt fa-w-16 "
-                data-icon="pencil-alt"
+                className="svg-inline--fa fa-pencil "
+                data-icon="pencil"
                 data-prefix="fas"
                 focusable="false"
                 role="img"
@@ -285,7 +285,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"
+                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
                   fill="currentColor"
                   style={{}}
                 />
@@ -317,7 +317,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -332,7 +332,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -426,7 +426,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-clock fa-w-16 "
+              className="svg-inline--fa fa-clock "
               data-icon="clock"
               data-prefix="fas"
               focusable="false"
@@ -441,7 +441,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"
+                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                 fill="currentColor"
                 style={{}}
               />
@@ -449,7 +449,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             timeStr
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -464,7 +464,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -483,8 +483,8 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <svg
                 aria-hidden="true"
-                className="svg-inline--fa fa-pencil-alt fa-w-16 "
-                data-icon="pencil-alt"
+                className="svg-inline--fa fa-pencil "
+                data-icon="pencil"
                 data-prefix="fas"
                 focusable="false"
                 role="img"
@@ -493,7 +493,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"
+                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
                   fill="currentColor"
                   style={{}}
                 />
@@ -530,7 +530,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -545,7 +545,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -572,7 +572,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -587,7 +587,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -692,7 +692,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-clock fa-w-16 "
+              className="svg-inline--fa fa-clock "
               data-icon="clock"
               data-prefix="fas"
               focusable="false"
@@ -707,7 +707,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"
+                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                 fill="currentColor"
                 style={{}}
               />
@@ -715,7 +715,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             timeStr
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -730,7 +730,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -749,8 +749,8 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <svg
                 aria-hidden="true"
-                className="svg-inline--fa fa-pencil-alt fa-w-16 "
-                data-icon="pencil-alt"
+                className="svg-inline--fa fa-pencil "
+                data-icon="pencil"
                 data-prefix="fas"
                 focusable="false"
                 role="img"
@@ -759,7 +759,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"
+                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
                   fill="currentColor"
                   style={{}}
                 />
@@ -796,7 +796,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -811,7 +811,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -865,7 +865,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-clock fa-w-16 "
+              className="svg-inline--fa fa-clock "
               data-icon="clock"
               data-prefix="fas"
               focusable="false"
@@ -880,14 +880,14 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"
+                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                 fill="currentColor"
                 style={{}}
               />
             </svg>
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -902,7 +902,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -921,8 +921,8 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <svg
                 aria-hidden="true"
-                className="svg-inline--fa fa-pencil-alt fa-w-16 "
-                data-icon="pencil-alt"
+                className="svg-inline--fa fa-pencil "
+                data-icon="pencil"
                 data-prefix="fas"
                 focusable="false"
                 role="img"
@@ -931,7 +931,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M497.9 142.1l-46.1 46.1c-4.7 4.7-12.3 4.7-17 0l-111-111c-4.7-4.7-4.7-12.3 0-17l46.1-46.1c18.7-18.7 49.1-18.7 67.9 0l60.1 60.1c18.8 18.7 18.8 49.1 0 67.9zM284.2 99.8L21.6 362.4.4 483.9c-2.9 16.4 11.4 30.6 27.8 27.8l121.5-21.3 262.6-262.6c4.7-4.7 4.7-12.3 0-17l-111-111c-4.8-4.7-12.4-4.7-17.1 0zM124.1 339.9c-5.5-5.5-5.5-14.3 0-19.8l154-154c5.5-5.5 14.3-5.5 19.8 0s5.5 14.3 0 19.8l-154 154c-5.5 5.5-14.3 5.5-19.8 0zM88 424h48v36.3l-64.5 11.3-31.1-31.1L51.7 376H88v48z"
+                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
                   fill="currentColor"
                   style={{}}
                 />
@@ -963,7 +963,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -978,7 +978,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -1072,7 +1072,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-clock fa-w-16 "
+              className="svg-inline--fa fa-clock "
               data-icon="clock"
               data-prefix="fas"
               focusable="false"
@@ -1087,7 +1087,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"
+                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                 fill="currentColor"
                 style={{}}
               />
@@ -1095,7 +1095,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             timeStr
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -1110,7 +1110,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -1147,7 +1147,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -1162,7 +1162,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -1228,7 +1228,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-clock fa-w-16 "
+              className="svg-inline--fa fa-clock "
               data-icon="clock"
               data-prefix="fas"
               focusable="false"
@@ -1243,14 +1243,14 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M256,8C119,8,8,119,8,256S119,504,256,504,504,393,504,256,393,8,256,8Zm92.49,313h0l-20,25a16,16,0,0,1-22.49,2.5h0l-67-49.72a40,40,0,0,1-15-31.23V112a16,16,0,0,1,16-16h32a16,16,0,0,1,16,16V256l58,42.5A16,16,0,0,1,348.49,321Z"
+                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                 fill="currentColor"
                 style={{}}
               />
             </svg>
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -1265,7 +1265,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
@@ -1297,7 +1297,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           >
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right fa-w-14 "
+              className="svg-inline--fa fa-arrow-right "
               data-icon="arrow-right"
               data-prefix="fas"
               focusable="false"
@@ -1312,7 +1312,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M190.5 66.9l22.2-22.2c9.4-9.4 24.6-9.4 33.9 0L441 239c9.4 9.4 9.4 24.6 0 33.9L246.6 467.3c-9.4 9.4-24.6 9.4-33.9 0l-22.2-22.2c-9.5-9.5-9.3-25 .4-34.3L311.4 296H24c-13.3 0-24-10.7-24-24v-32c0-13.3 10.7-24 24-24h287.4L190.9 101.2c-9.8-9.3-10-24.8-.4-34.3z"
+                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
                 fill="currentColor"
                 style={{}}
               />
