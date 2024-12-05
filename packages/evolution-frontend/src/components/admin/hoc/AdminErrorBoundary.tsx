@@ -7,10 +7,6 @@
 import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
-interface AdminErrorProps {
-    // No props required
-}
-
 interface AdminErrorState {
     hasError: boolean;
 }
@@ -19,11 +15,8 @@ interface AdminErrorState {
  * Error boundary component to catch exceptions in react components and display
  * a fallback UI.
  */
-export class AdminErrorBoundary extends React.Component<
-    React.PropsWithChildren<AdminErrorProps & WithTranslation>,
-    AdminErrorState
-> {
-    constructor(props: React.PropsWithChildren<AdminErrorProps & WithTranslation>) {
+export class AdminErrorBoundary extends React.Component<React.PropsWithChildren<WithTranslation>, AdminErrorState> {
+    constructor(props: React.PropsWithChildren<WithTranslation>) {
         super(props);
         this.state = { hasError: false };
     }
@@ -47,4 +40,4 @@ export class AdminErrorBoundary extends React.Component<
     }
 }
 
-export default withTranslation()(AdminErrorBoundary);
+export default withTranslation('admin')(AdminErrorBoundary);

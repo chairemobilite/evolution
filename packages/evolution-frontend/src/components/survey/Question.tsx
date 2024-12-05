@@ -322,9 +322,9 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
                             : ''
                 }`}
                 onClick={() => {
-                    this.inputRef.current && typeof this.inputRef.current.focus === 'function'
-                        ? this.inputRef.current.focus()
-                        : null;
+                    if (this.inputRef.current && typeof this.inputRef.current.focus === 'function') {
+                        this.inputRef.current.focus();
+                    }
                 }}
             >
                 <InputWidgetWrapper
