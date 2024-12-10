@@ -160,7 +160,7 @@ exports[`Reset the error boundary when clicking 1`] = `
                     ],
                     "fallbackNS": false,
                     "ignoreJSONStructure": true,
-                    "initImmediate": true,
+                    "initAsync": true,
                     "interpolation": {
                       "escapeValue": false,
                       "format": [Function],
@@ -198,7 +198,7 @@ exports[`Reset the error boundary when clicking 1`] = `
                       },
                     },
                     "returnEmptyString": true,
-                    "returnNull": true,
+                    "returnNull": false,
                     "returnObjects": false,
                     "returnedObjectHandler": false,
                     "saveMissing": false,

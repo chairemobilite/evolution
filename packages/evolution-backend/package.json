@@ -1,9 +1,9 @@
 {
     "engines": {
-        "node": ">=18.0.0"
+        "node": ">=22.0.0"
     },
     "name": "evolution-backend",
-    "version": "0.3.0",
+    "version": "0.5.0",
     "description": "Backend library for Evolution",
     "repository": "github.com/chairemobilite/evolution",
     "license": "MIT",
@@ -24,33 +24,34 @@
         "format": "prettier-eslint ./src/**/*.{ts,tsx} --write"
     },
     "dependencies": {
-        "@casl/ability": "^5.4.3",
+        "@casl/ability": "^5.4.4",
         "chaire-lib-backend": "^0.2.2",
         "chaire-lib-common": "^0.2.2",
-        "evolution-common": "^0.3.0",
-        "express": "^4.19.2",
-        "express-session": "^1.17.1",
+        "evolution-common": "^0.5.0",
+        "express": "^4.21.2",
+        "express-session": "^1.18.1",
         "geojson-validation": "^1.0.2",
         "knex": "^3.1.0",
         "knex-postgis": "^0.14.3",
         "lodash": "^4.17.21",
-        "moment": "^2.29.4",
-        "papaparse": "^5.3.0",
-        "slugify": "^1.6.5",
-        "typescript": "^4.9.4",
-        "uuid": "^10.0.0",
-        "workerpool": "^6.2.1"
+        "moment": "^2.30.1",
+        "papaparse": "^5.4.1",
+        "slugify": "^1.6.6",
+        "typescript": "^5.7.2",
+        "uuid": "^11.0.3",
+        "workerpool": "^6.5.1"
     },
     "devDependencies": {
-        "@types/geojson": "^7946.0.7",
-        "@types/jest": "^29.5.12",
+        "@types/express": "^4.17.21",
+        "@types/geojson": "^7946.0.15",
+        "@types/jest": "^29.5.14",
         "@types/jest-each": "^24.3.0",
-        "@types/lodash": "^4.14.198",
-        "@types/node": "^17.0.38",
-        "@typescript-eslint/eslint-plugin": "^6.21.0",
-        "@typescript-eslint/parser": "^6.21.0",
-        "cross-env": "^7.0.2",
-        "eslint": "^8.57.0",
+        "@types/lodash": "^4.17.13",
+        "@types/node": "^22.10.1",
+        "@typescript-eslint/eslint-plugin": "^8.17.0",
+        "@typescript-eslint/parser": "^8.17.0",
+        "cross-env": "^7.0.3",
+        "eslint": "^8.57.1",
         "eslint-plugin-n": "^15.7.0",
         "jest": "^29.7.0",
         "jest-each": "^29.7.0",
@@ -58,6 +59,6 @@
         "mock-knex": "^0.4.10",
         "prettier-eslint-cli": "^8.0.1",
         "stream-mock": "^2.0.5",
-        "ts-jest": "^29.1.5"
+        "ts-jest": "^29.2.5"
     }
 }

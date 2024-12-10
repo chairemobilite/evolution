@@ -234,7 +234,7 @@ export const personOccupation = {
         en: 'Employed full-time (30h and more/week)'
       },
       conditional: function(interview, path) {
-        return surveyHelperNew.getResponse(interview, path, null, "../age") >= 15
+        return surveyHelperNew.getResponse(interview, path, null, "../age") as any >= 15
       }
     },
     {
@@ -245,7 +245,7 @@ export const personOccupation = {
         en: 'Employed part-time (less than 30h/week)'
       },
       conditional: function(interview, path) {
-        return surveyHelperNew.getResponse(interview, path, null, "../age") >= 15
+        return surveyHelperNew.getResponse(interview, path, null, "../age") as any >= 15
       }
     },
     {
@@ -253,14 +253,14 @@ export const personOccupation = {
       internalId: 3,
       label: {
         fr: function(interview, path) {
-          return surveyHelperNew.getResponse(interview, path, null, "../age") < 12 ? 'École' : 'Études à temps plein'
+          return surveyHelperNew.getResponse(interview, path, null, "../age") as any < 12 ? 'École' : 'Études à temps plein'
         },
         en: function(interview, path) {
-          return surveyHelperNew.getResponse(interview, path, null, "../age") < 12 ? 'Schoolchild/Student' : 'Full-time student'
+          return surveyHelperNew.getResponse(interview, path, null, "../age") as any < 12 ? 'Schoolchild/Student' : 'Full-time student'
         },
       },
       conditional: function(interview, path) {
-        return surveyHelperNew.getResponse(interview, path, null, "../age") >= 5
+        return surveyHelperNew.getResponse(interview, path, null, "../age") as any >= 5
       }
     },
     {
@@ -272,7 +272,7 @@ export const personOccupation = {
       },
       conditional: function(interview, path) {
         if (config.includePartTimeStudentOccupation === false) { return false; }
-        return surveyHelperNew.getResponse(interview, path, null, "../age") >= 16
+        return surveyHelperNew.getResponse(interview, path, null, "../age") as any >= 16
       }
     },
     {
@@ -284,7 +284,7 @@ export const personOccupation = {
       },
       conditional: function(interview, path) {
         if (config.includeWorkerAndStudentOccupation === false) { return false; }
-        return surveyHelperNew.getResponse(interview, path, null, "../age") >= 16
+        return surveyHelperNew.getResponse(interview, path, null, "../age") as any >= 16
       }
     },
     {
@@ -295,7 +295,7 @@ export const personOccupation = {
         en: "Retired",
       },
       conditional: function(interview, path) {
-        return surveyHelperNew.getResponse(interview, path, null, "../age") >= 40
+        return surveyHelperNew.getResponse(interview, path, null, "../age") as any >= 40
       }
     },
     {
@@ -334,7 +334,7 @@ export const personOccupation = {
     const age = surveyHelperNew.getResponse(interview, path, null, '../age');
     return [
       {
-        validation: _isBlank(value) && !_isBlank(age) && age >= 5,
+        validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 5,
         errorMessage: {
           fr: `L'occupation principale est requise.`,
           en: `The main occupation is required.`
@@ -401,7 +401,7 @@ export const personTransitPassOwner = {
     const age = surveyHelperNew.getResponse(interview, path, null, '../age');
     return [
       {
-        validation: _isBlank(value) && !_isBlank(age) && age >= 5,
+        validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 5,
         errorMessage: {
           fr: `Cette réponse est requise.`,
           en: `This field is required.`
@@ -597,7 +597,7 @@ export const personCellphoneOwner = {
     const age = surveyHelperNew.getResponse(interview, path, null, '../age');
     return [
       {
-        validation: _isBlank(value) && !_isBlank(age) && age >= 12,
+        validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 12,
         errorMessage: {
           fr: `Cette réponse est requise.`,
           en: `This field is required.`
@@ -667,7 +667,7 @@ export const personDrivingLicenseOwnership = {
     const age = surveyHelperNew.getResponse(interview, path, null, '../age');
     return [
       {
-        validation: _isBlank(value) && !_isBlank(age) && age >= 16,
+        validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 16,
         errorMessage: {
           fr: `Cette réponse est requise.`,
           en: `This field is required.`
@@ -817,7 +817,7 @@ export const personBikesharingMember = {
     const age = surveyHelperNew.getResponse(interview, path, null, '../age');
     return [
       {
-        validation: _isBlank(value) && !_isBlank(age) && age >= 14,
+        validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 14,
         errorMessage: {
           fr: `Cette réponse est requise.`,
           en: `This field is required.`
@@ -956,12 +956,12 @@ export const personDidTrips = {
     }
   },
   conditional: function(interview, path) {
-    const age = surveyHelperNew.getResponse(interview, path, null, '../age');
+    const age = surveyHelperNew.getResponse(interview, path, null, '../age') as any;
     if (_isBlank(age) || (!_isBlank(age) && (age < 5 || !(age > 0)) )) { return [false, null]; }
     return [true, null];
   },
   validations: function(value, customValue, interview, path, customPath) {
-    const age = surveyHelperNew.getResponse(interview, path, null, '../age');
+    const age = surveyHelperNew.getResponse(interview, path, null, '../age') as any;
     return [
       {
         validation: _isBlank(value) && !_isBlank(age) && age >= 5,

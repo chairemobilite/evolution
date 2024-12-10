@@ -532,8 +532,7 @@ export const exportAllToCsvByObjectTask = async function (
     });
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-let runningExportNonce: undefined | Object = undefined;
+let runningExportNonce: undefined | object = undefined;
 
 /**
  * Function that will run a task to export all interview data to CSV by object.

@@ -11,6 +11,7 @@ import { interviewAttributesForTestCases } from '../../../tests/surveys';
 import * as Helpers from '../helpers';
 import projectConfig from '../../../config/project.config';
 import { Journey, Person, Trip, UserInterviewAttributes } from '../../questionnaire/types';
+import { TFunction } from 'i18next';
 
 const baseInterviewAttributes: Pick<UserInterviewAttributes, 'id' | 'uuid' | 'participant_id' | 'is_completed' | 'is_questionable' | 'is_valid'> = {
     id: 1,
@@ -1091,7 +1092,7 @@ describe('getOrigin/getDestination', () => {
 
 describe('getVisitedPlaceNames', () => {
 
-    const mockedT = jest.fn().mockReturnValue('mocked');
+    const mockedT = jest.fn().mockReturnValue('mocked') as unknown as jest.MockedFunction<TFunction>;
 
     each([
         [

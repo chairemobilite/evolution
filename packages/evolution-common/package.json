@@ -1,9 +1,9 @@
 {
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "name": "evolution-common",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Common type library for evolution",
   "repository": "github.com/chairemobilite/evolution",
   "license": "MIT",
@@ -20,24 +20,24 @@
     "format": "prettier-eslint ./src/**/*.{ts,tsx} --write"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/fontawesome-svg-core": "^6.7.1",
     "chaire-lib-common": "^0.2.2",
     "geojson-validation": "^1.0.2",
-    "i18next": "^22.4.15",
+    "i18next": "^24.0.5",
     "libphonenumber-js": "^1.10.47",
     "lodash": "^4.17.21",
-    "moment": "^2.29.4",
-    "typescript": "^4.9.4",
-    "uuid": "^10.0.0",
-    "@turf/turf": "^6.3.0"
+    "moment": "^2.30.1",
+    "typescript": "^5.7.2",
+    "uuid": "^11.0.3",
+    "@turf/turf": "^7.1.0"
   },
   "devDependencies": {
-    "@types/geojson": "^7946.0.7",
-    "@types/lodash": "^4.14.198",
-    "@types/node": "^17.0.38",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
+    "@types/geojson": "^7946.0.15",
+    "@types/lodash": "^4.17.13",
+    "@types/node": "^22.10.1",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^8.57.1",
     "eslint-plugin-n": "^15.7.0",
     "jest-each": "^29.7.0",
     "prettier-eslint-cli": "^8.0.1"

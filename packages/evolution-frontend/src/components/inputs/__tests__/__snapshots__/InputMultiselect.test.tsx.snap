@@ -17,6 +17,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
       aria-live="polite"
       aria-relevant="additions text"
       className="css-1f43avz-a11yText-A11yText"
+      role="log"
     />
     <div
       className="react-select__control css-13cymwt-control"
@@ -131,6 +132,7 @@ exports[`Render InputMultiselect with various options Basic options 1`] = `
           data-value=""
         >
           <input
+            aria-activedescendant=""
             aria-autocomplete="list"
             aria-expanded={false}
             aria-haspopup={true}
@@ -228,6 +230,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
       aria-live="polite"
       aria-relevant="additions text"
       className="css-1f43avz-a11yText-A11yText"
+      role="log"
     />
     <div
       className="react-select__control css-13cymwt-control"
@@ -342,6 +345,7 @@ exports[`Render InputMultiselect with various options With all parameters 1`] = 
           data-value=""
         >
           <input
+            aria-activedescendant=""
             aria-autocomplete="list"
             aria-expanded={false}
             aria-haspopup={true}
@@ -466,6 +470,7 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
       aria-live="polite"
       aria-relevant="additions text"
       className="css-1f43avz-a11yText-A11yText"
+      role="log"
     />
     <div
       className="react-select__control css-13cymwt-control"
@@ -530,6 +535,7 @@ exports[`Render InputMultiselect with various options With shortcuts 1`] = `
           data-value=""
         >
           <input
+            aria-activedescendant=""
             aria-autocomplete="list"
             aria-expanded={false}
             aria-haspopup={true}

@@ -28,12 +28,12 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
           class="ReactModalPortal"
         >
           <div
-            class="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+            class="ReactModal__Overlay react-modal-overlay"
           >
             <div
               aria-label="Delete item"
               aria-modal="true"
-              class="ReactModal__Content ReactModal__Content--after-open react-modal"
+              class="ReactModal__Content react-modal"
               role="dialog"
               tabindex="-1"
             >
@@ -134,7 +134,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
         }
       >
         <div
-          className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+          className="ReactModal__Overlay react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
           style={{}}
@@ -142,7 +142,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
           <div
             aria-label="Delete item"
             aria-modal={true}
-            className="ReactModal__Content ReactModal__Content--after-open react-modal"
+            className="ReactModal__Content react-modal"
             onClick={[Function]}
             onKeyDown={[Function]}
             onMouseDown={[Function]}
@@ -270,7 +270,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
     }
   >
     <div
-      className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+      className="ReactModal__Overlay react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
       style={{}}
@@ -278,7 +278,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
       <div
         aria-label="Delete item"
         aria-modal={true}
-        className="ReactModal__Content ReactModal__Content--after-open react-modal"
+        className="ReactModal__Content react-modal"
         onClick={[Function]}
         onKeyDown={[Function]}
         onMouseDown={[Function]}
@@ -354,7 +354,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
   <div
     aria-label="Delete item"
     aria-modal={true}
-    className="ReactModal__Content ReactModal__Content--after-open react-modal"
+    className="ReactModal__Content react-modal"
     onClick={[Function]}
     onKeyDown={[Function]}
     onMouseDown={[Function]}
@@ -456,12 +456,12 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
           class="ReactModalPortal"
         >
           <div
-            class="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+            class="ReactModal__Overlay react-modal-overlay"
           >
             <div
               aria-label="Delete item"
               aria-modal="true"
-              class="ReactModal__Content ReactModal__Content--after-open react-modal"
+              class="ReactModal__Content react-modal"
               role="dialog"
               tabindex="-1"
             >
@@ -562,7 +562,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
         }
       >
         <div
-          className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+          className="ReactModal__Overlay react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
           style={{}}
@@ -570,7 +570,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
           <div
             aria-label="Delete item"
             aria-modal={true}
-            className="ReactModal__Content ReactModal__Content--after-open react-modal"
+            className="ReactModal__Content react-modal"
             onClick={[Function]}
             onKeyDown={[Function]}
             onMouseDown={[Function]}
@@ -698,7 +698,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
     }
   >
     <div
-      className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+      className="ReactModal__Overlay react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
       style={{}}
@@ -706,7 +706,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
       <div
         aria-label="Delete item"
         aria-modal={true}
-        className="ReactModal__Content ReactModal__Content--after-open react-modal"
+        className="ReactModal__Content react-modal"
         onClick={[Function]}
         onKeyDown={[Function]}
         onMouseDown={[Function]}
@@ -782,7 +782,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
   <div
     aria-label="Delete item"
     aria-modal={true}
-    className="ReactModal__Content ReactModal__Content--after-open react-modal"
+    className="ReactModal__Content react-modal"
     onClick={[Function]}
     onKeyDown={[Function]}
     onMouseDown={[Function]}
@@ -884,12 +884,12 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
           class="ReactModalPortal"
         >
           <div
-            class="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+            class="ReactModal__Overlay react-modal-overlay"
           >
             <div
               aria-label="Delete item"
               aria-modal="true"
-              class="ReactModal__Content ReactModal__Content--after-open react-modal"
+              class="ReactModal__Content react-modal"
               role="dialog"
               tabindex="-1"
             >
@@ -990,7 +990,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
         }
       >
         <div
-          className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+          className="ReactModal__Overlay react-modal-overlay"
           onClick={[Function]}
           onMouseDown={[Function]}
           style={{}}
@@ -998,7 +998,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
           <div
             aria-label="Delete item"
             aria-modal={true}
-            className="ReactModal__Content ReactModal__Content--after-open react-modal"
+            className="ReactModal__Content react-modal"
             onClick={[Function]}
             onKeyDown={[Function]}
             onMouseDown={[Function]}
@@ -1126,7 +1126,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
     }
   >
     <div
-      className="ReactModal__Overlay ReactModal__Overlay--after-open react-modal-overlay"
+      className="ReactModal__Overlay react-modal-overlay"
       onClick={[Function]}
       onMouseDown={[Function]}
       style={{}}
@@ -1134,7 +1134,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
       <div
         aria-label="Delete item"
         aria-modal={true}
-        className="ReactModal__Content ReactModal__Content--after-open react-modal"
+        className="ReactModal__Content react-modal"
         onClick={[Function]}
         onKeyDown={[Function]}
         onMouseDown={[Function]}
@@ -1210,7 +1210,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
   <div
     aria-label="Delete item"
     aria-modal={true}
-    className="ReactModal__Content ReactModal__Content--after-open react-modal"
+    className="ReactModal__Content react-modal"
     onClick={[Function]}
     onKeyDown={[Function]}
     onMouseDown={[Function]}
@@ -1297,8 +1297,8 @@ exports[`DeleteGroupedObjectButton layout: Display with custom label Render widg
   >
     <svg
       aria-hidden="true"
-      className="svg-inline--fa fa-trash-alt fa-w-14 faIconLeft"
-      data-icon="trash-alt"
+      className="svg-inline--fa fa-trash-can faIconLeft"
+      data-icon="trash-can"
       data-prefix="fas"
       focusable="false"
       role="img"
@@ -1307,7 +1307,7 @@ exports[`DeleteGroupedObjectButton layout: Display with custom label Render widg
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
+        d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
         fill="currentColor"
         style={{}}
       />
@@ -1328,8 +1328,8 @@ exports[`DeleteGroupedObjectButton layout: Display with default label Render wid
   >
     <svg
       aria-hidden="true"
-      className="svg-inline--fa fa-trash-alt fa-w-14 faIconLeft"
-      data-icon="trash-alt"
+      className="svg-inline--fa fa-trash-can faIconLeft"
+      data-icon="trash-can"
       data-prefix="fas"
       focusable="false"
       role="img"
@@ -1338,7 +1338,7 @@ exports[`DeleteGroupedObjectButton layout: Display with default label Render wid
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M32 464a48 48 0 0 0 48 48h288a48 48 0 0 0 48-48V128H32zm272-256a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zm-96 0a16 16 0 0 1 32 0v224a16 16 0 0 1-32 0zM432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z"
+        d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
         fill="currentColor"
         style={{}}
       />
