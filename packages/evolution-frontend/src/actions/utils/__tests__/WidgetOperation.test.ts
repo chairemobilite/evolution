@@ -548,7 +548,7 @@ test('Test simple widget data with update key', () => {
 });
 
 describe('Test with choice conditional', () => {
-    test('No change in value', () => {
+    test('No change in value if all choice conditionals are true', () => {
         // Prepare test data
         const newValue = 'a';
         // validation response for widget4
@@ -579,12 +579,14 @@ describe('Test with choice conditional', () => {
         
     });
 
-    test('Change value for undefined', () => {
+    test('Choice visibility changes, set to undefined', () => {
+        // Return `false` with `undefined` as new value
+        mockedCheckChoicesConditional.mockReturnValueOnce([false, undefined]);
+
         // Prepare test data
         const value = 'a';
         // validation response for widget4
         mockedCheckValidations.mockReturnValueOnce([true, undefined]);
-        mockedCheckChoicesConditional.mockReturnValueOnce([false, undefined]);
         // Initialize current response
         const testInterviewAttributes = _cloneDeep(interviewAttributes);
         (testInterviewAttributes as any).responses.section1.q4 = value;
@@ -605,6 +607,8 @@ describe('Test with choice conditional', () => {
         expect(needUpdate).toEqual(true);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
         expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget4.validations, (testInterviewAttributes as any).responses.section1.q4, undefined, testInterviewAttributes, 'section1.q4', undefined);
+
+        // Verify the checkChoicesConditional calls and make sure the new value for widget4 is undefined
         expect(mockedCheckChoicesConditional).toHaveBeenCalledTimes(1);
         expect(mockedCheckChoicesConditional).toHaveBeenCalledWith(value, widgets.widget4.choices, testInterviewAttributes, 'section1.q4');
         expect(interview.widgets.widget4).toEqual({
@@ -619,10 +623,15 @@ describe('Test with choice conditional', () => {
         
     });
 
-    test('Change value for something else', () => {
+    test('Choice visibility changes, change to new values', () => {
+
+        // Let checkChoicesConditional return `false` with a value of 'b'
+        const updatedValue = 'b';
+        mockedCheckChoicesConditional.mockReturnValueOnce([false, updatedValue]);
+
         // Prepare test data
         const value = 'a';
-        const updatedValue = 'b';
+
         // Initialize current response
         const testInterviewAttributes = _cloneDeep(interviewAttributes);
         (testInterviewAttributes as any).responses.section1.q4 = value;
@@ -637,7 +646,6 @@ describe('Test with choice conditional', () => {
     
         // validation and choice conditional response for widget4 
         mockedCheckValidations.mockReturnValueOnce([true, undefined]);
-        mockedCheckChoicesConditional.mockReturnValueOnce([false, updatedValue]);
 
         // Test
         const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
@@ -647,6 +655,8 @@ describe('Test with choice conditional', () => {
         expect(needUpdate).toEqual(true);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
         expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget4.validations, (testInterviewAttributes as any).responses.section1.q4, undefined, testInterviewAttributes, 'section1.q4', undefined);
+
+        // Verify the checkChoicesConditional calls and make sure the new value for widget4 is undefined
         expect(mockedCheckChoicesConditional).toHaveBeenCalledTimes(1);
         expect(mockedCheckChoicesConditional).toHaveBeenCalledWith(value, widgets.widget4.choices, testInterviewAttributes, 'section1.q4');
         expect(interview.widgets.widget4).toEqual({
@@ -660,17 +670,23 @@ describe('Test with choice conditional', () => {
         expect(interview.allWidgetsValid).toEqual(true);
 
         // Make a second call, to reset value, making sure the widget is still valid
+
+        // Let checkChoicesConditional return `false` with a value of 'b'
+        // validation and choice conditional response for widget4
         const updatedValue2 = undefined;
+        mockedCheckChoicesConditional.mockReturnValueOnce([false, updatedValue2]);
+        mockedCheckValidations.mockReturnValueOnce([false, { en: 'value must be set' }]);
+
         interviewExpected.responses.section1.q4 = updatedValue2;
         interviewExpected.validations.section1.q4 = true;
-        // validation and choice conditional response for widget4
-        mockedCheckValidations.mockReturnValueOnce([false, { en: 'value must be set' }]);
-        mockedCheckChoicesConditional.mockReturnValueOnce([false, updatedValue2]);
+
+        // Call the widget preparation function
         const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareWidgets(choiceSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
         expect(interview2).toEqual(expect.objectContaining(interviewExpected));
         expect(newValuesByPath2).toEqual(Object.assign({}, valuesByPath, { 'responses.section1.q4': updatedValue2 }));
         expect(foundModalOpen2).toEqual(false);
         expect(needUpdate2).toEqual(true);
+
         // Though it's invalid, this path was not affected, so the widget should still be valid
         expect(interview.widgets.widget4).toEqual({
             ...defaultExpectedWidgetStatus.widget4,
