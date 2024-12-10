@@ -124,6 +124,7 @@ each([
     [undefined, 'integer', undefined],
     [[3], 'integer', undefined],
     [{ test: 3 }, 'integer', undefined],
+    ['', 'integer', null],
     ['3', 'float', 3],
     ['3.4', 'float', 3.4],
     [3, 'float', 3],
@@ -132,6 +133,7 @@ each([
     [undefined, 'float', undefined],
     [[3], 'float', undefined],
     [{ test: 3 }, 'float', undefined],
+    ['', 'float', null],
     ['true', 'boolean', true],
     [true, 'boolean', true],
     ['f', 'boolean', false],
@@ -140,10 +142,22 @@ each([
     [[3], 'boolean', null],
     [{ test: 3 }, 'boolean', null],
     ['test', 'string', 'test'],
-    // TODO What about other data types? These are obviously not strings, see in the usage
-    [[3, 4], 'string', [3, 4]],
-    [{ test: 3 }, 'string', { test: 3 }],
-    ['', 'object', null]
+    ['', 'string', null],
+    ['test', 'string', 'test'],
+    [3, 'string', '3'],
+    [null, 'string', null],
+    [undefined, 'string', undefined],
+    [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0,0]}, properties: {} }, 'geojson', { type: 'Feature', geometry: { type: 'Point', coordinates: [0,0]}, properties: {} }],
+    // Should add the properties to the feature
+    [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0,0]} }, 'geojson', { type: 'Feature', geometry: { type: 'Point', coordinates: [0,0]}, properties: {} }],
+    [{ type: 'Feature', geometry: 'not a geometry' }, 'geojson', null],
+    [3, 'geojson', null],
+    ['not a feature', 'geojson', null],
+    [[3, 4], undefined, [3, 4]],
+    [{ test: 3 }, undefined, { test: 3 }],
+    // TODO What about other data types? They are simply converted to string, should something else be done?
+    [[3, 4], 'string', String([3, 4])],
+    [{ test: 3 }, 'string', String({ test: 3 })]
 ]).test('parseValue: %s %s', (value, type, expected) => {
     expect(Helpers.parseValue(value, type)).toEqual(expected);
 });
