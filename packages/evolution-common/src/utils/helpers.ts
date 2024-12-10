@@ -10,6 +10,7 @@ import { v4 as uuidV4 } from 'uuid';
 import sortBy from 'lodash/sortBy';
 import { i18n } from 'i18next';
 import moment from 'moment';
+import { isFeature } from 'geojson-validation';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
@@ -229,21 +230,40 @@ export const getPath = function (path: string | null | undefined, relativePath?:
  * @param datatype The type of data
  * @returns
  */
-export const parseValue = function (value: any, datatype: 'integer' | 'float' | 'boolean' | string) {
+export const parseValue = function (
+    value: any,
+    datatype: 'integer' | 'float' | 'boolean' | 'string' | 'geojson' | undefined
+) {
+    // If datatype is undefined, just return the value
+    if (datatype === undefined) {
+        return value;
+    }
     if (datatype === 'integer') {
         return value === undefined || (value !== null && typeof value === 'object') || Array.isArray(value)
             ? undefined
             : LE._toInteger(value);
-    } else if (datatype === 'float') {
+    }
+    if (datatype === 'float') {
         return value === undefined || (value !== null && typeof value === 'object') || Array.isArray(value)
             ? undefined
             : LE._toFloat(value);
-    } else if (datatype === 'boolean') {
+    }
+    if (datatype === 'boolean') {
         return value === undefined ? undefined : LE._booleish(value);
-    } else if (value === '') {
+    }
+    if (datatype === 'geojson') {
+        // Add the properties to the value if it is an object and it does not have properties
+        if (typeof value === 'object' && value['properties'] === undefined) {
+            value.properties = {};
+        }
+        // For geojson, we only accept valid geojson objects
+        return value && isFeature(value) ? value : null;
+    }
+    if (value === '') {
         return null;
     }
-    return value;
+    // Return a string by default
+    return value === undefined || value === null ? value : String(value);
 };
 
 /**
