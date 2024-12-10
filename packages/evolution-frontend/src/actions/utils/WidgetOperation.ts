@@ -95,7 +95,7 @@ const prepareSimpleWidget = (
         widgetConfig.conditional,
         data.interview,
         path,
-        customPath
+        data.user
     );
     let assignedValue = invisibleValue;
     const customAssignedValue = customInvisibleValue;

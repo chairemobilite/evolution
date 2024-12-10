@@ -162,7 +162,7 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
             parseBoolean(props.widgetConfig.conditional, props.interview, props.path),
             props.interview,
             props.path,
-            props.customPath
+            props.user
         )[0]
     ) {
         return null;
