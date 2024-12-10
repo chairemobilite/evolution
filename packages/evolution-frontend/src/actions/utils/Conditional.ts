@@ -123,8 +123,8 @@ export const checkChoiceConditional = (
  * @param path The path of the value to conditionally test
  * @param user The current user
  * @returns An array, where the first value is whether all selected choices are
- * still visible. The second element is the value to set to this field if the
- * condition fails.
+ * still visible. The second element is the value to set to this field if any of
+ * the conditional are now `false`.
  */
 export const checkChoicesConditional = (
     value: unknown,
