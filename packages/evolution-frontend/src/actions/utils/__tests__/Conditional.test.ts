@@ -83,10 +83,10 @@ each([
     ['legacy return value', jest.fn().mockReturnValue(null), [false, undefined, undefined]],
     ['function with error', jest.fn().mockImplementation(() => { throw 'error' }), [false, undefined, undefined]],
 ]).test('Test check conditional %s', (_title, conditional, expectedResult) => {
-    expect(checkConditional(conditional, interviewAttributes, 'path', 'customPath', userAttributes)).toEqual(expectedResult);
+    expect(checkConditional(conditional, interviewAttributes, 'path', userAttributes)).toEqual(expectedResult);
     if (typeof conditional === 'function') {
         expect(conditional).toHaveBeenCalledTimes(1);
-        expect(conditional).toHaveBeenCalledWith(interviewAttributes, 'path', 'customPath', userAttributes);
+        expect(conditional).toHaveBeenCalledWith(interviewAttributes, 'path', userAttributes);
     }
 });
 

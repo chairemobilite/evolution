@@ -11,30 +11,25 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { ParsingFunction, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
-// FIXME: This type is very close to the ParsingFunction type in the frontendHelpers, but it has also a customPath. Is it required? Ideally, we could use the ParsingFunction type
-export type ConditionalFunction = (
-    interview: UserInterviewAttributes,
-    path: string,
-    customPath?: string,
-    user?: CliUser
-) => boolean | [boolean] | [boolean, unknown] | [boolean, unknown, unknown];
-
 /**
  * Validate a conditional value and return the result
  * @param conditional The conditional value of function
  * @param interview The interview
  * @param path The path of the value to conditionally test
- * @param customPath custom path.
  * @param user The current user
  * @returns An array, where the first value is whether the condition result. The
  * second and third elements are the values to set to this field (2nd: value and 3rd: customValue for customChoice) if the
  * condition fails.
  */
 export const checkConditional = (
-    conditional: undefined | boolean | [boolean, unknown] | [boolean, unknown, unknown] | ConditionalFunction,
+    conditional:
+        | undefined
+        | boolean
+        | [boolean, unknown]
+        | [boolean, unknown, unknown]
+        | ParsingFunction<boolean | [boolean, unknown] | [boolean] | [boolean, unknown, unknown]>,
     interview: UserInterviewAttributes,
     path: string,
-    customPath?: string,
     user?: CliUser
 ): [boolean, unknown, unknown] => {
     if (conditional === undefined) {
@@ -47,7 +42,7 @@ export const checkConditional = (
         return [conditional[0], conditional[1], conditional[2]];
     } else if (typeof conditional === 'function') {
         try {
-            const conditionalResult = conditional(interview, path, customPath, user);
+            const conditionalResult = conditional(interview, path, user);
             if (typeof conditionalResult === 'boolean') {
                 return [conditionalResult, undefined, undefined];
             } else if (Array.isArray(conditionalResult)) {
@@ -68,7 +63,7 @@ export const checkConditional = (
         } catch (error) {
             // If there is an error during conditional check, just ignore the error and hide the field to reduce probability of side-effects.
             // TODO: define a better way to deal with errors.
-            console.log(`conditional error for ${path}`, error);
+            console.warn(`conditional error for ${path}`, error);
             return [false, undefined, undefined];
         }
     } else {
