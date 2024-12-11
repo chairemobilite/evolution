@@ -9,7 +9,7 @@ import each from 'jest-each';
 
 import { getSameAsReverseTripWidgetConfig } from '../widgetSameAsReverseTrip';
 import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
-import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../widgets';
+import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../questionnaire/types';
 import { translateString } from '../../../../../utils/helpers';
 import * as surveyHelper from '../../../../odSurvey/helpers';
 

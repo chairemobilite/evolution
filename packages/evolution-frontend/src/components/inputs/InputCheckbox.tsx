@@ -11,7 +11,7 @@ import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { InputCheckboxType, ChoiceType } from 'evolution-common/lib/services/widgets';
+import { InputCheckboxType, ChoiceType } from 'evolution-common/lib/services/questionnaire/types';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { CommonInputProps } from './CommonInputProps';

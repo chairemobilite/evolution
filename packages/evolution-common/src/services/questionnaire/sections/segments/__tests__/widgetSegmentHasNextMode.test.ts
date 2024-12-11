@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _cloneDeep from 'lodash/cloneDeep';
-import { InputRadioType, QuestionWidgetConfig } from '../../../../widgets';
+import { InputRadioType, QuestionWidgetConfig } from '../../../../questionnaire/types';
 import { getSegmentHasNextModeWidgetConfig } from '../widgetSegmentHasNextMode';
 import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
 import { getResponse, setResponse, translateString } from '../../../../../utils/helpers';

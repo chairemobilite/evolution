@@ -6,7 +6,7 @@
  */
 
 import { I18nData, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import { ValidationFunction } from 'evolution-common/lib/services/widgets';
+import { ValidationFunction } from 'evolution-common/lib/services/questionnaire/types';
 
 /**
  * Check the validations for a specific value

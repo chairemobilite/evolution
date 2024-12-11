@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { ButtonWidgetConfig } from '../../../widgets';
+import { ButtonWidgetConfig } from '../../../questionnaire/types';
 import { TFunction } from 'i18next';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { ButtonAction } from '../../types';

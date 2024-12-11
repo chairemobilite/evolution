@@ -7,7 +7,7 @@
 import React from 'react';
 import Markdown from 'react-markdown';
 
-import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
+import { QuestionWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 import SurveyErrorMessage from './SurveyErrorMessage';
 import HelpPopupLink from './HelpPopupLink';
 

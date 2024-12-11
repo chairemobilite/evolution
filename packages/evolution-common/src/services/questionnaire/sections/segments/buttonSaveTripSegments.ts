@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { ButtonWidgetConfig } from '../../../widgets';
+import { ButtonWidgetConfig } from '../../../questionnaire/types';
 import { getPath, getResponse } from '../../../../utils/helpers';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';

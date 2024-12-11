@@ -7,7 +7,7 @@
 import React from 'react';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputStringType } from 'evolution-common/lib/services/widgets';
+import { InputStringType } from 'evolution-common/lib/services/questionnaire/types';
 import { parseString } from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
 

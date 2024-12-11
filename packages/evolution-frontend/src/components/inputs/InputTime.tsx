@@ -7,7 +7,7 @@
 import React from 'react';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputTimeType } from 'evolution-common/lib/services/widgets';
+import { InputTimeType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { WithTranslation, withTranslation } from 'react-i18next';

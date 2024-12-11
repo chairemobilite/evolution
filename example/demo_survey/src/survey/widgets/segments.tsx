@@ -18,7 +18,7 @@ import helper from '../helper';
 import subwayStations from '../subwayStations.json';
 import trainStations  from '../trainStations.json';
 import busRoutes  from '../busRoutes.json';
-import { GroupConfig } from 'evolution-common/lib/services/widgets';
+import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { getModePreWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetSegmentModePre';
 import { getModeWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetSegmentMode';
 import { getSameAsReverseTripWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetSameAsReverseTrip';

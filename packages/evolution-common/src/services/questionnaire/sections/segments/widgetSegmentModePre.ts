@@ -6,7 +6,7 @@
  */
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { WidgetConfig } from '../../../widgets';
+import { WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';

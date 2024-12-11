@@ -8,7 +8,7 @@ import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputSelectType, isGroupedChoice, ChoiceType } from 'evolution-common/lib/services/widgets';
+import { InputSelectType, isGroupedChoice, ChoiceType } from 'evolution-common/lib/services/questionnaire/types';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';

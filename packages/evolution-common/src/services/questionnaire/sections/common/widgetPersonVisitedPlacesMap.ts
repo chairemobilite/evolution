@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { InfoMapWidgetConfig, SurveyMapObjectProperty } from '../../../widgets';
+import { InfoMapWidgetConfig, SurveyMapObjectProperty } from '../../../questionnaire/types';
 
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';

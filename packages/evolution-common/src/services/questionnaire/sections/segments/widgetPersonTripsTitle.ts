@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { TextWidgetConfig } from '../../../widgets';
+import { TextWidgetConfig } from '../../../questionnaire/types';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
 import { UserInterviewAttributes } from '../../types';
