@@ -102,7 +102,6 @@ const userAttributes = {
 const defaultWidgetStatus: WidgetStatus = {
     path: commonWidgetConfig.path,
     isVisible: true,
-    modalIsOpen: false,
     isDisabled: false,
     isCollapsed: false,
     isEmpty: false,

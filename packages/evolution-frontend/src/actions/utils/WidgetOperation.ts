@@ -235,11 +235,6 @@ const prepareSimpleWidget = (
         customValue = customAssignedValue;
         data.needToUpdate = true;
     }
-    let modalIsOpen = false;
-    if (isVisible && widgetConfig.isModal && data.foundOneOpenedModal === false) {
-        data.foundOneOpenedModal = true;
-        modalIsOpen = true;
-    }
 
     const validationCheck = checkValidations(
         widgetConfig.validations,
@@ -283,7 +278,6 @@ const prepareSimpleWidget = (
         path: path,
         customPath: customPath,
         isVisible,
-        modalIsOpen,
         isDisabled: false, // todo, allow function
         isCollapsed: false, // save collapsed status in db?
         isEmpty: customPath ? _isBlank(value) && _isBlank(customValue) : _isBlank(value),
