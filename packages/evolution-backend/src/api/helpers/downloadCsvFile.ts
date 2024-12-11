@@ -11,25 +11,33 @@ import papaparse from 'papaparse';
 import moment from 'moment';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 
+// Restricted responses to exclude from the CSV
+export type ExcludedField = 'interview_id' | 'user_email' | 'user_username';
+
 /**
  * Download the CSV file with the expected responses.
  * @param {Object} params - The parameters object.
  * @param {Response} params.res - The response object.
  * @param {string} params.fileName - The name of the CSV file to be downloaded.
- * @param {string[]} params.requestedResponses - The requested responses to include in the CSV.
+ * @param {string[]} params.requestedFields - The fields to include in the CSV.
+ * @param {ExcludedField[]} [params.excludeFields] - The fields to exclude from the CSV.
  * @example
- * // Example requestedResponses:
+ * // Example requestedFields:
  * ['_isCompleted', 'access_token', 'end.commentsOnSurvey']
+ * // Example excludeFields:
+ * ['interview_id', 'user_email', 'user_username']
  * @returns {Promise<void>} - The CSV content as a response.
  */
 export const downloadCsvFile = async ({
     res,
     fileName,
-    requestedResponses
+    requestedFields,
+    excludeFields
 }: {
     res: Response;
     fileName: string;
-    requestedResponses: string[];
+    requestedFields: string[];
+    excludeFields?: ExcludedField[];
 }): Promise<void> => {
     try {
         console.log(`CSV file downloaded started for ${fileName}.`);
@@ -52,15 +60,21 @@ export const downloadCsvFile = async ({
                     reject(error);
                 })
                 .on('data', (row) => {
-                    // Prepare the CSV row with default values
-                    const csvRow: { [key: string]: string | number | boolean | null } = {
-                        interview_id: row.interview_id,
-                        user_email: row.user_email,
-                        user_username: row.user_username
-                    };
+                    const csvRow: { [key: string]: string | number | boolean | null } = {};
 
-                    requestedResponses.forEach((response) => {
-                        // We use lodash's get function to safely access nested properties
+                    // Add if not restricted
+                    if (!excludeFields?.includes('interview_id')) {
+                        csvRow.interview_id = row.interview_id;
+                    }
+                    if (!excludeFields?.includes('user_email')) {
+                        csvRow.user_email = row.user_email;
+                    }
+                    if (!excludeFields?.includes('user_username')) {
+                        csvRow.user_username = row.user_username;
+                    }
+
+                    // Add requested fields
+                    requestedFields.forEach((response) => {
                         csvRow[response] = get(row.responses, response, null);
                     });
 
