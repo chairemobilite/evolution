@@ -334,7 +334,6 @@ export type WidgetStatus = {
     path: string;
     customPath?: string;
     isVisible: boolean;
-    modalIsOpen: boolean;
     isDisabled: boolean;
     isCollapsed: boolean;
     isEmpty: boolean;

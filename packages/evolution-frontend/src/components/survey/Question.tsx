@@ -29,7 +29,11 @@ import InputText from '../inputs/InputText';
 import Modal from 'react-modal';
 import { checkValidations } from '../../actions/utils';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
-import { StartUpdateInterview, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    isWidgetModal,
+    StartUpdateInterview,
+    UserInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
@@ -59,7 +63,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
         super(props);
 
         this.state = {
-            modalIsOpen: props.widgetStatus.modalIsOpen
+            modalIsOpen: isWidgetModal(props.widgetConfig) && props.widgetStatus.isVisible === true
         };
     }
 
@@ -124,7 +128,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             this.props.startUpdateInterview(this.props.section, valuesByPath, undefined, undefined, saveCallback);
         }
 
-        if ((widgetConfig as any).isModal && this.state.modalIsOpen && isValid) {
+        if (isWidgetModal(widgetConfig) && this.state.modalIsOpen && isValid) {
             this.closeModal();
         }
     };
@@ -377,11 +381,13 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             </div>
         );
 
-        if ((widgetConfig as any).isModal) {
+        if (isWidgetModal(widgetConfig)) {
             if (!this.state.modalIsOpen) {
                 return null;
             }
-            Modal.setAppElement('#app');
+            if (!process.env.IS_TESTING) {
+                Modal.setAppElement('#app');
+            }
             return (
                 <Modal
                     isOpen={true}

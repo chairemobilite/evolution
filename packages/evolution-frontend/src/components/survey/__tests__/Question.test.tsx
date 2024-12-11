@@ -39,6 +39,12 @@ jest.mock('react-input-range/src/js/input-range/default-class-names', () => ({
 
 jest.mock('react-input-range/lib/css/index.css', () => {});
 
+// Mock the createPortal function to allow the snapshots with Modal questions to work. With later React and React-modal versions, this won't be necessary anymore. See https://github.com/reactjs/react-modal/issues/553
+jest.mock('react-dom', () => ({
+    ...jest.requireActual('react-dom'),
+    createPortal: jest.fn((element, _) => element)
+}));
+
 const userAttributes = {
     id: 1,
     username: 'foo',
@@ -64,7 +70,6 @@ const commonWidgetConfig = {
 const defaultWidgetStatus: WidgetStatus = {
     path: commonWidgetConfig.path,
     isVisible: true,
-    modalIsOpen: false,
     isDisabled: false,
     isCollapsed: false,
     isEmpty: false,
@@ -245,4 +250,52 @@ describe('With joining questions', () => {
     });
 });
 
-// TODO: Test with modal and other Question props
+describe('Modal widget', () => {
+    const widgetConfig = {
+        ...commonWidgetConfig,
+        inputType: 'string',
+        isModal: true
+    };
+
+    test('Widget is not visible', () => {
+        
+        const widgetStatus = _cloneDeep(defaultWidgetStatus);
+        widgetStatus.isVisible = false;
+
+        const wrapper = TestRenderer.create(
+            <Question
+                path='home.region'
+                section='test'
+                loadingState={0}
+                widgetConfig={widgetConfig as any}
+                interview={interviewAttributes}
+                user={userAttributes}
+                widgetStatus={widgetStatus}
+                startUpdateInterview={() => { /* Nothing to do */}}
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+
+    test('Widget is visible', () => {
+        
+        const widgetStatus = _cloneDeep(defaultWidgetStatus);
+        widgetStatus.isVisible = true;
+
+        const wrapper = TestRenderer.create(
+            <Question
+                path='home.region'
+                section='test'
+                loadingState={0}
+                widgetConfig={widgetConfig as any}
+                interview={interviewAttributes}
+                user={userAttributes}
+                widgetStatus={widgetStatus}
+                startUpdateInterview={() => { /* Nothing to do */}}
+            />
+        );
+        expect(wrapper).toMatchSnapshot();
+    });
+});
+
+// TODO: Make sure all Question features are tested

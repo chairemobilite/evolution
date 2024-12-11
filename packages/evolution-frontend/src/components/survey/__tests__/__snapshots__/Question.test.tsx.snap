@@ -1,5 +1,75 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Modal widget Widget is not visible 1`] = `null`;
+
+exports[`Modal widget Widget is visible 1`] = `
+<div
+  className="ReactModal__Overlay react-modal-overlay"
+  onClick={[Function]}
+  onMouseDown={[Function]}
+  style={{}}
+>
+  <div
+    aria-label=""
+    aria-modal={true}
+    className="ReactModal__Content react-modal"
+    onClick={[Function]}
+    onKeyDown={[Function]}
+    onMouseDown={[Function]}
+    onMouseUp={[Function]}
+    role="dialog"
+    style={{}}
+    tabIndex="-1"
+  >
+    <div
+      className="apptr__form-container two-columns question-type-string question-filled question-valid"
+      onClick={[Function]}
+      style={
+        {
+          "position": "relative",
+        }
+      }
+    >
+      <div
+        className="apptr__form-label-container two-columns"
+      >
+        <label
+          htmlFor="survey-question__home.region"
+        >
+          <div
+            dangerouslySetInnerHTML={
+              {
+                "__html": "English text",
+              }
+            }
+          />
+        </label>
+      </div>
+      <div
+        className="apptr__form-input-container two-columns"
+      >
+        <input
+          autoComplete="none"
+          className="apptr__form-input apptr__input-string input-large"
+          id="survey-question__home.region"
+          maxLength={255}
+          name="survey-question__home.region"
+          onBlur={[Function]}
+          onChange={[Function]}
+          style={
+            {
+              "textTransform": "none",
+            }
+          }
+          type="text"
+          value=""
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Question with widget InputButton Render widget 1`] = `
 <div
   className="apptr__form-container two-columns question-type-button question-filled question-valid"
@@ -1152,143 +1222,81 @@ exports[`With help popup and link Open modal 1`] = `
     shouldFocusAfterRender={true}
     shouldReturnFocusAfterClose={true}
   >
-    <Portal
-      containerInfo={
-        <div
-          class="ReactModalPortal"
-        >
-          <div
-            class="ReactModal__Overlay react-modal-overlay"
-          >
-            <div
-              aria-label="Help title"
-              aria-modal="true"
-              class="ReactModal__Content react-modal"
-              role="dialog"
-              tabindex="-1"
-            >
-              <div>
-                <h3
-                  class="center"
-                >
-                  <markdown
-                    remarkplugins="remark-gfm,[object Object]"
-                  >
-                    Help title
-                  </markdown>
-                </h3>
-                <markdown
-                  class="help-popup"
-                  remarkplugins="remark-gfm,[object Object]"
-                >
-                  Help content
-                </markdown>
-                <div
-                  class="center"
-                >
-                  <button
-                    class="button blue"
-                  >
-                    OK
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <ModalPortal
+      ariaHideApp={true}
+      bodyOpenClassName="ReactModal__Body--open"
+      className="react-modal"
+      closeTimeoutMS={0}
+      contentElement={[Function]}
+      contentLabel="Help title"
+      defaultStyles={
+        {
+          "content": {
+            "WebkitOverflowScrolling": "touch",
+            "background": "#fff",
+            "border": "1px solid #ccc",
+            "borderRadius": "4px",
+            "bottom": "40px",
+            "left": "40px",
+            "outline": "none",
+            "overflow": "auto",
+            "padding": "20px",
+            "position": "absolute",
+            "right": "40px",
+            "top": "40px",
+          },
+          "overlay": {
+            "backgroundColor": "rgba(255, 255, 255, 0.75)",
+            "bottom": 0,
+            "left": 0,
+            "position": "fixed",
+            "right": 0,
+            "top": 0,
+          },
+        }
+      }
+      isOpen={true}
+      onRequestClose={[Function]}
+      overlayClassName="react-modal-overlay"
+      overlayElement={[Function]}
+      parentSelector={[Function]}
+      portalClassName="ReactModalPortal"
+      preventScroll={false}
+      role="dialog"
+      shouldCloseOnEsc={true}
+      shouldCloseOnOverlayClick={true}
+      shouldFocusAfterRender={true}
+      shouldReturnFocusAfterClose={true}
+      style={
+        {
+          "content": {},
+          "overlay": {},
+        }
       }
     >
-      <ModalPortal
-        ariaHideApp={true}
-        bodyOpenClassName="ReactModal__Body--open"
-        className="react-modal"
-        closeTimeoutMS={0}
-        contentElement={[Function]}
-        contentLabel="Help title"
-        defaultStyles={
-          {
-            "content": {
-              "WebkitOverflowScrolling": "touch",
-              "background": "#fff",
-              "border": "1px solid #ccc",
-              "borderRadius": "4px",
-              "bottom": "40px",
-              "left": "40px",
-              "outline": "none",
-              "overflow": "auto",
-              "padding": "20px",
-              "position": "absolute",
-              "right": "40px",
-              "top": "40px",
-            },
-            "overlay": {
-              "backgroundColor": "rgba(255, 255, 255, 0.75)",
-              "bottom": 0,
-              "left": 0,
-              "position": "fixed",
-              "right": 0,
-              "top": 0,
-            },
-          }
-        }
-        isOpen={true}
-        onRequestClose={[Function]}
-        overlayClassName="react-modal-overlay"
-        overlayElement={[Function]}
-        parentSelector={[Function]}
-        portalClassName="ReactModalPortal"
-        preventScroll={false}
-        role="dialog"
-        shouldCloseOnEsc={true}
-        shouldCloseOnOverlayClick={true}
-        shouldFocusAfterRender={true}
-        shouldReturnFocusAfterClose={true}
-        style={
-          {
-            "content": {},
-            "overlay": {},
-          }
-        }
+      <div
+        className="ReactModal__Overlay react-modal-overlay"
+        onClick={[Function]}
+        onMouseDown={[Function]}
+        style={{}}
       >
         <div
-          className="ReactModal__Overlay react-modal-overlay"
+          aria-label="Help title"
+          aria-modal={true}
+          className="ReactModal__Content react-modal"
           onClick={[Function]}
+          onKeyDown={[Function]}
           onMouseDown={[Function]}
+          onMouseUp={[Function]}
+          role="dialog"
           style={{}}
+          tabIndex="-1"
         >
-          <div
-            aria-label="Help title"
-            aria-modal={true}
-            className="ReactModal__Content react-modal"
-            onClick={[Function]}
-            onKeyDown={[Function]}
-            onMouseDown={[Function]}
-            onMouseUp={[Function]}
-            role="dialog"
-            style={{}}
-            tabIndex="-1"
-          >
-            <div>
-              <h3
-                className="center"
-              >
-                <Markdown
-                  remarkPlugins={
-                    [
-                      [
-                        "remark-gfm",
-                        {
-                          "singleTilde": false,
-                        },
-                      ],
-                    ]
-                  }
-                >
-                  Help title
-                </Markdown>
-              </h3>
+          <div>
+            <h3
+              className="center"
+            >
               <Markdown
-                className="help-popup"
                 remarkPlugins={
                   [
                     [
@@ -1300,23 +1308,38 @@ exports[`With help popup and link Open modal 1`] = `
                   ]
                 }
               >
-                Help content
+                Help title
               </Markdown>
-              <div
-                className="center"
+            </h3>
+            <Markdown
+              className="help-popup"
+              remarkPlugins={
+                [
+                  [
+                    "remark-gfm",
+                    {
+                      "singleTilde": false,
+                    },
+                  ],
+                ]
+              }
+            >
+              Help content
+            </Markdown>
+            <div
+              className="center"
+            >
+              <button
+                className="button blue"
+                onClick={[Function]}
               >
-                <button
-                  className="button blue"
-                  onClick={[Function]}
-                >
-                  OK
-                </button>
-              </div>
+                OK
+              </button>
             </div>
           </div>
         </div>
-      </ModalPortal>
-    </Portal>
+      </div>
+    </ModalPortal>
   </Modal>,
   <ModalPortal
     ariaHideApp={true}

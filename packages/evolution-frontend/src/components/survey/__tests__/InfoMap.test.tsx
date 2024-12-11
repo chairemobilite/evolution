@@ -40,7 +40,6 @@ const commonWidgetConfig = {
 const defaultWidgetStatus: WidgetStatus = {
     path: 'foo',
     isVisible: true,
-    modalIsOpen: false,
     isDisabled: false,
     isCollapsed: false,
     isEmpty: false,
