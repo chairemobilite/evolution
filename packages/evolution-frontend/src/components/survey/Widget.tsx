@@ -17,7 +17,7 @@ import { Group } from '../survey/GroupWidgets';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { UserRuntimeInterviewAttributes, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { WidgetConfig } from 'evolution-common/lib/services/widgets';
+import { WidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
 
 export type WidgetProps = {

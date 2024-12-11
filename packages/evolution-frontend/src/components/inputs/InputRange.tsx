@@ -12,7 +12,7 @@ import defaultClassNames from 'react-input-range/src/js/input-range/default-clas
 import 'react-input-range/lib/css/index.css';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputRangeType } from 'evolution-common/lib/services/widgets';
+import { InputRangeType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
 import InputCheckbox from './InputCheckbox';

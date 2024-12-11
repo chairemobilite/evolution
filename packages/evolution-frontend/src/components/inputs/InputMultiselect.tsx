@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { ChoiceType, InputMultiselectType } from 'evolution-common/lib/services/widgets';
+import { ChoiceType, InputMultiselectType } from 'evolution-common/lib/services/questionnaire/types';
 import { CommonInputProps } from './CommonInputProps';
 
 type InputMultiselectProps = CommonInputProps & {

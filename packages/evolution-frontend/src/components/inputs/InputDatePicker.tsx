@@ -13,7 +13,7 @@ import enCA from 'date-fns/locale/en-CA';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InputDatePickerType } from 'evolution-common/lib/services/widgets';
+import { InputDatePickerType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
 

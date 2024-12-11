@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { GroupConfig } from '../../../widgets';
+import { GroupConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import { Segment } from '../../types';

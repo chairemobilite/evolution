@@ -10,7 +10,7 @@ import { getSwitchPersonWidgets } from '../widgetsSwitchPerson';
 import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
 import { t } from 'i18next';
-import { ButtonWidgetConfig, TextWidgetConfig } from '../../../../widgets';
+import { ButtonWidgetConfig, TextWidgetConfig } from '../../../../questionnaire/types';
 
 import * as odHelpers from '../../../../odSurvey/helpers';
 import { start } from 'repl';

@@ -14,7 +14,7 @@ import remarkGfm from 'remark-gfm';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
-import { InputMapFindPlaceType } from 'evolution-common/lib/services/widgets';
+import { InputMapFindPlaceType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FeatureGeocodedProperties, MarkerData, defaultIconSize, PlaceGeocodedProperties } from './maps/InputMapTypes';

@@ -6,7 +6,7 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
-import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../widgets';
+import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../questionnaire/types';
 import { getModePreWidgetConfig } from '../widgetSegmentModePre';
 import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
 import { getResponse, setResponse, translateString } from '../../../../../utils/helpers';

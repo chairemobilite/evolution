@@ -35,7 +35,7 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { QuestionWidgetConfig } from 'evolution-common/lib/services/widgets';
+import { QuestionWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import InputWidgetWrapper from './widgets/InputWidgetWrapper';
 
