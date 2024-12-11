@@ -1,9 +1,9 @@
 {
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "name": "evolution-generator",
-  "version": "0.3.0",
+  "version": "0.5.0",
   "description": "Automates creation of transit surveys for Evolution.",
   "repository": "github.com/chairemobilite/evolution",
   "license": "MIT",
@@ -22,11 +22,11 @@
     "generateSurvey": "poetry run generateSurvey"
   },
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "chaire-lib-common": "^0.2.2",
-    "evolution-common": "^0.3.0",
-    "evolution-legacy": "^0.3.0",
-    "i18next": "^22.4.15"
+    "evolution-common": "^0.5.0",
+    "evolution-legacy": "^0.5.0",
+    "i18next": "^24.0.2"
   },
   "devDependencies": {
     "prettier-eslint-cli": "^8.0.1"

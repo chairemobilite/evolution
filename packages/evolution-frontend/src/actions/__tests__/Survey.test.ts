@@ -5,13 +5,18 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import fetchMock from 'jest-fetch-mock';
+import fetch from 'node-fetch';
 import _cloneDeep from 'lodash/cloneDeep';
 import { addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import * as SurveyActions from '../Survey';
 import { prepareWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
+
+const jsonFetchResolve = jest.fn();
+let fetchStatus: number[] = []
+jest.mock('node-fetch', () => jest.fn().mockImplementation(() => Promise.resolve({ status: fetchStatus.pop() || 200, json: jsonFetchResolve })));
+const fetchMock = fetch as jest.MockedFunction<fetch>;
 
 jest.mock('../../config/i18n.config', () => ({
     language: 'en'
@@ -100,7 +105,7 @@ const mockGetState = jest.fn().mockReturnValue({
 
 beforeEach(() => {
     jest.clearAllMocks();
-    fetchMock.doMock();
+    fetchStatus = [];
 })
 
 describe('Update interview', () => {
@@ -108,7 +113,7 @@ describe('Update interview', () => {
     test('Call with an interview, no validation change, no error', async () => {
         // Prepare mock and test data
         const updateCallback = jest.fn();
-        fetchMock.mockOnce(JSON.stringify({ status: 'success', interviewId: interviewAttributes.uuid }));
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
         const valuesByPath = { 'responses.section1.q1': 'foo' };
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
@@ -154,7 +159,7 @@ describe('Update interview', () => {
     test('Call with an interview, with validation and unset path', async () => {
         // Prepare mock and test data
         const updateCallback = jest.fn();
-        fetchMock.mockOnce(JSON.stringify({ status: 'success', interviewId: interviewAttributes.uuid }));
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
         const valuesByPath = { 'responses.section1.q1': 'foo' };
         const unsetPaths = ['responses.section2.q1'];
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
@@ -211,7 +216,7 @@ describe('Update interview', () => {
         const mockLocalGetState = jest.fn().mockReturnValue({ survey: { interview: interviewAttributes, interviewLoaded: true, errors: previousServerErrors }});
         const updateCallback = jest.fn();
         const newServerMessages = { 'section1.q2': { en: 'New server error on q2' }};
-        fetchMock.mockOnce(JSON.stringify({ status: 'invalid', interviewId: interviewAttributes.uuid, messages: newServerMessages }));
+        jsonFetchResolve.mockResolvedValue({ status: 'invalid', interviewId: interviewAttributes.uuid, messages: newServerMessages });
         const valuesByPath = { 'responses.section1.q1': 'foo' };
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
@@ -259,7 +264,7 @@ describe('Update interview', () => {
         const updateCallback = jest.fn();
         // Return values by path updated by server
         const serverUpdatedValues = { 'responses.section1.q2': 'bar' };
-        fetchMock.mockOnce(JSON.stringify({ status: 'invalid', interviewId: interviewAttributes.uuid, updatedValuesByPath: serverUpdatedValues }));
+        jsonFetchResolve.mockResolvedValue({ status: 'invalid', interviewId: interviewAttributes.uuid, updatedValuesByPath: serverUpdatedValues });
         const valuesByPath = { 'responses.section1.q1': 'foo' };
         // Interview to prepare includes changes from valuesByPath
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
@@ -338,7 +343,8 @@ describe('Update interview', () => {
     test('With fetch exception', async () => {
         // Prepare mock and test data, the fetch request will return a 401 error
         const updateCallback = jest.fn();
-        fetchMock.mockOnce(JSON.stringify({ status: 'unauthorized' }), { status: 401 });
+        jsonFetchResolve.mockResolvedValue({ status: 'unauthorized' });
+        fetchStatus.push(401);
         const valuesByPath = { 'responses.section1.q1': 'foo' };
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';

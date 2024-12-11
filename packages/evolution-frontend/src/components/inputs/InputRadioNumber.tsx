@@ -56,7 +56,11 @@ export const InputRadioNumber = ({
         // pass (because events are being re-used and validating its content
         // later does not work as it has been changed).
         onValueChange({ target: { value: newCurrentValue } });
-        newCurrentValue !== undefined && newCurrentValue > maxValue ? setIsOverMax(true) : setIsOverMax(false);
+        if (newCurrentValue !== undefined && newCurrentValue > maxValue) {
+            setIsOverMax(true);
+        } else {
+            setIsOverMax(false);
+        }
     };
 
     // TODO: The three functions below are copied from InputRadio.tsx.
