@@ -87,7 +87,7 @@ const testUser = {
 
 // Mock functions
 jest.mock('../utils', () => ({
-    prepareSectionWidgets: jest.fn().mockImplementation((_sectionShortname, interview, _affectedPaths, valuesByPath) => [_cloneDeep(interview), _cloneDeep(valuesByPath), false, false])
+    prepareSectionWidgets: jest.fn().mockImplementation((_sectionShortname, interview, _affectedPaths, valuesByPath) => ({ updatedInterview: _cloneDeep(interview), updatedValuesByPath: _cloneDeep(valuesByPath), needUpdate: false }))
 }));
 const mockDispatch = jest.fn();
 const mockPrepareSectionWidgets = prepareSectionWidgets as jest.MockedFunction<typeof prepareSectionWidgets>;
@@ -168,7 +168,7 @@ describe('Update interview', () => {
         mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => {
             const innerInterview = _cloneDeep(interview);
             (innerInterview.validations as any).section1.q2 = true;
-            return [innerInterview, {... valuesByPath, 'validations.section1.q2': true}, false, false];
+            return { updatedInterview: innerInterview, updatedValuesByPath: {... valuesByPath, 'validations.section1.q2': true}, needUpdate: false };
         });
         const expectedInterviewAsState = _cloneDeep(expectedInterviewToPrepare);
         expectedInterviewAsState.sectionLoaded = 'section';
