@@ -26,7 +26,6 @@ type CurrentPreparationData = {
     affectedPaths: { [path: string]: boolean };
     valuesByPath: { [path: string]: unknown };
     interview: UserRuntimeInterviewAttributes;
-    foundOneOpenedModal: boolean;
     needToUpdate: boolean;
     updateKey: boolean;
     user?: CliUser;
@@ -343,6 +342,29 @@ const prepareWidgets = function (data: CurrentPreparationData, widgetPrepData: W
     }
 };
 
+/**
+ * Prepare the widgets of the current section of the interview, running the
+ * validations and conditionals. This is where the widgets that have
+ * side-effects on other will be updated.
+ *
+ * @param {string} sectionShortname The current section shortname
+ * @param {UserRuntimeInterviewAttributes} interview The interview object
+ * @param {{ [path: string]: boolean }} affectedPaths All paths affected by the
+ * update
+ * @param {{ [path: string]: unknown }} valuesByPath The values by path that
+ * have changed since the last update. This object will be updated with the new
+ * values updated as a side-effect of the update.
+ * @param {boolean} [updateKey=false] Whether to update the key of the widget
+ * status, used to force a re-render of the widget
+ * @param {CliUser} [user] The optional user object
+ * @returns An object with the updatedInterview, containing the current runtime
+ * data to update the section, the updateValuesByPath, augmenting the original
+ * values by path changes with side-effects from the update and the `needUpdate`
+ * indicating if the interview needs to be updated.
+ *
+ * // FIXME Better understand and document the needUpdate boolean return value:
+ * what does it mean?
+ */
 export const prepareSectionWidgets = function (
     sectionShortname: string,
     interview: UserRuntimeInterviewAttributes,
@@ -350,7 +372,11 @@ export const prepareSectionWidgets = function (
     valuesByPath: { [path: string]: unknown },
     updateKey = false,
     user?: CliUser
-): [UserRuntimeInterviewAttributes, { [path: string]: unknown }, boolean, boolean] {
+): {
+    updatedInterview: UserRuntimeInterviewAttributes;
+    updatedValuesByPath: { [path: string]: unknown };
+    needUpdate: boolean;
+} {
     interview.previousWidgets = _cloneDeep(interview.widgets || {});
     interview.previousGroups = _cloneDeep(interview.groups || {});
     interview.widgets = {};
@@ -367,13 +393,16 @@ export const prepareSectionWidgets = function (
         // defined, but we want to keep the valuesByPath to update validity or
         // completion.  Why was it returning empty valuesByPath instead of the
         // original? See if it should be `valuesByPath` instead.
-        return [interview, sectionShortname === 'validationOnePager' ? valuesByPath : {}, false, false];
+        return {
+            updatedInterview: interview,
+            updatedValuesByPath: sectionShortname === 'validationOnePager' ? valuesByPath : {},
+            needUpdate: false
+        };
     }
     const widgetPrepData = {
         affectedPaths,
         valuesByPath,
         interview,
-        foundOneOpenedModal: false,
         needToUpdate: false,
         updateKey,
         user
@@ -383,10 +412,9 @@ export const prepareSectionWidgets = function (
         parentPath: ''
     });
 
-    return [
-        widgetPrepData.interview,
-        widgetPrepData.valuesByPath,
-        widgetPrepData.foundOneOpenedModal,
-        widgetPrepData.needToUpdate
-    ];
+    return {
+        updatedInterview: widgetPrepData.interview,
+        updatedValuesByPath: widgetPrepData.valuesByPath,
+        needUpdate: widgetPrepData.needToUpdate
+    };
 };

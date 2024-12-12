@@ -47,12 +47,12 @@ export const updateSection = (
     user?: CliUser
 ): [UserRuntimeInterviewAttributes, { [path: string]: unknown }] => {
     let interview = _cloneDeep(_interview);
+    let currentValuesByPath = valuesByPath;
     let needToUpdate = true; // will stay true if an assigned value changed the initial value after a conditional failed
     let updateCount = 0;
-    let foundOneOpenedModal = false; // TODO Remove this variable, it is not used? Why is it there?
 
     while (needToUpdate && updateCount < 10 /* security against infinite loops */) {
-        [interview, valuesByPath, needToUpdate, foundOneOpenedModal] = prepareSectionWidgets(
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
             sectionShortname,
             interview,
             affectedPaths,
@@ -60,10 +60,13 @@ export const updateSection = (
             updateKey,
             user
         );
+        needToUpdate = needUpdate;
+        interview = updatedInterview;
+        currentValuesByPath = updatedValuesByPath;
         updateCount++;
     }
 
-    return [interview, valuesByPath];
+    return [interview, currentValuesByPath];
 };
 
 const startUpdateInterviewCallback = async (

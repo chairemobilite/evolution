@@ -245,17 +245,16 @@ test('Test simple widget data', () => {
     const valuesByPath = { 'responses.section1.q1': newValue };
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath));
-    expect(interview).toEqual(expect.objectContaining(interviewCopy));
-    expect(newValuesByPath).toEqual(valuesByPath);
-    expect(foundModalOpen).toEqual(false);
+    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath));
+    expect(updatedInterview).toEqual(expect.objectContaining(interviewCopy));
+    expect(updatedValuesByPath).toEqual(valuesByPath);
     expect(needUpdate).toEqual(false);
-    expect(interview.widgets.widget1).toEqual({
+    expect(updatedInterview.widgets.widget1).toEqual({
         ...defaultExpectedWidgetStatus.widget1,
         value: newValue
     });
-    expect(interview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
-    expect(interview.allWidgetsValid).toEqual(false);
+    expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
+    expect(updatedInterview.allWidgetsValid).toEqual(false);
 });
 
 test('Test with conditional, no change in conditional', () => {
@@ -268,19 +267,18 @@ test('Test with conditional, no change in conditional', () => {
     const valuesByPath = { 'responses.section1.q2': 2 };
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
-    expect(interview).toEqual(expect.objectContaining(interviewCopy));
-    expect(newValuesByPath).toEqual(valuesByPath);
-    expect(foundModalOpen).toEqual(false);
+    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+    expect(updatedInterview).toEqual(expect.objectContaining(interviewCopy));
+    expect(updatedValuesByPath).toEqual(valuesByPath);
     expect(needUpdate).toEqual(false);
     expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
     expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, newValue, undefined, testInterviewAttributes, 'section1.q2', undefined);
-    expect(interview.widgets.widget2).toEqual({
+    expect(updatedInterview.widgets.widget2).toEqual({
         ...defaultExpectedWidgetStatus.widget2,
         value: newValue,
     });
-    expect(interview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
-    expect(interview.allWidgetsValid).toEqual(false);
+    expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
+    expect(updatedInterview.allWidgetsValid).toEqual(false);
 });
 
 test('Test with conditional, change in conditional', () => {
@@ -297,43 +295,41 @@ test('Test with conditional, change in conditional', () => {
     const valuesByPath = { 'responses.section1.q2': newValue };
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
-    expect(interview).toEqual(expect.objectContaining(interviewCopy));
-    expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q2': true }));
-    expect(foundModalOpen).toEqual(false);
+    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+    expect(updatedInterview).toEqual(expect.objectContaining(interviewCopy));
+    expect(updatedValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q2': true }));
     expect(needUpdate).toEqual(false);
     expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
     expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, newValue, undefined, testInterviewAttributes, 'section1.q2', undefined);
-    expect(interview.widgets.widget2).toEqual({
+    expect(updatedInterview.widgets.widget2).toEqual({
         ...defaultExpectedWidgetStatus.widget2,
         value: newValue,
         isValid: true,
         errorMessage: undefined
     });
-    expect(interview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
-    expect(interview.allWidgetsValid).toEqual(true);
+    expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
+    expect(updatedInterview.allWidgetsValid).toEqual(true);
     
     // Change the status again
-    const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareSectionWidgets(mainSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+    const { updatedInterview: updatedInterview2, updatedValuesByPath: updatedValuesByPath2, needUpdate: needUpdate2 } = prepareSectionWidgets(mainSection, updatedInterview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
     interviewCopy.validations.section1.q2 = false;
-    expect(interview2).toEqual(expect.objectContaining(interviewCopy));
-    expect(newValuesByPath2).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q2': false }));
-    expect(foundModalOpen2).toEqual(false);
+    expect(updatedInterview2).toEqual(expect.objectContaining(interviewCopy));
+    expect(updatedValuesByPath2).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q2': false }));
     expect(needUpdate2).toEqual(false);
     expect(mockedCheckValidations).toHaveBeenCalledTimes(3); // 3 because the validation for widget1 was not called, not changed
-    expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, newValue, undefined, interview, 'section1.q2', undefined);
-    expect(interview.widgets.widget2).toEqual({
+    expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, newValue, undefined, updatedInterview2, 'section1.q2', undefined);
+    expect(updatedInterview2.widgets.widget2).toEqual({
         ...defaultExpectedWidgetStatus.widget2,
         value: newValue,
     });
-    expect(interview.previousWidgets?.widget2).toEqual({
+    expect(updatedInterview2.previousWidgets?.widget2).toEqual({
         ...defaultExpectedWidgetStatus.widget2,
         value: newValue,
         isValid: true,
         errorMessage: undefined
     });
-    expect(interview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
-    expect(interview.allWidgetsValid).toEqual(false);
+    expect(updatedInterview2.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
+    expect(updatedInterview2.allWidgetsValid).toEqual(false);
 });
 
 test('Make widget2 invisible', () => {
@@ -347,22 +343,21 @@ test('Make widget2 invisible', () => {
     mockedCheckConditional.mockReturnValueOnce([false, undefined, undefined]);
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath));
-    expect(interview).toEqual(expect.objectContaining(interviewCopy));
-    expect(newValuesByPath).toEqual(valuesByPath);
-    expect(foundModalOpen).toEqual(false);
+    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath));
+    expect(updatedInterview).toEqual(expect.objectContaining(interviewCopy));
+    expect(updatedValuesByPath).toEqual(valuesByPath);
     expect(needUpdate).toEqual(true);
-    expect(interview.widgets.widget1).toEqual({
+    expect(updatedInterview.widgets.widget1).toEqual({
         ...defaultExpectedWidgetStatus.widget1
     });
-    expect(interview.widgets.widget2).toEqual({
+    expect(updatedInterview.widgets.widget2).toEqual({
         ...defaultExpectedWidgetStatus.widget2,
         isVisible: false,
         isEmpty: true,
         value: undefined
     });
-    expect(interview.visibleWidgets).toEqual(['section1.q1']);
-    expect(interview.allWidgetsValid).toEqual(true);
+    expect(updatedInterview.visibleWidgets).toEqual(['section1.q1']);
+    expect(updatedInterview.allWidgetsValid).toEqual(true);
 });
 
 test('Test a group widget, with visibility and default value', () => {
@@ -378,24 +373,23 @@ test('Test a group widget, with visibility and default value', () => {
     // Test, make the group2 invisible
     mockedCheckConditional.mockReturnValueOnce([true, undefined, undefined]);
     mockedCheckConditional.mockReturnValueOnce([false, undefined, undefined]);
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(groupSection, testInterviewAttributes, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath), false, testUser);
-    expect(interview).toEqual(expect.objectContaining(interviewExpected));
-    expect(newValuesByPath).toEqual(valuesByPath);
-    expect(foundModalOpen).toEqual(false);
+    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(groupSection, testInterviewAttributes, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath), false, testUser);
+    expect(updatedInterview).toEqual(expect.objectContaining(interviewExpected));
+    expect(updatedValuesByPath).toEqual(valuesByPath);
     expect(needUpdate).toEqual(false);
-    expect(interview.groups[group1Name][group1Id].widget3).toEqual({
+    expect(updatedInterview.groups[group1Name][group1Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group1,
         value: newValue
     });
-    expect(interview.groups[group1Name][group2Id].widget3).toEqual({
+    expect(updatedInterview.groups[group1Name][group2Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group2,
         isVisible: false,
         value: undefined
     });
-    expect((interview.previousGroups as any)[group1Name]).toBeUndefined();
-    expect((interview.previousGroups as any)[group1Name]).toBeUndefined();
-    expect(interview.visibleWidgets).toEqual([`groupResponses.${group1Id}.gq1`]);
-    expect(interview.allWidgetsValid).toEqual(true);
+    expect((updatedInterview.previousGroups as any)[group1Name]).toBeUndefined();
+    expect((updatedInterview.previousGroups as any)[group1Name]).toBeUndefined();
+    expect(updatedInterview.visibleWidgets).toEqual([`groupResponses.${group1Id}.gq1`]);
+    expect(updatedInterview.allWidgetsValid).toEqual(true);
     // The default value function should not have been called
     expect(mockedDefaultValue).not.toHaveBeenCalled();
 
@@ -403,19 +397,18 @@ test('Test a group widget, with visibility and default value', () => {
     // Since the value has just been set, it should valid
     (interviewExpected as any).responses.groupResponses[group2Id].gq1 = 'default';
     (interviewExpected as any).validations.groupResponses[group2Id].gq1 = true;
-    const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareSectionWidgets(groupSection, interview, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath), false, testUser);
-    expect(interview2).toEqual(expect.objectContaining(interviewExpected));
+    const { updatedInterview: updatedInterview2, updatedValuesByPath: updatedValuesByPath2, needUpdate: needUpdate2 } = prepareSectionWidgets(groupSection, updatedInterview, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath), false, testUser);
+    expect(updatedInterview2).toEqual(expect.objectContaining(interviewExpected));
     // Validate that the default value function has been called with proper parameters
     expect(mockedDefaultValue).toHaveBeenCalledTimes(1);
-    expect(mockedDefaultValue).toHaveBeenCalledWith(interview, `groupResponses.${group2Id}.gq1`, testUser);
-    expect(newValuesByPath2).toEqual({ ...valuesByPath, [`responses.groupResponses.${group2Id}.gq1`]: 'default' });
-    expect(foundModalOpen2).toEqual(false);
+    expect(mockedDefaultValue).toHaveBeenCalledWith(updatedInterview2, `groupResponses.${group2Id}.gq1`, testUser);
+    expect(updatedValuesByPath2).toEqual({ ...valuesByPath, [`responses.groupResponses.${group2Id}.gq1`]: 'default' });
     expect(needUpdate2).toEqual(true);
-    expect(interview2.groups[group1Name][group1Id].widget3).toEqual({
+    expect(updatedInterview2.groups[group1Name][group1Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group1,
         value: newValue
     });
-    expect(interview2.groups[group1Name][group2Id].widget3).toEqual({
+    expect(updatedInterview2.groups[group1Name][group2Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group2,
         isEmpty: false,
         isResponded: true,
@@ -424,31 +417,30 @@ test('Test a group widget, with visibility and default value', () => {
         value: 'default',
         currentUpdateKey: 1
     });
-    expect((interview2.previousGroups as any)[group1Name][group1Id].widget3).toEqual({
+    expect((updatedInterview2.previousGroups as any)[group1Name][group1Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group1,
         value: newValue
     });
-    expect((interview2.previousGroups as any)[group1Name][group2Id].widget3).toEqual({
+    expect((updatedInterview2.previousGroups as any)[group1Name][group2Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group2,
         isVisible: false,
         value: undefined
     });
-    expect(interview2.visibleWidgets).toEqual([`groupResponses.${group1Id}.gq1`, `groupResponses.${group2Id}.gq1`]);
-    expect(interview2.allWidgetsValid).toEqual(true);
+    expect(updatedInterview2.visibleWidgets).toEqual([`groupResponses.${group1Id}.gq1`, `groupResponses.${group2Id}.gq1`]);
+    expect(updatedInterview2.allWidgetsValid).toEqual(true);
 
     // Make a third call, changing again value from group 1, group2 should remain the same, even if value is technically invalid
     (interviewExpected as any).responses.groupResponses[group2Id].gq1 = 'default';
     (interviewExpected as any).validations.groupResponses[group2Id].gq1 = true;
-    const [interview3, newValuesByPath3, foundModalOpen3, needUpdate3] = prepareSectionWidgets(groupSection, interview2, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath));
-    expect(interview3).toEqual(expect.objectContaining(interviewExpected));
-    expect(newValuesByPath3).toEqual(valuesByPath);
-    expect(foundModalOpen3).toEqual(false);
+    const { updatedInterview: updatedInterview3, updatedValuesByPath: updatedValuesByPath3, needUpdate: needUpdate3 } = prepareSectionWidgets(groupSection, updatedInterview2, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath));
+    expect(updatedInterview3).toEqual(expect.objectContaining(interviewExpected));
+    expect(updatedValuesByPath3).toEqual(valuesByPath);
     expect(needUpdate3).toEqual(false);
-    expect(interview3.groups[group1Name][group1Id].widget3).toEqual({
+    expect(updatedInterview3.groups[group1Name][group1Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group1,
         value: newValue
     });
-    expect(interview3.groups[group1Name][group2Id].widget3).toEqual({
+    expect(updatedInterview3.groups[group1Name][group2Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group2,
         isEmpty: false,
         isResponded: true,
@@ -457,11 +449,11 @@ test('Test a group widget, with visibility and default value', () => {
         value: 'default',
         currentUpdateKey: 1
     });
-    expect((interview3.previousGroups as any)[group1Name][group1Id].widget3).toEqual({
+    expect((updatedInterview3.previousGroups as any)[group1Name][group1Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group1,
         value: newValue
     });
-    expect((interview3.previousGroups as any)[group1Name][group2Id].widget3).toEqual({
+    expect((updatedInterview3.previousGroups as any)[group1Name][group2Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group2,
         isEmpty: false,
         isResponded: true,
@@ -470,23 +462,22 @@ test('Test a group widget, with visibility and default value', () => {
         value: 'default',
         currentUpdateKey: 1
     });
-    expect(interview3.visibleWidgets).toEqual([`groupResponses.${group1Id}.gq1`, `groupResponses.${group2Id}.gq1`]);
-    expect(interview3.allWidgetsValid).toEqual(true);
+    expect(updatedInterview3.visibleWidgets).toEqual([`groupResponses.${group1Id}.gq1`, `groupResponses.${group2Id}.gq1`]);
+    expect(updatedInterview3.allWidgetsValid).toEqual(true);
 
     // Make a fourth call, with _all values to check, validity should now be false
     (interviewExpected as any).validations.groupResponses[group2Id].gq1 = false;
     const valuesByPathForGroup2 = { [`_all`]: true };
-    const [interview4, newValuesByPath4, foundModalOpen4, needUpdate4] = prepareSectionWidgets(groupSection, interview2, { [`_all`]: true }, _cloneDeep(valuesByPathForGroup2));
-    expect(interview4).toEqual(expect.objectContaining(interviewExpected));
-    expect(newValuesByPath4).toEqual(Object.assign({}, valuesByPathForGroup2, { [`validations.groupResponses.${group2Id}.gq1`]: false}));
-    expect(foundModalOpen4).toEqual(false);
+    const { updatedInterview: updatedInterview4, updatedValuesByPath: updatedValuesByPath4, needUpdate: needUpdate4 } = prepareSectionWidgets(groupSection, updatedInterview3, { [`_all`]: true }, _cloneDeep(valuesByPathForGroup2));
+    expect(updatedInterview4).toEqual(expect.objectContaining(interviewExpected));
+    expect(updatedValuesByPath4).toEqual(Object.assign({}, valuesByPathForGroup2, { [`validations.groupResponses.${group2Id}.gq1`]: false}));
     expect(needUpdate4).toEqual(false);
-    expect(interview4.groups[group1Name][group1Id].widget3).toEqual({
+    expect(updatedInterview4.groups[group1Name][group1Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group1,
         value: newValue,
         isCustomResponded: true
     });
-    expect(interview4.groups[group1Name][group2Id].widget3).toEqual({
+    expect(updatedInterview4.groups[group1Name][group2Id].widget3).toEqual({
         ...defaultExpectedWidgetStatus.widget3Group2,
         isEmpty: false,
         isResponded: true,
@@ -496,8 +487,8 @@ test('Test a group widget, with visibility and default value', () => {
         isCustomResponded: true,
         currentUpdateKey: 1
     });
-    expect(interview4.visibleWidgets).toEqual([`groupResponses.${group1Id}.gq1`, `groupResponses.${group2Id}.gq1`]);
-    expect(interview4.allWidgetsValid).toEqual(false);
+    expect(updatedInterview4.visibleWidgets).toEqual([`groupResponses.${group1Id}.gq1`, `groupResponses.${group2Id}.gq1`]);
+    expect(updatedInterview4.allWidgetsValid).toEqual(false);
 });
 
 test('Test simple widget data with update key', () => {
@@ -510,21 +501,20 @@ test('Test simple widget data with update key', () => {
     const valuesByPath = { 'responses.section1.q1': newValue };
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath), true);
-    expect(interview).toEqual(expect.objectContaining(interviewCopy));
-    expect(newValuesByPath).toEqual(valuesByPath);
-    expect(foundModalOpen).toEqual(false);
+    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath), true);
+    expect(updatedInterview).toEqual(expect.objectContaining(interviewCopy));
+    expect(updatedValuesByPath).toEqual(valuesByPath);
     expect(needUpdate).toEqual(false);
-    expect(interview.widgets.widget1).toEqual({
+    expect(updatedInterview.widgets.widget1).toEqual({
         ...defaultExpectedWidgetStatus.widget1,
         value: newValue,
         currentUpdateKey: defaultExpectedWidgetStatus.widget1.currentUpdateKey + 1
     });
-    expect(interview.widgets.widget2).toEqual({
+    expect(updatedInterview.widgets.widget2).toEqual({
         ...defaultExpectedWidgetStatus.widget2
     });
-    expect(interview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
-    expect(interview.allWidgetsValid).toEqual(false);
+    expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
+    expect(updatedInterview.allWidgetsValid).toEqual(false);
 });
 
 describe('Test with choice conditional', () => {
@@ -542,20 +532,19 @@ describe('Test with choice conditional', () => {
         const valuesByPath = { 'responses.section1.q4': newValue };
     
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
-        expect(interview).toEqual(expect.objectContaining(interviewExpected));
-        expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true }));
-        expect(foundModalOpen).toEqual(false);
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        expect(updatedInterview).toEqual(expect.objectContaining(interviewExpected));
+        expect(updatedValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true }));
         expect(needUpdate).toEqual(false);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
         expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget4.validations, (testInterviewAttributes as any).responses.section1.q4, undefined, testInterviewAttributes, 'section1.q4', undefined);
-        expect(interview.widgets.widget4).toEqual({
+        expect(updatedInterview.widgets.widget4).toEqual({
             ...defaultExpectedWidgetStatus.widget4,
             isValid: true,
             value: newValue
         });
-        expect(interview.visibleWidgets).toEqual(['section1.q4']);
-        expect(interview.allWidgetsValid).toEqual(true);
+        expect(updatedInterview.visibleWidgets).toEqual(['section1.q4']);
+        expect(updatedInterview.allWidgetsValid).toEqual(true);
         
     });
 
@@ -580,10 +569,9 @@ describe('Test with choice conditional', () => {
         const valuesByPath = { 'responses.section1.q2': 3 };
     
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
-        expect(interview).toEqual(expect.objectContaining(interviewExpected));
-        expect(newValuesByPath).toEqual(valuesByPath);
-        expect(foundModalOpen).toEqual(false);
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        expect(updatedInterview).toEqual(expect.objectContaining(interviewExpected));
+        expect(updatedValuesByPath).toEqual(valuesByPath);
         expect(needUpdate).toEqual(true);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
         expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget4.validations, (testInterviewAttributes as any).responses.section1.q4, undefined, testInterviewAttributes, 'section1.q4', undefined);
@@ -591,15 +579,15 @@ describe('Test with choice conditional', () => {
         // Verify the checkChoicesConditional calls and make sure the new value for widget4 is undefined
         expect(mockedCheckChoicesConditional).toHaveBeenCalledTimes(1);
         expect(mockedCheckChoicesConditional).toHaveBeenCalledWith(value, widgets.widget4.choices, testInterviewAttributes, 'section1.q4');
-        expect(interview.widgets.widget4).toEqual({
+        expect(updatedInterview.widgets.widget4).toEqual({
             ...defaultExpectedWidgetStatus.widget4,
             isEmpty: true,
             isValid: true,
             value: undefined,
             currentUpdateKey: 1
         });
-        expect(interview.visibleWidgets).toEqual(['section1.q4']);
-        expect(interview.allWidgetsValid).toEqual(true);
+        expect(updatedInterview.visibleWidgets).toEqual(['section1.q4']);
+        expect(updatedInterview.allWidgetsValid).toEqual(true);
         
     });
 
@@ -628,10 +616,9 @@ describe('Test with choice conditional', () => {
         mockedCheckValidations.mockReturnValueOnce([true, undefined]);
 
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
-        expect(interview).toEqual(expect.objectContaining(interviewExpected));
-        expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'responses.section1.q4': updatedValue }));
-        expect(foundModalOpen).toEqual(false);
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+        expect(updatedInterview).toEqual(expect.objectContaining(interviewExpected));
+        expect(updatedValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'responses.section1.q4': updatedValue }));
         expect(needUpdate).toEqual(true);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
         expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget4.validations, (testInterviewAttributes as any).responses.section1.q4, undefined, testInterviewAttributes, 'section1.q4', undefined);
@@ -639,15 +626,15 @@ describe('Test with choice conditional', () => {
         // Verify the checkChoicesConditional calls and make sure the new value for widget4 is undefined
         expect(mockedCheckChoicesConditional).toHaveBeenCalledTimes(1);
         expect(mockedCheckChoicesConditional).toHaveBeenCalledWith(value, widgets.widget4.choices, testInterviewAttributes, 'section1.q4');
-        expect(interview.widgets.widget4).toEqual({
+        expect(updatedInterview.widgets.widget4).toEqual({
             ...defaultExpectedWidgetStatus.widget4,
             isEmpty: false,
             isValid: true,
             value: updatedValue,
             currentUpdateKey: 1
         });
-        expect(interview.visibleWidgets).toEqual(['section1.q4']);
-        expect(interview.allWidgetsValid).toEqual(true);
+        expect(updatedInterview.visibleWidgets).toEqual(['section1.q4']);
+        expect(updatedInterview.allWidgetsValid).toEqual(true);
 
         // Make a second call, to reset value, making sure the widget is still valid
 
@@ -661,22 +648,21 @@ describe('Test with choice conditional', () => {
         interviewExpected.validations.section1.q4 = true;
 
         // Call the widget preparation function
-        const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareSectionWidgets(choiceSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
-        expect(interview2).toEqual(expect.objectContaining(interviewExpected));
-        expect(newValuesByPath2).toEqual(Object.assign({}, valuesByPath, { 'responses.section1.q4': updatedValue2 }));
-        expect(foundModalOpen2).toEqual(false);
+        const { updatedInterview: updatedInterview2, updatedValuesByPath: updatedValuesByPath2, needUpdate: needUpdate2 } = prepareSectionWidgets(choiceSection, updatedInterview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+        expect(updatedInterview2).toEqual(expect.objectContaining(interviewExpected));
+        expect(updatedValuesByPath2).toEqual(Object.assign({}, valuesByPath, { 'responses.section1.q4': updatedValue2 }));
         expect(needUpdate2).toEqual(true);
 
         // Though it's invalid, this path was not affected, so the widget should still be valid
-        expect(interview.widgets.widget4).toEqual({
+        expect(updatedInterview2.widgets.widget4).toEqual({
             ...defaultExpectedWidgetStatus.widget4,
             isEmpty: true,
             isValid: true,
             value: undefined,
             currentUpdateKey: 2
         });
-        expect(interview.visibleWidgets).toEqual(['section1.q4']);
-        expect(interview.allWidgetsValid).toEqual(true);
+        expect(updatedInterview2.visibleWidgets).toEqual(['section1.q4']);
+        expect(updatedInterview2.allWidgetsValid).toEqual(true);
     });
 });
 
@@ -757,22 +743,21 @@ describe('Test with custom path', () => {
         const valuesByPath = { 'responses.section1.q4': currentResponse };
     
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
-        expect(interview).toEqual(expect.objectContaining(expectedInterview));
-        expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
-        expect(foundModalOpen).toEqual(false);
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
+        expect(updatedValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
         expect(needUpdate).toEqual(false);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
         expect(mockedCheckValidations).toHaveBeenCalledWith(widgetWithCustom.validations, (testInterviewAttributes as any).responses.section1.q4, undefined, testInterviewAttributes, 'section1.q4',  'section1.q4custom');
-        expect(interview.widgets.widgetWithCustom).toEqual({
+        expect(updatedInterview.widgets.widgetWithCustom).toEqual({
             ...defaultExpectedWidgetStatus,
             isValid: true,
             value: currentResponse,
             isCustomEmpty: true,
             isCustomResponded: false
         });
-        expect(interview.visibleWidgets).toEqual(['section1.q4', 'section1.q4custom']);
-        expect(interview.allWidgetsValid).toEqual(true);
+        expect(updatedInterview.visibleWidgets).toEqual(['section1.q4', 'section1.q4custom']);
+        expect(updatedInterview.allWidgetsValid).toEqual(true);
     });
 
     test('Test with custom path, custom choice selected', () => {
@@ -793,14 +778,13 @@ describe('Test with custom path', () => {
         const valuesByPath = { 'responses.section1.q4': currentResponse };
     
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
-        expect(interview).toEqual(expect.objectContaining(expectedInterview));
-        expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
-        expect(foundModalOpen).toEqual(false);
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
+        expect(updatedValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
         expect(needUpdate).toEqual(false);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
         expect(mockedCheckValidations).toHaveBeenCalledWith(widgetWithCustom.validations, currentResponse, currentCustomResponse, testInterviewAttributes, 'section1.q4',  'section1.q4custom');
-        expect(interview.widgets.widgetWithCustom).toEqual({
+        expect(updatedInterview.widgets.widgetWithCustom).toEqual({
             ...defaultExpectedWidgetStatus,
             isValid: true,
             value: currentResponse,
@@ -808,8 +792,8 @@ describe('Test with custom path', () => {
             isCustomEmpty: false,
             isCustomResponded: true
         });
-        expect(interview.visibleWidgets).toEqual(['section1.q4', 'section1.q4custom']);
-        expect(interview.allWidgetsValid).toEqual(true);
+        expect(updatedInterview.visibleWidgets).toEqual(['section1.q4', 'section1.q4custom']);
+        expect(updatedInterview.allWidgetsValid).toEqual(true);
     });
 
 });
