@@ -148,6 +148,7 @@ const prepareSimpleWidget = (
     customValue = surveyHelper.parseValue(customValue, widgetConfig.customDatatype);
 
     let isResponded = value !== undefined || data.affectedPaths['_all'] === true;
+    // FIXME Why do we set to true if _all is affected, even if there is no custom value?
     let isCustomResponded = customValue !== undefined || data.affectedPaths['_all'] === true;
 
     const isMapPoint =
