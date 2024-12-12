@@ -6,7 +6,7 @@
  */
 
 import _cloneDeep from 'lodash/cloneDeep';
-import { prepareWidgets } from '../WidgetOperation';
+import { prepareSectionWidgets } from '../WidgetOperation';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
@@ -245,7 +245,7 @@ test('Test simple widget data', () => {
     const valuesByPath = { 'responses.section1.q1': newValue };
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath));
+    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath));
     expect(interview).toEqual(expect.objectContaining(interviewCopy));
     expect(newValuesByPath).toEqual(valuesByPath);
     expect(foundModalOpen).toEqual(false);
@@ -268,7 +268,7 @@ test('Test with conditional, no change in conditional', () => {
     const valuesByPath = { 'responses.section1.q2': 2 };
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
     expect(interview).toEqual(expect.objectContaining(interviewCopy));
     expect(newValuesByPath).toEqual(valuesByPath);
     expect(foundModalOpen).toEqual(false);
@@ -297,7 +297,7 @@ test('Test with conditional, change in conditional', () => {
     const valuesByPath = { 'responses.section1.q2': newValue };
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
     expect(interview).toEqual(expect.objectContaining(interviewCopy));
     expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q2': true }));
     expect(foundModalOpen).toEqual(false);
@@ -314,7 +314,7 @@ test('Test with conditional, change in conditional', () => {
     expect(interview.allWidgetsValid).toEqual(true);
     
     // Change the status again
-    const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareWidgets(mainSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+    const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareSectionWidgets(mainSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
     interviewCopy.validations.section1.q2 = false;
     expect(interview2).toEqual(expect.objectContaining(interviewCopy));
     expect(newValuesByPath2).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q2': false }));
@@ -347,7 +347,7 @@ test('Make widget2 invisible', () => {
     mockedCheckConditional.mockReturnValueOnce([false, undefined, undefined]);
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath));
+    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath));
     expect(interview).toEqual(expect.objectContaining(interviewCopy));
     expect(newValuesByPath).toEqual(valuesByPath);
     expect(foundModalOpen).toEqual(false);
@@ -378,7 +378,7 @@ test('Test a group widget, with visibility and default value', () => {
     // Test, make the group2 invisible
     mockedCheckConditional.mockReturnValueOnce([true, undefined, undefined]);
     mockedCheckConditional.mockReturnValueOnce([false, undefined, undefined]);
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(groupSection, testInterviewAttributes, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath), false, testUser);
+    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(groupSection, testInterviewAttributes, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath), false, testUser);
     expect(interview).toEqual(expect.objectContaining(interviewExpected));
     expect(newValuesByPath).toEqual(valuesByPath);
     expect(foundModalOpen).toEqual(false);
@@ -403,7 +403,7 @@ test('Test a group widget, with visibility and default value', () => {
     // Since the value has just been set, it should valid
     (interviewExpected as any).responses.groupResponses[group2Id].gq1 = 'default';
     (interviewExpected as any).validations.groupResponses[group2Id].gq1 = true;
-    const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareWidgets(groupSection, interview, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath), false, testUser);
+    const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareSectionWidgets(groupSection, interview, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath), false, testUser);
     expect(interview2).toEqual(expect.objectContaining(interviewExpected));
     // Validate that the default value function has been called with proper parameters
     expect(mockedDefaultValue).toHaveBeenCalledTimes(1);
@@ -439,7 +439,7 @@ test('Test a group widget, with visibility and default value', () => {
     // Make a third call, changing again value from group 1, group2 should remain the same, even if value is technically invalid
     (interviewExpected as any).responses.groupResponses[group2Id].gq1 = 'default';
     (interviewExpected as any).validations.groupResponses[group2Id].gq1 = true;
-    const [interview3, newValuesByPath3, foundModalOpen3, needUpdate3] = prepareWidgets(groupSection, interview2, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath));
+    const [interview3, newValuesByPath3, foundModalOpen3, needUpdate3] = prepareSectionWidgets(groupSection, interview2, { [`responses.groupResponses.${group1Id}.gq1`]: true }, _cloneDeep(valuesByPath));
     expect(interview3).toEqual(expect.objectContaining(interviewExpected));
     expect(newValuesByPath3).toEqual(valuesByPath);
     expect(foundModalOpen3).toEqual(false);
@@ -476,7 +476,7 @@ test('Test a group widget, with visibility and default value', () => {
     // Make a fourth call, with _all values to check, validity should now be false
     (interviewExpected as any).validations.groupResponses[group2Id].gq1 = false;
     const valuesByPathForGroup2 = { [`_all`]: true };
-    const [interview4, newValuesByPath4, foundModalOpen4, needUpdate4] = prepareWidgets(groupSection, interview2, { [`_all`]: true }, _cloneDeep(valuesByPathForGroup2));
+    const [interview4, newValuesByPath4, foundModalOpen4, needUpdate4] = prepareSectionWidgets(groupSection, interview2, { [`_all`]: true }, _cloneDeep(valuesByPathForGroup2));
     expect(interview4).toEqual(expect.objectContaining(interviewExpected));
     expect(newValuesByPath4).toEqual(Object.assign({}, valuesByPathForGroup2, { [`validations.groupResponses.${group2Id}.gq1`]: false}));
     expect(foundModalOpen4).toEqual(false);
@@ -510,7 +510,7 @@ test('Test simple widget data with update key', () => {
     const valuesByPath = { 'responses.section1.q1': newValue };
 
     // Test
-    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath), true);
+    const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q1': true }, _cloneDeep(valuesByPath), true);
     expect(interview).toEqual(expect.objectContaining(interviewCopy));
     expect(newValuesByPath).toEqual(valuesByPath);
     expect(foundModalOpen).toEqual(false);
@@ -542,7 +542,7 @@ describe('Test with choice conditional', () => {
         const valuesByPath = { 'responses.section1.q4': newValue };
     
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
         expect(interview).toEqual(expect.objectContaining(interviewExpected));
         expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true }));
         expect(foundModalOpen).toEqual(false);
@@ -580,7 +580,7 @@ describe('Test with choice conditional', () => {
         const valuesByPath = { 'responses.section1.q2': 3 };
     
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
         expect(interview).toEqual(expect.objectContaining(interviewExpected));
         expect(newValuesByPath).toEqual(valuesByPath);
         expect(foundModalOpen).toEqual(false);
@@ -628,7 +628,7 @@ describe('Test with choice conditional', () => {
         mockedCheckValidations.mockReturnValueOnce([true, undefined]);
 
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
         expect(interview).toEqual(expect.objectContaining(interviewExpected));
         expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'responses.section1.q4': updatedValue }));
         expect(foundModalOpen).toEqual(false);
@@ -661,7 +661,7 @@ describe('Test with choice conditional', () => {
         interviewExpected.validations.section1.q4 = true;
 
         // Call the widget preparation function
-        const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareWidgets(choiceSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
+        const [interview2, newValuesByPath2, foundModalOpen2, needUpdate2] = prepareSectionWidgets(choiceSection, interview, { 'responses.section1.q2': true }, _cloneDeep(valuesByPath));
         expect(interview2).toEqual(expect.objectContaining(interviewExpected));
         expect(newValuesByPath2).toEqual(Object.assign({}, valuesByPath, { 'responses.section1.q4': updatedValue2 }));
         expect(foundModalOpen2).toEqual(false);
@@ -698,7 +698,7 @@ describe('Test text widget', () => {
 
         // Initialize current responses
         const testInterviewAttributes = _cloneDeep(interviewAttributes);
-        prepareWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q4': true }, { _all: true });
+        prepareSectionWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q4': true }, { _all: true });
 
         expect(mockedCheckConditional).toHaveBeenLastCalledWith(mockConditional, testInterviewAttributes, path, undefined);
     });
@@ -757,7 +757,7 @@ describe('Test with custom path', () => {
         const valuesByPath = { 'responses.section1.q4': currentResponse };
     
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
         expect(interview).toEqual(expect.objectContaining(expectedInterview));
         expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
         expect(foundModalOpen).toEqual(false);
@@ -793,7 +793,7 @@ describe('Test with custom path', () => {
         const valuesByPath = { 'responses.section1.q4': currentResponse };
     
         // Test
-        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
         expect(interview).toEqual(expect.objectContaining(expectedInterview));
         expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
         expect(foundModalOpen).toEqual(false);

@@ -28,7 +28,7 @@ const fetch = async (url, opts) => {
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { prepareWidgets } from './utils';
+import { prepareSectionWidgets } from './utils';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import i18n from '../config/i18n.config';
@@ -52,7 +52,7 @@ export const updateSection = (
     let foundOneOpenedModal = false; // TODO Remove this variable, it is not used? Why is it there?
 
     while (needToUpdate && updateCount < 10 /* security against infinite loops */) {
-        [interview, valuesByPath, needToUpdate, foundOneOpenedModal] = prepareWidgets(
+        [interview, valuesByPath, needToUpdate, foundOneOpenedModal] = prepareSectionWidgets(
             sectionShortname,
             interview,
             affectedPaths,
