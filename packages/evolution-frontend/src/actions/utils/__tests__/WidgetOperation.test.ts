@@ -8,7 +8,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import { prepareWidgets } from '../WidgetOperation';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
-import { SurveyWidgets, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { checkConditional, checkChoicesConditional } from '../Conditional';
 import { checkValidations } from '../Validation';
@@ -22,7 +22,7 @@ const testUser = {
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 jest.mock('../Conditional', () => ({
     checkConditional: jest.fn().mockReturnValue([true, undefined, undefined]),
@@ -95,18 +95,6 @@ const mockedDefaultValue = widgets.widget3.defaultValue as jest.MockedFunction<a
 // Prepare test interview attributes
 const group1Id = 'group1Id';
 const group2Id = 'group2Id';
-type CustomSurvey = {
-    section1?: {
-        q1?: string;
-        q2?: number;
-    };
-    groupResponses?: {
-        [groupId: string]: {
-            _uuid?: string;
-            gq1?: string;
-        }
-    }
-}
 
 const userInterviewAttributes: UserInterviewAttributes = {
     id: 1,
@@ -143,7 +131,7 @@ const userInterviewAttributes: UserInterviewAttributes = {
         }
     } as any,
     is_valid: true,
-}
+};
 const interviewAttributes: UserRuntimeInterviewAttributes = {
     ...userInterviewAttributes,
     widgets: {},
@@ -240,15 +228,12 @@ const defaultExpectedWidgetStatus = {
         customValue: undefined,
         currentUpdateKey: 0
     }
-}
+};
 
 beforeEach(() => {
     setApplicationConfiguration({ sections, widgets });
-    widgets.widget2.validations.mockClear();
-    mockedCheckValidations.mockClear();
-    mockedCheckChoicesConditional.mockClear();
-    mockedDefaultValue.mockClear();
-})
+    jest.clearAllMocks();
+});
 
 test('Test simple widget data', () => {
     // Prepare test data
@@ -716,6 +701,115 @@ describe('Test text widget', () => {
         prepareWidgets(mainSection, testInterviewAttributes, { 'responses.section1.q4': true }, { _all: true });
 
         expect(mockedCheckConditional).toHaveBeenLastCalledWith(mockConditional, testInterviewAttributes, path, undefined);
-    })
+    });
 
-})
+});
+
+describe('Test with custom path', () => {
+    const widgetWithCustom = {
+        type: 'question',
+        inputType: 'radio',
+        path: 'section1.q4',
+        customPath: 'section1.q4custom',
+        customChoice: 'custom',
+        label: { en: 'q4 label' },
+        validations: jest.fn(),
+        choices: [
+            { value: 'a', label: {}, conditional: () => true },
+            { value: 'custom', label: {}, conditional: () => false }
+        ]
+    };
+
+    const defaultExpectedWidgetStatus = {
+        path: 'section1.q4',
+        customPath: 'section1.q4custom',
+        isVisible: true,
+        isDisabled: false,
+        isCollapsed: false,
+        isEmpty: false,
+        isCustomEmpty: true,
+        isValid: true,
+        isResponded: true,
+        isCustomResponded: false,
+        errorMessage: undefined,
+        groupedObjectId: undefined,
+        value: undefined,
+        customValue: undefined,
+        currentUpdateKey: 0
+    };
+
+    beforeEach(() => {
+        setApplicationConfiguration({ sections: { choiceSection: { widgets: [ 'widgetWithCustom'] } }, widgets: { widgetWithCustom } });
+    });
+
+    test('Test with custom path, custom choice not selected', () => {
+        // Prepare test data
+        const currentResponse = 'a';
+        mockedCheckValidations.mockReturnValueOnce([true, undefined]);
+        const testInterviewAttributes = _cloneDeep(interviewAttributes);
+
+        // Change current field
+        const expectedInterview = _cloneDeep(userInterviewAttributes) as any;
+        expectedInterview.responses.section1.q4 = currentResponse;
+        expectedInterview.validations.section1.q4 = true;
+        expectedInterview.validations.section1.q4custom = true;
+        (testInterviewAttributes as any).responses.section1.q4 = currentResponse;
+        const valuesByPath = { 'responses.section1.q4': currentResponse };
+    
+        // Test
+        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        expect(interview).toEqual(expect.objectContaining(expectedInterview));
+        expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
+        expect(foundModalOpen).toEqual(false);
+        expect(needUpdate).toEqual(false);
+        expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(widgetWithCustom.validations, (testInterviewAttributes as any).responses.section1.q4, undefined, testInterviewAttributes, 'section1.q4',  'section1.q4custom');
+        expect(interview.widgets.widgetWithCustom).toEqual({
+            ...defaultExpectedWidgetStatus,
+            isValid: true,
+            value: currentResponse,
+            isCustomEmpty: true,
+            isCustomResponded: false
+        });
+        expect(interview.visibleWidgets).toEqual(['section1.q4', 'section1.q4custom']);
+        expect(interview.allWidgetsValid).toEqual(true);
+    });
+
+    test('Test with custom path, custom choice selected', () => {
+        // Prepare test data
+        const currentResponse = 'custom';
+        const currentCustomResponse = 'custom response';
+        mockedCheckValidations.mockReturnValueOnce([true, undefined]);
+        const testInterviewAttributes = _cloneDeep(interviewAttributes);
+
+        // Change current field
+        const expectedInterview = _cloneDeep(userInterviewAttributes) as any;
+        expectedInterview.responses.section1.q4 = currentResponse;
+        expectedInterview.responses.section1.q4custom = currentCustomResponse;
+        expectedInterview.validations.section1.q4 = true;
+        expectedInterview.validations.section1.q4custom = true;
+        (testInterviewAttributes as any).responses.section1.q4 = currentResponse;
+        (testInterviewAttributes as any).responses.section1.q4custom = currentCustomResponse;
+        const valuesByPath = { 'responses.section1.q4': currentResponse };
+    
+        // Test
+        const [interview, newValuesByPath, foundModalOpen, needUpdate] = prepareWidgets(choiceSection, testInterviewAttributes, { 'responses.section1.q4': true }, _cloneDeep(valuesByPath));
+        expect(interview).toEqual(expect.objectContaining(expectedInterview));
+        expect(newValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
+        expect(foundModalOpen).toEqual(false);
+        expect(needUpdate).toEqual(false);
+        expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(widgetWithCustom.validations, currentResponse, currentCustomResponse, testInterviewAttributes, 'section1.q4',  'section1.q4custom');
+        expect(interview.widgets.widgetWithCustom).toEqual({
+            ...defaultExpectedWidgetStatus,
+            isValid: true,
+            value: currentResponse,
+            customValue: currentCustomResponse,
+            isCustomEmpty: false,
+            isCustomResponded: true
+        });
+        expect(interview.visibleWidgets).toEqual(['section1.q4', 'section1.q4custom']);
+        expect(interview.allWidgetsValid).toEqual(true);
+    });
+
+});
