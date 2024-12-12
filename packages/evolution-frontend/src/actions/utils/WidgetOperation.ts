@@ -19,7 +19,9 @@ import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/qu
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 
-// Data for the survey, with values to update
+/**
+ * Preparation data, for the current survey
+ */
 type CurrentPreparationData = {
     affectedPaths: { [path: string]: boolean };
     valuesByPath: { [path: string]: unknown };
@@ -30,7 +32,9 @@ type CurrentPreparationData = {
     user?: CliUser;
 };
 
-// Data for a specific widget
+/**
+ * Preparation data, specific for a widget
+ */
 type WidgetPreparationData = {
     widgets: string[];
     groupShortname?: string;
@@ -38,7 +42,7 @@ type WidgetPreparationData = {
     parentGroupedObject?: any;
 };
 
-const prepareGroupedWidgets = (
+const prepareGroupWidgets = (
     data: CurrentPreparationData,
     widgetConfig: GroupConfig,
     groupShortname: string,
@@ -57,7 +61,7 @@ const prepareGroupedWidgets = (
         const groupedObject = sortedGroupedObjects[grObj_i];
         const groupedObjectPath = `${path}.${groupedObject._uuid}`;
         const groupedObjectWidgets = widgetConfig.widgets;
-        prepareWidget(data, {
+        prepareWidgets(data, {
             widgets: groupedObjectWidgets,
             groupShortname,
             parentPath: groupedObjectPath,
@@ -314,7 +318,7 @@ const prepareSimpleWidget = (
     }
 };
 
-const prepareWidget = function (data: CurrentPreparationData, widgetPrepData: WidgetPreparationData) {
+const prepareWidgets = function (data: CurrentPreparationData, widgetPrepData: WidgetPreparationData) {
     for (let i = 0, count = widgetPrepData.widgets.length; i < count; i++) {
         const widgetShortname = widgetPrepData.widgets[i];
         const widgetConfig = applicationConfiguration.widgets[widgetShortname];
@@ -332,14 +336,14 @@ const prepareWidget = function (data: CurrentPreparationData, widgetPrepData: Wi
                 : '';
 
         if (componentType === 'group') {
-            prepareGroupedWidgets(data, widgetConfig, widgetShortname, path);
+            prepareGroupWidgets(data, widgetConfig, widgetShortname, path);
         } else {
             prepareSimpleWidget(data, widgetPrepData, widgetConfig, widgetShortname, path);
         }
     }
 };
 
-export const prepareWidgets = function (
+export const prepareSectionWidgets = function (
     sectionShortname: string,
     interview: UserRuntimeInterviewAttributes,
     affectedPaths: { [path: string]: boolean },
@@ -374,7 +378,7 @@ export const prepareWidgets = function (
         updateKey,
         user
     };
-    prepareWidget(widgetPrepData, {
+    prepareWidgets(widgetPrepData, {
         widgets: sectionWidgets,
         parentPath: ''
     });

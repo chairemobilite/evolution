@@ -10,7 +10,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import { addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import * as SurveyActions from '../Survey';
-import { prepareWidgets } from '../utils';
+import { prepareSectionWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
 
 const jsonFetchResolve = jest.fn();
@@ -87,10 +87,10 @@ const testUser = {
 
 // Mock functions
 jest.mock('../utils', () => ({
-    prepareWidgets: jest.fn().mockImplementation((_sectionShortname, interview, _affectedPaths, valuesByPath) => [_cloneDeep(interview), _cloneDeep(valuesByPath), false, false])
+    prepareSectionWidgets: jest.fn().mockImplementation((_sectionShortname, interview, _affectedPaths, valuesByPath) => [_cloneDeep(interview), _cloneDeep(valuesByPath), false, false])
 }));
 const mockDispatch = jest.fn();
-const mockPrepareWidgets = prepareWidgets as jest.MockedFunction<typeof prepareWidgets>;
+const mockPrepareSectionWidgets = prepareSectionWidgets as jest.MockedFunction<typeof prepareSectionWidgets>;
 const mockNext = jest.fn();
 const mockGetState = jest.fn().mockReturnValue({
     survey: {
@@ -125,8 +125,8 @@ describe('Update interview', () => {
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
-        expect(mockPrepareWidgets).toHaveBeenCalledTimes(1);
-        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({ 
             method: 'POST',
@@ -165,7 +165,7 @@ describe('Update interview', () => {
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
         delete (expectedInterviewToPrepare.responses as any).section2.q1;
-        mockPrepareWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => {
+        mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => {
             const innerInterview = _cloneDeep(interview);
             (innerInterview.validations as any).section1.q2 = true;
             return [innerInterview, {... valuesByPath, 'validations.section1.q2': true}, false, false];
@@ -179,8 +179,8 @@ describe('Update interview', () => {
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
-        expect(mockPrepareWidgets).toHaveBeenCalledTimes(1);
-        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true, 'responses.section2.q1': true}, { ...valuesByPath }, false, testUser);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true, 'responses.section2.q1': true}, { ...valuesByPath }, false, testUser);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({ 
             method: 'POST',
@@ -228,8 +228,8 @@ describe('Update interview', () => {
         await callback(mockNext, mockDispatch, mockLocalGetState);
 
         // Verifications
-        expect(mockPrepareWidgets).toHaveBeenCalledTimes(1);
-        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, undefined);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, undefined);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({ 
             method: 'POST',
@@ -279,9 +279,9 @@ describe('Update interview', () => {
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
-        expect(mockPrepareWidgets).toHaveBeenCalledTimes(2);
-        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
-        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', expectedInterviewAsState, {'responses.section1.q2': true}, { ...serverUpdatedValues }, true, testUser);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(2);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewAsState, {'responses.section1.q2': true}, { ...serverUpdatedValues }, true, testUser);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({ 
             method: 'POST',
@@ -314,7 +314,7 @@ describe('Update interview', () => {
     test('With local exception', async () => {
         // Prepare mock and test data, the prepareWidget function will throw an exception
         const updateCallback = jest.fn();
-        mockPrepareWidgets.mockImplementationOnce(() => { throw 'error' });
+        mockPrepareSectionWidgets.mockImplementationOnce(() => { throw 'error' });
         const valuesByPath = { 'responses.section1.q1': 'foo' };
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
@@ -324,8 +324,8 @@ describe('Update interview', () => {
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
-        expect(mockPrepareWidgets).toHaveBeenCalledTimes(1);
-        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
         expect(fetchMock).not.toHaveBeenCalled();
         expect(mockDispatch).toHaveBeenCalledTimes(2);
         expect(mockDispatch).toHaveBeenNthCalledWith(1, { 
@@ -354,8 +354,8 @@ describe('Update interview', () => {
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
-        expect(mockPrepareWidgets).toHaveBeenCalledTimes(1);
-        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, {'responses.section1.q1': true}, { ...valuesByPath }, false, testUser);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledTimes(2);
         expect(mockDispatch).toHaveBeenNthCalledWith(1, { 
@@ -383,8 +383,8 @@ describe('Update interview', () => {
         await callback(mockNext, mockDispatch, mockGetState);
 
         // Verifications
-        expect(mockPrepareWidgets).toHaveBeenCalledTimes(1);
-        expect(mockPrepareWidgets).toHaveBeenCalledWith('section', initialInterview, {'_all': true}, { ...valuesByPath }, false, testUser);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', initialInterview, {'_all': true}, { ...valuesByPath }, false, testUser);
         expect(fetchMock).not.toHaveBeenCalled();
 
         expect(mockDispatch).toHaveBeenCalledTimes(3);
