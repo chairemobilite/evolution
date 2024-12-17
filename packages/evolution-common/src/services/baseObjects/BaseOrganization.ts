@@ -12,7 +12,6 @@
 
 import { Optional } from '../../types/Optional.type';
 import { IValidatable } from './IValidatable';
-import { BasePlace } from './BasePlace';
 import { Weightable, Weight, validateWeights } from './Weight';
 import * as OAttr from './attributeTypes/OrganizationAttributes';
 import { Uuidable } from './Uuidable';

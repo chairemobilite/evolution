@@ -6,7 +6,6 @@
  */
 
 import _get from 'lodash/get';
-import _isEmpty from 'lodash/isEmpty';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse } from '../../utils/helpers';
 import {

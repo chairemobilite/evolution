@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _upperFirst from 'lodash/upperFirst';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
@@ -23,7 +22,7 @@ export const getSameAsReverseTripWidgetConfig = (
         inputType: 'radio',
         twoColumns: false,
         datatype: 'boolean',
-        label: (t: TFunction, interview, path) => {
+        label: (t: TFunction, interview, _path) => {
             const person = odHelpers.getPerson({ interview }) as Person;
             const previousSegment = getPreviousTripSingleSegment({ interview, person });
             const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;

@@ -5,4 +5,4 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-export type TripChainCategory = string; // TODO: use normalized trip chain categories, simple | complex | open
+export type TripChainCategory = string; // TODO: use normalized trip chain categories, simple | complex | open

@@ -18,7 +18,7 @@ const activePersonTitle: TextWidgetConfig = {
     align: 'center',
     containsHtml: true,
     classes: '',
-    text: (t: TFunction, interview: UserInterviewAttributes, path: string) => {
+    text: (t: TFunction, interview: UserInterviewAttributes, _path: string) => {
         const activePerson = odHelpers.getActivePerson({ interview });
         if (activePerson === null) {
             return '';
@@ -49,14 +49,14 @@ const buttonSwitchPerson: ButtonWidgetConfig = {
         cancelButtonColor: 'blue',
         cancelButtonLabel: (t: TFunction) => t('main:OK')
     },
-    conditional: (interview, path) => [hasMoreThanOneInterviewablePerson(interview), undefined],
+    conditional: (interview, _path) => [hasMoreThanOneInterviewablePerson(interview), undefined],
     action: function (
         callbacks: InterviewUpdateCallbacks,
-        interview: UserInterviewAttributes,
-        path: string,
+        _interview: UserInterviewAttributes,
+        _path: string,
         section,
-        sections,
-        saveCallback
+        _sections,
+        _saveCallback
     ) {
         // FIXME: We navigate to the selectPerson section... That means this widget should be part of a feature that contains this section
         callbacks.startUpdateInterview(section, {
@@ -73,7 +73,7 @@ const buttonSwitchPerson: ButtonWidgetConfig = {
  */
 export const getSwitchPersonWidgets = (
     // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: () => string } = {}
+    _options: { context?: () => string } = {}
 ): { activePersonTitle: TextWidgetConfig; buttonSwitchPerson: ButtonWidgetConfig } => {
     // TODO These should be some configuration receive here to fine-tune the section's content
     return {

@@ -12,7 +12,7 @@
 import { Optional } from '../../types/Optional.type';
 import { Uuidable } from './Uuidable';
 import { IValidatable } from './IValidatable';
-import { Weightable, Weight, validateWeights } from './Weight';
+import { Weightable, Weight } from './Weight';
 import * as VAttr from './attributeTypes/VehicleAttributes';
 
 export type BaseVehicleAttributes = {

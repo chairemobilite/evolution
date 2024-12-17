@@ -19,7 +19,7 @@ export const getPersonsTripsTitleWidgetConfig = (
     return {
         type: 'text',
         align: 'left',
-        text: (t: TFunction, interview: UserInterviewAttributes, path: string) => {
+        text: (t: TFunction, interview: UserInterviewAttributes, _path: string) => {
             const person = odHelpers.getActivePerson({ interview });
             const journey = odHelpers.getActiveJourney({ interview });
             // FIXME Write a function somewhere to get the journey's or dateToString function, once we move to objects
