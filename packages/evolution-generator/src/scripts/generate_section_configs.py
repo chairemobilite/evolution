@@ -74,9 +74,9 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                 ts_section_code = ""  # TypeScript code for the section
                 # Add the custom preload import if the section has a preload function
                 # FIXME Should the generator provide a default preload function? Currently there are none
-                if has_preload: 
+                if has_preload:
                     ts_section_code += f"import {{ preload }} from './preload';\n"
-                    
+
                 section_output_file = (
                     f"{section_config_output_folder}/{section}/sectionConfigs.ts"
                 )
@@ -93,20 +93,29 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
 
                     # Copy the skeleton template file if the section has a custom template and it does not exist
                     # Define the destination path for the template file
-                    destination_template_file = os.path.join(section_config_output_folder, section, "template.tsx")
+                    destination_template_file = os.path.join(
+                        section_config_output_folder, section, "template.tsx"
+                    )
 
                     # Check if the template file exists in the destination folder
                     if not os.path.exists(destination_template_file):
                         # Define the source path for the template file
-                        source_template_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "../skeleton/template.tsx"))
+                        source_template_file = os.path.abspath(
+                            os.path.join(
+                                os.path.dirname(__file__), "../skeleton/template.tsx"
+                            )
+                        )
                         if not os.path.exists(source_template_file):
-                            raise FileNotFoundError(f"Template file not found: {source_template_file}")
+                            raise FileNotFoundError(
+                                f"Template file not found: {source_template_file}"
+                            )
                         # Ensure the destination directory exists
-                        os.makedirs(os.path.dirname(destination_template_file), exist_ok=True)
+                        os.makedirs(
+                            os.path.dirname(destination_template_file), exist_ok=True
+                        )
                         # If the template file does not exist, copy it from the source
                         shutil.copyfile(source_template_file, destination_template_file)
                         print(f"Copied template.tsx to {destination_template_file}")
-
 
                 # Generate currentSectionName
                 ts_section_code += (
@@ -117,9 +126,7 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                 if previousSection is not None:
                     ts_section_code += f"const previousSectionName: SectionConfig['previousSection'] = '{previousSection}';\n"
                 else:
-                    ts_section_code += (
-                        "const previousSectionName: SectionConfig['previousSection'] = null;\n"
-                    )
+                    ts_section_code += "const previousSectionName: SectionConfig['previousSection'] = null;\n"
 
                 # Generate nextSectionName
                 # Check if there is a next row
@@ -127,17 +134,15 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                     next_row = rows[row_number]  # Get the next row
                     # Get the next section from the next row
                     nextSection = get_values_from_row(next_row, headers)[0]
-                    ts_section_code += (
-                        f"const nextSectionName: SectionConfig['nextSection'] = '{nextSection}';\n"
-                    )
+                    ts_section_code += f"const nextSectionName: SectionConfig['nextSection'] = '{nextSection}';\n"
                 else:
-                    ts_section_code += "const nextSectionName: SectionConfig['nextSection'] = null;\n"
+                    ts_section_code += (
+                        "const nextSectionName: SectionConfig['nextSection'] = null;\n"
+                    )
 
                 # Generate parentSectionName
                 if parent_section is not None:
-                    ts_section_code += (
-                        f"const parentSectionName: SectionConfig['parentSection'] = '{parent_section}';\n"
-                    )
+                    ts_section_code += f"const parentSectionName: SectionConfig['parentSection'] = '{parent_section}';\n"
 
                 # Generate config for the section
                 ts_section_code += f"\n// Config for the section\n"
