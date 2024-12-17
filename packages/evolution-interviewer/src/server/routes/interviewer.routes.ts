@@ -119,7 +119,9 @@ export default function (interviewDataFct: {
                 throw 'Request user is not defined, an interview cannot be created for the user';
             }
             const user = (req as any).user as UserAttributes;
-            const interviewsData = serverHelper.getCache(`interviewer_monitoring_stats_${user.id}.json`, { data: [] } as any);
+            const interviewsData = serverHelper.getCache(`interviewer_monitoring_stats_${user.id}.json`, {
+                data: []
+            } as any);
 
             const csvContent: any[] = [];
             if (interviewsData.start === undefined) {
