@@ -31,6 +31,16 @@ jobs:
       run: yarn generateSurvey:example
     - name: Install
       run: yarn
+    - name: Format python
+      run: yarn format:python
+    - name: Check git status after python format
+      run: |
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "Code formatting issues found. Please run 'yarn format' locally and commit changes."
+          git status
+          git diff
+          exit 1
+        fi
     - name: Compile Evolution
       run: yarn compile
     - name: Compile Generated survey
