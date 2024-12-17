@@ -13,6 +13,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import { unparse } from 'papaparse';
 import isString from 'lodash/isString';
 
+import { ExportOptions } from './types';
 import { execJob } from '../../tasks/serverWorkerPool';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';

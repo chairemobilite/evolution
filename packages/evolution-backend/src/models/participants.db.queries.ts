@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
-import _cloneDeep from 'lodash/cloneDeep';
 
 import TrError from 'chaire-lib-common/lib/utils/TrError';
 
@@ -100,7 +99,7 @@ const update = async (id: number, attributes: Partial<ParticipantAttributes>): P
         if (Object.keys(attributes).length === 0) {
             return false;
         }
-        const returningArray = await knex(tableName).update(attributes).where('id', id);
+        await knex(tableName).update(attributes).where('id', id);
         return true;
     } catch (error) {
         throw new TrError(

@@ -204,7 +204,7 @@ export default class Interviews {
                         copyResponsesToValidatedData(interview)
                             .then(
                                 () =>
-                                    new Promise((res1, rej1) => {
+                                    new Promise((res1, _rej1) => {
                                         Audits.runAndSaveInterviewAudits(interview)
                                             .then(() => {
                                                 res1(true);

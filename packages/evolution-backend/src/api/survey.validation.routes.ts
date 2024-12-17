@@ -194,7 +194,7 @@ router.post('/validation/auditStats', async (req: Request, res: Response) => {
     }
 });
 
-router.post('/validation/updateAudits/:uuid', async (req, res, next) => {
+router.post('/validation/updateAudits/:uuid', async (req, res, _next) => {
     try {
         const audits = req.body.audits;
         const interview = await Interviews.getInterviewByUuid(req.params.uuid);

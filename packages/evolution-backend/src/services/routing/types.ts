@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
-import { SummaryResponse, SummarySuccessResult } from 'chaire-lib-common/lib/api/TrRouting/trRoutingApiV2';
+import { SummarySuccessResult } from 'chaire-lib-common/lib/api/TrRouting/trRoutingApiV2';
 
 export type RouteCalculationParameter = {
     /**

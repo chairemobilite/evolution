@@ -36,7 +36,7 @@ const exportInterviews = function (exportJsonFileDirectory) {
 };
 
 class ExportInterviewsJSON {
-    async run(argv) {
+    async run(_argv) {
         // TODO Support options from the command line
         await exportInterviews(exportJsonFileDirectory);
 
