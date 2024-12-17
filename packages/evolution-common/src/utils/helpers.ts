@@ -253,7 +253,7 @@ export const parseValue = function (
     }
     if (datatype === 'geojson') {
         // Add the properties to the value if it is an object and it does not have properties
-        if (typeof value === 'object' && value['properties'] === undefined) {
+        if (value !== null && typeof value === 'object' && value['properties'] === undefined) {
             value.properties = {};
         }
         // For geojson, we only accept valid geojson objects
