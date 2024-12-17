@@ -153,6 +153,7 @@ each([
     [{ type: 'Feature', geometry: 'not a geometry' }, 'geojson', null],
     [3, 'geojson', null],
     ['not a feature', 'geojson', null],
+    [null, 'geojson', null],
     [[3, 4], undefined, [3, 4]],
     [{ test: 3 }, undefined, { test: 3 }],
     // TODO What about other data types? They are simply converted to string, should something else be done?
