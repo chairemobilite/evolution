@@ -42,6 +42,8 @@
         "test:ui:install-dependencies": "yarn workspace demo_survey run playwright install-deps && yarn workspace demo_survey run playwright install",
         "lint": "yarn workspace evolution-common run lint && yarn workspace evolution-backend run lint && yarn workspace evolution-frontend run lint && yarn workspace evolution-interviewer run lint",
         "format": "yarn workspace evolution-common run format && yarn workspace evolution-backend run format && yarn workspace evolution-frontend run format && yarn workspace evolution-generator run format && yarn workspace evolution-interviewer run format",
+        "format:python": "yarn workspace evolution-generator run format:python",
+        "format:all": "yarn format && yarn format:python",
         "list-tasks": "yarn workspace evolution-legacy run list-tasks",
         "generate-migration": "knex migrate:make",
         "reset-submodules": "rimraf transition/ && git submodule init && git submodule update",

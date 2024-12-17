@@ -18,6 +18,7 @@
     "list-tasks": "yarn babel-node src/tasks/listTasks.task.js",
     "lint": "cross-env NODE_OPTIONS=--max_old_space_size=4096 eslint .",
     "format": "echo 'no formatting on this workspace'",
+    "format:all": "yarn format",
     "clean": "rimraf lib/",
     "cleanModules": "rimraf node_modules/",
     "copy-files": "copyfiles -u 1 ./src/assets/images/**/* src/styles/survey/*.scss ./lib/",

@@ -16,7 +16,8 @@
       "compile:example": "tsc && yarn copy-files",
       "compile:dev": "yarn copy-files && tsc -w",
       "reset": "rimraf src/ locales/ tests/ node_modules/ lib/",
-      "format": "prettier-eslint ./**/*.{ts,tsx} --write"
+      "format": "prettier-eslint ./**/*.{ts,tsx} --write",
+      "format:all": "yarn format"
     },
     "dependencies": {
       "chaire-lib-backend": "0.2.2",
