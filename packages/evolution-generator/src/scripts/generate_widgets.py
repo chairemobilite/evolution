@@ -282,9 +282,7 @@ def generate_widgets_names_statements(section_rows):
         group_question_dict[group].append(row)
 
     # Start the widgets names statements with the import statement
-    widgets_names_statements = (
-        "import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';\n"
-    )
+    widgets_names_statements = "import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';\n"
 
     # For each group in the dictionary, generate the widgets names
     for group, rows in group_question_dict.items():

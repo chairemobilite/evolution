@@ -23,7 +23,9 @@ def clean_text(text):
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_list(
-    excel_file_path: str, questionnaire_list_output_folder: str, language: Literal['en', 'fr']
+    excel_file_path: str,
+    questionnaire_list_output_folder: str,
+    language: Literal["en", "fr"],
 ):
     try:
         # Read data from Excel and return rows and headers
