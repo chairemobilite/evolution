@@ -11,7 +11,7 @@ import { TFunction } from 'i18next';
 
 export const getPersonsTripsGroupConfig = (
     // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: () => string } = {}
+    _options: { context?: () => string } = {}
 ): GroupConfig => {
     // TODO These should be some configuration receive here to fine-tune the section's content
     return {

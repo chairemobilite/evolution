@@ -15,7 +15,7 @@ export const getTripSegmentsIntro = (
     options: { context?: (additionalContext?: string) => string } = {}
 ): TextWidgetConfig => ({
     type: 'text',
-    text: (t: TFunction, interview, path) => {
+    text: (t: TFunction, interview, _path) => {
         const person = odHelpers.getPerson({ interview });
         const journey = odHelpers.getActiveJourney({ interview, person });
         const trip = odHelpers.getActiveTrip({ interview, journey });

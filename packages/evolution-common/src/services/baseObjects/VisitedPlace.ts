@@ -9,7 +9,6 @@ import { Optional } from '../../types/Optional.type';
 import { IValidatable } from './IValidatable';
 import { Place, PlaceAttributes, placeAttributes } from './Place';
 import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
-import * as JAttr from './attributeTypes/JourneyAttributes';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';

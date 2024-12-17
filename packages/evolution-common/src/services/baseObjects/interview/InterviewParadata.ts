@@ -82,7 +82,7 @@ export class InterviewParadata {
     constructor(params: InterviewParadataAttributes) {
         this._attributes = {} as InterviewParadataAttributes;
 
-        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
+        const { attributes } = ConstructorUtils.initializeAttributes(
             params,
             interviewParadataAttributes,
             interviewParadataAttributesWithComposedAttributes

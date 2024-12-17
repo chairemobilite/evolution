@@ -19,7 +19,7 @@ const getModePreChoices = () => [
     {
         value: 'carDriver',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:CarDriver', 'segments:modePre:CarDriver']),
-        conditional: function (interview, path) {
+        conditional: function (interview, _path) {
             const person = odHelpers.getActivePerson({ interview });
             if (person === null) {
                 return true;

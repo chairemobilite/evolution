@@ -6,7 +6,6 @@
  */
 
 import _uniq from 'lodash/uniq';
-import { distance as turfDistance } from '@turf/turf';
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';

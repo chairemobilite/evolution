@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _upperFirst from 'lodash/upperFirst';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';

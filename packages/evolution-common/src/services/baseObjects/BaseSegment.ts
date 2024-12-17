@@ -10,7 +10,6 @@
  */
 
 import { Optional } from '../../types/Optional.type';
-import { BaseVehicle, BaseVehicleAttributes, ExtendedVehicleAttributes } from './BaseVehicle';
 import { Uuidable } from './Uuidable';
 import { IValidatable } from './IValidatable';
 import * as SAttr from './attributeTypes/SegmentAttributes';
