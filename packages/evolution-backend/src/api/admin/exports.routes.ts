@@ -19,7 +19,7 @@ import router from 'chaire-lib-backend/lib/api/admin.routes';
 
 export const addExportRoutes = () => {
     // Get a specific export file per object
-    router.get('/data/exportcsv/exports/:filePath', (req, res, next) => {
+    router.get('/data/exportcsv/exports/:filePath', (req, res, _next) => {
         console.log('requesting csv file from path', req.params.filePath);
         const projectRelativeFilePath = `${filePathOnServer}/${req.params.filePath}`;
         const fileExists = fileManager.fileExists(projectRelativeFilePath);
@@ -37,7 +37,7 @@ export const addExportRoutes = () => {
     });
 
     // Route to get the status of the export task and the list of files
-    router.get('/data/getExportTaskResults', (req, res, next) => {
+    router.get('/data/getExportTaskResults', (_req, res, _next) => {
         console.log('getting csv export files...');
         try {
             if (isExportRunning()) {
@@ -52,7 +52,7 @@ export const addExportRoutes = () => {
     });
 
     // Route to prepare the csv files to export
-    router.get('/data/prepareCsvFileForExportByObject', (req, res, next) => {
+    router.get('/data/prepareCsvFileForExportByObject', (req, res, _next) => {
         console.log('preparing csv export files...');
         try {
             const validatedResponses = req.query.responseType !== 'participant';

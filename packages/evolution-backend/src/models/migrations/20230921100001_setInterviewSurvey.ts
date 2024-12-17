@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Knex } from 'knex';
 import { SurveyAttributes } from '../../services/surveys/survey';
 import config from 'chaire-lib-common/lib/config/shared/project.config';

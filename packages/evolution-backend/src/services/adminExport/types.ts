@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-type ExportOptions = {
+export type ExportOptions = {
     /** Specifies which set of responses should be exported. 'validated' means
      * it exports the validated data if available, 'participant' is the original
      * participant responses */

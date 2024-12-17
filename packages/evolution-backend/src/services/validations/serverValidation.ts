@@ -27,15 +27,16 @@ export type ServerValidation =
  * the invalid field.
  *
  * @param {{ [key: string]: any }} valuesByPath
- * @param {string[]} unsetValues
+ * @param {string[]} _unsetValues
  * @return {*}  {Promise<{ [key: string]: { [key: string]: string } } |
  * boolean>}
  */
+//TODO: Add functionality to the _unsetValues argument, or remove it.
 const validate = async (
     interview: InterviewAttributes,
     serverValidations: ServerValidation,
     valuesByPath: { [key: string]: any },
-    unsetValues: string[]
+    _unsetValues: string[]
 ): Promise<{ [key: string]: { [key: string]: string } } | true> => {
     if (!serverValidations) {
         return true;

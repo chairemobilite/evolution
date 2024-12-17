@@ -375,7 +375,7 @@ const getRawWhereClause = (
     // TODO Once the individual surveys are typed and the expected
     // responses are known in advance, try to completely type the responses
     // object and make sure the field here matches an actual path
-    const dotSeparatedStringRegex = /^[\w\.]*$/g;
+    const dotSeparatedStringRegex = /^[\w.]*$/g;
     const match = field.match(dotSeparatedStringRegex);
     if (match === null) {
         throw new TrError(

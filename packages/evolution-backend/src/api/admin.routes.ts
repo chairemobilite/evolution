@@ -13,7 +13,7 @@ import { addExportRoutes } from './admin/exports.routes';
 
 addExportRoutes();
 
-router.all('/data/widgets/:widget/', (req, res, next) => {
+router.all('/data/widgets/:widget/', (req, res, _next) => {
     const widgetName = req.params.widget;
 
     if (!widgetName) {

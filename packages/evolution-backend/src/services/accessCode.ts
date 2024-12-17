@@ -23,7 +23,7 @@ export const registerAccessCodeValidationFunction = (isAccessCodeValid: (accessC
 export const validateAccessCode = (accessCode: string): boolean => {
     try {
         return accessCodeValidationFunction(accessCode);
-    } catch (e) {
+    } catch {
         return false;
     }
 };

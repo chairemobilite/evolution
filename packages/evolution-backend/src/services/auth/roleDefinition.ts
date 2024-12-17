@@ -26,7 +26,7 @@ const defineDefaultRoles = function (): void {
     addRole(DEFAULT_ROLE_NAME, addDefaultPermissions);
 
     // Add an interviewer role
-    addRole(VALIDATOR_LVL1_ROLE, ({ can }, user) => {
+    addRole(VALIDATOR_LVL1_ROLE, ({ can }, _user) => {
         addDefaultPermissions();
         // Required permissions to list interviews to validate
         can(['read', 'validate'], InterviewsSubject);
@@ -35,7 +35,7 @@ const defineDefaultRoles = function (): void {
     });
 
     // Add an interviewer role
-    addRole(VALIDATOR_LVL2_ROLE, ({ can }, user) => {
+    addRole(VALIDATOR_LVL2_ROLE, ({ can }, _user) => {
         addDefaultPermissions();
         // Required permissions to list interviews to validate and confirm
         can(['read', 'validate', 'confirm'], InterviewsSubject);
