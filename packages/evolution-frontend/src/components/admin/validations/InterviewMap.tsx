@@ -66,14 +66,14 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
         minZoom: 0,
         tileSize: 256,
         opacity: 0.5,
-        renderSubLayers: (props) => {
-            const { boundingBox } = props.tile;
+        renderSubLayers: (subLayerProps) => {
+            const { boundingBox } = subLayerProps.tile;
 
             return new BitmapLayer(
-                props as any,
+                subLayerProps as any,
                 {
                     data: null,
-                    image: props.data,
+                    image: subLayerProps.data,
                     bounds: [boundingBox[0][0], boundingBox[0][1], boundingBox[1][0], boundingBox[1][1]]
                 } as any
             );

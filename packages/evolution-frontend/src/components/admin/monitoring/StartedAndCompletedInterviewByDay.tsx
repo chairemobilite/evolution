@@ -196,6 +196,8 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
                 ? this.state.data.completedCount / this.state.data.startedCount
                 : null;
 
+        const reactHighchartsRef = 'highchart-started-and-completed-interviews-by-day';
+
         return (
             <div
                 className="admin-widget-container"
@@ -205,7 +207,7 @@ class StartedAndCompletedInterviewsByDay extends React.Component<
                     config={chartOptions}
                     domProps={{ id: 'highchartStartedAndCompletedInterviewsByDay' }}
                     callback={null}
-                    ref={'highchart-started-and-completed-interviews-by-day'}
+                    ref={reactHighchartsRef}
                 ></ReactHighcharts>
                 <p className="no-bottom-margin">
                     {this.state.data.startedCount && (

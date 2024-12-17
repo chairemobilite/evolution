@@ -9,7 +9,6 @@ import GeoJSON from 'geojson';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons/faMapMarkerAlt';
 
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import projectConfig from 'evolution-common/lib/config/project.config';
 import { InputMapPointType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -143,7 +142,7 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
                 const feature = await geocodeSinglePoint(geocodingQueryStringArray[0].queryString, { bbox });
                 this.onValueChange(feature);
                 this.setState({ displayMessage: feature === undefined ? 'main:InputMapGeocodeNoResult' : undefined });
-            } catch (error) {
+            } catch {
                 this.onValueChange(undefined);
                 this.setState({ displayMessage: 'main:InputMapGeocodeError' });
             }

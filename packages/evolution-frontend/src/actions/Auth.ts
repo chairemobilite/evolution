@@ -48,7 +48,7 @@ export const startDirectTokenLogin = (history: History, location: Location, call
 
 // TODO: Is commented in chaire-lib-frontend
 export const startRegister = (data: any, history: History) => {
-    return (dispatch, getState) => {
+    return (dispatch, _getState) => {
         return fetch('/register', {
             method: 'POST',
             body: JSON.stringify(data),

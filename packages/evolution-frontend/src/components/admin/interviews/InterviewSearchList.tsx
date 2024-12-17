@@ -22,7 +22,6 @@ const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & Wi
     props: InterviewSearchListProps & WithTranslation
 ) => {
     const [data, setData] = React.useState<{ [key: string]: any }[]>([]);
-    const [loading, setLoading] = React.useState(false);
     const { state, dispatch } = React.useContext(InterviewContext);
     const fetchIdRef = React.useRef(0);
 
@@ -32,11 +31,7 @@ const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & Wi
             // Give this fetch an ID
             const fetchId = ++fetchIdRef.current;
 
-            // Set the loading state
-            setLoading(true);
-
             // Make a query string from the filters
-
             try {
                 const response = await fetch(`/api/interviews/interviewByCode?accessCode=${accessCode}`);
                 if (fetchId !== fetchIdRef.current) {
@@ -67,10 +62,6 @@ const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & Wi
             } catch (error) {
                 console.error(`Error fetching user data from server: ${error}`);
                 setData([]);
-            } finally {
-                if (fetchId === fetchIdRef.current) {
-                    setLoading(false);
-                }
             }
         },
         [state.status]

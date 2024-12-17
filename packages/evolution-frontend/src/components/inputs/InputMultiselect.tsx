@@ -166,11 +166,11 @@ export class InputMultiselect extends React.Component<InputMultiselectProps & Wi
         }
 
         const customStyles = {
-            option: (base, state) => ({
+            option: (base, _state) => ({
                 ...base,
                 padding: '0.25rem 0.5rem'
             }),
-            menu: (base, state) => ({
+            menu: (base, _state) => ({
                 ...base,
                 marginTop: '0'
             })

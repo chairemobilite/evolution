@@ -33,7 +33,7 @@ export const ValidityColumnFilter = ({
                     setFilter(e.target.value || undefined);
                 }}
             >
-                {options.map((key, i) => (
+                {options.map((key, _i) => (
                     <option key={`validitySeletion_${key}`} value={key}>
                         {t(`admin:validationFilters:${key}`)}
                     </option>
