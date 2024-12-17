@@ -183,16 +183,17 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
                 console.error(`Template ${sectionConfig.template} not found in appConfig.templateMapping`);
             }
         }
-        let navActiveSection: string | null = activeSection;
+
+        //let navActiveSection: string | null = activeSection;
 
         // use parent section name as active section if active section is set to be hidden in navigation:
-        // Right now this is ignored. TODO/FIXME: implement? Find what it should do?
-        if (
-            this.props.surveyContext.sections[activeSection] &&
-            this.props.surveyContext.sections[activeSection].parentSection !== undefined
-        ) {
-            navActiveSection = this.props.surveyContext.sections[activeSection].parentSection as string;
-        }
+        // Right now this is ignored and commented. TODO/FIXME: implement? Find what it should do?
+        // if (
+        //     this.props.surveyContext.sections[activeSection] &&
+        //     this.props.surveyContext.sections[activeSection].parentSection !== undefined
+        // ) {
+        //     navActiveSection = this.props.surveyContext.sections[activeSection].parentSection as string;
+        // }
 
         let customStyle: React.CSSProperties = {};
 
@@ -224,7 +225,7 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
                         interview={this.props.interview}
                         allWidgetsValid={config.allowChangeSectionWithoutValidation ? true : allWidgetsValid}
                         loadingState={this.props.loadingState}
-                        startUpdateInterview={this.props.startUpdateInterview}
+                        _startUpdateInterview={this.props.startUpdateInterview}
                         user={this.props.user}
                     />
                     {this.state.confirmCompleteBeforeSwitchingOpened && (

@@ -91,7 +91,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
         const value = e.target ? e.target.value : e; //InputDatePicker call onValueChange with e=value
         const parsedValue = surveyHelper.parseValue(value, (widgetConfig as any).datatype);
         const parsedCustomValue = surveyHelper.parseValue(customValue, (widgetConfig as any).customDatatype);
-        const [isValid, errorMessage] = checkValidations(
+        const [isValid] = checkValidations(
             widgetConfig.validations,
             parsedValue,
             parsedCustomValue,
@@ -133,7 +133,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
         }
     };
 
-    shouldComponentUpdate(nextProps, nextState) {
+    shouldComponentUpdate(nextProps, _nextState) {
         // we need to re-render whenever loading state changes for widgets with buttons, like mapFindPlace:
         // TODO: find all buttons inside questions to make sure they are correctly re-render before click event is triggered.
         // See Button.js for more comments about this issue
@@ -142,7 +142,6 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
 
     render() {
         const widgetStatus = this.props.widgetStatus;
-        const wc = this.props.widgetConfig as any;
 
         if (!widgetStatus.isVisible && !this.props.surveyContext.devMode) {
             return null;

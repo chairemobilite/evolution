@@ -6,15 +6,12 @@
  */
 import { withTranslation, WithTranslation } from 'react-i18next';
 import React from 'react';
-import _get from 'lodash/get';
 import _shuffle from 'lodash/shuffle';
 
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { Widget } from '../survey/Widget';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
-import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { SectionProps, useSectionTemplate } from '../hooks/useSectionTemplate';
 
 export const Section: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (

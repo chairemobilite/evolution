@@ -124,8 +124,8 @@ export const validateButtonAction: ButtonAction = (callbacks, interview, path, s
         if ((updatedInterview as any).allWidgetsValid) {
             if (typeof saveCallback === 'function') {
                 saveCallback(callbacks, updatedInterview, path);
-            } // go to next section
-            else {
+            } else {
+                // go to next section
                 window.scrollTo(0, 0);
                 callbacks.startUpdateInterview(section, {
                     'responses._activeSection': sections[section].nextSection

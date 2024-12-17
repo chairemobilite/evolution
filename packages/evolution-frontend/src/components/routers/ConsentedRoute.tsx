@@ -10,7 +10,19 @@ import { Route, Redirect } from 'react-router-dom';
 
 import { Header } from 'chaire-lib-frontend/lib/components/pageParts';
 
-export const ConsentedRoute = ({ isAuthenticated, hasConsented, component: Component, config, ...rest }) => (
+type ConsentedRouteProps = {
+    isAuthenticated: boolean;
+    hasConsented: boolean;
+    component: any;
+} & any;
+
+// TODO: Refactor this component so it doesn't need to use `...rest` in its props.
+export const ConsentedRoute = ({
+    isAuthenticated,
+    hasConsented,
+    component: Component,
+    ...rest
+}: ConsentedRouteProps) => (
     <Route
         {...rest}
         component={(props) => {

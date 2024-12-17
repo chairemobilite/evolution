@@ -32,6 +32,12 @@ interface InterviewListComponentProps extends WithTranslation {
     dispatch: Dispatch;
 }
 
+type CellArgs = {
+    value: any;
+    data?: any;
+    row?: any;
+};
+
 const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = (
     props: InterviewListComponentProps
 ) => {
@@ -120,12 +126,13 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
         }
     }, []);
 
+    // TODO: Turn cells into proper components instead of just making them inline.
     const columns = React.useMemo(() => {
         const columns = [
             {
                 accessor: 'id',
                 label: props.t('admin:InterviewId'),
-                Cell: ({ value }) => `#${value}`,
+                Cell: ({ value }: CellArgs) => `#${value}`,
                 enableSortBy: true
             },
             {
@@ -140,7 +147,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 id: 'created_at',
                 accessor: 'created_at',
                 label: props.t('admin:interviewByDateFilter:title'),
-                Cell: ({ value }) =>
+                Cell: ({ value }: CellArgs) =>
                     !_isBlank(value) ? new Date(value).toISOString().split('T')[0].replace('/', '-') : '?', // Converts to YYYY-MM-DD format
                 Filter: InterviewByDateFilter,
                 enableSortBy: true
@@ -149,13 +156,13 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 accessor: 'responses._isCompleted',
                 Filter: InterviewCompletedFilter,
                 enableSortBy: false,
-                Cell: ({ value }) =>
+                Cell: ({ value }: CellArgs) =>
                     value ? props.t('admin:CompletedFemSingular') : props.t('admin:NotCompletedFemSingular')
             },
             {
                 accessor: 'is_valid',
                 Filter: ValidityColumnFilter,
-                Cell: ({ value }) =>
+                Cell: ({ value }: CellArgs) =>
                     value
                         ? props.t('admin:Valid')
                         : value === false
@@ -164,12 +171,13 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             },
             {
                 accessor: 'responses.household.size',
-                Cell: ({ value }) => (
+                Cell: ({ value }: CellArgs) => (
                     <React.Fragment>
                         {value || '?'}
                         <FontAwesomeIcon
                             icon={faUserCircle}
                             className="faIconNoMargin"
+                            /* eslint-disable-next-line react/prop-types */
                             title={props.t('admin:persons')}
                         />
                     </React.Fragment>
@@ -179,7 +187,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             },
             {
                 accessor: 'audits',
-                Cell: ({ value }) =>
+                Cell: ({ value }: CellArgs) =>
                     !value || Object.keys(value).length === 0 ? (
                         ''
                     ) : (
@@ -187,6 +195,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                             icon={faExclamationTriangle}
                             className="faIconNoMargin _error _red"
                             title={Object.keys(value)
+                                /* eslint-disable-next-line react/prop-types */
                                 .map((error: any) => props.t([`survey:validations:${error}`, `surveyAdmin:${error}`]))
                                 .join('\n')}
                         />
@@ -195,7 +204,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             },
             {
                 accessor: 'uuid',
-                Cell: ({ data, row, value }) => {
+                Cell: ({ data, row, value }: CellArgs) => {
                     // TODO Do we want to continue navigating beyond the current page? If so, implement it
                     const prevUuid = row.index > 0 ? data[row.index - 1].uuid : '';
                     const nextUuid = row.index < data.length - 1 ? data[row.index + 1].uuid : '';
@@ -208,14 +217,14 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                             data-next-uuid={nextUuid}
                             onClick={handleInterviewSummaryChange}
                         >
-                            {props.t('admin:Validate')}
+                            {props.t('admin:Validate') /* eslint-disable-line react/prop-types */}
                         </a>
                     );
                 }
             },
             {
                 accessor: 'responses._validationComment',
-                Cell: ({ value }) =>
+                Cell: ({ value }: CellArgs) =>
                     _isBlank(value) ? (
                         ''
                     ) : (
@@ -250,7 +259,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
     );
 };
 
-const mapDispatchToProps = (dispatch, props: Omit<InterviewListComponentProps, 'dispatch'>) => ({
+const mapDispatchToProps = (dispatch, _props: Omit<InterviewListComponentProps, 'dispatch'>) => ({
     dispatch
 });
 
