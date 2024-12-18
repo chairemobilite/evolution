@@ -6,7 +6,7 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 import each from 'jest-each';
 
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
@@ -161,7 +161,7 @@ each([
         // Expected widget status: should be the one with path as "myTestPath"
         // For groups, the additional parameters should be present but empty
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Widget
                 currentWidgetShortname={testWidgetShortname}
                 nextWidgetShortname={testNextWidgetShortname}
@@ -175,7 +175,7 @@ each([
                 startRemoveGroupedObjects={jest.fn()}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Render in group widget', () => {
@@ -190,7 +190,7 @@ each([
         // Expected widget status: should be the one with path as "myGroupPath"
         // For groups, the additional parameters should match what is sent here
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InGroupWidget
                 currentWidgetShortname={testWidgetShortname}
                 nextWidgetShortname={testNextWidgetShortname}
@@ -208,7 +208,7 @@ each([
                 parentObjectIds={{[groupedShortname]: 'myGroupId'}}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });
@@ -225,7 +225,7 @@ describe('With server errors', () => {
         };
         mockedContext.widgets[testWidgetShortname] = questionWidgetConfig;
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Widget
                 currentWidgetShortname={testWidgetShortname}
                 nextWidgetShortname={testNextWidgetShortname}
@@ -241,7 +241,7 @@ describe('With server errors', () => {
                 startRemoveGroupedObjects={jest.fn()}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Render Group with server error, shoud be passed along', () => {
@@ -251,7 +251,7 @@ describe('With server errors', () => {
         const questionWidgetConfig = { type: 'group', path: 'test', widgets: [testNextWidgetShortname] };
         mockedContext.widgets[testWidgetShortname] = questionWidgetConfig;
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Widget
                 currentWidgetShortname={testWidgetShortname}
                 nextWidgetShortname={testNextWidgetShortname}
@@ -267,7 +267,7 @@ describe('With server errors', () => {
                 startRemoveGroupedObjects={jest.fn()}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
 
     })
 

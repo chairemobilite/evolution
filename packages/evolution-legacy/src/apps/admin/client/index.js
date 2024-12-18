@@ -5,11 +5,10 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React                    from 'react';
-import ReactDOM                 from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider }             from 'react-redux';
 import { I18nextProvider }      from 'react-i18next';
-import { createBrowserHistory } from 'history';
-import { Router }               from 'react-router-dom';
+import { BrowserRouter } from 'react-router';
 
 import config from 'evolution-common/lib/config/project.config';
 import i18n              from 'evolution-frontend/lib/config/i18n.config';
@@ -34,8 +33,6 @@ setApplicationConfiguration({ homePage: '/home', pages, templateMapping: { 'trip
 
 export default () => {
     document.title = config.title[i18n.language];
-
-    const history = createBrowserHistory();
     
     const store = configureStore();
     const Jsx = () => {
@@ -46,9 +43,9 @@ export default () => {
         <InterviewContext.Provider value={{ state, dispatch }}>
           <Provider store={store}>
             <I18nextProvider i18n={ i18n }>
-              <Router history={history}>
+              <BrowserRouter>
                 <SurveyRouter/>
-              </Router>
+              </BrowserRouter>
             </I18nextProvider>
           </Provider>
         </InterviewContext.Provider>
@@ -56,14 +53,16 @@ export default () => {
       )
     };
     let hasRendered = false;
+    const root = createRoot(document.getElementById('app'));
+
     const renderApp = () => {
       if (!hasRendered) {
-        ReactDOM.render(<Jsx/>, document.getElementById('app'));
+        root.render(<Jsx/>);
         hasRendered = true;
       }
     };
     
-    ReactDOM.render(<LoadingPage />, document.getElementById('app'));
+    root.render(<LoadingPage />);
     
     verifyAuthentication(store.dispatch).finally(() => renderApp());
 }

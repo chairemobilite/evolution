@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import { withSurveyContext, WithSurveyContextProps } from '../WithSurveyContextHoc';
 import { SurveyContext, surveyReducer } from '../../../contexts/SurveyContext';
@@ -32,8 +32,8 @@ class TestComponent extends React.Component<TestProps & WithSurveyContextProps> 
 const TestComponentWithContext = withSurveyContext(TestComponent);
 
 test('Test HOC', () => {
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <BaseTestComponent/>
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 })

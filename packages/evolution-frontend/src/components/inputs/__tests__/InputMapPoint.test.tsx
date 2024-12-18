@@ -5,8 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event'
+import '@testing-library/jest-dom';
 
 import { interviewAttributes } from './interviewData.test';
 import InputMapPoint from '../InputMapPoint';
@@ -46,7 +47,7 @@ const baseWidgetConfig = {
 describe('Render InputMapPoint with various parameters', () => {
 
     test('Test with minimal parameters', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputMapPoint
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -58,7 +59,7 @@ describe('Render InputMapPoint with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with all parameters', () => {
@@ -76,7 +77,7 @@ describe('Render InputMapPoint with various parameters', () => {
             maxZoom: 18,
             defaultZoom: 15
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputMapPoint
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -88,7 +89,7 @@ describe('Render InputMapPoint with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
     
 });
@@ -130,8 +131,8 @@ describe('Test geocoding requests', () => {
     });
 
     test('Geocode single result', async () => {
-    
-        const mapPointWidget = mount(<InputMapPoint
+
+        render(<InputMapPoint
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
@@ -141,29 +142,23 @@ describe('Test geocoding requests', () => {
             user={userAttributes}
             path='foo.test'
         />);
+        const user = userEvent.setup();
 
-        // Find and click on the Geocode button, to return multiple values
+        // Find and click on the Geocode button, to return a single result
         mockedGeocode.mockResolvedValueOnce(geocodedFeature);
-        const geocodeButton = mapPointWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('click');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // The select list should display 4 children (2 places and the 2 extra elements) and should not have a confirm button
-        mapPointWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-        
-        // Make sure the value has not been changed
+
+        // Make sure the value was changed to the geocoded feature
         expect(mockOnValueChange).toHaveBeenCalledTimes(1);
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: geocodedFeature }});
         
     });
 
     test('Geocode with undefined', async () => {
-    
-        const mapPointWidget = mount(<InputMapPoint
+
+        render(<InputMapPoint
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
@@ -173,29 +168,23 @@ describe('Test geocoding requests', () => {
             user={userAttributes}
             path='foo.test'
         />);
+        const user = userEvent.setup();
 
-        // Find and click on the Geocode button, to return multiple values
+        // Find and click on the Geocode button, to return undefined values
         mockedGeocode.mockResolvedValueOnce(undefined);
-        const geocodeButton = mapPointWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('click');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // The select list should display 4 children (2 places and the 2 extra elements) and should not have a confirm button
-        mapPointWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-        
-        // Make sure the value has not been changed
+
+        // Make sure the value was changed to undefined
         expect(mockOnValueChange).toHaveBeenCalledTimes(1);
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: undefined }});
         
     });
 
     test('Geocode with rejection', async () => {
-    
-        const mapPointWidget = mount(<InputMapPoint
+
+        render(<InputMapPoint
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
@@ -205,24 +194,17 @@ describe('Test geocoding requests', () => {
             user={userAttributes}
             path='foo.test'
         />);
+        const user = userEvent.setup();
 
-        // Find and click on the Geocode button, to return multiple values
+        // Find and click on the Geocode button, with a rejected promise
         mockedGeocode.mockRejectedValueOnce('error geocoding');
-        const geocodeButton = mapPointWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('click');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // The select list should display 4 children (2 places and the 2 extra elements) and should not have a confirm button
-        mapPointWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-        
-        // Make sure the value has not been changed
+
+        // Make sure the value was changed to undefined
         expect(mockOnValueChange).toHaveBeenCalledTimes(1);
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: undefined }});
-        
     });
 
 });

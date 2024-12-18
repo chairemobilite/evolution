@@ -5,8 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 
 import { InputString } from '../InputString';
 import { interviewAttributes } from './interviewData.test';
@@ -43,7 +43,7 @@ test('Should correctly render InputString with all parameters', () =>{
         }
     }
 
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputString
             id={'test'}
             onValueChange={() => { /* nothing to do */}}
@@ -56,7 +56,7 @@ test('Should correctly render InputString with all parameters', () =>{
             user={userAttributes}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 });
 
 test('Should correctly render InputString with default value as function', () =>{
@@ -77,7 +77,7 @@ test('Should correctly render InputString with default value as function', () =>
         }
     }
 
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputString
             id={'test'}
             onValueChange={() => { /* nothing to do */}}
@@ -90,7 +90,7 @@ test('Should correctly render InputString with default value as function', () =>
             user={userAttributes}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
     expect(widgetConfig.defaultValue).toHaveBeenCalledWith(interviewAttributes, 'path', userAttributes);
 });
 
@@ -105,7 +105,7 @@ test('Should correctly render InputString with base parameters', () =>{
             en: `English text`
         }
     }
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputString
             id={'test'}
             widgetConfig={widgetConfig}
@@ -117,7 +117,7 @@ test('Should correctly render InputString with base parameters', () =>{
             onValueChange={jest.fn()}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 });
 
 test('Should correctly render InputString with a value of 0', () =>{
@@ -131,7 +131,7 @@ test('Should correctly render InputString with a value of 0', () =>{
             en: `English text`
         }
     }
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputString
             id={'test'}
             widgetConfig={widgetConfig}
@@ -143,7 +143,7 @@ test('Should correctly render InputString with a value of 0', () =>{
             onValueChange={jest.fn()}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 });
 
 test('Test update value through props', () => {
@@ -157,7 +157,8 @@ test('Test update value through props', () => {
         }
     }
     const testId = 'test';
-    const stringInput = mount(<InputString
+    const onValueChangeMock = jest.fn();
+    const { rerender } = render(<InputString
         id={testId}
         widgetConfig={widgetConfig}
         value='value'
@@ -165,39 +166,43 @@ test('Test update value through props', () => {
         interview={interviewAttributes}
         path={'path'}
         user={userAttributes}
-        onValueChange={jest.fn()}
+        onValueChange={onValueChangeMock}
     />);
 
     // Validate initial values
-    const inputElement = stringInput.find({id: `${testId}`, type: 'text'});
-    expect(inputElement).toBeTruthy();
-    expect(inputElement.getDOMNode<HTMLInputElement>().value).toBe('value');
+    expect(screen.getByRole('textbox')).toHaveValue('value');
 
     // Change value 'manually'
     const newValue = 'newVal';
-    inputElement.getDOMNode<HTMLInputElement>().value = newValue;
-    inputElement.simulate('change');
-    expect(inputElement.getDOMNode<HTMLInputElement>().value).toBe(newValue);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: newValue } });
+    expect(screen.getByRole('textbox')).toHaveValue(newValue);
 
     // Change value through props without changing updateKey, should not change
-    stringInput.setProps({
+    const newProps = {
         id: testId,
         widgetConfig,
         value: 'updateByClient',
         updateKey: 0,
         interview: interviewAttributes,
         path: 'path',
-        user: userAttributes
-    });
-    expect(inputElement.getDOMNode<HTMLInputElement>().value).toBe(newValue);
+        user: userAttributes,
+        onValueChange: onValueChangeMock
+    };
+    rerender(<InputString  {...newProps} />);
+    expect(screen.getByRole('textbox')).toHaveValue(newValue);
 
     // Change value through props and change updateKey, should be updated
     const updateByServerVal = 'updateByServer';
-    stringInput.setProps({
+    const newPropsWithUpdateKey = {
         id: testId,
         widgetConfig,
         value: updateByServerVal,
-        updateKey: 1
-    });
-    expect(inputElement.getDOMNode<HTMLInputElement>().value).toBe(updateByServerVal);
+        updateKey: 1,
+        interview: interviewAttributes,
+        path: 'path',
+        user: userAttributes,
+        onValueChange: onValueChangeMock
+    };
+    rerender(<InputString  {...newPropsWithUpdateKey} />);
+    expect(screen.getByRole('textbox')).toHaveValue(updateByServerVal);
 });

@@ -5,7 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { faCrow } from '@fortawesome/free-solid-svg-icons/faCrow';
 
 import { interviewAttributes } from './interviewData.test';
@@ -92,7 +93,7 @@ describe('Render InputRadio with various parameter combinations, all parameters'
     })
 
     test('Includes hidden values, conditional displayed, no custom, 2 columns', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadio
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -104,7 +105,7 @@ describe('Render InputRadio with various parameter combinations, all parameters'
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(conditionalFct).toHaveBeenCalledTimes(1);
         expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
         expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
@@ -113,7 +114,7 @@ describe('Render InputRadio with various parameter combinations, all parameters'
     test('Conditional value hidden, same line', () => {
         conditionalFct.mockReturnValueOnce(false);
         const testWidgetConfig = Object.assign({}, widgetConfig, { sameLine: true, columns: undefined });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadio
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -125,13 +126,13 @@ describe('Render InputRadio with various parameter combinations, all parameters'
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Shuffle choices', () => {
-        shuffleMock.mockReturnValue([choices[1], choices[3], choices[0], choices[2]]);
+        shuffleMock.mockReturnValue([choices[1], choices[3], choices[0], choices[4]]);
         const testWidgetConfig = Object.assign({}, widgetConfig, { shuffle: true });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadio
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -143,14 +144,14 @@ describe('Render InputRadio with various parameter combinations, all parameters'
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(shuffleMock).toHaveBeenCalledTimes(1);
         expect(shuffleMock).toHaveBeenCalledWith(choices, undefined, widgetConfig.seed);
     });
 
     test('With custom choice', () => {
         const testWidgetConfig = Object.assign({}, widgetConfig, { addCustom: true, customChoice: 'val2' });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadio
                 id={'test'}
                 onValueChange={() => { /* nothing to do */ }}
@@ -164,7 +165,7 @@ describe('Render InputRadio with various parameter combinations, all parameters'
                 
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
     
 });
@@ -196,7 +197,7 @@ describe('Render InputRadio with minimum parameters', () => {
     };
 
     test('Minimum parameters', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadio
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -208,7 +209,7 @@ describe('Render InputRadio with minimum parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 });
 
@@ -243,7 +244,7 @@ describe('Render InputRadio with HTML label', () => {
     };
 
     test('HTML label', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadio
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -255,6 +256,6 @@ describe('Render InputRadio with HTML label', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 });

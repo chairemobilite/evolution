@@ -1,448 +1,341 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Render InputRadio with HTML label HTML label 1`] = `
-<div
-  className="survey-question__input-radio-group-container"
->
+<div>
   <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
+    class="survey-question__input-radio-group-container"
   >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_first value__input-radio__first value"
-        name="test_first value"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="first value"
-      />
-      <label
-        htmlFor="test_first value__input-radio__first value"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<div>first value</div>",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_first value__input-radio__first value"
+          name="test_first value"
+          type="radio"
+          value="first value"
         />
-      </label>
+        <label
+          for="test_first value__input-radio__first value"
+        >
+          <span>
+            <div>
+              first value
+            </div>
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_second value__input-radio__second value"
-        name="test_second value"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="second value"
-      />
-      <label
-        htmlFor="test_second value__input-radio__second value"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "<div>second value</div>",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_second value__input-radio__second value"
+          name="test_second value"
+          type="radio"
+          value="second value"
         />
-      </label>
+        <label
+          for="test_second value__input-radio__second value"
+        >
+          <span>
+            <div>
+              second value
+            </div>
+          </span>
+        </label>
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`Render InputRadio with minimum parameters Minimum parameters 1`] = `
-<div
-  className="survey-question__input-radio-group-container"
->
+<div>
   <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
+    class="survey-question__input-radio-group-container"
   >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_val1__input-radio__val1"
-        name="test_val1"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="val1"
-      />
-      <label
-        htmlFor="test_val1__input-radio__val1"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "english value",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_val1__input-radio__val1"
+          name="test_val1"
+          type="radio"
+          value="val1"
         />
-      </label>
+        <label
+          for="test_val1__input-radio__val1"
+        >
+          <span>
+            english value
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_val2__input-radio__val2"
-        name="test_val2"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="val2"
-      />
-      <label
-        htmlFor="test_val2__input-radio__val2"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "Unilingual label",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_val2__input-radio__val2"
+          name="test_val2"
+          type="radio"
+          value="val2"
         />
-      </label>
+        <label
+          for="test_val2__input-radio__val2"
+        >
+          <span>
+            Unilingual label
+          </span>
+        </label>
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`Render InputRadio with various parameter combinations, all parameters Conditional value hidden, same line 1`] = `
-<div
-  className="survey-question__input-radio-group-container"
->
+<div>
   <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
+    class="survey-question__input-radio-group-container"
   >
     <div
-      className="label-input-container"
-    >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_val1__input-radio__val1"
-        name="test_val1"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="val1"
-      />
-      <label
-        htmlFor="test_val1__input-radio__val1"
-        onClick={[Function]}
-      >
-        <span>
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-crow faIconLeft"
-            data-icon="crow"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={
-              {
-                "margin": "auto 0",
-              }
-            }
-            viewBox="0 0 640 512"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M456 0c-48.6 0-88 39.4-88 88l0 29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9L126.1 384l133.1 0 46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384l40.9 0c1.1 0 2.1 0 3.2 0l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192l0-64 0-8 80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32l-50.1 0C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-        </span>
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "english value",
-            }
-          }
-        />
-      </label>
-    </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
-    <div
-      className="label-input-container"
-    >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_val2__input-radio__val2"
-        name="test_val2"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="val2"
-      />
-      <label
-        htmlFor="test_val2__input-radio__val2"
-        onClick={[Function]}
-      >
-        <span>
-          <img
-            alt="Unilingual label"
-            className="faIconLeft"
-            src="img/test.png"
-            style={
-              {
-                "height": "3em",
-                "margin": "0 0.25em 0 0",
-              }
-            }
-          />
-        </span>
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "Unilingual label",
-            }
-          }
-        />
-      </label>
-    </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
-    <div
-      className="label-input-container"
-    >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_val3__input-radio__val3"
-        name="test_val3"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="val3"
-      />
-      <label
-        htmlFor="test_val3__input-radio__val3"
-        onClick={[Function]}
-      >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "Translated string",
-            }
-          }
-        />
-      </label>
-    </div>
-  </div>
-</div>
-`;
-
-exports[`Render InputRadio with various parameter combinations, all parameters Includes hidden values, conditional displayed, no custom, 2 columns 1`] = `
-<div
-  className="survey-question__input-radio-group-container no-wrap"
->
-  <div
-    className="survey-question__input-radio-group-column"
-  >
-    <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
+      class="survey-question__input-radio-input-container"
     >
       <div
-        className="label-input-container"
+        class="label-input-container"
       >
         <input
-          checked={false}
-          className="input-radio"
+          class="input-radio"
           id="test_val1__input-radio__val1"
           name="test_val1"
-          onChange={[Function]}
-          onClick={[Function]}
           type="radio"
           value="val1"
         />
         <label
-          htmlFor="test_val1__input-radio__val1"
-          onClick={[Function]}
+          for="test_val1__input-radio__val1"
         >
           <span>
             <svg
               aria-hidden="true"
-              className="svg-inline--fa fa-crow faIconLeft"
+              class="svg-inline--fa fa-crow faIconLeft"
               data-icon="crow"
               data-prefix="fas"
               focusable="false"
               role="img"
-              style={
-                {
-                  "margin": "auto 0",
-                }
-              }
+              style="margin: auto 0px;"
               viewBox="0 0 640 512"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 d="M456 0c-48.6 0-88 39.4-88 88l0 29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9L126.1 384l133.1 0 46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384l40.9 0c1.1 0 2.1 0 3.2 0l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192l0-64 0-8 80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32l-50.1 0C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
                 fill="currentColor"
-                style={{}}
               />
             </svg>
           </span>
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "english value",
-              }
-            }
-          />
+          <span>
+            english value
+          </span>
         </label>
       </div>
     </div>
     <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
+      class="survey-question__input-radio-input-container"
     >
       <div
-        className="label-input-container"
+        class="label-input-container"
       >
         <input
-          checked={false}
-          className="input-radio"
+          class="input-radio"
           id="test_val2__input-radio__val2"
           name="test_val2"
-          onChange={[Function]}
-          onClick={[Function]}
           type="radio"
           value="val2"
         />
         <label
-          htmlFor="test_val2__input-radio__val2"
-          onClick={[Function]}
+          for="test_val2__input-radio__val2"
         >
           <span>
             <img
               alt="Unilingual label"
-              className="faIconLeft"
+              class="faIconLeft"
               src="img/test.png"
-              style={
-                {
-                  "height": "3em",
-                  "margin": "0 0.25em 0 0",
-                }
-              }
+              style="height: 3em; margin: 0px 0.25em 0px 0px;"
             />
           </span>
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Unilingual label",
-              }
-            }
-          />
-        </label>
-      </div>
-    </div>
-  </div>
-  <div
-    className="survey-question__input-radio-group-column"
-  >
-    <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
-    >
-      <div
-        className="label-input-container"
-      >
-        <input
-          checked={false}
-          className="input-radio"
-          id="test_conditionalVal__input-radio__conditionalVal"
-          name="test_conditionalVal"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="conditionalVal"
-        />
-        <label
-          htmlFor="test_conditionalVal__input-radio__conditionalVal"
-          onClick={[Function]}
-        >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "english conditional",
-              }
-            }
-          />
+          <span>
+            Unilingual label
+          </span>
         </label>
       </div>
     </div>
     <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
+      class="survey-question__input-radio-input-container"
     >
       <div
-        className="label-input-container"
+        class="label-input-container"
       >
         <input
-          checked={false}
-          className="input-radio"
+          class="input-radio"
           id="test_val3__input-radio__val3"
           name="test_val3"
-          onChange={[Function]}
-          onClick={[Function]}
           type="radio"
           value="val3"
         />
         <label
-          htmlFor="test_val3__input-radio__val3"
-          onClick={[Function]}
+          for="test_val3__input-radio__val3"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Translated string",
-              }
-            }
-          />
+          <span>
+            Translated string
+          </span>
         </label>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Render InputRadio with various parameter combinations, all parameters Includes hidden values, conditional displayed, no custom, 2 columns 1`] = `
+<div>
+  <div
+    class="survey-question__input-radio-group-container no-wrap"
+  >
+    <div
+      class="survey-question__input-radio-group-column"
+    >
+      <div
+        class="survey-question__input-radio-input-container"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            class="input-radio"
+            id="test_val1__input-radio__val1"
+            name="test_val1"
+            type="radio"
+            value="val1"
+          />
+          <label
+            for="test_val1__input-radio__val1"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-crow faIconLeft"
+                data-icon="crow"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin: auto 0px;"
+                viewBox="0 0 640 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M456 0c-48.6 0-88 39.4-88 88l0 29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9L126.1 384l133.1 0 46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384l40.9 0c1.1 0 2.1 0 3.2 0l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192l0-64 0-8 80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32l-50.1 0C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span>
+              english value
+            </span>
+          </label>
+        </div>
+      </div>
+      <div
+        class="survey-question__input-radio-input-container"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            class="input-radio"
+            id="test_val2__input-radio__val2"
+            name="test_val2"
+            type="radio"
+            value="val2"
+          />
+          <label
+            for="test_val2__input-radio__val2"
+          >
+            <span>
+              <img
+                alt="Unilingual label"
+                class="faIconLeft"
+                src="img/test.png"
+                style="height: 3em; margin: 0px 0.25em 0px 0px;"
+              />
+            </span>
+            <span>
+              Unilingual label
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div
+      class="survey-question__input-radio-group-column"
+    >
+      <div
+        class="survey-question__input-radio-input-container"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            class="input-radio"
+            id="test_conditionalVal__input-radio__conditionalVal"
+            name="test_conditionalVal"
+            type="radio"
+            value="conditionalVal"
+          />
+          <label
+            for="test_conditionalVal__input-radio__conditionalVal"
+          >
+            <span>
+              english conditional
+            </span>
+          </label>
+        </div>
+      </div>
+      <div
+        class="survey-question__input-radio-input-container"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            class="input-radio"
+            id="test_val3__input-radio__val3"
+            name="test_val3"
+            type="radio"
+            value="val3"
+          />
+          <label
+            for="test_val3__input-radio__val3"
+          >
+            <span>
+              Translated string
+            </span>
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -450,143 +343,130 @@ exports[`Render InputRadio with various parameter combinations, all parameters I
 `;
 
 exports[`Render InputRadio with various parameter combinations, all parameters Shuffle choices 1`] = `
-<div
-  className="survey-question__input-radio-group-container no-wrap"
->
+<div>
   <div
-    className="survey-question__input-radio-group-column"
+    class="survey-question__input-radio-group-container no-wrap"
   >
     <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
+      class="survey-question__input-radio-group-column"
     >
       <div
-        className="label-input-container"
+        class="survey-question__input-radio-input-container"
       >
-        <input
-          checked={false}
-          className="input-radio"
-          id="test_val2__input-radio__val2"
-          name="test_val2"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="val2"
-        />
-        <label
-          htmlFor="test_val2__input-radio__val2"
-          onClick={[Function]}
+        <div
+          class="label-input-container"
         >
-          <span>
-            <img
-              alt="Unilingual label"
-              className="faIconLeft"
-              src="img/test.png"
-              style={
-                {
-                  "height": "3em",
-                  "margin": "0 0.25em 0 0",
-                }
-              }
-            />
-          </span>
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Unilingual label",
-              }
-            }
+          <input
+            class="input-radio"
+            id="test_val2__input-radio__val2"
+            name="test_val2"
+            type="radio"
+            value="val2"
           />
-        </label>
-      </div>
-    </div>
-    <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
-    >
-      <div
-        className="label-input-container"
-      >
-        <input
-          checked={false}
-          className="input-radio"
-          id="test_conditionalVal__input-radio__conditionalVal"
-          name="test_conditionalVal"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="conditionalVal"
-        />
-        <label
-          htmlFor="test_conditionalVal__input-radio__conditionalVal"
-          onClick={[Function]}
-        >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "english conditional",
-              }
-            }
-          />
-        </label>
-      </div>
-    </div>
-  </div>
-  <div
-    className="survey-question__input-radio-group-column"
-  >
-    <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
-    >
-      <div
-        className="label-input-container"
-      >
-        <input
-          checked={false}
-          className="input-radio"
-          id="test_val1__input-radio__val1"
-          name="test_val1"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="val1"
-        />
-        <label
-          htmlFor="test_val1__input-radio__val1"
-          onClick={[Function]}
-        >
-          <span>
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-crow faIconLeft"
-              data-icon="crow"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "margin": "auto 0",
-                }
-              }
-              viewBox="0 0 640 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M456 0c-48.6 0-88 39.4-88 88l0 29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9L126.1 384l133.1 0 46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384l40.9 0c1.1 0 2.1 0 3.2 0l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192l0-64 0-8 80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32l-50.1 0C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
-                fill="currentColor"
-                style={{}}
+          <label
+            for="test_val2__input-radio__val2"
+          >
+            <span>
+              <img
+                alt="Unilingual label"
+                class="faIconLeft"
+                src="img/test.png"
+                style="height: 3em; margin: 0px 0.25em 0px 0px;"
               />
-            </svg>
-          </span>
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "english value",
-              }
-            }
+            </span>
+            <span>
+              Unilingual label
+            </span>
+          </label>
+        </div>
+      </div>
+      <div
+        class="survey-question__input-radio-input-container"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            class="input-radio"
+            id="test_conditionalVal__input-radio__conditionalVal"
+            name="test_conditionalVal"
+            type="radio"
+            value="conditionalVal"
           />
-        </label>
+          <label
+            for="test_conditionalVal__input-radio__conditionalVal"
+          >
+            <span>
+              english conditional
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div
+      class="survey-question__input-radio-group-column"
+    >
+      <div
+        class="survey-question__input-radio-input-container"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            class="input-radio"
+            id="test_val1__input-radio__val1"
+            name="test_val1"
+            type="radio"
+            value="val1"
+          />
+          <label
+            for="test_val1__input-radio__val1"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-crow faIconLeft"
+                data-icon="crow"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin: auto 0px;"
+                viewBox="0 0 640 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M456 0c-48.6 0-88 39.4-88 88l0 29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9L126.1 384l133.1 0 46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384l40.9 0c1.1 0 2.1 0 3.2 0l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192l0-64 0-8 80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32l-50.1 0C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span>
+              english value
+            </span>
+          </label>
+        </div>
+      </div>
+      <div
+        class="survey-question__input-radio-input-container"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            class="input-radio"
+            id="test_val3__input-radio__val3"
+            name="test_val3"
+            type="radio"
+            value="val3"
+          />
+          <label
+            for="test_val3__input-radio__val3"
+          >
+            <span>
+              Translated string
+            </span>
+          </label>
+        </div>
       </div>
     </div>
   </div>
@@ -594,217 +474,162 @@ exports[`Render InputRadio with various parameter combinations, all parameters S
 `;
 
 exports[`Render InputRadio with various parameter combinations, all parameters With custom choice 1`] = `
-<div
-  className="survey-question__input-radio-group-container no-wrap"
->
+<div>
   <div
-    className="survey-question__input-radio-group-column"
+    class="survey-question__input-radio-group-container no-wrap"
   >
     <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
+      class="survey-question__input-radio-group-column"
     >
       <div
-        className="label-input-container"
+        class="survey-question__input-radio-input-container"
       >
-        <input
-          checked={false}
-          className="input-radio"
-          id="test_val1__input-radio__val1"
-          name="test_val1"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="val1"
-        />
-        <label
-          htmlFor="test_val1__input-radio__val1"
-          onClick={[Function]}
+        <div
+          class="label-input-container"
         >
-          <span>
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-crow faIconLeft"
-              data-icon="crow"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "margin": "auto 0",
-                }
-              }
-              viewBox="0 0 640 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M456 0c-48.6 0-88 39.4-88 88l0 29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9L126.1 384l133.1 0 46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384l40.9 0c1.1 0 2.1 0 3.2 0l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192l0-64 0-8 80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32l-50.1 0C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
-                fill="currentColor"
-                style={{}}
+          <input
+            class="input-radio"
+            id="test_val1__input-radio__val1"
+            name="test_val1"
+            type="radio"
+            value="val1"
+          />
+          <label
+            for="test_val1__input-radio__val1"
+          >
+            <span>
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-crow faIconLeft"
+                data-icon="crow"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin: auto 0px;"
+                viewBox="0 0 640 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M456 0c-48.6 0-88 39.4-88 88l0 29.2L12.5 390.6c-14 10.8-16.6 30.9-5.9 44.9s30.9 16.6 44.9 5.9L126.1 384l133.1 0 46.6 113.1c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3L311.1 384l40.9 0c1.1 0 2.1 0 3.2 0l46.6 113.2c5 12.3 19.1 18.1 31.3 13.1s18.1-19.1 13.1-31.3l-42-102C484.9 354.1 544 280 544 192l0-64 0-8 80.5-20.1c8.6-2.1 13.8-10.8 11.6-19.4C629 52 603.4 32 574 32l-50.1 0C507.7 12.5 483.3 0 456 0zm0 64a24 24 0 1 1 0 48 24 24 0 1 1 0-48z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span>
+              english value
+            </span>
+          </label>
+        </div>
+      </div>
+      <div
+        class="survey-question__input-radio-input-container checked"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            checked=""
+            class="input-radio"
+            id="test_val2__input-radio__val2"
+            name="test_val2"
+            type="radio"
+            value="val2"
+          />
+          <label
+            for="test_val2__input-radio__val2"
+          >
+            <span>
+              <img
+                alt="Unilingual label"
+                class="faIconLeft"
+                src="img/test.png"
+                style="height: 3em; margin: 0px 0.25em 0px 0px;"
               />
-            </svg>
-          </span>
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "english value",
-              }
-            }
+            </span>
+            <span>
+              Unilingual label
+            </span>
+          </label>
+        </div>
+        <input
+          autocomplete="none"
+          class="apptr__form-input input-custom apptr__input-string"
+          id="foo.test.custom"
+          name="foo.test.custom"
+          tabindex="-1"
+          type="text"
+          value=""
+        />
+      </div>
+      <div
+        class="survey-question__input-radio-input-container"
+      >
+        <div
+          class="label-input-container"
+        >
+          <input
+            class="input-radio"
+            id="test_conditionalVal__input-radio__conditionalVal"
+            name="test_conditionalVal"
+            type="radio"
+            value="conditionalVal"
           />
-        </label>
+          <label
+            for="test_conditionalVal__input-radio__conditionalVal"
+          >
+            <span>
+              english conditional
+            </span>
+          </label>
+        </div>
       </div>
     </div>
     <div
-      className="survey-question__input-radio-input-container checked"
-      onClick={[Function]}
+      class="survey-question__input-radio-group-column"
     >
       <div
-        className="label-input-container"
+        class="survey-question__input-radio-input-container"
       >
-        <input
-          checked={true}
-          className="input-radio"
-          id="test_val2__input-radio__val2"
-          name="test_val2"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="val2"
-        />
-        <label
-          htmlFor="test_val2__input-radio__val2"
-          onClick={[Function]}
+        <div
+          class="label-input-container"
         >
-          <span>
-            <img
-              alt="Unilingual label"
-              className="faIconLeft"
-              src="img/test.png"
-              style={
-                {
-                  "height": "3em",
-                  "margin": "0 0.25em 0 0",
-                }
-              }
-            />
-          </span>
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Unilingual label",
-              }
-            }
+          <input
+            class="input-radio"
+            id="test_val3__input-radio__val3"
+            name="test_val3"
+            type="radio"
+            value="val3"
           />
-        </label>
+          <label
+            for="test_val3__input-radio__val3"
+          >
+            <span>
+              Translated string
+            </span>
+          </label>
+        </div>
       </div>
-      <input
-        autoComplete="none"
-        className="apptr__form-input input-custom apptr__input-string"
-        id="foo.test.custom"
-        name="foo.test.custom"
-        onBlur={[Function]}
-        onChange={[Function]}
-        onFocus={[Function]}
-        tabIndex={-1}
-        type="text"
-        value=""
-      />
-    </div>
-    <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
-    >
       <div
-        className="label-input-container"
+        class="survey-question__input-radio-input-container"
       >
-        <input
-          checked={false}
-          className="input-radio"
-          id="test_conditionalVal__input-radio__conditionalVal"
-          name="test_conditionalVal"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="conditionalVal"
-        />
-        <label
-          htmlFor="test_conditionalVal__input-radio__conditionalVal"
-          onClick={[Function]}
+        <div
+          class="label-input-container"
         >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "english conditional",
-              }
-            }
+          <input
+            class="input-radio"
+            id="test_custom__input-radio__custom"
+            name="test_custom"
+            type="radio"
+            value="custom"
           />
-        </label>
-      </div>
-    </div>
-  </div>
-  <div
-    className="survey-question__input-radio-group-column"
-  >
-    <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
-    >
-      <div
-        className="label-input-container"
-      >
-        <input
-          checked={false}
-          className="input-radio"
-          id="test_val3__input-radio__val3"
-          name="test_val3"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="val3"
-        />
-        <label
-          htmlFor="test_val3__input-radio__val3"
-          onClick={[Function]}
-        >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Translated string",
-              }
-            }
-          />
-        </label>
-      </div>
-    </div>
-    <div
-      className="survey-question__input-radio-input-container"
-      onClick={[Function]}
-    >
-      <div
-        className="label-input-container"
-      >
-        <input
-          checked={false}
-          className="input-radio"
-          id="test_custom__input-radio__custom"
-          name="test_custom"
-          onChange={[Function]}
-          onClick={[Function]}
-          type="radio"
-          value="custom"
-        />
-        <label
-          htmlFor="test_custom__input-radio__custom"
-          onClick={[Function]}
-        >
-          <span
-            dangerouslySetInnerHTML={
-              {
-                "__html": "Other",
-              }
-            }
-          />
-        </label>
+          <label
+            for="test_custom__input-radio__custom"
+          >
+            <span>
+              Other
+            </span>
+          </label>
+        </div>
       </div>
     </div>
   </div>

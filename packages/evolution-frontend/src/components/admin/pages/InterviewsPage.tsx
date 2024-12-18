@@ -6,13 +6,12 @@
  */
 import React from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 import InterviewsCreateLink from '../interviews/InterviewsCreateLink';
 
-export const InterviewsPage: React.FunctionComponent<WithTranslation & RouteComponentProps> = (
-    props: WithTranslation & RouteComponentProps
-) => {
-    const urlSearch = new URLSearchParams(props.location.search);
+export const InterviewsPage: React.FunctionComponent<WithTranslation> = (props: WithTranslation) => {
+    const location = useLocation();
+    const urlSearch = new URLSearchParams(location.search);
     return (
         <div className="admin">
             <div className="survey-section__content apptr__form-container">

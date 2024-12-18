@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
 import { render, fireEvent } from '@testing-library/react';
 
 import { interviewAttributes } from './interviewData.test';
@@ -75,7 +74,7 @@ describe('InputButton with normal options', () => {
 
     test('Render InputButton with normal option type', () => {
         
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputButton
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -87,7 +86,7 @@ describe('InputButton with normal options', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(conditionalFct).toHaveBeenCalledTimes(1);
         expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
         expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
@@ -181,7 +180,7 @@ test('Render InputButton with choice function', () => {
         }
     };
     
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputButton
             id={'test'}
             onValueChange={() => { /* nothing to do */}}
@@ -193,7 +192,7 @@ test('Render InputButton with choice function', () => {
             path='foo.test'
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
     expect(choiceFct).toHaveBeenCalledTimes(1);
     expect(choiceFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
     

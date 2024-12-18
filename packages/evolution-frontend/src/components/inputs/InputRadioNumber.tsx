@@ -37,7 +37,7 @@ export const InputRadioNumber = ({
     const maxValue = surveyHelper.parseInteger(widgetConfig.valueRange.max, interview, path, user) || minValue + 1;
     const [currentValue, setCurrentValue] = useState(!_isBlank(value) ? Number(value) : -1);
     const [isOverMax, setIsOverMax] = useState(Number(value) > maxValue);
-    const customInputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
+    const customInputRadioRef: React.RefObject<HTMLInputElement | null> = React.createRef();
 
     const handleOnChange = (event) => {
         // "blur" is the event triggered when the input loses focus.
@@ -74,7 +74,7 @@ export const InputRadioNumber = ({
     };
 
     const onContainerClick = (
-        inputRadioRef: React.RefObject<HTMLInputElement>,
+        inputRadioRef: React.RefObject<HTMLInputElement | null>,
         value: string | boolean,
         e: React.MouseEvent<HTMLDivElement>
     ) => {

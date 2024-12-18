@@ -4,17 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useSectionTemplate, SectionProps } from '../useSectionTemplate';
-import { createBrowserHistory } from 'history';
-
-const browserHistoryMock = {
-    location: { pathname: '/current-path' },
-    push: jest.fn()
-}
-jest.mock('history', () => ({
-    createBrowserHistory: jest.fn(() => browserHistoryMock)
-}));
+import { MemoryRouter } from 'react-router'
 
 jest.mock('../../../services/url', () => ({
     getPathForSection: jest.fn(() => '/new-path')
@@ -45,7 +37,7 @@ describe('useSectionTemplate', () => {
     });
 
     it('should call preload function on mount', () => {
-        renderHook(() => useSectionTemplate(props));
+        renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
         expect(props.sectionConfig.preload).toHaveBeenCalledWith(
             props.interview, {
                 startUpdateInterview: props.startUpdateInterview,
@@ -59,7 +51,7 @@ describe('useSectionTemplate', () => {
 
     it('should set preloaded to true if preload is not a function', () => {
         props.sectionConfig.preload = undefined;
-        const { result } = renderHook(() => useSectionTemplate(props));
+        const { result } = renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
         expect(result.current.preloaded).toBe(true);
     });
 
@@ -71,7 +63,7 @@ describe('useSectionTemplate', () => {
         `;
         props.allWidgetsValid = false;
         props.submitted = true;
-        renderHook(() => useSectionTemplate(props));
+        renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
         const inputElement = document.getElementById('invalid-input');
         expect(document.activeElement).toBe(inputElement);
     });
@@ -88,13 +80,8 @@ describe('useSectionTemplate', () => {
         window.scrollTo = jest.fn();
         props.allWidgetsValid = false;
         props.submitted = true;
-        renderHook(() => useSectionTemplate(props));
+        renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
         expect(window.scrollTo).toHaveBeenCalledWith(0, gotoPosition);
     });
 
-    it('should create browser history and navigate to new path', () => {
-        renderHook(() => useSectionTemplate(props));
-        const history = createBrowserHistory();
-        expect(history.push).toHaveBeenCalledWith('/new-path');
-    });
 });

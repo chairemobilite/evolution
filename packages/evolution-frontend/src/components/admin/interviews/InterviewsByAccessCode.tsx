@@ -5,25 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
-import { History } from 'history';
+import { useTranslation } from 'react-i18next';
 import Loadable from 'react-loadable';
 import Loader from 'react-spinners/HashLoader';
+
 import { InterviewContext } from '../../../contexts/InterviewContext';
 import InputString from 'chaire-lib-frontend/lib/components/input/InputString';
-import { Link, RouteComponentProps } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router';
 import { _booleish } from 'chaire-lib-common/lib/utils/LodashExtensions';
-
-interface MatchParams {
-    accessCode: string;
-}
-
-export interface InterviewsByCodePageProps extends WithTranslation, RouteComponentProps<MatchParams> {
-    isAuthenticated: boolean;
-    history: History;
-    // TODO Type the user
-    user: { [key: string]: any };
-}
 
 const loader = function Loading() {
     return <Loader size={30} color={'#aaaaaa'} loading={true} />;
@@ -35,18 +24,21 @@ const InterviewsComponent = Loadable({
     loading: loader
 });
 
-const InterviewsByAccessCode: React.FunctionComponent<InterviewsByCodePageProps> = (
-    props: InterviewsByCodePageProps
-) => {
-    const urlSearch = new URLSearchParams(props.location.search);
-    const [currentCode, setCurrentCode] = React.useState(props.match.params.accessCode);
+const InterviewsByAccessCode: React.FC = () => {
+    const location = useLocation();
+    const params = useParams();
+    const { t } = useTranslation('admin');
+
+    const urlSearch = new URLSearchParams(location.search);
+    const [currentCode, setCurrentCode] = React.useState(params.accessCode);
     const [createNewIfNoData] = React.useState(_booleish(urlSearch.get('autoCreate')) === true);
     const { state, dispatch } = React.useContext(InterviewContext);
+
     React.useEffect(() => {
-        if (props.match.params.accessCode !== state.responses.accessCode) {
-            dispatch({ type: 'update_responses', responses: { accessCode: props.match.params.accessCode } });
+        if (params.accessCode !== state.responses.accessCode) {
+            dispatch({ type: 'update_responses', responses: { accessCode: params.accessCode } });
         }
-    }, [state.responses]);
+    }, [params.accessCode, state.responses]);
 
     return (
         <div className="admin">
@@ -58,7 +50,7 @@ const InterviewsByAccessCode: React.FunctionComponent<InterviewsByCodePageProps>
                 ></InputString>
                 <Link to={`/interviews/byCode/${currentCode}`}>
                     <button type="button" className={'survey-section__button button blue small'}>
-                        {props.t('admin:interviewSearch:SearchByCode')}
+                        {t('admin:interviewSearch:SearchByCode')}
                     </button>
                 </Link>
             </div>
@@ -67,4 +59,4 @@ const InterviewsByAccessCode: React.FunctionComponent<InterviewsByCodePageProps>
     );
 };
 
-export default withTranslation()(InterviewsByAccessCode);
+export default InterviewsByAccessCode;

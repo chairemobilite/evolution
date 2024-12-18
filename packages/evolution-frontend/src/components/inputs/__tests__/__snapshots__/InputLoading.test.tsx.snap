@@ -1,12 +1,14 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Should correctly render Input Loading 1`] = `
-<div
-  className="loader"
->
-  <p>
-    Loading
-    ...
-  </p>
+<div>
+  <div
+    class="loader"
+  >
+    <p>
+      Loading
+      ...
+    </p>
+  </div>
 </div>
 `;

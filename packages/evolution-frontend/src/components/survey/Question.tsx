@@ -57,7 +57,7 @@ type QuestionState = {
 };
 
 export class Question extends React.Component<QuestionProps & WithSurveyContextProps & WithTranslation, QuestionState> {
-    private inputRef: React.RefObject<HTMLInputElement> = React.createRef();
+    private inputRef: React.RefObject<HTMLInputElement | null> = React.createRef();
 
     constructor(props: QuestionProps & WithSurveyContextProps & WithTranslation) {
         super(props);

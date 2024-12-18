@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router';
 
 import AdminMonitoringPage from 'evolution-frontend/lib/components/admin/pages/AdminMonitoringPage';
 import AdminValidationPage from '../../../components/shared/AdminValidationPage';
@@ -15,8 +15,6 @@ import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/Maintenanc
 import { LoginPage as AdminLoginPage } from 'chaire-lib-frontend/lib/components/pages';
 import AdminRegisterPage from 'chaire-lib-frontend/lib/components/pages/RegisterPage';
 import ForgotPasswordPage from 'chaire-lib-frontend/lib/components/pages/ForgotPasswordPage';
-import MagicLinkVerifyPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/MagicLinkVerify';
-import CheckMagicEmailPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/CheckMagicEmail';
 import Survey from 'evolution-frontend/lib/components/hoc/SurveyWithErrorBoundary';
 //import RegistrationCompleted from '../../components/survey/RegistrationCompleted';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
@@ -33,45 +31,40 @@ import AdminHomePage from 'evolution-frontend/lib/components/admin/pages/AdminHo
 // Only show user info for users that are not simple respondents
 setShowUserInfoPerm({ 'Interviews': ['read', 'update'] });
 
-const localesString = `/:locale(${config.languages.join('|')})?`;
-const adminLoginConfig = {
-    auth: {
-        localLogin: {
-            allowRegistration: true,
-            forgotPasswordPage: true,
-            registerWithEmailOnly: true,
-            confirmEmail: true,
-            confirmEmailStrategy: 'confirmByAdmin'
-        }
+// FIXME This should be done at another level, using the `setProjec
+config.auth = {
+    localLogin: {
+        allowRegistration: true,
+        forgotPasswordPage: true,
+        registerWithEmailOnly: true,
+        confirmEmail: true,
+        confirmEmailStrategy: 'confirmByAdmin'
     }
 };
 
 const SurveyRouter = () => (
-  <Switch>
-    <PublicRoute   path="/" component={AdminLoginPage} config={adminLoginConfig} exact={true} />
-    <PublicRoute   path={`${localesString}`} component={AdminLoginPage} exact={true} />
-    <PublicRoute   path="/login" component={AdminLoginPage} config={adminLoginConfig}/>
-    <PublicRoute   path="/register" component={AdminRegisterPage} config={adminLoginConfig}/>
-    <PublicRoute   path="/forgot" component={ForgotPasswordPage} />
-    <PublicRoute   path="/reset/:token" component={ResetPasswordPage} />
-    <PublicRoute   path="/unauthorized" component={UnauthorizedPage} />
-    <PublicRoute   path="/maintenance" component={() => <MaintenancePage linkPath={'/survey'}/>} />
-    <PublicRoute   path="/magic/verify" component={MagicLinkVerifyPage} />
-    <PublicRoute   path="/checkMagicEmail" component={CheckMagicEmailPage} />
-    <PrivateRoute  path="/survey/edit/:uuid" permissions={{ 'Interviews': ['read', 'update'] }} component={Survey} />
-    <PrivateRoute  path="/survey/edit/:uuid/:sectionShortname" permissions={{ 'Interviews': ['read', 'update'] }} component={Survey} />
-    <PrivateRoute  path="/admin/survey/:sectionShortname" permissions={{ 'Interviews': ['validate'] }} component={AdminValidateSurveyPage} exact={true} />
-    <PrivateRoute  path="/admin/survey/interview/:interviewUuid" permissions={{ 'Interviews': ['validate'] }} component={AdminValidateSurveyPage} exact={true} />
-    <PrivateRoute  path="/interviews/byCode/:accessCode" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsByAccessCode} exact={true} />
-    <PrivateRoute  path="/interviews/byCode" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsByAccessCode} exact={true} />
-    <PrivateRoute  path="/interviews" permissions={{ 'Interviews': ['read', 'update'] }} component={InterviewsPage} exact={false} />
-    <AdminRoute    path="/admin/monitoring" component={AdminMonitoringPage} />
-    <PrivateRoute  path="/admin/validation" permissions={{ 'Interviews': ['validate'] }} component={AdminValidationPage} />
-    <AdminRoute    path="/admin/users" component={UsersPage} exact={true} />
-    <AdminRoute    path="/admin" component={AdminMonitoringPage} exact={true} />
-    <PrivateRoute  path="/home" component={AdminHomePage} />
-    <PrivateRoute  component={AdminHomePage} />
-  </Switch>
+    <Routes>
+        <Route path="/" element={<PublicRoute component={AdminLoginPage} />} />
+        <Route path="/login" element={<PublicRoute component={AdminLoginPage} />} />
+        <Route path="/register" element={<PublicRoute component={AdminRegisterPage} />} />
+        <Route path="/forgot" element={<PublicRoute component={ForgotPasswordPage} />} />
+        <Route path="/reset/:token" element={<PublicRoute component={ResetPasswordPage} />} />
+        <Route path="/unauthorized" element={<PublicRoute component={UnauthorizedPage} />} />
+        <Route path="/maintenance" element={<PublicRoute component={MaintenancePage} componentProps={{ linkPath: '/survey' }}/>} />
+        <Route path="/survey/edit/:uuid" element={<PrivateRoute component={Survey} permissions={{ 'Interviews': ['read', 'update'] }} />} />
+        <Route path="/survey/edit/:uuid/:sectionShortname" element={<PrivateRoute component={Survey} permissions={{ 'Interviews': ['read', 'update'] }} />} />
+        <Route path="/admin/survey/:sectionShortname" element={<PrivateRoute component={AdminValidateSurveyPage} permissions={{ 'Interviews': ['validate'] }} />} />
+        <Route path="/admin/survey/interview/:interviewUuid" element={<PrivateRoute component={AdminValidateSurveyPage} permissions={{ 'Interviews': ['validate'] }} />} />
+        <Route path="/interviews/byCode/:accessCode" element={<PrivateRoute component={InterviewsByAccessCode} permissions={{ 'Interviews': ['read', 'update'] }} />} />
+        <Route path="/interviews/byCode" element={<PrivateRoute component={InterviewsByAccessCode} permissions={{ 'Interviews': ['read', 'update'] }} />} />
+        <Route path="/interviews" element={<PrivateRoute component={InterviewsPage} permissions={{ 'Interviews': ['read', 'update'] }} />} />
+        <Route path="/admin/monitoring" element={<AdminRoute component={AdminMonitoringPage} />} />
+        <Route path="/admin/validation" element={<PrivateRoute component={AdminValidationPage} permissions={{ 'Interviews': ['validate'] }} />} />
+        <Route path="/admin/users" element={<AdminRoute component={UsersPage} />} />
+        <Route path="/admin" element={<AdminRoute component={AdminMonitoringPage} />} />
+        <Route path="/home" element={<PrivateRoute component={AdminHomePage} />} />
+        <Route path="*" element={<PrivateRoute component={AdminHomePage} />} />
+    </Routes>
 );
 
 export default SurveyRouter

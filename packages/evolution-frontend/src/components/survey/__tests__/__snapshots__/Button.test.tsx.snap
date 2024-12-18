@@ -1,909 +1,99 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Button widget: All values set Render widget 1`] = `
-<div
-  className="right"
->
-  <button
-    className="survey-section__button button red small "
-    disabled={false}
-    onKeyUp={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    type="button"
+<div>
+  <div
+    class="right"
   >
-    newLabel
-  </button>
+    <button
+      class="survey-section__button button red small "
+      type="button"
+    >
+      newLabel
+    </button>
+  </div>
 </div>
 `;
 
 exports[`Button widget: Default values Render widget 1`] = `
-<div
-  className="center"
->
-  <button
-    className="survey-section__button button green large "
-    onKeyUp={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    type="button"
+<div>
+  <div
+    class="center"
   >
-    label
-  </button>
+    <button
+      class="survey-section__button button green large "
+      type="button"
+    >
+      label
+    </button>
+  </div>
 </div>
 `;
 
 exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`] = `
-[
-  <Modal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="popupTitle"
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-  >
-    <Portal
-      containerInfo={
-        <div
-          class="ReactModalPortal"
-        >
-          <div
-            class="ReactModal__Overlay react-modal-overlay"
-          >
-            <div
-              aria-label="popupTitle"
-              aria-modal="true"
-              class="ReactModal__Content react-modal"
-              role="dialog"
-              tabindex="-1"
-            >
-              <div>
-                <div
-                  class="center"
-                >
-                  <markdown
-                    remarkplugins="remark-gfm,[object Object]"
-                  >
-                    popupTitle
-                  </markdown>
-                </div>
-                <markdown
-                  class="confirm-popup"
-                  remarkplugins="remark-gfm,[object Object]"
-                >
-                  popupContent
-                </markdown>
-                <div
-                  class="tr__form-buttons-container _center"
-                >
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button grey"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button blue"
-                    >
-                      Confirm
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-    >
-      <ModalPortal
-        ariaHideApp={true}
-        bodyOpenClassName="ReactModal__Body--open"
-        className="react-modal"
-        closeTimeoutMS={0}
-        contentElement={[Function]}
-        contentLabel="popupTitle"
-        defaultStyles={
-          {
-            "content": {
-              "WebkitOverflowScrolling": "touch",
-              "background": "#fff",
-              "border": "1px solid #ccc",
-              "borderRadius": "4px",
-              "bottom": "40px",
-              "left": "40px",
-              "outline": "none",
-              "overflow": "auto",
-              "padding": "20px",
-              "position": "absolute",
-              "right": "40px",
-              "top": "40px",
-            },
-            "overlay": {
-              "backgroundColor": "rgba(255, 255, 255, 0.75)",
-              "bottom": 0,
-              "left": 0,
-              "position": "fixed",
-              "right": 0,
-              "top": 0,
-            },
-          }
-        }
-        isOpen={true}
-        onRequestClose={[Function]}
-        overlayClassName="react-modal-overlay"
-        overlayElement={[Function]}
-        parentSelector={[Function]}
-        portalClassName="ReactModalPortal"
-        preventScroll={false}
-        role="dialog"
-        shouldCloseOnEsc={true}
-        shouldCloseOnOverlayClick={true}
-        shouldFocusAfterRender={true}
-        shouldReturnFocusAfterClose={true}
-        style={
-          {
-            "content": {},
-            "overlay": {},
-          }
-        }
-      >
-        <div
-          className="ReactModal__Overlay react-modal-overlay"
-          onClick={[Function]}
-          onMouseDown={[Function]}
-          style={{}}
-        >
-          <div
-            aria-label="popupTitle"
-            aria-modal={true}
-            className="ReactModal__Content react-modal"
-            onClick={[Function]}
-            onKeyDown={[Function]}
-            onMouseDown={[Function]}
-            onMouseUp={[Function]}
-            role="dialog"
-            style={{}}
-            tabIndex="-1"
-          >
-            <div>
-              <div
-                className="center"
-              >
-                <Markdown
-                  remarkPlugins={
-                    [
-                      [
-                        "remark-gfm",
-                        {
-                          "singleTilde": false,
-                        },
-                      ],
-                    ]
-                  }
-                >
-                  popupTitle
-                </Markdown>
-              </div>
-              <Markdown
-                className="confirm-popup"
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                popupContent
-              </Markdown>
-              <div
-                className="tr__form-buttons-container _center"
-              >
-                <div
-                  className="center"
-                  key="cancel"
-                >
-                  <button
-                    className="button grey"
-                    onClick={[Function]}
-                  >
-                    Cancel
-                  </button>
-                </div>
-                <div
-                  className="center"
-                  key="confirm"
-                >
-                  <button
-                    className="button blue"
-                    onClick={[Function]}
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ModalPortal>
-    </Portal>
-  </Modal>,
-  <ModalPortal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="popupTitle"
-    defaultStyles={
-      {
-        "content": {
-          "WebkitOverflowScrolling": "touch",
-          "background": "#fff",
-          "border": "1px solid #ccc",
-          "borderRadius": "4px",
-          "bottom": "40px",
-          "left": "40px",
-          "outline": "none",
-          "overflow": "auto",
-          "padding": "20px",
-          "position": "absolute",
-          "right": "40px",
-          "top": "40px",
-        },
-        "overlay": {
-          "backgroundColor": "rgba(255, 255, 255, 0.75)",
-          "bottom": 0,
-          "left": 0,
-          "position": "fixed",
-          "right": 0,
-          "top": 0,
-        },
-      }
-    }
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-    style={
-      {
-        "content": {},
-        "overlay": {},
-      }
-    }
-  >
+<div
+  aria-label="popupTitle"
+  aria-modal="true"
+  class="ReactModal__Content react-modal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div>
     <div
-      className="ReactModal__Overlay react-modal-overlay"
-      onClick={[Function]}
-      onMouseDown={[Function]}
-      style={{}}
+      class="center"
+    >
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        popupTitle
+      </markdown>
+    </div>
+    <markdown
+      class="confirm-popup"
+      remarkplugins="remark-gfm,[object Object]"
+    >
+      popupContent
+    </markdown>
+    <div
+      class="tr__form-buttons-container _center"
     >
       <div
-        aria-label="popupTitle"
-        aria-modal={true}
-        className="ReactModal__Content react-modal"
-        onClick={[Function]}
-        onKeyDown={[Function]}
-        onMouseDown={[Function]}
-        onMouseUp={[Function]}
-        role="dialog"
-        style={{}}
-        tabIndex="-1"
+        class="center"
       >
-        <div>
-          <div
-            className="center"
-          >
-            <Markdown
-              remarkPlugins={
-                [
-                  [
-                    "remark-gfm",
-                    {
-                      "singleTilde": false,
-                    },
-                  ],
-                ]
-              }
-            >
-              popupTitle
-            </Markdown>
-          </div>
-          <Markdown
-            className="confirm-popup"
-            remarkPlugins={
-              [
-                [
-                  "remark-gfm",
-                  {
-                    "singleTilde": false,
-                  },
-                ],
-              ]
-            }
-          >
-            popupContent
-          </Markdown>
-          <div
-            className="tr__form-buttons-container _center"
-          >
-            <div
-              className="center"
-              key="cancel"
-            >
-              <button
-                className="button grey"
-                onClick={[Function]}
-              >
-                Cancel
-              </button>
-            </div>
-            <div
-              className="center"
-              key="confirm"
-            >
-              <button
-                className="button blue"
-                onClick={[Function]}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
+        <button
+          class="button grey"
+        >
+          Cancel
+        </button>
+      </div>
+      <div
+        class="center"
+      >
+        <button
+          class="button blue"
+        >
+          Confirm
+        </button>
       </div>
     </div>
-  </ModalPortal>,
-  <div
-    aria-label="popupTitle"
-    aria-modal={true}
-    className="ReactModal__Content react-modal"
-    onClick={[Function]}
-    onKeyDown={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    role="dialog"
-    style={{}}
-    tabIndex="-1"
-  >
-    <div>
-      <div
-        className="center"
-      >
-        <Markdown
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          popupTitle
-        </Markdown>
-      </div>
-      <Markdown
-        className="confirm-popup"
-        remarkPlugins={
-          [
-            [
-              "remark-gfm",
-              {
-                "singleTilde": false,
-              },
-            ],
-          ]
-        }
-      >
-        popupContent
-      </Markdown>
-      <div
-        className="tr__form-buttons-container _center"
-      >
-        <div
-          className="center"
-          key="cancel"
-        >
-          <button
-            className="button grey"
-            onClick={[Function]}
-          >
-            Cancel
-          </button>
-        </div>
-        <div
-          className="center"
-          key="confirm"
-        >
-          <button
-            className="button blue"
-            onClick={[Function]}
-          >
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>,
-]
+  </div>
+</div>
 `;
 
-exports[`Button widget: behavioral tests Button click, with modal, confirmed 1`] = `
-[
-  <Modal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="popupTitle"
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-  >
-    <Portal
-      containerInfo={
-        <div
-          class="ReactModalPortal"
-        >
-          <div
-            class="ReactModal__Overlay react-modal-overlay"
-          >
-            <div
-              aria-label="popupTitle"
-              aria-modal="true"
-              class="ReactModal__Content react-modal"
-              role="dialog"
-              tabindex="-1"
-            >
-              <div>
-                <div
-                  class="center"
-                >
-                  <markdown
-                    remarkplugins="remark-gfm,[object Object]"
-                  >
-                    popupTitle
-                  </markdown>
-                </div>
-                <markdown
-                  class="confirm-popup"
-                  remarkplugins="remark-gfm,[object Object]"
-                >
-                  popupContent
-                </markdown>
-                <div
-                  class="tr__form-buttons-container _center"
-                >
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button grey"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button blue"
-                    >
-                      Confirm
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-    >
-      <ModalPortal
-        ariaHideApp={true}
-        bodyOpenClassName="ReactModal__Body--open"
-        className="react-modal"
-        closeTimeoutMS={0}
-        contentElement={[Function]}
-        contentLabel="popupTitle"
-        defaultStyles={
-          {
-            "content": {
-              "WebkitOverflowScrolling": "touch",
-              "background": "#fff",
-              "border": "1px solid #ccc",
-              "borderRadius": "4px",
-              "bottom": "40px",
-              "left": "40px",
-              "outline": "none",
-              "overflow": "auto",
-              "padding": "20px",
-              "position": "absolute",
-              "right": "40px",
-              "top": "40px",
-            },
-            "overlay": {
-              "backgroundColor": "rgba(255, 255, 255, 0.75)",
-              "bottom": 0,
-              "left": 0,
-              "position": "fixed",
-              "right": 0,
-              "top": 0,
-            },
-          }
-        }
-        isOpen={true}
-        onRequestClose={[Function]}
-        overlayClassName="react-modal-overlay"
-        overlayElement={[Function]}
-        parentSelector={[Function]}
-        portalClassName="ReactModalPortal"
-        preventScroll={false}
-        role="dialog"
-        shouldCloseOnEsc={true}
-        shouldCloseOnOverlayClick={true}
-        shouldFocusAfterRender={true}
-        shouldReturnFocusAfterClose={true}
-        style={
-          {
-            "content": {},
-            "overlay": {},
-          }
-        }
-      >
-        <div
-          className="ReactModal__Overlay react-modal-overlay"
-          onClick={[Function]}
-          onMouseDown={[Function]}
-          style={{}}
-        >
-          <div
-            aria-label="popupTitle"
-            aria-modal={true}
-            className="ReactModal__Content react-modal"
-            onClick={[Function]}
-            onKeyDown={[Function]}
-            onMouseDown={[Function]}
-            onMouseUp={[Function]}
-            role="dialog"
-            style={{}}
-            tabIndex="-1"
-          >
-            <div>
-              <div
-                className="center"
-              >
-                <Markdown
-                  remarkPlugins={
-                    [
-                      [
-                        "remark-gfm",
-                        {
-                          "singleTilde": false,
-                        },
-                      ],
-                    ]
-                  }
-                >
-                  popupTitle
-                </Markdown>
-              </div>
-              <Markdown
-                className="confirm-popup"
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                popupContent
-              </Markdown>
-              <div
-                className="tr__form-buttons-container _center"
-              >
-                <div
-                  className="center"
-                  key="cancel"
-                >
-                  <button
-                    className="button grey"
-                    onClick={[Function]}
-                  >
-                    Cancel
-                  </button>
-                </div>
-                <div
-                  className="center"
-                  key="confirm"
-                >
-                  <button
-                    className="button blue"
-                    onClick={[Function]}
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ModalPortal>
-    </Portal>
-  </Modal>,
-  <ModalPortal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="popupTitle"
-    defaultStyles={
-      {
-        "content": {
-          "WebkitOverflowScrolling": "touch",
-          "background": "#fff",
-          "border": "1px solid #ccc",
-          "borderRadius": "4px",
-          "bottom": "40px",
-          "left": "40px",
-          "outline": "none",
-          "overflow": "auto",
-          "padding": "20px",
-          "position": "absolute",
-          "right": "40px",
-          "top": "40px",
-        },
-        "overlay": {
-          "backgroundColor": "rgba(255, 255, 255, 0.75)",
-          "bottom": 0,
-          "left": 0,
-          "position": "fixed",
-          "right": 0,
-          "top": 0,
-        },
-      }
-    }
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-    style={
-      {
-        "content": {},
-        "overlay": {},
-      }
-    }
-  >
-    <div
-      className="ReactModal__Overlay react-modal-overlay"
-      onClick={[Function]}
-      onMouseDown={[Function]}
-      style={{}}
-    >
-      <div
-        aria-label="popupTitle"
-        aria-modal={true}
-        className="ReactModal__Content react-modal"
-        onClick={[Function]}
-        onKeyDown={[Function]}
-        onMouseDown={[Function]}
-        onMouseUp={[Function]}
-        role="dialog"
-        style={{}}
-        tabIndex="-1"
-      >
-        <div>
-          <div
-            className="center"
-          >
-            <Markdown
-              remarkPlugins={
-                [
-                  [
-                    "remark-gfm",
-                    {
-                      "singleTilde": false,
-                    },
-                  ],
-                ]
-              }
-            >
-              popupTitle
-            </Markdown>
-          </div>
-          <Markdown
-            className="confirm-popup"
-            remarkPlugins={
-              [
-                [
-                  "remark-gfm",
-                  {
-                    "singleTilde": false,
-                  },
-                ],
-              ]
-            }
-          >
-            popupContent
-          </Markdown>
-          <div
-            className="tr__form-buttons-container _center"
-          >
-            <div
-              className="center"
-              key="cancel"
-            >
-              <button
-                className="button grey"
-                onClick={[Function]}
-              >
-                Cancel
-              </button>
-            </div>
-            <div
-              className="center"
-              key="confirm"
-            >
-              <button
-                className="button blue"
-                onClick={[Function]}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </ModalPortal>,
-  <div
-    aria-label="popupTitle"
-    aria-modal={true}
-    className="ReactModal__Content react-modal"
-    onClick={[Function]}
-    onKeyDown={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    role="dialog"
-    style={{}}
-    tabIndex="-1"
-  >
-    <div>
-      <div
-        className="center"
-      >
-        <Markdown
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          popupTitle
-        </Markdown>
-      </div>
-      <Markdown
-        className="confirm-popup"
-        remarkPlugins={
-          [
-            [
-              "remark-gfm",
-              {
-                "singleTilde": false,
-              },
-            ],
-          ]
-        }
-      >
-        popupContent
-      </Markdown>
-      <div
-        className="tr__form-buttons-container _center"
-      >
-        <div
-          className="center"
-          key="cancel"
-        >
-          <button
-            className="button grey"
-            onClick={[Function]}
-          >
-            Cancel
-          </button>
-        </div>
-        <div
-          className="center"
-          key="confirm"
-        >
-          <button
-            className="button blue"
-            onClick={[Function]}
-          >
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>,
-]
-`;
-
-exports[`Widget invisible, should be null 1`] = `null`;
+exports[`Widget invisible, should be null 1`] = `<div />`;
 
 exports[`Widget loading, should be disabled 1`] = `
-<div
-  className="center"
->
-  <button
-    className="survey-section__button button green large disabled"
-    disabled={true}
-    onKeyUp={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    type="button"
+<div>
+  <div
+    class="center"
   >
-    label
-  </button>
+    <button
+      class="survey-section__button button green large disabled"
+      disabled=""
+      type="button"
+    >
+      label
+    </button>
+  </div>
 </div>
 `;

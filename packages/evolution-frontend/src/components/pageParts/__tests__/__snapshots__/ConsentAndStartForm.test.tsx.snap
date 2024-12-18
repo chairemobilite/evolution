@@ -1,53 +1,52 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Render ConsentAndStartForm With consent checkbox 1`] = `
-<div
-  className="survey-section__button-agreement"
->
-  <input
-    checked={false}
-    className="_input-checkbox"
-    id="surveyConsent"
-    onChange={[Function]}
-    type="checkbox"
-    value="agree"
-  />
-  <label
-    htmlFor="surveyConsent"
-    onClick={[Function]}
-  >
-    <span>
-      I agree
-    </span>
-  </label>
+<div>
   <div
-    className="center"
+    class="survey-section__button-agreement"
   >
-    <button
-      className="survey-section__button button green large"
-      onClick={[Function]}
-      type="button"
+    <input
+      class="_input-checkbox"
+      id="surveyConsent"
+      type="checkbox"
+      value="agree"
+    />
+    <label
+      for="surveyConsent"
     >
-      survey:homepage:start
-    </button>
+      <span>
+        I agree
+      </span>
+    </label>
+    <div
+      class="center"
+    >
+      <button
+        class="survey-section__button button green large"
+        type="button"
+      >
+        survey:homepage:start
+      </button>
+    </div>
   </div>
 </div>
 `;
 
 exports[`Render ConsentAndStartForm Without consent checkbox 1`] = `
-<div
-  className="survey-section__button-agreement"
->
+<div>
   <div
-    className="center"
+    class="survey-section__button-agreement"
   >
-    <button
-      className="survey-section__button button green large"
-      onClick={[Function]}
-      type="button"
+    <div
+      class="center"
     >
-      survey:homepage:start
-    </button>
+      <button
+        class="survey-section__button button green large"
+        type="button"
+      >
+        survey:homepage:start
+      </button>
+    </div>
   </div>
 </div>
 `;

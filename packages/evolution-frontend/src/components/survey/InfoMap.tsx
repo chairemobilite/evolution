@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { useEffect } from 'react';
+import React, { useEffect, JSX } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { GoogleMap, useJsApiLoader, Marker, Polyline, Polygon, MarkerProps } from '@react-google-maps/api';
 import Markdown from 'react-markdown';

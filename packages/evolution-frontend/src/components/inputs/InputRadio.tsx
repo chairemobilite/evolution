@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { JSX } from 'react';
 import DOMPurify from 'dompurify';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
@@ -47,7 +47,7 @@ interface InputRadioChoiceProps {
     onLabelClick: React.MouseEventHandler;
     onRadioClick: React.MouseEventHandler;
     onContainerClick: (
-        inputRadioRef: React.RefObject<HTMLInputElement>,
+        inputRadioRef: React.RefObject<HTMLInputElement | null>,
         value: string | boolean,
         e: React.MouseEvent<HTMLDivElement>
     ) => void;
@@ -66,7 +66,7 @@ const InputRadioChoice = (props: InputRadioChoiceProps & WithTranslation) => {
         props.path,
         props.user
     );
-    const inputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
+    const inputRadioRef: React.RefObject<HTMLInputElement | null> = React.createRef();
     const iconPath = props.choice.iconPath
         ? surveyHelper.parseString(props.choice.iconPath, props.interview, props.path)
         : null;
@@ -120,8 +120,8 @@ const InputRadioChoice = (props: InputRadioChoiceProps & WithTranslation) => {
 export const InputRadioChoiceT = withTranslation()(InputRadioChoice) as React.FunctionComponent<InputRadioChoiceProps>;
 
 export class InputRadio extends React.Component<InputRadioProps & WithTranslation, InputRadioState> {
-    private customInputRef: React.RefObject<HTMLInputElement> = React.createRef();
-    private customInputRadioRef: React.RefObject<HTMLInputElement> = React.createRef();
+    private customInputRef: React.RefObject<HTMLInputElement | null> = React.createRef();
+    private customInputRadioRef: React.RefObject<HTMLInputElement | null> = React.createRef();
 
     constructor(props: InputRadioProps & WithTranslation) {
         super(props);
@@ -134,7 +134,7 @@ export class InputRadio extends React.Component<InputRadioProps & WithTranslatio
     }
 
     onContainerClick = (
-        inputRadioRef: React.RefObject<HTMLInputElement>,
+        inputRadioRef: React.RefObject<HTMLInputElement | null>,
         value: string | boolean,
         e: React.MouseEvent<HTMLDivElement>
     ) => {

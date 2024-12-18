@@ -5,13 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { createBrowserHistory } from 'history';
 import Loader from 'react-spinners/HashLoader';
 import { InterviewContext } from '../../../contexts/InterviewContext';
+import { useNavigate } from 'react-router';
 
 const InterviewsCreateNew: React.FunctionComponent = () => {
     const [inProgress, setInProgress] = React.useState(false);
     const { state, dispatch } = React.useContext(InterviewContext);
+    const navigate = useNavigate();
 
     // Function to fetch data from the server, with paging and filtering
     const createUser = React.useCallback(async () => {
@@ -36,11 +37,11 @@ const InterviewsCreateNew: React.FunctionComponent = () => {
                     responses: state.responses
                 })
             });
-            const history = createBrowserHistory({ forceRefresh: true });
+
             if (response.status === 200) {
                 const jsonData = await response.json();
                 if (jsonData.interviewUuid) {
-                    history.push(`/survey/edit/${jsonData.interviewUuid}/`);
+                    navigate(`/survey/edit/${jsonData.interviewUuid}/`, { replace: true });
                     dispatch({ type: 'success', interviewUuid: jsonData.interviewUuid });
                     return;
                 }

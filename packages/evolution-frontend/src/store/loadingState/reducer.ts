@@ -5,13 +5,13 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { Reducer } from 'redux';
-import { LoadingStateState, LoadingStateActionTypes } from './types';
+import { LoadingStateState, LoadingStateActionTypes, LoadingStateAction } from './types';
 
 export const initialState: LoadingStateState = {
     loadingState: 0
 };
 
-const reducer: Reducer<LoadingStateState> = (state = initialState, action) => {
+const reducer: Reducer<LoadingStateState, LoadingStateAction> = (state = initialState, action) => {
     switch (action.type) {
     case LoadingStateActionTypes.INCREMENT_LOADING_STATE:
         return {

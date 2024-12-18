@@ -1,1354 +1,1113 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SegmentsSection UI display SegmentsSection with trips and visited places should render list of trips and map when no trip selected 1`] = `
-<section
-  className="survey-section survey-section-shortname-testShortname"
->
-  <div
-    className="survey-section__content"
+<div>
+  <section
+    class="survey-section survey-section-shortname-testShortname"
   >
-    <div>
-      Widget 
-      activePersonTitle
-    </div>
-    <div>
-      Widget 
-      buttonSwitchPerson
-    </div>
     <div
-      className="survey-trips-list-and-map-container"
+      class="survey-section__content"
     >
-      <ul
-        className="survey-trips-list "
+      <div>
+        Widget 
+        activePersonTitle
+      </div>
+      <div>
+        Widget 
+        buttonSwitchPerson
+      </div>
+      <div
+        class="survey-trips-list-and-map-container"
       >
-        <li
-          className="no-bullet"
+        <ul
+          class="survey-trips-list "
         >
-          <div>
-            Widget 
-            personTripsTitle
-          </div>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-name"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-sequence-and-icon"
+          <li
+            class="no-bullet"
           >
-            <em>
-              trip.trip
-               
-              1
-            </em>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-buttons"
+            <div>
+              Widget 
+              personTripsTitle
+            </div>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-name"
           >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-clock "
-              data-icon="clock"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.6rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-sequence-and-icon"
             >
-              <path
-                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <button
-              className="survey-section__button button blue small"
-              onClick={[Function]}
-              style={
-                {
-                  "marginLeft": "0.5rem",
-                }
-              }
-              title="trip.editTrip"
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                className="svg-inline--fa fa-pencil "
-                data-icon="pencil"
-                data-prefix="fas"
-                focusable="false"
-                role="img"
-                style={{}}
-                viewBox="0 0 512 512"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
-                  fill="currentColor"
-                  style={{}}
-                />
-              </svg>
-            </button>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-description"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-origin-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity1"
-              src="/dist/images/activities_icons/activity1_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity1
-              <br />
               <em>
-                 • 
-                Lieu 1
+                trip.trip
+                 
+                1
               </em>
             </span>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-arrow"
-          >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-destination-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity2"
-              src="/dist/images/activities_icons/activity2_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity2
-            </span>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-mode-icons"
-        >
-          <img
-            alt="trip.modes.walk"
-            src="/dist/images/modes_icons/walk.png"
-            style={
-              {
-                "height": "1.5em",
-                "marginLeft": "0.3em",
-              }
-            }
-          />
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-name"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-sequence-and-icon"
-          >
-            <em>
-              trip.trip
-               
-              2
-            </em>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-buttons"
-          >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-clock "
-              data-icon="clock"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.6rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <button
-              className="survey-section__button button blue small"
-              onClick={[Function]}
-              style={
-                {
-                  "marginLeft": "0.5rem",
-                }
-              }
-              title="trip.editTrip"
-              type="button"
+            <span
+              class="survey-trip-item-element survey-trip-item-buttons"
             >
               <svg
                 aria-hidden="true"
-                className="svg-inline--fa fa-pencil "
-                data-icon="pencil"
+                class="svg-inline--fa fa-clock "
+                data-icon="clock"
                 data-prefix="fas"
                 focusable="false"
                 role="img"
-                style={{}}
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
                 viewBox="0 0 512 512"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                  d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                   fill="currentColor"
-                  style={{}}
                 />
               </svg>
-            </button>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-description"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-origin-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity2"
-              src="/dist/images/activities_icons/activity2_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity2
+              timeStr
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              timeStr
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="trip.editTrip"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil "
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  viewBox="0 0 512 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
             </span>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-arrow"
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-description"
           >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-origin-description"
             >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
+              <img
+                alt="visitedPlaces/activities/activity1"
+                src="/dist/images/activities_icons/activity1_marker.svg"
+                style="height: 4rem;"
               />
-            </svg>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-destination-description"
+              <span>
+                visitedPlace.activities.activity1
+                <br />
+                <em>
+                   • 
+                  Lieu 1
+                </em>
+              </span>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-arrow"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-destination-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity2"
+                src="/dist/images/activities_icons/activity2_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity2
+              </span>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           >
             <img
-              alt="visitedPlaces/activities/activity3"
-              src="/dist/images/activities_icons/activity3_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
+              alt="trip.modes.walk"
+              src="/dist/images/modes_icons/walk.png"
+              style="height: 1.5em; margin-left: 0.3em;"
             />
-            <span>
-              visitedPlace.activities.activity3
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-name"
+          >
+            <span
+              class="survey-trip-item-element survey-trip-item-sequence-and-icon"
+            >
+              <em>
+                trip.trip
+                 
+                2
+              </em>
             </span>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-mode-icons"
-        />
-        <li
-          className="no-bullet"
+            <span
+              class="survey-trip-item-element survey-trip-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock "
+                data-icon="clock"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              timeStr
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="trip.editTrip"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil "
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  viewBox="0 0 512 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-description"
+          >
+            <span
+              class="survey-trip-item-element survey-trip-item-origin-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity2"
+                src="/dist/images/activities_icons/activity2_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity2
+              </span>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-arrow"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-destination-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity3"
+                src="/dist/images/activities_icons/activity3_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity3
+              </span>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-mode-icons"
+          />
+          <li
+            class="no-bullet"
+          >
+            <div>
+              Widget 
+              buttonConfirmNextSection
+            </div>
+          </li>
+        </ul>
+        <div
+          class="survey-trips-map"
         >
           <div>
             Widget 
-            buttonConfirmNextSection
+            personVisitedPlacesMap
           </div>
-        </li>
-      </ul>
-      <div
-        className="survey-trips-map"
-      >
-        <div>
-          Widget 
-          personVisitedPlacesMap
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`SegmentsSection UI display SegmentsSection with trips and visited places should render list of trips when loop activity in one trip, no trip selected 1`] = `
-<section
-  className="survey-section survey-section-shortname-testShortname"
->
-  <div
-    className="survey-section__content"
+<div>
+  <section
+    class="survey-section survey-section-shortname-testShortname"
   >
-    <div>
-      Widget 
-      activePersonTitle
-    </div>
-    <div>
-      Widget 
-      buttonSwitchPerson
-    </div>
     <div
-      className="survey-trips-list-and-map-container"
+      class="survey-section__content"
     >
-      <ul
-        className="survey-trips-list "
+      <div>
+        Widget 
+        activePersonTitle
+      </div>
+      <div>
+        Widget 
+        buttonSwitchPerson
+      </div>
+      <div
+        class="survey-trips-list-and-map-container"
       >
-        <li
-          className="no-bullet"
+        <ul
+          class="survey-trips-list "
         >
-          <div>
-            Widget 
-            personTripsTitle
-          </div>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-name"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-sequence-and-icon"
+          <li
+            class="no-bullet"
           >
-            <em>
-              trip.trip
-               
-              1
-            </em>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-buttons"
+            <div>
+              Widget 
+              personTripsTitle
+            </div>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-name"
           >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-clock "
-              data-icon="clock"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.6rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-sequence-and-icon"
             >
-              <path
-                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <button
-              className="survey-section__button button blue small"
-              onClick={[Function]}
-              style={
-                {
-                  "marginLeft": "0.5rem",
-                }
-              }
-              title="trip.editTrip"
-              type="button"
+              <em>
+                trip.trip
+                 
+                1
+              </em>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-buttons"
             >
               <svg
                 aria-hidden="true"
-                className="svg-inline--fa fa-pencil "
-                data-icon="pencil"
+                class="svg-inline--fa fa-clock "
+                data-icon="clock"
                 data-prefix="fas"
                 focusable="false"
                 role="img"
-                style={{}}
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
                 viewBox="0 0 512 512"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                  d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                   fill="currentColor"
-                  style={{}}
                 />
               </svg>
-            </button>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-description"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-origin-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity1"
-              src="/dist/images/activities_icons/activity1_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity1
-              <br />
-              <em>
-                 • 
-                Lieu 1
-              </em>
+              timeStr
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              timeStr
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="trip.editTrip"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil "
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  viewBox="0 0 512 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
             </span>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-arrow"
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-description"
           >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-origin-description"
             >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
+              <img
+                alt="visitedPlaces/activities/activity1"
+                src="/dist/images/activities_icons/activity1_marker.svg"
+                style="height: 4rem;"
               />
-            </svg>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-destination-description"
-          >
-            <img
-              alt="visitedPlaces/activities/workOnTheRoad"
-              src="/dist/images/activities_icons/workOnTheRoad_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.workOnTheRoad
+              <span>
+                visitedPlace.activities.activity1
+                <br />
+                <em>
+                   • 
+                  Lieu 1
+                </em>
+              </span>
             </span>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-arrow"
-          >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-arrow"
             >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-destination-description"
+            >
+              <img
+                alt="visitedPlaces/activities/workOnTheRoad"
+                src="/dist/images/activities_icons/workOnTheRoad_marker.svg"
+                style="height: 4rem;"
               />
-            </svg>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-destination-description"
+              <span>
+                visitedPlace.activities.workOnTheRoad
+              </span>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-arrow"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-destination-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity3"
+                src="/dist/images/activities_icons/activity3_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity3
+              </span>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           >
             <img
-              alt="visitedPlaces/activities/activity3"
-              src="/dist/images/activities_icons/activity3_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
+              alt="trip.modes.walk"
+              src="/dist/images/modes_icons/walk.png"
+              style="height: 1.5em; margin-left: 0.3em;"
             />
-            <span>
-              visitedPlace.activities.activity3
-            </span>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-mode-icons"
-        >
-          <img
-            alt="trip.modes.walk"
-            src="/dist/images/modes_icons/walk.png"
-            style={
-              {
-                "height": "1.5em",
-                "marginLeft": "0.3em",
-              }
-            }
-          />
-        </li>
-        <li
-          className="no-bullet"
+          </li>
+          <li
+            class="no-bullet"
+          >
+            <div>
+              Widget 
+              buttonConfirmNextSection
+            </div>
+          </li>
+        </ul>
+        <div
+          class="survey-trips-map"
         >
           <div>
             Widget 
-            buttonConfirmNextSection
+            personVisitedPlacesMap
           </div>
-        </li>
-      </ul>
-      <div
-        className="survey-trips-map"
-      >
-        <div>
-          Widget 
-          personVisitedPlacesMap
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`SegmentsSection UI display SegmentsSection with trips and visited places should render list of trips when loop activity is the first visited place, no trip selected 1`] = `
-<section
-  className="survey-section survey-section-shortname-testShortname"
->
-  <div
-    className="survey-section__content"
+<div>
+  <section
+    class="survey-section survey-section-shortname-testShortname"
   >
-    <div>
-      Widget 
-      activePersonTitle
-    </div>
-    <div>
-      Widget 
-      buttonSwitchPerson
-    </div>
     <div
-      className="survey-trips-list-and-map-container"
+      class="survey-section__content"
     >
-      <ul
-        className="survey-trips-list "
+      <div>
+        Widget 
+        activePersonTitle
+      </div>
+      <div>
+        Widget 
+        buttonSwitchPerson
+      </div>
+      <div
+        class="survey-trips-list-and-map-container"
       >
-        <li
-          className="no-bullet"
+        <ul
+          class="survey-trips-list "
         >
-          <div>
-            Widget 
-            personTripsTitle
-          </div>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-name"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-sequence-and-icon"
+          <li
+            class="no-bullet"
           >
-            <em>
-              trip.trip
-               
-              1
-            </em>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-buttons"
+            <div>
+              Widget 
+              personTripsTitle
+            </div>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-name"
           >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-clock "
-              data-icon="clock"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.6rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-sequence-and-icon"
             >
-              <path
-                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <button
-              className="survey-section__button button blue small"
-              onClick={[Function]}
-              style={
-                {
-                  "marginLeft": "0.5rem",
-                }
-              }
-              title="trip.editTrip"
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                className="svg-inline--fa fa-pencil "
-                data-icon="pencil"
-                data-prefix="fas"
-                focusable="false"
-                role="img"
-                style={{}}
-                viewBox="0 0 512 512"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
-                  fill="currentColor"
-                  style={{}}
-                />
-              </svg>
-            </button>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-description"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-origin-description"
-          >
-            <img
-              alt="visitedPlaces/activities/workOnTheRoad"
-              src="/dist/images/activities_icons/workOnTheRoad_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.workOnTheRoad
-              <br />
               <em>
-                 • 
-                Lieu 1
+                trip.trip
+                 
+                1
               </em>
             </span>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-arrow"
-          >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-destination-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity2"
-              src="/dist/images/activities_icons/activity2_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity2
-            </span>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-mode-icons"
-        >
-          <img
-            alt="trip.modes.walk"
-            src="/dist/images/modes_icons/walk.png"
-            style={
-              {
-                "height": "1.5em",
-                "marginLeft": "0.3em",
-              }
-            }
-          />
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-name"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-sequence-and-icon"
-          >
-            <em>
-              trip.trip
-               
-              2
-            </em>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-buttons"
-          >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-clock "
-              data-icon="clock"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.6rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <button
-              className="survey-section__button button blue small"
-              onClick={[Function]}
-              style={
-                {
-                  "marginLeft": "0.5rem",
-                }
-              }
-              title="trip.editTrip"
-              type="button"
+            <span
+              class="survey-trip-item-element survey-trip-item-buttons"
             >
               <svg
                 aria-hidden="true"
-                className="svg-inline--fa fa-pencil "
-                data-icon="pencil"
+                class="svg-inline--fa fa-clock "
+                data-icon="clock"
                 data-prefix="fas"
                 focusable="false"
                 role="img"
-                style={{}}
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
                 viewBox="0 0 512 512"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                  d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
                   fill="currentColor"
-                  style={{}}
                 />
               </svg>
-            </button>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-description"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-origin-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity2"
-              src="/dist/images/activities_icons/activity2_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity2
+              timeStr
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              timeStr
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="trip.editTrip"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil "
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  viewBox="0 0 512 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
             </span>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-arrow"
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-description"
           >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-origin-description"
             >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
+              <img
+                alt="visitedPlaces/activities/workOnTheRoad"
+                src="/dist/images/activities_icons/workOnTheRoad_marker.svg"
+                style="height: 4rem;"
               />
-            </svg>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-destination-description"
+              <span>
+                visitedPlace.activities.workOnTheRoad
+                <br />
+                <em>
+                   • 
+                  Lieu 1
+                </em>
+              </span>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-arrow"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-destination-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity2"
+                src="/dist/images/activities_icons/activity2_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity2
+              </span>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           >
             <img
-              alt="visitedPlaces/activities/activity3"
-              src="/dist/images/activities_icons/activity3_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
+              alt="trip.modes.walk"
+              src="/dist/images/modes_icons/walk.png"
+              style="height: 1.5em; margin-left: 0.3em;"
             />
-            <span>
-              visitedPlace.activities.activity3
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-name"
+          >
+            <span
+              class="survey-trip-item-element survey-trip-item-sequence-and-icon"
+            >
+              <em>
+                trip.trip
+                 
+                2
+              </em>
             </span>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-mode-icons"
-        />
-        <li
-          className="no-bullet"
+            <span
+              class="survey-trip-item-element survey-trip-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock "
+                data-icon="clock"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              timeStr
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="trip.editTrip"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil "
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  focusable="false"
+                  role="img"
+                  viewBox="0 0 512 512"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-description"
+          >
+            <span
+              class="survey-trip-item-element survey-trip-item-origin-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity2"
+                src="/dist/images/activities_icons/activity2_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity2
+              </span>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-arrow"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-destination-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity3"
+                src="/dist/images/activities_icons/activity3_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity3
+              </span>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-mode-icons"
+          />
+          <li
+            class="no-bullet"
+          >
+            <div>
+              Widget 
+              buttonConfirmNextSection
+            </div>
+          </li>
+        </ul>
+        <div
+          class="survey-trips-map"
         >
           <div>
             Widget 
-            buttonConfirmNextSection
+            personVisitedPlacesMap
           </div>
-        </li>
-      </ul>
-      <div
-        className="survey-trips-map"
-      >
-        <div>
-          Widget 
-          personVisitedPlacesMap
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`SegmentsSection UI display SegmentsSection with trips and visited places should render list of trips with selected trip widget when trip selected 1`] = `
-<section
-  className="survey-section survey-section-shortname-testShortname"
->
-  <div
-    className="survey-section__content"
+<div>
+  <section
+    class="survey-section survey-section-shortname-testShortname"
   >
-    <div>
-      Widget 
-      activePersonTitle
-    </div>
-    <div>
-      Widget 
-      buttonSwitchPerson
-    </div>
     <div
-      className="survey-trips-list-and-map-container"
+      class="survey-section__content"
     >
-      <ul
-        className="survey-trips-list full-width"
+      <div>
+        Widget 
+        activePersonTitle
+      </div>
+      <div>
+        Widget 
+        buttonSwitchPerson
+      </div>
+      <div
+        class="survey-trips-list-and-map-container"
       >
-        <li
-          className="no-bullet"
+        <ul
+          class="survey-trips-list full-width"
         >
-          <div>
-            Widget 
-            personTripsTitle
-          </div>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-name survey-trip-item-selected"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-sequence-and-icon"
+          <li
+            class="no-bullet"
           >
-            <em>
-              trip.trip
-               
-              1
-            </em>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-buttons"
+            <div>
+              Widget 
+              personTripsTitle
+            </div>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-name survey-trip-item-selected"
           >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-clock "
-              data-icon="clock"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.6rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-sequence-and-icon"
             >
-              <path
-                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-description survey-trip-item-selected"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-origin-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity1"
-              src="/dist/images/activities_icons/activity1_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity1
-              <br />
               <em>
-                 • 
-                Lieu 1
+                trip.trip
+                 
+                1
               </em>
             </span>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-arrow"
-          >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
+            <span
+              class="survey-trip-item-element survey-trip-item-buttons"
             >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock "
+                data-icon="clock"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              timeStr
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              timeStr
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-description survey-trip-item-selected"
+          >
+            <span
+              class="survey-trip-item-element survey-trip-item-origin-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity1"
+                src="/dist/images/activities_icons/activity1_marker.svg"
+                style="height: 4rem;"
               />
-            </svg>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-destination-description"
+              <span>
+                visitedPlace.activities.activity1
+                <br />
+                <em>
+                   • 
+                  Lieu 1
+                </em>
+              </span>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-arrow"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-destination-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity2"
+                src="/dist/images/activities_icons/activity2_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity2
+              </span>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-mode-icons survey-trip-item-selected"
           >
             <img
-              alt="visitedPlaces/activities/activity2"
-              src="/dist/images/activities_icons/activity2_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
+              alt="trip.modes.walk"
+              src="/dist/images/modes_icons/walk.png"
+              style="height: 1.5em; margin-left: 0.3em;"
             />
-            <span>
-              visitedPlace.activities.activity2
+          </li>
+          <li
+            class="no-bullet"
+            style="margin-top: -0.4rem;"
+          >
+            <div>
+              GroupedObject
+            </div>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-name"
+          >
+            <span
+              class="survey-trip-item-element survey-trip-item-sequence-and-icon"
+            >
+              <em>
+                trip.trip
+                 
+                2
+              </em>
             </span>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-mode-icons survey-trip-item-selected"
-        >
-          <img
-            alt="trip.modes.walk"
-            src="/dist/images/modes_icons/walk.png"
-            style={
-              {
-                "height": "1.5em",
-                "marginLeft": "0.3em",
-              }
-            }
+            <span
+              class="survey-trip-item-element survey-trip-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock "
+                data-icon="clock"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              timeStr
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-description"
+          >
+            <span
+              class="survey-trip-item-element survey-trip-item-origin-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity2"
+                src="/dist/images/activities_icons/activity2_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity2
+              </span>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-arrow"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right "
+                data-icon="arrow-right"
+                data-prefix="fas"
+                focusable="false"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 448 512"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+            </span>
+            <span
+              class="survey-trip-item-element survey-trip-item-destination-description"
+            >
+              <img
+                alt="visitedPlaces/activities/activity3"
+                src="/dist/images/activities_icons/activity3_marker.svg"
+                style="height: 4rem;"
+              />
+              <span>
+                visitedPlace.activities.activity3
+              </span>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           />
-        </li>
-        <li
-          className="no-bullet"
-          style={
-            {
-              "marginTop": "-0.4rem",
-            }
-          }
-        >
-          <div>
-            GroupedObject
-          </div>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-name"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-sequence-and-icon"
-          >
-            <em>
-              trip.trip
-               
-              2
-            </em>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-buttons"
-          >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-clock "
-              data-icon="clock"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.6rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 512 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-            timeStr
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-description"
-        >
-          <span
-            className="survey-trip-item-element survey-trip-item-origin-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity2"
-              src="/dist/images/activities_icons/activity2_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity2
-            </span>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-arrow"
-          >
-            <svg
-              aria-hidden="true"
-              className="svg-inline--fa fa-arrow-right "
-              data-icon="arrow-right"
-              data-prefix="fas"
-              focusable="false"
-              role="img"
-              style={
-                {
-                  "marginLeft": "0.3rem",
-                  "marginRight": "0.3rem",
-                }
-              }
-              viewBox="0 0 448 512"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
-                fill="currentColor"
-                style={{}}
-              />
-            </svg>
-          </span>
-          <span
-            className="survey-trip-item-element survey-trip-item-destination-description"
-          >
-            <img
-              alt="visitedPlaces/activities/activity3"
-              src="/dist/images/activities_icons/activity3_marker.svg"
-              style={
-                {
-                  "height": "4rem",
-                }
-              }
-            />
-            <span>
-              visitedPlace.activities.activity3
-            </span>
-          </span>
-        </li>
-        <li
-          className="no-bullet survey-trip-item survey-trip-item-mode-icons"
-        />
-        <li
-          className="no-bullet"
-        />
-      </ul>
+          <li
+            class="no-bullet"
+          />
+        </ul>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`SegmentsSection UI display should render LoadingPage when not preloaded 1`] = `
 <div>
-  Loading...
+  <div>
+    Loading...
+  </div>
 </div>
 `;

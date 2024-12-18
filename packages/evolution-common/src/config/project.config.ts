@@ -52,6 +52,20 @@ export type EvolutionProjectConfiguration = {
     };
 
     /**
+     * Whether to detect the language from the URL. If true, URLs of the form
+     * /en, /fr, etc. or with lng=fr in the query string will be used to set the
+     * language. Defaults to `true`
+     */
+    detectLanguageFromUrl: true;
+    /**
+     * If `detectLanguageFromUrl` is false, setting this will use `cookie`,
+     * `localStorage` or the navigator to detect the language
+     *
+     * FIXME Why? Why not just use the URL? This has been part of evolution
+     * forever though, so there probably was a reason.
+     */
+    detectLanguage: true;
+    /**
      * The names of the languages, used in the language selector on the home page
      */
     languageNames: {
@@ -80,6 +94,8 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             bannerPaths: {},
             introLogoAfterStartButton: false,
             logoPaths: {},
+            detectLanguageFromUrl: true,
+            detectLanguage: false,
             languageNames: { en: 'English', fr: 'Français' }
         },
         projectConfig

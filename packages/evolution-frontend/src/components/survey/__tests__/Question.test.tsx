@@ -6,10 +6,10 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
 import each from 'jest-each';
-import { mount } from 'enzyme';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event'
+import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
 
@@ -101,7 +101,7 @@ each([
 
     test('Render widget', () => {
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Question
                 path='home.region'
                 section='test'
@@ -113,7 +113,7 @@ each([
                 startUpdateInterview={() => { /* Nothing to do */}}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Widget accessibility', async () => {
@@ -136,11 +136,12 @@ each([
 
 describe('With help popup and link', () => {
     const helpContent = 'Help content';
+    const helpTitle = 'Help title';
     const widgetConfig = {
         ...commonWidgetConfig,
         inputType: 'string',
         helpPopup: {
-            title: 'Help title',
+            title: helpTitle,
             content: jest.fn().mockReturnValue(helpContent)
         }
     };
@@ -149,7 +150,7 @@ describe('With help popup and link', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.value = 'test';
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Question
                 path='home.region'
                 section='test'
@@ -161,14 +162,14 @@ describe('With help popup and link', () => {
                 startUpdateInterview={() => { /* Nothing to do */}}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
-    test('Open modal', () => {
+    test('Open modal', async () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.value = 'test';
 
-        const questionWidget = mount(<Question
+        render(<Question
             path='home.region'
             section='test'
             loadingState={0}
@@ -178,21 +179,16 @@ describe('With help popup and link', () => {
             widgetStatus={widgetStatus}
             startUpdateInterview={() => { /* Nothing to do */}}
         />);
+        const user = userEvent.setup();
 
         // Find and click on the help button
         expect(widgetConfig.helpPopup.content).not.toHaveBeenCalled();
-        const helpButton = questionWidget.find('.helper-popup');
-        const modal = questionWidget.find('.react-modal');
-        expect(modal.children().length).toEqual(0);
-        expect(helpButton.getDOMNode<HTMLButtonElement>().textContent).toEqual(widgetConfig.helpPopup.title);
-        helpButton.simulate('click');
+        await user.click(screen.getByText(helpTitle));
 
         // The modal should be opened now
-        questionWidget.update();
         expect(widgetConfig.helpPopup.content).toHaveBeenCalledTimes(1);
-        const modalAfterClick = questionWidget.find('.react-modal');
+        const modalAfterClick = await screen.findByLabelText(helpTitle);
         expect(modalAfterClick).toMatchSnapshot();
-
     });
 });
 
@@ -207,7 +203,7 @@ describe('With error message', () => {
         widgetStatus.errorMessage = 'error test';
         widgetStatus.isValid = false;
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Question
                 path='home.region'
                 section='test'
@@ -219,7 +215,7 @@ describe('With error message', () => {
                 startUpdateInterview={() => { /* Nothing to do */}}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });
@@ -233,7 +229,7 @@ describe('With joining questions', () => {
         };
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Question
                 path='home.region'
                 section='test'
@@ -246,7 +242,7 @@ describe('With joining questions', () => {
                 join={true}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 });
 
@@ -262,7 +258,7 @@ describe('Modal widget', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.isVisible = false;
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Question
                 path='home.region'
                 section='test'
@@ -274,7 +270,7 @@ describe('Modal widget', () => {
                 startUpdateInterview={() => { /* Nothing to do */}}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Widget is visible', () => {
@@ -282,7 +278,7 @@ describe('Modal widget', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.isVisible = true;
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Question
                 path='home.region'
                 section='test'
@@ -294,7 +290,7 @@ describe('Modal widget', () => {
                 startUpdateInterview={() => { /* Nothing to do */}}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 });
 

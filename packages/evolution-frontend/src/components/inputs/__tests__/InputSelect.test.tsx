@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import { interviewAttributes } from './interviewData.test';
 import InputSelect from '../InputSelect';
@@ -70,7 +70,7 @@ test('Render InputSelect with normal option type', () => {
         }
     };
     
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputSelect
             id={'test'}
             onValueChange={() => { /* nothing to do */}}
@@ -82,7 +82,7 @@ test('Render InputSelect with normal option type', () => {
             path='foo.test'
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
     expect(conditionalFct).toHaveBeenCalledTimes(1);
     expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
     expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
@@ -148,7 +148,7 @@ test('Render InputSelect with choice function and grouped choice type', () => {
         }
     };
     
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputSelect
             id={'test'}
             onValueChange={() => { /* nothing to do */}}
@@ -160,7 +160,7 @@ test('Render InputSelect with choice function and grouped choice type', () => {
             path='foo.test'
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
     expect(choiceFct).toHaveBeenCalledTimes(1);
     expect(choiceFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
     
@@ -224,7 +224,7 @@ test('Render InputSelect with grouped choice type without labels', () => {
         }
     };
 
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputSelect
             id={'test'}
             onValueChange={() => { /* nothing to do */}}
@@ -236,6 +236,6 @@ test('Render InputSelect with grouped choice type without labels', () => {
             path='foo.test'
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 
 });

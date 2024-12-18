@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
 import InputRadioNumber from "../InputRadioNumber";
 import {UserPermissions} from "chaire-lib-common/lib/services/user/userType";
 import { render, fireEvent } from '@testing-library/react';
@@ -45,7 +44,7 @@ describe('Render InputRadioNumber', () => {
     }
 
     test('InputRadioNumber without "over max" option', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadioNumber
                 id={'test'}
                 widgetConfig={widgetConfig}
@@ -53,22 +52,22 @@ describe('Render InputRadioNumber', () => {
                 interview={interview} path={''} user={user}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('InputRadioNumber with "over max" option', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadioNumber
                 id={'test'}
                 widgetConfig={widgetConfigOverMax}
                 onValueChange={(e) => null}
              interview={interview} path={''} user={user}/>
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('InputRadioNumber with selected value', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRadioNumber
                 id={'test'}
                 value={4}
@@ -77,7 +76,7 @@ describe('Render InputRadioNumber', () => {
                 interview={interview} path={''} user={user}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 });
 

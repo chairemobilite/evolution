@@ -1,23 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Button widget: All values set Render widget 1`] = `
-<div
-  className="loader"
->
-  <p>
-    Loading
-    ...
-  </p>
+<div>
+  <div
+    class="loader"
+  >
+    <p>
+      Loading
+      ...
+    </p>
+  </div>
 </div>
 `;
 
 exports[`Button widget: Default values Render widget 1`] = `
-<div
-  className="loader"
->
-  <p>
-    Loading
-    ...
-  </p>
+<div>
+  <div
+    class="loader"
+  >
+    <p>
+      Loading
+      ...
+    </p>
+  </div>
 </div>
 `;

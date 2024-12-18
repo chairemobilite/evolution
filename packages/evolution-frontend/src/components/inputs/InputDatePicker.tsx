@@ -44,8 +44,8 @@ export const InputDatePicker = (props: InputDatePickerProps & WithTranslation) =
                 ref={props.inputRef}
                 showTimeSelect={props.widgetConfig.showTimeSelect ? true : false}
                 dateFormat={props.widgetConfig.showTimeSelect ? 'dd/MM/yyyy h:mm aa' : 'dd/MM/yyyy'}
-                minDate={minDate ? minDate : null}
-                maxDate={maxDate ? maxDate : null}
+                minDate={minDate ? minDate : undefined}
+                maxDate={maxDate ? maxDate : undefined}
                 locale={
                     props.widgetConfig.locale && props.widgetConfig.locale[props.i18n.language]
                         ? props.widgetConfig.locale[props.i18n.language]

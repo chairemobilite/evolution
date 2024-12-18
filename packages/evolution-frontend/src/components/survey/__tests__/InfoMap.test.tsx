@@ -6,7 +6,6 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
 import each from 'jest-each';
 import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -72,7 +71,7 @@ each([
 
     test('Render widget', () => {
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InfoMap
                 path='home.region'
                 widgetConfig={widgetConfig}
@@ -81,7 +80,7 @@ each([
                 widgetStatus={defaultWidgetStatus}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Widget accessibility', async () => {

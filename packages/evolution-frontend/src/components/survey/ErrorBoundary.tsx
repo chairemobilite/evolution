@@ -6,13 +6,12 @@
  */
 import React from 'react';
 import SurveyErrorPage from '../pages/SurveyErrorPage';
-import { connect } from 'react-redux';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { useSelector } from 'react-redux';
 import { logClientSideMessage } from '../../services/errorManagement/errorHandling';
+import { RootState } from '../../store/configureStore';
 
 interface ErrorProps {
-    // No props required
-    interview?: UserInterviewAttributes;
+    interviewId?: number;
 }
 
 interface ErrorState {
@@ -34,7 +33,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<Error
         this.setState({ hasError: true });
         console.log('An exception occurred in a react component', error, info);
         // Send update responses to the server
-        logClientSideMessage(error, { interviewId: this.props.interview?.id });
+        logClientSideMessage(error, { interviewId: this.props.interviewId });
     }
 
     resetErrorBoundary = () => {
@@ -50,10 +49,9 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<Error
     }
 }
 
-const mapStateToProps = (state, _props) => {
-    return {
-        interview: state.survey.interview
-    };
+const BoundaryWithoutId: React.FC<React.PropsWithChildren> = (props: React.PropsWithChildren) => {
+    const interviewId = useSelector((state: RootState) => state.survey.interview?.id);
+    return <ErrorBoundary interviewId={interviewId}>{props.children}</ErrorBoundary>;
 };
 
-export default connect(mapStateToProps)(ErrorBoundary);
+export default BoundaryWithoutId;

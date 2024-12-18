@@ -71,7 +71,8 @@ module.exports = {
       lat: 46.1181,
       lng: -72.9215
   }],
-  detectLanguage: false,
+  detectLanguageFromUrl: true,
+  detectLanguage: true,
   languages: ['fr', 'en'],
   locales: {
     fr: 'fr-CA',

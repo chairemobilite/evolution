@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { withTranslation, WithTranslation } from 'react-i18next';
 
 type SurveyErrorPageProps = {
@@ -17,9 +17,9 @@ export const SurveyErrorPage: React.FunctionComponent<SurveyErrorPageProps & Wit
 ) => (
     <div className="survey" style={{ display: 'block' }} id="surveyErrorPage">
         <div className="apptr__form">
-            <p className="_large _strong _blue">
+            <span className="_large _strong _blue">
                 <div dangerouslySetInnerHTML={{ __html: props.t(['survey:AnErrorOccurred', 'AnErrorOccurred']) }} />
-            </p>
+            </span>
         </div>
         <div className="apptr__separator"></div>
         <div className="apptr__form">

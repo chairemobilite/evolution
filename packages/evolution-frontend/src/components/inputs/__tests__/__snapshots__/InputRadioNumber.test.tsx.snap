@@ -1,395 +1,291 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Render InputRadioNumber InputRadioNumber with "over max" option 1`] = `
-<div
-  className="survey-question__input-radio-group-container"
->
+<div>
   <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
+    class="survey-question__input-radio-group-container"
   >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_1__input-radio__1"
-        name="test_1"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="1"
-      />
-      <label
-        htmlFor="test_1__input-radio__1"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "1",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_1__input-radio__1"
+          name="test_1"
+          type="radio"
+          value="1"
         />
-      </label>
+        <label
+          for="test_1__input-radio__1"
+        >
+          <span>
+            1
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_2__input-radio__2"
-        name="test_2"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="2"
-      />
-      <label
-        htmlFor="test_2__input-radio__2"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "2",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_2__input-radio__2"
+          name="test_2"
+          type="radio"
+          value="2"
         />
-      </label>
+        <label
+          for="test_2__input-radio__2"
+        >
+          <span>
+            2
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_3__input-radio__3"
-        name="test_3"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="3"
-      />
-      <label
-        htmlFor="test_3__input-radio__3"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "3",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_3__input-radio__3"
+          name="test_3"
+          type="radio"
+          value="3"
         />
-      </label>
+        <label
+          for="test_3__input-radio__3"
+        >
+          <span>
+            3
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_4__input-radio__4"
-        name="test_4"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="4"
-      />
-      <label
-        htmlFor="test_4__input-radio__4"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "4+",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_4__input-radio__4"
+          name="test_4"
+          type="radio"
+          value="4"
         />
-      </label>
+        <label
+          for="test_4__input-radio__4"
+        >
+          <span>
+            4+
+          </span>
+        </label>
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`Render InputRadioNumber InputRadioNumber with selected value 1`] = `
-<div
-  className="survey-question__input-radio-group-container"
->
+<div>
   <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
+    class="survey-question__input-radio-group-container"
   >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_1__input-radio__1"
-        name="test_1"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="1"
-      />
-      <label
-        htmlFor="test_1__input-radio__1"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "1",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_1__input-radio__1"
+          name="test_1"
+          type="radio"
+          value="1"
         />
-      </label>
+        <label
+          for="test_1__input-radio__1"
+        >
+          <span>
+            1
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_2__input-radio__2"
-        name="test_2"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="2"
-      />
-      <label
-        htmlFor="test_2__input-radio__2"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "2",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_2__input-radio__2"
+          name="test_2"
+          type="radio"
+          value="2"
         />
-      </label>
+        <label
+          for="test_2__input-radio__2"
+        >
+          <span>
+            2
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_3__input-radio__3"
-        name="test_3"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="3"
-      />
-      <label
-        htmlFor="test_3__input-radio__3"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "3",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_3__input-radio__3"
+          name="test_3"
+          type="radio"
+          value="3"
         />
-      </label>
+        <label
+          for="test_3__input-radio__3"
+        >
+          <span>
+            3
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container checked"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container checked"
     >
+      <div
+        class="label-input-container"
+      >
+        <input
+          checked=""
+          class="input-radio"
+          id="test_4__input-radio__4"
+          name="test_4"
+          type="radio"
+          value="4"
+        />
+        <label
+          for="test_4__input-radio__4"
+        >
+          <span>
+            4+
+          </span>
+        </label>
+      </div>
+    </div>
+    <div
+      style="display: flex; align-items: center; gap: 1rem;"
+    >
+      <label
+        for="testover-max"
+      >
+        <span>
+          SpecifyAboveLimit:
+        </span>
+      </label>
       <input
-        checked={true}
-        className="input-radio"
-        id="test_4__input-radio__4"
-        name="test_4"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
+        class="apptr__form-input apptr__input-string input-large"
+        id="testover-max"
+        min="4"
+        name="testover-max"
+        pattern="[0-9]*"
+        style="width: 6rem;"
+        type="number"
         value="4"
       />
-      <label
-        htmlFor="test_4__input-radio__4"
-        onClick={[Function]}
-      >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "4+",
-            }
-          }
-        />
-      </label>
     </div>
-  </div>
-  <div
-    style={
-      {
-        "alignItems": "center",
-        "display": "flex",
-        "gap": "1rem",
-      }
-    }
-  >
-    <label
-      htmlFor="testover-max"
-    >
-      <span>
-        SpecifyAboveLimit:
-      </span>
-    </label>
-    <input
-      className="apptr__form-input apptr__input-string input-large"
-      defaultValue={4}
-      id="testover-max"
-      min={4}
-      name="testover-max"
-      onBlur={[Function]}
-      onMouseUp={[Function]}
-      pattern="[0-9]*"
-      style={
-        {
-          "width": "6rem",
-        }
-      }
-      type="number"
-    />
   </div>
 </div>
 `;
 
 exports[`Render InputRadioNumber InputRadioNumber without "over max" option 1`] = `
-<div
-  className="survey-question__input-radio-group-container"
->
+<div>
   <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
+    class="survey-question__input-radio-group-container"
   >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_1__input-radio__1"
-        name="test_1"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="1"
-      />
-      <label
-        htmlFor="test_1__input-radio__1"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "1",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_1__input-radio__1"
+          name="test_1"
+          type="radio"
+          value="1"
         />
-      </label>
+        <label
+          for="test_1__input-radio__1"
+        >
+          <span>
+            1
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_2__input-radio__2"
-        name="test_2"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="2"
-      />
-      <label
-        htmlFor="test_2__input-radio__2"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "2",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_2__input-radio__2"
+          name="test_2"
+          type="radio"
+          value="2"
         />
-      </label>
+        <label
+          for="test_2__input-radio__2"
+        >
+          <span>
+            2
+          </span>
+        </label>
+      </div>
     </div>
-  </div>
-  <div
-    className="survey-question__input-radio-input-container"
-    onClick={[Function]}
-  >
     <div
-      className="label-input-container"
+      class="survey-question__input-radio-input-container"
     >
-      <input
-        checked={false}
-        className="input-radio"
-        id="test_3__input-radio__3"
-        name="test_3"
-        onChange={[Function]}
-        onClick={[Function]}
-        type="radio"
-        value="3"
-      />
-      <label
-        htmlFor="test_3__input-radio__3"
-        onClick={[Function]}
+      <div
+        class="label-input-container"
       >
-        <span
-          dangerouslySetInnerHTML={
-            {
-              "__html": "3",
-            }
-          }
+        <input
+          class="input-radio"
+          id="test_3__input-radio__3"
+          name="test_3"
+          type="radio"
+          value="3"
         />
-      </label>
+        <label
+          for="test_3__input-radio__3"
+        >
+          <span>
+            3
+          </span>
+        </label>
+      </div>
     </div>
   </div>
 </div>

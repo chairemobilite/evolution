@@ -5,11 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { Reducer } from 'redux';
-import { SurveyState, SurveyActionTypes } from './types';
+import { SurveyState, SurveyActionTypes, SurveyAction } from './types';
 
 export const initialState: SurveyState = {};
 
-const reducer: Reducer<SurveyState> = (state = initialState, action) => {
+const reducer: Reducer<SurveyState, SurveyAction> = (state = initialState, action: SurveyAction) => {
     switch (action.type) {
     case SurveyActionTypes.SET_INTERVIEW:
         return {

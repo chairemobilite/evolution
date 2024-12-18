@@ -5,48 +5,42 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { connect } from 'react-redux';
-import { Route, Redirect } from 'react-router-dom';
+import { Navigate, RouteProps, useLocation } from 'react-router';
 
 import { Header } from 'chaire-lib-frontend/lib/components/pageParts';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store/configureStore';
 
-type ConsentedRouteProps = {
-    isAuthenticated: boolean;
-    hasConsented: boolean;
+type ConsentedRouteProps = RouteProps & {
+    componentProps?: { [prop: string]: unknown };
     component: any;
-} & any;
+    config?: { [key: string]: unknown };
+};
 
-// TODO: Refactor this component so it doesn't need to use `...rest` in its props.
 export const ConsentedRoute = ({
-    isAuthenticated,
-    hasConsented,
     component: Component,
-    ...rest
-}: ConsentedRouteProps) => (
-    <Route
-        {...rest}
-        component={(props) => {
-            return isAuthenticated || hasConsented ? (
-                <React.Fragment>
-                    <Header {...props} path={rest.path} />
-                    <Component {...props} location={rest.location} {...rest.componentProps} />
-                </React.Fragment>
-            ) : (
-                <Redirect
-                    to={{
-                        pathname: '/',
-                        state: { referrer: props.location },
-                        search: props.location.search
-                    }}
-                />
-            );
-        }}
-    />
-);
+    componentProps,
+    config,
+    path
+}: ConsentedRouteProps & RouteProps) => {
+    const location = useLocation();
+    const hasConsented = useSelector((state: RootState) => !!state.survey.hasConsent);
+    const isAuthenticated = useSelector((state: RootState) => !!state.auth.isAuthenticated);
 
-const mapStateToProps = (state) => ({
-    hasConsented: !!state.survey.hasConsent,
-    isAuthenticated: !!state.auth.uuid
-});
+    return isAuthenticated || hasConsented ? (
+        <React.Fragment>
+            <Header appName={config?.appName as string} path={path as string} />
+            <Component location={location} {...componentProps} />
+        </React.Fragment>
+    ) : (
+        <Navigate
+            to={{
+                pathname: '/',
+                search: location.search
+            }}
+            state={{ referrer: location }}
+        />
+    );
+};
 
-export default connect(mapStateToProps)(ConsentedRoute);
+export default ConsentedRoute;

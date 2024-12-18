@@ -7,12 +7,10 @@
 import React from 'react';
 import _cloneDeep from 'lodash/cloneDeep';
 import SegmentsSection from '../TripsAndSegmentsSection';
-import TestRenderer from 'react-test-renderer';
 import { render, fireEvent } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
 
-import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../../services/display/frontendHelper';
 import { SectionProps, useSectionTemplate } from '../../../hooks/useSectionTemplate';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 
@@ -23,10 +21,10 @@ jest.mock('../../Widget', () => ({
 jest.mock('../../GroupWidgets', () => ({
     GroupedObject: () => <div>GroupedObject</div>
 }));
+// Mock frontend helper to avoid undefined config error
 jest.mock('../../../../services/display/frontendHelper', () => ({
     secondsSinceMidnightToTimeStrWithSuffix: jest.fn().mockReturnValue('timeStr')
 }));
-const mockedSecondsSinceMidnightToTimeStrWithSuffix = secondsSinceMidnightToTimeStrWithSuffix as jest.MockedFunction<typeof secondsSinceMidnightToTimeStrWithSuffix>;
 
 // Mock the odSurveyHelper
 jest.mock('evolution-common/lib/services/odSurvey/helpers', () => ({
@@ -155,20 +153,20 @@ describe('SegmentsSection UI display', () => {
 
     it('should render LoadingPage when not preloaded', () => {
         mockedUseSectionTemplate.mockReturnValueOnce({ preloaded: false });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <SegmentsSection {...props} />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     describe('SegmentsSection with trips and visited places', () => {
 
         test('should render list of trips and map when no trip selected', () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
-            const wrapper = TestRenderer.create(
+            const { container } = render(
                 <SegmentsSection {...props} />
             );
-            expect(wrapper).toMatchSnapshot();
+            expect(container).toMatchSnapshot();
         });
 
         test('make sure widget is accessible without trip selected', async () => {
@@ -183,10 +181,10 @@ describe('SegmentsSection UI display', () => {
         test('should render list of trips with selected trip widget when trip selected', () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
             mockedGetActiveTrip.mockReturnValueOnce(trips.trip1);
-            const wrapper = TestRenderer.create(
+            const { container } = render(
                 <SegmentsSection {...props} />
             );
-            expect(wrapper).toMatchSnapshot();
+            expect(container).toMatchSnapshot();
         });
 
         test('make sure widget is accessible with trip selected', async () => {
@@ -204,10 +202,10 @@ describe('SegmentsSection UI display', () => {
             testVisitedPlaces.place2.activity = 'workOnTheRoad';
             mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
             mockedGetNextVisitedPlace.mockReturnValueOnce(testVisitedPlaces.place3);
-            const wrapper = TestRenderer.create(
+            const { container } = render(
                 <SegmentsSection {...props} />
             );
-            expect(wrapper).toMatchSnapshot();
+            expect(container).toMatchSnapshot();
         });
 
         test('should render list of trips when loop activity is the first visited place, no trip selected', () => {
@@ -215,24 +213,28 @@ describe('SegmentsSection UI display', () => {
             testVisitedPlaces.place1.activity = 'workOnTheRoad';
             mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
             mockedGetNextVisitedPlace.mockReturnValueOnce(testVisitedPlaces.place2);
-            const wrapper = TestRenderer.create(
+            const { container } = render(
                 <SegmentsSection {...props} />
             );
-            expect(wrapper).toMatchSnapshot();
+            expect(container).toMatchSnapshot();
         });
 
     });
 
     it('should throw error if no active person', () => {
+        // The component will be rendered twice, so we need to mock the value twice (see https://github.com/testing-library/react-testing-library/issues/1291)
         mockedGetActivePerson.mockReturnValueOnce(null);
-        expect(() => TestRenderer.create(
+        mockedGetActivePerson.mockReturnValueOnce(null);
+        expect(() => render(
             <SegmentsSection {...props} />
         )).toThrow('SegmentsSection: active person not found');
     });
 
-    it('should throw error if no active person', () => {
+    it('should throw error if no active journey', () => {
+        // The component will be rendered twice, so we need to mock the value twice (see https://github.com/testing-library/react-testing-library/issues/1291)
         mockedGetJourneysArray.mockReturnValueOnce([]);
-        expect(() => TestRenderer.create(
+        mockedGetJourneysArray.mockReturnValueOnce([]);
+        expect(() => render(
             <SegmentsSection {...props} />
         )).toThrow('SegmentsSection: there are no journeys');
     });
@@ -258,8 +260,10 @@ describe('SegmentsSection UI display', () => {
             _sequence: 1,
             trips
         };
+        // The component will be rendered twice, so we need to mock the value twice (see https://github.com/testing-library/react-testing-library/issues/1291)
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
-        expect(() => TestRenderer.create(
+        mockedGetJourneysArray.mockReturnValueOnce([journey]);
+        expect(() => render(
             <SegmentsSection {...props} />
         )).toThrow('SegmentsSection: origin or destination not found');
     });

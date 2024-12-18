@@ -1,69 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Modal widget Widget is not visible 1`] = `null`;
+exports[`Modal widget Widget is not visible 1`] = `<div />`;
 
 exports[`Modal widget Widget is visible 1`] = `
-<div
-  className="ReactModal__Overlay react-modal-overlay"
-  onClick={[Function]}
-  onMouseDown={[Function]}
-  style={{}}
->
+<div>
   <div
-    aria-label=""
-    aria-modal={true}
-    className="ReactModal__Content react-modal"
-    onClick={[Function]}
-    onKeyDown={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    role="dialog"
-    style={{}}
-    tabIndex="-1"
+    class="ReactModal__Overlay react-modal-overlay"
   >
     <div
-      className="apptr__form-container two-columns question-type-string question-filled question-valid"
-      onClick={[Function]}
-      style={
-        {
-          "position": "relative",
-        }
-      }
+      aria-label=""
+      aria-modal="true"
+      class="ReactModal__Content react-modal"
+      role="dialog"
+      tabindex="-1"
     >
       <div
-        className="apptr__form-label-container two-columns"
+        class="apptr__form-container two-columns question-type-string question-filled question-valid"
+        style="position: relative;"
       >
-        <label
-          htmlFor="survey-question__home.region"
+        <div
+          class="apptr__form-label-container two-columns"
         >
-          <div
-            dangerouslySetInnerHTML={
-              {
-                "__html": "English text",
-              }
-            }
+          <label
+            for="survey-question__home.region"
+          >
+            <div>
+              English text
+            </div>
+          </label>
+        </div>
+        <div
+          class="apptr__form-input-container two-columns"
+        >
+          <input
+            autocomplete="none"
+            class="apptr__form-input apptr__input-string input-large"
+            id="survey-question__home.region"
+            maxlength="255"
+            name="survey-question__home.region"
+            style="text-transform: none;"
+            type="text"
+            value=""
           />
-        </label>
-      </div>
-      <div
-        className="apptr__form-input-container two-columns"
-      >
-        <input
-          autoComplete="none"
-          className="apptr__form-input apptr__input-string input-large"
-          id="survey-question__home.region"
-          maxLength={255}
-          name="survey-question__home.region"
-          onBlur={[Function]}
-          onChange={[Function]}
-          style={
-            {
-              "textTransform": "none",
-            }
-          }
-          type="text"
-          value=""
-        />
+        </div>
       </div>
     </div>
   </div>
@@ -71,59 +50,50 @@ exports[`Modal widget Widget is visible 1`] = `
 `;
 
 exports[`Question with widget InputButton Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-button question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
-  >
-    <label
-      htmlFor="survey-question__home.region"
-    >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
+    class="apptr__form-container two-columns question-type-button question-filled question-valid"
+    style="position: relative;"
   >
     <div
-      className="survey-question__input-button-group-container"
+      class="apptr__form-label-container two-columns"
+    >
+      <label
+        for="survey-question__home.region"
+      >
+        <div>
+          English text
+        </div>
+      </label>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
     >
       <div
-        className="survey-question__input-button-input-container"
+        class="survey-question__input-button-group-container"
       >
-        <button
-          className="survey-section__button button green large"
-          id="survey-question__home.region__input-button__c1"
-          onClick={[Function]}
-          type="button"
+        <div
+          class="survey-question__input-button-input-container"
         >
-          choice 1
-        </button>
-      </div>
-      <div
-        className="survey-question__input-button-input-container"
-      >
-        <button
-          className="survey-section__button button green large"
-          id="survey-question__home.region__input-button__c2"
-          onClick={[Function]}
-          type="button"
+          <button
+            class="survey-section__button button green large"
+            id="survey-question__home.region__input-button__c1"
+            type="button"
+          >
+            choice 1
+          </button>
+        </div>
+        <div
+          class="survey-question__input-button-input-container"
         >
-          choice 2
-        </button>
+          <button
+            class="survey-section__button button green large"
+            id="survey-question__home.region__input-button__c2"
+            type="button"
+          >
+            choice 2
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -131,160 +101,122 @@ exports[`Question with widget InputButton Render widget 1`] = `
 `;
 
 exports[`Question with widget InputCheckbox Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-checkbox question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
-  <fieldset>
-    <div
-      className="apptr__form-label-container two-columns"
-    >
-      <legend>
-        <div
-          className="apptr__form__label-standalone"
-        >
-          <div
-            dangerouslySetInnerHTML={
-              {
-                "__html": "English text",
-              }
-            }
-          />
-        </div>
-      </legend>
-    </div>
-    <div
-      className="apptr__form-input-container two-columns"
-    >
+<div>
+  <div
+    class="apptr__form-container two-columns question-type-checkbox question-filled question-valid"
+    style="position: relative;"
+  >
+    <fieldset>
       <div
-        className="survey-question__input-checkbox-group-container"
+        class="apptr__form-label-container two-columns"
+      >
+        <legend>
+          <div
+            class="apptr__form__label-standalone"
+          >
+            <div>
+              English text
+            </div>
+          </div>
+        </legend>
+      </div>
+      <div
+        class="apptr__form-input-container two-columns"
       >
         <div
-          className="survey-question__input-checkbox-input-container"
-          onClick={[Function]}
+          class="survey-question__input-checkbox-group-container"
         >
           <div
-            className="label-input-container"
+            class="survey-question__input-checkbox-input-container"
           >
-            <input
-              checked={false}
-              className="input-checkbox"
-              id="survey-question__home.region_c1__input-checkbox__c1"
-              name="survey-question__home.region_c1"
-              onChange={[Function]}
-              onClick={[Function]}
-              type="checkbox"
-              value="c1"
-            />
-            <label
-              htmlFor="survey-question__home.region_c1__input-checkbox__c1"
-              onClick={[Function]}
+            <div
+              class="label-input-container"
             >
-              <span
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "choice 1",
-                  }
-                }
+              <input
+                class="input-checkbox"
+                id="survey-question__home.region_c1__input-checkbox__c1"
+                name="survey-question__home.region_c1"
+                type="checkbox"
+                value="c1"
               />
-            </label>
+              <label
+                for="survey-question__home.region_c1__input-checkbox__c1"
+              >
+                <span>
+                  choice 1
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
-        <div
-          className="survey-question__input-checkbox-input-container checked"
-          onClick={[Function]}
-        >
           <div
-            className="label-input-container"
+            class="survey-question__input-checkbox-input-container checked"
           >
-            <input
-              checked={true}
-              className="input-checkbox"
-              id="survey-question__home.region_c2__input-checkbox__c2"
-              name="survey-question__home.region_c2"
-              onChange={[Function]}
-              onClick={[Function]}
-              type="checkbox"
-              value="c2"
-            />
-            <label
-              htmlFor="survey-question__home.region_c2__input-checkbox__c2"
-              onClick={[Function]}
+            <div
+              class="label-input-container"
             >
-              <span
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "choice 2",
-                  }
-                }
+              <input
+                checked=""
+                class="input-checkbox"
+                id="survey-question__home.region_c2__input-checkbox__c2"
+                name="survey-question__home.region_c2"
+                type="checkbox"
+                value="c2"
               />
-            </label>
+              <label
+                for="survey-question__home.region_c2__input-checkbox__c2"
+              >
+                <span>
+                  choice 2
+                </span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </fieldset>
+    </fieldset>
+  </div>
 </div>
 `;
 
 exports[`Question with widget InputDatePicker Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-datePicker question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
-  >
-    <label
-      htmlFor="survey-question__home.region"
-    >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
+    class="apptr__form-container two-columns question-type-datePicker question-filled question-valid"
+    style="position: relative;"
   >
     <div
-      className="survey-question__input-date-picker-container"
+      class="apptr__form-label-container two-columns"
+    >
+      <label
+        for="survey-question__home.region"
+      >
+        <div>
+          English text
+        </div>
+      </label>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
     >
       <div
-        className="react-datepicker-wrapper"
+        class="survey-question__input-date-picker-container"
       >
         <div
-          className="react-datepicker__input-container"
+          class="react-datepicker-wrapper"
         >
-          <input
-            autoComplete="none"
-            className="apptr__form-input input-date-picker input-large"
-            disabled={false}
-            id="survey-question__home.region"
-            name="survey-question__home.region"
-            onBlur={[Function]}
-            onChange={[Function]}
-            onClick={[Function]}
-            onFocus={[Function]}
-            onKeyDown={[Function]}
-            placeholder="ClickToSelectDate"
-            readOnly={false}
-            type="text"
-            value="24/05/2023"
-          />
+          <div
+            class="react-datepicker__input-container"
+          >
+            <input
+              autocomplete="none"
+              class="apptr__form-input input-date-picker input-large"
+              id="survey-question__home.region"
+              name="survey-question__home.region"
+              placeholder="ClickToSelectDate"
+              type="text"
+              value="24/05/2023"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -293,186 +225,139 @@ exports[`Question with widget InputDatePicker Render widget 1`] = `
 `;
 
 exports[`Question with widget InputMultiselect Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-multiselect question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
+    class="apptr__form-container two-columns question-type-multiselect question-filled question-valid"
+    style="position: relative;"
   >
     <div
-      className="apptr__form__label-standalone"
-      id="survey-question__home.region_label"
+      class="apptr__form-label-container two-columns"
     >
       <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </div>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
-  >
-    <div
-      className="survey-question__input-multiselect-container"
-    >
-      <div
-        className="react-select-container css-b62m3t-container"
-        onKeyDown={[Function]}
+        class="apptr__form__label-standalone"
+        id="survey-question__home.region_label"
       >
-        <span
-          className="css-1f43avz-a11yText-A11yText"
-          id="react-select-2-live-region"
-        />
-        <span
-          aria-atomic="false"
-          aria-live="polite"
-          aria-relevant="additions text"
-          className="css-1f43avz-a11yText-A11yText"
-          role="log"
-        />
+        <div>
+          English text
+        </div>
+      </div>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <div
+        class="survey-question__input-multiselect-container"
+      >
         <div
-          className="react-select__control css-13cymwt-control"
-          onMouseDown={[Function]}
-          onTouchEnd={[Function]}
+          class="react-select-container css-b62m3t-container"
         >
+          <span
+            class="css-1f43avz-a11yText-A11yText"
+            id="react-select-2-live-region"
+          />
+          <span
+            aria-atomic="false"
+            aria-live="polite"
+            aria-relevant="additions text"
+            class="css-1f43avz-a11yText-A11yText"
+            role="log"
+          />
           <div
-            className="react-select__value-container react-select__value-container--is-multi react-select__value-container--has-value css-3w2yfm-ValueContainer"
+            class="react-select__control css-13cymwt-control"
           >
             <div
-              className="react-select__multi-value css-1p3m7a8-multiValue"
+              class="react-select__value-container react-select__value-container--is-multi react-select__value-container--has-value css-3w2yfm-ValueContainer"
             >
               <div
-                className="react-select__multi-value__label css-wsp0cs-MultiValueGeneric"
+                class="react-select__multi-value css-1p3m7a8-multiValue"
               >
                 <div
-                  style={
-                    {
-                      "alignItems": "center",
-                      "display": "flex",
-                    }
-                  }
+                  class="react-select__multi-value__label css-wsp0cs-MultiValueGeneric"
                 >
                   <div
-                    style={
-                      {
-                        "background": undefined,
-                        "borderRadius": 6,
-                        "height": 6,
-                        "marginRight": 6,
-                        "width": 6,
-                      }
-                    }
-                  />
-                  choice 2
+                    style="display: flex; align-items: center;"
+                  >
+                    <div
+                      style="border-radius: 6px; height: 6px; width: 6px; margin-right: 6px;"
+                    />
+                    choice 2
+                  </div>
+                </div>
+                <div
+                  aria-label="Remove [object Object]"
+                  class="react-select__multi-value__remove css-12a83d4-MultiValueRemove"
+                  role="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="css-tj5bde-Svg"
+                    focusable="false"
+                    height="14"
+                    viewBox="0 0 20 20"
+                    width="14"
+                  >
+                    <path
+                      d="M14.348 14.849c-0.469 0.469-1.229 0.469-1.697 0l-2.651-3.030-2.651 3.029c-0.469 0.469-1.229 0.469-1.697 0-0.469-0.469-0.469-1.229 0-1.697l2.758-3.15-2.759-3.152c-0.469-0.469-0.469-1.228 0-1.697s1.228-0.469 1.697 0l2.652 3.031 2.651-3.031c0.469-0.469 1.228-0.469 1.697 0s0.469 1.229 0 1.697l-2.758 3.152 2.758 3.15c0.469 0.469 0.469 1.229 0 1.698z"
+                    />
+                  </svg>
                 </div>
               </div>
               <div
-                aria-label="Remove [object Object]"
-                className="react-select__multi-value__remove css-12a83d4-MultiValueRemove"
-                onClick={[Function]}
-                onMouseDown={[Function]}
-                onTouchEnd={[Function]}
-                role="button"
+                class="react-select__input-container css-qbdosj-Input"
+                data-value=""
+              >
+                <input
+                  aria-activedescendant=""
+                  aria-autocomplete="list"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  aria-labelledby="survey-question__home.region_label"
+                  autocapitalize="none"
+                  autocomplete="off"
+                  autocorrect="off"
+                  class="react-select__input"
+                  id="react-select-2-input"
+                  role="combobox"
+                  spellcheck="false"
+                  style="opacity: 1; width: 100%; grid-area: 1 / 2; min-width: 2px; border: 0px; margin: 0px; outline: 0; padding: 0px;"
+                  tabindex="0"
+                  type="text"
+                  value=""
+                />
+              </div>
+            </div>
+            <div
+              class="react-select__indicators css-1hb7zxy-IndicatorsContainer"
+            >
+              <span
+                class="react-select__indicator-separator css-1u9des2-indicatorSeparator"
+              />
+              <div
+                aria-hidden="true"
+                class="react-select__indicator react-select__dropdown-indicator css-1xc3v61-indicatorContainer"
               >
                 <svg
                   aria-hidden="true"
-                  className="css-tj5bde-Svg"
+                  class="css-tj5bde-Svg"
                   focusable="false"
-                  height={14}
+                  height="20"
                   viewBox="0 0 20 20"
-                  width={14}
+                  width="20"
                 >
                   <path
-                    d="M14.348 14.849c-0.469 0.469-1.229 0.469-1.697 0l-2.651-3.030-2.651 3.029c-0.469 0.469-1.229 0.469-1.697 0-0.469-0.469-0.469-1.229 0-1.697l2.758-3.15-2.759-3.152c-0.469-0.469-0.469-1.228 0-1.697s1.228-0.469 1.697 0l2.652 3.031 2.651-3.031c0.469-0.469 1.228-0.469 1.697 0s0.469 1.229 0 1.697l-2.758 3.152 2.758 3.15c0.469 0.469 0.469 1.229 0 1.698z"
+                    d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"
                   />
                 </svg>
               </div>
             </div>
-            <div
-              className="react-select__input-container css-qbdosj-Input"
-              data-value=""
-            >
-              <input
-                aria-activedescendant=""
-                aria-autocomplete="list"
-                aria-expanded={false}
-                aria-haspopup={true}
-                aria-labelledby="survey-question__home.region_label"
-                autoCapitalize="none"
-                autoComplete="off"
-                autoCorrect="off"
-                className="react-select__input"
-                disabled={false}
-                id="react-select-2-input"
-                onBlur={[Function]}
-                onChange={[Function]}
-                onFocus={[Function]}
-                role="combobox"
-                spellCheck="false"
-                style={
-                  {
-                    "background": 0,
-                    "border": 0,
-                    "color": "inherit",
-                    "font": "inherit",
-                    "gridArea": "1 / 2",
-                    "label": "input",
-                    "margin": 0,
-                    "minWidth": "2px",
-                    "opacity": 1,
-                    "outline": 0,
-                    "padding": 0,
-                    "width": "100%",
-                  }
-                }
-                tabIndex={0}
-                type="text"
-                value=""
-              />
-            </div>
           </div>
-          <div
-            className="react-select__indicators css-1hb7zxy-IndicatorsContainer"
-          >
-            <span
-              className="react-select__indicator-separator css-1u9des2-indicatorSeparator"
+          <div>
+            <input
+              name="survey-question__input-multiselect-home.region"
+              type="hidden"
+              value="c2"
             />
-            <div
-              aria-hidden="true"
-              className="react-select__indicator react-select__dropdown-indicator css-1xc3v61-indicatorContainer"
-              onMouseDown={[Function]}
-              onTouchEnd={[Function]}
-            >
-              <svg
-                aria-hidden="true"
-                className="css-tj5bde-Svg"
-                focusable="false"
-                height={20}
-                viewBox="0 0 20 20"
-                width={20}
-              >
-                <path
-                  d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"
-                />
-              </svg>
-            </div>
           </div>
-        </div>
-        <div>
-          <input
-            name="survey-question__input-multiselect-home.region"
-            type="hidden"
-            value="c2"
-          />
         </div>
       </div>
     </div>
@@ -481,414 +366,310 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
 `;
 
 exports[`Question with widget InputRadio Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-radio question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
-  <fieldset>
-    <div
-      className="apptr__form-label-container two-columns"
-    >
-      <legend>
-        <div
-          className="apptr__form__label-standalone"
-        >
-          <div
-            dangerouslySetInnerHTML={
-              {
-                "__html": "English text",
-              }
-            }
-          />
-        </div>
-      </legend>
-    </div>
-    <div
-      className="apptr__form-input-container two-columns"
-    >
+<div>
+  <div
+    class="apptr__form-container two-columns question-type-radio question-filled question-valid"
+    style="position: relative;"
+  >
+    <fieldset>
       <div
-        className="survey-question__input-radio-group-container"
+        class="apptr__form-label-container two-columns"
+      >
+        <legend>
+          <div
+            class="apptr__form__label-standalone"
+          >
+            <div>
+              English text
+            </div>
+          </div>
+        </legend>
+      </div>
+      <div
+        class="apptr__form-input-container two-columns"
       >
         <div
-          className="survey-question__input-radio-input-container"
-          onClick={[Function]}
+          class="survey-question__input-radio-group-container"
         >
           <div
-            className="label-input-container"
+            class="survey-question__input-radio-input-container"
           >
-            <input
-              checked={false}
-              className="input-radio"
-              id="survey-question__home.region_c1__input-radio__c1"
-              name="survey-question__home.region_c1"
-              onChange={[Function]}
-              onClick={[Function]}
-              type="radio"
-              value="c1"
-            />
-            <label
-              htmlFor="survey-question__home.region_c1__input-radio__c1"
-              onClick={[Function]}
+            <div
+              class="label-input-container"
             >
-              <span
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "choice 1",
-                  }
-                }
+              <input
+                class="input-radio"
+                id="survey-question__home.region_c1__input-radio__c1"
+                name="survey-question__home.region_c1"
+                type="radio"
+                value="c1"
               />
-            </label>
+              <label
+                for="survey-question__home.region_c1__input-radio__c1"
+              >
+                <span>
+                  choice 1
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
-        <div
-          className="survey-question__input-radio-input-container checked"
-          onClick={[Function]}
-        >
           <div
-            className="label-input-container"
+            class="survey-question__input-radio-input-container checked"
           >
-            <input
-              checked={true}
-              className="input-radio"
-              id="survey-question__home.region_c2__input-radio__c2"
-              name="survey-question__home.region_c2"
-              onChange={[Function]}
-              onClick={[Function]}
-              type="radio"
-              value="c2"
-            />
-            <label
-              htmlFor="survey-question__home.region_c2__input-radio__c2"
-              onClick={[Function]}
+            <div
+              class="label-input-container"
             >
-              <span
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "choice 2",
-                  }
-                }
+              <input
+                checked=""
+                class="input-radio"
+                id="survey-question__home.region_c2__input-radio__c2"
+                name="survey-question__home.region_c2"
+                type="radio"
+                value="c2"
               />
-            </label>
+              <label
+                for="survey-question__home.region_c2__input-radio__c2"
+              >
+                <span>
+                  choice 2
+                </span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </fieldset>
+    </fieldset>
+  </div>
 </div>
 `;
 
 exports[`Question with widget InputRadioNumber Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-radioNumber question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
-  <fieldset>
-    <div
-      className="apptr__form-label-container two-columns"
-    >
-      <legend>
-        <div
-          className="apptr__form__label-standalone"
-        >
-          <div
-            dangerouslySetInnerHTML={
-              {
-                "__html": "English text",
-              }
-            }
-          />
-        </div>
-      </legend>
-    </div>
-    <div
-      className="apptr__form-input-container two-columns"
-    >
+<div>
+  <div
+    class="apptr__form-container two-columns question-type-radioNumber question-filled question-valid"
+    style="position: relative;"
+  >
+    <fieldset>
       <div
-        className="survey-question__input-radio-group-container"
+        class="apptr__form-label-container two-columns"
+      >
+        <legend>
+          <div
+            class="apptr__form__label-standalone"
+          >
+            <div>
+              English text
+            </div>
+          </div>
+        </legend>
+      </div>
+      <div
+        class="apptr__form-input-container two-columns"
       >
         <div
-          className="survey-question__input-radio-input-container"
-          onClick={[Function]}
+          class="survey-question__input-radio-group-container"
         >
           <div
-            className="label-input-container"
+            class="survey-question__input-radio-input-container"
           >
-            <input
-              checked={false}
-              className="input-radio"
-              id="survey-question__home.region_1__input-radio__1"
-              name="survey-question__home.region_1"
-              onChange={[Function]}
-              onClick={[Function]}
-              type="radio"
-              value="1"
-            />
-            <label
-              htmlFor="survey-question__home.region_1__input-radio__1"
-              onClick={[Function]}
+            <div
+              class="label-input-container"
             >
-              <span
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "1",
-                  }
-                }
+              <input
+                class="input-radio"
+                id="survey-question__home.region_1__input-radio__1"
+                name="survey-question__home.region_1"
+                type="radio"
+                value="1"
               />
-            </label>
+              <label
+                for="survey-question__home.region_1__input-radio__1"
+              >
+                <span>
+                  1
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
-        <div
-          className="survey-question__input-radio-input-container"
-          onClick={[Function]}
-        >
           <div
-            className="label-input-container"
+            class="survey-question__input-radio-input-container"
           >
-            <input
-              checked={false}
-              className="input-radio"
-              id="survey-question__home.region_2__input-radio__2"
-              name="survey-question__home.region_2"
-              onChange={[Function]}
-              onClick={[Function]}
-              type="radio"
-              value="2"
-            />
-            <label
-              htmlFor="survey-question__home.region_2__input-radio__2"
-              onClick={[Function]}
+            <div
+              class="label-input-container"
             >
-              <span
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "2",
-                  }
-                }
+              <input
+                class="input-radio"
+                id="survey-question__home.region_2__input-radio__2"
+                name="survey-question__home.region_2"
+                type="radio"
+                value="2"
               />
-            </label>
+              <label
+                for="survey-question__home.region_2__input-radio__2"
+              >
+                <span>
+                  2
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
-        <div
-          className="survey-question__input-radio-input-container"
-          onClick={[Function]}
-        >
           <div
-            className="label-input-container"
+            class="survey-question__input-radio-input-container"
           >
-            <input
-              checked={false}
-              className="input-radio"
-              id="survey-question__home.region_3__input-radio__3"
-              name="survey-question__home.region_3"
-              onChange={[Function]}
-              onClick={[Function]}
-              type="radio"
-              value="3"
-            />
-            <label
-              htmlFor="survey-question__home.region_3__input-radio__3"
-              onClick={[Function]}
+            <div
+              class="label-input-container"
             >
-              <span
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "3",
-                  }
-                }
+              <input
+                class="input-radio"
+                id="survey-question__home.region_3__input-radio__3"
+                name="survey-question__home.region_3"
+                type="radio"
+                value="3"
               />
-            </label>
+              <label
+                for="survey-question__home.region_3__input-radio__3"
+              >
+                <span>
+                  3
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
-        <div
-          className="survey-question__input-radio-input-container checked"
-          onClick={[Function]}
-        >
           <div
-            className="label-input-container"
+            class="survey-question__input-radio-input-container checked"
           >
+            <div
+              class="label-input-container"
+            >
+              <input
+                checked=""
+                class="input-radio"
+                id="survey-question__home.region_4__input-radio__4"
+                name="survey-question__home.region_4"
+                type="radio"
+                value="4"
+              />
+              <label
+                for="survey-question__home.region_4__input-radio__4"
+              >
+                <span>
+                  4+
+                </span>
+              </label>
+            </div>
+          </div>
+          <div
+            style="display: flex; align-items: center; gap: 1rem;"
+          >
+            <label
+              for="survey-question__home.regionover-max"
+            >
+              <span>
+                SpecifyAboveLimit:
+              </span>
+            </label>
             <input
-              checked={true}
-              className="input-radio"
-              id="survey-question__home.region_4__input-radio__4"
-              name="survey-question__home.region_4"
-              onChange={[Function]}
-              onClick={[Function]}
-              type="radio"
+              class="apptr__form-input apptr__input-string input-large"
+              id="survey-question__home.regionover-max"
+              min="4"
+              name="survey-question__home.regionover-max"
+              pattern="[0-9]*"
+              style="width: 6rem;"
+              type="number"
               value="4"
             />
-            <label
-              htmlFor="survey-question__home.region_4__input-radio__4"
-              onClick={[Function]}
-            >
-              <span
-                dangerouslySetInnerHTML={
-                  {
-                    "__html": "4+",
-                  }
-                }
-              />
-            </label>
           </div>
         </div>
-        <div
-          style={
-            {
-              "alignItems": "center",
-              "display": "flex",
-              "gap": "1rem",
-            }
-          }
-        >
-          <label
-            htmlFor="survey-question__home.regionover-max"
-          >
-            <span>
-              SpecifyAboveLimit:
-            </span>
-          </label>
-          <input
-            className="apptr__form-input apptr__input-string input-large"
-            defaultValue={4}
-            id="survey-question__home.regionover-max"
-            min={4}
-            name="survey-question__home.regionover-max"
-            onBlur={[Function]}
-            onMouseUp={[Function]}
-            pattern="[0-9]*"
-            style={
-              {
-                "width": "6rem",
-              }
-            }
-            type="number"
-          />
-        </div>
       </div>
-    </div>
-  </fieldset>
+    </fieldset>
+  </div>
 </div>
 `;
 
 exports[`Question with widget InputRange Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-slider question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
+    class="apptr__form-container two-columns question-type-slider question-filled question-valid"
+    style="position: relative;"
   >
     <div
-      className="apptr__form__label-standalone"
-      id="survey-question__home.region_label"
+      class="apptr__form-label-container two-columns"
     >
       <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </div>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
-  >
-    <div
-      className="survey-question__input-range_input_container_with_labels input-blank"
-    >
-      <div
-        aria-disabled={false}
-        className="input-range"
-        onKeyDown={[Function]}
-        onKeyUp={[Function]}
-        onMouseDown={[Function]}
-        onTouchStart={[Function]}
+        class="apptr__form__label-standalone"
+        id="survey-question__home.region_label"
       >
-        <span
-          className="input-range__label input-range__label--min"
-        >
-          <span
-            className="input-range__label-container"
-          >
-            3
-          </span>
-        </span>
+        <div>
+          English text
+        </div>
+      </div>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <div
+        class="survey-question__input-range_input_container_with_labels input-blank"
+      >
         <div
-          className="input-range__track input-range__track--background"
-          onMouseDown={[Function]}
-          onTouchStart={[Function]}
+          aria-disabled="false"
+          class="input-range"
         >
-          <div
-            className="input-range__track input-range__track--active"
-            style={
-              {
-                "left": "0%",
-                "width": "0%",
-              }
-            }
-          />
           <span
-            className="input-range__slider-container"
-            style={
-              {
-                "left": "0%",
-                "position": "absolute",
-              }
-            }
+            class="input-range__label input-range__label--min"
           >
             <span
-              className="input-range__label input-range__label--value"
+              class="input-range__label-container"
+            >
+              3
+            </span>
+          </span>
+          <div
+            class="input-range__track input-range__track--background"
+          >
+            <div
+              class="input-range__track input-range__track--active"
+              style="left: 0%; width: 0%;"
+            />
+            <span
+              class="input-range__slider-container"
+              style="position: absolute; left: 0%;"
             >
               <span
-                className="input-range__label-container"
+                class="input-range__label input-range__label--value"
               >
-                3
+                <span
+                  class="input-range__label-container"
+                >
+                  3
+                </span>
               </span>
+              <div
+                aria-labelledby="survey-question__home.region_label"
+                aria-valuemax="10"
+                aria-valuemin="3"
+                aria-valuenow="3"
+                class="input-range__slider"
+                draggable="false"
+                role="slider"
+                tabindex="0"
+              />
             </span>
-            <div
-              aria-labelledby="survey-question__home.region_label"
-              aria-valuemax={10}
-              aria-valuemin={3}
-              aria-valuenow={3}
-              className="input-range__slider"
-              draggable="false"
-              onKeyDown={[Function]}
-              onMouseDown={[Function]}
-              onTouchStart={[Function]}
-              role="slider"
-              tabIndex="0"
-            />
-          </span>
-        </div>
-        <span
-          className="input-range__label input-range__label--max"
-        >
+          </div>
           <span
-            className="input-range__label-container"
+            class="input-range__label input-range__label--max"
           >
-            10
+            <span
+              class="input-range__label-container"
+            >
+              10
+            </span>
           </span>
-        </span>
-        <input
-          name="survey-question__home.region"
-          type="hidden"
-          value={3}
-        />
+          <input
+            name="survey-question__home.region"
+            type="hidden"
+            value="3"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -896,748 +677,367 @@ exports[`Question with widget InputRange Render widget 1`] = `
 `;
 
 exports[`Question with widget InputSelect Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-select question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
-  >
-    <label
-      htmlFor="survey-question__home.region"
-    >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
+    class="apptr__form-container two-columns question-type-select question-filled question-valid"
+    style="position: relative;"
   >
     <div
-      className="survey-question__input-select-container"
+      class="apptr__form-label-container two-columns"
     >
-      <select
-        id="survey-question__home.region"
-        onChange={[Function]}
-        style={
-          {
-            "maxWidth": "100%",
-            "overflow": "hidden",
-            "textOverflow": "ellipsis",
-            "whiteSpace": "nowrap",
-          }
-        }
-        value="c2"
+      <label
+        for="survey-question__home.region"
       >
-        <option
-          className="input-select-option"
-          value=""
-        />
-        <option
-          className="input-select-option"
-          value="c1"
+        <div>
+          English text
+        </div>
+      </label>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <div
+        class="survey-question__input-select-container"
+      >
+        <select
+          id="survey-question__home.region"
+          style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;"
         >
-          choice 1
-        </option>
-        <option
-          className="input-select-option"
-          value="c2"
-        >
-          choice 2
-        </option>
-        <optgroup
-          label=""
-        />
-      </select>
+          <option
+            class="input-select-option"
+            value=""
+          />
+          <option
+            class="input-select-option"
+            value="c1"
+          >
+            choice 1
+          </option>
+          <option
+            class="input-select-option"
+            value="c2"
+          >
+            choice 2
+          </option>
+          <optgroup
+            label=""
+          />
+        </select>
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`Question with widget InputString Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-string question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
+    class="apptr__form-container two-columns question-type-string question-filled question-valid"
+    style="position: relative;"
   >
-    <label
-      htmlFor="survey-question__home.region"
+    <div
+      class="apptr__form-label-container two-columns"
     >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
+      <label
+        for="survey-question__home.region"
+      >
+        <div>
+          English text
+        </div>
+      </label>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <input
+        autocomplete="none"
+        class="apptr__form-input apptr__input-string input-large"
+        id="survey-question__home.region"
+        maxlength="255"
+        name="survey-question__home.region"
+        style="text-transform: none;"
+        type="text"
+        value=""
       />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
-  >
-    <input
-      autoComplete="none"
-      className="apptr__form-input apptr__input-string input-large"
-      id="survey-question__home.region"
-      maxLength={255}
-      name="survey-question__home.region"
-      onBlur={[Function]}
-      onChange={[Function]}
-      style={
-        {
-          "textTransform": "none",
-        }
-      }
-      type="text"
-      value=""
-    />
+    </div>
   </div>
 </div>
 `;
 
 exports[`Question with widget InputText Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-text question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
+    class="apptr__form-container two-columns question-type-text question-filled question-valid"
+    style="position: relative;"
   >
-    <label
-      htmlFor="survey-question__home.region"
+    <div
+      class="apptr__form-label-container two-columns"
     >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
-  >
-    <textarea
-      autoComplete="off"
-      className="apptr__form-input input-text"
-      defaultValue="foo"
-      id="survey-question__home.region"
-      maxLength={2000}
-      onBlur={[Function]}
-      rows={5}
-    />
+      <label
+        for="survey-question__home.region"
+      >
+        <div>
+          English text
+        </div>
+      </label>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <textarea
+        autocomplete="off"
+        class="apptr__form-input input-text"
+        id="survey-question__home.region"
+        maxlength="2000"
+        rows="5"
+      >
+        foo
+      </textarea>
+    </div>
   </div>
 </div>
 `;
 
 exports[`Question with widget InputTime Render widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-time question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
-  >
-    <label
-      htmlFor="survey-question__home.region"
-    >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
+    class="apptr__form-container two-columns question-type-time question-filled question-valid"
+    style="position: relative;"
   >
     <div
-      className="survey-question__input-select-container survey-question__input-time-container"
+      class="apptr__form-label-container two-columns"
     >
-      <select
-        id="survey-question__home.region"
-        onChange={[Function]}
-        value={3660}
+      <label
+        for="survey-question__home.region"
       >
-        <option
-          className="input-select-option"
-          value=""
-        />
-        <option
-          value={3600}
+        <div>
+          English text
+        </div>
+      </label>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <div
+        class="survey-question__input-select-container survey-question__input-time-container"
+      >
+        <select
+          id="survey-question__home.region"
         >
-          1:00 am
-          
-        </option>
-        <option
-          value={4200}
-        >
-          1:10 am
-          
-        </option>
-        <option
-          value={4800}
-        >
-          1:20 am
-          
-        </option>
-        <option
-          value={5400}
-        >
-          1:30 am
-          
-        </option>
-        <option
-          value={6000}
-        >
-          1:40 am
-          
-        </option>
-        <option
-          value={6600}
-        >
-          1:50 am
-          
-        </option>
-        <option
-          value={7200}
-        >
-          2:00 am
-          
-        </option>
-      </select>
+          <option
+            class="input-select-option"
+            value=""
+          />
+          <option
+            value="3600"
+          >
+            1:00 am
+          </option>
+          <option
+            value="4200"
+          >
+            1:10 am
+          </option>
+          <option
+            value="4800"
+          >
+            1:20 am
+          </option>
+          <option
+            value="5400"
+          >
+            1:30 am
+          </option>
+          <option
+            value="6000"
+          >
+            1:40 am
+          </option>
+          <option
+            value="6600"
+          >
+            1:50 am
+          </option>
+          <option
+            value="7200"
+          >
+            2:00 am
+          </option>
+        </select>
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`With error message Error message on visible widget 1`] = `
-<div
-  className="apptr__form-container two-columns question-type-string question-filled question-invalid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
+    class="apptr__form-container two-columns question-type-string question-filled question-invalid"
+    style="position: relative;"
   >
-    <label
-      htmlFor="survey-question__home.region"
+    <div
+      class="apptr__form-label-container two-columns"
     >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-    <p
-      className="apptr__form-error-message"
+      <label
+        for="survey-question__home.region"
+      >
+        <div>
+          English text
+        </div>
+      </label>
+      <p
+        class="apptr__form-error-message"
+      >
+        <span>
+          error test
+        </span>
+      </p>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
     >
-      <span
-        dangerouslySetInnerHTML={
-          {
-            "__html": "error test",
-          }
-        }
+      <input
+        autocomplete="none"
+        class="apptr__form-input apptr__input-string input-large"
+        id="survey-question__home.region"
+        maxlength="255"
+        name="survey-question__home.region"
+        style="text-transform: none;"
+        type="text"
+        value=""
       />
-    </p>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
-  >
-    <input
-      autoComplete="none"
-      className="apptr__form-input apptr__input-string input-large"
-      id="survey-question__home.region"
-      maxLength={255}
-      name="survey-question__home.region"
-      onBlur={[Function]}
-      onChange={[Function]}
-      style={
-        {
-          "textTransform": "none",
-        }
-      }
-      type="text"
-      value=""
-    />
+    </div>
   </div>
 </div>
 `;
 
 exports[`With help popup and link Open modal 1`] = `
-[
-  <Modal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="Help title"
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-  >
-    <ModalPortal
-      ariaHideApp={true}
-      bodyOpenClassName="ReactModal__Body--open"
-      className="react-modal"
-      closeTimeoutMS={0}
-      contentElement={[Function]}
-      contentLabel="Help title"
-      defaultStyles={
-        {
-          "content": {
-            "WebkitOverflowScrolling": "touch",
-            "background": "#fff",
-            "border": "1px solid #ccc",
-            "borderRadius": "4px",
-            "bottom": "40px",
-            "left": "40px",
-            "outline": "none",
-            "overflow": "auto",
-            "padding": "20px",
-            "position": "absolute",
-            "right": "40px",
-            "top": "40px",
-          },
-          "overlay": {
-            "backgroundColor": "rgba(255, 255, 255, 0.75)",
-            "bottom": 0,
-            "left": 0,
-            "position": "fixed",
-            "right": 0,
-            "top": 0,
-          },
-        }
-      }
-      isOpen={true}
-      onRequestClose={[Function]}
-      overlayClassName="react-modal-overlay"
-      overlayElement={[Function]}
-      parentSelector={[Function]}
-      portalClassName="ReactModalPortal"
-      preventScroll={false}
-      role="dialog"
-      shouldCloseOnEsc={true}
-      shouldCloseOnOverlayClick={true}
-      shouldFocusAfterRender={true}
-      shouldReturnFocusAfterClose={true}
-      style={
-        {
-          "content": {},
-          "overlay": {},
-        }
-      }
-    >
-      <div
-        className="ReactModal__Overlay react-modal-overlay"
-        onClick={[Function]}
-        onMouseDown={[Function]}
-        style={{}}
-      >
-        <div
-          aria-label="Help title"
-          aria-modal={true}
-          className="ReactModal__Content react-modal"
-          onClick={[Function]}
-          onKeyDown={[Function]}
-          onMouseDown={[Function]}
-          onMouseUp={[Function]}
-          role="dialog"
-          style={{}}
-          tabIndex="-1"
-        >
-          <div>
-            <h3
-              className="center"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Help title
-              </Markdown>
-            </h3>
-            <Markdown
-              className="help-popup"
-              remarkPlugins={
-                [
-                  [
-                    "remark-gfm",
-                    {
-                      "singleTilde": false,
-                    },
-                  ],
-                ]
-              }
-            >
-              Help content
-            </Markdown>
-            <div
-              className="center"
-            >
-              <button
-                className="button blue"
-                onClick={[Function]}
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </ModalPortal>
-  </Modal>,
-  <ModalPortal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="Help title"
-    defaultStyles={
-      {
-        "content": {
-          "WebkitOverflowScrolling": "touch",
-          "background": "#fff",
-          "border": "1px solid #ccc",
-          "borderRadius": "4px",
-          "bottom": "40px",
-          "left": "40px",
-          "outline": "none",
-          "overflow": "auto",
-          "padding": "20px",
-          "position": "absolute",
-          "right": "40px",
-          "top": "40px",
-        },
-        "overlay": {
-          "backgroundColor": "rgba(255, 255, 255, 0.75)",
-          "bottom": 0,
-          "left": 0,
-          "position": "fixed",
-          "right": 0,
-          "top": 0,
-        },
-      }
-    }
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-    style={
-      {
-        "content": {},
-        "overlay": {},
-      }
-    }
-  >
-    <div
-      className="ReactModal__Overlay react-modal-overlay"
-      onClick={[Function]}
-      onMouseDown={[Function]}
-      style={{}}
-    >
-      <div
-        aria-label="Help title"
-        aria-modal={true}
-        className="ReactModal__Content react-modal"
-        onClick={[Function]}
-        onKeyDown={[Function]}
-        onMouseDown={[Function]}
-        onMouseUp={[Function]}
-        role="dialog"
-        style={{}}
-        tabIndex="-1"
-      >
-        <div>
-          <h3
-            className="center"
-          >
-            <Markdown
-              remarkPlugins={
-                [
-                  [
-                    "remark-gfm",
-                    {
-                      "singleTilde": false,
-                    },
-                  ],
-                ]
-              }
-            >
-              Help title
-            </Markdown>
-          </h3>
-          <Markdown
-            className="help-popup"
-            remarkPlugins={
-              [
-                [
-                  "remark-gfm",
-                  {
-                    "singleTilde": false,
-                  },
-                ],
-              ]
-            }
-          >
-            Help content
-          </Markdown>
-          <div
-            className="center"
-          >
-            <button
-              className="button blue"
-              onClick={[Function]}
-            >
-              OK
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </ModalPortal>,
-  <div
-    aria-label="Help title"
-    aria-modal={true}
-    className="ReactModal__Content react-modal"
-    onClick={[Function]}
-    onKeyDown={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    role="dialog"
-    style={{}}
-    tabIndex="-1"
-  >
-    <div>
-      <h3
-        className="center"
-      >
-        <Markdown
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          Help title
-        </Markdown>
-      </h3>
-      <Markdown
-        className="help-popup"
-        remarkPlugins={
-          [
-            [
-              "remark-gfm",
-              {
-                "singleTilde": false,
-              },
-            ],
-          ]
-        }
-      >
-        Help content
-      </Markdown>
-      <div
-        className="center"
-      >
-        <button
-          className="button blue"
-          onClick={[Function]}
-        >
-          OK
-        </button>
-      </div>
-    </div>
-  </div>,
-]
-`;
-
-exports[`With help popup and link Test widget with help 1`] = `
 <div
-  className="apptr__form-container two-columns question-type-string question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
+  aria-label="Help title"
+  aria-modal="true"
+  class="ReactModal__Content react-modal"
+  role="dialog"
+  tabindex="-1"
 >
-  <div
-    className="apptr__form-label-container two-columns"
-  >
-    <label
-      htmlFor="survey-question__home.region"
+  <div>
+    <h3
+      class="center"
     >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
-      />
-    </label>
-    <div>
-      <button
-        className="button helper-popup blue small"
-        onClick={[Function]}
-        type="button"
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
       >
-        <svg
-          aria-hidden="true"
-          className="svg-inline--fa fa-circle-question faIconLeft"
-          data-icon="circle-question"
-          data-prefix="fas"
-          focusable="false"
-          role="img"
-          style={{}}
-          viewBox="0 0 512 512"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"
-            fill="currentColor"
-            style={{}}
-          />
-        </svg>
         Help title
+      </markdown>
+    </h3>
+    <markdown
+      class="help-popup"
+      remarkplugins="remark-gfm,[object Object]"
+    >
+      Help content
+    </markdown>
+    <div
+      class="center"
+    >
+      <button
+        class="button blue"
+      >
+        OK
       </button>
     </div>
   </div>
+</div>
+`;
+
+exports[`With help popup and link Test widget with help 1`] = `
+<div>
   <div
-    className="apptr__form-input-container two-columns"
+    class="apptr__form-container two-columns question-type-string question-filled question-valid"
+    style="position: relative;"
   >
-    <input
-      autoComplete="none"
-      className="apptr__form-input apptr__input-string input-large"
-      id="survey-question__home.region"
-      maxLength={255}
-      name="survey-question__home.region"
-      onBlur={[Function]}
-      onChange={[Function]}
-      style={
-        {
-          "textTransform": "none",
-        }
-      }
-      type="text"
-      value="test"
-    />
+    <div
+      class="apptr__form-label-container two-columns"
+    >
+      <label
+        for="survey-question__home.region"
+      >
+        <div>
+          English text
+        </div>
+      </label>
+      <div>
+        <button
+          class="button helper-popup blue small"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="svg-inline--fa fa-circle-question faIconLeft"
+            data-icon="circle-question"
+            data-prefix="fas"
+            focusable="false"
+            role="img"
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"
+              fill="currentColor"
+            />
+          </svg>
+          Help title
+        </button>
+      </div>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <input
+        autocomplete="none"
+        class="apptr__form-input apptr__input-string input-large"
+        id="survey-question__home.region"
+        maxlength="255"
+        name="survey-question__home.region"
+        style="text-transform: none;"
+        type="text"
+        value="test"
+      />
+    </div>
   </div>
 </div>
 `;
 
 exports[`With joining questions Joining next 1`] = `
-<div
-  className="apptr__form-container apptr__form-join-next two-columns question-type-string question-filled question-valid"
-  onClick={[Function]}
-  style={
-    {
-      "position": "relative",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form-label-container two-columns"
+    class="apptr__form-container apptr__form-join-next two-columns question-type-string question-filled question-valid"
+    style="position: relative;"
   >
-    <label
-      htmlFor="survey-question__home.region"
+    <div
+      class="apptr__form-label-container two-columns"
     >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "English text",
-          }
-        }
+      <label
+        for="survey-question__home.region"
+      >
+        <div>
+          English text
+        </div>
+      </label>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <input
+        autocomplete="none"
+        class="apptr__form-input apptr__input-string input-large"
+        id="survey-question__home.region"
+        maxlength="255"
+        name="survey-question__home.region"
+        style="text-transform: none;"
+        type="text"
+        value=""
       />
-    </label>
-  </div>
-  <div
-    className="apptr__form-input-container two-columns"
-  >
-    <input
-      autoComplete="none"
-      className="apptr__form-input apptr__input-string input-large"
-      id="survey-question__home.region"
-      maxLength={255}
-      name="survey-question__home.region"
-      onBlur={[Function]}
-      onChange={[Function]}
-      style={
-        {
-          "textTransform": "none",
-        }
-      }
-      type="text"
-      value=""
-    />
+    </div>
   </div>
 </div>
 `;

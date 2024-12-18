@@ -6,7 +6,7 @@
  */
 import { interviewAttributes } from './interviewData.test';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import { InputText } from '../InputText';
 
@@ -41,7 +41,7 @@ test('Should correctly render InputText with all parameters', () =>{
         }
     }
 
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputText
             id={'test'}
             onValueChange={() => { /* nothing to do */}}
@@ -53,7 +53,7 @@ test('Should correctly render InputText with all parameters', () =>{
             user={userAttributes}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 });
 
 test('Should correctly render InputText with base parameters', () =>{
@@ -67,7 +67,7 @@ test('Should correctly render InputText with base parameters', () =>{
             en: `English text`
         }
     }
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputText
             id={'test'}
             widgetConfig={widgetConfig}
@@ -78,7 +78,7 @@ test('Should correctly render InputText with base parameters', () =>{
             onValueChange={jest.fn()}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 });
 
 test('Should correctly render InputText with defaultValue', () =>{
@@ -93,7 +93,7 @@ test('Should correctly render InputText with defaultValue', () =>{
             en: `English text`
         }
     }
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <InputText
             id={'test'}
             widgetConfig={widgetConfig}
@@ -104,5 +104,5 @@ test('Should correctly render InputText with defaultValue', () =>{
             onValueChange={jest.fn()}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 });

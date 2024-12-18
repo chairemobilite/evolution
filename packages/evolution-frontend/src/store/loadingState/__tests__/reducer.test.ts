@@ -5,10 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { loadingStateReducer } from '../reducer';
+import { LoadingStateActionTypes } from '../types';
 
 test('Test increment loading state', () => {
     const action = {
-        type: 'INCREMENT_LOADING_STATE'
+        type: LoadingStateActionTypes.INCREMENT_LOADING_STATE
     };
 
     const result =  {
@@ -20,7 +21,7 @@ test('Test increment loading state', () => {
 
 test('Test decrement loading state', () => {
     const action = {
-        type: 'DECREMENT_LOADING_STATE'
+        type: LoadingStateActionTypes.DECREMENT_LOADING_STATE
     };
 
     const result =  {
@@ -32,7 +33,7 @@ test('Test decrement loading state', () => {
 
 test('Test decrement loading state, should not return negative value', () => {
     const action = {
-        type: 'DECREMENT_LOADING_STATE'
+        type: LoadingStateActionTypes.DECREMENT_LOADING_STATE
     };
 
     const result =  {

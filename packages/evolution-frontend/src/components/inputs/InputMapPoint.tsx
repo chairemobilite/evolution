@@ -46,7 +46,7 @@ interface InputMapPointState {
  * agnostic and support more map types
  */
 export class InputMapPoint extends React.Component<InputMapPointProps & WithTranslation, InputMapPointState> {
-    private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
+    private geocodeButtonRef: React.RefObject<HTMLButtonElement | null> = React.createRef();
     private iconUrl: string;
     private iconSize: [number, number];
 

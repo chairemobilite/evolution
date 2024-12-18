@@ -9,15 +9,9 @@ export enum LoadingStateActionTypes {
     DECREMENT_LOADING_STATE = 'DECREMENT_LOADING_STATE'
 }
 
-export type LoadingStateAction =
-    | {
-          type: LoadingStateActionTypes.INCREMENT_LOADING_STATE;
-          loadingState: number;
-      }
-    | {
-          type: LoadingStateActionTypes.DECREMENT_LOADING_STATE;
-          loadingState: number;
-      };
+export type LoadingStateAction = {
+    type: LoadingStateActionTypes.INCREMENT_LOADING_STATE | LoadingStateActionTypes.DECREMENT_LOADING_STATE;
+};
 
 export interface LoadingStateState {
     readonly loadingState?: number;

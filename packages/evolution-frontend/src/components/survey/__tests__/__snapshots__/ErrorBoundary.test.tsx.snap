@@ -2,382 +2,126 @@
 
 exports[`Render child widget if no error 1`] = `
 <div>
-  Normal component
+  <div>
+    Normal component
+  </div>
 </div>
 `;
 
 exports[`Render error page if widget has error 1`] = `
-<div
-  className="survey"
-  id="surveyErrorPage"
-  style={
-    {
-      "display": "block",
-    }
-  }
->
+<div>
   <div
-    className="apptr__form"
-  >
-    <p
-      className="_large _strong _blue"
-    >
-      <div
-        dangerouslySetInnerHTML={
-          {
-            "__html": "AnErrorOccurred",
-          }
-        }
-      />
-    </p>
-  </div>
-  <div
-    className="apptr__separator"
-  />
-  <div
-    className="apptr__form"
+    class="survey"
+    id="surveyErrorPage"
+    style="display: block;"
   >
     <div
-      dangerouslySetInnerHTML={
-        {
-          "__html": "MakeSureReliableConnection",
-        }
-      }
-    />
-  </div>
-  <div
-    className="apptr__separator"
-  />
-  <div
-    className="apptr__form"
-  >
-    <div
-      dangerouslySetInnerHTML={
-        {
-          "__html": "ErrorPersistsWhatToDo",
-        }
-      }
-    />
-  </div>
-  <div
-    className="apptr__separator"
-  />
-  <div
-    className="apptr__form"
-  >
-    <a
-      href="/survey"
-      onClick={[Function]}
+      class="apptr__form"
     >
-      BackToSurveyPage
-    </a>
+      <span
+        class="_large _strong _blue"
+      >
+        <div>
+          AnErrorOccurred
+        </div>
+      </span>
+    </div>
+    <div
+      class="apptr__separator"
+    />
+    <div
+      class="apptr__form"
+    >
+      <div>
+        MakeSureReliableConnection
+      </div>
+    </div>
+    <div
+      class="apptr__separator"
+    />
+    <div
+      class="apptr__form"
+    >
+      <div>
+        ErrorPersistsWhatToDo
+      </div>
+    </div>
+    <div
+      class="apptr__separator"
+    />
+    <div
+      class="apptr__form"
+    >
+      <a
+        data-discover="true"
+        href="/survey"
+      >
+        BackToSurveyPage
+      </a>
+    </div>
   </div>
 </div>
 `;
 
 exports[`Reset the error boundary when clicking 1`] = `
-<Provider
-  store={
-    {
-      "clearActions": [Function],
-      "dispatch": [Function],
-      "getActions": [Function],
-      "getState": [Function],
-      "replaceReducer": [Function],
-      "subscribe": [Function],
-    }
-  }
->
-  <MemoryRouter
-    initialEntries={
-      [
-        {
-          "key": "testKey",
-          "pathname": "/",
-        },
-      ]
-    }
+<div>
+  <div
+    class="survey"
+    id="surveyErrorPage"
+    style="display: block;"
   >
-    <Router
-      history={
-        {
-          "action": "POP",
-          "block": [Function],
-          "canGo": [Function],
-          "createHref": [Function],
-          "entries": [
-            {
-              "hash": "",
-              "key": "testKey",
-              "pathname": "/",
-              "search": "",
-            },
-          ],
-          "go": [Function],
-          "goBack": [Function],
-          "goForward": [Function],
-          "index": 0,
-          "length": 1,
-          "listen": [Function],
-          "location": {
-            "hash": "",
-            "key": "testKey",
-            "pathname": "/",
-            "search": "",
-          },
-          "push": [Function],
-          "replace": [Function],
-        }
-      }
+    <div
+      class="apptr__form"
     >
-      <Connect(ErrorBoundary)>
-        <ErrorBoundary
-          dispatch={[Function]}
-          interview={
-            {
-              "id": 1,
-            }
-          }
-        >
-          <withI18nextTranslation(SurveyErrorPage)
-            onRedirect={[Function]}
-          >
-            <SurveyErrorPage
-              i18n={
-                {
-                  "language": "en",
-                  "languages": [
-                    "en",
-                  ],
-                  "options": {
-                    "appendNamespaceToCIMode": false,
-                    "appendNamespaceToMissingKey": false,
-                    "contextSeparator": "_",
-                    "debug": false,
-                    "defaultNS": "translations",
-                    "fallbackLng": [
-                      "en",
-                    ],
-                    "fallbackNS": false,
-                    "ignoreJSONStructure": true,
-                    "initAsync": true,
-                    "interpolation": {
-                      "escapeValue": false,
-                      "format": [Function],
-                      "formatSeparator": ",",
-                      "maxReplaces": 1000,
-                      "nestingOptionsSeparator": ",",
-                      "nestingPrefix": "$t(",
-                      "nestingSuffix": ")",
-                      "prefix": "{{",
-                      "skipOnVariables": true,
-                      "suffix": "}}",
-                      "unescapePrefix": "-",
-                    },
-                    "joinArrays": false,
-                    "keySeparator": ".",
-                    "lng": "en",
-                    "load": "all",
-                    "missingInterpolationHandler": false,
-                    "missingKeyHandler": false,
-                    "nonExplicitSupportedLngs": false,
-                    "ns": [
-                      "translations",
-                    ],
-                    "nsSeparator": ":",
-                    "overloadTranslationOptionHandler": [Function],
-                    "parseMissingKeyHandler": false,
-                    "partialBundledLanguages": false,
-                    "pluralSeparator": "_",
-                    "postProcess": false,
-                    "postProcessPassResolved": false,
-                    "preload": false,
-                    "resources": {
-                      "en": {
-                        "translations": {},
-                      },
-                    },
-                    "returnEmptyString": true,
-                    "returnNull": false,
-                    "returnObjects": false,
-                    "returnedObjectHandler": false,
-                    "saveMissing": false,
-                    "saveMissingPlurals": true,
-                    "saveMissingTo": "fallback",
-                    "simplifyPluralSuffix": true,
-                    "supportedLngs": false,
-                    "updateMissing": false,
-                  },
-                  "resolvedLanguage": undefined,
-                  "store": {
-                    "en": {
-                      "translations": {},
-                    },
-                  },
-                }
-              }
-              onRedirect={[Function]}
-              t={[Function]}
-              tReady={true}
-            >
-              <div
-                className="survey"
-                id="surveyErrorPage"
-                style={
-                  {
-                    "display": "block",
-                  }
-                }
-              >
-                <div
-                  className="apptr__form"
-                >
-                  <p
-                    className="_large _strong _blue"
-                  >
-                    <div
-                      dangerouslySetInnerHTML={
-                        {
-                          "__html": "AnErrorOccurred",
-                        }
-                      }
-                    />
-                  </p>
-                </div>
-                <div
-                  className="apptr__separator"
-                />
-                <div
-                  className="apptr__form"
-                >
-                  <div
-                    dangerouslySetInnerHTML={
-                      {
-                        "__html": "MakeSureReliableConnection",
-                      }
-                    }
-                  />
-                </div>
-                <div
-                  className="apptr__separator"
-                />
-                <div
-                  className="apptr__form"
-                >
-                  <div
-                    dangerouslySetInnerHTML={
-                      {
-                        "__html": "ErrorPersistsWhatToDo",
-                      }
-                    }
-                  />
-                </div>
-                <div
-                  className="apptr__separator"
-                />
-                <div
-                  className="apptr__form"
-                >
-                  <Link
-                    onClick={[Function]}
-                    to="/survey"
-                  >
-                    <LinkAnchor
-                      href="/survey"
-                      navigate={[Function]}
-                      onClick={[Function]}
-                    >
-                      <a
-                        href="/survey"
-                        onClick={[Function]}
-                      >
-                        BackToSurveyPage
-                      </a>
-                    </LinkAnchor>
-                  </Link>
-                </div>
-              </div>
-            </SurveyErrorPage>
-          </withI18nextTranslation(SurveyErrorPage)>
-        </ErrorBoundary>
-      </Connect(ErrorBoundary)>
-    </Router>
-  </MemoryRouter>
-</Provider>
+      <span
+        class="_large _strong _blue"
+      >
+        <div>
+          AnErrorOccurred
+        </div>
+      </span>
+    </div>
+    <div
+      class="apptr__separator"
+    />
+    <div
+      class="apptr__form"
+    >
+      <div>
+        MakeSureReliableConnection
+      </div>
+    </div>
+    <div
+      class="apptr__separator"
+    />
+    <div
+      class="apptr__form"
+    >
+      <div>
+        ErrorPersistsWhatToDo
+      </div>
+    </div>
+    <div
+      class="apptr__separator"
+    />
+    <div
+      class="apptr__form"
+    >
+      <a
+        data-discover="true"
+        href="/survey"
+      >
+        BackToSurveyPage
+      </a>
+    </div>
+  </div>
+</div>
 `;
 
 exports[`Reset the error boundary when clicking 2`] = `
-<Provider
-  store={
-    {
-      "clearActions": [Function],
-      "dispatch": [Function],
-      "getActions": [Function],
-      "getState": [Function],
-      "replaceReducer": [Function],
-      "subscribe": [Function],
-    }
-  }
->
-  <MemoryRouter
-    initialEntries={
-      [
-        {
-          "key": "testKey",
-          "pathname": "/",
-        },
-      ]
-    }
-  >
-    <Router
-      history={
-        {
-          "action": "POP",
-          "block": [Function],
-          "canGo": [Function],
-          "createHref": [Function],
-          "entries": [
-            {
-              "hash": "",
-              "key": "testKey",
-              "pathname": "/",
-              "search": "",
-            },
-          ],
-          "go": [Function],
-          "goBack": [Function],
-          "goForward": [Function],
-          "index": 0,
-          "length": 1,
-          "listen": [Function],
-          "location": {
-            "hash": "",
-            "key": "testKey",
-            "pathname": "/",
-            "search": "",
-          },
-          "push": [Function],
-          "replace": [Function],
-        }
-      }
-    >
-      <Connect(ErrorBoundary)>
-        <ErrorBoundary
-          dispatch={[Function]}
-          interview={
-            {
-              "id": 1,
-            }
-          }
-        >
-          <ErrorComponent>
-            <div>
-              Correct component
-            </div>
-          </ErrorComponent>
-        </ErrorBoundary>
-      </Connect(ErrorBoundary)>
-    </Router>
-  </MemoryRouter>
-</Provider>
+<div>
+  <div>
+    Correct component
+  </div>
+</div>
 `;
