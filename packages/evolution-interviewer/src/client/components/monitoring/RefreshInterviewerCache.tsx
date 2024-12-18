@@ -36,7 +36,7 @@ export const RefreshInterviewerCache = (props: WithTranslation) => {
             } else {
                 setError(props.t(['survey:admin:interviewer:error', 'admin:interviewer:error']));
             }
-        } catch (error) {
+        } catch {
             setError(props.t(['survey:admin:interviewer:error', 'admin:interviewer:error']));
         } finally {
             setLoading(false);
@@ -64,7 +64,7 @@ export const RefreshInterviewerCache = (props: WithTranslation) => {
                         'admin:interviewer:refreshInterviewerCache'
                     ]) as string
                 }
-                onClick={(e) => onRefreshMonitoringData()}
+                onClick={(_e) => onRefreshMonitoringData()}
                 color="blue"
                 disabled={!loading}
             />
