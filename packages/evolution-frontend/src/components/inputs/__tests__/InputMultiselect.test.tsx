@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import { interviewAttributes } from './interviewData.test';
 import InputMultiselect from '../InputMultiselect';
@@ -71,7 +71,7 @@ describe('Render InputMultiselect with various options', () => {
     };
 
     test('Basic options', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputMultiselect
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -83,7 +83,7 @@ describe('Render InputMultiselect with various options', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(conditionalFct).toHaveBeenCalledTimes(1);
         expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
         expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
@@ -110,7 +110,7 @@ describe('Render InputMultiselect with various options', () => {
                 },
             ]
         });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputMultiselect
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -122,7 +122,7 @@ describe('Render InputMultiselect with various options', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(shortcutTranslateFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
     });
 
@@ -147,7 +147,7 @@ describe('Render InputMultiselect with various options', () => {
             isClearable: true,
             closeMenuOnSelect: true
         });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputMultiselect
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -159,7 +159,7 @@ describe('Render InputMultiselect with various options', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
     
 });

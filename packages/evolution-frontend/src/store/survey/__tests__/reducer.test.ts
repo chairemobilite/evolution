@@ -6,16 +6,7 @@
  */
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { surveyReducer } from '../reducer';
-
-type CustomSurvey = {
-    section1?: {
-        q1?: string;
-        q2?: number;
-    };
-    section2?: {
-        q1?: string;
-    }
-}
+import { SurveyActionTypes } from '../types';
 
 const testInterview: UserInterviewAttributes = {
     id: 1,
@@ -44,7 +35,7 @@ const testInterview: UserInterviewAttributes = {
 };
 test('Test setting an interview', () => {
     const action = {
-        type: 'SET_INTERVIEW',
+        type: SurveyActionTypes.SET_INTERVIEW as const,
         interview: testInterview,
         interviewLoaded:true
     };
@@ -59,7 +50,7 @@ test('Test setting an interview', () => {
 
 test('Test updating an interview', () => {
     const action = {
-        type: 'UPDATE_INTERVIEW',
+        type: SurveyActionTypes.UPDATE_INTERVIEW as const,
         interview: testInterview,
         interviewLoaded:true,
         submitted: true,

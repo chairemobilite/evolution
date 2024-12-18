@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { JSX } from 'react';
 import DOMPurify from 'dompurify';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
@@ -44,7 +44,7 @@ interface InputCheckboxChoiceProps {
     onLabelClick: React.MouseEventHandler;
     onCheckboxClick: React.MouseEventHandler;
     onContainerClick: (
-        inputCheckboxRef: React.RefObject<HTMLInputElement>,
+        inputCheckboxRef: React.RefObject<HTMLInputElement | null>,
         value: string,
         e: React.MouseEvent<HTMLDivElement>
     ) => void;
@@ -63,7 +63,7 @@ const InputCheckboxChoice = (props: InputCheckboxChoiceProps & WithTranslation) 
         props.path,
         props.user
     );
-    const inputCheckboxRef: React.RefObject<HTMLInputElement> = React.createRef();
+    const inputCheckboxRef: React.RefObject<HTMLInputElement | null> = React.createRef();
     const iconPath = props.choice.iconPath
         ? surveyHelper.parseString(props.choice.iconPath, props.interview, props.path)
         : null;
@@ -118,7 +118,7 @@ const InputCheckboxChoiceT = withTranslation()(
 ) as React.FunctionComponent<InputCheckboxChoiceProps>;
 
 export class InputCheckbox extends React.Component<InputCheckboxProps & WithTranslation, InputCheckboxState> {
-    private customInputRef: React.RefObject<HTMLInputElement> = React.createRef();
+    private customInputRef: React.RefObject<HTMLInputElement | null> = React.createRef();
 
     constructor(props: InputCheckboxProps & WithTranslation) {
         super(props);
@@ -130,7 +130,7 @@ export class InputCheckbox extends React.Component<InputCheckboxProps & WithTran
     }
 
     onContainerClick = (
-        inputCheckboxRef: React.RefObject<HTMLInputElement>,
+        inputCheckboxRef: React.RefObject<HTMLInputElement | null>,
         value: string,
         e: React.MouseEvent<HTMLDivElement>
     ) => {

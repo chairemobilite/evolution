@@ -6,7 +6,6 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
 import each from 'jest-each';
 import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
@@ -60,7 +59,7 @@ each([
 
     test('Render widget', () => {
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Text
                 path='home.region'
                 widgetConfig={widgetConfig}
@@ -69,7 +68,7 @@ each([
                 widgetStatus={defaultWidgetStatus}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Widget accessibility', async () => {
@@ -90,7 +89,7 @@ each([
 test('Widget invisible, should be null', () => {
     const widgetStatus = _cloneDeep(defaultWidgetStatus);
     widgetStatus.isVisible = false;
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <Text
             path='home.region'
             widgetConfig={commonWidgetConfig}
@@ -99,13 +98,13 @@ test('Widget invisible, should be null', () => {
             widgetStatus={widgetStatus}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 });
 
 test('Blank text on widget, should be null', () => {
     const widgetConfig = _cloneDeep(commonWidgetConfig);
     widgetConfig.text = jest.fn().mockReturnValue('') as any;
-    const wrapper = TestRenderer.create(
+    const { container } = render(
         <Text
             path='home.region'
             widgetConfig={widgetConfig}
@@ -114,5 +113,5 @@ test('Blank text on widget, should be null', () => {
             widgetStatus={defaultWidgetStatus}
         />
     );
-    expect(wrapper).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
 });

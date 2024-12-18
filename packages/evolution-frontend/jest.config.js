@@ -15,6 +15,5 @@ module.exports = {
         ...baseConfig.setupFilesAfterEnv,
         './jestSetup.ts'
     ],
-    testEnvironment: 'jsdom',
-    snapshotSerializers: ['enzyme-to-json/serializer']
+    testEnvironment: 'jsdom'
 };

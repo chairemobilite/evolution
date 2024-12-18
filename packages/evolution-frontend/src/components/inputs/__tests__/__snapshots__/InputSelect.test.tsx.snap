@@ -1,169 +1,148 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Render InputSelect with choice function and grouped choice type 1`] = `
-<div
-  className="survey-question__input-select-container"
->
-  <select
-    id="test"
-    onChange={[Function]}
-    style={
-      {
-        "maxWidth": "100%",
-        "overflow": "hidden",
-        "textOverflow": "ellipsis",
-        "whiteSpace": "nowrap",
-      }
-    }
-    value="value"
+<div>
+  <div
+    class="survey-question__input-select-container"
   >
-    <option
-      className="input-select-option"
-      value=""
-    />
-    <option
-      className="input-select-option"
-      value="val1"
-    >
-      english value
-    </option>
-    <optgroup
-      label="english select label"
+    <select
+      id="test"
+      style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;"
     >
       <option
-        className="input-select-option"
-        value="val2"
-      >
-        Unilingual label
-      </option>
-    </optgroup>
-    <optgroup
-      label="Unilingual group label"
-    >
+        class="input-select-option"
+        value=""
+      />
       <option
-        className="input-select-option"
-        value="val2"
+        class="input-select-option"
+        value="val1"
       >
-        Unilingual label
+        english value
       </option>
-      <option
-        className="input-select-option"
-        value="val3"
+      <optgroup
+        label="english select label"
       >
-        english val3
-      </option>
-    </optgroup>
-  </select>
+        <option
+          class="input-select-option"
+          value="val2"
+        >
+          Unilingual label
+        </option>
+      </optgroup>
+      <optgroup
+        label="Unilingual group label"
+      >
+        <option
+          class="input-select-option"
+          value="val2"
+        >
+          Unilingual label
+        </option>
+        <option
+          class="input-select-option"
+          value="val3"
+        >
+          english val3
+        </option>
+      </optgroup>
+    </select>
+  </div>
 </div>
 `;
 
 exports[`Render InputSelect with grouped choice type without labels 1`] = `
-<div
-  className="survey-question__input-select-container"
->
-  <select
-    id="test"
-    onChange={[Function]}
-    style={
-      {
-        "maxWidth": "100%",
-        "overflow": "hidden",
-        "textOverflow": "ellipsis",
-        "whiteSpace": "nowrap",
-      }
-    }
-    value="value"
+<div>
+  <div
+    class="survey-question__input-select-container"
   >
-    <option
-      className="input-select-option"
-      value=""
-    />
-    <option
-      className="input-select-option"
-      value="val1"
+    <select
+      id="test"
+      style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;"
     >
-      english value
-    </option>
-    <option
-      disabled={true}
-    >
-      _________
-    </option>
-    <option
-      className="input-select-option"
-      value="val2"
-    >
-      Unilingual label
-    </option>
-    <option
-      disabled={true}
-    >
-      _________
-    </option>
-    <option
-      className="input-select-option"
-      value="val2"
-    >
-      Unilingual label
-    </option>
-    <option
-      className="input-select-option"
-      value="val3"
-    >
-      english val3
-    </option>
-  </select>
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        class="input-select-option"
+        value="val1"
+      >
+        english value
+      </option>
+      <option
+        disabled=""
+      >
+        _________
+      </option>
+      <option
+        class="input-select-option"
+        value="val2"
+      >
+        Unilingual label
+      </option>
+      <option
+        disabled=""
+      >
+        _________
+      </option>
+      <option
+        class="input-select-option"
+        value="val2"
+      >
+        Unilingual label
+      </option>
+      <option
+        class="input-select-option"
+        value="val3"
+      >
+        english val3
+      </option>
+    </select>
+  </div>
 </div>
 `;
 
 exports[`Render InputSelect with normal option type 1`] = `
-<div
-  className="survey-question__input-select-container"
->
-  <select
-    id="test"
-    onChange={[Function]}
-    style={
-      {
-        "maxWidth": "100%",
-        "overflow": "hidden",
-        "textOverflow": "ellipsis",
-        "whiteSpace": "nowrap",
-      }
-    }
-    value="value"
+<div>
+  <div
+    class="survey-question__input-select-container"
   >
-    <option
-      className="input-select-option"
-      value=""
-    />
-    <option
-      className="input-select-option"
-      value="val1"
+    <select
+      id="test"
+      style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;"
     >
-      english value
-    </option>
-    <option
-      className="input-select-option"
-      value="val2"
-    >
-      Unilingual label
-    </option>
-    <option
-      className="input-select-option"
-      value="conditionalVal"
-    >
-      english conditional
-    </option>
-    <option
-      className="input-select-option"
-      value="val3"
-    >
-      Translated string
-    </option>
-    <optgroup
-      label=""
-    />
-  </select>
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        class="input-select-option"
+        value="val1"
+      >
+        english value
+      </option>
+      <option
+        class="input-select-option"
+        value="val2"
+      >
+        Unilingual label
+      </option>
+      <option
+        class="input-select-option"
+        value="conditionalVal"
+      >
+        english conditional
+      </option>
+      <option
+        class="input-select-option"
+        value="val3"
+      >
+        Translated string
+      </option>
+      <optgroup
+        label=""
+      />
+    </select>
+  </div>
 </div>
 `;

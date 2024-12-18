@@ -1,85 +1,65 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Blank text on widget, should be null 1`] = `null`;
+exports[`Blank text on widget, should be null 1`] = `<div />`;
 
 exports[`Text widget: Contains html Render widget 1`] = `
-<div
-  className="survey-section__text"
->
+<div>
   <div
-    dangerouslySetInnerHTML={
-      {
-        "__html": "<br> bold text</br>blabla",
-      }
-    }
-  />
+    class="survey-section__text"
+  >
+    <div>
+      <br />
+       bold text
+      <br />
+      blabla
+    </div>
+  </div>
 </div>
 `;
 
 exports[`Text widget: Default values Render widget 1`] = `
-<div
-  className="survey-section__text"
->
-  <Markdown
-    className="left "
-    remarkPlugins={
-      [
-        [
-          "remark-gfm",
-          {
-            "singleTilde": false,
-          },
-        ],
-      ]
-    }
+<div>
+  <div
+    class="survey-section__text"
   >
-    random text
-  </Markdown>
+    <markdown
+      class="left "
+      remarkplugins="remark-gfm,[object Object]"
+    >
+      random text
+    </markdown>
+  </div>
 </div>
 `;
 
 exports[`Text widget: No html Render widget 1`] = `
-<div
-  className="survey-section__text"
->
-  <Markdown
-    className="left "
-    remarkPlugins={
-      [
-        [
-          "remark-gfm",
-          {
-            "singleTilde": false,
-          },
-        ],
-      ]
-    }
+<div>
+  <div
+    class="survey-section__text"
   >
-    &lt;br&gt;text not to be in bold&lt;/br&gt;other
-  </Markdown>
+    <markdown
+      class="left "
+      remarkplugins="remark-gfm,[object Object]"
+    >
+      &lt;br&gt;text not to be in bold&lt;/br&gt;other
+    </markdown>
+  </div>
 </div>
 `;
 
 exports[`Text widget: No html, with classes and alignment Render widget 1`] = `
-<div
-  className="survey-section__text"
->
-  <Markdown
-    className="right my-class"
-    remarkPlugins={
-      [
-        [
-          "remark-gfm",
-          {
-            "singleTilde": false,
-          },
-        ],
-      ]
-    }
+<div>
+  <div
+    class="survey-section__text"
   >
-    random text
-  </Markdown>
+    <markdown
+      class="right my-class"
+      remarkplugins="remark-gfm,[object Object]"
+    >
+      random text
+    </markdown>
+  </div>
 </div>
 `;
 
-exports[`Widget invisible, should be null 1`] = `null`;
+exports[`Widget invisible, should be null 1`] = `<div />`;

@@ -71,7 +71,7 @@ export class InputMapFindPlace extends React.Component<
     InputMapFindPlaceProps & WithTranslation,
     InputMapFindPlaceState
 > {
-    private geocodeButtonRef: React.RefObject<HTMLButtonElement> = React.createRef();
+    private geocodeButtonRef: React.RefObject<HTMLButtonElement | null> = React.createRef();
     private autoConfirmIfSingleResult: boolean;
     private selectedIconUrl: string;
     private shouldFitBoundsIdx = 0;

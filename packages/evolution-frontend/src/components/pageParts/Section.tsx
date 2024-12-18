@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { withTranslation, WithTranslation } from 'react-i18next';
 import React from 'react';
 import _shuffle from 'lodash/shuffle';
 
@@ -14,8 +13,8 @@ import { Widget } from '../survey/Widget';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { SectionProps, useSectionTemplate } from '../hooks/useSectionTemplate';
 
-export const Section: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (
-    props: SectionProps & WithTranslation & WithSurveyContextProps
+export const Section: React.FC<SectionProps & WithSurveyContextProps> = (
+    props: SectionProps & WithSurveyContextProps
 ) => {
     const { preloaded } = useSectionTemplate(props);
 
@@ -106,4 +105,4 @@ export const Section: React.FC<SectionProps & WithTranslation & WithSurveyContex
     );
 };
 
-export default withTranslation()(withSurveyContext(Section));
+export default withSurveyContext(Section);

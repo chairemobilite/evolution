@@ -6,10 +6,12 @@
  */
 // Initialize test wide variables
 
-import Enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
 import i18n from "i18next"
 import { initReactI18next } from 'react-i18next';
+
+// hack to make react-router work with jest
+import { TextEncoder } from 'node:util';
+global.TextEncoder = TextEncoder;
 
 const DEFAULT_LANGUAGE = "en"
 const DEFAULT_NAMESPACE = "translations"
@@ -26,5 +28,3 @@ i18n.use(initReactI18next).init({
     },
     resources: { [DEFAULT_LANGUAGE]: { [DEFAULT_NAMESPACE]: {} } },
 });
-
-Enzyme.configure({ adapter: new Adapter() });

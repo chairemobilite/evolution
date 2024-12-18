@@ -6,7 +6,7 @@
  */
 import { interviewAttributes } from './interviewData.test';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import InputTime from '../InputTime';
 
@@ -37,7 +37,7 @@ describe('Should correctly render InputTime with minimal parameters', () => {
 
     test('Test without value', () => {
         // Should have all times, at 5 minutes interval
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputTime
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -49,13 +49,13 @@ describe('Should correctly render InputTime with minimal parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with value', () => {
         // Should have all times, with the right value
         const value = 12 * 60 * 60 + 30 * 60; // 12h30
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputTime
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -67,7 +67,7 @@ describe('Should correctly render InputTime with minimal parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });
@@ -92,7 +92,7 @@ describe('Should correctly render InputTime with various parameters', () => {
             minTimeSecondsSinceMidnight: 10 * 60 * 60,
             maxTimeSecondsSinceMidnight: 12 * 60 * 60
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputTime
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -104,7 +104,7 @@ describe('Should correctly render InputTime with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with min max times and steps functions', () => {
@@ -117,7 +117,7 @@ describe('Should correctly render InputTime with various parameters', () => {
             maxTimeSecondsSinceMidnight: maxTimesFct,
             minuteStep: stepFct
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputTime
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -129,7 +129,7 @@ describe('Should correctly render InputTime with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(minTimesFct).toHaveBeenCalledTimes(1);
         expect(maxTimesFct).toHaveBeenCalledTimes(1);
         expect(stepFct).toHaveBeenCalledTimes(1);
@@ -150,7 +150,7 @@ describe('Should correctly render InputTime with various parameters', () => {
             suffixTimes: suffixTimeFct,
             addHourSeparators: true
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputTime
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -162,7 +162,7 @@ describe('Should correctly render InputTime with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(suffixTimeFct).toHaveBeenCalledTimes(1);
         expect(suffixTimeFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
     });

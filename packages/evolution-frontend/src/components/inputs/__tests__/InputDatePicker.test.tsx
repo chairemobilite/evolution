@@ -4,9 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import InputDatePicker from '../InputDatePicker';
 import MockDate from 'mockdate';
@@ -45,7 +44,7 @@ describe('Should correctly render InputDatePicker with minimal parameters', () =
 
     test('Test without value', () => {
         // Should have a blank style
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputDatePicker
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -57,11 +56,11 @@ describe('Should correctly render InputDatePicker with minimal parameters', () =
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with value', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputDatePicker
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -73,7 +72,7 @@ describe('Should correctly render InputDatePicker with minimal parameters', () =
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });
@@ -98,7 +97,7 @@ describe('Should correctly render InputDatePicker with various parameters', () =
             maxDate: new Date('2022-08-10'),
             minDate: mockMinDate
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputDatePicker
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -110,7 +109,7 @@ describe('Should correctly render InputDatePicker with various parameters', () =
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(mockMinDate).toHaveBeenCalledTimes(1);
     });
 
@@ -120,7 +119,7 @@ describe('Should correctly render InputDatePicker with various parameters', () =
             placeholderText: 'click',
             locale: { fr: 'fr', en: 'en-CA' },
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputDatePicker
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -132,7 +131,7 @@ describe('Should correctly render InputDatePicker with various parameters', () =
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });

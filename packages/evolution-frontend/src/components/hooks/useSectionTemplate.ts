@@ -5,12 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { useEffect, useState } from 'react';
-import { createBrowserHistory } from 'history';
 import { getPathForSection } from '../../services/url'; // Adjust the import path
 import _get from 'lodash/get';
 import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
+import { useLocation } from 'react-router';
 
 export type SectionProps = {
     shortname: string;
@@ -24,6 +24,7 @@ export type SectionProps = {
 } & InterviewUpdateCallbacks;
 
 export function useSectionTemplate(props: SectionProps) {
+    const location = useLocation();
     const [preloaded, setPreloaded] = useState(false);
 
     // Call preload upon the first mount of the component
@@ -65,12 +66,10 @@ export function useSectionTemplate(props: SectionProps) {
         }
     }, [props.allWidgetsValid, props.submitted, props.loadingState]);
 
-    // FIXME Does this have an effect. Are we just recreating a browser history every time? That was in the original section code
-    const history = createBrowserHistory();
-
-    const path = getPathForSection(history.location.pathname, props.shortname);
-    if (path) {
-        history.push(path);
+    // Update the URL to match the section
+    const path = getPathForSection(location.pathname, props.shortname);
+    if (path && location.pathname !== path) {
+        window.history.replaceState(null, '', path);
     }
 
     return { preloaded };

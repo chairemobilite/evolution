@@ -10,8 +10,8 @@ import _get from 'lodash/get';
 import _cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import _unset from 'lodash/unset';
-import { History } from 'history';
 import bowser from 'bowser';
+import { NavigateFunction } from 'react-router';
 
 /* eslint-disable-next-line */
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
@@ -78,7 +78,7 @@ const startUpdateInterviewCallback = async (
     unsetPaths?: string[],
     initialInterview?: UserRuntimeInterviewAttributes,
     callback?: (interview: UserRuntimeInterviewAttributes) => void,
-    history?: History
+    navigate?: NavigateFunction
 ) => {
     try {
         const interview = initialInterview ? initialInterview : _cloneDeep(getState().survey.interview);
@@ -243,8 +243,8 @@ const startUpdateInterviewCallback = async (
             } else if (body.status === 'redirect') {
                 // Logout from the application and redirect to the specified URL
                 // TODO Can't use the dispatch action, as the startLogout
-                // requires the history and here it is optional. This fetch
-                // logout should be in a helper.
+                // requires the navigate function and here it is optional. This
+                // fetch logout should be in a helper.
                 fetch('/logout', { credentials: 'include' });
                 window.location.href = body.redirectUrl;
             } else {
@@ -252,7 +252,7 @@ const startUpdateInterviewCallback = async (
             }
         } else {
             console.log(`Update interview: wrong responses status: ${response.status}`);
-            await handleHttpOtherResponseCode(response.status, dispatch, history);
+            await handleHttpOtherResponseCode(response.status, dispatch, navigate);
         }
         // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
         dispatch(decrementLoadingState());
@@ -262,7 +262,7 @@ const startUpdateInterviewCallback = async (
         // TODO Put in the finally block if we are sure there are no side effect in the code path that returns before the fetch
         dispatch(decrementLoadingState());
         handleClientError(error instanceof Error ? error : new Error(String(error)), {
-            history,
+            navigate,
             interviewId: getState().survey.interview!.id
         });
     }
@@ -304,7 +304,7 @@ export const startUpdateInterview =
         unsetPaths?: string[],
         interview?: UserRuntimeInterviewAttributes,
         callback?: (interview: UserRuntimeInterviewAttributes) => void,
-        history?: History
+        navigate?: NavigateFunction
     ) =>
         async (dispatch, getState) => {
             return await startUpdateInterviewCallback(
@@ -315,7 +315,7 @@ export const startUpdateInterview =
                 unsetPaths,
                 interview,
                 callback,
-                history
+                navigate
             );
         };
 
@@ -401,7 +401,7 @@ export const startRemoveGroupedObjects = function (
 export const startSetInterview = (
     activeSection: string | null = null,
     surveyUuid: string | undefined = undefined,
-    _history: History | undefined = undefined,
+    navigate: NavigateFunction | undefined = undefined,
     preFilledResponses: { [key: string]: unknown } | undefined = undefined
 ) => {
     return (dispatch, _getState) => {
@@ -436,7 +436,16 @@ export const startSetInterview = (
                             if (existingBrowserUa !== newBrowserUa) {
                                 valuesByPath['responses._browser'] = browserTechData;
                             }
-                            dispatch(startUpdateInterview(activeSection, valuesByPath, undefined, interview));
+                            dispatch(
+                                startUpdateInterview(
+                                    activeSection,
+                                    valuesByPath,
+                                    undefined,
+                                    interview,
+                                    undefined,
+                                    navigate
+                                )
+                            );
                         } else {
                             dispatch(
                                 startCreateInterview(preFilledResponses as { [key: string]: unknown } | undefined)
@@ -445,7 +454,7 @@ export const startSetInterview = (
                     });
                 } else {
                     console.log(`Get active interview: wrong responses status: ${response.status}`);
-                    handleHttpOtherResponseCode(response.status, dispatch);
+                    handleHttpOtherResponseCode(response.status, dispatch, navigate);
                 }
             })
             .catch((err) => {

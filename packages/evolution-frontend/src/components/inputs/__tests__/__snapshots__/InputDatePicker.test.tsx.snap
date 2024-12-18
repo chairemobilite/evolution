@@ -1,124 +1,104 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Should correctly render InputDatePicker with minimal parameters Test with value 1`] = `
-<div
-  className="survey-question__input-date-picker-container"
->
+<div>
   <div
-    className="react-datepicker-wrapper"
+    class="survey-question__input-date-picker-container"
   >
     <div
-      className="react-datepicker__input-container"
+      class="react-datepicker-wrapper"
     >
-      <input
-        autoComplete="none"
-        className="apptr__form-input input-date-picker input-large"
-        disabled={false}
-        id="test"
-        name="test"
-        onBlur={[Function]}
-        onChange={[Function]}
-        onClick={[Function]}
-        onFocus={[Function]}
-        onKeyDown={[Function]}
-        placeholder="ClickToSelectDate"
-        readOnly={false}
-        type="text"
-        value="10/08/2022"
-      />
+      <div
+        class="react-datepicker__input-container"
+      >
+        <input
+          autocomplete="none"
+          class="apptr__form-input input-date-picker input-large"
+          id="test"
+          name="test"
+          placeholder="ClickToSelectDate"
+          type="text"
+          value="10/08/2022"
+        />
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`Should correctly render InputDatePicker with minimal parameters Test without value 1`] = `
-<div
-  className="survey-question__input-date-picker-container"
->
+<div>
   <div
-    className="react-datepicker-wrapper"
+    class="survey-question__input-date-picker-container"
   >
     <div
-      className="react-datepicker__input-container"
+      class="react-datepicker-wrapper"
     >
-      <input
-        autoComplete="none"
-        className="apptr__form-input input-date-picker input-large"
-        disabled={false}
-        id="test"
-        name="test"
-        onBlur={[Function]}
-        onChange={[Function]}
-        onClick={[Function]}
-        onFocus={[Function]}
-        onKeyDown={[Function]}
-        placeholder="ClickToSelectDate"
-        readOnly={false}
-        type="text"
-        value=""
-      />
+      <div
+        class="react-datepicker__input-container"
+      >
+        <input
+          autocomplete="none"
+          class="apptr__form-input input-date-picker input-large"
+          id="test"
+          name="test"
+          placeholder="ClickToSelectDate"
+          type="text"
+          value=""
+        />
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`Should correctly render InputDatePicker with various parameters Test time, placeholder labels and locale 1`] = `
-<div
-  className="survey-question__input-date-picker-container"
->
+<div>
   <div
-    className="react-datepicker-wrapper"
+    class="survey-question__input-date-picker-container"
   >
     <div
-      className="react-datepicker__input-container"
+      class="react-datepicker-wrapper"
     >
-      <input
-        autoComplete="none"
-        className="apptr__form-input input-date-picker input-large"
-        disabled={false}
-        id="test"
-        name="test"
-        onBlur={[Function]}
-        onChange={[Function]}
-        onClick={[Function]}
-        onFocus={[Function]}
-        onKeyDown={[Function]}
-        placeholder="click"
-        readOnly={false}
-        type="text"
-        value=""
-      />
+      <div
+        class="react-datepicker__input-container"
+      >
+        <input
+          autocomplete="none"
+          class="apptr__form-input input-date-picker input-large"
+          id="test"
+          name="test"
+          placeholder="click"
+          type="text"
+          value=""
+        />
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`Should correctly render InputDatePicker with various parameters Test with min max date values 1`] = `
-<div
-  className="survey-question__input-date-picker-container"
->
+<div>
   <div
-    className="react-datepicker-wrapper"
+    class="survey-question__input-date-picker-container"
   >
     <div
-      className="react-datepicker__input-container"
+      class="react-datepicker-wrapper"
     >
-      <input
-        autoComplete="none"
-        className="apptr__form-input input-date-picker input-large"
-        disabled={false}
-        id="test"
-        name="test"
-        onBlur={[Function]}
-        onChange={[Function]}
-        onClick={[Function]}
-        onFocus={[Function]}
-        onKeyDown={[Function]}
-        placeholder="ClickToSelectDate"
-        readOnly={false}
-        type="text"
-        value="11/11/2022"
-      />
+      <div
+        class="react-datepicker__input-container"
+      >
+        <input
+          autocomplete="none"
+          class="apptr__form-input input-date-picker input-large"
+          id="test"
+          name="test"
+          placeholder="ClickToSelectDate"
+          type="text"
+          value="11/11/2022"
+        />
+      </div>
     </div>
   </div>
 </div>

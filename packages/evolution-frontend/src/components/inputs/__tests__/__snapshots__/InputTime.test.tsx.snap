@@ -1,4438 +1,3730 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Should correctly render InputTime with minimal parameters Test with value 1`] = `
-<div
-  className="survey-question__input-select-container survey-question__input-time-container"
->
-  <select
-    id="test"
-    onChange={[Function]}
-    value={45000}
+<div>
+  <div
+    class="survey-question__input-select-container survey-question__input-time-container"
   >
-    <option
-      className="input-select-option"
-      value=""
-    />
-    <option
-      value={0}
-    >
-      12:00 am
-      
-    </option>
-    <option
-      value={300}
-    >
-      12:05 am
-      
-    </option>
-    <option
-      value={600}
-    >
-      12:10 am
-      
-    </option>
-    <option
-      value={900}
-    >
-      12:15 am
-      
-    </option>
-    <option
-      value={1200}
-    >
-      12:20 am
-      
-    </option>
-    <option
-      value={1500}
-    >
-      12:25 am
-      
-    </option>
-    <option
-      value={1800}
-    >
-      12:30 am
-      
-    </option>
-    <option
-      value={2100}
-    >
-      12:35 am
-      
-    </option>
-    <option
-      value={2400}
-    >
-      12:40 am
-      
-    </option>
-    <option
-      value={2700}
-    >
-      12:45 am
-      
-    </option>
-    <option
-      value={3000}
-    >
-      12:50 am
-      
-    </option>
-    <option
-      value={3300}
-    >
-      12:55 am
-      
-    </option>
-    <option
-      value={3600}
-    >
-      1:00 am
-      
-    </option>
-    <option
-      value={3900}
-    >
-      1:05 am
-      
-    </option>
-    <option
-      value={4200}
-    >
-      1:10 am
-      
-    </option>
-    <option
-      value={4500}
-    >
-      1:15 am
-      
-    </option>
-    <option
-      value={4800}
-    >
-      1:20 am
-      
-    </option>
-    <option
-      value={5100}
-    >
-      1:25 am
-      
-    </option>
-    <option
-      value={5400}
-    >
-      1:30 am
-      
-    </option>
-    <option
-      value={5700}
-    >
-      1:35 am
-      
-    </option>
-    <option
-      value={6000}
-    >
-      1:40 am
-      
-    </option>
-    <option
-      value={6300}
-    >
-      1:45 am
-      
-    </option>
-    <option
-      value={6600}
-    >
-      1:50 am
-      
-    </option>
-    <option
-      value={6900}
-    >
-      1:55 am
-      
-    </option>
-    <option
-      value={7200}
-    >
-      2:00 am
-      
-    </option>
-    <option
-      value={7500}
-    >
-      2:05 am
-      
-    </option>
-    <option
-      value={7800}
-    >
-      2:10 am
-      
-    </option>
-    <option
-      value={8100}
-    >
-      2:15 am
-      
-    </option>
-    <option
-      value={8400}
-    >
-      2:20 am
-      
-    </option>
-    <option
-      value={8700}
-    >
-      2:25 am
-      
-    </option>
-    <option
-      value={9000}
-    >
-      2:30 am
-      
-    </option>
-    <option
-      value={9300}
-    >
-      2:35 am
-      
-    </option>
-    <option
-      value={9600}
-    >
-      2:40 am
-      
-    </option>
-    <option
-      value={9900}
-    >
-      2:45 am
-      
-    </option>
-    <option
-      value={10200}
-    >
-      2:50 am
-      
-    </option>
-    <option
-      value={10500}
-    >
-      2:55 am
-      
-    </option>
-    <option
-      value={10800}
-    >
-      3:00 am
-      
-    </option>
-    <option
-      value={11100}
-    >
-      3:05 am
-      
-    </option>
-    <option
-      value={11400}
-    >
-      3:10 am
-      
-    </option>
-    <option
-      value={11700}
-    >
-      3:15 am
-      
-    </option>
-    <option
-      value={12000}
-    >
-      3:20 am
-      
-    </option>
-    <option
-      value={12300}
-    >
-      3:25 am
-      
-    </option>
-    <option
-      value={12600}
-    >
-      3:30 am
-      
-    </option>
-    <option
-      value={12900}
-    >
-      3:35 am
-      
-    </option>
-    <option
-      value={13200}
-    >
-      3:40 am
-      
-    </option>
-    <option
-      value={13500}
-    >
-      3:45 am
-      
-    </option>
-    <option
-      value={13800}
-    >
-      3:50 am
-      
-    </option>
-    <option
-      value={14100}
-    >
-      3:55 am
-      
-    </option>
-    <option
-      value={14400}
-    >
-      4:00 am
-      
-    </option>
-    <option
-      value={14700}
-    >
-      4:05 am
-      
-    </option>
-    <option
-      value={15000}
-    >
-      4:10 am
-      
-    </option>
-    <option
-      value={15300}
-    >
-      4:15 am
-      
-    </option>
-    <option
-      value={15600}
-    >
-      4:20 am
-      
-    </option>
-    <option
-      value={15900}
-    >
-      4:25 am
-      
-    </option>
-    <option
-      value={16200}
-    >
-      4:30 am
-      
-    </option>
-    <option
-      value={16500}
-    >
-      4:35 am
-      
-    </option>
-    <option
-      value={16800}
-    >
-      4:40 am
-      
-    </option>
-    <option
-      value={17100}
-    >
-      4:45 am
-      
-    </option>
-    <option
-      value={17400}
-    >
-      4:50 am
-      
-    </option>
-    <option
-      value={17700}
-    >
-      4:55 am
-      
-    </option>
-    <option
-      value={18000}
-    >
-      5:00 am
-      
-    </option>
-    <option
-      value={18300}
-    >
-      5:05 am
-      
-    </option>
-    <option
-      value={18600}
-    >
-      5:10 am
-      
-    </option>
-    <option
-      value={18900}
-    >
-      5:15 am
-      
-    </option>
-    <option
-      value={19200}
-    >
-      5:20 am
-      
-    </option>
-    <option
-      value={19500}
-    >
-      5:25 am
-      
-    </option>
-    <option
-      value={19800}
-    >
-      5:30 am
-      
-    </option>
-    <option
-      value={20100}
-    >
-      5:35 am
-      
-    </option>
-    <option
-      value={20400}
-    >
-      5:40 am
-      
-    </option>
-    <option
-      value={20700}
-    >
-      5:45 am
-      
-    </option>
-    <option
-      value={21000}
-    >
-      5:50 am
-      
-    </option>
-    <option
-      value={21300}
-    >
-      5:55 am
-      
-    </option>
-    <option
-      value={21600}
-    >
-      6:00 am
-      
-    </option>
-    <option
-      value={21900}
-    >
-      6:05 am
-      
-    </option>
-    <option
-      value={22200}
-    >
-      6:10 am
-      
-    </option>
-    <option
-      value={22500}
-    >
-      6:15 am
-      
-    </option>
-    <option
-      value={22800}
-    >
-      6:20 am
-      
-    </option>
-    <option
-      value={23100}
-    >
-      6:25 am
-      
-    </option>
-    <option
-      value={23400}
-    >
-      6:30 am
-      
-    </option>
-    <option
-      value={23700}
-    >
-      6:35 am
-      
-    </option>
-    <option
-      value={24000}
-    >
-      6:40 am
-      
-    </option>
-    <option
-      value={24300}
-    >
-      6:45 am
-      
-    </option>
-    <option
-      value={24600}
-    >
-      6:50 am
-      
-    </option>
-    <option
-      value={24900}
-    >
-      6:55 am
-      
-    </option>
-    <option
-      value={25200}
-    >
-      7:00 am
-      
-    </option>
-    <option
-      value={25500}
-    >
-      7:05 am
-      
-    </option>
-    <option
-      value={25800}
-    >
-      7:10 am
-      
-    </option>
-    <option
-      value={26100}
-    >
-      7:15 am
-      
-    </option>
-    <option
-      value={26400}
-    >
-      7:20 am
-      
-    </option>
-    <option
-      value={26700}
-    >
-      7:25 am
-      
-    </option>
-    <option
-      value={27000}
-    >
-      7:30 am
-      
-    </option>
-    <option
-      value={27300}
-    >
-      7:35 am
-      
-    </option>
-    <option
-      value={27600}
-    >
-      7:40 am
-      
-    </option>
-    <option
-      value={27900}
-    >
-      7:45 am
-      
-    </option>
-    <option
-      value={28200}
-    >
-      7:50 am
-      
-    </option>
-    <option
-      value={28500}
-    >
-      7:55 am
-      
-    </option>
-    <option
-      value={28800}
-    >
-      8:00 am
-      
-    </option>
-    <option
-      value={29100}
-    >
-      8:05 am
-      
-    </option>
-    <option
-      value={29400}
-    >
-      8:10 am
-      
-    </option>
-    <option
-      value={29700}
-    >
-      8:15 am
-      
-    </option>
-    <option
-      value={30000}
-    >
-      8:20 am
-      
-    </option>
-    <option
-      value={30300}
-    >
-      8:25 am
-      
-    </option>
-    <option
-      value={30600}
-    >
-      8:30 am
-      
-    </option>
-    <option
-      value={30900}
-    >
-      8:35 am
-      
-    </option>
-    <option
-      value={31200}
-    >
-      8:40 am
-      
-    </option>
-    <option
-      value={31500}
-    >
-      8:45 am
-      
-    </option>
-    <option
-      value={31800}
-    >
-      8:50 am
-      
-    </option>
-    <option
-      value={32100}
-    >
-      8:55 am
-      
-    </option>
-    <option
-      value={32400}
-    >
-      9:00 am
-      
-    </option>
-    <option
-      value={32700}
-    >
-      9:05 am
-      
-    </option>
-    <option
-      value={33000}
-    >
-      9:10 am
-      
-    </option>
-    <option
-      value={33300}
-    >
-      9:15 am
-      
-    </option>
-    <option
-      value={33600}
-    >
-      9:20 am
-      
-    </option>
-    <option
-      value={33900}
-    >
-      9:25 am
-      
-    </option>
-    <option
-      value={34200}
-    >
-      9:30 am
-      
-    </option>
-    <option
-      value={34500}
-    >
-      9:35 am
-      
-    </option>
-    <option
-      value={34800}
-    >
-      9:40 am
-      
-    </option>
-    <option
-      value={35100}
-    >
-      9:45 am
-      
-    </option>
-    <option
-      value={35400}
-    >
-      9:50 am
-      
-    </option>
-    <option
-      value={35700}
-    >
-      9:55 am
-      
-    </option>
-    <option
-      value={36000}
-    >
-      10:00 am
-      
-    </option>
-    <option
-      value={36300}
-    >
-      10:05 am
-      
-    </option>
-    <option
-      value={36600}
-    >
-      10:10 am
-      
-    </option>
-    <option
-      value={36900}
-    >
-      10:15 am
-      
-    </option>
-    <option
-      value={37200}
-    >
-      10:20 am
-      
-    </option>
-    <option
-      value={37500}
-    >
-      10:25 am
-      
-    </option>
-    <option
-      value={37800}
-    >
-      10:30 am
-      
-    </option>
-    <option
-      value={38100}
-    >
-      10:35 am
-      
-    </option>
-    <option
-      value={38400}
-    >
-      10:40 am
-      
-    </option>
-    <option
-      value={38700}
-    >
-      10:45 am
-      
-    </option>
-    <option
-      value={39000}
-    >
-      10:50 am
-      
-    </option>
-    <option
-      value={39300}
-    >
-      10:55 am
-      
-    </option>
-    <option
-      value={39600}
-    >
-      11:00 am
-      
-    </option>
-    <option
-      value={39900}
-    >
-      11:05 am
-      
-    </option>
-    <option
-      value={40200}
-    >
-      11:10 am
-      
-    </option>
-    <option
-      value={40500}
-    >
-      11:15 am
-      
-    </option>
-    <option
-      value={40800}
-    >
-      11:20 am
-      
-    </option>
-    <option
-      value={41100}
-    >
-      11:25 am
-      
-    </option>
-    <option
-      value={41400}
-    >
-      11:30 am
-      
-    </option>
-    <option
-      value={41700}
-    >
-      11:35 am
-      
-    </option>
-    <option
-      value={42000}
-    >
-      11:40 am
-      
-    </option>
-    <option
-      value={42300}
-    >
-      11:45 am
-      
-    </option>
-    <option
-      value={42600}
-    >
-      11:50 am
-      
-    </option>
-    <option
-      value={42900}
-    >
-      11:55 am
-      
-    </option>
-    <option
-      value={43200}
-    >
-      12:00 pm
-      
-    </option>
-    <option
-      value={43500}
-    >
-      12:05 pm
-      
-    </option>
-    <option
-      value={43800}
-    >
-      12:10 pm
-      
-    </option>
-    <option
-      value={44100}
-    >
-      12:15 pm
-      
-    </option>
-    <option
-      value={44400}
-    >
-      12:20 pm
-      
-    </option>
-    <option
-      value={44700}
-    >
-      12:25 pm
-      
-    </option>
-    <option
-      value={45000}
-    >
-      12:30 pm
-      
-    </option>
-    <option
-      value={45300}
-    >
-      12:35 pm
-      
-    </option>
-    <option
-      value={45600}
-    >
-      12:40 pm
-      
-    </option>
-    <option
-      value={45900}
-    >
-      12:45 pm
-      
-    </option>
-    <option
-      value={46200}
-    >
-      12:50 pm
-      
-    </option>
-    <option
-      value={46500}
-    >
-      12:55 pm
-      
-    </option>
-    <option
-      value={46800}
-    >
-      1:00 pm
-      
-    </option>
-    <option
-      value={47100}
-    >
-      1:05 pm
-      
-    </option>
-    <option
-      value={47400}
-    >
-      1:10 pm
-      
-    </option>
-    <option
-      value={47700}
-    >
-      1:15 pm
-      
-    </option>
-    <option
-      value={48000}
-    >
-      1:20 pm
-      
-    </option>
-    <option
-      value={48300}
-    >
-      1:25 pm
-      
-    </option>
-    <option
-      value={48600}
-    >
-      1:30 pm
-      
-    </option>
-    <option
-      value={48900}
-    >
-      1:35 pm
-      
-    </option>
-    <option
-      value={49200}
-    >
-      1:40 pm
-      
-    </option>
-    <option
-      value={49500}
-    >
-      1:45 pm
-      
-    </option>
-    <option
-      value={49800}
-    >
-      1:50 pm
-      
-    </option>
-    <option
-      value={50100}
-    >
-      1:55 pm
-      
-    </option>
-    <option
-      value={50400}
-    >
-      2:00 pm
-      
-    </option>
-    <option
-      value={50700}
-    >
-      2:05 pm
-      
-    </option>
-    <option
-      value={51000}
-    >
-      2:10 pm
-      
-    </option>
-    <option
-      value={51300}
-    >
-      2:15 pm
-      
-    </option>
-    <option
-      value={51600}
-    >
-      2:20 pm
-      
-    </option>
-    <option
-      value={51900}
-    >
-      2:25 pm
-      
-    </option>
-    <option
-      value={52200}
-    >
-      2:30 pm
-      
-    </option>
-    <option
-      value={52500}
-    >
-      2:35 pm
-      
-    </option>
-    <option
-      value={52800}
-    >
-      2:40 pm
-      
-    </option>
-    <option
-      value={53100}
-    >
-      2:45 pm
-      
-    </option>
-    <option
-      value={53400}
-    >
-      2:50 pm
-      
-    </option>
-    <option
-      value={53700}
-    >
-      2:55 pm
-      
-    </option>
-    <option
-      value={54000}
-    >
-      3:00 pm
-      
-    </option>
-    <option
-      value={54300}
-    >
-      3:05 pm
-      
-    </option>
-    <option
-      value={54600}
-    >
-      3:10 pm
-      
-    </option>
-    <option
-      value={54900}
-    >
-      3:15 pm
-      
-    </option>
-    <option
-      value={55200}
-    >
-      3:20 pm
-      
-    </option>
-    <option
-      value={55500}
-    >
-      3:25 pm
-      
-    </option>
-    <option
-      value={55800}
-    >
-      3:30 pm
-      
-    </option>
-    <option
-      value={56100}
-    >
-      3:35 pm
-      
-    </option>
-    <option
-      value={56400}
-    >
-      3:40 pm
-      
-    </option>
-    <option
-      value={56700}
-    >
-      3:45 pm
-      
-    </option>
-    <option
-      value={57000}
-    >
-      3:50 pm
-      
-    </option>
-    <option
-      value={57300}
-    >
-      3:55 pm
-      
-    </option>
-    <option
-      value={57600}
-    >
-      4:00 pm
-      
-    </option>
-    <option
-      value={57900}
-    >
-      4:05 pm
-      
-    </option>
-    <option
-      value={58200}
-    >
-      4:10 pm
-      
-    </option>
-    <option
-      value={58500}
-    >
-      4:15 pm
-      
-    </option>
-    <option
-      value={58800}
-    >
-      4:20 pm
-      
-    </option>
-    <option
-      value={59100}
-    >
-      4:25 pm
-      
-    </option>
-    <option
-      value={59400}
-    >
-      4:30 pm
-      
-    </option>
-    <option
-      value={59700}
-    >
-      4:35 pm
-      
-    </option>
-    <option
-      value={60000}
-    >
-      4:40 pm
-      
-    </option>
-    <option
-      value={60300}
-    >
-      4:45 pm
-      
-    </option>
-    <option
-      value={60600}
-    >
-      4:50 pm
-      
-    </option>
-    <option
-      value={60900}
-    >
-      4:55 pm
-      
-    </option>
-    <option
-      value={61200}
-    >
-      5:00 pm
-      
-    </option>
-    <option
-      value={61500}
-    >
-      5:05 pm
-      
-    </option>
-    <option
-      value={61800}
-    >
-      5:10 pm
-      
-    </option>
-    <option
-      value={62100}
-    >
-      5:15 pm
-      
-    </option>
-    <option
-      value={62400}
-    >
-      5:20 pm
-      
-    </option>
-    <option
-      value={62700}
-    >
-      5:25 pm
-      
-    </option>
-    <option
-      value={63000}
-    >
-      5:30 pm
-      
-    </option>
-    <option
-      value={63300}
-    >
-      5:35 pm
-      
-    </option>
-    <option
-      value={63600}
-    >
-      5:40 pm
-      
-    </option>
-    <option
-      value={63900}
-    >
-      5:45 pm
-      
-    </option>
-    <option
-      value={64200}
-    >
-      5:50 pm
-      
-    </option>
-    <option
-      value={64500}
-    >
-      5:55 pm
-      
-    </option>
-    <option
-      value={64800}
-    >
-      6:00 pm
-      
-    </option>
-    <option
-      value={65100}
-    >
-      6:05 pm
-      
-    </option>
-    <option
-      value={65400}
-    >
-      6:10 pm
-      
-    </option>
-    <option
-      value={65700}
-    >
-      6:15 pm
-      
-    </option>
-    <option
-      value={66000}
-    >
-      6:20 pm
-      
-    </option>
-    <option
-      value={66300}
-    >
-      6:25 pm
-      
-    </option>
-    <option
-      value={66600}
-    >
-      6:30 pm
-      
-    </option>
-    <option
-      value={66900}
-    >
-      6:35 pm
-      
-    </option>
-    <option
-      value={67200}
-    >
-      6:40 pm
-      
-    </option>
-    <option
-      value={67500}
-    >
-      6:45 pm
-      
-    </option>
-    <option
-      value={67800}
-    >
-      6:50 pm
-      
-    </option>
-    <option
-      value={68100}
-    >
-      6:55 pm
-      
-    </option>
-    <option
-      value={68400}
-    >
-      7:00 pm
-      
-    </option>
-    <option
-      value={68700}
-    >
-      7:05 pm
-      
-    </option>
-    <option
-      value={69000}
-    >
-      7:10 pm
-      
-    </option>
-    <option
-      value={69300}
-    >
-      7:15 pm
-      
-    </option>
-    <option
-      value={69600}
-    >
-      7:20 pm
-      
-    </option>
-    <option
-      value={69900}
-    >
-      7:25 pm
-      
-    </option>
-    <option
-      value={70200}
-    >
-      7:30 pm
-      
-    </option>
-    <option
-      value={70500}
-    >
-      7:35 pm
-      
-    </option>
-    <option
-      value={70800}
-    >
-      7:40 pm
-      
-    </option>
-    <option
-      value={71100}
-    >
-      7:45 pm
-      
-    </option>
-    <option
-      value={71400}
-    >
-      7:50 pm
-      
-    </option>
-    <option
-      value={71700}
-    >
-      7:55 pm
-      
-    </option>
-    <option
-      value={72000}
-    >
-      8:00 pm
-      
-    </option>
-    <option
-      value={72300}
-    >
-      8:05 pm
-      
-    </option>
-    <option
-      value={72600}
-    >
-      8:10 pm
-      
-    </option>
-    <option
-      value={72900}
-    >
-      8:15 pm
-      
-    </option>
-    <option
-      value={73200}
-    >
-      8:20 pm
-      
-    </option>
-    <option
-      value={73500}
-    >
-      8:25 pm
-      
-    </option>
-    <option
-      value={73800}
-    >
-      8:30 pm
-      
-    </option>
-    <option
-      value={74100}
-    >
-      8:35 pm
-      
-    </option>
-    <option
-      value={74400}
-    >
-      8:40 pm
-      
-    </option>
-    <option
-      value={74700}
-    >
-      8:45 pm
-      
-    </option>
-    <option
-      value={75000}
-    >
-      8:50 pm
-      
-    </option>
-    <option
-      value={75300}
-    >
-      8:55 pm
-      
-    </option>
-    <option
-      value={75600}
-    >
-      9:00 pm
-      
-    </option>
-    <option
-      value={75900}
-    >
-      9:05 pm
-      
-    </option>
-    <option
-      value={76200}
-    >
-      9:10 pm
-      
-    </option>
-    <option
-      value={76500}
-    >
-      9:15 pm
-      
-    </option>
-    <option
-      value={76800}
-    >
-      9:20 pm
-      
-    </option>
-    <option
-      value={77100}
-    >
-      9:25 pm
-      
-    </option>
-    <option
-      value={77400}
-    >
-      9:30 pm
-      
-    </option>
-    <option
-      value={77700}
-    >
-      9:35 pm
-      
-    </option>
-    <option
-      value={78000}
-    >
-      9:40 pm
-      
-    </option>
-    <option
-      value={78300}
-    >
-      9:45 pm
-      
-    </option>
-    <option
-      value={78600}
-    >
-      9:50 pm
-      
-    </option>
-    <option
-      value={78900}
-    >
-      9:55 pm
-      
-    </option>
-    <option
-      value={79200}
-    >
-      10:00 pm
-      
-    </option>
-    <option
-      value={79500}
-    >
-      10:05 pm
-      
-    </option>
-    <option
-      value={79800}
-    >
-      10:10 pm
-      
-    </option>
-    <option
-      value={80100}
-    >
-      10:15 pm
-      
-    </option>
-    <option
-      value={80400}
-    >
-      10:20 pm
-      
-    </option>
-    <option
-      value={80700}
-    >
-      10:25 pm
-      
-    </option>
-    <option
-      value={81000}
-    >
-      10:30 pm
-      
-    </option>
-    <option
-      value={81300}
-    >
-      10:35 pm
-      
-    </option>
-    <option
-      value={81600}
-    >
-      10:40 pm
-      
-    </option>
-    <option
-      value={81900}
-    >
-      10:45 pm
-      
-    </option>
-    <option
-      value={82200}
-    >
-      10:50 pm
-      
-    </option>
-    <option
-      value={82500}
-    >
-      10:55 pm
-      
-    </option>
-    <option
-      value={82800}
-    >
-      11:00 pm
-      
-    </option>
-    <option
-      value={83100}
-    >
-      11:05 pm
-      
-    </option>
-    <option
-      value={83400}
-    >
-      11:10 pm
-      
-    </option>
-    <option
-      value={83700}
-    >
-      11:15 pm
-      
-    </option>
-    <option
-      value={84000}
-    >
-      11:20 pm
-      
-    </option>
-    <option
-      value={84300}
-    >
-      11:25 pm
-      
-    </option>
-    <option
-      value={84600}
-    >
-      11:30 pm
-      
-    </option>
-    <option
-      value={84900}
-    >
-      11:35 pm
-      
-    </option>
-    <option
-      value={85200}
-    >
-      11:40 pm
-      
-    </option>
-    <option
-      value={85500}
-    >
-      11:45 pm
-      
-    </option>
-    <option
-      value={85800}
-    >
-      11:50 pm
-      
-    </option>
-    <option
-      value={86100}
-    >
-      11:55 pm
-      
-    </option>
-  </select>
+    <select
+      id="test"
+    >
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        value="0"
+      >
+        12:00 am
+      </option>
+      <option
+        value="300"
+      >
+        12:05 am
+      </option>
+      <option
+        value="600"
+      >
+        12:10 am
+      </option>
+      <option
+        value="900"
+      >
+        12:15 am
+      </option>
+      <option
+        value="1200"
+      >
+        12:20 am
+      </option>
+      <option
+        value="1500"
+      >
+        12:25 am
+      </option>
+      <option
+        value="1800"
+      >
+        12:30 am
+      </option>
+      <option
+        value="2100"
+      >
+        12:35 am
+      </option>
+      <option
+        value="2400"
+      >
+        12:40 am
+      </option>
+      <option
+        value="2700"
+      >
+        12:45 am
+      </option>
+      <option
+        value="3000"
+      >
+        12:50 am
+      </option>
+      <option
+        value="3300"
+      >
+        12:55 am
+      </option>
+      <option
+        value="3600"
+      >
+        1:00 am
+      </option>
+      <option
+        value="3900"
+      >
+        1:05 am
+      </option>
+      <option
+        value="4200"
+      >
+        1:10 am
+      </option>
+      <option
+        value="4500"
+      >
+        1:15 am
+      </option>
+      <option
+        value="4800"
+      >
+        1:20 am
+      </option>
+      <option
+        value="5100"
+      >
+        1:25 am
+      </option>
+      <option
+        value="5400"
+      >
+        1:30 am
+      </option>
+      <option
+        value="5700"
+      >
+        1:35 am
+      </option>
+      <option
+        value="6000"
+      >
+        1:40 am
+      </option>
+      <option
+        value="6300"
+      >
+        1:45 am
+      </option>
+      <option
+        value="6600"
+      >
+        1:50 am
+      </option>
+      <option
+        value="6900"
+      >
+        1:55 am
+      </option>
+      <option
+        value="7200"
+      >
+        2:00 am
+      </option>
+      <option
+        value="7500"
+      >
+        2:05 am
+      </option>
+      <option
+        value="7800"
+      >
+        2:10 am
+      </option>
+      <option
+        value="8100"
+      >
+        2:15 am
+      </option>
+      <option
+        value="8400"
+      >
+        2:20 am
+      </option>
+      <option
+        value="8700"
+      >
+        2:25 am
+      </option>
+      <option
+        value="9000"
+      >
+        2:30 am
+      </option>
+      <option
+        value="9300"
+      >
+        2:35 am
+      </option>
+      <option
+        value="9600"
+      >
+        2:40 am
+      </option>
+      <option
+        value="9900"
+      >
+        2:45 am
+      </option>
+      <option
+        value="10200"
+      >
+        2:50 am
+      </option>
+      <option
+        value="10500"
+      >
+        2:55 am
+      </option>
+      <option
+        value="10800"
+      >
+        3:00 am
+      </option>
+      <option
+        value="11100"
+      >
+        3:05 am
+      </option>
+      <option
+        value="11400"
+      >
+        3:10 am
+      </option>
+      <option
+        value="11700"
+      >
+        3:15 am
+      </option>
+      <option
+        value="12000"
+      >
+        3:20 am
+      </option>
+      <option
+        value="12300"
+      >
+        3:25 am
+      </option>
+      <option
+        value="12600"
+      >
+        3:30 am
+      </option>
+      <option
+        value="12900"
+      >
+        3:35 am
+      </option>
+      <option
+        value="13200"
+      >
+        3:40 am
+      </option>
+      <option
+        value="13500"
+      >
+        3:45 am
+      </option>
+      <option
+        value="13800"
+      >
+        3:50 am
+      </option>
+      <option
+        value="14100"
+      >
+        3:55 am
+      </option>
+      <option
+        value="14400"
+      >
+        4:00 am
+      </option>
+      <option
+        value="14700"
+      >
+        4:05 am
+      </option>
+      <option
+        value="15000"
+      >
+        4:10 am
+      </option>
+      <option
+        value="15300"
+      >
+        4:15 am
+      </option>
+      <option
+        value="15600"
+      >
+        4:20 am
+      </option>
+      <option
+        value="15900"
+      >
+        4:25 am
+      </option>
+      <option
+        value="16200"
+      >
+        4:30 am
+      </option>
+      <option
+        value="16500"
+      >
+        4:35 am
+      </option>
+      <option
+        value="16800"
+      >
+        4:40 am
+      </option>
+      <option
+        value="17100"
+      >
+        4:45 am
+      </option>
+      <option
+        value="17400"
+      >
+        4:50 am
+      </option>
+      <option
+        value="17700"
+      >
+        4:55 am
+      </option>
+      <option
+        value="18000"
+      >
+        5:00 am
+      </option>
+      <option
+        value="18300"
+      >
+        5:05 am
+      </option>
+      <option
+        value="18600"
+      >
+        5:10 am
+      </option>
+      <option
+        value="18900"
+      >
+        5:15 am
+      </option>
+      <option
+        value="19200"
+      >
+        5:20 am
+      </option>
+      <option
+        value="19500"
+      >
+        5:25 am
+      </option>
+      <option
+        value="19800"
+      >
+        5:30 am
+      </option>
+      <option
+        value="20100"
+      >
+        5:35 am
+      </option>
+      <option
+        value="20400"
+      >
+        5:40 am
+      </option>
+      <option
+        value="20700"
+      >
+        5:45 am
+      </option>
+      <option
+        value="21000"
+      >
+        5:50 am
+      </option>
+      <option
+        value="21300"
+      >
+        5:55 am
+      </option>
+      <option
+        value="21600"
+      >
+        6:00 am
+      </option>
+      <option
+        value="21900"
+      >
+        6:05 am
+      </option>
+      <option
+        value="22200"
+      >
+        6:10 am
+      </option>
+      <option
+        value="22500"
+      >
+        6:15 am
+      </option>
+      <option
+        value="22800"
+      >
+        6:20 am
+      </option>
+      <option
+        value="23100"
+      >
+        6:25 am
+      </option>
+      <option
+        value="23400"
+      >
+        6:30 am
+      </option>
+      <option
+        value="23700"
+      >
+        6:35 am
+      </option>
+      <option
+        value="24000"
+      >
+        6:40 am
+      </option>
+      <option
+        value="24300"
+      >
+        6:45 am
+      </option>
+      <option
+        value="24600"
+      >
+        6:50 am
+      </option>
+      <option
+        value="24900"
+      >
+        6:55 am
+      </option>
+      <option
+        value="25200"
+      >
+        7:00 am
+      </option>
+      <option
+        value="25500"
+      >
+        7:05 am
+      </option>
+      <option
+        value="25800"
+      >
+        7:10 am
+      </option>
+      <option
+        value="26100"
+      >
+        7:15 am
+      </option>
+      <option
+        value="26400"
+      >
+        7:20 am
+      </option>
+      <option
+        value="26700"
+      >
+        7:25 am
+      </option>
+      <option
+        value="27000"
+      >
+        7:30 am
+      </option>
+      <option
+        value="27300"
+      >
+        7:35 am
+      </option>
+      <option
+        value="27600"
+      >
+        7:40 am
+      </option>
+      <option
+        value="27900"
+      >
+        7:45 am
+      </option>
+      <option
+        value="28200"
+      >
+        7:50 am
+      </option>
+      <option
+        value="28500"
+      >
+        7:55 am
+      </option>
+      <option
+        value="28800"
+      >
+        8:00 am
+      </option>
+      <option
+        value="29100"
+      >
+        8:05 am
+      </option>
+      <option
+        value="29400"
+      >
+        8:10 am
+      </option>
+      <option
+        value="29700"
+      >
+        8:15 am
+      </option>
+      <option
+        value="30000"
+      >
+        8:20 am
+      </option>
+      <option
+        value="30300"
+      >
+        8:25 am
+      </option>
+      <option
+        value="30600"
+      >
+        8:30 am
+      </option>
+      <option
+        value="30900"
+      >
+        8:35 am
+      </option>
+      <option
+        value="31200"
+      >
+        8:40 am
+      </option>
+      <option
+        value="31500"
+      >
+        8:45 am
+      </option>
+      <option
+        value="31800"
+      >
+        8:50 am
+      </option>
+      <option
+        value="32100"
+      >
+        8:55 am
+      </option>
+      <option
+        value="32400"
+      >
+        9:00 am
+      </option>
+      <option
+        value="32700"
+      >
+        9:05 am
+      </option>
+      <option
+        value="33000"
+      >
+        9:10 am
+      </option>
+      <option
+        value="33300"
+      >
+        9:15 am
+      </option>
+      <option
+        value="33600"
+      >
+        9:20 am
+      </option>
+      <option
+        value="33900"
+      >
+        9:25 am
+      </option>
+      <option
+        value="34200"
+      >
+        9:30 am
+      </option>
+      <option
+        value="34500"
+      >
+        9:35 am
+      </option>
+      <option
+        value="34800"
+      >
+        9:40 am
+      </option>
+      <option
+        value="35100"
+      >
+        9:45 am
+      </option>
+      <option
+        value="35400"
+      >
+        9:50 am
+      </option>
+      <option
+        value="35700"
+      >
+        9:55 am
+      </option>
+      <option
+        value="36000"
+      >
+        10:00 am
+      </option>
+      <option
+        value="36300"
+      >
+        10:05 am
+      </option>
+      <option
+        value="36600"
+      >
+        10:10 am
+      </option>
+      <option
+        value="36900"
+      >
+        10:15 am
+      </option>
+      <option
+        value="37200"
+      >
+        10:20 am
+      </option>
+      <option
+        value="37500"
+      >
+        10:25 am
+      </option>
+      <option
+        value="37800"
+      >
+        10:30 am
+      </option>
+      <option
+        value="38100"
+      >
+        10:35 am
+      </option>
+      <option
+        value="38400"
+      >
+        10:40 am
+      </option>
+      <option
+        value="38700"
+      >
+        10:45 am
+      </option>
+      <option
+        value="39000"
+      >
+        10:50 am
+      </option>
+      <option
+        value="39300"
+      >
+        10:55 am
+      </option>
+      <option
+        value="39600"
+      >
+        11:00 am
+      </option>
+      <option
+        value="39900"
+      >
+        11:05 am
+      </option>
+      <option
+        value="40200"
+      >
+        11:10 am
+      </option>
+      <option
+        value="40500"
+      >
+        11:15 am
+      </option>
+      <option
+        value="40800"
+      >
+        11:20 am
+      </option>
+      <option
+        value="41100"
+      >
+        11:25 am
+      </option>
+      <option
+        value="41400"
+      >
+        11:30 am
+      </option>
+      <option
+        value="41700"
+      >
+        11:35 am
+      </option>
+      <option
+        value="42000"
+      >
+        11:40 am
+      </option>
+      <option
+        value="42300"
+      >
+        11:45 am
+      </option>
+      <option
+        value="42600"
+      >
+        11:50 am
+      </option>
+      <option
+        value="42900"
+      >
+        11:55 am
+      </option>
+      <option
+        value="43200"
+      >
+        12:00 pm
+      </option>
+      <option
+        value="43500"
+      >
+        12:05 pm
+      </option>
+      <option
+        value="43800"
+      >
+        12:10 pm
+      </option>
+      <option
+        value="44100"
+      >
+        12:15 pm
+      </option>
+      <option
+        value="44400"
+      >
+        12:20 pm
+      </option>
+      <option
+        value="44700"
+      >
+        12:25 pm
+      </option>
+      <option
+        value="45000"
+      >
+        12:30 pm
+      </option>
+      <option
+        value="45300"
+      >
+        12:35 pm
+      </option>
+      <option
+        value="45600"
+      >
+        12:40 pm
+      </option>
+      <option
+        value="45900"
+      >
+        12:45 pm
+      </option>
+      <option
+        value="46200"
+      >
+        12:50 pm
+      </option>
+      <option
+        value="46500"
+      >
+        12:55 pm
+      </option>
+      <option
+        value="46800"
+      >
+        1:00 pm
+      </option>
+      <option
+        value="47100"
+      >
+        1:05 pm
+      </option>
+      <option
+        value="47400"
+      >
+        1:10 pm
+      </option>
+      <option
+        value="47700"
+      >
+        1:15 pm
+      </option>
+      <option
+        value="48000"
+      >
+        1:20 pm
+      </option>
+      <option
+        value="48300"
+      >
+        1:25 pm
+      </option>
+      <option
+        value="48600"
+      >
+        1:30 pm
+      </option>
+      <option
+        value="48900"
+      >
+        1:35 pm
+      </option>
+      <option
+        value="49200"
+      >
+        1:40 pm
+      </option>
+      <option
+        value="49500"
+      >
+        1:45 pm
+      </option>
+      <option
+        value="49800"
+      >
+        1:50 pm
+      </option>
+      <option
+        value="50100"
+      >
+        1:55 pm
+      </option>
+      <option
+        value="50400"
+      >
+        2:00 pm
+      </option>
+      <option
+        value="50700"
+      >
+        2:05 pm
+      </option>
+      <option
+        value="51000"
+      >
+        2:10 pm
+      </option>
+      <option
+        value="51300"
+      >
+        2:15 pm
+      </option>
+      <option
+        value="51600"
+      >
+        2:20 pm
+      </option>
+      <option
+        value="51900"
+      >
+        2:25 pm
+      </option>
+      <option
+        value="52200"
+      >
+        2:30 pm
+      </option>
+      <option
+        value="52500"
+      >
+        2:35 pm
+      </option>
+      <option
+        value="52800"
+      >
+        2:40 pm
+      </option>
+      <option
+        value="53100"
+      >
+        2:45 pm
+      </option>
+      <option
+        value="53400"
+      >
+        2:50 pm
+      </option>
+      <option
+        value="53700"
+      >
+        2:55 pm
+      </option>
+      <option
+        value="54000"
+      >
+        3:00 pm
+      </option>
+      <option
+        value="54300"
+      >
+        3:05 pm
+      </option>
+      <option
+        value="54600"
+      >
+        3:10 pm
+      </option>
+      <option
+        value="54900"
+      >
+        3:15 pm
+      </option>
+      <option
+        value="55200"
+      >
+        3:20 pm
+      </option>
+      <option
+        value="55500"
+      >
+        3:25 pm
+      </option>
+      <option
+        value="55800"
+      >
+        3:30 pm
+      </option>
+      <option
+        value="56100"
+      >
+        3:35 pm
+      </option>
+      <option
+        value="56400"
+      >
+        3:40 pm
+      </option>
+      <option
+        value="56700"
+      >
+        3:45 pm
+      </option>
+      <option
+        value="57000"
+      >
+        3:50 pm
+      </option>
+      <option
+        value="57300"
+      >
+        3:55 pm
+      </option>
+      <option
+        value="57600"
+      >
+        4:00 pm
+      </option>
+      <option
+        value="57900"
+      >
+        4:05 pm
+      </option>
+      <option
+        value="58200"
+      >
+        4:10 pm
+      </option>
+      <option
+        value="58500"
+      >
+        4:15 pm
+      </option>
+      <option
+        value="58800"
+      >
+        4:20 pm
+      </option>
+      <option
+        value="59100"
+      >
+        4:25 pm
+      </option>
+      <option
+        value="59400"
+      >
+        4:30 pm
+      </option>
+      <option
+        value="59700"
+      >
+        4:35 pm
+      </option>
+      <option
+        value="60000"
+      >
+        4:40 pm
+      </option>
+      <option
+        value="60300"
+      >
+        4:45 pm
+      </option>
+      <option
+        value="60600"
+      >
+        4:50 pm
+      </option>
+      <option
+        value="60900"
+      >
+        4:55 pm
+      </option>
+      <option
+        value="61200"
+      >
+        5:00 pm
+      </option>
+      <option
+        value="61500"
+      >
+        5:05 pm
+      </option>
+      <option
+        value="61800"
+      >
+        5:10 pm
+      </option>
+      <option
+        value="62100"
+      >
+        5:15 pm
+      </option>
+      <option
+        value="62400"
+      >
+        5:20 pm
+      </option>
+      <option
+        value="62700"
+      >
+        5:25 pm
+      </option>
+      <option
+        value="63000"
+      >
+        5:30 pm
+      </option>
+      <option
+        value="63300"
+      >
+        5:35 pm
+      </option>
+      <option
+        value="63600"
+      >
+        5:40 pm
+      </option>
+      <option
+        value="63900"
+      >
+        5:45 pm
+      </option>
+      <option
+        value="64200"
+      >
+        5:50 pm
+      </option>
+      <option
+        value="64500"
+      >
+        5:55 pm
+      </option>
+      <option
+        value="64800"
+      >
+        6:00 pm
+      </option>
+      <option
+        value="65100"
+      >
+        6:05 pm
+      </option>
+      <option
+        value="65400"
+      >
+        6:10 pm
+      </option>
+      <option
+        value="65700"
+      >
+        6:15 pm
+      </option>
+      <option
+        value="66000"
+      >
+        6:20 pm
+      </option>
+      <option
+        value="66300"
+      >
+        6:25 pm
+      </option>
+      <option
+        value="66600"
+      >
+        6:30 pm
+      </option>
+      <option
+        value="66900"
+      >
+        6:35 pm
+      </option>
+      <option
+        value="67200"
+      >
+        6:40 pm
+      </option>
+      <option
+        value="67500"
+      >
+        6:45 pm
+      </option>
+      <option
+        value="67800"
+      >
+        6:50 pm
+      </option>
+      <option
+        value="68100"
+      >
+        6:55 pm
+      </option>
+      <option
+        value="68400"
+      >
+        7:00 pm
+      </option>
+      <option
+        value="68700"
+      >
+        7:05 pm
+      </option>
+      <option
+        value="69000"
+      >
+        7:10 pm
+      </option>
+      <option
+        value="69300"
+      >
+        7:15 pm
+      </option>
+      <option
+        value="69600"
+      >
+        7:20 pm
+      </option>
+      <option
+        value="69900"
+      >
+        7:25 pm
+      </option>
+      <option
+        value="70200"
+      >
+        7:30 pm
+      </option>
+      <option
+        value="70500"
+      >
+        7:35 pm
+      </option>
+      <option
+        value="70800"
+      >
+        7:40 pm
+      </option>
+      <option
+        value="71100"
+      >
+        7:45 pm
+      </option>
+      <option
+        value="71400"
+      >
+        7:50 pm
+      </option>
+      <option
+        value="71700"
+      >
+        7:55 pm
+      </option>
+      <option
+        value="72000"
+      >
+        8:00 pm
+      </option>
+      <option
+        value="72300"
+      >
+        8:05 pm
+      </option>
+      <option
+        value="72600"
+      >
+        8:10 pm
+      </option>
+      <option
+        value="72900"
+      >
+        8:15 pm
+      </option>
+      <option
+        value="73200"
+      >
+        8:20 pm
+      </option>
+      <option
+        value="73500"
+      >
+        8:25 pm
+      </option>
+      <option
+        value="73800"
+      >
+        8:30 pm
+      </option>
+      <option
+        value="74100"
+      >
+        8:35 pm
+      </option>
+      <option
+        value="74400"
+      >
+        8:40 pm
+      </option>
+      <option
+        value="74700"
+      >
+        8:45 pm
+      </option>
+      <option
+        value="75000"
+      >
+        8:50 pm
+      </option>
+      <option
+        value="75300"
+      >
+        8:55 pm
+      </option>
+      <option
+        value="75600"
+      >
+        9:00 pm
+      </option>
+      <option
+        value="75900"
+      >
+        9:05 pm
+      </option>
+      <option
+        value="76200"
+      >
+        9:10 pm
+      </option>
+      <option
+        value="76500"
+      >
+        9:15 pm
+      </option>
+      <option
+        value="76800"
+      >
+        9:20 pm
+      </option>
+      <option
+        value="77100"
+      >
+        9:25 pm
+      </option>
+      <option
+        value="77400"
+      >
+        9:30 pm
+      </option>
+      <option
+        value="77700"
+      >
+        9:35 pm
+      </option>
+      <option
+        value="78000"
+      >
+        9:40 pm
+      </option>
+      <option
+        value="78300"
+      >
+        9:45 pm
+      </option>
+      <option
+        value="78600"
+      >
+        9:50 pm
+      </option>
+      <option
+        value="78900"
+      >
+        9:55 pm
+      </option>
+      <option
+        value="79200"
+      >
+        10:00 pm
+      </option>
+      <option
+        value="79500"
+      >
+        10:05 pm
+      </option>
+      <option
+        value="79800"
+      >
+        10:10 pm
+      </option>
+      <option
+        value="80100"
+      >
+        10:15 pm
+      </option>
+      <option
+        value="80400"
+      >
+        10:20 pm
+      </option>
+      <option
+        value="80700"
+      >
+        10:25 pm
+      </option>
+      <option
+        value="81000"
+      >
+        10:30 pm
+      </option>
+      <option
+        value="81300"
+      >
+        10:35 pm
+      </option>
+      <option
+        value="81600"
+      >
+        10:40 pm
+      </option>
+      <option
+        value="81900"
+      >
+        10:45 pm
+      </option>
+      <option
+        value="82200"
+      >
+        10:50 pm
+      </option>
+      <option
+        value="82500"
+      >
+        10:55 pm
+      </option>
+      <option
+        value="82800"
+      >
+        11:00 pm
+      </option>
+      <option
+        value="83100"
+      >
+        11:05 pm
+      </option>
+      <option
+        value="83400"
+      >
+        11:10 pm
+      </option>
+      <option
+        value="83700"
+      >
+        11:15 pm
+      </option>
+      <option
+        value="84000"
+      >
+        11:20 pm
+      </option>
+      <option
+        value="84300"
+      >
+        11:25 pm
+      </option>
+      <option
+        value="84600"
+      >
+        11:30 pm
+      </option>
+      <option
+        value="84900"
+      >
+        11:35 pm
+      </option>
+      <option
+        value="85200"
+      >
+        11:40 pm
+      </option>
+      <option
+        value="85500"
+      >
+        11:45 pm
+      </option>
+      <option
+        value="85800"
+      >
+        11:50 pm
+      </option>
+      <option
+        value="86100"
+      >
+        11:55 pm
+      </option>
+    </select>
+  </div>
 </div>
 `;
 
 exports[`Should correctly render InputTime with minimal parameters Test without value 1`] = `
-<div
-  className="survey-question__input-select-container survey-question__input-time-container"
->
-  <select
-    id="test"
-    onChange={[Function]}
-    value=""
+<div>
+  <div
+    class="survey-question__input-select-container survey-question__input-time-container"
   >
-    <option
-      className="input-select-option"
-      value=""
-    />
-    <option
-      value={0}
-    >
-      12:00 am
-      
-    </option>
-    <option
-      value={300}
-    >
-      12:05 am
-      
-    </option>
-    <option
-      value={600}
-    >
-      12:10 am
-      
-    </option>
-    <option
-      value={900}
-    >
-      12:15 am
-      
-    </option>
-    <option
-      value={1200}
-    >
-      12:20 am
-      
-    </option>
-    <option
-      value={1500}
-    >
-      12:25 am
-      
-    </option>
-    <option
-      value={1800}
-    >
-      12:30 am
-      
-    </option>
-    <option
-      value={2100}
-    >
-      12:35 am
-      
-    </option>
-    <option
-      value={2400}
-    >
-      12:40 am
-      
-    </option>
-    <option
-      value={2700}
-    >
-      12:45 am
-      
-    </option>
-    <option
-      value={3000}
-    >
-      12:50 am
-      
-    </option>
-    <option
-      value={3300}
-    >
-      12:55 am
-      
-    </option>
-    <option
-      value={3600}
-    >
-      1:00 am
-      
-    </option>
-    <option
-      value={3900}
-    >
-      1:05 am
-      
-    </option>
-    <option
-      value={4200}
-    >
-      1:10 am
-      
-    </option>
-    <option
-      value={4500}
-    >
-      1:15 am
-      
-    </option>
-    <option
-      value={4800}
-    >
-      1:20 am
-      
-    </option>
-    <option
-      value={5100}
-    >
-      1:25 am
-      
-    </option>
-    <option
-      value={5400}
-    >
-      1:30 am
-      
-    </option>
-    <option
-      value={5700}
-    >
-      1:35 am
-      
-    </option>
-    <option
-      value={6000}
-    >
-      1:40 am
-      
-    </option>
-    <option
-      value={6300}
-    >
-      1:45 am
-      
-    </option>
-    <option
-      value={6600}
-    >
-      1:50 am
-      
-    </option>
-    <option
-      value={6900}
-    >
-      1:55 am
-      
-    </option>
-    <option
-      value={7200}
-    >
-      2:00 am
-      
-    </option>
-    <option
-      value={7500}
-    >
-      2:05 am
-      
-    </option>
-    <option
-      value={7800}
-    >
-      2:10 am
-      
-    </option>
-    <option
-      value={8100}
-    >
-      2:15 am
-      
-    </option>
-    <option
-      value={8400}
-    >
-      2:20 am
-      
-    </option>
-    <option
-      value={8700}
-    >
-      2:25 am
-      
-    </option>
-    <option
-      value={9000}
-    >
-      2:30 am
-      
-    </option>
-    <option
-      value={9300}
-    >
-      2:35 am
-      
-    </option>
-    <option
-      value={9600}
-    >
-      2:40 am
-      
-    </option>
-    <option
-      value={9900}
-    >
-      2:45 am
-      
-    </option>
-    <option
-      value={10200}
-    >
-      2:50 am
-      
-    </option>
-    <option
-      value={10500}
-    >
-      2:55 am
-      
-    </option>
-    <option
-      value={10800}
-    >
-      3:00 am
-      
-    </option>
-    <option
-      value={11100}
-    >
-      3:05 am
-      
-    </option>
-    <option
-      value={11400}
-    >
-      3:10 am
-      
-    </option>
-    <option
-      value={11700}
-    >
-      3:15 am
-      
-    </option>
-    <option
-      value={12000}
-    >
-      3:20 am
-      
-    </option>
-    <option
-      value={12300}
-    >
-      3:25 am
-      
-    </option>
-    <option
-      value={12600}
-    >
-      3:30 am
-      
-    </option>
-    <option
-      value={12900}
-    >
-      3:35 am
-      
-    </option>
-    <option
-      value={13200}
-    >
-      3:40 am
-      
-    </option>
-    <option
-      value={13500}
-    >
-      3:45 am
-      
-    </option>
-    <option
-      value={13800}
-    >
-      3:50 am
-      
-    </option>
-    <option
-      value={14100}
-    >
-      3:55 am
-      
-    </option>
-    <option
-      value={14400}
-    >
-      4:00 am
-      
-    </option>
-    <option
-      value={14700}
-    >
-      4:05 am
-      
-    </option>
-    <option
-      value={15000}
-    >
-      4:10 am
-      
-    </option>
-    <option
-      value={15300}
-    >
-      4:15 am
-      
-    </option>
-    <option
-      value={15600}
-    >
-      4:20 am
-      
-    </option>
-    <option
-      value={15900}
-    >
-      4:25 am
-      
-    </option>
-    <option
-      value={16200}
-    >
-      4:30 am
-      
-    </option>
-    <option
-      value={16500}
-    >
-      4:35 am
-      
-    </option>
-    <option
-      value={16800}
-    >
-      4:40 am
-      
-    </option>
-    <option
-      value={17100}
-    >
-      4:45 am
-      
-    </option>
-    <option
-      value={17400}
-    >
-      4:50 am
-      
-    </option>
-    <option
-      value={17700}
-    >
-      4:55 am
-      
-    </option>
-    <option
-      value={18000}
-    >
-      5:00 am
-      
-    </option>
-    <option
-      value={18300}
-    >
-      5:05 am
-      
-    </option>
-    <option
-      value={18600}
-    >
-      5:10 am
-      
-    </option>
-    <option
-      value={18900}
-    >
-      5:15 am
-      
-    </option>
-    <option
-      value={19200}
-    >
-      5:20 am
-      
-    </option>
-    <option
-      value={19500}
-    >
-      5:25 am
-      
-    </option>
-    <option
-      value={19800}
-    >
-      5:30 am
-      
-    </option>
-    <option
-      value={20100}
-    >
-      5:35 am
-      
-    </option>
-    <option
-      value={20400}
-    >
-      5:40 am
-      
-    </option>
-    <option
-      value={20700}
-    >
-      5:45 am
-      
-    </option>
-    <option
-      value={21000}
-    >
-      5:50 am
-      
-    </option>
-    <option
-      value={21300}
-    >
-      5:55 am
-      
-    </option>
-    <option
-      value={21600}
-    >
-      6:00 am
-      
-    </option>
-    <option
-      value={21900}
-    >
-      6:05 am
-      
-    </option>
-    <option
-      value={22200}
-    >
-      6:10 am
-      
-    </option>
-    <option
-      value={22500}
-    >
-      6:15 am
-      
-    </option>
-    <option
-      value={22800}
-    >
-      6:20 am
-      
-    </option>
-    <option
-      value={23100}
-    >
-      6:25 am
-      
-    </option>
-    <option
-      value={23400}
-    >
-      6:30 am
-      
-    </option>
-    <option
-      value={23700}
-    >
-      6:35 am
-      
-    </option>
-    <option
-      value={24000}
-    >
-      6:40 am
-      
-    </option>
-    <option
-      value={24300}
-    >
-      6:45 am
-      
-    </option>
-    <option
-      value={24600}
-    >
-      6:50 am
-      
-    </option>
-    <option
-      value={24900}
-    >
-      6:55 am
-      
-    </option>
-    <option
-      value={25200}
-    >
-      7:00 am
-      
-    </option>
-    <option
-      value={25500}
-    >
-      7:05 am
-      
-    </option>
-    <option
-      value={25800}
-    >
-      7:10 am
-      
-    </option>
-    <option
-      value={26100}
-    >
-      7:15 am
-      
-    </option>
-    <option
-      value={26400}
-    >
-      7:20 am
-      
-    </option>
-    <option
-      value={26700}
-    >
-      7:25 am
-      
-    </option>
-    <option
-      value={27000}
-    >
-      7:30 am
-      
-    </option>
-    <option
-      value={27300}
-    >
-      7:35 am
-      
-    </option>
-    <option
-      value={27600}
-    >
-      7:40 am
-      
-    </option>
-    <option
-      value={27900}
-    >
-      7:45 am
-      
-    </option>
-    <option
-      value={28200}
-    >
-      7:50 am
-      
-    </option>
-    <option
-      value={28500}
-    >
-      7:55 am
-      
-    </option>
-    <option
-      value={28800}
-    >
-      8:00 am
-      
-    </option>
-    <option
-      value={29100}
-    >
-      8:05 am
-      
-    </option>
-    <option
-      value={29400}
-    >
-      8:10 am
-      
-    </option>
-    <option
-      value={29700}
-    >
-      8:15 am
-      
-    </option>
-    <option
-      value={30000}
-    >
-      8:20 am
-      
-    </option>
-    <option
-      value={30300}
-    >
-      8:25 am
-      
-    </option>
-    <option
-      value={30600}
-    >
-      8:30 am
-      
-    </option>
-    <option
-      value={30900}
-    >
-      8:35 am
-      
-    </option>
-    <option
-      value={31200}
-    >
-      8:40 am
-      
-    </option>
-    <option
-      value={31500}
-    >
-      8:45 am
-      
-    </option>
-    <option
-      value={31800}
-    >
-      8:50 am
-      
-    </option>
-    <option
-      value={32100}
-    >
-      8:55 am
-      
-    </option>
-    <option
-      value={32400}
-    >
-      9:00 am
-      
-    </option>
-    <option
-      value={32700}
-    >
-      9:05 am
-      
-    </option>
-    <option
-      value={33000}
-    >
-      9:10 am
-      
-    </option>
-    <option
-      value={33300}
-    >
-      9:15 am
-      
-    </option>
-    <option
-      value={33600}
-    >
-      9:20 am
-      
-    </option>
-    <option
-      value={33900}
-    >
-      9:25 am
-      
-    </option>
-    <option
-      value={34200}
-    >
-      9:30 am
-      
-    </option>
-    <option
-      value={34500}
-    >
-      9:35 am
-      
-    </option>
-    <option
-      value={34800}
-    >
-      9:40 am
-      
-    </option>
-    <option
-      value={35100}
-    >
-      9:45 am
-      
-    </option>
-    <option
-      value={35400}
-    >
-      9:50 am
-      
-    </option>
-    <option
-      value={35700}
-    >
-      9:55 am
-      
-    </option>
-    <option
-      value={36000}
-    >
-      10:00 am
-      
-    </option>
-    <option
-      value={36300}
-    >
-      10:05 am
-      
-    </option>
-    <option
-      value={36600}
-    >
-      10:10 am
-      
-    </option>
-    <option
-      value={36900}
-    >
-      10:15 am
-      
-    </option>
-    <option
-      value={37200}
-    >
-      10:20 am
-      
-    </option>
-    <option
-      value={37500}
-    >
-      10:25 am
-      
-    </option>
-    <option
-      value={37800}
-    >
-      10:30 am
-      
-    </option>
-    <option
-      value={38100}
-    >
-      10:35 am
-      
-    </option>
-    <option
-      value={38400}
-    >
-      10:40 am
-      
-    </option>
-    <option
-      value={38700}
-    >
-      10:45 am
-      
-    </option>
-    <option
-      value={39000}
-    >
-      10:50 am
-      
-    </option>
-    <option
-      value={39300}
-    >
-      10:55 am
-      
-    </option>
-    <option
-      value={39600}
-    >
-      11:00 am
-      
-    </option>
-    <option
-      value={39900}
-    >
-      11:05 am
-      
-    </option>
-    <option
-      value={40200}
-    >
-      11:10 am
-      
-    </option>
-    <option
-      value={40500}
-    >
-      11:15 am
-      
-    </option>
-    <option
-      value={40800}
-    >
-      11:20 am
-      
-    </option>
-    <option
-      value={41100}
-    >
-      11:25 am
-      
-    </option>
-    <option
-      value={41400}
-    >
-      11:30 am
-      
-    </option>
-    <option
-      value={41700}
-    >
-      11:35 am
-      
-    </option>
-    <option
-      value={42000}
-    >
-      11:40 am
-      
-    </option>
-    <option
-      value={42300}
-    >
-      11:45 am
-      
-    </option>
-    <option
-      value={42600}
-    >
-      11:50 am
-      
-    </option>
-    <option
-      value={42900}
-    >
-      11:55 am
-      
-    </option>
-    <option
-      value={43200}
-    >
-      12:00 pm
-      
-    </option>
-    <option
-      value={43500}
-    >
-      12:05 pm
-      
-    </option>
-    <option
-      value={43800}
-    >
-      12:10 pm
-      
-    </option>
-    <option
-      value={44100}
-    >
-      12:15 pm
-      
-    </option>
-    <option
-      value={44400}
-    >
-      12:20 pm
-      
-    </option>
-    <option
-      value={44700}
-    >
-      12:25 pm
-      
-    </option>
-    <option
-      value={45000}
-    >
-      12:30 pm
-      
-    </option>
-    <option
-      value={45300}
-    >
-      12:35 pm
-      
-    </option>
-    <option
-      value={45600}
-    >
-      12:40 pm
-      
-    </option>
-    <option
-      value={45900}
-    >
-      12:45 pm
-      
-    </option>
-    <option
-      value={46200}
-    >
-      12:50 pm
-      
-    </option>
-    <option
-      value={46500}
-    >
-      12:55 pm
-      
-    </option>
-    <option
-      value={46800}
-    >
-      1:00 pm
-      
-    </option>
-    <option
-      value={47100}
-    >
-      1:05 pm
-      
-    </option>
-    <option
-      value={47400}
-    >
-      1:10 pm
-      
-    </option>
-    <option
-      value={47700}
-    >
-      1:15 pm
-      
-    </option>
-    <option
-      value={48000}
-    >
-      1:20 pm
-      
-    </option>
-    <option
-      value={48300}
-    >
-      1:25 pm
-      
-    </option>
-    <option
-      value={48600}
-    >
-      1:30 pm
-      
-    </option>
-    <option
-      value={48900}
-    >
-      1:35 pm
-      
-    </option>
-    <option
-      value={49200}
-    >
-      1:40 pm
-      
-    </option>
-    <option
-      value={49500}
-    >
-      1:45 pm
-      
-    </option>
-    <option
-      value={49800}
-    >
-      1:50 pm
-      
-    </option>
-    <option
-      value={50100}
-    >
-      1:55 pm
-      
-    </option>
-    <option
-      value={50400}
-    >
-      2:00 pm
-      
-    </option>
-    <option
-      value={50700}
-    >
-      2:05 pm
-      
-    </option>
-    <option
-      value={51000}
-    >
-      2:10 pm
-      
-    </option>
-    <option
-      value={51300}
-    >
-      2:15 pm
-      
-    </option>
-    <option
-      value={51600}
-    >
-      2:20 pm
-      
-    </option>
-    <option
-      value={51900}
-    >
-      2:25 pm
-      
-    </option>
-    <option
-      value={52200}
-    >
-      2:30 pm
-      
-    </option>
-    <option
-      value={52500}
-    >
-      2:35 pm
-      
-    </option>
-    <option
-      value={52800}
-    >
-      2:40 pm
-      
-    </option>
-    <option
-      value={53100}
-    >
-      2:45 pm
-      
-    </option>
-    <option
-      value={53400}
-    >
-      2:50 pm
-      
-    </option>
-    <option
-      value={53700}
-    >
-      2:55 pm
-      
-    </option>
-    <option
-      value={54000}
-    >
-      3:00 pm
-      
-    </option>
-    <option
-      value={54300}
-    >
-      3:05 pm
-      
-    </option>
-    <option
-      value={54600}
-    >
-      3:10 pm
-      
-    </option>
-    <option
-      value={54900}
-    >
-      3:15 pm
-      
-    </option>
-    <option
-      value={55200}
-    >
-      3:20 pm
-      
-    </option>
-    <option
-      value={55500}
-    >
-      3:25 pm
-      
-    </option>
-    <option
-      value={55800}
-    >
-      3:30 pm
-      
-    </option>
-    <option
-      value={56100}
-    >
-      3:35 pm
-      
-    </option>
-    <option
-      value={56400}
-    >
-      3:40 pm
-      
-    </option>
-    <option
-      value={56700}
-    >
-      3:45 pm
-      
-    </option>
-    <option
-      value={57000}
-    >
-      3:50 pm
-      
-    </option>
-    <option
-      value={57300}
-    >
-      3:55 pm
-      
-    </option>
-    <option
-      value={57600}
-    >
-      4:00 pm
-      
-    </option>
-    <option
-      value={57900}
-    >
-      4:05 pm
-      
-    </option>
-    <option
-      value={58200}
-    >
-      4:10 pm
-      
-    </option>
-    <option
-      value={58500}
-    >
-      4:15 pm
-      
-    </option>
-    <option
-      value={58800}
-    >
-      4:20 pm
-      
-    </option>
-    <option
-      value={59100}
-    >
-      4:25 pm
-      
-    </option>
-    <option
-      value={59400}
-    >
-      4:30 pm
-      
-    </option>
-    <option
-      value={59700}
-    >
-      4:35 pm
-      
-    </option>
-    <option
-      value={60000}
-    >
-      4:40 pm
-      
-    </option>
-    <option
-      value={60300}
-    >
-      4:45 pm
-      
-    </option>
-    <option
-      value={60600}
-    >
-      4:50 pm
-      
-    </option>
-    <option
-      value={60900}
-    >
-      4:55 pm
-      
-    </option>
-    <option
-      value={61200}
-    >
-      5:00 pm
-      
-    </option>
-    <option
-      value={61500}
-    >
-      5:05 pm
-      
-    </option>
-    <option
-      value={61800}
-    >
-      5:10 pm
-      
-    </option>
-    <option
-      value={62100}
-    >
-      5:15 pm
-      
-    </option>
-    <option
-      value={62400}
-    >
-      5:20 pm
-      
-    </option>
-    <option
-      value={62700}
-    >
-      5:25 pm
-      
-    </option>
-    <option
-      value={63000}
-    >
-      5:30 pm
-      
-    </option>
-    <option
-      value={63300}
-    >
-      5:35 pm
-      
-    </option>
-    <option
-      value={63600}
-    >
-      5:40 pm
-      
-    </option>
-    <option
-      value={63900}
-    >
-      5:45 pm
-      
-    </option>
-    <option
-      value={64200}
-    >
-      5:50 pm
-      
-    </option>
-    <option
-      value={64500}
-    >
-      5:55 pm
-      
-    </option>
-    <option
-      value={64800}
-    >
-      6:00 pm
-      
-    </option>
-    <option
-      value={65100}
-    >
-      6:05 pm
-      
-    </option>
-    <option
-      value={65400}
-    >
-      6:10 pm
-      
-    </option>
-    <option
-      value={65700}
-    >
-      6:15 pm
-      
-    </option>
-    <option
-      value={66000}
-    >
-      6:20 pm
-      
-    </option>
-    <option
-      value={66300}
-    >
-      6:25 pm
-      
-    </option>
-    <option
-      value={66600}
-    >
-      6:30 pm
-      
-    </option>
-    <option
-      value={66900}
-    >
-      6:35 pm
-      
-    </option>
-    <option
-      value={67200}
-    >
-      6:40 pm
-      
-    </option>
-    <option
-      value={67500}
-    >
-      6:45 pm
-      
-    </option>
-    <option
-      value={67800}
-    >
-      6:50 pm
-      
-    </option>
-    <option
-      value={68100}
-    >
-      6:55 pm
-      
-    </option>
-    <option
-      value={68400}
-    >
-      7:00 pm
-      
-    </option>
-    <option
-      value={68700}
-    >
-      7:05 pm
-      
-    </option>
-    <option
-      value={69000}
-    >
-      7:10 pm
-      
-    </option>
-    <option
-      value={69300}
-    >
-      7:15 pm
-      
-    </option>
-    <option
-      value={69600}
-    >
-      7:20 pm
-      
-    </option>
-    <option
-      value={69900}
-    >
-      7:25 pm
-      
-    </option>
-    <option
-      value={70200}
-    >
-      7:30 pm
-      
-    </option>
-    <option
-      value={70500}
-    >
-      7:35 pm
-      
-    </option>
-    <option
-      value={70800}
-    >
-      7:40 pm
-      
-    </option>
-    <option
-      value={71100}
-    >
-      7:45 pm
-      
-    </option>
-    <option
-      value={71400}
-    >
-      7:50 pm
-      
-    </option>
-    <option
-      value={71700}
-    >
-      7:55 pm
-      
-    </option>
-    <option
-      value={72000}
-    >
-      8:00 pm
-      
-    </option>
-    <option
-      value={72300}
-    >
-      8:05 pm
-      
-    </option>
-    <option
-      value={72600}
-    >
-      8:10 pm
-      
-    </option>
-    <option
-      value={72900}
-    >
-      8:15 pm
-      
-    </option>
-    <option
-      value={73200}
-    >
-      8:20 pm
-      
-    </option>
-    <option
-      value={73500}
-    >
-      8:25 pm
-      
-    </option>
-    <option
-      value={73800}
-    >
-      8:30 pm
-      
-    </option>
-    <option
-      value={74100}
-    >
-      8:35 pm
-      
-    </option>
-    <option
-      value={74400}
-    >
-      8:40 pm
-      
-    </option>
-    <option
-      value={74700}
-    >
-      8:45 pm
-      
-    </option>
-    <option
-      value={75000}
-    >
-      8:50 pm
-      
-    </option>
-    <option
-      value={75300}
-    >
-      8:55 pm
-      
-    </option>
-    <option
-      value={75600}
-    >
-      9:00 pm
-      
-    </option>
-    <option
-      value={75900}
-    >
-      9:05 pm
-      
-    </option>
-    <option
-      value={76200}
-    >
-      9:10 pm
-      
-    </option>
-    <option
-      value={76500}
-    >
-      9:15 pm
-      
-    </option>
-    <option
-      value={76800}
-    >
-      9:20 pm
-      
-    </option>
-    <option
-      value={77100}
-    >
-      9:25 pm
-      
-    </option>
-    <option
-      value={77400}
-    >
-      9:30 pm
-      
-    </option>
-    <option
-      value={77700}
-    >
-      9:35 pm
-      
-    </option>
-    <option
-      value={78000}
-    >
-      9:40 pm
-      
-    </option>
-    <option
-      value={78300}
-    >
-      9:45 pm
-      
-    </option>
-    <option
-      value={78600}
-    >
-      9:50 pm
-      
-    </option>
-    <option
-      value={78900}
-    >
-      9:55 pm
-      
-    </option>
-    <option
-      value={79200}
-    >
-      10:00 pm
-      
-    </option>
-    <option
-      value={79500}
-    >
-      10:05 pm
-      
-    </option>
-    <option
-      value={79800}
-    >
-      10:10 pm
-      
-    </option>
-    <option
-      value={80100}
-    >
-      10:15 pm
-      
-    </option>
-    <option
-      value={80400}
-    >
-      10:20 pm
-      
-    </option>
-    <option
-      value={80700}
-    >
-      10:25 pm
-      
-    </option>
-    <option
-      value={81000}
-    >
-      10:30 pm
-      
-    </option>
-    <option
-      value={81300}
-    >
-      10:35 pm
-      
-    </option>
-    <option
-      value={81600}
-    >
-      10:40 pm
-      
-    </option>
-    <option
-      value={81900}
-    >
-      10:45 pm
-      
-    </option>
-    <option
-      value={82200}
-    >
-      10:50 pm
-      
-    </option>
-    <option
-      value={82500}
-    >
-      10:55 pm
-      
-    </option>
-    <option
-      value={82800}
-    >
-      11:00 pm
-      
-    </option>
-    <option
-      value={83100}
-    >
-      11:05 pm
-      
-    </option>
-    <option
-      value={83400}
-    >
-      11:10 pm
-      
-    </option>
-    <option
-      value={83700}
-    >
-      11:15 pm
-      
-    </option>
-    <option
-      value={84000}
-    >
-      11:20 pm
-      
-    </option>
-    <option
-      value={84300}
-    >
-      11:25 pm
-      
-    </option>
-    <option
-      value={84600}
-    >
-      11:30 pm
-      
-    </option>
-    <option
-      value={84900}
-    >
-      11:35 pm
-      
-    </option>
-    <option
-      value={85200}
-    >
-      11:40 pm
-      
-    </option>
-    <option
-      value={85500}
-    >
-      11:45 pm
-      
-    </option>
-    <option
-      value={85800}
-    >
-      11:50 pm
-      
-    </option>
-    <option
-      value={86100}
-    >
-      11:55 pm
-      
-    </option>
-  </select>
+    <select
+      id="test"
+    >
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        value="0"
+      >
+        12:00 am
+      </option>
+      <option
+        value="300"
+      >
+        12:05 am
+      </option>
+      <option
+        value="600"
+      >
+        12:10 am
+      </option>
+      <option
+        value="900"
+      >
+        12:15 am
+      </option>
+      <option
+        value="1200"
+      >
+        12:20 am
+      </option>
+      <option
+        value="1500"
+      >
+        12:25 am
+      </option>
+      <option
+        value="1800"
+      >
+        12:30 am
+      </option>
+      <option
+        value="2100"
+      >
+        12:35 am
+      </option>
+      <option
+        value="2400"
+      >
+        12:40 am
+      </option>
+      <option
+        value="2700"
+      >
+        12:45 am
+      </option>
+      <option
+        value="3000"
+      >
+        12:50 am
+      </option>
+      <option
+        value="3300"
+      >
+        12:55 am
+      </option>
+      <option
+        value="3600"
+      >
+        1:00 am
+      </option>
+      <option
+        value="3900"
+      >
+        1:05 am
+      </option>
+      <option
+        value="4200"
+      >
+        1:10 am
+      </option>
+      <option
+        value="4500"
+      >
+        1:15 am
+      </option>
+      <option
+        value="4800"
+      >
+        1:20 am
+      </option>
+      <option
+        value="5100"
+      >
+        1:25 am
+      </option>
+      <option
+        value="5400"
+      >
+        1:30 am
+      </option>
+      <option
+        value="5700"
+      >
+        1:35 am
+      </option>
+      <option
+        value="6000"
+      >
+        1:40 am
+      </option>
+      <option
+        value="6300"
+      >
+        1:45 am
+      </option>
+      <option
+        value="6600"
+      >
+        1:50 am
+      </option>
+      <option
+        value="6900"
+      >
+        1:55 am
+      </option>
+      <option
+        value="7200"
+      >
+        2:00 am
+      </option>
+      <option
+        value="7500"
+      >
+        2:05 am
+      </option>
+      <option
+        value="7800"
+      >
+        2:10 am
+      </option>
+      <option
+        value="8100"
+      >
+        2:15 am
+      </option>
+      <option
+        value="8400"
+      >
+        2:20 am
+      </option>
+      <option
+        value="8700"
+      >
+        2:25 am
+      </option>
+      <option
+        value="9000"
+      >
+        2:30 am
+      </option>
+      <option
+        value="9300"
+      >
+        2:35 am
+      </option>
+      <option
+        value="9600"
+      >
+        2:40 am
+      </option>
+      <option
+        value="9900"
+      >
+        2:45 am
+      </option>
+      <option
+        value="10200"
+      >
+        2:50 am
+      </option>
+      <option
+        value="10500"
+      >
+        2:55 am
+      </option>
+      <option
+        value="10800"
+      >
+        3:00 am
+      </option>
+      <option
+        value="11100"
+      >
+        3:05 am
+      </option>
+      <option
+        value="11400"
+      >
+        3:10 am
+      </option>
+      <option
+        value="11700"
+      >
+        3:15 am
+      </option>
+      <option
+        value="12000"
+      >
+        3:20 am
+      </option>
+      <option
+        value="12300"
+      >
+        3:25 am
+      </option>
+      <option
+        value="12600"
+      >
+        3:30 am
+      </option>
+      <option
+        value="12900"
+      >
+        3:35 am
+      </option>
+      <option
+        value="13200"
+      >
+        3:40 am
+      </option>
+      <option
+        value="13500"
+      >
+        3:45 am
+      </option>
+      <option
+        value="13800"
+      >
+        3:50 am
+      </option>
+      <option
+        value="14100"
+      >
+        3:55 am
+      </option>
+      <option
+        value="14400"
+      >
+        4:00 am
+      </option>
+      <option
+        value="14700"
+      >
+        4:05 am
+      </option>
+      <option
+        value="15000"
+      >
+        4:10 am
+      </option>
+      <option
+        value="15300"
+      >
+        4:15 am
+      </option>
+      <option
+        value="15600"
+      >
+        4:20 am
+      </option>
+      <option
+        value="15900"
+      >
+        4:25 am
+      </option>
+      <option
+        value="16200"
+      >
+        4:30 am
+      </option>
+      <option
+        value="16500"
+      >
+        4:35 am
+      </option>
+      <option
+        value="16800"
+      >
+        4:40 am
+      </option>
+      <option
+        value="17100"
+      >
+        4:45 am
+      </option>
+      <option
+        value="17400"
+      >
+        4:50 am
+      </option>
+      <option
+        value="17700"
+      >
+        4:55 am
+      </option>
+      <option
+        value="18000"
+      >
+        5:00 am
+      </option>
+      <option
+        value="18300"
+      >
+        5:05 am
+      </option>
+      <option
+        value="18600"
+      >
+        5:10 am
+      </option>
+      <option
+        value="18900"
+      >
+        5:15 am
+      </option>
+      <option
+        value="19200"
+      >
+        5:20 am
+      </option>
+      <option
+        value="19500"
+      >
+        5:25 am
+      </option>
+      <option
+        value="19800"
+      >
+        5:30 am
+      </option>
+      <option
+        value="20100"
+      >
+        5:35 am
+      </option>
+      <option
+        value="20400"
+      >
+        5:40 am
+      </option>
+      <option
+        value="20700"
+      >
+        5:45 am
+      </option>
+      <option
+        value="21000"
+      >
+        5:50 am
+      </option>
+      <option
+        value="21300"
+      >
+        5:55 am
+      </option>
+      <option
+        value="21600"
+      >
+        6:00 am
+      </option>
+      <option
+        value="21900"
+      >
+        6:05 am
+      </option>
+      <option
+        value="22200"
+      >
+        6:10 am
+      </option>
+      <option
+        value="22500"
+      >
+        6:15 am
+      </option>
+      <option
+        value="22800"
+      >
+        6:20 am
+      </option>
+      <option
+        value="23100"
+      >
+        6:25 am
+      </option>
+      <option
+        value="23400"
+      >
+        6:30 am
+      </option>
+      <option
+        value="23700"
+      >
+        6:35 am
+      </option>
+      <option
+        value="24000"
+      >
+        6:40 am
+      </option>
+      <option
+        value="24300"
+      >
+        6:45 am
+      </option>
+      <option
+        value="24600"
+      >
+        6:50 am
+      </option>
+      <option
+        value="24900"
+      >
+        6:55 am
+      </option>
+      <option
+        value="25200"
+      >
+        7:00 am
+      </option>
+      <option
+        value="25500"
+      >
+        7:05 am
+      </option>
+      <option
+        value="25800"
+      >
+        7:10 am
+      </option>
+      <option
+        value="26100"
+      >
+        7:15 am
+      </option>
+      <option
+        value="26400"
+      >
+        7:20 am
+      </option>
+      <option
+        value="26700"
+      >
+        7:25 am
+      </option>
+      <option
+        value="27000"
+      >
+        7:30 am
+      </option>
+      <option
+        value="27300"
+      >
+        7:35 am
+      </option>
+      <option
+        value="27600"
+      >
+        7:40 am
+      </option>
+      <option
+        value="27900"
+      >
+        7:45 am
+      </option>
+      <option
+        value="28200"
+      >
+        7:50 am
+      </option>
+      <option
+        value="28500"
+      >
+        7:55 am
+      </option>
+      <option
+        value="28800"
+      >
+        8:00 am
+      </option>
+      <option
+        value="29100"
+      >
+        8:05 am
+      </option>
+      <option
+        value="29400"
+      >
+        8:10 am
+      </option>
+      <option
+        value="29700"
+      >
+        8:15 am
+      </option>
+      <option
+        value="30000"
+      >
+        8:20 am
+      </option>
+      <option
+        value="30300"
+      >
+        8:25 am
+      </option>
+      <option
+        value="30600"
+      >
+        8:30 am
+      </option>
+      <option
+        value="30900"
+      >
+        8:35 am
+      </option>
+      <option
+        value="31200"
+      >
+        8:40 am
+      </option>
+      <option
+        value="31500"
+      >
+        8:45 am
+      </option>
+      <option
+        value="31800"
+      >
+        8:50 am
+      </option>
+      <option
+        value="32100"
+      >
+        8:55 am
+      </option>
+      <option
+        value="32400"
+      >
+        9:00 am
+      </option>
+      <option
+        value="32700"
+      >
+        9:05 am
+      </option>
+      <option
+        value="33000"
+      >
+        9:10 am
+      </option>
+      <option
+        value="33300"
+      >
+        9:15 am
+      </option>
+      <option
+        value="33600"
+      >
+        9:20 am
+      </option>
+      <option
+        value="33900"
+      >
+        9:25 am
+      </option>
+      <option
+        value="34200"
+      >
+        9:30 am
+      </option>
+      <option
+        value="34500"
+      >
+        9:35 am
+      </option>
+      <option
+        value="34800"
+      >
+        9:40 am
+      </option>
+      <option
+        value="35100"
+      >
+        9:45 am
+      </option>
+      <option
+        value="35400"
+      >
+        9:50 am
+      </option>
+      <option
+        value="35700"
+      >
+        9:55 am
+      </option>
+      <option
+        value="36000"
+      >
+        10:00 am
+      </option>
+      <option
+        value="36300"
+      >
+        10:05 am
+      </option>
+      <option
+        value="36600"
+      >
+        10:10 am
+      </option>
+      <option
+        value="36900"
+      >
+        10:15 am
+      </option>
+      <option
+        value="37200"
+      >
+        10:20 am
+      </option>
+      <option
+        value="37500"
+      >
+        10:25 am
+      </option>
+      <option
+        value="37800"
+      >
+        10:30 am
+      </option>
+      <option
+        value="38100"
+      >
+        10:35 am
+      </option>
+      <option
+        value="38400"
+      >
+        10:40 am
+      </option>
+      <option
+        value="38700"
+      >
+        10:45 am
+      </option>
+      <option
+        value="39000"
+      >
+        10:50 am
+      </option>
+      <option
+        value="39300"
+      >
+        10:55 am
+      </option>
+      <option
+        value="39600"
+      >
+        11:00 am
+      </option>
+      <option
+        value="39900"
+      >
+        11:05 am
+      </option>
+      <option
+        value="40200"
+      >
+        11:10 am
+      </option>
+      <option
+        value="40500"
+      >
+        11:15 am
+      </option>
+      <option
+        value="40800"
+      >
+        11:20 am
+      </option>
+      <option
+        value="41100"
+      >
+        11:25 am
+      </option>
+      <option
+        value="41400"
+      >
+        11:30 am
+      </option>
+      <option
+        value="41700"
+      >
+        11:35 am
+      </option>
+      <option
+        value="42000"
+      >
+        11:40 am
+      </option>
+      <option
+        value="42300"
+      >
+        11:45 am
+      </option>
+      <option
+        value="42600"
+      >
+        11:50 am
+      </option>
+      <option
+        value="42900"
+      >
+        11:55 am
+      </option>
+      <option
+        value="43200"
+      >
+        12:00 pm
+      </option>
+      <option
+        value="43500"
+      >
+        12:05 pm
+      </option>
+      <option
+        value="43800"
+      >
+        12:10 pm
+      </option>
+      <option
+        value="44100"
+      >
+        12:15 pm
+      </option>
+      <option
+        value="44400"
+      >
+        12:20 pm
+      </option>
+      <option
+        value="44700"
+      >
+        12:25 pm
+      </option>
+      <option
+        value="45000"
+      >
+        12:30 pm
+      </option>
+      <option
+        value="45300"
+      >
+        12:35 pm
+      </option>
+      <option
+        value="45600"
+      >
+        12:40 pm
+      </option>
+      <option
+        value="45900"
+      >
+        12:45 pm
+      </option>
+      <option
+        value="46200"
+      >
+        12:50 pm
+      </option>
+      <option
+        value="46500"
+      >
+        12:55 pm
+      </option>
+      <option
+        value="46800"
+      >
+        1:00 pm
+      </option>
+      <option
+        value="47100"
+      >
+        1:05 pm
+      </option>
+      <option
+        value="47400"
+      >
+        1:10 pm
+      </option>
+      <option
+        value="47700"
+      >
+        1:15 pm
+      </option>
+      <option
+        value="48000"
+      >
+        1:20 pm
+      </option>
+      <option
+        value="48300"
+      >
+        1:25 pm
+      </option>
+      <option
+        value="48600"
+      >
+        1:30 pm
+      </option>
+      <option
+        value="48900"
+      >
+        1:35 pm
+      </option>
+      <option
+        value="49200"
+      >
+        1:40 pm
+      </option>
+      <option
+        value="49500"
+      >
+        1:45 pm
+      </option>
+      <option
+        value="49800"
+      >
+        1:50 pm
+      </option>
+      <option
+        value="50100"
+      >
+        1:55 pm
+      </option>
+      <option
+        value="50400"
+      >
+        2:00 pm
+      </option>
+      <option
+        value="50700"
+      >
+        2:05 pm
+      </option>
+      <option
+        value="51000"
+      >
+        2:10 pm
+      </option>
+      <option
+        value="51300"
+      >
+        2:15 pm
+      </option>
+      <option
+        value="51600"
+      >
+        2:20 pm
+      </option>
+      <option
+        value="51900"
+      >
+        2:25 pm
+      </option>
+      <option
+        value="52200"
+      >
+        2:30 pm
+      </option>
+      <option
+        value="52500"
+      >
+        2:35 pm
+      </option>
+      <option
+        value="52800"
+      >
+        2:40 pm
+      </option>
+      <option
+        value="53100"
+      >
+        2:45 pm
+      </option>
+      <option
+        value="53400"
+      >
+        2:50 pm
+      </option>
+      <option
+        value="53700"
+      >
+        2:55 pm
+      </option>
+      <option
+        value="54000"
+      >
+        3:00 pm
+      </option>
+      <option
+        value="54300"
+      >
+        3:05 pm
+      </option>
+      <option
+        value="54600"
+      >
+        3:10 pm
+      </option>
+      <option
+        value="54900"
+      >
+        3:15 pm
+      </option>
+      <option
+        value="55200"
+      >
+        3:20 pm
+      </option>
+      <option
+        value="55500"
+      >
+        3:25 pm
+      </option>
+      <option
+        value="55800"
+      >
+        3:30 pm
+      </option>
+      <option
+        value="56100"
+      >
+        3:35 pm
+      </option>
+      <option
+        value="56400"
+      >
+        3:40 pm
+      </option>
+      <option
+        value="56700"
+      >
+        3:45 pm
+      </option>
+      <option
+        value="57000"
+      >
+        3:50 pm
+      </option>
+      <option
+        value="57300"
+      >
+        3:55 pm
+      </option>
+      <option
+        value="57600"
+      >
+        4:00 pm
+      </option>
+      <option
+        value="57900"
+      >
+        4:05 pm
+      </option>
+      <option
+        value="58200"
+      >
+        4:10 pm
+      </option>
+      <option
+        value="58500"
+      >
+        4:15 pm
+      </option>
+      <option
+        value="58800"
+      >
+        4:20 pm
+      </option>
+      <option
+        value="59100"
+      >
+        4:25 pm
+      </option>
+      <option
+        value="59400"
+      >
+        4:30 pm
+      </option>
+      <option
+        value="59700"
+      >
+        4:35 pm
+      </option>
+      <option
+        value="60000"
+      >
+        4:40 pm
+      </option>
+      <option
+        value="60300"
+      >
+        4:45 pm
+      </option>
+      <option
+        value="60600"
+      >
+        4:50 pm
+      </option>
+      <option
+        value="60900"
+      >
+        4:55 pm
+      </option>
+      <option
+        value="61200"
+      >
+        5:00 pm
+      </option>
+      <option
+        value="61500"
+      >
+        5:05 pm
+      </option>
+      <option
+        value="61800"
+      >
+        5:10 pm
+      </option>
+      <option
+        value="62100"
+      >
+        5:15 pm
+      </option>
+      <option
+        value="62400"
+      >
+        5:20 pm
+      </option>
+      <option
+        value="62700"
+      >
+        5:25 pm
+      </option>
+      <option
+        value="63000"
+      >
+        5:30 pm
+      </option>
+      <option
+        value="63300"
+      >
+        5:35 pm
+      </option>
+      <option
+        value="63600"
+      >
+        5:40 pm
+      </option>
+      <option
+        value="63900"
+      >
+        5:45 pm
+      </option>
+      <option
+        value="64200"
+      >
+        5:50 pm
+      </option>
+      <option
+        value="64500"
+      >
+        5:55 pm
+      </option>
+      <option
+        value="64800"
+      >
+        6:00 pm
+      </option>
+      <option
+        value="65100"
+      >
+        6:05 pm
+      </option>
+      <option
+        value="65400"
+      >
+        6:10 pm
+      </option>
+      <option
+        value="65700"
+      >
+        6:15 pm
+      </option>
+      <option
+        value="66000"
+      >
+        6:20 pm
+      </option>
+      <option
+        value="66300"
+      >
+        6:25 pm
+      </option>
+      <option
+        value="66600"
+      >
+        6:30 pm
+      </option>
+      <option
+        value="66900"
+      >
+        6:35 pm
+      </option>
+      <option
+        value="67200"
+      >
+        6:40 pm
+      </option>
+      <option
+        value="67500"
+      >
+        6:45 pm
+      </option>
+      <option
+        value="67800"
+      >
+        6:50 pm
+      </option>
+      <option
+        value="68100"
+      >
+        6:55 pm
+      </option>
+      <option
+        value="68400"
+      >
+        7:00 pm
+      </option>
+      <option
+        value="68700"
+      >
+        7:05 pm
+      </option>
+      <option
+        value="69000"
+      >
+        7:10 pm
+      </option>
+      <option
+        value="69300"
+      >
+        7:15 pm
+      </option>
+      <option
+        value="69600"
+      >
+        7:20 pm
+      </option>
+      <option
+        value="69900"
+      >
+        7:25 pm
+      </option>
+      <option
+        value="70200"
+      >
+        7:30 pm
+      </option>
+      <option
+        value="70500"
+      >
+        7:35 pm
+      </option>
+      <option
+        value="70800"
+      >
+        7:40 pm
+      </option>
+      <option
+        value="71100"
+      >
+        7:45 pm
+      </option>
+      <option
+        value="71400"
+      >
+        7:50 pm
+      </option>
+      <option
+        value="71700"
+      >
+        7:55 pm
+      </option>
+      <option
+        value="72000"
+      >
+        8:00 pm
+      </option>
+      <option
+        value="72300"
+      >
+        8:05 pm
+      </option>
+      <option
+        value="72600"
+      >
+        8:10 pm
+      </option>
+      <option
+        value="72900"
+      >
+        8:15 pm
+      </option>
+      <option
+        value="73200"
+      >
+        8:20 pm
+      </option>
+      <option
+        value="73500"
+      >
+        8:25 pm
+      </option>
+      <option
+        value="73800"
+      >
+        8:30 pm
+      </option>
+      <option
+        value="74100"
+      >
+        8:35 pm
+      </option>
+      <option
+        value="74400"
+      >
+        8:40 pm
+      </option>
+      <option
+        value="74700"
+      >
+        8:45 pm
+      </option>
+      <option
+        value="75000"
+      >
+        8:50 pm
+      </option>
+      <option
+        value="75300"
+      >
+        8:55 pm
+      </option>
+      <option
+        value="75600"
+      >
+        9:00 pm
+      </option>
+      <option
+        value="75900"
+      >
+        9:05 pm
+      </option>
+      <option
+        value="76200"
+      >
+        9:10 pm
+      </option>
+      <option
+        value="76500"
+      >
+        9:15 pm
+      </option>
+      <option
+        value="76800"
+      >
+        9:20 pm
+      </option>
+      <option
+        value="77100"
+      >
+        9:25 pm
+      </option>
+      <option
+        value="77400"
+      >
+        9:30 pm
+      </option>
+      <option
+        value="77700"
+      >
+        9:35 pm
+      </option>
+      <option
+        value="78000"
+      >
+        9:40 pm
+      </option>
+      <option
+        value="78300"
+      >
+        9:45 pm
+      </option>
+      <option
+        value="78600"
+      >
+        9:50 pm
+      </option>
+      <option
+        value="78900"
+      >
+        9:55 pm
+      </option>
+      <option
+        value="79200"
+      >
+        10:00 pm
+      </option>
+      <option
+        value="79500"
+      >
+        10:05 pm
+      </option>
+      <option
+        value="79800"
+      >
+        10:10 pm
+      </option>
+      <option
+        value="80100"
+      >
+        10:15 pm
+      </option>
+      <option
+        value="80400"
+      >
+        10:20 pm
+      </option>
+      <option
+        value="80700"
+      >
+        10:25 pm
+      </option>
+      <option
+        value="81000"
+      >
+        10:30 pm
+      </option>
+      <option
+        value="81300"
+      >
+        10:35 pm
+      </option>
+      <option
+        value="81600"
+      >
+        10:40 pm
+      </option>
+      <option
+        value="81900"
+      >
+        10:45 pm
+      </option>
+      <option
+        value="82200"
+      >
+        10:50 pm
+      </option>
+      <option
+        value="82500"
+      >
+        10:55 pm
+      </option>
+      <option
+        value="82800"
+      >
+        11:00 pm
+      </option>
+      <option
+        value="83100"
+      >
+        11:05 pm
+      </option>
+      <option
+        value="83400"
+      >
+        11:10 pm
+      </option>
+      <option
+        value="83700"
+      >
+        11:15 pm
+      </option>
+      <option
+        value="84000"
+      >
+        11:20 pm
+      </option>
+      <option
+        value="84300"
+      >
+        11:25 pm
+      </option>
+      <option
+        value="84600"
+      >
+        11:30 pm
+      </option>
+      <option
+        value="84900"
+      >
+        11:35 pm
+      </option>
+      <option
+        value="85200"
+      >
+        11:40 pm
+      </option>
+      <option
+        value="85500"
+      >
+        11:45 pm
+      </option>
+      <option
+        value="85800"
+      >
+        11:50 pm
+      </option>
+      <option
+        value="86100"
+      >
+        11:55 pm
+      </option>
+    </select>
+  </div>
 </div>
 `;
 
 exports[`Should correctly render InputTime with various parameters Test with min max times and steps functions 1`] = `
-<div
-  className="survey-question__input-select-container survey-question__input-time-container"
->
-  <select
-    id="test"
-    onChange={[Function]}
-    value=""
+<div>
+  <div
+    class="survey-question__input-select-container survey-question__input-time-container"
   >
-    <option
-      className="input-select-option"
-      value=""
-    />
-    <option
-      value={36000}
+    <select
+      id="test"
     >
-      10:00 am
-      
-    </option>
-    <option
-      value={36600}
-    >
-      10:10 am
-      
-    </option>
-    <option
-      value={37200}
-    >
-      10:20 am
-      
-    </option>
-    <option
-      value={37800}
-    >
-      10:30 am
-      
-    </option>
-    <option
-      value={38400}
-    >
-      10:40 am
-      
-    </option>
-    <option
-      value={39000}
-    >
-      10:50 am
-      
-    </option>
-    <option
-      value={39600}
-    >
-      11:00 am
-      
-    </option>
-    <option
-      value={40200}
-    >
-      11:10 am
-      
-    </option>
-    <option
-      value={40800}
-    >
-      11:20 am
-      
-    </option>
-    <option
-      value={41400}
-    >
-      11:30 am
-      
-    </option>
-    <option
-      value={42000}
-    >
-      11:40 am
-      
-    </option>
-    <option
-      value={42600}
-    >
-      11:50 am
-      
-    </option>
-    <option
-      value={43200}
-    >
-      12:00 pm
-      
-    </option>
-  </select>
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        value="36000"
+      >
+        10:00 am
+      </option>
+      <option
+        value="36600"
+      >
+        10:10 am
+      </option>
+      <option
+        value="37200"
+      >
+        10:20 am
+      </option>
+      <option
+        value="37800"
+      >
+        10:30 am
+      </option>
+      <option
+        value="38400"
+      >
+        10:40 am
+      </option>
+      <option
+        value="39000"
+      >
+        10:50 am
+      </option>
+      <option
+        value="39600"
+      >
+        11:00 am
+      </option>
+      <option
+        value="40200"
+      >
+        11:10 am
+      </option>
+      <option
+        value="40800"
+      >
+        11:20 am
+      </option>
+      <option
+        value="41400"
+      >
+        11:30 am
+      </option>
+      <option
+        value="42000"
+      >
+        11:40 am
+      </option>
+      <option
+        value="42600"
+      >
+        11:50 am
+      </option>
+      <option
+        value="43200"
+      >
+        12:00 pm
+      </option>
+    </select>
+  </div>
 </div>
 `;
 
 exports[`Should correctly render InputTime with various parameters Test with min max times values 1`] = `
-<div
-  className="survey-question__input-select-container survey-question__input-time-container"
->
-  <select
-    id="test"
-    onChange={[Function]}
-    value=""
+<div>
+  <div
+    class="survey-question__input-select-container survey-question__input-time-container"
   >
-    <option
-      className="input-select-option"
-      value=""
-    />
-    <option
-      value={36000}
+    <select
+      id="test"
     >
-      10:00 am
-      
-    </option>
-    <option
-      value={36300}
-    >
-      10:05 am
-      
-    </option>
-    <option
-      value={36600}
-    >
-      10:10 am
-      
-    </option>
-    <option
-      value={36900}
-    >
-      10:15 am
-      
-    </option>
-    <option
-      value={37200}
-    >
-      10:20 am
-      
-    </option>
-    <option
-      value={37500}
-    >
-      10:25 am
-      
-    </option>
-    <option
-      value={37800}
-    >
-      10:30 am
-      
-    </option>
-    <option
-      value={38100}
-    >
-      10:35 am
-      
-    </option>
-    <option
-      value={38400}
-    >
-      10:40 am
-      
-    </option>
-    <option
-      value={38700}
-    >
-      10:45 am
-      
-    </option>
-    <option
-      value={39000}
-    >
-      10:50 am
-      
-    </option>
-    <option
-      value={39300}
-    >
-      10:55 am
-      
-    </option>
-    <option
-      value={39600}
-    >
-      11:00 am
-      
-    </option>
-    <option
-      value={39900}
-    >
-      11:05 am
-      
-    </option>
-    <option
-      value={40200}
-    >
-      11:10 am
-      
-    </option>
-    <option
-      value={40500}
-    >
-      11:15 am
-      
-    </option>
-    <option
-      value={40800}
-    >
-      11:20 am
-      
-    </option>
-    <option
-      value={41100}
-    >
-      11:25 am
-      
-    </option>
-    <option
-      value={41400}
-    >
-      11:30 am
-      
-    </option>
-    <option
-      value={41700}
-    >
-      11:35 am
-      
-    </option>
-    <option
-      value={42000}
-    >
-      11:40 am
-      
-    </option>
-    <option
-      value={42300}
-    >
-      11:45 am
-      
-    </option>
-    <option
-      value={42600}
-    >
-      11:50 am
-      
-    </option>
-    <option
-      value={42900}
-    >
-      11:55 am
-      
-    </option>
-    <option
-      value={43200}
-    >
-      12:00 pm
-      
-    </option>
-  </select>
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        value="36000"
+      >
+        10:00 am
+      </option>
+      <option
+        value="36300"
+      >
+        10:05 am
+      </option>
+      <option
+        value="36600"
+      >
+        10:10 am
+      </option>
+      <option
+        value="36900"
+      >
+        10:15 am
+      </option>
+      <option
+        value="37200"
+      >
+        10:20 am
+      </option>
+      <option
+        value="37500"
+      >
+        10:25 am
+      </option>
+      <option
+        value="37800"
+      >
+        10:30 am
+      </option>
+      <option
+        value="38100"
+      >
+        10:35 am
+      </option>
+      <option
+        value="38400"
+      >
+        10:40 am
+      </option>
+      <option
+        value="38700"
+      >
+        10:45 am
+      </option>
+      <option
+        value="39000"
+      >
+        10:50 am
+      </option>
+      <option
+        value="39300"
+      >
+        10:55 am
+      </option>
+      <option
+        value="39600"
+      >
+        11:00 am
+      </option>
+      <option
+        value="39900"
+      >
+        11:05 am
+      </option>
+      <option
+        value="40200"
+      >
+        11:10 am
+      </option>
+      <option
+        value="40500"
+      >
+        11:15 am
+      </option>
+      <option
+        value="40800"
+      >
+        11:20 am
+      </option>
+      <option
+        value="41100"
+      >
+        11:25 am
+      </option>
+      <option
+        value="41400"
+      >
+        11:30 am
+      </option>
+      <option
+        value="41700"
+      >
+        11:35 am
+      </option>
+      <option
+        value="42000"
+      >
+        11:40 am
+      </option>
+      <option
+        value="42300"
+      >
+        11:45 am
+      </option>
+      <option
+        value="42600"
+      >
+        11:50 am
+      </option>
+      <option
+        value="42900"
+      >
+        11:55 am
+      </option>
+      <option
+        value="43200"
+      >
+        12:00 pm
+      </option>
+    </select>
+  </div>
 </div>
 `;
 
 exports[`Should correctly render InputTime with various parameters Test with suffixTimes, minutes steps and hour separator 1`] = `
-<div
-  className="survey-question__input-select-container survey-question__input-time-container"
->
-  <select
-    id="test"
-    onChange={[Function]}
-    value=""
+<div>
+  <div
+    class="survey-question__input-select-container survey-question__input-time-container"
   >
-    <option
-      className="input-select-option"
-      value=""
-    />
-    <option
-      value={0}
-    >
-      12:00 am
-      
-    </option>
-    <option
-      value={900}
-    >
-      12:15 am
-      
-    </option>
-    <option
-      value={1800}
-    >
-      12:30 am
-      
-    </option>
-    <option
-      value={2700}
-    >
-      12:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_3600"
-    />
-    <option
-      value={3600}
-    >
-      1:00 am
-      
-    </option>
-    <option
-      value={4500}
-    >
-      1:15 am
-      
-    </option>
-    <option
-      value={5400}
-    >
-      1:30 am
-      
-    </option>
-    <option
-      value={6300}
-    >
-      1:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_7200"
-    />
-    <option
-      value={7200}
-    >
-      2:00 am
-      
-    </option>
-    <option
-      value={8100}
-    >
-      2:15 am
-      
-    </option>
-    <option
-      value={9000}
-    >
-      2:30 am
-      
-    </option>
-    <option
-      value={9900}
-    >
-      2:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_10800"
-    />
-    <option
-      value={10800}
-    >
-      3:00 am
-      
-    </option>
-    <option
-      value={11700}
-    >
-      3:15 am
-      
-    </option>
-    <option
-      value={12600}
-    >
-      3:30 am
-      
-    </option>
-    <option
-      value={13500}
-    >
-      3:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_14400"
-    />
-    <option
-      value={14400}
-    >
-      4:00 am
-      
-    </option>
-    <option
-      value={15300}
-    >
-      4:15 am
-      
-    </option>
-    <option
-      value={16200}
-    >
-      4:30 am
-      
-    </option>
-    <option
-      value={17100}
-    >
-      4:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_18000"
-    />
-    <option
-      value={18000}
-    >
-      5:00 am
-      
-    </option>
-    <option
-      value={18900}
-    >
-      5:15 am
-      
-    </option>
-    <option
-      value={19800}
-    >
-      5:30 am
-      
-    </option>
-    <option
-      value={20700}
-    >
-      5:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_21600"
-    />
-    <option
-      value={21600}
-    >
-      6:00 am
-      
-    </option>
-    <option
-      value={22500}
-    >
-      6:15 am
-      
-    </option>
-    <option
-      value={23400}
-    >
-      6:30 am
-      
-    </option>
-    <option
-      value={24300}
-    >
-      6:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_25200"
-    />
-    <option
-      value={25200}
-    >
-      7:00 am
-      
-    </option>
-    <option
-      value={26100}
-    >
-      7:15 am
-      
-    </option>
-    <option
-      value={27000}
-    >
-      7:30 am
-      
-    </option>
-    <option
-      value={27900}
-    >
-      7:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_28800"
-    />
-    <option
-      value={28800}
-    >
-      8:00 am
-      
-    </option>
-    <option
-      value={29700}
-    >
-      8:15 am
-      
-    </option>
-    <option
-      value={30600}
-    >
-      8:30 am
-      
-    </option>
-    <option
-      value={31500}
-    >
-      8:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_32400"
-    />
-    <option
-      value={32400}
-    >
-      9:00 am
-      
-    </option>
-    <option
-      value={33300}
-    >
-      9:15 am
-      
-    </option>
-    <option
-      value={34200}
-    >
-      9:30 am
-      
-    </option>
-    <option
-      value={35100}
-    >
-      9:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_36000"
-    />
-    <option
-      value={36000}
-    >
-      10:00 am
-       10 suffix
-    </option>
-    <option
-      value={36900}
-    >
-      10:15 am
-      
-    </option>
-    <option
-      value={37800}
-    >
-      10:30 am
-      
-    </option>
-    <option
-      value={38700}
-    >
-      10:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_39600"
-    />
-    <option
-      value={39600}
-    >
-      11:00 am
-      
-    </option>
-    <option
-      value={40500}
-    >
-      11:15 am
-      
-    </option>
-    <option
-      value={41400}
-    >
-      11:30 am
-      
-    </option>
-    <option
-      value={42300}
-    >
-      11:45 am
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_43200"
-    />
-    <option
-      value={43200}
-    >
-      12:00 pm
-      
-    </option>
-    <option
-      value={44100}
-    >
-      12:15 pm
-      
-    </option>
-    <option
-      value={45000}
-    >
-      12:30 pm
-      
-    </option>
-    <option
-      value={45900}
-    >
-      12:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_46800"
-    />
-    <option
-      value={46800}
-    >
-      1:00 pm
-       13 suffix
-    </option>
-    <option
-      value={47700}
-    >
-      1:15 pm
-      
-    </option>
-    <option
-      value={48600}
-    >
-      1:30 pm
-      
-    </option>
-    <option
-      value={49500}
-    >
-      1:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_50400"
-    />
-    <option
-      value={50400}
-    >
-      2:00 pm
-      
-    </option>
-    <option
-      value={51300}
-    >
-      2:15 pm
-      
-    </option>
-    <option
-      value={52200}
-    >
-      2:30 pm
-      
-    </option>
-    <option
-      value={53100}
-    >
-      2:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_54000"
-    />
-    <option
-      value={54000}
-    >
-      3:00 pm
-      
-    </option>
-    <option
-      value={54900}
-    >
-      3:15 pm
-      
-    </option>
-    <option
-      value={55800}
-    >
-      3:30 pm
-      
-    </option>
-    <option
-      value={56700}
-    >
-      3:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_57600"
-    />
-    <option
-      value={57600}
-    >
-      4:00 pm
-      
-    </option>
-    <option
-      value={58500}
-    >
-      4:15 pm
-      
-    </option>
-    <option
-      value={59400}
-    >
-      4:30 pm
-      
-    </option>
-    <option
-      value={60300}
-    >
-      4:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_61200"
-    />
-    <option
-      value={61200}
-    >
-      5:00 pm
-      
-    </option>
-    <option
-      value={62100}
-    >
-      5:15 pm
-      
-    </option>
-    <option
-      value={63000}
-    >
-      5:30 pm
-      
-    </option>
-    <option
-      value={63900}
-    >
-      5:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_64800"
-    />
-    <option
-      value={64800}
-    >
-      6:00 pm
-      
-    </option>
-    <option
-      value={65700}
-    >
-      6:15 pm
-      
-    </option>
-    <option
-      value={66600}
-    >
-      6:30 pm
-      
-    </option>
-    <option
-      value={67500}
-    >
-      6:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_68400"
-    />
-    <option
-      value={68400}
-    >
-      7:00 pm
-      
-    </option>
-    <option
-      value={69300}
-    >
-      7:15 pm
-      
-    </option>
-    <option
-      value={70200}
-    >
-      7:30 pm
-      
-    </option>
-    <option
-      value={71100}
-    >
-      7:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_72000"
-    />
-    <option
-      value={72000}
-    >
-      8:00 pm
-      
-    </option>
-    <option
-      value={72900}
-    >
-      8:15 pm
-      
-    </option>
-    <option
-      value={73800}
-    >
-      8:30 pm
-      
-    </option>
-    <option
-      value={74700}
-    >
-      8:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_75600"
-    />
-    <option
-      value={75600}
-    >
-      9:00 pm
-      
-    </option>
-    <option
-      value={76500}
-    >
-      9:15 pm
-      
-    </option>
-    <option
-      value={77400}
-    >
-      9:30 pm
-      
-    </option>
-    <option
-      value={78300}
-    >
-      9:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_79200"
-    />
-    <option
-      value={79200}
-    >
-      10:00 pm
-      
-    </option>
-    <option
-      value={80100}
-    >
-      10:15 pm
-      
-    </option>
-    <option
-      value={81000}
-    >
-      10:30 pm
-      
-    </option>
-    <option
-      value={81900}
-    >
-      10:45 pm
-      
-    </option>
-    <option
-      disabled={true}
-      value="disabled_82800"
-    />
-    <option
-      value={82800}
-    >
-      11:00 pm
-      
-    </option>
-    <option
-      value={83700}
-    >
-      11:15 pm
-      
-    </option>
-    <option
-      value={84600}
-    >
-      11:30 pm
-      
-    </option>
-    <option
-      value={85500}
-    >
-      11:45 pm
-      
-    </option>
-  </select>
+    <select
+      id="test"
+    >
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        value="0"
+      >
+        12:00 am
+      </option>
+      <option
+        value="900"
+      >
+        12:15 am
+      </option>
+      <option
+        value="1800"
+      >
+        12:30 am
+      </option>
+      <option
+        value="2700"
+      >
+        12:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_3600"
+      />
+      <option
+        value="3600"
+      >
+        1:00 am
+      </option>
+      <option
+        value="4500"
+      >
+        1:15 am
+      </option>
+      <option
+        value="5400"
+      >
+        1:30 am
+      </option>
+      <option
+        value="6300"
+      >
+        1:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_7200"
+      />
+      <option
+        value="7200"
+      >
+        2:00 am
+      </option>
+      <option
+        value="8100"
+      >
+        2:15 am
+      </option>
+      <option
+        value="9000"
+      >
+        2:30 am
+      </option>
+      <option
+        value="9900"
+      >
+        2:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_10800"
+      />
+      <option
+        value="10800"
+      >
+        3:00 am
+      </option>
+      <option
+        value="11700"
+      >
+        3:15 am
+      </option>
+      <option
+        value="12600"
+      >
+        3:30 am
+      </option>
+      <option
+        value="13500"
+      >
+        3:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_14400"
+      />
+      <option
+        value="14400"
+      >
+        4:00 am
+      </option>
+      <option
+        value="15300"
+      >
+        4:15 am
+      </option>
+      <option
+        value="16200"
+      >
+        4:30 am
+      </option>
+      <option
+        value="17100"
+      >
+        4:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_18000"
+      />
+      <option
+        value="18000"
+      >
+        5:00 am
+      </option>
+      <option
+        value="18900"
+      >
+        5:15 am
+      </option>
+      <option
+        value="19800"
+      >
+        5:30 am
+      </option>
+      <option
+        value="20700"
+      >
+        5:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_21600"
+      />
+      <option
+        value="21600"
+      >
+        6:00 am
+      </option>
+      <option
+        value="22500"
+      >
+        6:15 am
+      </option>
+      <option
+        value="23400"
+      >
+        6:30 am
+      </option>
+      <option
+        value="24300"
+      >
+        6:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_25200"
+      />
+      <option
+        value="25200"
+      >
+        7:00 am
+      </option>
+      <option
+        value="26100"
+      >
+        7:15 am
+      </option>
+      <option
+        value="27000"
+      >
+        7:30 am
+      </option>
+      <option
+        value="27900"
+      >
+        7:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_28800"
+      />
+      <option
+        value="28800"
+      >
+        8:00 am
+      </option>
+      <option
+        value="29700"
+      >
+        8:15 am
+      </option>
+      <option
+        value="30600"
+      >
+        8:30 am
+      </option>
+      <option
+        value="31500"
+      >
+        8:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_32400"
+      />
+      <option
+        value="32400"
+      >
+        9:00 am
+      </option>
+      <option
+        value="33300"
+      >
+        9:15 am
+      </option>
+      <option
+        value="34200"
+      >
+        9:30 am
+      </option>
+      <option
+        value="35100"
+      >
+        9:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_36000"
+      />
+      <option
+        value="36000"
+      >
+        10:00 am
+         10 suffix
+      </option>
+      <option
+        value="36900"
+      >
+        10:15 am
+      </option>
+      <option
+        value="37800"
+      >
+        10:30 am
+      </option>
+      <option
+        value="38700"
+      >
+        10:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_39600"
+      />
+      <option
+        value="39600"
+      >
+        11:00 am
+      </option>
+      <option
+        value="40500"
+      >
+        11:15 am
+      </option>
+      <option
+        value="41400"
+      >
+        11:30 am
+      </option>
+      <option
+        value="42300"
+      >
+        11:45 am
+      </option>
+      <option
+        disabled=""
+        value="disabled_43200"
+      />
+      <option
+        value="43200"
+      >
+        12:00 pm
+      </option>
+      <option
+        value="44100"
+      >
+        12:15 pm
+      </option>
+      <option
+        value="45000"
+      >
+        12:30 pm
+      </option>
+      <option
+        value="45900"
+      >
+        12:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_46800"
+      />
+      <option
+        value="46800"
+      >
+        1:00 pm
+         13 suffix
+      </option>
+      <option
+        value="47700"
+      >
+        1:15 pm
+      </option>
+      <option
+        value="48600"
+      >
+        1:30 pm
+      </option>
+      <option
+        value="49500"
+      >
+        1:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_50400"
+      />
+      <option
+        value="50400"
+      >
+        2:00 pm
+      </option>
+      <option
+        value="51300"
+      >
+        2:15 pm
+      </option>
+      <option
+        value="52200"
+      >
+        2:30 pm
+      </option>
+      <option
+        value="53100"
+      >
+        2:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_54000"
+      />
+      <option
+        value="54000"
+      >
+        3:00 pm
+      </option>
+      <option
+        value="54900"
+      >
+        3:15 pm
+      </option>
+      <option
+        value="55800"
+      >
+        3:30 pm
+      </option>
+      <option
+        value="56700"
+      >
+        3:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_57600"
+      />
+      <option
+        value="57600"
+      >
+        4:00 pm
+      </option>
+      <option
+        value="58500"
+      >
+        4:15 pm
+      </option>
+      <option
+        value="59400"
+      >
+        4:30 pm
+      </option>
+      <option
+        value="60300"
+      >
+        4:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_61200"
+      />
+      <option
+        value="61200"
+      >
+        5:00 pm
+      </option>
+      <option
+        value="62100"
+      >
+        5:15 pm
+      </option>
+      <option
+        value="63000"
+      >
+        5:30 pm
+      </option>
+      <option
+        value="63900"
+      >
+        5:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_64800"
+      />
+      <option
+        value="64800"
+      >
+        6:00 pm
+      </option>
+      <option
+        value="65700"
+      >
+        6:15 pm
+      </option>
+      <option
+        value="66600"
+      >
+        6:30 pm
+      </option>
+      <option
+        value="67500"
+      >
+        6:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_68400"
+      />
+      <option
+        value="68400"
+      >
+        7:00 pm
+      </option>
+      <option
+        value="69300"
+      >
+        7:15 pm
+      </option>
+      <option
+        value="70200"
+      >
+        7:30 pm
+      </option>
+      <option
+        value="71100"
+      >
+        7:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_72000"
+      />
+      <option
+        value="72000"
+      >
+        8:00 pm
+      </option>
+      <option
+        value="72900"
+      >
+        8:15 pm
+      </option>
+      <option
+        value="73800"
+      >
+        8:30 pm
+      </option>
+      <option
+        value="74700"
+      >
+        8:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_75600"
+      />
+      <option
+        value="75600"
+      >
+        9:00 pm
+      </option>
+      <option
+        value="76500"
+      >
+        9:15 pm
+      </option>
+      <option
+        value="77400"
+      >
+        9:30 pm
+      </option>
+      <option
+        value="78300"
+      >
+        9:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_79200"
+      />
+      <option
+        value="79200"
+      >
+        10:00 pm
+      </option>
+      <option
+        value="80100"
+      >
+        10:15 pm
+      </option>
+      <option
+        value="81000"
+      >
+        10:30 pm
+      </option>
+      <option
+        value="81900"
+      >
+        10:45 pm
+      </option>
+      <option
+        disabled=""
+        value="disabled_82800"
+      />
+      <option
+        value="82800"
+      >
+        11:00 pm
+      </option>
+      <option
+        value="83700"
+      >
+        11:15 pm
+      </option>
+      <option
+        value="84600"
+      >
+        11:30 pm
+      </option>
+      <option
+        value="85500"
+      >
+        11:45 pm
+      </option>
+    </select>
+  </div>
 </div>
 `;

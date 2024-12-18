@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 

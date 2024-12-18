@@ -5,7 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { connect }         from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { withTranslation } from 'react-i18next';
 import moment              from 'moment-business-days';
 import _get                from 'lodash/get';
@@ -21,7 +22,6 @@ import { InterviewContext } from 'evolution-frontend/lib/contexts/InterviewConte
 import { withPreferencesHOC } from 'evolution-frontend/lib/components/hoc/WithPreferencesHoc';
 
 export class ValidateSurvey extends React.Component {
-  static contextType = InterviewContext;
 
   constructor(props) {
     super(props);
@@ -174,25 +174,49 @@ export class ValidateSurvey extends React.Component {
 
 }
 
-const mapStateToProps = (state, props) => {
-  return {
-    interview      : state.survey.interview,
-    interviewLoaded: state.survey.interviewLoaded,
-    errors         : state.survey.errors,
-    submitted      : state.survey.submitted,
-    user           : state.auth.user,
-    loadingState   : state.loadingState.loadingState
-  };
+const MainSurvey = withTranslation()(withSurveyContext(withPreferencesHOC(ValidateSurvey)));
+
+const ValidateSurveyWrapper = (props) => {
+    const interview = useSelector((state) => state.survey.interview);
+    const interviewLoaded = useSelector((state) => state.survey.interviewLoaded);
+    const errors = useSelector((state) => state.survey.errors);
+    const submitted = useSelector((state) => state.survey.submitted);
+    const user = useSelector((state) => state.auth.user);
+    const loadingState = useSelector((state) => state.loadingState.loadingState);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { sectionShortname, interviewUuid } = useParams();
+    const { state } = React.useContext(InterviewContext);
+
+    const startSetInterviewAction = (interviewUuid, callback) =>
+        dispatch(startSetSurveyValidateInterview(interviewUuid, callback));
+    const startUpdateInterviewAction = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
+        dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback, navigate));
+    const startAddGroupedObjectsAction = (newObjectsCount, insertSequence, path, attributes, callback, returnOnly) =>
+        dispatch(startSurveyValidateAddGroupedObjects(newObjectsCount, insertSequence, path, attributes, callback, returnOnly));
+    const startRemoveGroupedObjectsAction = (paths, callback, returnOnly) =>
+        dispatch(startRemoveGroupedObjectsAction(paths, callback, returnOnly));
+
+    return (
+        <MainSurvey
+            {...props}
+            sectionShortname={sectionShortname}
+            interviewUuid={interviewUuid}
+            interview={interview}
+            interviewLoaded={interviewLoaded}
+            errors={errors}
+            submitted={submitted}
+            user={user}
+            loadingState={loadingState}
+            location={location}
+            interviewContext={state}
+            startSetSurveyValidateInterview={startSetInterviewAction}
+            startUpdateInterview={startUpdateInterviewAction}
+            startAddGroupedObjects={startAddGroupedObjectsAction}
+            startRemoveGroupedObjects={startRemoveGroupedObjectsAction}
+        />
+    );
 };
 
-const mapDispatchToProps = (dispatch, props) => ({
-  startSetSurveyValidateInterview: (interviewUuid, callback)                                                 => dispatch(startSetSurveyValidateInterview(interviewUuid, callback)),
-  startUpdateInterview           : (sectionShortname, valuesByPath, unsetPaths, interview, callback)         => dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback)),
-  startAddGroupedObjects         : (newObjectsCount, insertSequence, path, attributes, callback, returnOnly) => dispatch(startSurveyValidateAddGroupedObjects(newObjectsCount, insertSequence, path, attributes, callback, returnOnly)),
-  startRemoveGroupedObjects      : (paths, callback, returnOnly)                                             => dispatch(startSurveyValidateRemoveGroupedObjects(paths, callback, returnOnly))
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withTranslation()(withSurveyContext(withPreferencesHOC(ValidateSurvey))));
+export default ValidateSurveyWrapper;

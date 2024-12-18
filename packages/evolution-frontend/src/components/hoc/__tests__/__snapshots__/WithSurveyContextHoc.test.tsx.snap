@@ -2,11 +2,13 @@
 
 exports[`Test HOC 1`] = `
 <div>
-  key1
-  key2
-   
-  normal
-   
-  This is a test component
+  <div>
+    key1
+    key2
+     
+    normal
+     
+    This is a test component
+  </div>
 </div>
 `;

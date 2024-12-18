@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import { withTranslation, WithTranslation } from 'react-i18next';
 
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';

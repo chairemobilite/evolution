@@ -1,79 +1,63 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Should correctly render InputString with a value of 0 1`] = `
-<input
-  autoComplete="none"
-  className="apptr__form-input apptr__input-string input-large"
-  id="test"
-  maxLength={255}
-  name="test"
-  onBlur={[MockFunction]}
-  onChange={[Function]}
-  style={
-    {
-      "textTransform": "none",
-    }
-  }
-  type="text"
-  value={0}
-/>
+<div>
+  <input
+    autocomplete="none"
+    class="apptr__form-input apptr__input-string input-large"
+    id="test"
+    maxlength="255"
+    name="test"
+    style="text-transform: none;"
+    type="text"
+    value="0"
+  />
+</div>
 `;
 
 exports[`Should correctly render InputString with all parameters 1`] = `
-<input
-  autoComplete="none"
-  className="apptr__form-input apptr__input-string input-medium"
-  id="test"
-  inputMode="decimal"
-  maxLength={20}
-  name="test"
-  onBlur={[Function]}
-  onChange={[Function]}
-  placeholder="example placeholder"
-  style={
-    {
-      "textTransform": "lowercase",
-    }
-  }
-  type="text"
-  value="test"
-/>
+<div>
+  <input
+    autocomplete="none"
+    class="apptr__form-input apptr__input-string input-medium"
+    id="test"
+    inputmode="decimal"
+    maxlength="20"
+    name="test"
+    placeholder="example placeholder"
+    style="text-transform: lowercase;"
+    type="text"
+    value="test"
+  />
+</div>
 `;
 
 exports[`Should correctly render InputString with base parameters 1`] = `
-<input
-  autoComplete="none"
-  className="apptr__form-input apptr__input-string input-large"
-  id="test"
-  maxLength={255}
-  name="test"
-  onBlur={[MockFunction]}
-  onChange={[Function]}
-  style={
-    {
-      "textTransform": "none",
-    }
-  }
-  type="text"
-  value="value"
-/>
+<div>
+  <input
+    autocomplete="none"
+    class="apptr__form-input apptr__input-string input-large"
+    id="test"
+    maxlength="255"
+    name="test"
+    style="text-transform: none;"
+    type="text"
+    value="value"
+  />
+</div>
 `;
 
 exports[`Should correctly render InputString with default value as function 1`] = `
-<input
-  autoComplete="none"
-  className="apptr__form-input apptr__input-string input-medium"
-  id="test"
-  maxLength={20}
-  name="test"
-  onBlur={[Function]}
-  onChange={[Function]}
-  style={
-    {
-      "textTransform": "none",
-    }
-  }
-  type="text"
-  value="fctDefault"
-/>
+<div>
+  <input
+    autocomplete="none"
+    class="apptr__form-input apptr__input-string input-medium"
+    id="test"
+    maxlength="20"
+    name="test"
+    style="text-transform: none;"
+    type="text"
+    value="fctDefault"
+  />
+</div>
 `;

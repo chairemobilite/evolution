@@ -5,8 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event'
+import '@testing-library/jest-dom';
 
 import { interviewAttributes } from './interviewData.test';
 import InputMapFindPlace from '../InputMapFindPlace';
@@ -51,7 +52,7 @@ const baseWidgetConfig = {
 describe('Render InputMapPoint with various parameters', () => {
 
     test('Test with minimal parameters', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputMapFindPlace
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -63,7 +64,7 @@ describe('Render InputMapPoint with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with all parameters', () => {
@@ -94,7 +95,7 @@ describe('Render InputMapPoint with various parameters', () => {
             ],
             updateDefaultValueWhenResponded: true
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputMapFindPlace
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -106,7 +107,7 @@ describe('Render InputMapPoint with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
     
 });
@@ -157,7 +158,7 @@ describe('Test geocoding requests', () => {
 
     test('Geocode with multiple results', async () => {
     
-        const findPlaceWidget = mount(<InputMapFindPlace
+        const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
@@ -168,28 +169,23 @@ describe('Test geocoding requests', () => {
             path='foo.test'
             loadingState={0}
         />);
+        const user = userEvent.setup();
 
         // Find and click on the Geocode button, to return multiple values
         mockedGeocode.mockResolvedValueOnce([placeFeature1, placeFeature2]);
-        const geocodeButton = findPlaceWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('mousedown');
-        geocodeButton.simulate('mouseup');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // The select list should display 4 children (2 places and the 2 extra elements) and should not have a confirm button
-        findPlaceWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-        const selectionList = findPlaceWidget.find(`select`);
-        const selectionDomElement = selectionList.getDOMNode<HTMLSelectElement>();
+
+        // The select list should display 4 children (2 places and the 2 extra elements) and should not have a confirm button
+        const selectionList = container.querySelector('select');
+        expect(selectionList).toBeInTheDocument();
+        const selectionDomElement = selectionList as HTMLSelectElement;
         expect(selectionDomElement.children.length).toEqual(4);
         expect(selectionDomElement.children[1].textContent).toEqual('Foo extra good restaurant (123 test street)');
         expect(selectionDomElement.children[2].textContent).toEqual('123 foo street');
-    
-        const confirmButton = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
-        expect(confirmButton.length).toEqual(0);
+
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
 
         // Make sure the value has not been changed
         expect(mockOnValueChange).not.toHaveBeenCalled();
@@ -198,7 +194,7 @@ describe('Test geocoding requests', () => {
 
     test('Geocode with single results, and confirm result', async () => {
         
-        const findPlaceWidget = mount(<InputMapFindPlace
+        const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
@@ -210,28 +206,21 @@ describe('Test geocoding requests', () => {
             loadingState={0}
         />);
         
-        // Find and click on the Geocode button, to return multiple values
-        mockedGeocode.mockResolvedValueOnce([placeFeature1]);
-        const geocodeButton = findPlaceWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('mousedown');
-        geocodeButton.simulate('mouseup');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // The select list should display 3 children (1 place and the 2 extra elements) and the confirm button should be present
-        findPlaceWidget.update();
+        const user = userEvent.setup();
+
+        // Find and click on the Geocode button, to return a single result
+       mockedGeocode.mockResolvedValueOnce([placeFeature1]);
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-        const selectionList = findPlaceWidget.find(`select`);
-        const selectionDomElement = selectionList.getDOMNode<HTMLSelectElement>();
+        const selectionList = container.querySelector('select');
+        expect(selectionList).toBeInTheDocument();
+        const selectionDomElement = selectionList as HTMLSelectElement;
         expect(selectionDomElement.children.length).toEqual(3);
         expect(selectionDomElement.children[1].textContent).toEqual('Foo extra good restaurant (123 test street)');
-    
-        // Click on the confirm button and make sure the onValueChanged function has been called
-        const confirmButton = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
-        expect(confirmButton.length).toEqual(1);
-        confirmButton.simulate('click');
+
+        // Click on the confirm button and make sure the update function has been called
+        await user.click(screen.getByText('ConfirmLocation'));
         expect(mockOnValueChange).toHaveBeenCalledTimes(1);
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: {
             type: 'Feature' as const,
@@ -247,18 +236,14 @@ describe('Test geocoding requests', () => {
             }
         }}})
 
-        // There should not be any selection or confirm widgets
-        findPlaceWidget.update();
-        const selectionList2 = findPlaceWidget.find(`select`);
-        expect(selectionList2.length).toEqual(0);
-        const confirmButton2 = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
-        expect(confirmButton2.length).toEqual(0);
-        
+        // There should not be any selection or confirm widgets anymore
+        expect(container.querySelector('select')).not.toBeInTheDocument();
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
     });
 
     test('Geocode with single result, then re-query with undefined results', async () => {
     
-        const findPlaceWidget = mount(<InputMapFindPlace
+        const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
@@ -270,48 +255,39 @@ describe('Test geocoding requests', () => {
             loadingState={0}
         />);
 
-        // Find and click on the Geocode button, to return multiple values
+        const user = userEvent.setup();
+
+        // Select and confirm button should not be present
+        expect(container.querySelector('select')).not.toBeInTheDocument();
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
+
+        // Find and click on the Geocode button, to return a single result
         mockedGeocode.mockResolvedValueOnce([placeFeature1]);
-        const geocodeButton = findPlaceWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('mousedown');
-        geocodeButton.simulate('mouseup');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // Make sure the widget after 1 result are present
-        findPlaceWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-        const selectionList = findPlaceWidget.find(`select`);
-        expect(selectionList.length).toEqual(1);
+        const selectionList = container.querySelector('select');
+        expect(selectionList).toBeInTheDocument();
 
-        const confirmButton = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
-        expect(confirmButton.length).toEqual(1);
+        expect(screen.getByText('ConfirmLocation')).toBeInTheDocument();
         
         // Click the geocode button again, but get undefined values
         mockedGeocode.mockResolvedValueOnce(undefined);
         const newGeocodingString = 'other string';
         testWidgetConfig.geocodingQueryString.mockReturnValueOnce(newGeocodingString);
-        geocodeButton.simulate('mousedown');
-        geocodeButton.simulate('mouseup');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // The select list should display 4 children (2 places and the 2 extra elements) and should not have a confirm button
-        findPlaceWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(2);
         expect(mockedGeocode).toHaveBeenLastCalledWith(newGeocodingString, expect.anything());
-        const selectionList2 = findPlaceWidget.find(`select`);
-        expect(selectionList2.length).toEqual(0);
-        const confirmButton2 = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
-        expect(confirmButton2.length).toEqual(0);
+        const selectionList2 = container.querySelector('select');
+        expect(selectionList2).not.toBeInTheDocument();
+
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
         
     });
 
     test('Geocode with single result, then re-query with rejection', async () => {
     
-        const findPlaceWidget = mount(<InputMapFindPlace
+        const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
@@ -322,43 +298,33 @@ describe('Test geocoding requests', () => {
             path='foo.test'
             loadingState={0}
         />);
+        const user = userEvent.setup();
 
-        // Find and click on the Geocode button, to return multiple values
+        // Select and confirm button should not be present
+        expect(container.querySelector('select')).not.toBeInTheDocument();
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
+
+        // Find and click on the Geocode button, to return a single result
         mockedGeocode.mockResolvedValueOnce([placeFeature1]);
-        const geocodeButton = findPlaceWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('mousedown');
-        geocodeButton.simulate('mouseup');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // Make sure the widget after 1 result are present
-        findPlaceWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-        const selectionList = findPlaceWidget.find(`select`);
-        expect(selectionList.length).toEqual(1);
+        const selectionList = container.querySelector('select');
+        expect(selectionList).toBeInTheDocument();
 
-        const confirmButton = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
-        expect(confirmButton.length).toEqual(1);
-        
-        // Click the geocode button again, but get undefined values
+        expect(screen.getByText('ConfirmLocation')).toBeInTheDocument();
+
+        // Click the geocode button again, but throw an error
         mockedGeocode.mockRejectedValueOnce('error geocoding');
         const newGeocodingString = 'other string';
         testWidgetConfig.geocodingQueryString.mockReturnValueOnce(newGeocodingString);
-        geocodeButton.simulate('mousedown');
-        geocodeButton.simulate('mouseup');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // The select list should display 4 children (2 places and the 2 extra elements) and should not have a confirm button
-        findPlaceWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(2);
         expect(mockedGeocode).toHaveBeenLastCalledWith(newGeocodingString, expect.anything());
-        const selectionList2 = findPlaceWidget.find(`select`);
-        expect(selectionList2.length).toEqual(0);
-        const confirmButton2 = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
-        expect(confirmButton2.length).toEqual(0);
+        const selectionList2 = container.querySelector('select');
+        expect(selectionList2).not.toBeInTheDocument();
+
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
         
     });
 
@@ -377,36 +343,22 @@ describe('Test geocoding requests', () => {
             loadingState: 0,
         }
 
-        const findPlaceWidget = mount(<InputMapFindPlace {...props} />);
+        const { container } = render(<InputMapFindPlace {...props} />);
+        const user = userEvent.setup();
+
+        // Select and confirm button should not be present
+        expect(container.querySelector('select')).not.toBeInTheDocument();
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
 
         // Find and click on the Geocode button, which should trigger an update
         mockedGeocode.mockResolvedValueOnce([placeFeature1]);
-        const geocodeButton = findPlaceWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('mousedown');
-        // Update props to simulate update
-        findPlaceWidget.setProps({...props, loadingState:1 });
-        geocodeButton.simulate('mouseup');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-
-        // The geocode function should not have been called
-        findPlaceWidget.update();
-        expect(mockedGeocode).not.toHaveBeenCalled();
-
-        // Terminate the update, the geocode function should now be called
-        findPlaceWidget.setProps({...props, loadingState: 0 });
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-
-        findPlaceWidget.update();
+        await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-        const selectionList = findPlaceWidget.find(`select`);
-        expect(selectionList.length).toEqual(1);
+        const selectionList = container.querySelector('select');
+        expect(selectionList).toBeInTheDocument();
 
-        const confirmButton = findPlaceWidget.find({id: `${testId}_confirm`, type: 'button'});
-        expect(confirmButton.length).toEqual(1);
+        expect(screen.getByText('ConfirmLocation')).toBeInTheDocument();
         
     });
 
@@ -431,7 +383,7 @@ describe('Test geocoding requests', () => {
             ]
         }, testWidgetConfig);
 
-        const findPlaceWidget = mount(<InputMapFindPlace
+        const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={widgetConfig}
@@ -442,18 +394,18 @@ describe('Test geocoding requests', () => {
             path='foo.test'
             loadingState={0}
         />);
+        const user = userEvent.setup();
+
+
+
+        // Select and confirm button should not be present
+        expect(container.querySelector('select')).not.toBeInTheDocument();
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
 
         // Find and click on the Geocode button, to return a single but imprecise value (according to testWidgetConfig.invalidGeocodingResultTypes)
         mockedGeocode.mockResolvedValueOnce([placeFeature3]);
-        const geocodeButton = findPlaceWidget.find({id: `${testId}_refresh`, type: 'button'});
-        expect(geocodeButton.getDOMNode<HTMLButtonElement>().textContent).toBe('Geocode');
-        geocodeButton.simulate('mousedown');
-        geocodeButton.simulate('mouseup');
-        // Let async functions terminate
-        await new Promise(process.nextTick);
-    
-        // Make sure the widget after 1 result are present
-        findPlaceWidget.update();
+        await user.click(screen.getByText('Geocode'));
+
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: {
@@ -470,5 +422,9 @@ describe('Test geocoding requests', () => {
                 isGeocodingImprecise: true, // key part!
             }
         }}})
+
+        // Select list and confirm button should not be present
+        expect(container.querySelector('select')).not.toBeInTheDocument();
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
     });
 });

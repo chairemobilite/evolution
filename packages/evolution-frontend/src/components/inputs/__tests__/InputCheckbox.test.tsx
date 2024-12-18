@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 import { faCrow } from '@fortawesome/free-solid-svg-icons/faCrow';
 
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
@@ -91,7 +91,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
     })
 
     test('Includes hidden values, conditional displayed, no custom, 2 columns, 2 selected values', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -104,7 +104,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(conditionalFct).toHaveBeenCalledTimes(1);
         expect(conditionalFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
         expect(translationFct).toHaveBeenCalledWith(i18next.t, interviewAttributes, 'foo.test', userAttributes);
@@ -113,7 +113,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
     test('Conditional value hidden, same line, no value selected', () => {
         conditionalFct.mockReturnValueOnce(false);
         const testWidgetConfig = Object.assign({}, widgetConfig, { sameLine: true, columns: undefined });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -125,13 +125,13 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Shuffle choices, one selected value', () => {
         shuffleMock.mockReturnValue([choices[1], choices[3], choices[0], choices[2]]);
         const testWidgetConfig = Object.assign({}, widgetConfig, { shuffle: true });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -143,14 +143,14 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
         expect(shuffleMock).toHaveBeenCalledTimes(1);
         expect(shuffleMock).toHaveBeenCalledWith(choices, undefined, widgetConfig.seed);
     });
 
     test('With custom choice, custom unchecked', () => {
         const testWidgetConfig = Object.assign({}, widgetConfig, { addCustom: true });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -163,12 +163,12 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 customId='foo.test.custom'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('With custom choice, custom checked', () => {
         const testWidgetConfig = Object.assign({}, widgetConfig, { addCustom: true });
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -181,7 +181,7 @@ describe('Render InputCheckbox with various parameter combinations, all paramete
                 customId='foo.test.custom'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
     
 });
@@ -213,7 +213,7 @@ describe('Render InputCheckbox with minimum parameters', () => {
     };
 
     test('Minimum parameters, one value selected', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -225,7 +225,7 @@ describe('Render InputCheckbox with minimum parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
     
 });
@@ -261,7 +261,7 @@ describe('Render InputCheckbox with HTML label', () => {
     };
 
     test('HTML label', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputCheckbox
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -273,7 +273,7 @@ describe('Render InputCheckbox with HTML label', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });

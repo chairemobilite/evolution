@@ -1,34 +1,28 @@
 import React from 'react';
-import { useTranslation, WithTranslation, withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import appConfiguration from 'chaire-lib-frontend/lib/config/application.config';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import AnonymousLogin from 'chaire-lib-frontend/lib/components/forms/auth/anonymous/AnonymousLogin';
 import PwdLessLoginForm from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/PwdLessLoginForm';
 import DirectTokenLogin from './DirectTokenLogin';
-import { History, Location } from 'history';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
+import { RootState } from '../../../store/configureStore';
 
 // These authentication methods are managed differently and not in the wrapped component
 const unmanagedAuthMethods = ['facebook', 'google', 'anonymous', 'directToken'];
 
-type AuthPageProps = {
-    isAuthenticated: boolean;
-    history: History;
-    location: Location;
-};
-
-const PasswordLess = (props: AuthPageProps & WithTranslation & { authMethods: string[] }) => {
+const PasswordLess = (props: { authMethods: string[] }) => {
+    const { t } = useTranslation(['survey', 'auth']);
     if (!props.authMethods.includes('passwordless')) {
         return null;
     } else {
         return (
             <div className="apptr__auth-box">
                 <PwdLessLoginForm
-                    history={props.history}
-                    location={props.location}
-                    headerText={props.t(['survey:auth:PasswordlessHeader', 'auth:PasswordlessHeader'])}
-                    buttonText={props.t(['survey:auth:Login', 'auth:Login'])}
+                    headerText={t(['survey:auth:PasswordlessHeader', 'auth:PasswordlessHeader'])}
+                    buttonText={t(['survey:auth:Login', 'auth:Login'])}
                 />
                 <div className="apptr__separator"></div>
             </div>
@@ -36,14 +30,16 @@ const PasswordLess = (props: AuthPageProps & WithTranslation & { authMethods: st
     }
 };
 
-const AuthPage: React.FunctionComponent<AuthPageProps & WithTranslation> = (props: AuthPageProps & WithTranslation) => {
+const AuthPage: React.FunctionComponent = () => {
+    const navigate = useNavigate();
     const { t, i18n } = useTranslation(['survey', 'auth']);
+    const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
     const [anonymousRequested, setAnonymousRequested] = React.useState(false);
 
     React.useEffect(() => {
-        if (props.isAuthenticated) {
-            props.history.push(appConfiguration.homePage);
+        if (isAuthenticated) {
+            navigate(appConfiguration.homePage);
         }
     }, []);
 
@@ -117,7 +113,7 @@ const AuthPage: React.FunctionComponent<AuthPageProps & WithTranslation> = (prop
                         alignContent: 'flex-start'
                     }}
                 >
-                    <PasswordLess {...props} authMethods={authMethods} />
+                    <PasswordLess authMethods={authMethods} />
                     {hasNoAuthMethodsExeptDirectToken && (
                         <div className="apptr__auth-box">
                             {/* Show a message only if there are no login methods available */}
@@ -161,7 +157,7 @@ const AuthPage: React.FunctionComponent<AuthPageProps & WithTranslation> = (prop
                         <div className="apptr__auth-box">
                             {config.auth.anonymous === true &&
                                 (anonymousRequested === true ? (
-                                    <AnonymousLogin {...props} />
+                                    <AnonymousLogin />
                                 ) : (
                                     <div className={'apptr__form-label-container apptr_form-anonymous'}>
                                         <p className="_label apptr__form__label-standalone">
@@ -206,9 +202,7 @@ const AuthPage: React.FunctionComponent<AuthPageProps & WithTranslation> = (prop
                                 ))}
                         </div>
                     )}
-                    {config.auth.directToken !== false && config.auth.directToken !== undefined && (
-                        <DirectTokenLogin {...props} />
-                    )}
+                    {config.auth.directToken !== false && config.auth.directToken !== undefined && <DirectTokenLogin />}
                 </div>
                 <div
                     className={'apptr__form-label-container apptr_form-why-login-info'}
@@ -227,4 +221,4 @@ const mapStateToProps = (state) => {
     return { isAuthenticated: state.auth.isAuthenticated, login: state.auth.login };
 };
 
-export default connect(mapStateToProps)(withTranslation('auth')(AuthPage));
+export default connect(mapStateToProps)(AuthPage);

@@ -5,8 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { withTranslation, WithTranslation } from 'react-i18next';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import moment from 'moment';
 import _get from 'lodash/get';
 
@@ -30,14 +31,16 @@ import { restoreConsoleLogs } from '../../services/errorManagement/errorHandling
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
-import { History, Location } from 'history';
-import { InterviewContext } from '../../contexts/InterviewContext';
+import { InterviewContext, InterviewState } from '../../contexts/InterviewContext';
 import { SectionProps } from '../hooks/useSectionTemplate';
 import {
     StartAddGroupedObjects,
     StartRemoveGroupedObjects,
     StartUpdateInterview
 } from 'evolution-common/lib/services/questionnaire/types';
+import { RootState } from '../../store/configureStore';
+import { ThunkDispatch } from 'redux-thunk';
+import { SurveyAction } from '../../store/survey';
 
 export type SurveyProps = {
     interview: UserRuntimeInterviewAttributes;
@@ -46,9 +49,11 @@ export type SurveyProps = {
     submitted: boolean;
     user: CliUser;
     loadingState: number;
-    match: { params: { uuid: string; sectionShortname: string } };
-    history: History;
+    sectionShortname?: string;
+    // FIXME Only admin should be able to specify UUID. It should be handled differently to avoid having this in the props
+    uuid?: string;
     location: Location;
+    interviewContext: InterviewState;
     startSetInterview: (
         activeSection: string | null,
         surveyUuid: string | undefined,
@@ -64,9 +69,7 @@ type SurveyState = {
     confirmCompleteBeforeSwitchingOpened: boolean;
 };
 
-export class Survey extends React.Component<SurveyProps, SurveyState> {
-    static contextType = InterviewContext;
-
+class Survey extends React.Component<SurveyProps, SurveyState> {
     constructor(props) {
         super(props);
         surveyHelperNew.devLog('params_survey', props.location.search);
@@ -91,22 +94,22 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
     }
 
     componentDidMount() {
-        const surveyUuid = _get(this.props.match, 'params.uuid', undefined);
+        const surveyUuid = this.props.uuid;
         const existingActiveSection: string | null = this.props.interview
             ? (surveyHelperNew.getResponse(this.props.interview, '_activeSection', null) as string | null)
             : null;
-        const pathSectionShortname: string | null = _get(this.props.match, 'params.sectionShortname', null) as
-            | string
-            | null;
+        const pathSectionShortname: string | null = this.props.sectionShortname || null;
         const pathSectionParentSection: string | null =
             pathSectionShortname && this.props.surveyContext.sections[pathSectionShortname]
                 ? (this.props.surveyContext.sections[pathSectionShortname].parentSection as string | null)
                 : null;
-        const { state } = this.context;
         this.props.startSetInterview(
             existingActiveSection || pathSectionParentSection,
             surveyUuid,
-            state.status === 'entering' && Object.keys(state.responses).length > 0 ? state.responses : undefined
+            this.props.interviewContext.status === 'entering' &&
+                Object.keys(this.props.interviewContext.responses).length > 0
+                ? this.props.interviewContext.responses
+                : undefined
         );
 
         // Override the window.console functions to log errors and warnings to the server. It is here because it's the top most component with an interview to associate with
@@ -271,29 +274,49 @@ export class Survey extends React.Component<SurveyProps, SurveyState> {
     }
 }
 
-const mapStateToProps = (state, _props) => {
-    return {
-        interview: state.survey.interview,
-        interviewLoaded: state.survey.interviewLoaded,
-        errors: state.survey.errors,
-        submitted: state.survey.submitted,
-        user: state.auth.user,
-        loadingState: state.loadingState.loadingState
-    };
+const MainSurvey = withTranslation()(withSurveyContext(withPreferencesHOC(Survey)));
+
+const SurveyWrapper: React.FC = (props) => {
+    const interview = useSelector((state: RootState) => state.survey.interview);
+    const interviewLoaded = useSelector((state: RootState) => state.survey.interviewLoaded);
+    const errors = useSelector((state: RootState) => state.survey.errors);
+    const submitted = useSelector((state: RootState) => state.survey.submitted);
+    const user = useSelector((state: RootState) => state.auth.user);
+    const loadingState = useSelector((state: RootState) => state.loadingState.loadingState);
+    const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { sectionShortname, uuid } = useParams();
+    const { state } = React.useContext(InterviewContext);
+
+    const startSetInterviewAction = (sectionShortname, surveyUuid, preFilledResponses) =>
+        dispatch(startSetInterview(sectionShortname, surveyUuid, navigate, preFilledResponses));
+    const startUpdateInterviewAction = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
+        dispatch(startUpdateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback, navigate));
+    const startAddGroupedObjectsAction = (newObjectsCount, insertSequence, path, attributes, callback, returnOnly) =>
+        dispatch(startAddGroupedObjects(newObjectsCount, insertSequence, path, attributes, callback, returnOnly));
+    const startRemoveGroupedObjectsAction = (paths, callback, returnOnly) =>
+        dispatch(startRemoveGroupedObjects(paths, callback, returnOnly));
+
+    return (
+        <MainSurvey
+            {...props}
+            sectionShortname={sectionShortname}
+            uuid={uuid}
+            interview={interview}
+            interviewLoaded={interviewLoaded}
+            errors={errors}
+            submitted={submitted}
+            user={user}
+            loadingState={loadingState}
+            location={location}
+            interviewContext={state}
+            startSetInterview={startSetInterviewAction}
+            startUpdateInterview={startUpdateInterviewAction}
+            startAddGroupedObjects={startAddGroupedObjectsAction}
+            startRemoveGroupedObjects={startRemoveGroupedObjectsAction}
+        />
+    );
 };
 
-const mapDispatchToProps = (dispatch, props) => ({
-    startSetInterview: (sectionShortname, surveyUuid, preFilledResponses) =>
-        dispatch(startSetInterview(sectionShortname, surveyUuid, props.history, preFilledResponses)),
-    startUpdateInterview: (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
-        dispatch(startUpdateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback, props.history)),
-    startAddGroupedObjects: (newObjectsCount, insertSequence, path, attributes, callback, returnOnly) =>
-        dispatch(startAddGroupedObjects(newObjectsCount, insertSequence, path, attributes, callback, returnOnly)),
-    startRemoveGroupedObjects: (paths, callback, returnOnly) =>
-        dispatch(startRemoveGroupedObjects(paths, callback, returnOnly))
-});
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(withTranslation()(withSurveyContext(withPreferencesHOC(Survey))));
+export default SurveyWrapper;

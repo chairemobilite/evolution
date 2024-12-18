@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Routes } from 'react-router';
 
 import HomePage from '../pages/HomePage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
@@ -17,29 +17,25 @@ import Survey from '../hoc/SurveyWithErrorBoundary';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
 import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute';
 import ConsentedRoute from './ConsentedRoute';
-import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
 
 // Only show user info for users that are not simple respondents FIXME: do we still need this?
 // Seems to be obsolete now that we differenciate between participant and admin routes
 setShowUserInfoPerm({ Interviews: ['read', 'update'] });
 
-const localesString = `/:locale(${config.languages.join('|')})?`;
-
-const SurveyRouter = () => (
-    <Switch>
-        <PublicRoute path="/" component={HomePage} exact={true} />
-        <PublicRoute path={`${localesString}`} component={HomePage} exact={true} />
-        <PublicRoute path="/home" component={HomePage} />
-        <ConsentedRoute path="/login" component={AuthPage} />
-        <PublicRoute path="/unauthorized" component={UnauthorizedPage} />
-        <PublicRoute path="/error" component={SurveyErrorPage} />
-        <PublicRoute path="/magic/verify" component={MagicLinkVerifyPage} />
-        <PublicRoute path="/checkMagicEmail" component={CheckMagicEmailPage} />
-        <PrivateRoute path="/survey/:sectionShortname" component={Survey} componentProps={{}} />
-        <PrivateRoute path="/survey" component={Survey} componentProps={{}} />
-        <Route component={Survey} />
-    </Switch>
+const SurveyRouter: React.FunctionComponent = () => (
+    <Routes>
+        <Route path="/login" element={<ConsentedRoute component={AuthPage} />} />
+        <Route path="/magic/verify" element={<PublicRoute component={MagicLinkVerifyPage} />} />
+        <Route path="/checkMagicEmail" element={<PublicRoute component={CheckMagicEmailPage} />} />
+        <Route path="/unauthorized" element={<PublicRoute component={UnauthorizedPage} />} />
+        <Route path="/error" element={<PublicRoute component={SurveyErrorPage} />} />
+        <Route path="/" element={<PublicRoute component={HomePage} />} />
+        <Route path="/home" element={<PublicRoute component={HomePage} />} />
+        <Route path="/survey/:sectionShortname" element={<PrivateRoute component={Survey} />} />
+        <Route path="/survey" element={<PrivateRoute component={Survey} />} />
+        <Route path="*" element={<PrivateRoute component={Survey} />} />
+    </Routes>
 );
 
 export default SurveyRouter;

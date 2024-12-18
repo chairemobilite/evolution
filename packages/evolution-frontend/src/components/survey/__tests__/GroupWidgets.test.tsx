@@ -6,7 +6,6 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
 import { render } from '@testing-library/react';
 import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
@@ -190,7 +189,7 @@ describe('Group', () => {
     
         test('Render widget', () => {
     
-            const wrapper = TestRenderer.create(
+            const { container } = render(
                 <Group
                     path={'myGroups'}
                     widgetConfig={widgetConfig}
@@ -205,7 +204,7 @@ describe('Group', () => {
                     parentObjectIds={{}}
                 />
             );
-            expect(wrapper).toMatchSnapshot();
+            expect(container).toMatchSnapshot();
         });
     
         test('Widget accessibility', async () => {
@@ -294,7 +293,7 @@ describe('Group', () => {
             name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
         };
 
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <Group
                 path={'myGroups'}
                 widgetConfig={widgetConfig}
@@ -309,7 +308,7 @@ describe('Group', () => {
                 parentObjectIds={{}}
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     })
 
 });
@@ -354,7 +353,7 @@ describe('Grouped Object', () => {
     
         test('Render widget', () => {
     
-            const wrapper = TestRenderer.create(
+            const { container } = render(
                 <GroupedObject
                     path={groupedObjectPath}
                     widgetConfig={widgetConfig}
@@ -371,7 +370,7 @@ describe('Grouped Object', () => {
                     sequence={0}
                 />
             );
-            expect(wrapper).toMatchSnapshot();
+            expect(container).toMatchSnapshot();
         });
     
         test('Widget accessibility', async () => {

@@ -4,20 +4,22 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { History } from 'history';
+import { NavigateFunction } from 'react-router';
 import { Dispatch } from 'redux';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
 
 const unauthorizedPage = '/unauthorized';
 const errorPage = '/error';
 
-const redirectToErrorPage = (history?: History) => {
-    if (history) {
-        // History avoids reload the page to get to the error page, it keeps the
-        // current state of the interview.
-        history.push(errorPage);
+const redirectToErrorPage = (navigate?: NavigateFunction) => {
+    if (navigate) {
+        // FIXME: Used history previous with following comment, make sure it is
+        // still valid and update if necessary: History avoids reload the page
+        // to get to the error page, it keeps the current state of the
+        // interview.
+        navigate(errorPage);
     } else {
-        // if history is not available, we still need to redirect to error page
+        // if navigate is not available, we still need to redirect to error page
         window.location.href = errorPage;
     }
 };
@@ -36,10 +38,10 @@ const redirectToErrorPage = (history?: History) => {
  */
 export const handleClientError = (
     error: unknown,
-    { interviewId, history }: { interviewId?: number; history?: History }
+    { interviewId, navigate }: { interviewId?: number; navigate?: NavigateFunction }
 ) => {
     logClientSideMessage(error, { interviewId });
-    redirectToErrorPage(history);
+    redirectToErrorPage(navigate);
 };
 
 /**
@@ -51,14 +53,18 @@ export const handleClientError = (
  * @param dispatch The dispatch redux object
  * @param history The browser history object, if available
  */
-export const handleHttpOtherResponseCode = async (responseCode: number, dispatch: Dispatch, history?: History) => {
+export const handleHttpOtherResponseCode = async (
+    responseCode: number,
+    dispatch: Dispatch,
+    navigate?: NavigateFunction
+) => {
     if (responseCode === 401) {
         // Verify authentication, so that we get the new authentication status
         // from the server. At this point, it is not possible to know if the 401
         // is for a specific query, or if the user's session has ended.
         await verifyAuthentication(dispatch);
-        if (history) {
-            history.push(unauthorizedPage);
+        if (navigate) {
+            navigate(unauthorizedPage);
         }
         // If history is not available, the user has still been logged out of
         // the application, the proper flow of the application will redirect him
@@ -66,7 +72,7 @@ export const handleHttpOtherResponseCode = async (responseCode: number, dispatch
         // to 'unauthorized' here.
     } else {
         // TODO Should there be other use cases that lead to other pages?
-        redirectToErrorPage(history);
+        redirectToErrorPage(navigate);
     }
 };
 

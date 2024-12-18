@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, JSX } from 'react';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';

@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { JSX } from 'react';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InputTimeType } from 'evolution-common/lib/services/questionnaire/types';

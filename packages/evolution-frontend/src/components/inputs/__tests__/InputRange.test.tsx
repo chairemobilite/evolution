@@ -6,7 +6,7 @@
  */
 import { interviewAttributes } from './interviewData.test';
 import React from 'react';
-import TestRenderer from 'react-test-renderer';
+import { render } from '@testing-library/react';
 
 import InputRange from '../InputRange';
 
@@ -53,7 +53,7 @@ describe('Should correctly render InputRange with minimal parameters', () => {
 
     test('Test without value', () => {
         // Should have a blank style
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRange
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -65,11 +65,11 @@ describe('Should correctly render InputRange with minimal parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with value', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRange
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -81,7 +81,7 @@ describe('Should correctly render InputRange with minimal parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });
@@ -105,7 +105,7 @@ describe('Should correctly render InputRange with various parameters', () => {
             maxValue: 40,
             minValue: 10
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRange
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -117,7 +117,7 @@ describe('Should correctly render InputRange with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test trackclass and labels', () => {
@@ -127,7 +127,7 @@ describe('Should correctly render InputRange with various parameters', () => {
             labels: ['unilingual text', { fr: '2e label français', en: '2nd english label' }],
             trackClassName: 'myTrackClass',
         }, baseWidgetConfig);
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRange
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -139,7 +139,7 @@ describe('Should correctly render InputRange with various parameters', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });
@@ -161,7 +161,7 @@ describe('Should correctly render InputRange with not applicable', () => {
 
     test('Test without value', () => {
         // Should have a blank style
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRange
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -173,11 +173,11 @@ describe('Should correctly render InputRange with not applicable', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with value', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRange
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -189,11 +189,11 @@ describe('Should correctly render InputRange with not applicable', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with a not applicable value', () => {
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRange
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -205,7 +205,7 @@ describe('Should correctly render InputRange with not applicable', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
     test('Test with custom not applicable label', () => {
@@ -213,7 +213,7 @@ describe('Should correctly render InputRange with not applicable', () => {
             ...widgetConfig,
             notApplicableLabel: 'Custom non applicable'
         }
-        const wrapper = TestRenderer.create(
+        const { container } = render(
             <InputRange
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
@@ -225,7 +225,7 @@ describe('Should correctly render InputRange with not applicable', () => {
                 path='foo.test'
             />
         );
-        expect(wrapper).toMatchSnapshot();
+        expect(container).toMatchSnapshot();
     });
 
 });

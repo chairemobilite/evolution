@@ -1,38 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Should correctly render InputText with all parameters 1`] = `
-<textarea
-  autoComplete="off"
-  className="apptr__form-input input-text"
-  defaultValue="value"
-  id="test"
-  maxLength={1500}
-  name="testName"
-  onBlur={[Function]}
-  rows={10}
-/>
+<div>
+  <textarea
+    autocomplete="off"
+    class="apptr__form-input input-text"
+    id="test"
+    maxlength="1500"
+    name="testName"
+    rows="10"
+  >
+    value
+  </textarea>
+</div>
 `;
 
 exports[`Should correctly render InputText with base parameters 1`] = `
-<textarea
-  autoComplete="off"
-  className="apptr__form-input input-text"
-  defaultValue="value"
-  id="test"
-  maxLength={2000}
-  onBlur={[MockFunction]}
-  rows={5}
-/>
+<div>
+  <textarea
+    autocomplete="off"
+    class="apptr__form-input input-text"
+    id="test"
+    maxlength="2000"
+    rows="5"
+  >
+    value
+  </textarea>
+</div>
 `;
 
 exports[`Should correctly render InputText with defaultValue 1`] = `
-<textarea
-  autoComplete="off"
-  className="apptr__form-input input-text"
-  defaultValue="This is the text that should be present"
-  id="test"
-  maxLength={2000}
-  onBlur={[MockFunction]}
-  rows={5}
-/>
+<div>
+  <textarea
+    autocomplete="off"
+    class="apptr__form-input input-text"
+    id="test"
+    maxlength="2000"
+    rows="5"
+  >
+    This is the text that should be present
+  </textarea>
+</div>
 `;

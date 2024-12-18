@@ -1,1349 +1,213 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, should be displayed 1`] = `
-[
-  <Modal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="Delete item"
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-  >
-    <Portal
-      containerInfo={
-        <div
-          class="ReactModalPortal"
-        >
-          <div
-            class="ReactModal__Overlay react-modal-overlay"
-          >
-            <div
-              aria-label="Delete item"
-              aria-modal="true"
-              class="ReactModal__Content react-modal"
-              role="dialog"
-              tabindex="-1"
-            >
-              <div>
-                <div
-                  class="center"
-                >
-                  <markdown
-                    remarkplugins="remark-gfm,[object Object]"
-                  >
-                    Delete item
-                  </markdown>
-                </div>
-                <markdown
-                  class="confirm-popup"
-                  remarkplugins="remark-gfm,[object Object]"
-                >
-                  Are you sure you want to delete this item?
-                </markdown>
-                <div
-                  class="tr__form-buttons-container _center"
-                >
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button grey"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button blue"
-                    >
-                      Confirm
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-    >
-      <ModalPortal
-        ariaHideApp={true}
-        bodyOpenClassName="ReactModal__Body--open"
-        className="react-modal"
-        closeTimeoutMS={0}
-        contentElement={[Function]}
-        contentLabel="Delete item"
-        defaultStyles={
-          {
-            "content": {
-              "WebkitOverflowScrolling": "touch",
-              "background": "#fff",
-              "border": "1px solid #ccc",
-              "borderRadius": "4px",
-              "bottom": "40px",
-              "left": "40px",
-              "outline": "none",
-              "overflow": "auto",
-              "padding": "20px",
-              "position": "absolute",
-              "right": "40px",
-              "top": "40px",
-            },
-            "overlay": {
-              "backgroundColor": "rgba(255, 255, 255, 0.75)",
-              "bottom": 0,
-              "left": 0,
-              "position": "fixed",
-              "right": 0,
-              "top": 0,
-            },
-          }
-        }
-        isOpen={true}
-        onRequestClose={[Function]}
-        overlayClassName="react-modal-overlay"
-        overlayElement={[Function]}
-        parentSelector={[Function]}
-        portalClassName="ReactModalPortal"
-        preventScroll={false}
-        role="dialog"
-        shouldCloseOnEsc={true}
-        shouldCloseOnOverlayClick={true}
-        shouldFocusAfterRender={true}
-        shouldReturnFocusAfterClose={true}
-        style={
-          {
-            "content": {},
-            "overlay": {},
-          }
-        }
-      >
-        <div
-          className="ReactModal__Overlay react-modal-overlay"
-          onClick={[Function]}
-          onMouseDown={[Function]}
-          style={{}}
-        >
-          <div
-            aria-label="Delete item"
-            aria-modal={true}
-            className="ReactModal__Content react-modal"
-            onClick={[Function]}
-            onKeyDown={[Function]}
-            onMouseDown={[Function]}
-            onMouseUp={[Function]}
-            role="dialog"
-            style={{}}
-            tabIndex="-1"
-          >
-            <div>
-              <div
-                className="center"
-              >
-                <Markdown
-                  remarkPlugins={
-                    [
-                      [
-                        "remark-gfm",
-                        {
-                          "singleTilde": false,
-                        },
-                      ],
-                    ]
-                  }
-                >
-                  Delete item
-                </Markdown>
-              </div>
-              <Markdown
-                className="confirm-popup"
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Are you sure you want to delete this item?
-              </Markdown>
-              <div
-                className="tr__form-buttons-container _center"
-              >
-                <div
-                  className="center"
-                  key="cancel"
-                >
-                  <button
-                    className="button grey"
-                    onClick={[Function]}
-                  >
-                    Cancel
-                  </button>
-                </div>
-                <div
-                  className="center"
-                  key="confirm"
-                >
-                  <button
-                    className="button blue"
-                    onClick={[Function]}
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ModalPortal>
-    </Portal>
-  </Modal>,
-  <ModalPortal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="Delete item"
-    defaultStyles={
-      {
-        "content": {
-          "WebkitOverflowScrolling": "touch",
-          "background": "#fff",
-          "border": "1px solid #ccc",
-          "borderRadius": "4px",
-          "bottom": "40px",
-          "left": "40px",
-          "outline": "none",
-          "overflow": "auto",
-          "padding": "20px",
-          "position": "absolute",
-          "right": "40px",
-          "top": "40px",
-        },
-        "overlay": {
-          "backgroundColor": "rgba(255, 255, 255, 0.75)",
-          "bottom": 0,
-          "left": 0,
-          "position": "fixed",
-          "right": 0,
-          "top": 0,
-        },
-      }
-    }
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-    style={
-      {
-        "content": {},
-        "overlay": {},
-      }
-    }
-  >
+<div
+  aria-label="Delete item"
+  aria-modal="true"
+  class="ReactModal__Content react-modal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div>
     <div
-      className="ReactModal__Overlay react-modal-overlay"
-      onClick={[Function]}
-      onMouseDown={[Function]}
-      style={{}}
+      class="center"
+    >
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        Delete item
+      </markdown>
+    </div>
+    <markdown
+      class="confirm-popup"
+      remarkplugins="remark-gfm,[object Object]"
+    >
+      Are you sure you want to delete this item?
+    </markdown>
+    <div
+      class="tr__form-buttons-container _center"
     >
       <div
-        aria-label="Delete item"
-        aria-modal={true}
-        className="ReactModal__Content react-modal"
-        onClick={[Function]}
-        onKeyDown={[Function]}
-        onMouseDown={[Function]}
-        onMouseUp={[Function]}
-        role="dialog"
-        style={{}}
-        tabIndex="-1"
+        class="center"
       >
-        <div>
-          <div
-            className="center"
-          >
-            <Markdown
-              remarkPlugins={
-                [
-                  [
-                    "remark-gfm",
-                    {
-                      "singleTilde": false,
-                    },
-                  ],
-                ]
-              }
-            >
-              Delete item
-            </Markdown>
-          </div>
-          <Markdown
-            className="confirm-popup"
-            remarkPlugins={
-              [
-                [
-                  "remark-gfm",
-                  {
-                    "singleTilde": false,
-                  },
-                ],
-              ]
-            }
-          >
-            Are you sure you want to delete this item?
-          </Markdown>
-          <div
-            className="tr__form-buttons-container _center"
-          >
-            <div
-              className="center"
-              key="cancel"
-            >
-              <button
-                className="button grey"
-                onClick={[Function]}
-              >
-                Cancel
-              </button>
-            </div>
-            <div
-              className="center"
-              key="confirm"
-            >
-              <button
-                className="button blue"
-                onClick={[Function]}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
+        <button
+          class="button grey"
+        >
+          Cancel
+        </button>
+      </div>
+      <div
+        class="center"
+      >
+        <button
+          class="button blue"
+        >
+          Confirm
+        </button>
       </div>
     </div>
-  </ModalPortal>,
-  <div
-    aria-label="Delete item"
-    aria-modal={true}
-    className="ReactModal__Content react-modal"
-    onClick={[Function]}
-    onKeyDown={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    role="dialog"
-    style={{}}
-    tabIndex="-1"
-  >
-    <div>
-      <div
-        className="center"
-      >
-        <Markdown
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          Delete item
-        </Markdown>
-      </div>
-      <Markdown
-        className="confirm-popup"
-        remarkPlugins={
-          [
-            [
-              "remark-gfm",
-              {
-                "singleTilde": false,
-              },
-            ],
-          ]
-        }
-      >
-        Are you sure you want to delete this item?
-      </Markdown>
-      <div
-        className="tr__form-buttons-container _center"
-      >
-        <div
-          className="center"
-          key="cancel"
-        >
-          <button
-            className="button grey"
-            onClick={[Function]}
-          >
-            Cancel
-          </button>
-        </div>
-        <div
-          className="center"
-          key="confirm"
-        >
-          <button
-            className="button blue"
-            onClick={[Function]}
-          >
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>,
-]
+  </div>
+</div>
 `;
 
 exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, cancel 1`] = `
-[
-  <Modal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="Delete item"
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-  >
-    <Portal
-      containerInfo={
-        <div
-          class="ReactModalPortal"
-        >
-          <div
-            class="ReactModal__Overlay react-modal-overlay"
-          >
-            <div
-              aria-label="Delete item"
-              aria-modal="true"
-              class="ReactModal__Content react-modal"
-              role="dialog"
-              tabindex="-1"
-            >
-              <div>
-                <div
-                  class="center"
-                >
-                  <markdown
-                    remarkplugins="remark-gfm,[object Object]"
-                  >
-                    Delete item
-                  </markdown>
-                </div>
-                <markdown
-                  class="confirm-popup"
-                  remarkplugins="remark-gfm,[object Object]"
-                >
-                  Are you sure you want to delete this item?
-                </markdown>
-                <div
-                  class="tr__form-buttons-container _center"
-                >
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button grey"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button blue"
-                    >
-                      Confirm
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-    >
-      <ModalPortal
-        ariaHideApp={true}
-        bodyOpenClassName="ReactModal__Body--open"
-        className="react-modal"
-        closeTimeoutMS={0}
-        contentElement={[Function]}
-        contentLabel="Delete item"
-        defaultStyles={
-          {
-            "content": {
-              "WebkitOverflowScrolling": "touch",
-              "background": "#fff",
-              "border": "1px solid #ccc",
-              "borderRadius": "4px",
-              "bottom": "40px",
-              "left": "40px",
-              "outline": "none",
-              "overflow": "auto",
-              "padding": "20px",
-              "position": "absolute",
-              "right": "40px",
-              "top": "40px",
-            },
-            "overlay": {
-              "backgroundColor": "rgba(255, 255, 255, 0.75)",
-              "bottom": 0,
-              "left": 0,
-              "position": "fixed",
-              "right": 0,
-              "top": 0,
-            },
-          }
-        }
-        isOpen={true}
-        onRequestClose={[Function]}
-        overlayClassName="react-modal-overlay"
-        overlayElement={[Function]}
-        parentSelector={[Function]}
-        portalClassName="ReactModalPortal"
-        preventScroll={false}
-        role="dialog"
-        shouldCloseOnEsc={true}
-        shouldCloseOnOverlayClick={true}
-        shouldFocusAfterRender={true}
-        shouldReturnFocusAfterClose={true}
-        style={
-          {
-            "content": {},
-            "overlay": {},
-          }
-        }
-      >
-        <div
-          className="ReactModal__Overlay react-modal-overlay"
-          onClick={[Function]}
-          onMouseDown={[Function]}
-          style={{}}
-        >
-          <div
-            aria-label="Delete item"
-            aria-modal={true}
-            className="ReactModal__Content react-modal"
-            onClick={[Function]}
-            onKeyDown={[Function]}
-            onMouseDown={[Function]}
-            onMouseUp={[Function]}
-            role="dialog"
-            style={{}}
-            tabIndex="-1"
-          >
-            <div>
-              <div
-                className="center"
-              >
-                <Markdown
-                  remarkPlugins={
-                    [
-                      [
-                        "remark-gfm",
-                        {
-                          "singleTilde": false,
-                        },
-                      ],
-                    ]
-                  }
-                >
-                  Delete item
-                </Markdown>
-              </div>
-              <Markdown
-                className="confirm-popup"
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Are you sure you want to delete this item?
-              </Markdown>
-              <div
-                className="tr__form-buttons-container _center"
-              >
-                <div
-                  className="center"
-                  key="cancel"
-                >
-                  <button
-                    className="button grey"
-                    onClick={[Function]}
-                  >
-                    Cancel
-                  </button>
-                </div>
-                <div
-                  className="center"
-                  key="confirm"
-                >
-                  <button
-                    className="button blue"
-                    onClick={[Function]}
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ModalPortal>
-    </Portal>
-  </Modal>,
-  <ModalPortal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="Delete item"
-    defaultStyles={
-      {
-        "content": {
-          "WebkitOverflowScrolling": "touch",
-          "background": "#fff",
-          "border": "1px solid #ccc",
-          "borderRadius": "4px",
-          "bottom": "40px",
-          "left": "40px",
-          "outline": "none",
-          "overflow": "auto",
-          "padding": "20px",
-          "position": "absolute",
-          "right": "40px",
-          "top": "40px",
-        },
-        "overlay": {
-          "backgroundColor": "rgba(255, 255, 255, 0.75)",
-          "bottom": 0,
-          "left": 0,
-          "position": "fixed",
-          "right": 0,
-          "top": 0,
-        },
-      }
-    }
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-    style={
-      {
-        "content": {},
-        "overlay": {},
-      }
-    }
-  >
+<div
+  aria-label="Delete item"
+  aria-modal="true"
+  class="ReactModal__Content react-modal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div>
     <div
-      className="ReactModal__Overlay react-modal-overlay"
-      onClick={[Function]}
-      onMouseDown={[Function]}
-      style={{}}
+      class="center"
+    >
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        Delete item
+      </markdown>
+    </div>
+    <markdown
+      class="confirm-popup"
+      remarkplugins="remark-gfm,[object Object]"
+    >
+      Are you sure you want to delete this item?
+    </markdown>
+    <div
+      class="tr__form-buttons-container _center"
     >
       <div
-        aria-label="Delete item"
-        aria-modal={true}
-        className="ReactModal__Content react-modal"
-        onClick={[Function]}
-        onKeyDown={[Function]}
-        onMouseDown={[Function]}
-        onMouseUp={[Function]}
-        role="dialog"
-        style={{}}
-        tabIndex="-1"
+        class="center"
       >
-        <div>
-          <div
-            className="center"
-          >
-            <Markdown
-              remarkPlugins={
-                [
-                  [
-                    "remark-gfm",
-                    {
-                      "singleTilde": false,
-                    },
-                  ],
-                ]
-              }
-            >
-              Delete item
-            </Markdown>
-          </div>
-          <Markdown
-            className="confirm-popup"
-            remarkPlugins={
-              [
-                [
-                  "remark-gfm",
-                  {
-                    "singleTilde": false,
-                  },
-                ],
-              ]
-            }
-          >
-            Are you sure you want to delete this item?
-          </Markdown>
-          <div
-            className="tr__form-buttons-container _center"
-          >
-            <div
-              className="center"
-              key="cancel"
-            >
-              <button
-                className="button grey"
-                onClick={[Function]}
-              >
-                Cancel
-              </button>
-            </div>
-            <div
-              className="center"
-              key="confirm"
-            >
-              <button
-                className="button blue"
-                onClick={[Function]}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
+        <button
+          class="button grey"
+        >
+          Cancel
+        </button>
+      </div>
+      <div
+        class="center"
+      >
+        <button
+          class="button blue"
+        >
+          Confirm
+        </button>
       </div>
     </div>
-  </ModalPortal>,
-  <div
-    aria-label="Delete item"
-    aria-modal={true}
-    className="ReactModal__Content react-modal"
-    onClick={[Function]}
-    onKeyDown={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    role="dialog"
-    style={{}}
-    tabIndex="-1"
-  >
-    <div>
-      <div
-        className="center"
-      >
-        <Markdown
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          Delete item
-        </Markdown>
-      </div>
-      <Markdown
-        className="confirm-popup"
-        remarkPlugins={
-          [
-            [
-              "remark-gfm",
-              {
-                "singleTilde": false,
-              },
-            ],
-          ]
-        }
-      >
-        Are you sure you want to delete this item?
-      </Markdown>
-      <div
-        className="tr__form-buttons-container _center"
-      >
-        <div
-          className="center"
-          key="cancel"
-        >
-          <button
-            className="button grey"
-            onClick={[Function]}
-          >
-            Cancel
-          </button>
-        </div>
-        <div
-          className="center"
-          key="confirm"
-        >
-          <button
-            className="button blue"
-            onClick={[Function]}
-          >
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>,
-]
+  </div>
+</div>
 `;
 
 exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, confirm 1`] = `
-[
-  <Modal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="Delete item"
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-  >
-    <Portal
-      containerInfo={
-        <div
-          class="ReactModalPortal"
-        >
-          <div
-            class="ReactModal__Overlay react-modal-overlay"
-          >
-            <div
-              aria-label="Delete item"
-              aria-modal="true"
-              class="ReactModal__Content react-modal"
-              role="dialog"
-              tabindex="-1"
-            >
-              <div>
-                <div
-                  class="center"
-                >
-                  <markdown
-                    remarkplugins="remark-gfm,[object Object]"
-                  >
-                    Delete item
-                  </markdown>
-                </div>
-                <markdown
-                  class="confirm-popup"
-                  remarkplugins="remark-gfm,[object Object]"
-                >
-                  Are you sure you want to delete this item?
-                </markdown>
-                <div
-                  class="tr__form-buttons-container _center"
-                >
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button grey"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <div
-                    class="center"
-                  >
-                    <button
-                      class="button blue"
-                    >
-                      Confirm
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
-    >
-      <ModalPortal
-        ariaHideApp={true}
-        bodyOpenClassName="ReactModal__Body--open"
-        className="react-modal"
-        closeTimeoutMS={0}
-        contentElement={[Function]}
-        contentLabel="Delete item"
-        defaultStyles={
-          {
-            "content": {
-              "WebkitOverflowScrolling": "touch",
-              "background": "#fff",
-              "border": "1px solid #ccc",
-              "borderRadius": "4px",
-              "bottom": "40px",
-              "left": "40px",
-              "outline": "none",
-              "overflow": "auto",
-              "padding": "20px",
-              "position": "absolute",
-              "right": "40px",
-              "top": "40px",
-            },
-            "overlay": {
-              "backgroundColor": "rgba(255, 255, 255, 0.75)",
-              "bottom": 0,
-              "left": 0,
-              "position": "fixed",
-              "right": 0,
-              "top": 0,
-            },
-          }
-        }
-        isOpen={true}
-        onRequestClose={[Function]}
-        overlayClassName="react-modal-overlay"
-        overlayElement={[Function]}
-        parentSelector={[Function]}
-        portalClassName="ReactModalPortal"
-        preventScroll={false}
-        role="dialog"
-        shouldCloseOnEsc={true}
-        shouldCloseOnOverlayClick={true}
-        shouldFocusAfterRender={true}
-        shouldReturnFocusAfterClose={true}
-        style={
-          {
-            "content": {},
-            "overlay": {},
-          }
-        }
-      >
-        <div
-          className="ReactModal__Overlay react-modal-overlay"
-          onClick={[Function]}
-          onMouseDown={[Function]}
-          style={{}}
-        >
-          <div
-            aria-label="Delete item"
-            aria-modal={true}
-            className="ReactModal__Content react-modal"
-            onClick={[Function]}
-            onKeyDown={[Function]}
-            onMouseDown={[Function]}
-            onMouseUp={[Function]}
-            role="dialog"
-            style={{}}
-            tabIndex="-1"
-          >
-            <div>
-              <div
-                className="center"
-              >
-                <Markdown
-                  remarkPlugins={
-                    [
-                      [
-                        "remark-gfm",
-                        {
-                          "singleTilde": false,
-                        },
-                      ],
-                    ]
-                  }
-                >
-                  Delete item
-                </Markdown>
-              </div>
-              <Markdown
-                className="confirm-popup"
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Are you sure you want to delete this item?
-              </Markdown>
-              <div
-                className="tr__form-buttons-container _center"
-              >
-                <div
-                  className="center"
-                  key="cancel"
-                >
-                  <button
-                    className="button grey"
-                    onClick={[Function]}
-                  >
-                    Cancel
-                  </button>
-                </div>
-                <div
-                  className="center"
-                  key="confirm"
-                >
-                  <button
-                    className="button blue"
-                    onClick={[Function]}
-                  >
-                    Confirm
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ModalPortal>
-    </Portal>
-  </Modal>,
-  <ModalPortal
-    ariaHideApp={true}
-    bodyOpenClassName="ReactModal__Body--open"
-    className="react-modal"
-    closeTimeoutMS={0}
-    contentElement={[Function]}
-    contentLabel="Delete item"
-    defaultStyles={
-      {
-        "content": {
-          "WebkitOverflowScrolling": "touch",
-          "background": "#fff",
-          "border": "1px solid #ccc",
-          "borderRadius": "4px",
-          "bottom": "40px",
-          "left": "40px",
-          "outline": "none",
-          "overflow": "auto",
-          "padding": "20px",
-          "position": "absolute",
-          "right": "40px",
-          "top": "40px",
-        },
-        "overlay": {
-          "backgroundColor": "rgba(255, 255, 255, 0.75)",
-          "bottom": 0,
-          "left": 0,
-          "position": "fixed",
-          "right": 0,
-          "top": 0,
-        },
-      }
-    }
-    isOpen={true}
-    onRequestClose={[Function]}
-    overlayClassName="react-modal-overlay"
-    overlayElement={[Function]}
-    parentSelector={[Function]}
-    portalClassName="ReactModalPortal"
-    preventScroll={false}
-    role="dialog"
-    shouldCloseOnEsc={true}
-    shouldCloseOnOverlayClick={true}
-    shouldFocusAfterRender={true}
-    shouldReturnFocusAfterClose={true}
-    style={
-      {
-        "content": {},
-        "overlay": {},
-      }
-    }
-  >
+<div
+  aria-label="Delete item"
+  aria-modal="true"
+  class="ReactModal__Content react-modal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div>
     <div
-      className="ReactModal__Overlay react-modal-overlay"
-      onClick={[Function]}
-      onMouseDown={[Function]}
-      style={{}}
+      class="center"
+    >
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        Delete item
+      </markdown>
+    </div>
+    <markdown
+      class="confirm-popup"
+      remarkplugins="remark-gfm,[object Object]"
+    >
+      Are you sure you want to delete this item?
+    </markdown>
+    <div
+      class="tr__form-buttons-container _center"
     >
       <div
-        aria-label="Delete item"
-        aria-modal={true}
-        className="ReactModal__Content react-modal"
-        onClick={[Function]}
-        onKeyDown={[Function]}
-        onMouseDown={[Function]}
-        onMouseUp={[Function]}
-        role="dialog"
-        style={{}}
-        tabIndex="-1"
+        class="center"
       >
-        <div>
-          <div
-            className="center"
-          >
-            <Markdown
-              remarkPlugins={
-                [
-                  [
-                    "remark-gfm",
-                    {
-                      "singleTilde": false,
-                    },
-                  ],
-                ]
-              }
-            >
-              Delete item
-            </Markdown>
-          </div>
-          <Markdown
-            className="confirm-popup"
-            remarkPlugins={
-              [
-                [
-                  "remark-gfm",
-                  {
-                    "singleTilde": false,
-                  },
-                ],
-              ]
-            }
-          >
-            Are you sure you want to delete this item?
-          </Markdown>
-          <div
-            className="tr__form-buttons-container _center"
-          >
-            <div
-              className="center"
-              key="cancel"
-            >
-              <button
-                className="button grey"
-                onClick={[Function]}
-              >
-                Cancel
-              </button>
-            </div>
-            <div
-              className="center"
-              key="confirm"
-            >
-              <button
-                className="button blue"
-                onClick={[Function]}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
+        <button
+          class="button grey"
+        >
+          Cancel
+        </button>
+      </div>
+      <div
+        class="center"
+      >
+        <button
+          class="button blue"
+        >
+          Confirm
+        </button>
       </div>
     </div>
-  </ModalPortal>,
-  <div
-    aria-label="Delete item"
-    aria-modal={true}
-    className="ReactModal__Content react-modal"
-    onClick={[Function]}
-    onKeyDown={[Function]}
-    onMouseDown={[Function]}
-    onMouseUp={[Function]}
-    role="dialog"
-    style={{}}
-    tabIndex="-1"
-  >
-    <div>
-      <div
-        className="center"
-      >
-        <Markdown
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          Delete item
-        </Markdown>
-      </div>
-      <Markdown
-        className="confirm-popup"
-        remarkPlugins={
-          [
-            [
-              "remark-gfm",
-              {
-                "singleTilde": false,
-              },
-            ],
-          ]
-        }
-      >
-        Are you sure you want to delete this item?
-      </Markdown>
-      <div
-        className="tr__form-buttons-container _center"
-      >
-        <div
-          className="center"
-          key="cancel"
-        >
-          <button
-            className="button grey"
-            onClick={[Function]}
-          >
-            Cancel
-          </button>
-        </div>
-        <div
-          className="center"
-          key="confirm"
-        >
-          <button
-            className="button blue"
-            onClick={[Function]}
-          >
-            Confirm
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>,
-]
+  </div>
+</div>
 `;
 
-exports[`DeleteGroupedObjectButton layout: Display is false Render widget 1`] = `null`;
+exports[`DeleteGroupedObjectButton layout: Display is false Render widget 1`] = `<div />`;
 
 exports[`DeleteGroupedObjectButton layout: Display with custom label Render widget 1`] = `
-<div
-  className="center"
->
-  <button
-    className="button red small"
-    onClick={[Function]}
-    type="button"
+<div>
+  <div
+    class="center"
   >
-    <svg
-      aria-hidden="true"
-      className="svg-inline--fa fa-trash-can faIconLeft"
-      data-icon="trash-can"
-      data-prefix="fas"
-      focusable="false"
-      role="img"
-      style={{}}
-      viewBox="0 0 448 512"
-      xmlns="http://www.w3.org/2000/svg"
+    <button
+      class="button red small"
+      type="button"
     >
-      <path
-        d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
-        fill="currentColor"
-        style={{}}
-      />
-    </svg>
-    Delete for unit test
-  </button>
+      <svg
+        aria-hidden="true"
+        class="svg-inline--fa fa-trash-can faIconLeft"
+        data-icon="trash-can"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        viewBox="0 0 448 512"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
+          fill="currentColor"
+        />
+      </svg>
+      Delete for unit test
+    </button>
+  </div>
 </div>
 `;
 
 exports[`DeleteGroupedObjectButton layout: Display with default label Render widget 1`] = `
-<div
-  className="center"
->
-  <button
-    className="button red small"
-    onClick={[Function]}
-    type="button"
+<div>
+  <div
+    class="center"
   >
-    <svg
-      aria-hidden="true"
-      className="svg-inline--fa fa-trash-can faIconLeft"
-      data-icon="trash-can"
-      data-prefix="fas"
-      focusable="false"
-      role="img"
-      style={{}}
-      viewBox="0 0 448 512"
-      xmlns="http://www.w3.org/2000/svg"
+    <button
+      class="button red small"
+      type="button"
     >
-      <path
-        d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
-        fill="currentColor"
-        style={{}}
-      />
-    </svg>
-    myGroup.deleteThisGroupedObject
-  </button>
+      <svg
+        aria-hidden="true"
+        class="svg-inline--fa fa-trash-can faIconLeft"
+        data-icon="trash-can"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        viewBox="0 0 448 512"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
+          fill="currentColor"
+        />
+      </svg>
+      myGroup.deleteThisGroupedObject
+    </button>
+  </div>
 </div>
 `;

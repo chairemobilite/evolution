@@ -5,10 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import Survey, { SurveyProps } from '../pages/Survey';
+import Survey from '../pages/Survey';
 import ErrorBoundary from '../survey/ErrorBoundary';
 
-const SurveyWithErrorBoundary = (props: SurveyProps) => (
+// FIXME Type the props
+const SurveyWithErrorBoundary = (props) => (
     <ErrorBoundary>
         <Survey {...props} />
     </ErrorBoundary>

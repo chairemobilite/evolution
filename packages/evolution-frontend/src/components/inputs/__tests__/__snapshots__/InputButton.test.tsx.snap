@@ -1,87 +1,85 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`InputButton with normal options Render InputButton with normal option type 1`] = `
-<div
-  className="survey-question__input-button-group-container"
->
+<div>
   <div
-    className="survey-question__input-button-input-container"
+    class="survey-question__input-button-group-container"
   >
-    <button
-      className="survey-section__button button green large"
-      id="test__input-button__val1"
-      onClick={[Function]}
-      type="button"
+    <div
+      class="survey-question__input-button-input-container"
     >
-      english value
-    </button>
-  </div>
-  <div
-    className="survey-question__input-button-input-container"
-  >
-    <button
-      className="survey-section__button button red small"
-      id="test__input-button__val2"
-      onClick={[Function]}
-      type="button"
+      <button
+        class="survey-section__button button green large"
+        id="test__input-button__val1"
+        type="button"
+      >
+        english value
+      </button>
+    </div>
+    <div
+      class="survey-question__input-button-input-container"
     >
-      Unilingual label
-    </button>
-  </div>
-  <div
-    className="survey-question__input-button-input-container"
-  >
-    <button
-      className="survey-section__button button green large"
-      id="test__input-button__conditionalVal"
-      onClick={[Function]}
-      type="button"
+      <button
+        class="survey-section__button button red small"
+        id="test__input-button__val2"
+        type="button"
+      >
+        Unilingual label
+      </button>
+    </div>
+    <div
+      class="survey-question__input-button-input-container"
     >
-      english conditional
-    </button>
-  </div>
-  <div
-    className="survey-question__input-button-input-container"
-  >
-    <button
-      className="survey-section__button button green large"
-      id="test__input-button__val3"
-      onClick={[Function]}
-      type="button"
+      <button
+        class="survey-section__button button green large"
+        id="test__input-button__conditionalVal"
+        type="button"
+      >
+        english conditional
+      </button>
+    </div>
+    <div
+      class="survey-question__input-button-input-container"
     >
-      Translated string
-    </button>
+      <button
+        class="survey-section__button button green large"
+        id="test__input-button__val3"
+        type="button"
+      >
+        Translated string
+      </button>
+    </div>
   </div>
 </div>
 `;
 
 exports[`Render InputButton with choice function 1`] = `
-<div
-  className="survey-question__input-button-group-container no-wrap align-center"
->
+<div>
   <div
-    className="survey-question__input-button-input-container"
+    class="survey-question__input-button-group-container no-wrap align-center"
   >
-    <button
-      className="survey-section__button button green large"
-      id="test__input-button__val1"
-      onClick={[Function]}
-      type="button"
+    <div
+      class="survey-question__input-button-input-container"
     >
-      english value
-    </button>
-  </div>
-  <div
-    className="survey-question__input-button-input-container"
-  >
-    <button
-      className="survey-section__button button red small"
-      id="test__input-button__val2"
-      onClick={[Function]}
-      type="button"
+      <button
+        class="survey-section__button button green large"
+        id="test__input-button__val1"
+        type="button"
+      >
+        english value
+      </button>
+    </div>
+    <div
+      class="survey-question__input-button-input-container"
     >
-      Unilingual label
-    </button>
+      <button
+        class="survey-section__button button red small"
+        id="test__input-button__val2"
+        type="button"
+      >
+        Unilingual label
+      </button>
+    </div>
   </div>
 </div>
 `;

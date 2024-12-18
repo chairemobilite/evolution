@@ -1,2191 +1,1673 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Group Add button top, default label, medium Render widget 1`] = `
-<section
-  className="survey-group"
->
-  <div
-    className="content-container"
+<div>
+  <section
+    class="survey-group"
   >
     <div
-      className="survey-group__content"
+      class="content-container"
     >
-      <h2
-        className="survey-group__title"
-      >
-        myGroup.title
-      </h2>
       <div
-        className="center"
+        class="survey-group__content"
       >
-        <button
-          className="button blue center small"
-          onClick={[Function]}
-          type="button"
+        <h2
+          class="survey-group__title"
         >
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-circle-plus faIconLeft"
-            data-icon="circle-plus"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={{}}
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-          myGroup.addGroupedObject
-        </button>
-      </div>
-      <div
-        className="survey-group-object"
-      >
+          myGroup.title
+        </h2>
         <div
-          className="content-container"
+          class="center"
+        >
+          <button
+            class="button blue center small"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-circle-plus faIconLeft"
+              data-icon="circle-plus"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                fill="currentColor"
+              />
+            </svg>
+            myGroup.addGroupedObject
+          </button>
+        </div>
+        <div
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
             <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
+              class="survey-group-object__content"
             >
               <div
-                className="apptr__form-label-container"
+                class="survey-section__text"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj0Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj0Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some answer"
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj0Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj0Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj0Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
             <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
+              class="survey-group-object__content"
             >
               <div
-                className="apptr__form-label-container"
+                class="survey-section__text"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj1Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj1Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some other answer"
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj1Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj1Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj1Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some other answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
             <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
+              class="survey-group-object__content"
             >
               <div
-                className="apptr__form-label-container"
+                class="survey-section__text"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj2Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj2Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value=""
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj2Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj2Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj2Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value=""
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`Group All values set, all true, add button default data, filter show all Render widget 1`] = `
-<section
-  className="survey-group"
->
-  <div
-    className="content-container"
+<div>
+  <section
+    class="survey-group"
   >
     <div
-      className="survey-group__content"
+      class="content-container"
     >
-      <h2
-        className="survey-group__title"
-      >
-        Group Title
-      </h2>
       <div
-        className="center"
+        class="survey-group__content"
       >
-        <button
-          className="button blue center small"
-          onClick={[Function]}
-          type="button"
+        <h2
+          class="survey-group__title"
         >
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-circle-plus faIconLeft"
-            data-icon="circle-plus"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={{}}
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-          Add a new grouped object in my group
-        </button>
-      </div>
-      <div
-        className="survey-group-object"
-      >
+          Group Title
+        </h2>
         <div
-          className="content-container"
+          class="center"
+        >
+          <button
+            class="button blue center small"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-circle-plus faIconLeft"
+              data-icon="circle-plus"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                fill="currentColor"
+              />
+            </svg>
+            Add a new grouped object in my group
+          </button>
+        </div>
+        <div
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 0
-              </Markdown>
-            </h3>
             <div
-              className="center"
+              class="survey-group-object__content"
             >
-              <button
-                className="button red small"
-                onClick={[Function]}
-                type="button"
+              <h3
+                class="survey-group-object__title"
               >
-                <svg
-                  aria-hidden="true"
-                  className="svg-inline--fa fa-trash-can faIconLeft"
-                  data-icon="trash-can"
-                  data-prefix="fas"
-                  focusable="false"
-                  role="img"
-                  style={{}}
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <path
-                    d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
-                    fill="currentColor"
-                    style={{}}
-                  />
-                </svg>
-                Delete this grouped object from my group
-              </button>
-            </div>
-            <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
+                  Grouped object at index 0
+                </markdown>
+              </h3>
               <div
-                className="apptr__form-label-container"
+                class="center"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                <button
+                  class="button red small"
+                  type="button"
                 >
-                  <Markdown
-                    className="label"
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-trash-can faIconLeft"
+                    data-icon="trash-can"
+                    data-prefix="fas"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 448 512"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                    <path
+                      d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Delete this grouped object from my group
+                </button>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="survey-section__text"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj0Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj0Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some answer"
-                />
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
+              </div>
+              <div
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
+              >
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj0Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj0Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj0Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 1
-              </Markdown>
-            </h3>
             <div
-              className="center"
+              class="survey-group-object__content"
             >
-              <button
-                className="button red small"
-                onClick={[Function]}
-                type="button"
+              <h3
+                class="survey-group-object__title"
               >
-                <svg
-                  aria-hidden="true"
-                  className="svg-inline--fa fa-trash-can faIconLeft"
-                  data-icon="trash-can"
-                  data-prefix="fas"
-                  focusable="false"
-                  role="img"
-                  style={{}}
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <path
-                    d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
-                    fill="currentColor"
-                    style={{}}
-                  />
-                </svg>
-                Delete this grouped object from my group
-              </button>
-            </div>
-            <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
+                  Grouped object at index 1
+                </markdown>
+              </h3>
               <div
-                className="apptr__form-label-container"
+                class="center"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                <button
+                  class="button red small"
+                  type="button"
                 >
-                  <Markdown
-                    className="label"
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-trash-can faIconLeft"
+                    data-icon="trash-can"
+                    data-prefix="fas"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 448 512"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                    <path
+                      d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Delete this grouped object from my group
+                </button>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="survey-section__text"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj1Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj1Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some other answer"
-                />
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
+              </div>
+              <div
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
+              >
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj1Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj1Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj1Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some other answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 2
-              </Markdown>
-            </h3>
             <div
-              className="center"
+              class="survey-group-object__content"
             >
-              <button
-                className="button red small"
-                onClick={[Function]}
-                type="button"
+              <h3
+                class="survey-group-object__title"
               >
-                <svg
-                  aria-hidden="true"
-                  className="svg-inline--fa fa-trash-can faIconLeft"
-                  data-icon="trash-can"
-                  data-prefix="fas"
-                  focusable="false"
-                  role="img"
-                  style={{}}
-                  viewBox="0 0 448 512"
-                  xmlns="http://www.w3.org/2000/svg"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <path
-                    d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
-                    fill="currentColor"
-                    style={{}}
-                  />
-                </svg>
-                Delete this grouped object from my group
-              </button>
-            </div>
-            <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
+                  Grouped object at index 2
+                </markdown>
+              </h3>
               <div
-                className="apptr__form-label-container"
+                class="center"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                <button
+                  class="button red small"
+                  type="button"
                 >
-                  <Markdown
-                    className="label"
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-trash-can faIconLeft"
+                    data-icon="trash-can"
+                    data-prefix="fas"
+                    focusable="false"
+                    role="img"
+                    viewBox="0 0 448 512"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                    <path
+                      d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  Delete this grouped object from my group
+                </button>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="survey-section__text"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj2Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj2Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value=""
-                />
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
+              </div>
+              <div
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
+              >
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj2Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj2Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj2Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value=""
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="center"
-      >
-        <button
-          className="button blue center small"
-          onClick={[Function]}
-          type="button"
+        <div
+          class="center"
         >
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-circle-plus faIconLeft"
-            data-icon="circle-plus"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={{}}
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            class="button blue center small"
+            type="button"
           >
-            <path
-              d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-          Add a new grouped object in my group
-        </button>
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-circle-plus faIconLeft"
+              data-icon="circle-plus"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                fill="currentColor"
+              />
+            </svg>
+            Add a new grouped object in my group
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`Group All values set, false when possible Render widget 1`] = `
-<section
-  className="survey-group"
->
-  <div
-    className="content-container"
+<div>
+  <section
+    class="survey-group"
   >
     <div
-      className="survey-group__content"
+      class="content-container"
     >
       <div
-        className="survey-group-object"
+        class="survey-group__content"
       >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 0
-              </Markdown>
-            </h3>
             <div
-              className="survey-section__text"
+              class="survey-group-object__content"
             >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
-              <div
-                className="apptr__form-label-container"
-              >
-                <label
-                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  Grouped object at index 0
+                </markdown>
+              </h3>
+              <div
+                class="survey-section__text"
+              >
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj0Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj0Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some answer"
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj0Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj0Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj0Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 1
-              </Markdown>
-            </h3>
             <div
-              className="survey-section__text"
+              class="survey-group-object__content"
             >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
-              <div
-                className="apptr__form-label-container"
-              >
-                <label
-                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  Grouped object at index 1
+                </markdown>
+              </h3>
+              <div
+                class="survey-section__text"
+              >
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj1Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj1Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some other answer"
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj1Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj1Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj1Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some other answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 2
-              </Markdown>
-            </h3>
             <div
-              className="survey-section__text"
+              class="survey-group-object__content"
             >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
-              <div
-                className="apptr__form-label-container"
-              >
-                <label
-                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  Grouped object at index 2
+                </markdown>
+              </h3>
+              <div
+                class="survey-section__text"
+              >
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj2Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj2Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value=""
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj2Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj2Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj2Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value=""
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
-exports[`Group Conditional false, should not display Render widget 1`] = `null`;
+exports[`Group Conditional false, should not display Render widget 1`] = `<div />`;
 
 exports[`Group Default values Render widget 1`] = `
-<section
-  className="survey-group"
->
-  <div
-    className="content-container"
+<div>
+  <section
+    class="survey-group"
   >
     <div
-      className="survey-group__content"
+      class="content-container"
     >
-      <h2
-        className="survey-group__title"
-      >
-        myGroup.title
-      </h2>
       <div
-        className="survey-group-object"
+        class="survey-group__content"
       >
+        <h2
+          class="survey-group__title"
+        >
+          myGroup.title
+        </h2>
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
             <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
+              class="survey-group-object__content"
             >
               <div
-                className="apptr__form-label-container"
+                class="survey-section__text"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj0Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj0Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some answer"
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj0Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj0Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj0Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
             <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
+              class="survey-group-object__content"
             >
               <div
-                className="apptr__form-label-container"
+                class="survey-section__text"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj1Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj1Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some other answer"
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj1Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj1Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj1Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some other answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
             <div
-              className="survey-section__text"
-            >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
+              class="survey-group-object__content"
             >
               <div
-                className="apptr__form-label-container"
+                class="survey-section__text"
               >
-                <label
-                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj2Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj2Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value=""
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj2Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj2Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj2Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value=""
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="center"
-      >
-        <button
-          className="button blue center large"
-          onClick={[Function]}
-          type="button"
+        <div
+          class="center"
         >
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-circle-plus faIconLeft"
-            data-icon="circle-plus"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={{}}
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            class="button blue center large"
+            type="button"
           >
-            <path
-              d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-          myGroup.addGroupedObject
-        </button>
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-circle-plus faIconLeft"
+              data-icon="circle-plus"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                fill="currentColor"
+              />
+            </svg>
+            myGroup.addGroupedObject
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`Group Nested groups, should display widgets with right path 1`] = `
-<section
-  className="survey-group"
->
-  <div
-    className="content-container"
+<div>
+  <section
+    class="survey-group"
   >
     <div
-      className="survey-group__content"
+      class="content-container"
     >
-      <h2
-        className="survey-group__title"
-      >
-        myGroup.title
-      </h2>
       <div
-        className="survey-group-object"
+        class="survey-group__content"
       >
+        <h2
+          class="survey-group__title"
+        >
+          myGroup.title
+        </h2>
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
+            <div
+              class="survey-group-object__content"
             >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                Grouped object at index 0
-              </Markdown>
-            </h3>
-            <section
-              className="survey-group"
-            >
-              <div
-                className="content-container"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  Grouped object at index 0
+                </markdown>
+              </h3>
+              <section
+                class="survey-group"
               >
                 <div
-                  className="survey-group__content"
+                  class="content-container"
                 >
-                  <h2
-                    className="survey-group__title"
-                  >
-                    Nested group title
-                  </h2>
                   <div
-                    className="survey-group-object"
+                    class="survey-group__content"
                   >
+                    <h2
+                      class="survey-group__title"
+                    >
+                      Nested group title
+                    </h2>
                     <div
-                      className="content-container"
+                      class="survey-group-object"
                     >
                       <div
-                        className="survey-group-object__content"
+                        class="content-container"
                       >
-                        <h3
-                          className="survey-group-object__title"
-                        >
-                          <Markdown
-                            remarkPlugins={
-                              [
-                                [
-                                  "remark-gfm",
-                                  {
-                                    "singleTilde": false,
-                                  },
-                                ],
-                              ]
-                            }
-                          >
-                            Nested object at index 0
-                          </Markdown>
-                        </h3>
                         <div
-                          className="survey-section__text"
+                          class="survey-group-object__content"
                         >
-                          <Markdown
-                            className="left "
-                            remarkPlugins={
-                              [
-                                [
-                                  "remark-gfm",
-                                  {
-                                    "singleTilde": false,
-                                  },
-                                ],
-                              ]
-                            }
+                          <h3
+                            class="survey-group-object__title"
                           >
-                            This is a text widget
-                          </Markdown>
-                        </div>
-                        <div
-                          className="apptr__form-container question-type-string question-filled"
-                          onClick={[Function]}
-                          style={
-                            {
-                              "position": "relative",
-                            }
-                          }
-                        >
-                          <div
-                            className="apptr__form-label-container"
-                          >
-                            <label
-                              htmlFor="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
+                            <markdown
+                              remarkplugins="remark-gfm,[object Object]"
                             >
-                              <Markdown
-                                className="label"
-                              >
-                                Test Question Label
-                              </Markdown>
-                            </label>
+                              Nested object at index 0
+                            </markdown>
+                          </h3>
+                          <div
+                            class="survey-section__text"
+                          >
+                            <markdown
+                              class="left "
+                              remarkplugins="remark-gfm,[object Object]"
+                            >
+                              This is a text widget
+                            </markdown>
                           </div>
                           <div
-                            className="apptr__form-input-container "
+                            class="apptr__form-container question-type-string question-filled"
+                            style="position: relative;"
                           >
-                            <input
-                              autoComplete="none"
-                              className="apptr__form-input apptr__input-string input-large"
-                              id="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
-                              maxLength={255}
-                              name="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
-                              onBlur={[Function]}
-                              onChange={[Function]}
-                              style={
-                                {
-                                  "textTransform": "none",
-                                }
-                              }
-                              type="text"
-                              value="Some answer"
-                            />
+                            <div
+                              class="apptr__form-label-container"
+                            >
+                              <label
+                                for="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
+                              >
+                                <markdown
+                                  class="label"
+                                >
+                                  Test Question Label
+                                </markdown>
+                              </label>
+                            </div>
+                            <div
+                              class="apptr__form-input-container "
+                            >
+                              <input
+                                autocomplete="none"
+                                class="apptr__form-input apptr__input-string input-large"
+                                id="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
+                                maxlength="255"
+                                name="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
+                                style="text-transform: none;"
+                                type="text"
+                                value="Some answer"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div
-                    className="survey-group-object"
-                  >
                     <div
-                      className="content-container"
+                      class="survey-group-object"
                     >
                       <div
-                        className="survey-group-object__content"
+                        class="content-container"
                       >
-                        <h3
-                          className="survey-group-object__title"
-                        >
-                          <Markdown
-                            remarkPlugins={
-                              [
-                                [
-                                  "remark-gfm",
-                                  {
-                                    "singleTilde": false,
-                                  },
-                                ],
-                              ]
-                            }
-                          >
-                            Nested object at index 1
-                          </Markdown>
-                        </h3>
                         <div
-                          className="survey-section__text"
+                          class="survey-group-object__content"
                         >
-                          <Markdown
-                            className="left "
-                            remarkPlugins={
-                              [
-                                [
-                                  "remark-gfm",
-                                  {
-                                    "singleTilde": false,
-                                  },
-                                ],
-                              ]
-                            }
+                          <h3
+                            class="survey-group-object__title"
                           >
-                            This is a text widget
-                          </Markdown>
-                        </div>
-                        <div
-                          className="apptr__form-container question-type-string question-filled"
-                          onClick={[Function]}
-                          style={
-                            {
-                              "position": "relative",
-                            }
-                          }
-                        >
-                          <div
-                            className="apptr__form-label-container"
-                          >
-                            <label
-                              htmlFor="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
+                            <markdown
+                              remarkplugins="remark-gfm,[object Object]"
                             >
-                              <Markdown
-                                className="label"
-                              >
-                                Test Question Label
-                              </Markdown>
-                            </label>
+                              Nested object at index 1
+                            </markdown>
+                          </h3>
+                          <div
+                            class="survey-section__text"
+                          >
+                            <markdown
+                              class="left "
+                              remarkplugins="remark-gfm,[object Object]"
+                            >
+                              This is a text widget
+                            </markdown>
                           </div>
                           <div
-                            className="apptr__form-input-container "
+                            class="apptr__form-container question-type-string question-filled"
+                            style="position: relative;"
                           >
-                            <input
-                              autoComplete="none"
-                              className="apptr__form-input apptr__input-string input-large"
-                              id="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
-                              maxLength={255}
-                              name="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
-                              onBlur={[Function]}
-                              onChange={[Function]}
-                              style={
-                                {
-                                  "textTransform": "none",
-                                }
-                              }
-                              type="text"
-                              value="Some other answer"
-                            />
+                            <div
+                              class="apptr__form-label-container"
+                            >
+                              <label
+                                for="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
+                              >
+                                <markdown
+                                  class="label"
+                                >
+                                  Test Question Label
+                                </markdown>
+                              </label>
+                            </div>
+                            <div
+                              class="apptr__form-input-container "
+                            >
+                              <input
+                                autocomplete="none"
+                                class="apptr__form-input apptr__input-string input-large"
+                                id="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
+                                maxlength="255"
+                                name="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
+                                style="text-transform: none;"
+                                type="text"
+                                value="Some other answer"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div
-                    className="center"
-                  >
-                    <button
-                      className="button blue center large"
-                      onClick={[Function]}
-                      type="button"
+                    <div
+                      class="center"
                     >
-                      <svg
-                        aria-hidden="true"
-                        className="svg-inline--fa fa-circle-plus faIconLeft"
-                        data-icon="circle-plus"
-                        data-prefix="fas"
-                        focusable="false"
-                        role="img"
-                        style={{}}
-                        viewBox="0 0 512 512"
-                        xmlns="http://www.w3.org/2000/svg"
+                      <button
+                        class="button blue center large"
+                        type="button"
                       >
-                        <path
-                          d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-                          fill="currentColor"
-                          style={{}}
-                        />
-                      </svg>
-                      widgetGroups.addGroupedObject
-                    </button>
+                        <svg
+                          aria-hidden="true"
+                          class="svg-inline--fa fa-circle-plus faIconLeft"
+                          data-icon="circle-plus"
+                          data-prefix="fas"
+                          focusable="false"
+                          role="img"
+                          viewBox="0 0 512 512"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        widgetGroups.addGroupedObject
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
+            <div
+              class="survey-group-object__content"
             >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                Grouped object at index 1
-              </Markdown>
-            </h3>
-            <section
-              className="survey-group"
-            >
-              <div
-                className="content-container"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  Grouped object at index 1
+                </markdown>
+              </h3>
+              <section
+                class="survey-group"
               >
                 <div
-                  className="survey-group__content"
+                  class="content-container"
                 >
-                  <h2
-                    className="survey-group__title"
-                  >
-                    Nested group title
-                  </h2>
                   <div
-                    className="center"
+                    class="survey-group__content"
                   >
-                    <button
-                      className="button blue center large"
-                      onClick={[Function]}
-                      type="button"
+                    <h2
+                      class="survey-group__title"
                     >
-                      <svg
-                        aria-hidden="true"
-                        className="svg-inline--fa fa-circle-plus faIconLeft"
-                        data-icon="circle-plus"
-                        data-prefix="fas"
-                        focusable="false"
-                        role="img"
-                        style={{}}
-                        viewBox="0 0 512 512"
-                        xmlns="http://www.w3.org/2000/svg"
+                      Nested group title
+                    </h2>
+                    <div
+                      class="center"
+                    >
+                      <button
+                        class="button blue center large"
+                        type="button"
                       >
-                        <path
-                          d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-                          fill="currentColor"
-                          style={{}}
-                        />
-                      </svg>
-                      widgetGroups.addGroupedObject
-                    </button>
+                        <svg
+                          aria-hidden="true"
+                          class="svg-inline--fa fa-circle-plus faIconLeft"
+                          data-icon="circle-plus"
+                          data-prefix="fas"
+                          focusable="false"
+                          role="img"
+                          viewBox="0 0 512 512"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        widgetGroups.addGroupedObject
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
+            <div
+              class="survey-group-object__content"
             >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                Grouped object at index 2
-              </Markdown>
-            </h3>
-            <section
-              className="survey-group"
-            >
-              <div
-                className="content-container"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  Grouped object at index 2
+                </markdown>
+              </h3>
+              <section
+                class="survey-group"
               >
                 <div
-                  className="survey-group__content"
+                  class="content-container"
                 >
-                  <h2
-                    className="survey-group__title"
-                  >
-                    Nested group title
-                  </h2>
                   <div
-                    className="center"
+                    class="survey-group__content"
                   >
-                    <button
-                      className="button blue center large"
-                      onClick={[Function]}
-                      type="button"
+                    <h2
+                      class="survey-group__title"
                     >
-                      <svg
-                        aria-hidden="true"
-                        className="svg-inline--fa fa-circle-plus faIconLeft"
-                        data-icon="circle-plus"
-                        data-prefix="fas"
-                        focusable="false"
-                        role="img"
-                        style={{}}
-                        viewBox="0 0 512 512"
-                        xmlns="http://www.w3.org/2000/svg"
+                      Nested group title
+                    </h2>
+                    <div
+                      class="center"
+                    >
+                      <button
+                        class="button blue center large"
+                        type="button"
                       >
-                        <path
-                          d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-                          fill="currentColor"
-                          style={{}}
-                        />
-                      </svg>
-                      widgetGroups.addGroupedObject
-                    </button>
+                        <svg
+                          aria-hidden="true"
+                          class="svg-inline--fa fa-circle-plus faIconLeft"
+                          data-icon="circle-plus"
+                          data-prefix="fas"
+                          focusable="false"
+                          role="img"
+                          viewBox="0 0 512 512"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                        widgetGroups.addGroupedObject
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            </div>
           </div>
         </div>
-      </div>
-      <div
-        className="center"
-      >
-        <button
-          className="button blue center large"
-          onClick={[Function]}
-          type="button"
+        <div
+          class="center"
         >
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-circle-plus faIconLeft"
-            data-icon="circle-plus"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={{}}
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            class="button blue center large"
+            type="button"
           >
-            <path
-              d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-          myGroup.addGroupedObject
-        </button>
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-circle-plus faIconLeft"
+              data-icon="circle-plus"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                fill="currentColor"
+              />
+            </svg>
+            myGroup.addGroupedObject
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`Group With grouped object conditional filter, show only object 1 Render widget 1`] = `
-<section
-  className="survey-group"
->
-  <div
-    className="content-container"
+<div>
+  <section
+    class="survey-group"
   >
     <div
-      className="survey-group__content"
+      class="content-container"
     >
-      <h2
-        className="survey-group__title"
-      >
-        myGroup.title
-      </h2>
       <div
-        className="survey-group-object"
+        class="survey-group__content"
       >
+        <h2
+          class="survey-group__title"
+        >
+          myGroup.title
+        </h2>
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 1
-              </Markdown>
-            </h3>
             <div
-              className="survey-section__text"
+              class="survey-group-object__content"
             >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
-              <div
-                className="apptr__form-label-container"
-              >
-                <label
-                  htmlFor="survey-question__myGroups.obj1Uuid.quest"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  Grouped object at index 1
+                </markdown>
+              </h3>
+              <div
+                class="survey-section__text"
+              >
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj1Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj1Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some other answer"
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj1Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj1Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj1Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some other answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="center"
-      >
-        <button
-          className="button blue center large"
-          onClick={[Function]}
-          type="button"
+        <div
+          class="center"
         >
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-circle-plus faIconLeft"
-            data-icon="circle-plus"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={{}}
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            class="button blue center large"
+            type="button"
           >
-            <path
-              d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-          myGroup.addGroupedObject
-        </button>
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-circle-plus faIconLeft"
+              data-icon="circle-plus"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                fill="currentColor"
+              />
+            </svg>
+            myGroup.addGroupedObject
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`Group With object filter, show even sequenced objects Render widget 1`] = `
-<section
-  className="survey-group"
->
-  <div
-    className="content-container"
+<div>
+  <section
+    class="survey-group"
   >
     <div
-      className="survey-group__content"
+      class="content-container"
     >
-      <h2
-        className="survey-group__title"
-      >
-        myGroup.title
-      </h2>
       <div
-        className="survey-group-object"
+        class="survey-group__content"
       >
+        <h2
+          class="survey-group__title"
+        >
+          myGroup.title
+        </h2>
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 0
-              </Markdown>
-            </h3>
             <div
-              className="survey-section__text"
+              class="survey-group-object__content"
             >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
-              <div
-                className="apptr__form-label-container"
-              >
-                <label
-                  htmlFor="survey-question__myGroups.obj0Uuid.quest"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  Grouped object at index 0
+                </markdown>
+              </h3>
+              <div
+                class="survey-section__text"
+              >
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj0Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj0Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value="Some answer"
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj0Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj0Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj0Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value="Some answer"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="survey-group-object"
-      >
         <div
-          className="content-container"
+          class="survey-group-object"
         >
           <div
-            className="survey-group-object__content"
+            class="content-container"
           >
-            <h3
-              className="survey-group-object__title"
-            >
-              <Markdown
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
-              >
-                Grouped object at index 2
-              </Markdown>
-            </h3>
             <div
-              className="survey-section__text"
+              class="survey-group-object__content"
             >
-              <Markdown
-                className="left "
-                remarkPlugins={
-                  [
-                    [
-                      "remark-gfm",
-                      {
-                        "singleTilde": false,
-                      },
-                    ],
-                  ]
-                }
+              <h3
+                class="survey-group-object__title"
               >
-                This is a text widget
-              </Markdown>
-            </div>
-            <div
-              className="apptr__form-container question-type-string question-filled"
-              onClick={[Function]}
-              style={
-                {
-                  "position": "relative",
-                }
-              }
-            >
-              <div
-                className="apptr__form-label-container"
-              >
-                <label
-                  htmlFor="survey-question__myGroups.obj2Uuid.quest"
+                <markdown
+                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  <Markdown
-                    className="label"
-                  >
-                    Test Question Label
-                  </Markdown>
-                </label>
+                  Grouped object at index 2
+                </markdown>
+              </h3>
+              <div
+                class="survey-section__text"
+              >
+                <markdown
+                  class="left "
+                  remarkplugins="remark-gfm,[object Object]"
+                >
+                  This is a text widget
+                </markdown>
               </div>
               <div
-                className="apptr__form-input-container "
+                class="apptr__form-container question-type-string question-filled"
+                style="position: relative;"
               >
-                <input
-                  autoComplete="none"
-                  className="apptr__form-input apptr__input-string input-large"
-                  id="survey-question__myGroups.obj2Uuid.quest"
-                  maxLength={255}
-                  name="survey-question__myGroups.obj2Uuid.quest"
-                  onBlur={[Function]}
-                  onChange={[Function]}
-                  style={
-                    {
-                      "textTransform": "none",
-                    }
-                  }
-                  type="text"
-                  value=""
-                />
+                <div
+                  class="apptr__form-label-container"
+                >
+                  <label
+                    for="survey-question__myGroups.obj2Uuid.quest"
+                  >
+                    <markdown
+                      class="label"
+                    >
+                      Test Question Label
+                    </markdown>
+                  </label>
+                </div>
+                <div
+                  class="apptr__form-input-container "
+                >
+                  <input
+                    autocomplete="none"
+                    class="apptr__form-input apptr__input-string input-large"
+                    id="survey-question__myGroups.obj2Uuid.quest"
+                    maxlength="255"
+                    name="survey-question__myGroups.obj2Uuid.quest"
+                    style="text-transform: none;"
+                    type="text"
+                    value=""
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="center"
-      >
-        <button
-          className="button blue center large"
-          onClick={[Function]}
-          type="button"
+        <div
+          class="center"
         >
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-circle-plus faIconLeft"
-            data-icon="circle-plus"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={{}}
-            viewBox="0 0 512 512"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            class="button blue center large"
+            type="button"
           >
-            <path
-              d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-          myGroup.addGroupedObject
-        </button>
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-circle-plus faIconLeft"
+              data-icon="circle-plus"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 512 512"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                fill="currentColor"
+              />
+            </svg>
+            myGroup.addGroupedObject
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 `;
 
 exports[`Grouped Object All values set, add/delete button false Render widget 1`] = `
-<div
-  className="survey-group-object"
->
+<div>
   <div
-    className="content-container"
+    class="survey-group-object"
   >
     <div
-      className="survey-group-object__content"
+      class="content-container"
     >
-      <h3
-        className="survey-group-object__title"
-      >
-        <Markdown
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          Grouped object at index 0
-        </Markdown>
-      </h3>
       <div
-        className="survey-section__text"
+        class="survey-group-object__content"
       >
-        <Markdown
-          className="left "
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
+        <h3
+          class="survey-group-object__title"
         >
-          This is a text widget
-        </Markdown>
-      </div>
-      <div
-        className="apptr__form-container question-type-string question-filled"
-        onClick={[Function]}
-        style={
-          {
-            "position": "relative",
-          }
-        }
-      >
-        <div
-          className="apptr__form-label-container"
-        >
-          <label
-            htmlFor="survey-question__myGroups.obj0Uuid.quest"
+          <markdown
+            remarkplugins="remark-gfm,[object Object]"
           >
-            <Markdown
-              className="label"
-            >
-              Test Question Label
-            </Markdown>
-          </label>
+            Grouped object at index 0
+          </markdown>
+        </h3>
+        <div
+          class="survey-section__text"
+        >
+          <markdown
+            class="left "
+            remarkplugins="remark-gfm,[object Object]"
+          >
+            This is a text widget
+          </markdown>
         </div>
         <div
-          className="apptr__form-input-container "
+          class="apptr__form-container question-type-string question-filled"
+          style="position: relative;"
         >
-          <input
-            autoComplete="none"
-            className="apptr__form-input apptr__input-string input-large"
-            id="survey-question__myGroups.obj0Uuid.quest"
-            maxLength={255}
-            name="survey-question__myGroups.obj0Uuid.quest"
-            onBlur={[Function]}
-            onChange={[Function]}
-            style={
-              {
-                "textTransform": "none",
-              }
-            }
-            type="text"
-            value="Some answer"
-          />
+          <div
+            class="apptr__form-label-container"
+          >
+            <label
+              for="survey-question__myGroups.obj0Uuid.quest"
+            >
+              <markdown
+                class="label"
+              >
+                Test Question Label
+              </markdown>
+            </label>
+          </div>
+          <div
+            class="apptr__form-input-container "
+          >
+            <input
+              autocomplete="none"
+              class="apptr__form-input apptr__input-string input-large"
+              id="survey-question__myGroups.obj0Uuid.quest"
+              maxlength="255"
+              name="survey-question__myGroups.obj0Uuid.quest"
+              style="text-transform: none;"
+              type="text"
+              value="Some answer"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -2194,121 +1676,91 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
 `;
 
 exports[`Grouped Object All values set, all true, add button default label, filter show all Render widget 1`] = `
-<div
-  className="survey-group-object"
->
+<div>
   <div
-    className="content-container"
+    class="survey-group-object"
   >
     <div
-      className="survey-group-object__content"
+      class="content-container"
     >
-      <h3
-        className="survey-group-object__title"
-      >
-        <Markdown
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          Grouped object at index 0
-        </Markdown>
-      </h3>
       <div
-        className="center"
+        class="survey-group-object__content"
       >
-        <button
-          className="button red small"
-          onClick={[Function]}
-          type="button"
+        <h3
+          class="survey-group-object__title"
         >
-          <svg
-            aria-hidden="true"
-            className="svg-inline--fa fa-trash-can faIconLeft"
-            data-icon="trash-can"
-            data-prefix="fas"
-            focusable="false"
-            role="img"
-            style={{}}
-            viewBox="0 0 448 512"
-            xmlns="http://www.w3.org/2000/svg"
+          <markdown
+            remarkplugins="remark-gfm,[object Object]"
           >
-            <path
-              d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
-              fill="currentColor"
-              style={{}}
-            />
-          </svg>
-          Delete this grouped object from my group
-        </button>
-      </div>
-      <div
-        className="survey-section__text"
-      >
-        <Markdown
-          className="left "
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          This is a text widget
-        </Markdown>
-      </div>
-      <div
-        className="apptr__form-container question-type-string question-filled"
-        onClick={[Function]}
-        style={
-          {
-            "position": "relative",
-          }
-        }
-      >
+            Grouped object at index 0
+          </markdown>
+        </h3>
         <div
-          className="apptr__form-label-container"
+          class="center"
         >
-          <label
-            htmlFor="survey-question__myGroups.obj0Uuid.quest"
+          <button
+            class="button red small"
+            type="button"
           >
-            <Markdown
-              className="label"
+            <svg
+              aria-hidden="true"
+              class="svg-inline--fa fa-trash-can faIconLeft"
+              data-icon="trash-can"
+              data-prefix="fas"
+              focusable="false"
+              role="img"
+              viewBox="0 0 448 512"
+              xmlns="http://www.w3.org/2000/svg"
             >
-              Test Question Label
-            </Markdown>
-          </label>
+              <path
+                d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"
+                fill="currentColor"
+              />
+            </svg>
+            Delete this grouped object from my group
+          </button>
         </div>
         <div
-          className="apptr__form-input-container "
+          class="survey-section__text"
         >
-          <input
-            autoComplete="none"
-            className="apptr__form-input apptr__input-string input-large"
-            id="survey-question__myGroups.obj0Uuid.quest"
-            maxLength={255}
-            name="survey-question__myGroups.obj0Uuid.quest"
-            onBlur={[Function]}
-            onChange={[Function]}
-            style={
-              {
-                "textTransform": "none",
-              }
-            }
-            type="text"
-            value="Some answer"
-          />
+          <markdown
+            class="left "
+            remarkplugins="remark-gfm,[object Object]"
+          >
+            This is a text widget
+          </markdown>
+        </div>
+        <div
+          class="apptr__form-container question-type-string question-filled"
+          style="position: relative;"
+        >
+          <div
+            class="apptr__form-label-container"
+          >
+            <label
+              for="survey-question__myGroups.obj0Uuid.quest"
+            >
+              <markdown
+                class="label"
+              >
+                Test Question Label
+              </markdown>
+            </label>
+          </div>
+          <div
+            class="apptr__form-input-container "
+          >
+            <input
+              autocomplete="none"
+              class="apptr__form-input apptr__input-string input-large"
+              id="survey-question__myGroups.obj0Uuid.quest"
+              maxlength="255"
+              name="survey-question__myGroups.obj0Uuid.quest"
+              style="text-transform: none;"
+              type="text"
+              value="Some answer"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -2317,75 +1769,57 @@ exports[`Grouped Object All values set, all true, add button default label, filt
 `;
 
 exports[`Grouped Object Default values Render widget 1`] = `
-<div
-  className="survey-group-object"
->
+<div>
   <div
-    className="content-container"
+    class="survey-group-object"
   >
     <div
-      className="survey-group-object__content"
+      class="content-container"
     >
       <div
-        className="survey-section__text"
-      >
-        <Markdown
-          className="left "
-          remarkPlugins={
-            [
-              [
-                "remark-gfm",
-                {
-                  "singleTilde": false,
-                },
-              ],
-            ]
-          }
-        >
-          This is a text widget
-        </Markdown>
-      </div>
-      <div
-        className="apptr__form-container question-type-string question-filled"
-        onClick={[Function]}
-        style={
-          {
-            "position": "relative",
-          }
-        }
+        class="survey-group-object__content"
       >
         <div
-          className="apptr__form-label-container"
+          class="survey-section__text"
         >
-          <label
-            htmlFor="survey-question__myGroups.obj0Uuid.quest"
+          <markdown
+            class="left "
+            remarkplugins="remark-gfm,[object Object]"
           >
-            <Markdown
-              className="label"
-            >
-              Test Question Label
-            </Markdown>
-          </label>
+            This is a text widget
+          </markdown>
         </div>
         <div
-          className="apptr__form-input-container "
+          class="apptr__form-container question-type-string question-filled"
+          style="position: relative;"
         >
-          <input
-            autoComplete="none"
-            className="apptr__form-input apptr__input-string input-large"
-            id="survey-question__myGroups.obj0Uuid.quest"
-            maxLength={255}
-            name="survey-question__myGroups.obj0Uuid.quest"
-            onBlur={[Function]}
-            onChange={[Function]}
-            style={
-              {
-                "textTransform": "none",
-              }
-            }
-            type="text"
-            value="Some answer"
-          />
+          <div
+            class="apptr__form-label-container"
+          >
+            <label
+              for="survey-question__myGroups.obj0Uuid.quest"
+            >
+              <markdown
+                class="label"
+              >
+                Test Question Label
+              </markdown>
+            </label>
+          </div>
+          <div
+            class="apptr__form-input-container "
+          >
+            <input
+              autocomplete="none"
+              class="apptr__form-input apptr__input-string input-large"
+              id="survey-question__myGroups.obj0Uuid.quest"
+              maxlength="255"
+              name="survey-question__myGroups.obj0Uuid.quest"
+              style="text-transform: none;"
+              type="text"
+              value="Some answer"
+            />
+          </div>
         </div>
       </div>
     </div>

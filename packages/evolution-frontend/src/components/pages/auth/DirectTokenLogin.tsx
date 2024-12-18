@@ -5,36 +5,23 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { connect } from 'react-redux';
-import { withTranslation, WithTranslation } from 'react-i18next';
-import { History, Location } from 'history';
+import { useLocation, useNavigate, NavigateFunction } from 'react-router';
 
 import { startDirectTokenLogin } from '../../../actions/Auth';
+import { ThunkDispatch } from 'redux-thunk';
+import { RootState } from '../../../store/configureStore';
+import { SurveyAction } from '../../../store/survey';
+import { useDispatch } from 'react-redux';
 
-export interface DirectTokenLoginProps {
-    isAuthenticated?: boolean;
-    history: History;
-    location: Location;
-    startDirectTokenLogin: (callback?: () => void) => void;
-    login?: boolean;
-}
+export const DirectTokenLogin: React.FC = () => {
+    const navigate: NavigateFunction = useNavigate();
+    const location = useLocation();
+    const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
 
-export const DirectTokenLogin: React.FunctionComponent<DirectTokenLoginProps & WithTranslation> = (
-    props: DirectTokenLoginProps & WithTranslation
-) => {
     React.useEffect(() => {
-        props.startDirectTokenLogin();
+        dispatch(startDirectTokenLogin(location, navigate));
     }, []);
     return null;
 };
 
-const mapStateToProps = (state) => {
-    return { isAuthenticated: state.auth.isAuthenticated, login: state.auth.login };
-};
-
-const mapDispatchToProps = (dispatch, props: Omit<DirectTokenLoginProps, 'startDirectTokenLogin'>) => ({
-    startDirectTokenLogin: (callback?: () => void) =>
-        dispatch(startDirectTokenLogin(props.history, props.location, callback))
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(withTranslation('auth')(DirectTokenLogin));
+export default DirectTokenLogin;

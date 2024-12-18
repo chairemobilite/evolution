@@ -5,13 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { BaseUser } from 'chaire-lib-common/lib/services/user/userType';
-import { History, Location } from 'history';
+import { Location, NavigateFunction } from 'react-router';
+import { Dispatch } from 'redux';
 import { login, redirectAfterLogin } from 'chaire-lib-frontend/lib/actions/Auth';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as AuthBase from 'chaire-lib-frontend/lib/actions/Auth';
 
-export const startDirectTokenLogin = (history: History, location: Location, callback?: () => void) => {
-    return async (dispatch) => {
+export const startDirectTokenLogin = (location: Location, navigate: NavigateFunction, callback?: () => void) => {
+    return async (dispatch: Dispatch) => {
         try {
             const urlSearch = new URLSearchParams(location.search);
             if (_isBlank(urlSearch.get('access_token'))) {
@@ -28,9 +29,9 @@ export const startDirectTokenLogin = (history: History, location: Location, call
                 if (user) {
                     dispatch(login(user, true, true, false));
                     if (typeof callback === 'function') {
-                        dispatch(callback());
+                        dispatch((callback as any)());
                     }
-                    redirectAfterLogin(user, history, location);
+                    redirectAfterLogin(user, location, navigate);
                 } else {
                     dispatch(login(null, false, true, false));
                 }
@@ -47,8 +48,8 @@ export const startDirectTokenLogin = (history: History, location: Location, call
 };
 
 // TODO: Is commented in chaire-lib-frontend
-export const startRegister = (data: any, history: History) => {
-    return (dispatch, _getState) => {
+export const startRegister = (data: any, navigate: NavigateFunction) => {
+    return (dispatch: Dispatch, _getState) => {
         return fetch('/register', {
             method: 'POST',
             body: JSON.stringify(data),
@@ -63,7 +64,7 @@ export const startRegister = (data: any, history: History) => {
                         if (body.user) {
                             dispatch(login(body.user, true, true, false));
                             const defaultPath = process.env.APP_NAME === 'survey' ? '/survey' : '/dashboard';
-                            history.push(defaultPath);
+                            return navigate(defaultPath);
                         } else {
                             dispatch(login(null, false, true, false));
                         }

@@ -1,83 +1,80 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Render InputMapPoint with various parameters Test with all parameters 1`] = `
-<div
-  className="survey-question__input-map-container"
->
-  <input
-    className="apptr__form-input input-map-hidden"
-    defaultValue="{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-73.1,45.02]}}"
-    id="test"
-    readOnly={true}
-    type="hidden"
-  />
-  <button
-    className="button refresh-geocode green large"
-    id="test_refresh"
-    onClick={[Function]}
-    style={
-      {
-        "display": "none",
-      }
-    }
-    type="button"
-  >
-    <svg
-      aria-hidden="true"
-      className="svg-inline--fa fa-location-dot faIconLeft"
-      data-icon="location-dot"
-      data-prefix="fas"
-      focusable="false"
-      role="img"
-      style={{}}
-      viewBox="0 0 384 512"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"
-        fill="currentColor"
-        style={{}}
-      />
-    </svg>
-    Refresh map
-  </button>
+<div>
   <div
-    aria-hidden="true"
-    className="survey-question__input-map-container"
+    class="survey-question__input-map-container"
   >
-    <div
-      className="loader"
+    <input
+      class="apptr__form-input input-map-hidden"
+      id="test"
+      readonly=""
+      type="hidden"
+      value="{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[-73.1,45.02]}}"
+    />
+    <button
+      class="button refresh-geocode green large"
+      id="test_refresh"
+      style="display: none;"
+      type="button"
     >
-      <p>
-        Loading
-        ...
-      </p>
+      <svg
+        aria-hidden="true"
+        class="svg-inline--fa fa-location-dot faIconLeft"
+        data-icon="location-dot"
+        data-prefix="fas"
+        focusable="false"
+        role="img"
+        viewBox="0 0 384 512"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"
+          fill="currentColor"
+        />
+      </svg>
+      Refresh map
+    </button>
+    <div
+      aria-hidden="true"
+      class="survey-question__input-map-container"
+    >
+      <div
+        class="loader"
+      >
+        <p>
+          Loading
+          ...
+        </p>
+      </div>
     </div>
   </div>
 </div>
 `;
 
 exports[`Render InputMapPoint with various parameters Test with minimal parameters 1`] = `
-<div
-  className="survey-question__input-map-container"
->
-  <input
-    className="apptr__form-input input-map-hidden"
-    id="test"
-    readOnly={true}
-    type="hidden"
-  />
+<div>
   <div
-    aria-hidden="true"
-    className="survey-question__input-map-container"
+    class="survey-question__input-map-container"
   >
+    <input
+      class="apptr__form-input input-map-hidden"
+      id="test"
+      readonly=""
+      type="hidden"
+    />
     <div
-      className="loader"
+      aria-hidden="true"
+      class="survey-question__input-map-container"
     >
-      <p>
-        Loading
-        ...
-      </p>
+      <div
+        class="loader"
+      >
+        <p>
+          Loading
+          ...
+        </p>
+      </div>
     </div>
   </div>
 </div>

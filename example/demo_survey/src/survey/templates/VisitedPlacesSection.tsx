@@ -6,9 +6,10 @@
  */
 import React                    from 'react';
 import _get                     from 'lodash/get';
+import { useNavigate, useLocation } from 'react-router';
 import _cloneDeep from 'lodash/cloneDeep';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { WithTranslation, withTranslation }      from 'react-i18next';
+import { useTranslation }      from 'react-i18next';
 import { FontAwesomeIcon }      from '@fortawesome/react-fontawesome';
 import { faTrashAlt }           from '@fortawesome/free-solid-svg-icons/faTrashAlt';
 import { faArrowsAltV }         from '@fortawesome/free-solid-svg-icons/faArrowsAltV';
@@ -16,7 +17,6 @@ import { faPencilAlt }          from '@fortawesome/free-solid-svg-icons/faPencil
 import { faPlusCircle }         from '@fortawesome/free-solid-svg-icons/faPlusCircle';
 import { faClock }              from '@fortawesome/free-solid-svg-icons/faClock';
 import { faArrowRight }         from '@fortawesome/free-solid-svg-icons/faArrowRight';
-import { createBrowserHistory } from 'history';
 //import HTMLEllipsis from 'react-lines-ellipsis/lib/html';
 //import responsiveHOC from 'react-lines-ellipsis/lib/responsiveHOC';
 
@@ -27,7 +27,6 @@ import { createBrowserHistory } from 'history';
 //import { faMedical } from '@fortawesome/free-solid-svg-icons/faBriefcaseMedical';
 
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import { withSurveyContext, WithSurveyContextProps } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import { GroupedObject } from 'evolution-frontend/lib/components/survey/GroupWidgets';
 import { Widget } from 'evolution-frontend/lib/components/survey/Widget';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -37,12 +36,17 @@ import ConfirmModal    from 'chaire-lib-frontend/lib/components/modal/ConfirmMod
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
 import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
+import { SurveyContext } from 'evolution-frontend/lib/contexts/SurveyContext';
 
-export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (
-    props: SectionProps & WithTranslation & WithSurveyContextProps
+export const VisitedPlacesSection: React.FC<SectionProps> = (
+    props: SectionProps
 ) => {
     const { preloaded } = useSectionTemplate(props);
     const [ confirmDeleteVisitedPlace, setConfirmDeleteVisitedPlace ] = React.useState<string | null>(null)
+    const navigate = useNavigate();
+    const location = useLocation();
+    const surveyContext = React.useContext(SurveyContext);
+    const { t, i18n } = useTranslation('survey');
 
     const addVisitedPlace = (sequence, path, e) => {
         if (e)
@@ -55,11 +59,11 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
         const currentJourney     = journeys[0];
         const visitedPlaces      = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
         const lastVisitedPlace   = visitedPlaces[visitedPlaces.length - 1];
-        const updateValuesByPath = {}; const history = createBrowserHistory();
+        const updateValuesByPath = {};
 
-        const path = getPathForSection(history.location.pathname, props.shortname);
+        const path = getPathForSection(location.pathname, props.shortname);
         if (path) {
-            history.push(path);
+            navigate(path);
         }
         if (lastVisitedPlace && sequence === lastVisitedPlace._sequence) // we are inserting a new visited place at the end
         {
@@ -106,7 +110,7 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
 
     surveyHelper.devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);')
     const widgetsComponentsByShortname = {};
-    const personVisitedPlacesConfig    = props.surveyContext.widgets['personVisitedPlaces'];
+    const personVisitedPlacesConfig    = surveyContext.widgets['personVisitedPlaces'];
     const person                       = helper.getPerson(props.interview);
     const journeys = odSurveyHelper.getJourneysArray({ person });
     const currentJourney = journeys[0];
@@ -161,7 +165,7 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
             onClick   = {props.interview.allWidgetsValid && person._uuid === _personId && !selectedVisitedPlaceId ? (e) => selectVisitedPlace(visitedPlace._uuid, e) : null}
           >
             <div className="survey-visited-places-schedule-visited-place-icon">
-              <img src={`/dist/images/activities_icons/${visitedPlace.activity}_plain.svg`} style={{height: '2em'}} alt={visitedPlace.activity ? props.t(`survey:visitedPlace:activities:${visitedPlace.activity}`) : ''} />
+              <img src={`/dist/images/activities_icons/${visitedPlace.activity}_plain.svg`} style={{height: '2em'}} alt={visitedPlace.activity ? t(`survey:visitedPlace:activities:${visitedPlace.activity}`) : ''} />
               <p>
                 <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem'}} />
                 {visitedPlace.arrivalTime && secondsSinceMidnightToTimeStr(visitedPlace.arrivalTime)}
@@ -178,8 +182,8 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
       {
         const personSchedule = (
           <div className="survey-visited-places-schedule-person-container" key={_personId}>
-            {!isAlone && <p className={_personId === person._uuid ? ' _orange' : ''}>{props.t('survey:person:dayScheduleFor')} <span className="_strong">{_person.nickname}</span></p>}
-            {isAlone  && <p className='_orange'>{props.t('survey:person:yourDaySchedule')}</p>}
+            {!isAlone && <p className={_personId === person._uuid ? ' _orange' : ''}>{t('survey:person:dayScheduleFor')} <span className="_strong">{_person.nickname}</span></p>}
+            {isAlone  && <p className='_orange'>{t('survey:person:yourDaySchedule')}</p>}
             <div className="survey-visited-places-schedule-person">
               {personVisitedPlacesSchedules}
             </div>
@@ -237,11 +241,11 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
       const visitedPlaceItem     = (
         <li className={`no-bullet survey-visited-place-item${visitedPlace._uuid === selectedVisitedPlaceId ? ' survey-visited-place-item-selected' : ''}`} key={`survey-visited-place-item__${i}`}>
           <span className="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon">
-            {visitedPlace['_sequence']}. {activity && <img src={`/dist/images/activities_icons/${activity}_marker.svg`} style={{height: '4rem'}} alt={activity ? props.t(`survey:visitedPlace:activities:${activity}`) : ""} />}
+            {visitedPlace['_sequence']}. {activity && <img src={`/dist/images/activities_icons/${activity}_marker.svg`} style={{height: '4rem'}} alt={activity ? t(`survey:visitedPlace:activities:${activity}`) : ""} />}
           </span>
           <span className="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis">
             <span className={visitedPlace._uuid === selectedVisitedPlaceId ? '_strong' : ''}>
-              {activity && props.t(`survey:visitedPlace:activities:${activity}`)}
+              {activity && t(`survey:visitedPlace:activities:${activity}`)}
               {visitedPlace.name && <em>&nbsp;• {visitedPlace.name}</em>}
             </span>
           </span>
@@ -257,7 +261,7 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
               className = {`survey-section__button button blue small`}
               onClick   = {(e) => selectVisitedPlace(visitedPlace._uuid, e)}
               style     = {{marginLeft: '0.5rem'}}
-              title     = {props.t('survey:visitedPlace:editVisitedPlace')}
+              title     = {t('survey:visitedPlace:editVisitedPlace')}
             >
               <FontAwesomeIcon icon={faPencilAlt} className="" />
               {/*props.t('survey:visitedPlace:editVisitedPlace')*/}
@@ -266,7 +270,7 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
               type      = "button"
               className = {`survey-section__button button red small`}
               onClick   = {(e) => setConfirmDeleteVisitedPlace(visitedPlacePath)}
-              title     = {props.t('survey:visitedPlace:deleteVisitedPlace')}
+              title     = {t('survey:visitedPlace:deleteVisitedPlace')}
             >
               <FontAwesomeIcon icon={faTrashAlt} className="" />
               {/*props.t('survey:visitedPlace:deleteVisitedPlace')*/}
@@ -275,7 +279,7 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
               type      = "button"
               className = {`survey-section__button button red small`}
               onClick   = {() => mergeVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces)}
-              title     = {props.t('survey:visitedPlace:mergeVisitedPlace')}
+              title     = {t('survey:visitedPlace:mergeVisitedPlace')}
             >
               <FontAwesomeIcon icon={faArrowsAltV} className="" />
             </button>}
@@ -285,8 +289,8 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
                   <ConfirmModal 
                     isOpen        = {true}
                     closeModal    = {() => setConfirmDeleteVisitedPlace(null)}
-                    text          = {surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.content[props.i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.content, props.interview, props.shortname)}
-                    title         = {personVisitedPlacesConfig.deleteConfirmPopup.title && personVisitedPlacesConfig.deleteConfirmPopup.title[props.i18n.language] ? surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.title[props.i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.title, props.interview, props.shortname) : null}
+                    text          = {surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.content[i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.content, props.interview, props.shortname)}
+                    title         = {personVisitedPlacesConfig.deleteConfirmPopup.title && personVisitedPlacesConfig.deleteConfirmPopup.title[i18n.language] ? surveyHelper.parseString(personVisitedPlacesConfig.deleteConfirmPopup.title[i18n.language] || personVisitedPlacesConfig.deleteConfirmPopup.title, props.interview, props.shortname) : null}
                     cancelAction  = {null}
                     confirmAction = {() => deleteVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces)}
                     containsHtml  = {personVisitedPlacesConfig.deleteConfirmPopup.containsHtml}
@@ -344,10 +348,10 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
               type      = "button"
               className = "button blue center small"
               onClick   = {(e) => addVisitedPlace(visitedPlace['_sequence'] + 1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, e)}
-              title     = {props.t('survey:visitedPlace:insertVisitedPlace')}
+              title     = {t('survey:visitedPlace:insertVisitedPlace')}
             >
               <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
-              {props.t('survey:visitedPlace:insertVisitedPlace')}
+              {t('survey:visitedPlace:insertVisitedPlace')}
             </button>
           </li>
         );
@@ -370,10 +374,10 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
                 type      = "button"
                 className = "button blue center large"
                 onClick   = {(e) => addVisitedPlace(-1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, e)}
-                title     = {props.t('survey:visitedPlace:addVisitedPlace')}
+                title     = {t('survey:visitedPlace:addVisitedPlace')}
               >
                 <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
-                {props.t('survey:visitedPlace:addVisitedPlace')}
+                {t('survey:visitedPlace:addVisitedPlace')}
               </button>}
               <li className="no-bullet" key='survey-visited-places-list-last-visited-place-not-home-question'>{widgetsComponentsByShortname['personLastVisitedPlaceNotHome']}</li>
               {visitedPlaces.length > 1 && <li className="no-bullet" key='survey-visited-places-list-confirm-button'>
@@ -401,9 +405,9 @@ export const VisitedPlacesSection: React.FC<SectionProps & WithTranslation & Wit
             };
             props.startUpdateInterview('visitedPlaces', valuesByPath);
           }.bind(this)
-        }>{props.t('survey:visitedPlace:resetVisitedPlaces')}</button></div>)}
+        }>{t('survey:visitedPlace:resetVisitedPlaces')}</button></div>)}
       </section>
     );
 };
 
-export default withTranslation()(withSurveyContext(VisitedPlacesSection));
+export default VisitedPlacesSection;
