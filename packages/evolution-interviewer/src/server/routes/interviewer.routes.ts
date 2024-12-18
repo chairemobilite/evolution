@@ -113,7 +113,7 @@ export default function (interviewDataFct: {
         }
     });
 
-    router.get('/monitoring/get_interviewer_data', (req, res, next) => {
+    router.get('/monitoring/get_interviewer_data', (req, res, _next) => {
         try {
             if (!(req as any).user) {
                 throw 'Request user is not defined, an interview cannot be created for the user';
