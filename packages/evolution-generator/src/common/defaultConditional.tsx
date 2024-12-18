@@ -4,8 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-// FIXME: This type make the compilation fail, we should fix it at one point.
-// import { Conditional } from '../types/inputTypes';
+import { type Conditional } from 'evolution-common/lib/services/questionnaire/types';
 
 // Accept all the time
-export const defaultConditional = (_interview) => true;
+export const defaultConditional: Conditional = (_interview) => true;

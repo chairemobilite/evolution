@@ -28,6 +28,19 @@ type WidgetDirectionAlign = 'center' | 'left' | 'right';
 // ChatGPT: This would represent the spatial alignment options as it "pertains to the spatial orientation"
 type WidgetSpaceAlign = 'vertical' | 'horizontal' | 'auto';
 
+// This represent if the content contains HTML
+type ContainsHtml = boolean;
+
+// This represent when the widget have a help popup
+export type HelpPopup = {
+    containsHtml?: ContainsHtml;
+    title: I18nData;
+    content: I18nData;
+};
+
+// This represent if it's active (true) or not (false)
+export type Conditional = boolean | ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+
 /**
  * Validation function, which validates the value with potentially multiple
  * validation functions and return whether the specified error message should be
@@ -81,7 +94,7 @@ type BaseChoiceType = {
     hidden?: boolean;
     icon?: IconProp;
     iconPath?: string;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: Conditional;
     color?: string;
     size?: WidgetSize;
 };
@@ -222,7 +235,7 @@ type InputMapType = {
     refreshGeocodingLabel?: I18nData;
     afterRefreshButtonText?: I18nData;
     icon?: IconData;
-    containsHtml?: boolean;
+    containsHtml?: ContainsHtml;
     maxZoom?: number;
     defaultZoom?: number;
     canBeCollapsed?: boolean;
@@ -265,7 +278,7 @@ export type BaseQuestionType = {
      */
     joinWith?: string;
     path: InterviewResponsePath;
-    containsHtml?: boolean;
+    containsHtml?: ContainsHtml;
     label: I18nData;
 
     /**
@@ -275,13 +288,9 @@ export type BaseQuestionType = {
      */
     useAssignedValueOnHide?: boolean;
 
-    helpPopup?: {
-        title: I18nData;
-        content: I18nData;
-        containsHtml?: boolean;
-    };
+    helpPopup?: HelpPopup;
     validations?: ValidationFunction;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: Conditional;
 };
 
 export type QuestionWidgetConfig = BaseQuestionType &
@@ -305,17 +314,17 @@ export type TextWidgetConfig = {
     type: 'text';
     align?: WidgetDirectionAlign;
     path?: string;
-    containsHtml?: boolean;
+    containsHtml?: ContainsHtml;
     text: I18nData;
     classes?: string;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: Conditional;
 };
 
 export type ButtonWidgetConfig = {
     type: 'button';
     // The 'path' is required to resolve ${relativePath} in conditional expressions.
     path?: string;
-    containsHtml?: boolean;
+    containsHtml?: ContainsHtml;
     color?: string;
     label: I18nData;
     /**
@@ -337,10 +346,10 @@ export type ButtonWidgetConfig = {
         confirmButtonLabel?: I18nData;
         cancelButtonColor?: string;
         confirmButtonColor?: string;
-        conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+        conditional?: Conditional;
     };
     size?: WidgetSize;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: Conditional;
 };
 
 export type SurveyMapObjectProperty = {
@@ -371,7 +380,7 @@ type SurveyMapObjectPolygonProperty = SurveyMapObjectProperty & {
 export type InfoMapWidgetConfig = {
     type: 'infoMap';
     path?: string;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: Conditional;
     title: I18nData;
     geojsons: ParsingFunction<{
         points?: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapObjectProperty>;
@@ -414,7 +423,7 @@ export type GroupConfig = {
     /** Whether to show a specific grouped object
      * FIXME: Is this redundant with filter?
      */
-    groupedObjectConditional?: boolean | ParsingFunction<boolean>;
+    groupedObjectConditional?: Conditional;
     /**
      * This function is called for the whole group and must return whether to
      * show the add button. The path received in the parsing function is the
@@ -432,10 +441,10 @@ export type GroupConfig = {
     groupedObjectDeleteButtonLabel?: I18nData;
     deleteConfirmPopup?: {
         content: I18nData;
-        conditional?: boolean | ParsingFunction<boolean>;
+        conditional?: Conditional;
         title?: I18nData;
         cancelAction?: React.MouseEventHandler;
-        containsHtml?: boolean;
+        containsHtml?: ContainsHtml;
     };
     addButtonLocation?: 'bottom' | 'top' | 'both';
     addButtonSize?: string;
