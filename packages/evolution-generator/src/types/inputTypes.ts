@@ -10,9 +10,7 @@
 import {
     BaseQuestionType,
     ButtonWidgetConfig,
-    ChoiceType,
     GroupConfig,
-    I18nData,
     InfoMapWidgetConfig,
     InputCheckboxType,
     InputDatePickerType,
@@ -24,29 +22,8 @@ import {
     InputSelectType,
     InputStringType,
     InputTextType,
-    ParsingFunction,
     TextWidgetConfig,
-    ValidationFunction
 } from 'evolution-common/lib/services/questionnaire/types';
-
-/* Define types for all the different input types */
-type ContainsHtml = boolean;
-type Title = { fr: string | ((interview, path) => string); en: string | ((interview, path) => string) };
-export type InputFilter = (value) => string | number;
-type Label = I18nData;
-export type Labels = {
-    fr: string;
-    en: string;
-}[];
-export type Choices = ChoiceType[] | ParsingFunction<ChoiceType[]>;
-export type Conditional = ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
-export type Validations = ValidationFunction;
-export type NameFunction = (groupedObject, sequence, interview) => string;
-export type HelpPopup = {
-    containsHtml?: ContainsHtml;
-    title: Title;
-    content: Label;
-};
 
 // TODO: Add some missing types for the different input types
 
