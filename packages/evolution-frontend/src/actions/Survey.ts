@@ -13,6 +13,7 @@ import _unset from 'lodash/unset';
 import { History } from 'history';
 import bowser from 'bowser';
 
+/* eslint-disable-next-line */
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
 // TODO Default options for retry are as high as 15 seconds, during which the
 // user get no feedback. Since update requests are queued in that time, are
