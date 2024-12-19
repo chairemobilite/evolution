@@ -44,7 +44,7 @@ i18n.use(LanguageDetector)
                 //useSuspense: false
             }
         },
-        (err, t) => {
+        (err, _t) => {
             if (err) {
                 console.log(err);
             }

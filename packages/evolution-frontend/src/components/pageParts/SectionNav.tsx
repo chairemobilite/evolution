@@ -9,7 +9,6 @@ import { withTranslation, WithTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
 
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { SurveyContext } from '../../contexts/SurveyContext';
 import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
@@ -28,7 +27,7 @@ type SectionNavProps = {
     interview: UserRuntimeInterviewAttributes;
     allWidgetsValid: boolean;
     loadingState: number;
-    startUpdateInterview: StartUpdateInterview;
+    _startUpdateInterview: StartUpdateInterview; //TODO: Add functionality to the _startUpdateInterview, or remove it.
     user: CliUser;
 } & WithTranslation;
 
@@ -41,7 +40,7 @@ const SectionNav = function ({
     interview,
     allWidgetsValid,
     loadingState,
-    startUpdateInterview,
+    _startUpdateInterview,
     user
 }: SectionNavProps) {
     const { devMode, dispatch } = React.useContext(SurveyContext);

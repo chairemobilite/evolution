@@ -34,7 +34,7 @@ export const InterviewCompletedFilter = ({
                     setFilter(options[e.target.value] || undefined);
                 }}
             >
-                {Object.keys(options).map((key, i) => (
+                {Object.keys(options).map((key, _i) => (
                     <option key={`interviewCompleted_${key}`} value={key}>
                         {t(`admin:interviewCompletedFilter:${key}`)}
                     </option>

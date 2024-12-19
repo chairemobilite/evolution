@@ -17,8 +17,6 @@ import { GroupedObject } from '../GroupWidgets';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { withSurveyContext, WithSurveyContextProps } from '../../hoc/WithSurveyContextHoc';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
-import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import * as helpers from 'evolution-common/lib/utils/helpers';

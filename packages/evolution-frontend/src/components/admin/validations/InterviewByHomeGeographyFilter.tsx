@@ -7,7 +7,6 @@
 import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FilterProps } from 'react-table';
-import _isEqual from 'lodash/isEqual';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 
 import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
@@ -43,7 +42,7 @@ export const InterviewByCodeFilter = ({
                 setHasError(true);
                 setCurrentValue(undefined);
             }
-        } catch (error) {
+        } catch {
             setHasError(true);
             setCurrentValue(undefined);
         }

@@ -171,7 +171,7 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
     const widgetsComponents: JSX.Element[] = [];
     const parentObjectIds = _cloneDeep(props.parentObjectIds) || {};
     // FIXME Type the groupedObject
-    groupedObjects().forEach((groupedObject: any, index) => {
+    groupedObjects().forEach((groupedObject: any, _index) => {
         // FIXME What are we doing here exactly? Why?
         parentObjectIds[props.shortname] = groupedObject._uuid;
         const path = `${props.path}.${groupedObject._uuid}`;

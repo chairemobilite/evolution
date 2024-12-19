@@ -12,7 +12,6 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { InputMapFindPlaceType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -120,7 +119,7 @@ export class InputMapFindPlace extends React.Component<
         }
     }
 
-    onSearchPlaceButtonMouseDown(e) {
+    onSearchPlaceButtonMouseDown(_e) {
         //e.preventDefault();
         // preventing default would ignore active input blur
         this.setState({ searchPlaceButtonWasMouseDowned: true });

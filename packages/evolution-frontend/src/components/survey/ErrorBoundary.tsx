@@ -50,7 +50,7 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<Error
     }
 }
 
-const mapStateToProps = (state, props) => {
+const mapStateToProps = (state, _props) => {
     return {
         interview: state.survey.interview
     };

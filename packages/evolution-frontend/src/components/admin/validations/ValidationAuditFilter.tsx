@@ -134,7 +134,7 @@ export const ValidationAuditFilter = ({
                 </label>
                 <Select
                     styles={{
-                        option: (baseStyles, state) => ({
+                        option: (baseStyles, _state) => ({
                             ...baseStyles,
                             paddingTop: 0,
                             paddingBottom: 0

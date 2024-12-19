@@ -122,6 +122,8 @@ declare module 'react-table' {
             UseResizeColumnsColumnProps<D>,
             UseSortByColumnProps<D> {}
 
+    // TODO: Is the V really necessary? Why is it the only interface here that has it?
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
     export interface Cell<D extends Record<string, unknown> = Record<string, unknown>, V = any>
         extends UseGroupByCellProps<D>,
             UseRowStateCellProps<D> {}

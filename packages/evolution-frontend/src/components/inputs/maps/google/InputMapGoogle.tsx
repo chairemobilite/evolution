@@ -11,7 +11,6 @@ import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import GeoJSON from 'geojson';
 import bowser from 'bowser';
 
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getCurrentGoogleMapConfig } from '../../../../config/googleMaps.config';
 import InputLoading from '../../InputLoading';
 import { FeatureGeocodedProperties, MarkerData, InfoWindow } from '../InputMapTypes';
