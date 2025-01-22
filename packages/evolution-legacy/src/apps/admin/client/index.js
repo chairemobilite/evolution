@@ -20,7 +20,7 @@ import { InterviewContext, interviewReducer, initialState } from 'evolution-fron
 // TODO When the project is the root of the application (instead of evolution directly importing project files), this should go in the project
 import { SurveyContext, surveyReducer } from 'evolution-frontend/lib/contexts/SurveyContext';
 import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
-import '../../../styles/survey/styles-survey.scss';
+import '../../../styles/survey/styles-admin-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
 import SegmentsSection from 'evolution-frontend/lib/components/survey/sectionTemplates/TripsAndSegmentsSection';
 
