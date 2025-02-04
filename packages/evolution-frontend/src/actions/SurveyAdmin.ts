@@ -38,149 +38,144 @@ export const startUpdateSurveyValidateInterview = function (
     interview: UserRuntimeInterviewAttributes | null = null,
     callback: (interview: UserRuntimeInterviewAttributes) => void
 ) {
-    return {
-        queue: 'UPDATE_INTERVIEW',
-        callback: async function (next, dispatch, getState) {
-            //surveyHelper.devLog(`Update interview and section with values by path`, valuesByPath);
-            try {
-                if (interview === null) {
-                    interview = _cloneDeep(getState().survey.interview);
-                }
+    return async (dispatch, getState) => {
+        //surveyHelper.devLog(`Update interview and section with values by path`, valuesByPath);
+        try {
+            if (interview === null) {
+                interview = _cloneDeep(getState().survey.interview);
+            }
 
-                //interview.sectionLoaded = null;
+            //interview.sectionLoaded = null;
 
-                dispatch(incrementLoadingState());
+            dispatch(incrementLoadingState());
 
-                if (valuesByPath && Object.keys(valuesByPath).length > 0) {
-                    surveyHelper.devLog(
-                        'Update interview and section with values by path',
-                        JSON.parse(JSON.stringify(valuesByPath))
-                    );
-                }
-
-                //const oldInterview = _cloneDeep(interview);
-                //const previousSection = surveyHelper.getResponse(interview, '_activeSection', null);
-
-                const affectedPaths = {};
-
-                if (Array.isArray(unsetPaths)) {
-                    // unsetPaths if array (each path in array has to be deleted)
-                    for (let i = 0, count = unsetPaths.length; i < count; i++) {
-                        const path = unsetPaths[i];
-                        affectedPaths[path] = true;
-                        _unset(interview, path);
-                    }
-                } else {
-                    unsetPaths = [];
-                }
-
-                // update language if needed:
-                //const oldLanguage    = _get(interview, 'responses._language', null);
-                //const actualLanguage = null;//i18n.language;
-                //if (oldLanguage !== actualLanguage)
-                //{
-                //   valuesByPath['responses._language'] = actualLanguage;
-                //}
-
-                if (valuesByPath) {
-                    if (valuesByPath['_all'] === true) {
-                        affectedPaths['_all'] = true;
-                    }
-                    for (const path in valuesByPath) {
-                        affectedPaths[path] = true;
-                        if (interview) {
-                            _set(interview, path, valuesByPath[path]);
-                        }
-                    }
-                }
-
-                // TODO: update this so it works well with validationOnePager (admin). Should we force this? Anyway this code should be replaced/updated completely in the next version.
-                sectionShortname =
-                    sectionShortname === 'validationOnePager'
-                        ? 'validationOnePager'
-                        : (surveyHelper.getResponse(
-                              interview as UserRuntimeInterviewAttributes,
-                              '_activeSection',
-                              sectionShortname
-                        ) as string);
-                //if (sectionShortname !== previousSection) // need to update all widgets if new section
-                //{
-                //  affectedPaths['_all'] = true;
-                //}
-                const updatedInterviewAndValuesByPath = updateSection(
-                    sectionShortname,
-                    interview as UserRuntimeInterviewAttributes,
-                    affectedPaths,
-                    valuesByPath as { [path: string]: unknown }
+            if (valuesByPath && Object.keys(valuesByPath).length > 0) {
+                surveyHelper.devLog(
+                    'Update interview and section with values by path',
+                    JSON.parse(JSON.stringify(valuesByPath))
                 );
-                interview = updatedInterviewAndValuesByPath[0];
-                valuesByPath = updatedInterviewAndValuesByPath[1];
+            }
 
-                if (!interview.sectionLoaded || interview.sectionLoaded !== sectionShortname) {
-                    valuesByPath['sectionLoaded'] = sectionShortname;
-                    interview.sectionLoaded = sectionShortname;
+            //const oldInterview = _cloneDeep(interview);
+            //const previousSection = surveyHelper.getResponse(interview, '_activeSection', null);
+
+            const affectedPaths = {};
+
+            if (Array.isArray(unsetPaths)) {
+                // unsetPaths if array (each path in array has to be deleted)
+                for (let i = 0, count = unsetPaths.length; i < count; i++) {
+                    const path = unsetPaths[i];
+                    affectedPaths[path] = true;
+                    _unset(interview, path);
                 }
+            } else {
+                unsetPaths = [];
+            }
 
-                // convert undefined values to unset (delete) because stringify will remove undefined values:
+            // update language if needed:
+            //const oldLanguage    = _get(interview, 'responses._language', null);
+            //const actualLanguage = null;//i18n.language;
+            //if (oldLanguage !== actualLanguage)
+            //{
+            //   valuesByPath['responses._language'] = actualLanguage;
+            //}
+
+            if (valuesByPath) {
+                if (valuesByPath['_all'] === true) {
+                    affectedPaths['_all'] = true;
+                }
                 for (const path in valuesByPath) {
-                    if (valuesByPath[path] === undefined) {
-                        unsetPaths.push(path);
+                    affectedPaths[path] = true;
+                    if (interview) {
+                        _set(interview, path, valuesByPath[path]);
                     }
                 }
+            }
 
-                if (isEqual(valuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
+            // TODO: update this so it works well with validationOnePager (admin). Should we force this? Anyway this code should be replaced/updated completely in the next version.
+            sectionShortname =
+                sectionShortname === 'validationOnePager'
+                    ? 'validationOnePager'
+                    : (surveyHelper.getResponse(
+                          interview as UserRuntimeInterviewAttributes,
+                          '_activeSection',
+                          sectionShortname
+                    ) as string);
+            //if (sectionShortname !== previousSection) // need to update all widgets if new section
+            //{
+            //  affectedPaths['_all'] = true;
+            //}
+            const updatedInterviewAndValuesByPath = updateSection(
+                sectionShortname,
+                interview as UserRuntimeInterviewAttributes,
+                affectedPaths,
+                valuesByPath as { [path: string]: unknown }
+            );
+            interview = updatedInterviewAndValuesByPath[0];
+            valuesByPath = updatedInterviewAndValuesByPath[1];
+
+            if (!interview.sectionLoaded || interview.sectionLoaded !== sectionShortname) {
+                valuesByPath['sectionLoaded'] = sectionShortname;
+                interview.sectionLoaded = sectionShortname;
+            }
+
+            // convert undefined values to unset (delete) because stringify will remove undefined values:
+            for (const path in valuesByPath) {
+                if (valuesByPath[path] === undefined) {
+                    unsetPaths.push(path);
+                }
+            }
+
+            if (isEqual(valuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
+                dispatch(updateInterview(_cloneDeep(interview)));
+                dispatch(decrementLoadingState());
+                if (typeof callback === 'function') {
+                    callback(interview);
+                }
+                return null;
+            }
+
+            //const differences = surveyHelper.differences(interview.responses, oldInterview.responses);
+            const response = await fetch(`/api/survey/updateValidateInterview/${interview.uuid}`, {
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                method: 'POST',
+                body: JSON.stringify({
+                    id: interview.id,
+                    participant_id: interview.participant_id,
+                    valuesByPath: valuesByPath,
+                    unsetPaths: unsetPaths
+                    //responses  : interview.responses,
+                    //validations: interview.validations
+                })
+            });
+            if (response.status === 200) {
+                const body = await response.json();
+                if (body.status === 'success' && body.interviewId === interview.uuid) {
+                    //surveyHelper.devLog('Interview saved to db');
+                    //setTimeout(function() {
                     dispatch(updateInterview(_cloneDeep(interview)));
-                    dispatch(decrementLoadingState());
                     if (typeof callback === 'function') {
                         callback(interview);
                     }
-                    return null;
-                }
-
-                //const differences = surveyHelper.differences(interview.responses, oldInterview.responses);
-                const response = await fetch(`/api/survey/updateValidateInterview/${interview.uuid}`, {
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    method: 'POST',
-                    body: JSON.stringify({
-                        id: interview.id,
-                        participant_id: interview.participant_id,
-                        valuesByPath: valuesByPath,
-                        unsetPaths: unsetPaths
-                        //responses  : interview.responses,
-                        //validations: interview.validations
-                    })
-                });
-                if (response.status === 200) {
-                    const body = await response.json();
-                    if (body.status === 'success' && body.interviewId === interview.uuid) {
-                        //surveyHelper.devLog('Interview saved to db');
-                        //setTimeout(function() {
-                        dispatch(updateInterview(_cloneDeep(interview)));
-                        if (typeof callback === 'function') {
-                            callback(interview);
-                        }
-                        //}, 500, 'That was really slow!');
-                    } else {
-                        // we need to do something if no interview is returned (error)
-                    }
+                    //}, 500, 'That was really slow!');
                 } else {
-                    console.log(`startUpdateSurveyValidateInterview: wrong responses status: ${response.status}`);
-                    handleHttpOtherResponseCode(response.status, dispatch);
+                    // we need to do something if no interview is returned (error)
                 }
-                // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
-                dispatch(decrementLoadingState());
-            } catch (error) {
-                console.log('Error updating interview', error);
-                // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
-                // TODO Put in the finally block if we are sure there are no side effect in the code path that returns before the fetch
-                dispatch(decrementLoadingState());
-            } finally {
-                next();
+            } else {
+                console.log(`startUpdateSurveyValidateInterview: wrong responses status: ${response.status}`);
+                handleHttpOtherResponseCode(response.status, dispatch);
             }
+            // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
+            dispatch(decrementLoadingState());
+        } catch (error) {
+            console.log('Error updating interview', error);
+            // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
+            // TODO Put in the finally block if we are sure there are no side effect in the code path that returns before the fetch
+            dispatch(decrementLoadingState());
         }
     };
 };

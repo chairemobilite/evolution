@@ -6,7 +6,6 @@
  */
 import { createStore, Store, combineReducers, applyMiddleware, compose, CombinedState, AnyAction } from 'redux';
 import thunk from 'redux-thunk';
-import ReduxAsyncQueue from 'redux-async-queue';
 
 import { AuthState, authReducer } from 'chaire-lib-frontend/lib/store/auth';
 import { SurveyState, surveyReducer } from '../store/survey';
@@ -48,7 +47,7 @@ export default () => {
     const store: Store<typeof initialState> = createStore(
         rootReducer,
         initialState,
-        composeEnhancers(applyMiddleware(thunk), applyMiddleware(ReduxAsyncQueue))
+        composeEnhancers(applyMiddleware(thunk))
     );
     return store;
 };
