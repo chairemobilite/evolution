@@ -20,7 +20,7 @@ test.beforeAll(async ({ browser }) => {
 });
 
 /* Test the survey with a one-person household */
-surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: true });
+surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: false });
 
 // Test the home page
 onePersonTestHelpers.completeHomePage(context);

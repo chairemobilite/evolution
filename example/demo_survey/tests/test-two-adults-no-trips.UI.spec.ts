@@ -18,7 +18,7 @@ test.beforeAll(async ({ browser }) => {
     context.page = await testHelpers.initializeTestPage(browser, context.objectDetector);
 });
 /* Test the survey with a one-person household */
-surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: true });
+surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: false });
 
 // Test the home page
 testHelpers.inputStringTest({ context, path: 'accessCode', value: '1111-2222' });

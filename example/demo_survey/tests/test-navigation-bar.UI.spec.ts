@@ -20,7 +20,7 @@ test.beforeAll(async ({ browser }) => {
 });
 
 /* Test the survey with a one-person household */
-surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: true });
+surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: false });
 
 // Verify that the buttons have the expected class/colors and are disabled if we haven't been to the corresponding page yet.
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'active', isDisabled: false });
