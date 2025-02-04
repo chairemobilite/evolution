@@ -15,6 +15,7 @@ import { startSetValidateInterview, startUpdateSurveyValidateInterview, startRes
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationLinks from 'evolution-frontend/lib/components/admin/validations/ValidationLinks';
 import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/hoc/AdminErrorBoundary';
+import FormErrors from 'chaire-lib-frontend/lib/components/pageParts/FormErrors';
 
 
 class InterviewSummary extends React.Component {
