@@ -21,7 +21,7 @@ test.beforeAll(async ({ browser }) => {
 });
 
 /* Test the survey's input widget to make sure that they accept only the right data and will not continue until then. */
-surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: true });
+surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: false });
 
 // Test the home page
 testHelpers.tryToContinueWithInvalidInputs({ context, text: 'Save and continue', currentPageUrl: '/survey/home' , nextPageUrl: '/survey/householdMembers' });
