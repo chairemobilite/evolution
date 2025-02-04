@@ -91,7 +91,6 @@ jest.mock('../utils', () => ({
 }));
 const mockDispatch = jest.fn();
 const mockPrepareSectionWidgets = prepareSectionWidgets as jest.MockedFunction<typeof prepareSectionWidgets>;
-const mockNext = jest.fn();
 const mockGetState = jest.fn().mockReturnValue({
     survey: {
         interview: interviewAttributes,
@@ -121,8 +120,8 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
-        await callback(mockNext, mockDispatch, mockGetState);
+        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        await callback(mockDispatch, mockGetState);
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
@@ -153,7 +152,6 @@ describe('Update interview', () => {
             type: 'DECREMENT_LOADING_STATE'
         });
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
-        expect(mockNext).toHaveBeenCalledTimes(1);
     });
 
     test('Call with an interview, with validation and unset path', async () => {
@@ -175,8 +173,8 @@ describe('Update interview', () => {
         (expectedInterviewAsState.validations as any).section1.q2 = true;
         
         // Do the actual test
-        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), unsetPaths, _cloneDeep(interviewAttributes), updateCallback);
-        await callback(mockNext, mockDispatch, mockGetState);
+        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), unsetPaths, _cloneDeep(interviewAttributes), updateCallback);
+        await callback(mockDispatch, mockGetState);
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
@@ -207,7 +205,6 @@ describe('Update interview', () => {
             type: 'DECREMENT_LOADING_STATE'
         });
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
-        expect(mockNext).toHaveBeenCalledTimes(1);
     });
 
     test('Test with previous and new server errors', async () => {
@@ -224,8 +221,8 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
-        await callback(mockNext, mockDispatch, mockLocalGetState);
+        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        await callback(mockDispatch, mockLocalGetState);
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
@@ -256,7 +253,6 @@ describe('Update interview', () => {
             type: 'DECREMENT_LOADING_STATE'
         });
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
-        expect(mockNext).toHaveBeenCalledTimes(1);
     });
 
     test('Test with server updated values', async () => {
@@ -275,8 +271,8 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
-        await callback(mockNext, mockDispatch, mockGetState);
+        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        await callback(mockDispatch, mockGetState);
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(2);
@@ -308,7 +304,6 @@ describe('Update interview', () => {
             type: 'DECREMENT_LOADING_STATE'
         });
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
-        expect(mockNext).toHaveBeenCalledTimes(1);
     });
 
     test('With local exception', async () => {
@@ -320,8 +315,8 @@ describe('Update interview', () => {
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
         
         // Do the actual test
-        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
-        await callback(mockNext, mockDispatch, mockGetState);
+        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        await callback(mockDispatch, mockGetState);
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
@@ -335,7 +330,6 @@ describe('Update interview', () => {
             type: 'DECREMENT_LOADING_STATE'
         });
         expect(updateCallback).not.toHaveBeenCalled();
-        expect(mockNext).toHaveBeenCalledTimes(1);
         expect(mockedHandleClientError).toHaveBeenCalledTimes(1);
         expect(mockedHandleClientError).toHaveBeenCalledWith(new Error('error'), { history: undefined, interviewId: interviewAttributes.id });
     });
@@ -350,8 +344,8 @@ describe('Update interview', () => {
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
         
         // Do the actual test
-        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
-        await callback(mockNext, mockDispatch, mockGetState);
+        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        await callback(mockDispatch, mockGetState);
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
@@ -365,7 +359,6 @@ describe('Update interview', () => {
             type: 'DECREMENT_LOADING_STATE'
         });
         expect(updateCallback).not.toHaveBeenCalled();
-        expect(mockNext).toHaveBeenCalledTimes(1);
         expect(mockedHandleHttpOtherResponseCode).toHaveBeenCalledTimes(1);
         expect(mockedHandleHttpOtherResponseCode).toHaveBeenCalledWith(401, mockDispatch, undefined);
     });
@@ -379,8 +372,8 @@ describe('Update interview', () => {
         const expectedInterviewAsState = _cloneDeep(initialInterview);
 
         // Do the actual test
-        const { callback } = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(initialInterview), updateCallback);
-        await callback(mockNext, mockDispatch, mockGetState);
+        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(initialInterview), updateCallback);
+        await callback(mockDispatch, mockGetState);
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
@@ -402,7 +395,6 @@ describe('Update interview', () => {
             type: 'DECREMENT_LOADING_STATE'
         });
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
-        expect(mockNext).toHaveBeenCalledTimes(1);
     });
 
 });
@@ -412,9 +404,10 @@ describe('startAddGroupedObjects', () => {
     mockedAddGroupedObject.mockReturnValue(defaultAddGroupResponse);
 
     let startUpdateInterviewSpy;
+    const startUpdateInterviewMock = jest.fn();
 
     beforeAll(() => {
-        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue({ queue: 'UPDATE_INTERVIEW', callback: jest.fn() });
+        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue(startUpdateInterviewMock);
     });
 
     afterAll(() => {
@@ -437,10 +430,7 @@ describe('startAddGroupedObjects', () => {
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
         expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultAddGroupResponse, undefined, undefined, undefined);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith({ 
-            queue: 'UPDATE_INTERVIEW',
-            callback: expect.any(Function),
-        });
+        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
 
     test('Call with return only and callback', async () => {
@@ -481,10 +471,7 @@ describe('startAddGroupedObjects', () => {
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
         expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultAddGroupResponse, undefined, undefined, callback);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith({ 
-            queue: 'UPDATE_INTERVIEW',
-            callback: expect.any(Function),
-        });
+        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
 
 });
@@ -494,10 +481,11 @@ describe('startRemoveGroupedObjects', () => {
     mockedRemoveGroupedObject.mockReturnValue(defaultRemoveGroupResponse);
 
     let startUpdateInterviewSpy;
+    const startUpdateInterviewMock = jest.fn();
 
     beforeAll(() => {
-        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue({ queue: 'UPDATE_INTERVIEW', callback: jest.fn() });
-    });
+        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue(startUpdateInterviewMock);
+    })
 
     afterAll(() => {
         startUpdateInterviewSpy.mockRestore();
@@ -517,10 +505,7 @@ describe('startRemoveGroupedObjects', () => {
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
         expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultRemoveGroupResponse[0], defaultRemoveGroupResponse[1], undefined, undefined);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith({ 
-            queue: 'UPDATE_INTERVIEW',
-            callback: expect.any(Function),
-        });
+        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
 
     test('Call with return only and callback', async () => {
@@ -555,10 +540,7 @@ describe('startRemoveGroupedObjects', () => {
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
         expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultRemoveGroupResponse[0], defaultRemoveGroupResponse[1], undefined, callback);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith({ 
-            queue: 'UPDATE_INTERVIEW',
-            callback: expect.any(Function),
-        });
+        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
 
 });

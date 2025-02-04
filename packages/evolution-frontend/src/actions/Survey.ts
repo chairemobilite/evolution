@@ -71,7 +71,6 @@ export const updateSection = (
 };
 
 const startUpdateInterviewCallback = async (
-    next,
     dispatch,
     getState,
     requestedSectionShortname: string | null,
@@ -266,8 +265,6 @@ const startUpdateInterviewCallback = async (
             history,
             interviewId: getState().survey.interview!.id
         });
-    } finally {
-        next();
     }
 };
 
@@ -300,29 +297,27 @@ export const updateInterview = (
  * @returns The dispatched action
  */
 // TODO: unit test
-export const startUpdateInterview = (
-    sectionShortname: string | null,
-    valuesByPath?: { [path: string]: unknown },
-    unsetPaths?: string[],
-    interview?: UserRuntimeInterviewAttributes,
-    callback?: (interview: UserRuntimeInterviewAttributes) => void,
-    history?: History
-) => ({
-    queue: 'UPDATE_INTERVIEW',
-    callback: async (next, dispatch, getState) => {
-        await startUpdateInterviewCallback(
-            next,
-            dispatch,
-            getState,
-            sectionShortname,
-            valuesByPath,
-            unsetPaths,
-            interview,
-            callback,
-            history
-        );
-    }
-});
+export const startUpdateInterview =
+    (
+        sectionShortname: string | null,
+        valuesByPath?: { [path: string]: unknown },
+        unsetPaths?: string[],
+        interview?: UserRuntimeInterviewAttributes,
+        callback?: (interview: UserRuntimeInterviewAttributes) => void,
+        history?: History
+    ) =>
+        async (dispatch, getState) => {
+            return await startUpdateInterviewCallback(
+                dispatch,
+                getState,
+                sectionShortname,
+                valuesByPath,
+                unsetPaths,
+                interview,
+                callback,
+                history
+            );
+        };
 
 export const addConsent = (consented: boolean) => ({
     type: 'ADD_CONSENT',
