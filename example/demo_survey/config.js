@@ -39,14 +39,7 @@ module.exports = {
   includePartTimeStudentOccupation: false,
   includeWorkerAndStudentOccupation: false,
   acceptUnknownDidTrips: false,
-  primaryAuthMethod: 'passwordless',
   auth: {
-    localLogin: {
-      registerWithPassword: true,
-      registerWithEmailOnly: true,
-      confirmEmail: false,
-      forgotPasswordPage: true
-    },
     passwordless: {
       directFirstLogin: true
     },
