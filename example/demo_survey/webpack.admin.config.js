@@ -15,6 +15,21 @@ if (!process.env.NODE_ENV) {
 
 const configuration = require('chaire-lib-backend/lib/config/server.config');
 const config = configuration.default ? configuration.default : configuration;
+// For the admin app, the adminAuth should replace the auth configuration
+// FIXME This is the kind of config that should come from the server, not be inserted in the client in webpack
+if (!config.adminAuth) {
+    console.warn('Configuration error: you need to specify the adminAuth key in the config.js file. Will use default values.');
+    config.adminAuth = {
+        localLogin: {
+            registerWithPassword: true,
+            registerWithEmailOnly: true,
+            confirmEmail: false,
+            forgotPasswordPage: true
+        }
+    };
+}
+config.auth = config.adminAuth;
+delete config.adminAuth;
 
 // Public directory from which files are served
 const publicDirectory = path.join(__dirname, '..', '..', 'public');
