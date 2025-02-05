@@ -27,6 +27,21 @@ process.on('uncaughtException', function(err) {
     console.error("Just caught an uncaught exception!", err);
 });
 
+// For the admin app, the adminAuth should replace the auth configuration
+if (!config.adminAuth) {
+    console.warn('Configuration error: you need to specify the adminAuth key in the config.js file. Will use default values.');
+    config.adminAuth = {
+        localLogin: {
+            registerWithPassword: true,
+            registerWithEmailOnly: true,
+            confirmEmail: false,
+            forgotPasswordPage: true
+        }
+    };
+}
+config.auth = config.adminAuth;
+delete config.adminAuth;
+
 export const setupServer = (serverSetupFct = undefined) => {
     const app = express();
     const { session } = setupServerApp(app, serverSetupFct);
