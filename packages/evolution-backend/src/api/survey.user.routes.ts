@@ -20,6 +20,7 @@ import serverConfig from '../config/projectConfig';
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
 import { logClientSide } from '../services/logging/messageLogging';
 import { addRolesToInterview, updateInterview } from '../services/interviews/interview';
+import validateUuidMiddleware from './helpers/validateUuidMiddleware';
 
 export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMiddlewares): Router => {
     const router = express.Router();
@@ -81,6 +82,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
 
     router.get(
         '/survey/activeInterview/:interviewId',
+        validateUuidMiddleware,
         authorizationMiddleware(['update', 'read']),
         loggingMiddleware.openingInterview(false),
         async (req: Request, res: Response) => {
