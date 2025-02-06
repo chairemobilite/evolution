@@ -9,6 +9,7 @@
  * */
 import express, { Request, Response } from 'express';
 import moment from 'moment';
+
 import Interviews, { FilterType } from '../services/interviews/interviews';
 import { updateInterview, copyResponsesToValidatedData } from '../services/interviews/interview';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
@@ -19,6 +20,7 @@ import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddl
 import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Audits } from '../services/audits/Audits';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import validateUuidMiddleware from './helpers/validateUuidMiddleware';
 
 const router = express.Router();
 
@@ -26,6 +28,7 @@ router.use(interviewUserIsAuthorized(['validate', 'read']));
 
 router.get(
     '/survey/validateInterview/:interviewUuid',
+    validateUuidMiddleware,
     logUserAccessesMiddleware.openingInterview(true),
     async (req: Request, res: Response) => {
         if (req.params.interviewUuid) {
@@ -70,6 +73,7 @@ router.get(
 
 router.post(
     '/survey/updateValidateInterview/:interviewUuid',
+    validateUuidMiddleware,
     logUserAccessesMiddleware.updatingInterview(true),
     async (req: Request, res: Response) => {
         try {
