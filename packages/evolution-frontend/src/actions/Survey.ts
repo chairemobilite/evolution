@@ -475,14 +475,11 @@ export const startCreateInterview = (preFilledResponses: { [key: string]: unknow
                     response.json().then((body) => {
                         if (body.interview) {
                             let activeSection: string | null = null;
-                            if (applicationConfiguration.sections['registrationCompleted']) {
-                                activeSection = 'registrationCompleted';
-                            } else {
-                                for (const sectionShortname in applicationConfiguration.sections) {
-                                    if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
-                                        activeSection = sectionShortname;
-                                        break;
-                                    }
+                            // Find the first section to activate (the one without a previous one)
+                            for (const sectionShortname in applicationConfiguration.sections) {
+                                if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
+                                    activeSection = sectionShortname;
+                                    break;
                                 }
                             }
                             const responses = {
