@@ -72,21 +72,6 @@ if (config.askForAccessCode)
 }
 
 const sections: { [sectionName: string]: SectionConfig } = {
-
-  //registrationCompleted: {
-  //  previousSection: 'register',
-  //  nextSection: 'home',
-  //  title: {
-  //    fr: "Enregistrement",
-  //    en: "Registration"
-  //  },
-  //  menuName: null,
-  //  widgets: [
-  //    'registrationCompletedBeforeStartButton',
-  //    'registrationCompletedStartButton',
-  //    'registrationCompletedAfterStartButton'
-  //  ]
-  //},
   
   home: {
     previousSection: null,

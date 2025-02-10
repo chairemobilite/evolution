@@ -11,12 +11,6 @@ import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import { getSwitchPersonWidgets } from 'evolution-common/lib/services/questionnaire/sections/common/widgetsSwitchPerson';
 import { getButtonValidateAndGotoNextSection } from 'evolution-common/lib/services/questionnaire/sections/common/buttonValidateAndGotoNextSection';
 
-const registrationCompletedWidgets = require('./widgets/registrationCompleted.js');
-
-export const registrationCompletedBeforeStartButton: any = registrationCompletedWidgets.registrationCompletedBeforeStartButton;
-export const registrationCompletedStartButton: any       = registrationCompletedWidgets.registrationCompletedStartButton;
-export const registrationCompletedAfterStartButton: any  = registrationCompletedWidgets.registrationCompletedAfterStartButton;
-
 import * as homeWidgets from './widgets/home';
 
 export const accessCode          = homeWidgets.accessCode;
