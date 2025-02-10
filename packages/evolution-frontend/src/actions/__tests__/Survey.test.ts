@@ -12,6 +12,8 @@ import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/qu
 import * as SurveyActions from '../Survey';
 import { prepareSectionWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
+import applicationConfiguration from '../../config/application.config';
+import bowser from 'bowser';
 
 const jsonFetchResolve = jest.fn();
 let fetchStatus: number[] = []
@@ -541,6 +543,156 @@ describe('startRemoveGroupedObjects', () => {
         expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultRemoveGroupResponse[0], defaultRemoveGroupResponse[1], undefined, callback);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
+    });
+
+});
+
+describe('startCreateInterview', () => {
+
+    // Prepare minimal questionnaire section config
+    const applicationSections = {
+        sectionLast:  {
+            widgets: [],
+            previousSection: 'sectionFirst',
+            nextSection: null
+        }, sectionFirst:  {
+            widgets: [],
+            previousSection: null,
+            nextSection: 'sectionLast'
+        }
+    }
+
+    let initialAppConfigSections = _cloneDeep(applicationConfiguration.sections);
+    let startUpdateInterviewSpy;
+    const startUpdateInterviewMock = jest.fn();
+
+    beforeAll(() => {
+        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue(startUpdateInterviewMock);
+        applicationConfiguration.sections = applicationSections;
+        jest.spyOn(bowser, 'getParser').mockReturnValue(bowser.getParser('test'));
+    });
+
+    afterAll(() => {
+        startUpdateInterviewSpy.mockRestore();
+        applicationConfiguration.sections = initialAppConfigSections;
+    });
+
+    test('No prefilled responses', async () => {
+
+        // Prepare mock and test data
+        const returnedInterview = {
+            id: 1,
+            uuid: 'arbitrary uuid',
+            participant_id: 1,
+            is_completed: false,
+            responses: {},
+            validations: {},
+            is_valid: true
+        }
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interview: returnedInterview});
+       
+        // Do the actual test
+        const dispatchFct = SurveyActions.startCreateInterview();
+        await dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith('/api/survey/createInterview', expect.objectContaining({ 
+            credentials: "include"
+        }));
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith('sectionFirst',{
+            'responses._activeSection': 'sectionFirst',
+            'responses._browser': expect.anything()
+        }, undefined, returnedInterview);
+
+    });
+
+    test('With prefilled responses', async () => {
+
+        // Prepare mock and test data
+        const prefilledResponses = { fieldA: 'valueA', fieldB: 'valueB' };
+        const returnedInterview = {
+            id: 1,
+            uuid: 'arbitrary uuid',
+            participant_id: 1,
+            is_completed: false,
+            responses: {},
+            validations: {},
+            is_valid: true
+        }
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interview: returnedInterview});
+       
+        // Do the actual test
+        const dispatchFct = SurveyActions.startCreateInterview(prefilledResponses);
+        await dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith('/api/survey/createInterview', expect.objectContaining({ 
+            credentials: "include"
+        }));
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith('sectionFirst',{
+            'responses._activeSection': 'sectionFirst',
+            'responses._browser': expect.anything(),
+            'responses.fieldA': 'valueA',
+            'responses.fieldB': 'valueB'
+        }, undefined, returnedInterview);
+
+    });
+
+    test('No interview returned', async () => {
+
+        // Prepare mock and test data
+        jsonFetchResolve.mockResolvedValue({ status: 'success' });
+       
+        // Do the actual test
+        const dispatchFct = SurveyActions.startCreateInterview();
+        await dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(handleClientError).toHaveBeenCalledTimes(1);
+        expect(handleClientError).toHaveBeenCalledWith('createInterview returned success but no interview was returned', { history: undefined, interviewId: undefined });
+
+    });
+
+    test('Invalid response from server', async () => {
+
+        // Prepare mock and test data
+        fetchStatus.push(401);
+        jsonFetchResolve.mockResolvedValue({ status: 'success' }, );
+       
+        // Do the actual test
+        const dispatchFct = SurveyActions.startCreateInterview();
+        await dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith('/api/survey/createInterview', expect.objectContaining({ 
+            credentials: "include"
+        }));
+        expect(mockDispatch).not.toHaveBeenCalled();
+        expect(SurveyActions.startUpdateInterview).not.toHaveBeenCalled();
+
+    });
+
+    test('Exception while fetching', async () => {
+
+        // Prepare mock and test data
+        const error = new Error('error fetching');
+        fetchMock.mockRejectedValue(error);
+       
+        // Do the actual test
+        const dispatchFct = SurveyActions.startCreateInterview();
+        await dispatchFct(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(handleClientError).toHaveBeenCalledTimes(1);
+        expect(handleClientError).toHaveBeenCalledWith(error, { history: undefined, interviewId: undefined });
+
     });
 
 });

@@ -463,46 +463,50 @@ export const startSetInterview = (
     };
 };
 
-// TODO: unit test
 export const startCreateInterview = (preFilledResponses: { [key: string]: unknown } | undefined = undefined) => {
     const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
-    return (dispatch, _getState) => {
-        return fetch('/api/survey/createInterview', {
-            credentials: 'include'
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    response.json().then((body) => {
-                        if (body.interview) {
-                            let activeSection: string | null = null;
-                            // Find the first section to activate (the one without a previous one)
-                            for (const sectionShortname in applicationConfiguration.sections) {
-                                if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
-                                    activeSection = sectionShortname;
-                                    break;
-                                }
-                            }
-                            const responses = {
-                                'responses._activeSection': activeSection,
-                                'responses._browser': browserTechData
-                            };
-                            if (preFilledResponses) {
-                                Object.keys(preFilledResponses).forEach((key) => {
-                                    responses[`responses.${key}`] = preFilledResponses[key];
-                                });
-                            }
-                            dispatch(startUpdateInterview(activeSection, responses, undefined, body.interview));
-                        } else {
-                            // we need to do something if no interview is returned (error)
-                        }
-                    });
-                } else {
-                    console.log(`Creating interview: wrong responses status: ${response.status}`);
-                    handleHttpOtherResponseCode(response.status, dispatch);
-                }
-            })
-            .catch((err) => {
-                surveyHelper.devLog('Error creating interview.', err);
+    return async (dispatch, _getState) => {
+        try {
+            // create a new interview on the server for the current user
+            const response = await fetch('/api/survey/createInterview', {
+                credentials: 'include'
             });
+            if (response.status === 200) {
+                // Get the interview from the response
+                const body = await response.json();
+                if (body.interview) {
+                    // Set active section and initial responses in the interview
+                    let activeSection: string | null = null;
+                    // Find the first section to activate (the one without a previous one)
+                    // FIXME This should be done in the backend, not here
+                    for (const sectionShortname in applicationConfiguration.sections) {
+                        if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
+                            activeSection = sectionShortname;
+                            break;
+                        }
+                    }
+                    const responses = {
+                        'responses._activeSection': activeSection,
+                        'responses._browser': browserTechData
+                    };
+                    if (preFilledResponses) {
+                        Object.keys(preFilledResponses).forEach((key) => {
+                            responses[`responses.${key}`] = preFilledResponses[key];
+                        });
+                    }
+                    // Update the interview with the initial responses
+                    dispatch(startUpdateInterview(activeSection, responses, undefined, body.interview));
+                } else {
+                    // we need to do something if no interview is returned (error)
+                    handleClientError('createInterview returned success but no interview was returned', {});
+                }
+            } else {
+                console.log(`Creating interview: wrong responses status: ${response.status}`);
+                handleHttpOtherResponseCode(response.status, dispatch);
+            }
+        } catch (err) {
+            surveyHelper.devLog('Error creating interview.', err);
+            handleClientError(err instanceof Error ? err : new Error(String(err)), {});
+        }
     };
 };
