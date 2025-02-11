@@ -25,7 +25,7 @@ const requestIp        = require('request-ip');
 
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
-import surveyRoutes from './routes';
+import surveyRoutes from 'evolution-backend/lib/apps/admin/routes';
 
 export const setupServerApp = (app, serverSetupFct = undefined) => {
 
