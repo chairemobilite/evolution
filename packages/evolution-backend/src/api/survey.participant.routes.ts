@@ -46,7 +46,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
     });
 
     router.get(
-        '/survey/activeInterview/',
+        '/survey/activeInterview',
         authorizationMiddleware(['update', 'read']),
         async (req: Request, res: Response) => {
             try {

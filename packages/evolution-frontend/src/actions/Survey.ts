@@ -296,7 +296,6 @@ export const updateInterview = (
  * provided, with the updated interview.
  * @returns The dispatched action
  */
-// TODO: unit test
 export const startUpdateInterview =
     (
         sectionShortname: string | null,
@@ -340,7 +339,6 @@ export const addConsent = (consented: boolean) => ({
  * instead of dispatching the update to the server
  * @returns The dispatched action
  */
-// TODO: unit test
 export const startAddGroupedObjects = (
     newObjectsCount: number,
     insertSequence: number | undefined,
@@ -379,7 +377,6 @@ export const startAddGroupedObjects = (
  * instead of dispatching the update to the server
  * @returns
  */
-// TODO: unit test
 export const startRemoveGroupedObjects = function (
     paths: string | string[],
     callback?: (interview: UserRuntimeInterviewAttributes) => void,
@@ -397,69 +394,73 @@ export const startRemoveGroupedObjects = function (
     };
 };
 
-// TODO: unit test
 export const startSetInterview = (
     activeSection: string | null = null,
     surveyUuid: string | undefined = undefined,
     navigate: NavigateFunction | undefined = undefined,
     preFilledResponses: { [key: string]: unknown } | undefined = undefined
 ) => {
-    return (dispatch, _getState) => {
-        const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
-        return fetch(`/api/survey/activeInterview/${surveyUuid ? `${encodeURI(surveyUuid)}` : ''}`, {
-            credentials: 'include'
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    response.json().then((body) => {
-                        if (body.interview) {
-                            const interview = body.interview;
-                            if (!activeSection) {
-                                for (const sectionShortname in applicationConfiguration.sections) {
-                                    if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
-                                        activeSection = sectionShortname;
-                                        break;
-                                    }
-                                }
-                            }
-                            const valuesByPath = {
-                                'responses._activeSection': activeSection
-                            };
-                            if (preFilledResponses) {
-                                Object.keys(preFilledResponses).forEach((key) => {
-                                    valuesByPath[`responses.${key}`] = preFilledResponses[key];
-                                });
-                            }
-                            // update browser data if different:
-                            const existingBrowserUa = _get(interview, 'responses._browser._ua', null);
-                            const newBrowserUa = browserTechData.getUA();
-                            if (existingBrowserUa !== newBrowserUa) {
-                                valuesByPath['responses._browser'] = browserTechData;
-                            }
-                            dispatch(
-                                startUpdateInterview(
-                                    activeSection,
-                                    valuesByPath,
-                                    undefined,
-                                    interview,
-                                    undefined,
-                                    navigate
-                                )
-                            );
-                        } else {
-                            dispatch(
-                                startCreateInterview(preFilledResponses as { [key: string]: unknown } | undefined)
-                            );
-                        }
-                    });
-                } else {
-                    console.log(`Get active interview: wrong responses status: ${response.status}`);
-                    handleHttpOtherResponseCode(response.status, dispatch, navigate);
+    // FIXME There's a lot of code duplication with the startCreateInterview function, either merge them or make them more DRY
+    return async (dispatch, _getState) => {
+        try {
+            const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
+            // get the interview from the server for the current user, or with a specific survey uuid
+            const response = await fetch(
+                `/api/survey/activeInterview${surveyUuid ? `/${encodeURI(surveyUuid)}` : ''}`,
+                {
+                    credentials: 'include'
                 }
-            })
-            .catch((err) => {
-                surveyHelper.devLog('Error fetching interview.', err);
-            });
+            );
+            // FIXME If there is no interview, it should be a 404 answer instead of a 200 with no interview
+            if (response.status === 200) {
+                const body = await response.json();
+                // Get the interview from the response
+                if (body.interview) {
+                    const interview = body.interview;
+                    // Set active section and initial responses in the interview
+                    // Find the first section to activate, if none requested (the one without a previous one)
+                    // FIXME This should be done in the backend, not here
+                    // FIXME 2 If there was a previous active section in the interview, why not just use that instead of setting it anew
+                    if (!activeSection) {
+                        for (const sectionShortname in applicationConfiguration.sections) {
+                            if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
+                                activeSection = sectionShortname;
+                                break;
+                            }
+                        }
+                    }
+                    const valuesByPath = {
+                        'responses._activeSection': activeSection
+                    };
+                    if (preFilledResponses) {
+                        Object.keys(preFilledResponses).forEach((key) => {
+                            valuesByPath[`responses.${key}`] = preFilledResponses[key];
+                        });
+                    }
+                    // update browser data if different:
+                    // TODO We need to track the different browser/user accesses
+                    const existingBrowserUa = _get(interview, 'responses._browser._ua', null);
+                    const newBrowserUa = browserTechData.getUA();
+                    if (existingBrowserUa !== newBrowserUa) {
+                        valuesByPath['responses._browser'] = browserTechData;
+                    }
+                    dispatch(
+                        startUpdateInterview(activeSection, valuesByPath, undefined, interview, undefined, navigate)
+                    );
+                } else {
+                    // No interview for this user, create one
+                    // FIXME Shouldn't the server do this? The createInterview and setInterview should be merged
+                    // FIXME 2 Does it make sense to create a new interview if there is a surveyUUID?
+                    dispatch(startCreateInterview(preFilledResponses));
+                }
+            } else {
+                console.log(`Get active interview: wrong responses status: ${response.status}`);
+                handleHttpOtherResponseCode(response.status, dispatch, navigate);
+            }
+        } catch (err) {
+            surveyHelper.devLog('Error fetching interview.', err);
+            handleClientError(err instanceof Error ? err : new Error(String(err)), {});
+        }
     };
 };
 
