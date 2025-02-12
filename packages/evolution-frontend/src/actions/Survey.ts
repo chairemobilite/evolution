@@ -155,7 +155,6 @@ const startUpdateInterviewCallback = async (
         if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
             // '_all' means the "save" button was clicked and the form was submitted, so the form may not follow the normal form change workflow
             dispatch(updateInterview(_cloneDeep(updatedInterview), {}, true));
-            dispatch(decrementLoadingState());
             if (typeof callback === 'function') {
                 callback(updatedInterview);
             }
@@ -254,17 +253,16 @@ const startUpdateInterviewCallback = async (
             console.log(`Update interview: wrong responses status: ${response.status}`);
             await handleHttpOtherResponseCode(response.status, dispatch, navigate);
         }
-        // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
-        dispatch(decrementLoadingState());
     } catch (error) {
         console.log('Error updating interview', error);
-        // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
-        // TODO Put in the finally block if we are sure there are no side effect in the code path that returns before the fetch
-        dispatch(decrementLoadingState());
+
         handleClientError(error instanceof Error ? error : new Error(String(error)), {
             navigate,
             interviewId: getState().survey.interview!.id
         });
+    } finally {
+        // Loading state needs to be decremented, so the page can be updated
+        dispatch(decrementLoadingState());
     }
 };
 
