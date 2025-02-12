@@ -12,3 +12,5 @@ enabled_scripts:
     generate_input_range: true
     generate_libelles: true
     generate_UI_tests: true
+    generate_questionnaire_list: true
+    generate_questionnaire_dictionary: true
