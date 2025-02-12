@@ -184,3 +184,15 @@ def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str
             )
 
     return current_headers
+
+
+# Function to clean text of markdown characters
+def clean_text(text):
+    if text is None:
+        return ""
+    return (
+        text.replace("**", "")
+        .replace("__green", "")
+        .replace("__red", "")
+        .replace("__", "")
+    )
