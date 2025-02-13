@@ -14,5 +14,5 @@ export type LoadingStateAction = {
 };
 
 export interface LoadingStateState {
-    readonly loadingState?: number;
+    readonly loadingState: number;
 }
