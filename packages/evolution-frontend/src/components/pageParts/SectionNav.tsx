@@ -5,7 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
 
@@ -13,7 +14,7 @@ import { SurveyContext } from '../../contexts/SurveyContext';
 import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { devLog, parseBoolean, translateString } from 'evolution-common/lib/utils/helpers';
-import { StartUpdateInterview } from 'evolution-common/lib/services/questionnaire/types';
+import { RootState } from '../../store/configureStore';
 
 type SectionNavProps = {
     activeSection: string;
@@ -26,24 +27,20 @@ type SectionNavProps = {
     ) => void;
     interview: UserRuntimeInterviewAttributes;
     allWidgetsValid: boolean;
-    loadingState: number;
-    _startUpdateInterview: StartUpdateInterview; //TODO: Add functionality to the _startUpdateInterview, or remove it.
     user: CliUser;
-} & WithTranslation;
+};
 
 const SectionNav = function ({
     activeSection,
     sections,
     onChangeSection,
-    i18n,
-    t,
     interview,
     allWidgetsValid,
-    loadingState,
-    _startUpdateInterview,
     user
 }: SectionNavProps) {
     const { devMode, dispatch } = React.useContext(SurveyContext);
+    const { i18n, t } = useTranslation();
+    const loadingState = useSelector((state: RootState) => state.loadingState.loadingState);
     devLog('%c rendering section nav', 'background: rgba(0,255,255,0.1); font-size: 7px;');
 
     const sectionShortnames = Object.keys(sections);
@@ -126,4 +123,4 @@ const SectionNav = function ({
     );
 };
 
-export default withTranslation()(SectionNav);
+export default SectionNav;
