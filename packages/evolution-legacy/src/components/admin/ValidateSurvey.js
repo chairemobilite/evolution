@@ -143,8 +143,6 @@ export class ValidateSurvey extends React.Component {
                 activeSection        = {activeSection}
                 interview            = {this.props.interview}
                 allWidgetsValid      = {true}
-                loadingState         = {this.props.loadingState}
-                startUpdateInterview = {this.props.startUpdateInterview}
                 user                 = {this.props.user}
               />
               <form onKeyPress={this.onKeyPress} className="apptr__form" id="survey_form" style={customStyle} autoComplete="off">

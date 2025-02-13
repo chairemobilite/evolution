@@ -227,8 +227,6 @@ class Survey extends React.Component<SurveyProps, SurveyState> {
                         activeSection={activeSection}
                         interview={this.props.interview}
                         allWidgetsValid={config.allowChangeSectionWithoutValidation ? true : allWidgetsValid}
-                        loadingState={this.props.loadingState}
-                        _startUpdateInterview={this.props.startUpdateInterview}
                         user={this.props.user}
                     />
                     {this.state.confirmCompleteBeforeSwitchingOpened && (
