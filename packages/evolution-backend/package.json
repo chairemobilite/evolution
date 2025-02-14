@@ -28,6 +28,7 @@
         "@casl/ability": "^5.4.4",
         "chaire-lib-backend": "^0.2.2",
         "chaire-lib-common": "^0.2.2",
+        "connect-session-knex": "^4.0.2",
         "evolution-common": "^0.5.0",
         "express": "^4.21.2",
         "express-session": "^1.18.1",
@@ -36,11 +37,15 @@
         "knex-postgis": "^0.14.3",
         "lodash": "^4.17.21",
         "moment": "^2.30.1",
+        "morgan": "^1.10.0",
         "papaparse": "^5.4.1",
+        "request-ip": "^3.3.0",
+        "serve-favicon": "^2.5.0",
         "slugify": "^1.6.6",
         "typescript": "^5.7.2",
         "uuid": "^11.0.3",
-        "workerpool": "^6.5.1"
+        "workerpool": "^6.5.1",
+        "yargs": "^17.7.2"
     },
     "devDependencies": {
         "@types/express": "^4.17.21",
