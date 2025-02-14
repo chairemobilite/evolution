@@ -49,5 +49,6 @@ export const SurveyContext = React.createContext<SurveyContextType>({
     devMode: false,
     dispatch: () => {
         /* To be replaced with actual dispatch */
-    }
+    },
+    appContext: undefined
 });
