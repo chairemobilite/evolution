@@ -843,7 +843,7 @@ export const visitedPlaceGeography = {
     const geocodingTextInput = geography?.properties?.geocodingQueryString;
 
     return [{
-      validation: ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(activity) <= -1 && surveyHelper.isBlank(value),
+      validation: ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(activity) <= -1 && _isBlank(value),
       errorMessage: {
         fr: `Le positionnement du lieu est requis.`,
         en: `Location is required.`

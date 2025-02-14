@@ -6,7 +6,6 @@
  */
 import _get from 'lodash/get';
 
-import sharedHelper from '../shared/shared';
 import * as Helpers from 'evolution-common/lib/utils/helpers';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as DateTimeUtils from 'chaire-lib-common/lib/utils/DateTimeUtils';
@@ -23,10 +22,6 @@ export default {
    * @deprecated Use the LodashExtension function directly
    */
   chunkify                     : LE._chunkify,
-  /**
-   * @deprecated This does not seem used
-   */
-  differences                  : sharedHelper.differences,
   /**
    * @deprecated Use the evolution-common/lib/utils/helpers function directly
    */
