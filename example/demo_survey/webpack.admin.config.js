@@ -187,12 +187,6 @@ module.exports = (env) => {
               to: "",
               noErrorOnMissing: true
             },
-            {
-              context: path.join(__dirname, '..', '..', 'node_modules', 'evolution-legacy', 'lib', 'assets'),
-              from: "**/*",
-              to: "",
-              noErrorOnMissing: true
-            },
             { 
               context: path.join(__dirname, 'assets',),
               from: "**/*",
