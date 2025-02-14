@@ -6,7 +6,7 @@
  */
 import path from 'path';
 
-import setupServer from 'evolution-legacy/lib/apps/participant/server';
+import setupServer from 'evolution-backend/lib/apps/participant';
 import { setProjectConfig } from 'evolution-backend/lib/config/projectConfig';
 import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
 import serverUpdateCallbacks from './server/serverFieldUpdate';
