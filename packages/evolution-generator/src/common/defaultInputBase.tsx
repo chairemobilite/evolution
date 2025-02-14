@@ -8,8 +8,8 @@ import { TFunction } from 'i18next';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
-import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
+import { validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import {
     BaseQuestionType,
     ButtonWidgetConfig,
@@ -108,7 +108,7 @@ export const buttonNextBase: Pick<
     // FIXME: Fix import icon
     icon: faCheckCircle,
     align: 'center',
-    action: surveyHelper.validateButtonActionWithCompleteSection
+    action: validateButtonActionWithCompleteSection
 };
 
 // Text textarea default params
@@ -147,7 +147,7 @@ export const inputMapFindPlaceBase: Pick<
     showSearchPlaceButton: () => true,
     afterRefreshButtonText: (t: TFunction) => t('customLibelle:GeographyAfterRefresh'),
     validations: (value, _customValue, interview, path) => {
-        const geography: any = surveyHelperNew.getResponse(interview, path as string, null);
+        const geography: any = surveyHelper.getResponse(interview, path as string, null);
         return [
             {
                 validation: _isBlank(value),
