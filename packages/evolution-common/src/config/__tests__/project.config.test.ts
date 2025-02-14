@@ -19,12 +19,13 @@ test('Expected default', () => {
         bannerPaths: {},
         introLogoAfterStartButton: false,
         logoPaths: {},
-        languageNames: { 'en': 'English', 'fr': 'Français' }
+        languageNames: { 'en': 'English', 'fr': 'Français' },
+        title: { 'en': 'Survey', 'fr': 'Enquête' }
     }));
 });
 
 test('set project configuration', () => {
-    setProjectConfiguration<EvolutionProjectConfiguration>({
+    const configToSet = {
         region: 'FR',
         selfResponseMinimumAge: 18,
         drivingLicenseAge: 16,
@@ -35,19 +36,9 @@ test('set project configuration', () => {
         bannerPaths: { 'en': 'banner-en.png', 'fr': 'banner-fr.png' },
         introLogoAfterStartButton: true,
         logoPaths: { 'en': 'logo-en.png', 'fr': 'logo-fr.png' },
-        languageNames: { 'en': 'English', 'fr': 'Français' }
-    });
-    expect(projectConfig).toEqual(expect.objectContaining({
-        region: 'FR',
-        selfResponseMinimumAge: 18,
-        drivingLicenseAge: 16,
-        logDatabaseUpdates: true,
-        hideStartButtonOnHomePage: true,
-        introductionTwoParagraph: true,
-        introBanner: true,
-        bannerPaths: { 'en': 'banner-en.png', 'fr': 'banner-fr.png' },
-        introLogoAfterStartButton: true,
-        logoPaths: { 'en': 'logo-en.png', 'fr': 'logo-fr.png' },
-        languageNames: { 'en': 'English', 'fr': 'Français' }
-    }));
+        languageNames: { 'en': 'English', 'fr': 'Français' },
+        title: { 'en': 'Survey title', 'fr': 'Titre de l\'enquête' }
+    }
+    setProjectConfiguration<EvolutionProjectConfiguration>(configToSet);
+    expect(projectConfig).toEqual(expect.objectContaining(configToSet));
 });
