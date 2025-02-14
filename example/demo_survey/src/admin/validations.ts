@@ -9,8 +9,8 @@ import _get from 'lodash/get';
 import {validate as uuidValidate} from 'uuid';
 import { distance as turfDistance } from '@turf/turf';
 
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import sharedHelper from 'evolution-legacy/lib/helpers/shared/shared';
 import helper from '../survey/helper';
 
 const birdSpeedKmhValidRangeByModeAndDistance = {
@@ -81,7 +81,7 @@ const validations =  {
       errorCode: "I_M_LANGUAGE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray) {
 
-        const isValid = !sharedHelper.isBlank(responses._language);
+        const isValid = !_isBlank(responses._language);
         if (interview.is_completed && !isValid)
         {
           console.log("I_M_LANGUAGE", responses.accessCode);
@@ -96,7 +96,7 @@ const validations =  {
       },
       errorCode: "I_M_ACCESSCODE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray) {
-        const isValid = !sharedHelper.isBlank(responses.accessCode);
+        const isValid = !_isBlank(responses.accessCode);
         if (interview.is_completed && !isValid)
         {
           console.log("I_M_ACCESSCODE", responses.accessCode);
@@ -111,7 +111,7 @@ const validations =  {
       },
       errorCode: "I_I_ACCESSCODE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray) {
-        let isValid = (!sharedHelper.isBlank(responses.accessCode) && 
+        let isValid = (!_isBlank(responses.accessCode) && 
           (  
              responses.accessCode.startsWith('P')
           || responses.accessCode.startsWith('T')
@@ -162,7 +162,7 @@ const validations =  {
       },
       errorCode: "H_M_CARNUMBER",
       isValid: function(user, interview, responses, household, home, personsById, personsArray) {
-        const isValid = !sharedHelper.isBlank(household.carNumber);
+        const isValid = !_isBlank(household.carNumber);
         if (interview.is_completed && !isValid)
         {
           console.log("H_M_CARNUMBER", responses.accessCode);
@@ -177,7 +177,7 @@ const validations =  {
       },
       errorCode: "H_I_CARNUMBER",
       isValid: function(user, interview, responses, household, home, personsById, personsArray) {
-        const isValid = !sharedHelper.isBlank(household.carNumber) && typeof(household.carNumber) === 'number' && household.carNumber >= 0 && household.carNumber <= 13;
+        const isValid = !_isBlank(household.carNumber) && typeof(household.carNumber) === 'number' && household.carNumber >= 0 && household.carNumber <= 13;
         if (interview.is_completed && !isValid)
         {
           console.log("H_I_CARNUMBER", responses.accessCode);
@@ -192,7 +192,7 @@ const validations =  {
       },
       errorCode: "H_M_HOMECIVICNUM",
       isValid: function(user, interview, responses, household, home, personsById, personsArray) {
-        const isValid = !sharedHelper.isBlank(_get(household,'__madasare2018__home__glo_local.no_civ')) && _get(household,'__madasare2018__home__glo_local.no_civ') !== 0;
+        const isValid = !_isBlank(_get(household,'__madasare2018__home__glo_local.no_civ')) && _get(household,'__madasare2018__home__glo_local.no_civ') !== 0;
         if (interview.is_completed && !isValid)
         {
           console.log("H_M_HOMECIVICNUM", responses.accessCode);
@@ -208,7 +208,7 @@ const validations =  {
       },
       errorCode: "H_M_HOMESTREET",
       isValid: function(user, interview, responses, household, home, personsById, personsArray) {
-        const isValid = !sharedHelper.isBlank(_get(household, '__madasare2018__home__glo_local.rue'));
+        const isValid = !_isBlank(_get(household, '__madasare2018__home__glo_local.rue'));
         if (interview.is_completed && !isValid)
         {
           console.log("H_M_HOMESTREET", responses.accessCode);
@@ -224,7 +224,7 @@ const validations =  {
       },
       errorCode: "H_M_HOMEGEOG",
       isValid: function(user, interview, responses, household, home, personsById, personsArray) {
-        const isValid = !sharedHelper.isBlank(home.geography);
+        const isValid = !_isBlank(home.geography);
         if (interview.is_completed && !isValid)
         {
           console.log("H_M_HOMEGEOG", responses.accessCode);
@@ -324,7 +324,7 @@ const validations =  {
       },
       errorCode: "P_M_DIDTRIPSONTRIPSDATE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.age >= 5 && sharedHelper.isBlank(person.didTripsOnTripsDate));
+        const isValid = !(person.age >= 5 && _isBlank(person.didTripsOnTripsDate));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_DIDTRIPSONTRIPSDATE', responses.accessCode);
@@ -384,7 +384,7 @@ const validations =  {
       },
       errorCode: "P_I_DIDTRIPSBUTTOOYOUNG",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(!sharedHelper.isBlank(person.didTripsOnTripsDate) && person.age < 5);
+        const isValid = !(!_isBlank(person.didTripsOnTripsDate) && person.age < 5);
         if (interview.is_completed && !isValid)
         {
           console.log('P_I_DIDTRIPSBUTTOOYOUNG', responses.accessCode);
@@ -420,7 +420,7 @@ const validations =  {
       },
       errorCode: "P_M_AGE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(sharedHelper.isBlank(person.age));
+        const isValid = !(_isBlank(person.age));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_AGE', responses.accessCode);
@@ -435,7 +435,7 @@ const validations =  {
       },
       errorCode: "P_M_GENDER",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(sharedHelper.isBlank(person.gender));
+        const isValid = !(_isBlank(person.gender));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_GENDER', responses.accessCode);
@@ -465,7 +465,7 @@ const validations =  {
       },
       errorCode: "P_M_OCCUPATION",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.age >= 5 && sharedHelper.isBlank(person.occupation));
+        const isValid = !(person.age >= 5 && _isBlank(person.occupation));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_OCCUPATION', responses.accessCode);
@@ -510,7 +510,7 @@ const validations =  {
       },
       errorCode: "P_M_DRIVINGLICENSEOWNER",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.age >= 5 && sharedHelper.isBlank(person.drivingLicenseOwnership));
+        const isValid = !(person.age >= 5 && _isBlank(person.drivingLicenseOwnership));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_DRIVINGLICENSEOWNER', responses.accessCode);
@@ -540,7 +540,7 @@ const validations =  {
       },
       errorCode: "P_I_DRIVINGLICENSEOWNEREMPTY",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.age >= 16 && sharedHelper.isBlank(person.drivingLicenseOwnership));
+        const isValid = !(person.age >= 16 && _isBlank(person.drivingLicenseOwnership));
         if (interview.is_completed && !isValid)
         {
           console.log('P_I_DRIVINGLICENSEOWNEREMPTY', responses.accessCode);
@@ -555,7 +555,7 @@ const validations =  {
       },
       errorCode: "P_M_TRANSITPASSOWNER",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.age >= 5 && sharedHelper.isBlank(person.transitPassOwner));
+        const isValid = !(person.age >= 5 && _isBlank(person.transitPassOwner));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_TRANSITPASSOWNER', responses.accessCode);
@@ -570,7 +570,7 @@ const validations =  {
       },
       errorCode: "P_M_TRANSITPASSOWNERWITHOUTPASS",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.transitPassOwner === 'yes' && sharedHelper.isBlank(person.transitPasses));
+        const isValid = !(person.transitPassOwner === 'yes' && _isBlank(person.transitPasses));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_TRANSITPASSOWNERWITHOUTPASS', responses.accessCode);
@@ -585,7 +585,7 @@ const validations =  {
       },
       errorCode: "P_M_USUALWORKPLACE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(person.usualWorkPlaceIsHome !== true && helper.isWorker(person.occupation) && sharedHelper.isBlank(person.usualWorkPlace));
+        const isValid = !(person.usualWorkPlaceIsHome !== true && helper.isWorker(person.occupation) && _isBlank(person.usualWorkPlace));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_USUALWORKPLACE', responses.accessCode);
@@ -630,7 +630,7 @@ const validations =  {
       },
       errorCode: "P_M_USUALWORKPLACEGEOG",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        if (sharedHelper.isBlank(person.usualWorkPlace))
+        if (_isBlank(person.usualWorkPlace))
         {
           return true;
         }
@@ -649,7 +649,7 @@ const validations =  {
       },
       errorCode: "P_M_USUALSCHOOLPLACE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        const isValid = !(helper.isStudent(person.occupation) && sharedHelper.isBlank(person.usualSchoolPlace));
+        const isValid = !(helper.isStudent(person.occupation) && _isBlank(person.usualSchoolPlace));
         if (interview.is_completed && !isValid)
         {
           console.log('P_M_USUALSCHOOLPLACE', responses.accessCode);
@@ -664,7 +664,7 @@ const validations =  {
       },
       errorCode: "P_M_USUALSCHOOLPLACEGEOG",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        if (sharedHelper.isBlank(person.usualSchoolPlace))
+        if (_isBlank(person.usualSchoolPlace))
         {
           return true;
         }
@@ -683,7 +683,7 @@ const validations =  {
       },
       errorCode: "P_I_NOWORKTRIPREASON",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        if (sharedHelper.isBlank(person) || person.didTripsOnTripsDateKnowTrips === 'no' || person.didTripsOnTripsDate === 'dontKnow')
+        if (_isBlank(person) || person.didTripsOnTripsDateKnowTrips === 'no' || person.didTripsOnTripsDate === 'dontKnow')
         {
           return true;
         }
@@ -752,7 +752,7 @@ const validations =  {
       },
       errorCode: "P_M_NOWORKTRIPREASON",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        if (sharedHelper.isBlank(person) || person.didTripsOnTripsDateKnowTrips === 'no' || person.didTripsOnTripsDate === 'dontKnow' || !sharedHelper.isBlank(person.noWorkTripReason))
+        if (_isBlank(person) || person.didTripsOnTripsDateKnowTrips === 'no' || person.didTripsOnTripsDate === 'dontKnow' || !_isBlank(person.noWorkTripReason))
         {
           return true;
         }
@@ -770,7 +770,7 @@ const validations =  {
       },
       errorCode: "P_M_NOSCHOOLTRIPREASON",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person) {
-        if (sharedHelper.isBlank(person) || person.didTripsOnTripsDateKnowTrips === 'no' || person.didTripsOnTripsDate === 'dontKnow' || !sharedHelper.isBlank(person.noSchoolTripReason))
+        if (_isBlank(person) || person.didTripsOnTripsDateKnowTrips === 'no' || person.didTripsOnTripsDate === 'dontKnow' || !_isBlank(person.noSchoolTripReason))
         {
           return true;
         }
@@ -833,7 +833,7 @@ const validations =  {
       errorCode: "VP_M_DEPTIME",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
         const lastVisitedPlace = helper.getLastVisitedPlace(visitedPlacesArray);
-        const isValid = visitedPlace._uuid !== lastVisitedPlace._uuid && sharedHelper.isBlank(visitedPlace.departureTime) ? false : true;
+        const isValid = visitedPlace._uuid !== lastVisitedPlace._uuid && _isBlank(visitedPlace.departureTime) ? false : true;
         if (interview.is_completed && !isValid)
         {
           console.log('VP_M_DEPTIME', responses.accessCode);
@@ -849,7 +849,7 @@ const validations =  {
       errorCode: "VP_M_ARRTIME",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
         const firstVisitedPlace = helper.getFirstVisitedPlace(visitedPlacesArray);
-        const isValid = visitedPlace._uuid !== firstVisitedPlace._uuid && sharedHelper.isBlank(visitedPlace.arrivalTime) ? false : true;
+        const isValid = visitedPlace._uuid !== firstVisitedPlace._uuid && _isBlank(visitedPlace.arrivalTime) ? false : true;
         if (interview.is_completed && !isValid)
         {
           console.log('VP_M_ARRTIME', responses.accessCode);
@@ -864,7 +864,7 @@ const validations =  {
       },
       errorCode: "VP_I_DEPTTIMETOOHIGH",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
-        const isValid = !(!sharedHelper.isBlank(visitedPlace.departureTime) && visitedPlace.departureTime > (28*3600))
+        const isValid = !(!_isBlank(visitedPlace.departureTime) && visitedPlace.departureTime > (28*3600))
         if (interview.is_completed && !isValid)
         {
           console.log('VP_I_DEPTTIMETOOHIGH', responses.accessCode);
@@ -880,7 +880,7 @@ const validations =  {
       errorCode: "VP_I_TIMEINVDEP",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
         const previousVisitedPlace = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlacesArray);
-        if (previousVisitedPlace && !sharedHelper.isBlank(previousVisitedPlace.departureTime) && !sharedHelper.isBlank(visitedPlace.departureTime))
+        if (previousVisitedPlace && !_isBlank(previousVisitedPlace.departureTime) && !_isBlank(visitedPlace.departureTime))
         {
           const isValid = previousVisitedPlace && previousVisitedPlace.departureTime >= visitedPlace.departureTime ? false : true;
           if (interview.is_completed && !isValid)
@@ -900,7 +900,7 @@ const validations =  {
       errorCode: "VP_I_TIMEINVARR",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
         const previousVisitedPlace = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlacesArray);
-        if (previousVisitedPlace && !sharedHelper.isBlank(previousVisitedPlace.arrivalTime) && !sharedHelper.isBlank(visitedPlace.arrivalTime))
+        if (previousVisitedPlace && !_isBlank(previousVisitedPlace.arrivalTime) && !_isBlank(visitedPlace.arrivalTime))
         {
           const isValid = previousVisitedPlace && previousVisitedPlace.arrivalTime >= visitedPlace.arrivalTime ? false : true;
           if (interview.is_completed && !isValid)
@@ -919,7 +919,7 @@ const validations =  {
       },
       errorCode: "VP_I_TIMEINVDEPARR",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
-        if (!sharedHelper.isBlank(visitedPlace.departureTime) && !sharedHelper.isBlank(visitedPlace.arrivalTime))
+        if (!_isBlank(visitedPlace.departureTime) && !_isBlank(visitedPlace.arrivalTime))
         {
           const isValid = visitedPlace.arrivalTime >= visitedPlace.departureTime ? false : true;
           if (interview.is_completed && !isValid)
@@ -939,7 +939,7 @@ const validations =  {
       errorCode: "VP_I_TIMEINVPREVDEPARR",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
         const previousVisitedPlace = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlacesArray);
-        if (previousVisitedPlace && !sharedHelper.isBlank(previousVisitedPlace.departureTime) && !sharedHelper.isBlank(visitedPlace.arrivalTime))
+        if (previousVisitedPlace && !_isBlank(previousVisitedPlace.departureTime) && !_isBlank(visitedPlace.arrivalTime))
         {
           const isValid = previousVisitedPlace && previousVisitedPlace.departureTime >= visitedPlace.arrivalTime ? false : true;
           if (interview.is_completed && !isValid)
@@ -958,7 +958,7 @@ const validations =  {
       },
       errorCode: "VP_M_ACTIVITY",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
-        const isValid = !sharedHelper.isBlank(visitedPlace.activity);
+        const isValid = !_isBlank(visitedPlace.activity);
         if (interview.is_completed && !isValid)
         {
           console.log('VP_M_ACTIVITY', responses.accessCode);
@@ -974,7 +974,7 @@ const validations =  {
       errorCode: "VP_M_GEOG",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
         const geography = helper.getGeography(visitedPlace, person, interview);
-        const isValid = !(sharedHelper.isBlank(geography) || sharedHelper.isBlank(geography.geometry) || sharedHelper.isBlank(geography.geometry.coordinates));
+        const isValid = !(_isBlank(geography) || _isBlank(geography.geometry) || _isBlank(geography.geometry.coordinates));
         if (interview.is_completed && !isValid)
         {
           console.log('VP_M_GEOG', responses.accessCode);
@@ -990,7 +990,7 @@ const validations =  {
       errorCode: "VP_I_ACTIVITYINCOMPATIBLEWITHAGE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, visitedPlace) {
         const activity = visitedPlace.activity;
-        const isValid = !(!sharedHelper.isBlank(activity) && [
+        const isValid = !(!_isBlank(activity) && [
           'workUsual',
           'workOnTheRoadFromUsualWork',
           'workOnTheRoadFromHome',
@@ -1076,7 +1076,7 @@ const validations =  {
       errorCode: "T_M_TRANSFERGEOG",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip) {
         const tripTransferCategory = helper.getTripTransferCategory(trip);
-        const isValid = !(!sharedHelper.isBlank(tripTransferCategory) && sharedHelper.isBlank(trip.junctionGeography));
+        const isValid = !(!_isBlank(tripTransferCategory) && _isBlank(trip.junctionGeography));
         if (interview.is_completed && !isValid)
         {
           console.log('T_M_TRANSFERGEOG', responses.accessCode);
@@ -1092,7 +1092,7 @@ const validations =  {
       errorCode: "T_I_TRANSFERGEOG",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip) {
         const tripTransferCategory = helper.getTripTransferCategory(trip);
-        const isValid = !(!sharedHelper.isBlank(tripTransferCategory) && !sharedHelper.isBlank(trip.junctionGeography) && !isFeature(trip.junctionGeography));
+        const isValid = !(!_isBlank(tripTransferCategory) && !_isBlank(trip.junctionGeography) && !isFeature(trip.junctionGeography));
         if (interview.is_completed && !isValid)
         {
           console.log('T_I_TRANSFERGEOG', responses.accessCode);
@@ -1176,7 +1176,7 @@ const validations =  {
       errorCode: "T_I_TRANSFERLOCATIOSHOULDNOTEXIST",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip) {
         const tripTransferCategory = helper.getTripTransferCategory(trip);
-        const isValid = !(trip.junctionGeography && sharedHelper.isBlank(tripTransferCategory));
+        const isValid = !(trip.junctionGeography && _isBlank(tripTransferCategory));
         if (interview.is_completed && !isValid)
         {
           console.log('T_I_TRANSFERLOCATIOSHOULDNOTEXIST', responses.accessCode);
@@ -1237,7 +1237,7 @@ const validations =  {
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip) {
         const origin      = helper.getDestination(trip, visitedPlacesById);
         const destination = helper.getDestination(trip, visitedPlacesById);
-        const isValid = !(sharedHelper.isBlank(origin) || sharedHelper.isBlank(destination));
+        const isValid = !(_isBlank(origin) || _isBlank(destination));
         if (interview.is_completed && !isValid)
         {
           console.log('T_M_ORIGORDEST', responses.accessCode);
@@ -1311,7 +1311,7 @@ const validations =  {
       errorCode: "T_M_MODE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip) {
         const segmentsArray = helper.getSegments(trip, true);
-        const isValid = !(sharedHelper.isBlank(segmentsArray) || segmentsArray.length === 0);
+        const isValid = !(_isBlank(segmentsArray) || segmentsArray.length === 0);
         if (interview.is_completed && !isValid)
         {
           console.log('T_M_MODE', responses.accessCode);
@@ -1328,7 +1328,7 @@ const validations =  {
       },
       errorCode: "S_M_MODE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(sharedHelper.isBlank(segment.mode));
+        const isValid = !(_isBlank(segment.mode));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_MODE', responses.accessCode);
@@ -1389,7 +1389,7 @@ const validations =  {
       },
       errorCode: "S_M_HIGHWAYS",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !((segment.mode === 'carDriver' || segment.mode === 'motorcycle') && (sharedHelper.isBlank(segment.highways) || segment.highways.length === 0));
+        const isValid = !((segment.mode === 'carDriver' || segment.mode === 'motorcycle') && (_isBlank(segment.highways) || segment.highways.length === 0));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_HIGHWAYS', responses.accessCode);
@@ -1419,7 +1419,7 @@ const validations =  {
       },
       errorCode: "S_M_PASSDRIVER",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'carPassenger' && sharedHelper.isBlank(segment.driver));
+        const isValid = !(segment.mode === 'carPassenger' && _isBlank(segment.driver));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_PASSDRIVER', responses.accessCode);
@@ -1434,7 +1434,7 @@ const validations =  {
       },
       errorCode: "S_I_PASSDRIVERNOTINHOUSEHOLD",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'carPassenger' && uuidValidate(segment.driver) && sharedHelper.isBlank(personsById[segment.driver]));
+        const isValid = !(segment.mode === 'carPassenger' && uuidValidate(segment.driver) && _isBlank(personsById[segment.driver]));
         if (interview.is_completed && !isValid)
         {
           console.log('S_I_PASSDRIVERNOTINHOUSEHOLD', responses.accessCode);
@@ -1449,7 +1449,7 @@ const validations =  {
       },
       errorCode: "S_I_PASSDRIVERWITHOUTLICENSE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        if (segment.mode === 'carPassenger' && uuidValidate(segment.driver) && !sharedHelper.isBlank(personsById[segment.driver]))
+        if (segment.mode === 'carPassenger' && uuidValidate(segment.driver) && !_isBlank(personsById[segment.driver]))
         {
           const driver = personsById[segment.driver];
           if (driver.drivingLicenseOwnership !== 'yes')
@@ -1471,7 +1471,7 @@ const validations =  {
       },
       errorCode: "S_M_STARTSUBWAYSTATION",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'transitSubway' && sharedHelper.isBlank(segment.subwayStationStart));
+        const isValid = !(segment.mode === 'transitSubway' && _isBlank(segment.subwayStationStart));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_STARTSUBWAYSTATION', responses.accessCode);
@@ -1486,7 +1486,7 @@ const validations =  {
       },
       errorCode: "S_M_ENDSUBWAYSTATION",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'transitSubway' && sharedHelper.isBlank(segment.subwayStationEnd));
+        const isValid = !(segment.mode === 'transitSubway' && _isBlank(segment.subwayStationEnd));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_ENDSUBWAYSTATION', responses.accessCode);
@@ -1521,7 +1521,7 @@ const validations =  {
       },
       errorCode: "S_M_STARTTRAINSTATION",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'transitRail' && sharedHelper.isBlank(segment.trainStationStart));
+        const isValid = !(segment.mode === 'transitRail' && _isBlank(segment.trainStationStart));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_STARTTRAINSTATION', responses.accessCode);
@@ -1536,7 +1536,7 @@ const validations =  {
       },
       errorCode: "S_M_ENDTRAINSTATION",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'transitRail' && sharedHelper.isBlank(segment.trainStationEnd));
+        const isValid = !(segment.mode === 'transitRail' && _isBlank(segment.trainStationEnd));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_ENDTRAINSTATION', responses.accessCode);
@@ -1571,7 +1571,7 @@ const validations =  {
       },
       errorCode: "S_M_VEHICLEOCCUPANCY",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'carDriver' && sharedHelper.isBlank(segment.vehicleOccupancy));
+        const isValid = !(segment.mode === 'carDriver' && _isBlank(segment.vehicleOccupancy));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_VEHICLEOCCUPANCY', responses.accessCode);
@@ -1586,7 +1586,7 @@ const validations =  {
       },
       errorCode: "S_I_VEHICLEOCCUPANCY",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        return !(segment.mode !== 'carDriver' && !sharedHelper.isBlank(segment.vehicleOccupancy));
+        return !(segment.mode !== 'carDriver' && !_isBlank(segment.vehicleOccupancy));
       }
     },
     incorrectParkingPaymentTypeNotCarDriver: {
@@ -1596,7 +1596,7 @@ const validations =  {
       },
       errorCode: "S_I_NOTCARDRIVERWITHPAYMENTTYPE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        return !(segment.mode !== 'carDriver' && !sharedHelper.isBlank(segment.parkingPaymentType));
+        return !(segment.mode !== 'carDriver' && !_isBlank(segment.parkingPaymentType));
       }
     },
     incorrectBridgesNotCarDriver: {
@@ -1606,7 +1606,7 @@ const validations =  {
       },
       errorCode: "S_I_NOTCARDRIVERWITHBRIDGES",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        return !(segment.mode !== 'carDriver' && segment.mode !== 'motorcycle' && !sharedHelper.isBlank(segment.bridgesAndTunnels));
+        return !(segment.mode !== 'carDriver' && segment.mode !== 'motorcycle' && !_isBlank(segment.bridgesAndTunnels));
       }
     },
     incorrectHighwaysNotCarDriver: {
@@ -1616,7 +1616,7 @@ const validations =  {
       },
       errorCode: "S_I_NOTCARDRIVERWITHHIGHWAYS",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        return !(segment.mode !== 'carDriver' && segment.mode !== 'motorcycle' && !sharedHelper.isBlank(segment.highways));
+        return !(segment.mode !== 'carDriver' && segment.mode !== 'motorcycle' && !_isBlank(segment.highways));
       }
     },
     missingParkingPaymentType: {
@@ -1626,7 +1626,7 @@ const validations =  {
       },
       errorCode: "S_M_PARKINGPAYMENTTYPE",
       isValid: function(user, interview, responses, household, home, personsById, personsArray, person, visitedPlacesById, visitedPlacesArray, tripsById, tripsArray, trip, segmentsById, segmentsArray, segment) {
-        const isValid = !(segment.mode === 'carDriver' && sharedHelper.isBlank(segment.parkingPaymentType));
+        const isValid = !(segment.mode === 'carDriver' && _isBlank(segment.parkingPaymentType));
         if (interview.is_completed && !isValid)
         {
           console.log('S_M_PARKINGPAYMENTTYPE', responses.accessCode);

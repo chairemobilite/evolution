@@ -11,7 +11,7 @@ import { distance as turfDistance } from '@turf/turf';
 import _uniq from 'lodash/uniq';
 
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import sharedHelper from 'evolution-legacy/lib/helpers/shared/shared';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from '../../survey/helper';
 import applicationConfiguration from 'evolution-frontend/lib/config/application.config';
@@ -398,7 +398,7 @@ export default {
         return null;
       },
       [`${prefix}glo_domic.courriel`]: function(user, interview, responses, household, home, personsById, personsArray) {
-        if (!sharedHelper.isBlank(household.contactEmail))
+        if (!_isBlank(household.contactEmail))
         {
           return household.contactEmail;
         }
@@ -775,7 +775,7 @@ export default {
       [`${prefix}glo_deplac_som.heure`]: function(user, interview, responses, household, home, personsById, personsArray, person, tripsById, tripsArray, trip) {
         const visitedPlacesById = helper.getVisitedPlaces(person, false);
         const startAt           = helper.getStartAt(trip, visitedPlacesById);
-        if (!sharedHelper.isBlank(startAt) && startAt >= 0)
+        if (!_isBlank(startAt) && startAt >= 0)
         {
           const hour   = Math.floor(startAt / 3600);
           const minute = Math.floor((startAt - hour * 3600) / 60);
@@ -789,7 +789,7 @@ export default {
       [`${prefix}glo_deplac_som.grhre`]: function(user, interview, responses, household, home, personsById, personsArray, person, tripsById, tripsArray, trip) {
         const visitedPlacesById = helper.getVisitedPlaces(person, false);
         const startAt           = helper.getStartAt(trip, visitedPlacesById);
-        if (!sharedHelper.isBlank(startAt) && startAt >= 0 && startAt <= 100800)
+        if (!_isBlank(startAt) && startAt >= 0 && startAt <= 100800)
         {
           for (let i = 0; i < timePeriods.length; i++)
           {
@@ -925,7 +925,7 @@ export default {
               {
                 return 1;
               }
-              if (!sharedHelper.isBlank(segment.vehicleType))
+              if (!_isBlank(segment.vehicleType))
               {
                 return 2;
               }
@@ -953,7 +953,7 @@ export default {
               {
                 return 1;
               }
-              else if (segment.usedBikesharing === 'no' || segment.usedBikesharing === 'notABikesharingMember' || !sharedHelper.isBlank(segment.usedBikesharing))
+              else if (segment.usedBikesharing === 'no' || segment.usedBikesharing === 'notABikesharingMember' || !_isBlank(segment.usedBikesharing))
               {
                 return 2;
               }
