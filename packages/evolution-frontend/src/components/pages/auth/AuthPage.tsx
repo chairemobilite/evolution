@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import appConfiguration from 'chaire-lib-frontend/lib/config/application.config';
-import config from 'chaire-lib-common/lib/config/shared/project.config';
+import config from 'evolution-common/lib/config/project.config';
 import AnonymousLogin from 'chaire-lib-frontend/lib/components/forms/auth/anonymous/AnonymousLogin';
 import PwdLessLoginForm from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/PwdLessLoginForm';
 import DirectTokenLogin from './DirectTokenLogin';
@@ -125,27 +125,19 @@ const AuthPage: React.FunctionComponent = () => {
                         </div>
                     )}
 
-                    {(config.connectWithGoogle ||
-                        config.auth?.google ||
-                        config.connectWithFacebook ||
-                        config.auth?.facebook) && (
+                    {(config.auth?.google || config.auth?.facebook) && (
                         <div className="apptr__auth-box">
                             <p className="_label apptr__form__label-standalone">
                                 {t(['survey:auth:OAuthTitle', 'auth:OAuthTitle'])}
                             </p>
-                            {/*<div className={'apptr__form-label-container apptr_form-oauth-introduction'}>
-                            <div className="apptr__form__label-standalone no-question">
-                                <p className="_green _strong">{props.t(['survey:auth:OAuthIntroduction', 'auth:OAuthIntroduction'])}</p>
-                            </div>
-                        </div>*/}
-                            {(config.connectWithGoogle || config.auth?.google) && (
+                            {config.auth?.google && (
                                 <div className="google-oauth-button-container apptr_form-oauth-google-login">
                                     <a className="google-oauth-button" href="/googlelogin">
                                         {t('auth:signInWithGoogle')}
                                     </a>
                                 </div>
                             )}
-                            {(config.connectWithFacebook || config.auth?.facebook) && (
+                            {config.auth?.facebook && (
                                 <div className="facebook-oauth-button-container apptr_form-oauth-facebook-login">
                                     <a className="facebook-oauth-button" href="/facebooklogin">
                                         {t('auth:signInWithFacebook')}
