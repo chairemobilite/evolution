@@ -13,6 +13,15 @@ import projectConfig, {
  * Specific configuration for the Evolution project
  */
 export type EvolutionProjectConfiguration = {
+    /**
+     * Title of the survey. Used in the page title and headers. It is not in the
+     * locales file, as locales are more for questionnaire data per se, while
+     * the title is for the whole survey and it makes sense to have it in the
+     * configuration.
+     */
+    title: {
+        [lang: string]: string;
+    };
     /** Used for Google Maps localization. See
      * https://developers.google.com/maps/coverage for possible region codes */
     region: string;
@@ -96,7 +105,8 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             logoPaths: {},
             detectLanguageFromUrl: true,
             detectLanguage: false,
-            languageNames: { en: 'English', fr: 'Français' }
+            languageNames: { en: 'English', fr: 'Français' },
+            title: { en: 'Survey', fr: 'Enquête' }
         },
         projectConfig
     )
