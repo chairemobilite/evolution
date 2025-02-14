@@ -8,8 +8,8 @@ import React from 'react';
 import { Route, Routes } from 'react-router';
 
 import AdminMonitoringPage from 'evolution-frontend/lib/components/admin/pages/AdminMonitoringPage';
-import AdminValidationPage from '../../../components/shared/AdminValidationPage';
-import AdminValidateSurveyPage from '../../../components/shared/AdminValidateSurveyPage';
+import AdminValidationPage from '../../../components/admin/Validation';
+import AdminValidateSurveyPage from '../../../components/admin/ValidateSurvey';
 import UnauthorizedPage from 'chaire-lib-frontend/lib/components/pages/UnauthorizedPage';
 import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/MaintenancePage';
 import { LoginPage as AdminLoginPage } from 'chaire-lib-frontend/lib/components/pages';
