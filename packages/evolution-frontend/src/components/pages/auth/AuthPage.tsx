@@ -59,7 +59,9 @@ const AuthPage: React.FunctionComponent = () => {
     const authMethods = React.useMemo(
         () =>
             config.auth
-                ? Object.keys(config.auth).filter((authMethod) => !unmanagedAuthMethods.includes(authMethod))
+                ? Object.keys(config.auth).filter(
+                    (authMethod) => config.auth[authMethod] !== false && !unmanagedAuthMethods.includes(authMethod)
+                )
                 : ['passwordless'],
         []
     );
