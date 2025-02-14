@@ -134,3 +134,29 @@ export const validateButtonAction: ButtonAction = (callbacks, interview, path, s
         }
     });
 };
+
+// Add that the section is completed when the button is clicked in addition to navigating to next section
+// FIXME This is a temporary move to typescript, but section navigation should be handled server side
+export const validateButtonActionWithCompleteSection: ButtonAction = (
+    callbacks,
+    interview,
+    path,
+    section,
+    sections,
+    saveCallback
+) => {
+    callbacks.startUpdateInterview(section, { _all: true }, undefined, interview, (updatedInterview) => {
+        if ((updatedInterview as any).allWidgetsValid) {
+            if (typeof saveCallback === 'function') {
+                saveCallback(callbacks, updatedInterview, path);
+            } else {
+                // go to next section
+                window.scrollTo(0, 0);
+                callbacks.startUpdateInterview(section, {
+                    'responses._activeSection': sections[section].nextSection,
+                    [`responses._sections.${section}._isCompleted`]: true
+                });
+            }
+        }
+    });
+};
