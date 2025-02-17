@@ -195,7 +195,7 @@ export const startSetSurveyValidateInterview = (
         return;
     }
 ) => {
-    return (dispatch, _getState) => {
+    return async (dispatch, _getState) => {
         return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
             credentials: 'include'
         })
