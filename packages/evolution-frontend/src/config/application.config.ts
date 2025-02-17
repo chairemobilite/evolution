@@ -37,14 +37,15 @@ export type EvolutionApplicationConfiguration = {
     getCustomInterviewMap: () => React.Component | undefined;
     /** Get the custom admin monitoring components, can be empty */
     getAdminMonitoringComponents: () => React.Component[];
-    /** Get the admin validation functions, or undefined if none
+    /**
+     * Get the admin validation functions, or undefined if none
      *
-     * TODO Type the validation functions
+     * @deprecated Validations and parsers are now part of the audit process, and should use that instead. See the `ProjectServerConfig#auditInterview` in the backend for more information.
      */
     getAdminValidations: () => any[] | undefined;
     /** Get the admin parsers, can be empty
      *
-     * TODO Type the parsers and describe why it's used
+     * @deprecated Validations and parsers are now part of the audit process, and should use that instead. See the `ProjectServerConfig#auditInterview` in the backend for more information.
      */
     getParsers: () => any[];
     /**
