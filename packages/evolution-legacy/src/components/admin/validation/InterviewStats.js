@@ -74,8 +74,8 @@ class InterviewStats extends React.Component {
     const persons        = demoSurveyHelper.getPersons(interview, false);
     const personsArray   = demoSurveyHelper.getPersons(interview, true);
 
-    const interviewErrors    = demoSurveyHelper.validateInterview(this.validations.interview, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray);
-    const householdErrors    = demoSurveyHelper.validateHousehold(this.validations.household, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray);
+    const interviewErrors    = demoSurveyHelper.validateInterview(this.validations?.interview, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray);
+    const householdErrors    = demoSurveyHelper.validateHousehold(this.validations?.household, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray);
 
     const formattedTripsDate = responses.tripsDate ? moment(responses.tripsDate).format('LL') : "-";
 
@@ -83,7 +83,7 @@ class InterviewStats extends React.Component {
     for (const personId in persons)
     {
       const person       = persons[personId];
-      const personErrors = demoSurveyHelper.validatePerson(this.validations.person, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person);
+      const personErrors = demoSurveyHelper.validatePerson(this.validations?.person, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person);
       
       const visitedPlacesStats = [];
       const visitedPlaces      = demoSurveyHelper.getVisitedPlaces(person, false);
@@ -92,7 +92,7 @@ class InterviewStats extends React.Component {
       for(let i = 0, count = visitedPlacesArray.length; i < count; i++)
       {
         const visitedPlace       = visitedPlacesArray[i];
-        const visitedPlaceErrors = demoSurveyHelper.validateVisitedPlace(this.validations.visitedPlace, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, visitedPlace);
+        const visitedPlaceErrors = demoSurveyHelper.validateVisitedPlace(this.validations?.visitedPlace, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, visitedPlace);
       
         const visitedPlaceId     = visitedPlace._uuid;
         const visitedPlacePath   = `responses.household.persons.${personId}.visitedPlaces.${visitedPlaceId}`;
@@ -116,7 +116,7 @@ class InterviewStats extends React.Component {
       {
 
         const trip                 = tripsArray[i];
-        const tripErrors           = demoSurveyHelper.validateTrip(this.validations.trip, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, trips, tripsArray, trip);
+        const tripErrors           = demoSurveyHelper.validateTrip(this.validations?.trip, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, trips, tripsArray, trip);
         const tripId               = trip._uuid;
         const origin               = visitedPlaces[trip._originVisitedPlaceUuid];
         const destination          = visitedPlaces[trip._destinationVisitedPlaceUuid];
@@ -137,7 +137,7 @@ class InterviewStats extends React.Component {
         for (let j = 0, countJ = segmentsArray.length; j < countJ; j++)
         {
           const segment      = segmentsArray[j];
-          segmentsErrors     = segmentsErrors.concat(demoSurveyHelper.validateSegment(this.validations.segment, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, trips, tripsArray, trip, segments, segmentsArray, segment));
+          segmentsErrors     = segmentsErrors.concat(demoSurveyHelper.validateSegment(this.validations?.segment, this.props.i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, trips, tripsArray, trip, segments, segmentsArray, segment));
           const segmentId    = segment._uuid;
           const segmentStats = [];
           if (!_isBlank(segment.mode))
