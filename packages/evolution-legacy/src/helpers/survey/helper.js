@@ -19,7 +19,6 @@ import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/Date
 import i18n                     from 'evolution-frontend/lib/config/i18n.config';
 import * as surveyHelperNew     from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper     from 'evolution-common/lib/services/odSurvey/helpers';
-import surveyHelper             from './survey';
 import getTripMultimodeCategory from './helperFunctions/getTripMultimodeCategory';
 
 const getPerson = function(interview, personId = null) {
@@ -678,7 +677,7 @@ export default {
         if (_isBlank(trip))
         {
           // create trip if not exists for this sequence:
-          const addValuesByPath = surveyHelper.addGroupedObjects(interview, 1, tripSequence, tripsPath, [{
+          const addValuesByPath = surveyHelperNew.addGroupedObjects(interview, 1, tripSequence, tripsPath, [{
             _originVisitedPlaceUuid:      origin._uuid,
             _destinationVisitedPlaceUuid: destination._uuid,
           }]);
@@ -730,7 +729,7 @@ export default {
         {
           let updateValuePaths = {};
           let unsetValuePaths  = [];
-          [updateValuePaths, unsetValuePaths] = surveyHelper.removeGroupedObjects(interview, tripsPathsToRemove);
+          [updateValuePaths, unsetValuePaths] = surveyHelperNew.removeGroupedObjects(interview, tripsPathsToRemove);
           tripsUpdatesUnsetPaths  = tripsUpdatesUnsetPaths.concat(unsetValuePaths);
           tripsUpdatesValueByPath = Object.assign(tripsUpdatesValueByPath, updateValuePaths);
         }
