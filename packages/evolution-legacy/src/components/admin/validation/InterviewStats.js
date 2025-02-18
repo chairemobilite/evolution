@@ -34,7 +34,7 @@ import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/Date
 import demoSurveyHelper from '../../../helpers/survey/helper';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
-import ValidationErrors from './ValidationErrors';
+import ValidationErrors from 'evolution-frontend/lib/components/admin/validations/ValidationErrors';
 import KeepDiscard from './KeepDiscard';
 
 class InterviewStats extends React.Component {
