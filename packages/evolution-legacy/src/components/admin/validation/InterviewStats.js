@@ -31,9 +31,8 @@ import wiredPhoneSvg    from 'evolution-frontend/lib/assets/images/admin/phone-w
 import steeringWheelSvg from 'evolution-frontend/lib/assets/images/admin/steering-wheel-solid.svg'
 import { _isBlank }     from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import surveyHelper     from '../../../helpers/survey/survey';
 import demoSurveyHelper from '../../../helpers/survey/helper';
-import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationErrors from './ValidationErrors';
 import KeepDiscard from './KeepDiscard';
@@ -241,8 +240,8 @@ class InterviewStats extends React.Component {
       personsStats.push(personStats);
     }
 
-    const householdIncomeChoice = surveyHelper.getWidgetChoiceFromValue(this.props.surveyContext.widgets.householdIncome, household.income, interview);
-    const householdIncomeLabel  = householdIncomeChoice ? surveyHelperNew.parseString(householdIncomeChoice.label[this.props.i18n.language] || householdIncomeChoice.label, interview, householdIncomeChoice.path, this.props.user) : "?";
+    const householdIncomeChoice = surveyHelper.getWidgetChoiceFromValue({ widget: this.props.surveyContext.widgets.householdIncome, value: household.income, interview: interview, path: 'household.income' });
+    const householdIncomeLabel  = householdIncomeChoice ? surveyHelper.parseString(householdIncomeChoice.label[this.props.i18n.language] || householdIncomeChoice.label, interview, householdIncomeChoice.path, this.props.user) : "?";
     let phoneIcon = null;
     switch(household.residentialPhoneType) {
       case 'landLine':
