@@ -12,7 +12,6 @@ import { distance as turfDistance } from '@turf/turf';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import helper from '../helper';
 import subwayStations from '../subwayStations.json';
@@ -28,7 +27,7 @@ import { getTripSegmentsIntro } from 'evolution-common/lib/services/questionnair
 import { getButtonSaveTripSegmentsConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/buttonSaveTripSegments';
 import { getPersonsTripsGroupConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/groupPersonTrips';
 import { getPersonsTripsTitleWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetPersonTripsTitle';
-import { getFormattedDate } from 'evolution-frontend/lib/services/display/frontendHelper';
+import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 export const personTrips: GroupConfig = getPersonsTripsGroupConfig();
 
@@ -2469,5 +2468,5 @@ export const introButtonSaveTrip = {
 // FIXME The options should be in a config somewhere for frontend mapping
 export const buttonSaveTrip = getButtonSaveTripSegmentsConfig({
     iconMapper: { 'check-circle': faCheckCircle },
-    buttonActions: { validateButtonAction: surveyHelper.validateButtonAction },
+    buttonActions: { validateButtonAction: validateButtonAction },
 });
