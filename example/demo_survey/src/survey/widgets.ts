@@ -7,7 +7,7 @@
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
-import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
+import { validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 import { getSwitchPersonWidgets } from 'evolution-common/lib/services/questionnaire/sections/common/widgetsSwitchPerson';
 import { getButtonValidateAndGotoNextSection } from 'evolution-common/lib/services/questionnaire/sections/common/buttonValidateAndGotoNextSection';
 
@@ -149,7 +149,7 @@ export const completedText: any                                 = endWidgets.com
 
 const buttonOptions = {
     iconMapper: { 'check-circle': faCheckCircle },
-    buttonActions: { validateButtonAction: surveyHelper.validateButtonAction },
+    buttonActions: { validateButtonAction: validateButtonAction },
 }
 
 export const buttonSaveNextSection = getButtonValidateAndGotoNextSection('survey:SaveAndContinue', buttonOptions);
@@ -167,7 +167,7 @@ export const buttonStartNextSection: any = {
   hideWhenRefreshing: true,
   icon: faPlay,
   align: 'center',
-  action: surveyHelper.validateButtonAction
+  action: validateButtonAction
 }
 
 export const buttonContinueNextSection = getButtonValidateAndGotoNextSection('survey:Continue', buttonOptions);;

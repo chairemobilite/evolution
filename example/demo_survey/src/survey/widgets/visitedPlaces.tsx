@@ -22,14 +22,13 @@ import mtlLavalLongueuil from '../mtlLavalLongueuil.json';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import i18n              from 'evolution-frontend/lib/config/i18n.config';
 import helper from '../helper';
 import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { getPersonVisitedPlacesMapConfig } from 'evolution-common/lib/services/questionnaire/sections/common/widgetPersonVisitedPlacesMap';
-import { getFormattedDate } from 'evolution-frontend/lib/services/display/frontendHelper';
+import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 export const visitedPlacesIntro = {
   type: "text",
@@ -747,7 +746,7 @@ export const visitedPlaceGeography = {
     return _isBlank(geography) ? "green" : "grey";
   },
   geocodingQueryString: function (interview, path) {
-    return surveyHelperNew.formatGeocodingQueryStringFromMultipleFields([surveyHelper.get(interview, path, null, '../name')]);
+    return surveyHelperNew.formatGeocodingQueryStringFromMultipleFields([surveyHelperNew.getResponse(interview, path, null, '../name')]);
   },
   invalidGeocodingResultTypes: [
     'political', 
@@ -1547,7 +1546,7 @@ export const buttonSaveVisitedPlace = {
     callbacks.startUpdateInterview('visitedPlaces', updateValuesbyPath);
     return null;
   },
-  action: surveyHelper.validateButtonAction
+  action: validateButtonAction
 };
 
 export const buttonVisitedPlacesConfirmNextSection = {
@@ -1560,7 +1559,7 @@ export const buttonVisitedPlacesConfirmNextSection = {
   },
   icon: faCheckCircle,
   align: 'left',
-  action: surveyHelper.validateButtonAction,
+  action: validateButtonAction,
   conditional: function(interview, path)
   {
     const person           = helper.getPerson(interview);

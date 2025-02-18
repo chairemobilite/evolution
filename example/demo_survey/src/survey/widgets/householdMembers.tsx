@@ -4,8 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { faMale } from '@fortawesome/free-solid-svg-icons/faMale';
 import { faFemale } from '@fortawesome/free-solid-svg-icons/faFemale';
@@ -16,13 +14,13 @@ import { TFunction } from 'i18next';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import surveyHelper from 'evolution-legacy/lib/helpers/survey/survey';
 import helper from '../helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import waterBoundaries  from '../waterBoundaries.json';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
+import { validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 const personsWidgets = [
     'personNickname',
@@ -1105,7 +1103,7 @@ export const buttonSaveNextSectionHouseholdMembers = {
     }
     //return null;
   },
-  action: surveyHelper.validateButtonAction
+  action: validateButtonAction
 };
 
 export const selectPerson = {
@@ -1171,7 +1169,7 @@ export const buttonSelectPersonConfirm = {
   hideWhenRefreshing: true,
   icon: faCheckCircle,
   align: 'center',
-  action: surveyHelper.validateButtonAction
+  action: validateButtonAction
 };
 
 export const groupedPersonWorkOnTheRoad = {
