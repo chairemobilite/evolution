@@ -18,10 +18,13 @@ import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Uuidable } from '../services/baseObjects/Uuidable';
 import * as odSurveyHelpers from '../services/odSurvey/helpers';
 import {
+    ChoiceType,
     I18nData,
     InterviewResponses,
     ParsingFunction,
-    UserInterviewAttributes
+    RadioChoiceType,
+    UserInterviewAttributes,
+    WidgetConfig
 } from '../services/questionnaire/types';
 
 // The helpers in this file are used to manipulate and parse the survey model,
@@ -569,4 +572,40 @@ export const removeGroupedObjects = (
         }
     }
     return [valuesByPath, unsetPaths];
+};
+
+/**
+ * Get the widget choice corresponding to the value for a radio, checkbox or
+ * select widget
+ *
+ * @param {Object} options - The options object.
+ * @param {WidgetConfig} options.widget The widget for which to get the choice
+ * @param {string|boolean} options.value The value to find
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @param {string} options.path The path of the field being parsed, in the
+ * interview responses
+ * @returns The choice corresponding to the value, or `undefined` if the widget
+ * does not have choices or if the choice is not found
+ */
+export const getWidgetChoiceFromValue = ({
+    widget,
+    value,
+    interview,
+    path
+}: {
+    widget: WidgetConfig;
+    value: string | boolean;
+    interview: UserInterviewAttributes;
+    path: string;
+}): ChoiceType | RadioChoiceType | undefined => {
+    if (
+        widget.type !== 'question' ||
+        (widget.inputType !== 'radio' && widget.inputType !== 'checkbox' && widget.inputType !== 'select')
+    ) {
+        return undefined;
+    }
+    const choices = typeof widget.choices === 'function' ? widget.choices(interview, path) : widget.choices;
+
+    const baseChoices = choices.flatMap((choice) => choice.choices || [choice]);
+    return baseChoices.find((choice) => choice.value === value);
 };

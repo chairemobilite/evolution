@@ -613,3 +613,85 @@ describe('Group functions', () => {
         expect(Helpers.removeGroupedObjects(interview, completePaths)).toEqual([expectedByPath, expectedUnset]);
     });
 });
+
+describe('getWidgetChoiceFromValue', () => {
+    const selectChoices = [
+        { groupShortname: 'group', groupLabel: 'groupLabel', choices: [
+            { value: 'sub_value1', label: 'label1' },
+            { value: 'sub_value2', label: 'label2' }
+        ]},
+        { value: 'value3', label: 'label3' }
+    ];
+    const radioChoices = [
+        { value: 'value1', label: 'label1' },
+        { value: 'value2', label: 'label2' },
+        { value: false, label: 'label3' }
+    ];
+    const checkboxChoices = [
+        { value: 'value1', label: 'label1' },
+        { value: 'value2', label: 'label2' },
+        { value: 'value3', label: 'label3' }
+    ];
+
+    each([
+        ['select', 'sub_value1', selectChoices, (selectChoices[0] as any).choices[0]],
+        ['select', 'value3', selectChoices, selectChoices[1]],
+        ['select', 'undefinedValue', selectChoices, undefined],
+        ['radio', 'value1', radioChoices, radioChoices[0]],
+        ['radio', false, radioChoices, radioChoices[2]],
+        ['radio', 'undefinedValue', radioChoices, undefined],
+        ['checkbox', 'value1', checkboxChoices, checkboxChoices[0]],
+        ['checkbox', 'undefinedValue', checkboxChoices, undefined],
+    ]).test('Widgets with choice array: %s %s', (inputType, value, choices, expected) => {
+        const widgetChoice = Helpers.getWidgetChoiceFromValue({ widget: {
+            type: 'question',
+            inputType: inputType,
+            path: 'test',
+            choices,
+            label: 'test'
+        }, value, interview: interviewAttributes, path: 'test' });
+        expect(widgetChoice).toEqual(expected);
+    });
+
+    each([
+        ['select', 'sub_value1', selectChoices, (selectChoices[0] as any).choices[0]],
+        ['select', 'value3', selectChoices, selectChoices[1]],
+        ['select', 'undefinedValue', selectChoices, undefined],
+        ['radio', 'value1', radioChoices, radioChoices[0]],
+        ['radio', false, radioChoices, radioChoices[2]],
+        ['radio', 'undefinedValue', radioChoices, undefined],
+        ['checkbox', 'value1', checkboxChoices, checkboxChoices[0]],
+        ['checkbox', 'undefinedValue', checkboxChoices, undefined],
+    ]).test('Widgets with choice function: %s %s', (inputType, value, choices, expected) => {
+        const choiceFct = jest.fn().mockReturnValue(choices);
+        const widgetChoice = Helpers.getWidgetChoiceFromValue({ widget: {
+            type: 'question',
+            inputType: inputType,
+            path: 'test',
+            choices: choiceFct,
+            label: 'test'
+        }, value, interview: interviewAttributes, path: 'test' });
+        expect(widgetChoice).toEqual(expected);
+        expect(choiceFct).toHaveBeenCalledWith(interviewAttributes, 'test');
+    });
+
+    test('Question widgets with no choices', () => {
+        const widgetChoice = Helpers.getWidgetChoiceFromValue({ widget: {
+            type: 'question',
+            inputType: 'string',
+            path: 'test',
+            label: 'test'
+        }, value: 'value', interview: interviewAttributes, path: 'test' });
+        expect(widgetChoice).toEqual(undefined);
+    });
+
+    test('Other widgets', () => {
+        const widgetChoice = Helpers.getWidgetChoiceFromValue({ widget: {
+            type: 'text',
+            path: 'test',
+            text: 'test'
+        }, value: 'value', interview: interviewAttributes, path: 'test' });
+        expect(widgetChoice).toEqual(undefined);
+    });
+
+});
