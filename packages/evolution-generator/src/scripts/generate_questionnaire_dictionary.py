@@ -39,10 +39,6 @@ def generate_questionnaire_dictionary(
         section_name_index = sections_headers.index("section")
         section_title_language_index = sections_headers.index(f"title_{language}")
         section_title_abbreviation_index = sections_headers.index("abbreviation")
-        choices_name_index = choices_headers.index("choicesName")
-        choices_value_index = choices_headers.index("value")
-        choices_language_index = choices_headers.index(language)
-        choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
 
         # Map section names to their titles and abbreviations
         sections = {
@@ -57,33 +53,8 @@ def generate_questionnaire_dictionary(
             for row in sections_rows[1:]
         }
 
-        # Group choices by choicesName and concatenate their 'en' values
-        choices_map = {}
-        for row in choices_rows[1:]:
-            choices_name = row[choices_name_index].value
-            choice_text = clean_text(row[choices_language_index].value)
-            choice_value = row[choices_value_index].value
-            choices_spread_choices_name = row[choices_spread_choices_name_index].value
-
-            if choice_text is not None:
-                choice_entry = (
-                    f"{choice_value} : {choice_text}"  # Format as "value  text"
-                )
-                if choices_name in choices_map:
-                    choices_map[choices_name].append(choice_entry)
-                else:
-                    choices_map[choices_name] = [choice_entry]
-
-            # If choices_spread_choices_name is not null, append its choices to the current choices_name
-            if choices_spread_choices_name:
-                if choices_spread_choices_name in choices_map:
-                    choices_map[choices_name].extend(
-                        choices_map[choices_spread_choices_name]
-                    )
-                else:
-                    print(
-                        f"Warning: {choices_spread_choices_name} not found in choices_map"
-                    )
+        # Process choices and get the choices_map
+        choices_map = process_choices(choices_rows, choices_headers, language)
 
         # Group questions by section
         sections_questions = {}
@@ -192,6 +163,56 @@ def generate_questionnaire_dictionary(
     except Exception as e:
         print(f"Error with questionnaire list: {e}")
         raise e
+
+
+def process_choices(choices_rows, choices_headers, language):
+    """
+    Process the choices from the Excel sheet and group them by choicesName.
+    Concatenate their values and handle spreadChoicesName.
+
+    Args:
+        choices_rows (list): Rows from the Choices sheet.
+        choices_headers (list): Headers from the Choices sheet.
+        language (str): Language code ('en' or 'fr').
+
+    Returns:
+        dict: A dictionary mapping choicesName to their concatenated values.
+    """
+    choices_name_index = choices_headers.index("choicesName")
+    choices_value_index = choices_headers.index("value")
+    choices_language_index = choices_headers.index(language)
+    choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
+
+    choices_map = {}
+    for row in choices_rows[1:]:
+        choices_name = row[choices_name_index].value
+        choice_text = clean_text(row[choices_language_index].value)
+        choice_value = row[choices_value_index].value
+        choices_spread_choices_name = row[choices_spread_choices_name_index].value
+
+        # Add choice to choices_map if it has a value and text
+        if choice_text and choice_value:
+            choice_entry = f"{choice_value} : {choice_text}"  # Format as "value : text"
+            if choices_name in choices_map:
+                choices_map[choices_name].append(choice_entry)
+            else:
+                choices_map[choices_name] = [choice_entry]
+
+        # If choices_spread_choices_name is not null, append its choices to the current choices_name
+        if (
+            choices_spread_choices_name is not None
+            and choices_spread_choices_name != ""
+        ):
+            if choices_spread_choices_name in choices_map:
+
+                # Only add choices if they are not already in the choices_map
+                if choices_name not in choices_map:
+                    choices_map[choices_name] = []
+                    choices_map[choices_name].extend(
+                        choices_map[choices_spread_choices_name]
+                    )
+
+    return choices_map
 
 
 # Function to transform the path to the format of the questionnaire.
