@@ -137,13 +137,13 @@ yarn start
 
 Run the UI tests
 ```
-yarn test:survey
+yarn test:ui
 ```
 
-*Notes:* In the `test:survey` script to define in the project, add the `LOCALE_DIR` environment variable, to register the translations for the current project. For example, in the `demo_survey` project, the script is defined as follows:
+*Notes:* In the `test:ui` script to define in the project, add the `LOCALE_DIR` environment variable, to register the translations for the current project. For example, in the `demo_survey` project, the script is defined as follows:
 
 ```
-"test:survey": "LOCALE_DIR=$(pwd)/locales npx playwright test"
+"test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test"
 ```
 
 Each test defined needs to get its own context for the test execution. The following gives and example of how to start a UI test for an application:
