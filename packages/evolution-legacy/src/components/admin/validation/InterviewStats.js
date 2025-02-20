@@ -35,7 +35,7 @@ import demoSurveyHelper from '../../../helpers/survey/helper';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext } from 'evolution-frontend/lib/components/hoc/WithSurveyContextHoc';
 import ValidationErrors from 'evolution-frontend/lib/components/admin/validations/ValidationErrors';
-import KeepDiscard from './KeepDiscard';
+import KeepDiscard from 'evolution-frontend/lib/components/admin/validations/KeepDiscard';
 
 class InterviewStats extends React.Component {
 
@@ -190,7 +190,7 @@ class InterviewStats extends React.Component {
       }
       
       const personStats = (        
-        <details open={household.persons[personId].keepDiscard !== KeepDiscard.DISCARD} className="_widget_container" key={personId}>
+        <details open={household.persons[personId].keepDiscard !== 'Discard'} className="_widget_container" key={personId}>
           <KeepDiscard personId={personId} choice={household.persons[personId].keepDiscard} onChange={this.keepDiscard} />
           <summary>{person.gender} {person.age} ans</summary>
           <span className="_widget"><FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />{person.age} ans</span>
