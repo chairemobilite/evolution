@@ -27,6 +27,9 @@ def generate_questionnaire_dictionary(
         choices_rows, choices_headers = get_data_from_excel(
             excel_file_path, sheet_name="Choices"
         )
+        ranges_rows, ranges_headers = get_data_from_excel(
+            excel_file_path, sheet_name="InputRange"
+        )
 
         # Find the index
         widgets_language_index = widgets_headers.index(language)
@@ -36,6 +39,7 @@ def generate_questionnaire_dictionary(
         widgets_path_index = widgets_headers.index("path")
         widgets_conditional_index = widgets_headers.index("conditional")
         widgets_choices_index = widgets_headers.index("choices")
+        widgets_input_range_index = widgets_headers.index("inputRange")
         section_name_index = sections_headers.index("section")
         section_title_language_index = sections_headers.index(f"title_{language}")
         section_title_abbreviation_index = sections_headers.index("abbreviation")
@@ -56,6 +60,9 @@ def generate_questionnaire_dictionary(
         # Process choices and get the choices_map
         choices_map = process_choices(choices_rows, choices_headers, language)
 
+        # Process ranges and get the ranges_map
+        ranges_map = process_range(ranges_rows, ranges_headers, language)
+
         # Group questions by section
         sections_questions = {}
         for row in widgets_rows[1:]:
@@ -63,6 +70,7 @@ def generate_questionnaire_dictionary(
             question_text = clean_text(row[widgets_language_index].value)
             active = row[widgets_active_index].value
             choices_name = row[widgets_choices_index].value
+            input_range = row[widgets_input_range_index].value
             question_path = row[widgets_path_index].value
             conditional = row[widgets_conditional_index].value
             input_type = row[widgets_input_type_index].value
@@ -85,6 +93,9 @@ def generate_questionnaire_dictionary(
                     choices_text = "\n".join(
                         f"{choice}" for choice in filtered_choices_list
                     )
+                range_text = ""
+                if input_range:
+                    range_text = ranges_map.get(input_range, "")
                 transformed_path = transform_path(question_path, sections)
                 sections_questions[section_name].append(
                     (
@@ -93,6 +104,7 @@ def generate_questionnaire_dictionary(
                         conditional,
                         input_type,
                         choices_text,
+                        range_text,
                     )
                 )  # Store this tuple
 
@@ -105,11 +117,14 @@ def generate_questionnaire_dictionary(
             section_title = sections[section_name]["title"]
             section_abbreviation = sections[section_name]["abbreviation"]
 
-            # Add triple line break before section information
             if not first_section:
+                # Add triple line break before section information
                 questionnaire_data.append([""])
                 questionnaire_data.append([""])
                 questionnaire_data.append([""])
+            else:
+                # Add line break before first section
+                questionnaire_data.append([""]) 
             first_section = False
 
             # Determine labels based on language
@@ -121,7 +136,7 @@ def generate_questionnaire_dictionary(
             )
             conditional_label = "Conditional" if language == "en" else "Conditionnel"
             question_label = "Question"
-            choices_label = "Choices" if language == "en" else "Choix"
+            values_label = "Values" if language == "en" else "Valeurs"
 
             questionnaire_data.append([section_label, section_title])
             questionnaire_data.append([abbreviation_label, section_abbreviation])
@@ -133,6 +148,7 @@ def generate_questionnaire_dictionary(
                 conditional,
                 input_type,
                 choices_text,
+                range_text,
             ) in questions:  # Unpack tuple here
                 questionnaire_data.append([""])  # Add line break before each question
                 questionnaire_data.append([field_label, question_path])
@@ -144,11 +160,16 @@ def generate_questionnaire_dictionary(
                 # Only add conditional if it exists
                 if conditional:
                     questionnaire_data.append([conditional_label, conditional])
+
                 questionnaire_data.append([question_label, question])
 
                 # Only add choices if it exists
                 if choices_text:
-                    questionnaire_data.append([choices_label, choices_text])
+                    questionnaire_data.append([values_label, choices_text])
+
+                # Only add range if it exists
+                if range_text:
+                    questionnaire_data.append([values_label, range_text])
 
         # Save the questionnaire text to questionnaire_dictionary_en.txt
         questionnaire_dictionary_path = os.path.join(
@@ -215,6 +236,52 @@ def process_choices(choices_rows, choices_headers, language):
                     )
 
     return choices_map
+
+
+def process_range(ranges_rows, ranges_headers, language):
+    """
+    Process the ranges from the Excel sheet and group them by inputRangeName.
+    Concatenate their min and max values with their corresponding labels.
+
+    Args:
+        ranges_rows (list): Rows from the InputRange sheet.
+        ranges_headers (list): Headers from the InputRange sheet.
+        language (str): Language code ('en' or 'fr').
+
+    Returns:
+        dict: A dictionary mapping inputRangeName to their concatenated values.
+    """
+    input_range_name_index = ranges_headers.index("inputRangeName")
+    min_value_index = ranges_headers.index("minValue")
+    max_value_index = ranges_headers.index("maxValue")
+    label_min_index = ranges_headers.index(f"label{language.capitalize()}Min")
+    label_middle_index = ranges_headers.index(f"label{language.capitalize()}Middle")
+    label_max_index = ranges_headers.index(f"label{language.capitalize()}Max")
+
+    ranges_map = {}
+    for row in ranges_rows[1:]:
+        input_range_name = row[input_range_name_index].value
+        # Ensure min_value is not negative
+        min_value = max(0, row[min_value_index].value)
+        max_value = row[max_value_index].value
+        label_min = clean_text(row[label_min_index].value)
+        label_middle = (
+            clean_text(row[label_middle_index].value)
+            if row[label_middle_index].value
+            else None
+        )
+        label_max = clean_text(row[label_max_index].value)
+
+        # Add range to ranges_map if it has min and max values and labels
+        if min_value is not None and max_value is not None and label_min and label_max:
+            if label_middle:
+                middle_value = (min_value + max_value) // 2
+                range_entry = f"{min_value} : {label_min}\n{middle_value} : {label_middle}\n{max_value} : {label_max}"
+            else:
+                range_entry = f"{min_value} : {label_min}\n{max_value} : {label_max}"
+            ranges_map[input_range_name] = range_entry
+
+    return ranges_map
 
 
 # Function to transform the path to the format of the questionnaire.
