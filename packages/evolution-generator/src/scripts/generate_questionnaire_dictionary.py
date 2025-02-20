@@ -67,8 +67,9 @@ def generate_questionnaire_dictionary(
             conditional = row[widgets_conditional_index].value
             input_type = row[widgets_input_type_index].value
 
-            # Skip questions with input_type equal to 'NextButton' or 'Text'
-            if input_type == "NextButton" or input_type == "Text":
+            # Skip questions with input_type equal to 'NextButton' or 'InfoText'
+            # Because they are not questions with values
+            if input_type == "NextButton" or input_type == "InfoText":
                 continue
 
             # Add question to section if it has a section name, question text, and is active
@@ -123,9 +124,7 @@ def generate_questionnaire_dictionary(
             choices_label = "Choices" if language == "en" else "Choix"
 
             questionnaire_data.append([section_label, section_title])
-            questionnaire_data.append(
-                [abbreviation_label, section_abbreviation]
-            )
+            questionnaire_data.append([abbreviation_label, section_abbreviation])
 
             # Generate questionnaire data with questions
             for (
@@ -137,7 +136,10 @@ def generate_questionnaire_dictionary(
             ) in questions:  # Unpack tuple here
                 questionnaire_data.append([""])  # Add line break before each question
                 questionnaire_data.append([field_label, question_path])
-                questionnaire_data.append([question_type_label, input_type])
+
+                # Rename input type
+                renamed_input_type = rename_input_type(input_type, language)
+                questionnaire_data.append([question_type_label, renamed_input_type])
 
                 # Only add conditional if it exists
                 if conditional:
@@ -221,3 +223,33 @@ def transform_path(path: str, sections: dict) -> str:
     section_name, field_name = path.split(".")
     abbreviation = sections.get(section_name, {}).get("abbreviation", "")
     return f"{abbreviation}{field_name}"
+
+
+def rename_input_type(input_type: str, language: Literal["en", "fr"]) -> str:
+    """
+    Rename the input type based on the specified language.
+
+    Args:
+        input_type (str): The original input type.
+        language (str): Language code ('en' or 'fr').
+
+    Returns:
+        translated_input_type (str): The renamed input type.
+    """
+    translations = {
+        "Custom": {"en": "Unknown input", "fr": "Entrée inconnue"},
+        "Radio": {"en": "Radio input", "fr": "Bouton radio"},
+        "Select": {"en": "Select input", "fr": "Liste déroulante"},
+        "String": {"en": "Text input", "fr": "Champ de texte"},
+        "Number": {"en": "Number input", "fr": "Champ numérique"},
+        "Range": {"en": "Range input", "fr": "Curseur de plage"},
+        "Checkbox": {"en": "Checkbox input", "fr": "Case à cocher"},
+        "Text": {"en": "Text area input", "fr": "Zone de texte"},
+    }
+
+    # Ignore InfoText type because it is not a question
+    if input_type == "InfoText":
+        return None
+
+    # Return the translated input type or the original if not found
+    return translations.get(input_type, {}).get(language, input_type)
