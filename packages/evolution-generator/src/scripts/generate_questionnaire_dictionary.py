@@ -30,6 +30,9 @@ def generate_questionnaire_dictionary(
         ranges_rows, ranges_headers = get_data_from_excel(
             excel_file_path, sheet_name="InputRange"
         )
+        conditionals_rows, conditionals_headers = get_data_from_excel(
+            excel_file_path, sheet_name="Conditionals"
+        )
 
         # Find the index
         widgets_language_index = widgets_headers.index(language)
@@ -62,6 +65,11 @@ def generate_questionnaire_dictionary(
 
         # Process ranges and get the ranges_map
         ranges_map = process_range(ranges_rows, ranges_headers, language)
+
+        # Process conditionals and get the conditionals_map
+        conditionals_map = process_conditionals(
+            conditionals_rows, conditionals_headers, sections
+        )
 
         # Group questions by section
         sections_questions = {}
@@ -97,11 +105,12 @@ def generate_questionnaire_dictionary(
                 if input_range:
                     range_text = ranges_map.get(input_range, "")
                 transformed_path = transform_path(question_path, sections)
+                conditional_text = conditionals_map.get(conditional, "")
                 sections_questions[section_name].append(
                     (
                         question_text,
                         transformed_path,
-                        conditional,
+                        conditional_text,
                         input_type,
                         choices_text,
                         range_text,
@@ -124,7 +133,7 @@ def generate_questionnaire_dictionary(
                 questionnaire_data.append([""])
             else:
                 # Add line break before first section
-                questionnaire_data.append([""]) 
+                questionnaire_data.append([""])
             first_section = False
 
             # Determine labels based on language
@@ -145,7 +154,7 @@ def generate_questionnaire_dictionary(
             for (
                 question,
                 question_path,
-                conditional,
+                conditional_text,
                 input_type,
                 choices_text,
                 range_text,
@@ -158,8 +167,8 @@ def generate_questionnaire_dictionary(
                 questionnaire_data.append([question_type_label, renamed_input_type])
 
                 # Only add conditional if it exists
-                if conditional:
-                    questionnaire_data.append([conditional_label, conditional])
+                if conditional_text:
+                    questionnaire_data.append([conditional_label, conditional_text])
 
                 questionnaire_data.append([question_label, question])
 
@@ -282,6 +291,61 @@ def process_range(ranges_rows, ranges_headers, language):
             ranges_map[input_range_name] = range_entry
 
     return ranges_map
+
+
+def process_conditionals(conditionals_rows, conditionals_headers, sections):
+    """
+    Process the conditionals from the Excel sheet and group them by conditional_name.
+    Concatenate their logical operators, paths, comparison operators, and values.
+
+    Args:
+        conditionals_rows (list): Rows from the Conditionals sheet.
+        conditionals_headers (list): Headers from the Conditionals sheet.
+        sections (dict): A dictionary mapping section names to their titles and abbreviations.
+
+    Returns:
+        dict: A dictionary mapping conditional_name to their concatenated conditionals.
+    """
+    conditional_name_index = conditionals_headers.index("conditional_name")
+    logical_operator_index = conditionals_headers.index("logical_operator")
+    path_index = conditionals_headers.index("path")
+    comparison_operator_index = conditionals_headers.index("comparison_operator")
+    value_index = conditionals_headers.index("value")
+    parentheses_index = conditionals_headers.index("parentheses")
+
+    conditionals_map = {}
+    for row in conditionals_rows[1:]:
+        conditional_name = row[conditional_name_index].value
+        logical_operator = row[logical_operator_index].value
+        path = row[path_index].value
+        comparison_operator = row[comparison_operator_index].value
+        value = row[value_index].value
+        parentheses = row[parentheses_index].value
+        transformed_path = transform_path(path, sections)
+
+        # Construct the conditional string
+        conditional_string = f"{transformed_path} {comparison_operator} {value}"
+
+        # Add parentheses if they exist, and place them around the conditional string depending on the parentheses
+        if parentheses == "(":
+            conditional_string = f"{parentheses}{conditional_string}"
+        elif parentheses == ")":
+            conditional_string = f"{conditional_string}{parentheses}"
+
+        # Add logical operator if it exists
+        if logical_operator:
+            conditional_string = f"{logical_operator} {conditional_string}"
+
+        # Add Conditional name to conditional_string
+        conditional_string = f"{conditional_name} : {conditional_string}"
+
+        # Add conditional to conditionals_map
+        if conditional_name in conditionals_map:
+            conditionals_map[conditional_name] += f" {conditional_string}"
+        else:
+            conditionals_map[conditional_name] = conditional_string
+
+    return conditionals_map
 
 
 # Function to transform the path to the format of the questionnaire.
