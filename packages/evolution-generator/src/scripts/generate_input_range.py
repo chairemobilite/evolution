@@ -55,7 +55,7 @@ def generate_input_range(input_file: str, output_file: str):
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += f"import {{ InputRangeConfig }} from 'evolution-generator/lib/types/inputTypes';\n\n"
+        ts_code += f"import {{ type InputRangeConfig }} from 'evolution-common/lib/services/questionnaire/types';\n\n"
 
         # Iterate through each row in the sheet, starting from the second row
         for row in list(sheet.rows)[1:]:

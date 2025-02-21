@@ -5,11 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { Validations } from '../types/inputTypes';
+import { type ValidationFunction } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 
 // Make sure the question is answered
-export const requiredValidation: Validations = (value) => {
+export const requiredValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
@@ -22,16 +22,16 @@ export const requiredValidation: Validations = (value) => {
 };
 
 // Optional question
-export const optionalValidation: Validations = () => [];
+export const optionalValidation: ValidationFunction = () => [];
 
 // Make sure the InputRange is answered with a positive number
-export const inputRangeValidation: Validations = (value) => {
+export const inputRangeValidation: ValidationFunction = (value) => {
     return [
         {
             // Check if the value is less than 0 and not 'na'
             validation: !(Number(value) >= 0) && value !== 'na',
             errorMessage: {
-                fr: 'Cette réponse doit être d\'une valeur minimum de 0.',
+                fr: "Cette réponse doit être d'une valeur minimum de 0.",
                 en: 'This answer must be a minimum value of 0.'
             }
         },
@@ -46,7 +46,7 @@ export const inputRangeValidation: Validations = (value) => {
 };
 
 // Verify if the value is a valid household size
-export const householdSizeValidation: Validations = (value) => {
+export const householdSizeValidation: ValidationFunction = (value) => {
     return [
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
@@ -80,7 +80,7 @@ export const householdSizeValidation: Validations = (value) => {
 };
 
 // Verify if the value is a valid number of cars
-export const carNumberValidation: Validations = (value, _customValue, interview, _path, _customPath) => {
+export const carNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
     const maxCarsPerPerson = 3;
 
@@ -129,7 +129,7 @@ export const carNumberValidation: Validations = (value, _customValue, interview,
 };
 
 // Verify if the value is a valid number of bikes
-export const bikeNumberValidation: Validations = (value, _customValue, interview, _path, _customPath) => {
+export const bikeNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
     const maxBikesPerPerson = 5;
 
@@ -178,33 +178,33 @@ export const bikeNumberValidation: Validations = (value, _customValue, interview
 };
 
 // Verify if the value is a valid age
-export const ageValidation: Validations = (value) => {
+export const ageValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
             errorMessage: {
-                fr: 'L\'âge est requis.',
+                fr: "L'âge est requis.",
                 en: 'Age is required.'
             }
         },
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
             errorMessage: {
-                fr: 'L\'âge est invalide.',
+                fr: "L'âge est invalide.",
                 en: 'Age is invalid.'
             }
         },
         {
             validation: Number(value) < 0,
             errorMessage: {
-                fr: 'L\'âge doit être au moins de 0.',
+                fr: "L'âge doit être au moins de 0.",
                 en: 'Age must be at least 0.'
             }
         },
         {
             validation: Number(value) > 115,
             errorMessage: {
-                fr: 'L\'âge est trop élevé, veuillez vérifier.',
+                fr: "L'âge est trop élevé, veuillez vérifier.",
                 en: 'Age is too high, please validate.'
             }
         }
@@ -212,7 +212,7 @@ export const ageValidation: Validations = (value) => {
 };
 
 // Verify if the value is a valid email
-export const emailValidation: Validations = (value) => {
+export const emailValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
@@ -236,7 +236,7 @@ export const emailValidation: Validations = (value) => {
 };
 
 // Verify if the value is a valid phone number. This validation is optional.
-export const phoneValidation: Validations = (value) => {
+export const phoneValidation: ValidationFunction = (value) => {
     return [
         {
             validation: !_isBlank(value) && !/^\d{3}[-\s]?\d{3}[-\s]?\d{4}$/.test(String(value)), // Accept 3 numbers, a dash space or nothing, 3 numbers, a dash space or nothing, 4 numbers
@@ -249,7 +249,7 @@ export const phoneValidation: Validations = (value) => {
 };
 
 // Verify the value is a valid postal code
-export const postalCodeValidation: Validations = (value) => {
+export const postalCodeValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),

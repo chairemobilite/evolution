@@ -158,7 +158,7 @@ def generate_import_statements(
         "// " if not has_custom_conditionals_import else ""
     ) + "import * as customConditionals from './customConditionals';\n"
     return (
-        f"import {{ Choices }} from 'evolution-generator/lib/types/inputTypes';\n"
+        f"import {{ type Choices }} from 'evolution-common/lib/services/questionnaire/types';\n"
         f"{conditionals_import}"
         f"{custom_conditionals_import}\n"
     )
