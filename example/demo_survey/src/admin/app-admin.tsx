@@ -11,7 +11,7 @@ setApplicationConfiguration<EvolutionApplicationConfiguration>({
     sections: surveySections,
     widgets: widgetsConfig as any,
     allowedUrlFields: ['source', 'household.carNumber'],
-    projectHelpers,
+    projectHelpers: projectHelpers as any,
     templateMapping: { ...appConfig.templateMapping, 'visitedPlaces': VisitedPlaceSection }
 });
 
