@@ -30,11 +30,20 @@ import wiredPhoneSvg    from 'evolution-frontend/lib/assets/images/admin/phone-w
 import steeringWheelSvg from 'evolution-frontend/lib/assets/images/admin/steering-wheel-solid.svg'
 import { _isBlank }     from 'chaire-lib-common/lib/utils/LodashExtensions';
 import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import demoSurveyHelper from '../../../helpers/survey/helper';
+import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { SurveyContext } from 'evolution-frontend/lib/contexts/SurveyContext';
 import ValidationErrors from 'evolution-frontend/lib/components/admin/validations/ValidationErrors';
 import KeepDiscard from 'evolution-frontend/lib/components/admin/validations/KeepDiscard';
+import { getVisitedPlaceDescription } from 'evolution-frontend/lib/services/display/frontendHelper';
+
+// Temporarily replaces the calls to the old demoSurveyHelpers that was validating with previous validation results.
+// TODO This component should be replaced by the v2 audits that come from the server and uses an object to validate the survey.
+const emptyErrorResults = {
+    errors: [],
+    warnings: [],
+    audits: []
+}
 
 const InterviewStats = (props) => {
 
@@ -52,33 +61,34 @@ const InterviewStats = (props) => {
     const responses = interview.responses;
     const household = _get(responses, 'household');
     const home = _get(responses, 'home');
-    const persons = demoSurveyHelper.getPersons(interview, false);
-    const personsArray = demoSurveyHelper.getPersons(interview, true);
+    const persons = odSurveyHelper.getPersons({ interview });
+    const personsArray = odSurveyHelper.getPersonsArray({ interview });
 
-    const interviewErrors = demoSurveyHelper.validateInterview(validations?.interview, i18n.language, {}, interview, responses, household, home, persons, personsArray);
-    const householdErrors = demoSurveyHelper.validateHousehold(validations?.household, i18n.language, {}, interview, responses, household, home, persons, personsArray);
+    const interviewErrors = emptyErrorResults;
+    const householdErrors = emptyErrorResults;
 
     const formattedTripsDate = responses.tripsDate ? moment(responses.tripsDate).format('LL') : "-";
 
     const personsStats = [];
     for (const personId in persons) {
         const person = persons[personId];
-        const personErrors = demoSurveyHelper.validatePerson(validations?.person, i18n.language, {}, interview, responses, household, home, persons, personsArray, person);
+        const personErrors = emptyErrorResults;
 
         const visitedPlacesStats = [];
-        const visitedPlaces = demoSurveyHelper.getVisitedPlaces(person, false);
-        const visitedPlacesArray = demoSurveyHelper.getVisitedPlaces(person, true);
+        const journey = odSurveyHelper.getJourneysArray({ person })[0];
+        const visitedPlaces = journey === undefined ? {} : odSurveyHelper.getVisitedPlaces({ journey });
+        const visitedPlacesArray = journey === undefined ? [] : odSurveyHelper.getVisitedPlacesArray({ journey });
 
         for (let i = 0, count = visitedPlacesArray.length; i < count; i++) {
             const visitedPlace = visitedPlacesArray[i];
-            const visitedPlaceErrors = demoSurveyHelper.validateVisitedPlace(validations?.visitedPlace, i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, visitedPlace);
+            const visitedPlaceErrors = emptyErrorResults;
 
             const visitedPlaceId = visitedPlace._uuid;
             const visitedPlacePath = `responses.household.persons.${personId}.visitedPlaces.${visitedPlaceId}`;
             const visitedPlaceStats = (
                 <div className="" key={visitedPlaceId} onClick={() => props.selectPlace(visitedPlacePath)}>
                     <span className={`_widget${props.activePlacePath === visitedPlacePath ? ' _active' : ''}`}>
-                        {visitedPlace._sequence}. {demoSurveyHelper.getVisitedPlaceDescription(visitedPlace, true, false)}
+                        {visitedPlace._sequence}. {getVisitedPlaceDescription(visitedPlace, true, false)}
                         {" "}{visitedPlace.arrivalTime && visitedPlace.departureTime ? '(' + Math.round(10 * (visitedPlace.departureTime - visitedPlace.arrivalTime) / 3600) / 10 + 'h)' : ""}
                     </span>
                     <ValidationErrors errors={visitedPlaceErrors} />
@@ -88,31 +98,25 @@ const InterviewStats = (props) => {
         }
 
         const tripsStats = [];
-        const trips = demoSurveyHelper.getTrips(person, false);
-        const tripsArray = demoSurveyHelper.getTrips(person, true);
+        const tripsArray = journey === undefined ? [] : odSurveyHelper.getTripsArray({ journey });
 
         for (let i = 0, count = tripsArray.length; i < count; i++) {
             const trip = tripsArray[i];
-            const tripErrors = demoSurveyHelper.validateTrip(validations?.trip, i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, trips, tripsArray, trip);
+            const tripErrors = emptyErrorResults;
             const tripId = trip._uuid;
-            const origin = visitedPlaces[trip._originVisitedPlaceUuid];
-            const destination = visitedPlaces[trip._destinationVisitedPlaceUuid];
-            const originGeography = demoSurveyHelper.getGeography(origin, person, interview);
-            const destinationGeography = demoSurveyHelper.getGeography(destination, person, interview);
-            const startAt = demoSurveyHelper.getStartAt(trip, visitedPlaces);
-            const endAt = demoSurveyHelper.getEndAt(trip, visitedPlaces);
-            const duration = demoSurveyHelper.getDurationSec(trip, visitedPlaces);
-            const distance = demoSurveyHelper.getBirdDistanceMeters(trip, visitedPlaces, person, interview);
-            const birdSpeedMps = demoSurveyHelper.getBirdSpeedMps(trip, visitedPlaces, person, interview);
+            const origin = odSurveyHelper.getOrigin({ trip, visitedPlaces });
+            const startAt = origin.departureTime;
+            const destination = odSurveyHelper.getDestination({ trip, visitedPlaces });
+            const endAt = destination.arrivalTime;
+            const duration = !_isBlank(startAt) && !_isBlank(endAt) ? endAt - startAt : undefined;
+            const birdSpeedMps = null; // FIXME Calculate
 
-            const segments = demoSurveyHelper.getSegments(trip, false);
-            const segmentsArray = demoSurveyHelper.getSegments(trip, true);
-            let segmentsErrors = [];
+            const segmentsArray = odSurveyHelper.getSegmentsArray({ trip });
+            const segmentsErrors = emptyErrorResults;
             const segmentsStats = [];
 
             for (let j = 0, countJ = segmentsArray.length; j < countJ; j++) {
                 const segment = segmentsArray[j];
-                segmentsErrors = segmentsErrors.concat(demoSurveyHelper.validateSegment(validations?.segment, i18n.language, {}, interview, responses, household, home, persons, personsArray, person, visitedPlaces, visitedPlacesArray, trips, tripsArray, trip, segments, segmentsArray, segment));
                 const segmentId = segment._uuid;
                 const segmentStats = [];
                 if (!_isBlank(segment.mode)) {
