@@ -10,7 +10,7 @@ import VisitedPlaceSection from './survey/templates/VisitedPlacesSection';
 setApplicationConfiguration<EvolutionApplicationConfiguration>({
     sections: surveySections,
     widgets: widgetsConfig as any,
-    projectHelpers,
+    projectHelpers: projectHelpers as any,
     allowedUrlFields: ['source', 'household.carNumber'],
     templateMapping: { ...appConfig.templateMapping, 'visitedPlaces': VisitedPlaceSection }
 });
