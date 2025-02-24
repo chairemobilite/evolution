@@ -1,4 +1,4 @@
-# Copyright 2024, Polytechnique Montreal and contributors
+# Copyright 2025, Polytechnique Montreal and contributors
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
@@ -60,16 +60,18 @@ def generate_questionnaire_dictionary(
             for row in sections_rows[1:]
         }
 
-        # Process choices and get the choices_map
-        choices_map = process_choices(choices_rows, choices_headers, language)
-
-        # Process ranges and get the ranges_map
-        ranges_map = process_range(ranges_rows, ranges_headers, language)
-
         # Process conditionals and get the conditionals_map
         conditionals_map = process_conditionals(
             conditionals_rows, conditionals_headers, sections
         )
+
+        # Process choices and get the choices_map
+        choices_map = process_choices(
+            choices_rows, choices_headers, language, conditionals_map
+        )
+
+        # Process ranges and get the ranges_map
+        ranges_map = process_range(ranges_rows, ranges_headers, language)
 
         # Group questions by section
         sections_questions = {}
@@ -193,11 +195,11 @@ def generate_questionnaire_dictionary(
             print(f"Generate {questionnaire_dictionary_path} successfully")
 
     except Exception as e:
-        print(f"Error with questionnaire list: {e}")
+        print(f"Error with questionnaire dictionary: {e}")
         raise e
 
 
-def process_choices(choices_rows, choices_headers, language):
+def process_choices(choices_rows, choices_headers, language, conditionals_map):
     """
     Process the choices from the Excel sheet and group them by choicesName.
     Concatenate their values and handle spreadChoicesName.
@@ -206,6 +208,7 @@ def process_choices(choices_rows, choices_headers, language):
         choices_rows (list): Rows from the Choices sheet.
         choices_headers (list): Headers from the Choices sheet.
         language (str): Language code ('en' or 'fr').
+        conditionals_map (dict): A dictionary mapping conditional names to their descriptions.
 
     Returns:
         dict: A dictionary mapping choicesName to their concatenated values.
@@ -214,6 +217,7 @@ def process_choices(choices_rows, choices_headers, language):
     choices_value_index = choices_headers.index("value")
     choices_language_index = choices_headers.index(language)
     choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
+    choices_conditional_index = choices_headers.index("conditional")
 
     choices_map = {}
     for row in choices_rows[1:]:
@@ -221,10 +225,22 @@ def process_choices(choices_rows, choices_headers, language):
         choice_text = clean_text(row[choices_language_index].value)
         choice_value = row[choices_value_index].value
         choices_spread_choices_name = row[choices_spread_choices_name_index].value
+        choice_conditional = row[choices_conditional_index].value
 
         # Add choice to choices_map if it has a value and text
         if choice_text and choice_value:
-            choice_entry = f"{choice_value} : {choice_text}"  # Format as "value : text"
+
+            # Format the choice entry based on whether it is conditional
+            if choice_conditional:
+                conditional_text = conditionals_map.get(
+                    choice_conditional, ""
+                )  # Get the conditional text
+                choice_entry = f"{choice_value} ({conditional_text}) : {choice_text}"  # Format as "value (conditional_text) : text"
+            else:
+                choice_entry = (
+                    f"{choice_value} : {choice_text}"  # Format as "value : text"
+                )
+
             if choices_name in choices_map:
                 choices_map[choices_name].append(choice_entry)
             else:
@@ -367,6 +383,8 @@ def rename_input_type(input_type: str, language: Literal["en", "fr"]) -> str:
     Returns:
         translated_input_type (str): The renamed input type.
     """
+
+    # TODO: Use a traduction package (e.g. gettext) to handle multiple translations
     translations = {
         "Custom": {"en": "Unknown input", "fr": "Entrée inconnue"},
         "Radio": {"en": "Radio input", "fr": "Bouton radio"},
