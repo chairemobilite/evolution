@@ -12,7 +12,7 @@ import _get from 'lodash/get';
 import appConfig from 'evolution-frontend/lib/config/application.config';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { startUpdateSurveyValidateInterview } from 'evolution-frontend/lib/actions/SurveyAdmin';
-import ValidationCommentForm from './ValidationCommentForm';
+import ValidationCommentForm from 'evolution-frontend/lib/components/admin/validations/ValidationCommentForm';
 import AdminErrorBoundary from 'evolution-frontend/lib/components/admin/hoc/AdminErrorBoundary';
 import { generateMapFeatureFromInterview } from 'evolution-frontend/lib/services/admin/odSurveyAdminHelper';
 
@@ -68,7 +68,6 @@ export const ValidationOnePageSummary = (props) => {
                         /></AdminErrorBoundary>}
                         <ValidationCommentForm
                             interview={props.interview}
-                            startUpdateInterview={props.startUpdateInterview}
                         />
                     </div>
                 </div>
