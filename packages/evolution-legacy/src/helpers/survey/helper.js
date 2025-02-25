@@ -15,11 +15,12 @@ import _cloneDeep from 'lodash/cloneDeep';
 import { distance as turfDistance } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import  { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import i18n                     from 'evolution-frontend/lib/config/i18n.config';
 import * as surveyHelperNew     from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper     from 'evolution-common/lib/services/odSurvey/helpers';
 import getTripMultimodeCategory from './helperFunctions/getTripMultimodeCategory';
+import { getVisitedPlaceDescription } from 'evolution-frontend/lib/services/display/frontendHelper';
+
 
 const getPerson = function(interview, personId = null) {
   personId = personId || surveyHelperNew.getResponse(interview, '_activePersonId', null);
@@ -102,25 +103,6 @@ const getNextVisitedPlace = function(visitedPlaceId, orderedVisitedPlacesArray)
     }
   }
   return null; // provided visitedPlace was the last
-};
-
-const getVisitedPlaceDescription = function(visitedPlace, withTimes = false, allowHtml = true)
-{
-  let times = '';
-  if (withTimes)
-  {
-    const arrivalTime   = visitedPlace.arrivalTime   ? ' ' + secondsSinceMidnightToTimeStr(visitedPlace.arrivalTime) : '';
-    const departureTime = visitedPlace.departureTime ? ' -> ' + secondsSinceMidnightToTimeStr(visitedPlace.departureTime) : '';
-    times = arrivalTime + departureTime;
-  }
-  if (allowHtml)
-  {
-    return `${i18n.t(`survey:visitedPlace:activities:${visitedPlace.activity}`)}${ visitedPlace.name ? ` • <em>${visitedPlace.name}</em>`: ''}${times}`
-  }
-  else
-  {
-    return `${i18n.t(`survey:visitedPlace:activities:${visitedPlace.activity}`)}${ visitedPlace.name ? ` • ${visitedPlace.name}`: ''}${times}`
-  }
 };
 
 const selectNextVisitedPlaceId = function(visitedPlaces)

@@ -6,9 +6,10 @@
  */
 import moment from 'moment';
 import i18n from '../../../config/i18n.config';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import { TFunction } from 'i18next';
-import { getGenderedStrings, getFormattedDate, secondsSinceMidnightToTimeStrWithSuffix, validateButtonAction, validateButtonActionWithCompleteSection } from '../frontendHelper';
+import { getGenderedStrings, getFormattedDate, secondsSinceMidnightToTimeStrWithSuffix, validateButtonAction, validateButtonActionWithCompleteSection, getVisitedPlaceDescription } from '../frontendHelper';
 import { interviewAttributesForTestCases } from 'evolution-common/lib/tests/surveys';
 
 jest.mock('../../../config/i18n.config', () => ({
@@ -217,3 +218,55 @@ describe('validateButtonActionWithCompleteSection', () => {
     
 });
 
+describe('getVisitedPlaceDescription', () => {
+    const interview = _cloneDeep(interviewAttributesForTestCases);
+    // Add times to places
+    const visitedPlaces = interview.responses.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!;
+    
+    beforeEach(() => {
+        jest.clearAllMocks();
+    })
+
+    test('without times or html, place with no name', () => {
+        const description = getVisitedPlaceDescription(visitedPlaces.homePlace1P1, false, false);
+        expect(description).toEqual('survey:visitedPlace:activities:home');
+    });
+
+    test('without times or html, place with name', () => {
+        const description = getVisitedPlaceDescription(visitedPlaces.workPlace1P1, false, false);
+        expect(description).toEqual('survey:visitedPlace:activities:work • This is my work');
+    });
+
+    test('with times and html, complete place with no name', () => {
+        const visitedPlace = _cloneDeep(visitedPlaces.homePlace1P1);
+        visitedPlace.departureTime = 3600;
+        visitedPlace.arrivalTime = 1800;
+        const description = getVisitedPlaceDescription(visitedPlace, true, true);
+        expect(description).toEqual('survey:visitedPlace:activities:home 0:30 -> 1:00');
+    });
+
+    test('with times and html, complete place with no name, test midnight', () => {
+        const visitedPlace = _cloneDeep(visitedPlaces.homePlace1P1);
+        visitedPlace.departureTime = 3600;
+        visitedPlace.arrivalTime = 0;
+        const description = getVisitedPlaceDescription(visitedPlace, true, true);
+        expect(description).toEqual('survey:visitedPlace:activities:home 0:00 -> 1:00');
+    });
+
+    test('with times and html, complete place with name', () => {
+        const visitedPlace = _cloneDeep(visitedPlaces.workPlace1P1);
+        visitedPlace.departureTime = 3600;
+        visitedPlace.arrivalTime = 1800;
+        const description = getVisitedPlaceDescription(visitedPlace, true, true);
+        expect(description).toEqual('survey:visitedPlace:activities:work • <em>This is my work</em> 0:30 -> 1:00');
+    });
+
+    test('with times, but place with no times', () => {
+        const visitedPlace = _cloneDeep(visitedPlaces.workPlace1P1);
+        delete visitedPlace.departureTime;
+        delete visitedPlace.arrivalTime;
+        const description = getVisitedPlaceDescription(visitedPlace, true, true);
+        expect(description).toEqual('survey:visitedPlace:activities:work • <em>This is my work</em>');
+    });
+    
+});

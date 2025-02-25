@@ -9,7 +9,7 @@ import moment from 'moment';
 
 import i18n from '../../config/i18n.config';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import { ButtonAction, Person } from 'evolution-common/lib/services/questionnaire/types';
+import { ButtonAction, Person, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 
 type GenderedData = {
     [gender: string]: {
@@ -159,4 +159,33 @@ export const validateButtonActionWithCompleteSection: ButtonAction = (
             }
         }
     });
+};
+
+/**
+ * Get the visited place description
+ * @param visitedPlace The visited place for which to get the description
+ * @param withTimes Whether to add the times to the description
+ * @param allowHtml Whether the description can contain HTML characters
+ * @returns
+ */
+export const getVisitedPlaceDescription = function (
+    visitedPlace: VisitedPlace,
+    withTimes: boolean = false,
+    allowHtml: boolean = true
+): string {
+    let times = '';
+    if (withTimes) {
+        const arrivalTime =
+            visitedPlace.arrivalTime !== undefined ? ' ' + secondsSinceMidnightToTimeStr(visitedPlace.arrivalTime) : '';
+        const departureTime =
+            visitedPlace.departureTime !== undefined
+                ? ' -> ' + secondsSinceMidnightToTimeStr(visitedPlace.departureTime)
+                : '';
+        times = arrivalTime + departureTime;
+    }
+    if (allowHtml) {
+        return `${i18n.t(`survey:visitedPlace:activities:${visitedPlace.activity}`)}${visitedPlace.name ? ` • <em>${visitedPlace.name}</em>` : ''}${times}`;
+    } else {
+        return `${i18n.t(`survey:visitedPlace:activities:${visitedPlace.activity}`)}${visitedPlace.name ? ` • ${visitedPlace.name}` : ''}${times}`;
+    }
 };
