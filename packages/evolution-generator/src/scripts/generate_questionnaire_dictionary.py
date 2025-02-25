@@ -232,10 +232,19 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
 
             # Format the choice entry based on whether it is conditional
             if choice_conditional:
-                conditional_text = conditionals_map.get(
-                    choice_conditional, ""
-                )  # Get the conditional text
-                choice_entry = f"{choice_value} ({conditional_text}) : {choice_text}"  # Format as "value (conditional_text) : text"
+                # Get the conditional text from the conditionals_map
+                conditional_text = conditionals_map.get(choice_conditional, "")
+
+                # Check if conditional_name contains 'CustomConditional'
+                # We don't want to display the conditional_name if it is 'CustomConditional'
+                if "CustomConditional" in choice_conditional:
+                    # Format as "value : text"
+                    choice_entry = f"{choice_value} : {choice_text}"
+                else:
+                    # Format as "value (conditional_text) : text"
+                    choice_entry = (
+                        f"{choice_value} ({conditional_text}) : {choice_text}"
+                    )
             else:
                 choice_entry = (
                     f"{choice_value} : {choice_text}"  # Format as "value : text"
@@ -250,15 +259,24 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
         if (
             choices_spread_choices_name is not None
             and choices_spread_choices_name != ""
+            and choices_spread_choices_name in choices_map
         ):
-            if choices_spread_choices_name in choices_map:
-
-                # Only add choices if they are not already in the choices_map
-                if choices_name not in choices_map:
-                    choices_map[choices_name] = []
-                    choices_map[choices_name].extend(
-                        choices_map[choices_spread_choices_name]
-                    )
+            # This is to ensure that the spread choices are not added to the choices_map if they are already in the choices_map
+            if choices_name not in choices_map:
+                # If choices_name is not already a key in choices_map, initialize it as an empty list
+                choices_map[choices_name] = []
+                # Extend the list with choices from choices_spread_choices_name
+                choices_map[choices_name].extend(
+                    choices_map[choices_spread_choices_name]
+                )
+            else:
+                # If choices_name is already a key in choices_map, extend the list with choices from choices_spread_choices_name
+                # but only add choices that are not already present in choices_map[choices_name]
+                choices_map[choices_name].extend(
+                    choice
+                    for choice in choices_map[choices_spread_choices_name]
+                    if choice not in choices_map[choices_name]
+                )
 
     return choices_map
 
@@ -352,8 +370,9 @@ def process_conditionals(conditionals_rows, conditionals_headers, sections):
         if logical_operator:
             conditional_string = f"{logical_operator} {conditional_string}"
 
-        # Add Conditional name to conditional_string
-        conditional_string = f"{conditional_name} : {conditional_string}"
+        # Add Conditional name to conditional_string only if it's the first occurrence
+        if conditional_name not in conditionals_map:
+            conditional_string = f"{conditional_name} : {conditional_string}"
 
         # Add conditional to conditionals_map
         if conditional_name in conditionals_map:
@@ -367,9 +386,17 @@ def process_conditionals(conditionals_rows, conditionals_headers, sections):
 # Function to transform the path to the format of the questionnaire.
 # We change '.' to '_' because it's simpler for Python or R to read the file.
 def transform_path(path: str, sections: dict) -> str:
-    section_name, field_name = path.split(".")
-    abbreviation = sections.get(section_name, {}).get("abbreviation", "")
-    return f"{abbreviation}{field_name}"
+    # If the path contains the relativePath, we don't change it
+    if "${relativePath}." in path:
+        return path
+
+    # If the path contains '.', we change it to 'abreviation_fieldName'
+    if "." in path:
+        section_name, field_name = path.split(".")
+        abbreviation = sections.get(section_name, {}).get("abbreviation", "")
+        return f"{abbreviation}{field_name}"
+    else:
+        return path
 
 
 def rename_input_type(input_type: str, language: Literal["en", "fr"]) -> str:
