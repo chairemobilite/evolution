@@ -33,7 +33,7 @@ def generate_UI_tests(input_file: str, output_file: str):
                 "inputType",
                 "active",
                 "section",
-                #"group",
+                # "group",
                 "path",
                 # "fr",
                 # "en",

@@ -13,7 +13,9 @@ from helpers.generator_helpers import (
 
 
 # Function to generate the folders for the survey
-def generate_folders(excel_file_path: str, survey_folder_path: str, enabled_scripts: dict):
+def generate_folders(
+    excel_file_path: str, survey_folder_path: str, enabled_scripts: dict
+):
     try:
         enabled_generate_questionnaire_list = enabled_scripts.get(
             "generate_questionnaire_list", False
