@@ -20,6 +20,7 @@ from scripts.generate_input_range import generate_input_range
 from scripts.generate_libelles import generate_libelles
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
+from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
 
 
 # TODO: Add some validation for the config file
@@ -56,6 +57,9 @@ def generate_survey(config_path):
         enabled_generate_UI_tests = enabled_scripts.get("generate_UI_tests", False)
         enabled_generate_questionnaire_list = enabled_scripts.get(
             "generate_questionnaire_list", False
+        )
+        enabled_generate_questionnaire_dictionary = enabled_scripts.get(
+            "generate_questionnaire_dictionary", False
         )
 
     # Call the generate_excel function to generate the Excel file if script enabled
@@ -134,7 +138,6 @@ def generate_survey(config_path):
         )
         generate_UI_tests(excel_file_path, UI_tests_output_file_path)
 
-    ## TODO: Add this to the config file ?
     # Call the generate_questionnaire_list function to generate the questionnaire_list_en.txt if script enabled
     if enabled_generate_questionnaire_list:
         questionnaire_list_output_folder = os.path.join(
@@ -145,6 +148,18 @@ def generate_survey(config_path):
         )
         generate_questionnaire_list(
             excel_file_path, questionnaire_list_output_folder, language="fr"
+        )
+
+    # Call the generate_questionnaire_dictionary function to generate the questionnaire_dictionary_en.txt if script enabled
+    if enabled_generate_questionnaire_dictionary:
+        questionnaire_dictionary_output_folder = os.path.join(
+            survey_folder_path, "references"
+        )
+        generate_questionnaire_dictionary(
+            excel_file_path, questionnaire_dictionary_output_folder, language="en"
+        )
+        generate_questionnaire_dictionary(
+            excel_file_path, questionnaire_dictionary_output_folder, language="fr"
         )
 
 

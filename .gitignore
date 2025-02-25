@@ -130,5 +130,6 @@ __pycache__/
 
 # demo_generator example generated files
 example/demo_generator/locales
+example/demo_generator/references
 example/demo_generator/src
 example/demo_generator/tests

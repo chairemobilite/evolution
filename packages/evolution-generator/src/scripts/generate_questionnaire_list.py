@@ -6,19 +6,7 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 import os
 from typing import Literal
-from helpers.generator_helpers import get_data_from_excel
-
-
-# Function to clean text of markdown characters
-def clean_text(text):
-    if text is None:
-        return ""
-    return (
-        text.replace("**", "")
-        .replace("__green", "")
-        .replace("__red", "")
-        .replace("__", "")
-    )
+from helpers.generator_helpers import get_data_from_excel, clean_text
 
 
 # Function to generate questionnaire_test for each section
