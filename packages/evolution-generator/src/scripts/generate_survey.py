@@ -17,7 +17,7 @@ from scripts.generate_widgets import generate_widgets
 from scripts.generate_conditionals import generate_conditionals
 from scripts.generate_choices import generate_choices
 from scripts.generate_input_range import generate_input_range
-from scripts.generate_libelles import generate_libelles
+from scripts.generate_labels import generate_labels
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
@@ -53,7 +53,7 @@ def generate_survey(config_path):
         enabled_generate_input_range = enabled_scripts.get(
             "generate_input_range", False
         )
-        enabled_generate_libelles = enabled_scripts.get("generate_libelles", False)
+        enabled_generate_labels = enabled_scripts.get("generate_labels", False)
         enabled_generate_UI_tests = enabled_scripts.get("generate_UI_tests", False)
         enabled_generate_questionnaire_list = enabled_scripts.get(
             "generate_questionnaire_list", False
@@ -124,12 +124,10 @@ def generate_survey(config_path):
         )
         generate_input_range(excel_file_path, input_range_output_file_path)
 
-    # Call the generate_libelles function to generate the libelles locales folder if script enabled
-    if enabled_generate_libelles:
-        libelles_output_folder_path = os.path.join(survey_folder_path, "locales")
-        generate_libelles(
-            excel_file_path, libelles_output_folder_path, overwrite=True, section=None
-        )
+    # Call the generate_labels function to generate the labels locales folder if script enabled
+    if enabled_generate_labels:
+        labels_output_folder_path = os.path.join(survey_folder_path, "locales")
+        generate_labels(excel_file_path, labels_output_folder_path)
 
     # Call the generate_UI_tests function to generate the template-tests-UI.ts if script enabled
     if enabled_generate_UI_tests:
