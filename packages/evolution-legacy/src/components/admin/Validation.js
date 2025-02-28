@@ -10,7 +10,7 @@ import { withTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 
-import InterviewSummary from './validation/InterviewSummary';
+import InterviewSummary from 'evolution-frontend/lib/components/admin/validations/InterviewSummary';
 import { startSetValidateInterview } from 'evolution-frontend/lib/actions/SurveyAdmin';
 import InterviewListComponent from 'evolution-frontend/lib/components/admin/validations/InterviewListComponent';
 
@@ -76,10 +76,8 @@ class Validation extends React.Component {
             <InterviewSummary
               key                          = {this.props.interview.uuid}
               handleInterviewSummaryChange = {this.handleInterviewSummaryChange}
-              interview                    = {this.props.interview}
               prevInterviewUuid            = {this.state.prevInterviewUuid}
               nextInterviewUuid            = {this.state.nextInterviewUuid}
-              interviewListChange          = {this.handleInterviewListChange}
             />
             }
           </div>
