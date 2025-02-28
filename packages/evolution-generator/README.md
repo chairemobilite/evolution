@@ -26,9 +26,9 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 -   [Generate InputRange](#generate-inputrange)
     -   [InputRange Fields](#inputrange-fields)
     -   [InputRange Example](#inputrange-example)
--   [Generate Libelles](#generate-libelles)
-    -   [Libelles Fields](#libelles-fields)
-    -   [Libelles Example](#libelles-example)
+-   [Generate Labels](#generate-labels)
+    -   [Labels Fields](#labels-fields)
+    -   [Labels Example](#labels-example)
 -   [Document History](#document-history)
 
 ## How to Run?
@@ -102,9 +102,9 @@ references/
 
 locales/
 ├─ en/
-│  ├─ sectionName.yml - Contains the English libelles for the section. (Generator)
+│  ├─ sectionName.yml - Contains the English labels for the section. (Generator)
 ├─ fr/
-│  ├─ sectionName.yml - Contains the French libelles for the section. (Generator)
+│  ├─ sectionName.yml - Contains the French labels for the section. (Generator)
 ```
 
 > **Note:** For sections that utilize template, `template.tsx` should be implemented as a React component.
@@ -168,7 +168,7 @@ If you want to start your own survey, you can use the following steps:
             generate_conditionals: true
             generate_choices: true
             generate_input_range: true
-            generate_libelles: true
+            generate_labels: true
         ```
 
 5.  Navigate to the root folder of your project and run the following command.:
@@ -513,38 +513,38 @@ export const confidentInputRange: InputRangeConfig = {
 
 ![InputRange example](./src/assets/images/inputRangeExample.png)
 
-## Generate Libelles
+## Generate Labels
 
-<!-- TODO: Modify the generate_libelles.py and documentation to support en_cati, en_one, en_cati_one, fr_cati, etc. -->
+<!-- TODO: Modify the generate_labels.py and documentation to support en_cati, en_one, en_cati_one, fr_cati, etc. -->
 
-In the context of your survey logic, libelles (labels) play a crucial role in presenting questions to respondents in different languages. This Excel table below outlines the fields in `Widgets` tab used to define libelles, along with an example and the expected output in a `introduction.yml` file.
+In the context of your survey logic, labels play a crucial role in presenting questions to respondents in different languages. This Excel table below outlines the fields in `Widgets` tab used to define labels, along with an example and the expected output in a `introduction.yml` file.
 
-### Libelles Fields
+### Labels Fields
 
 | Field   | Description                           | Type   |
 | ------- | ------------------------------------- | ------ |
 | path    | Path of the responses                 | string |
 | section | Section to which the question belongs | string |
-| fr      | French libelle                        | string |
-| en      | English libelle                       | string |
+| fr      | French label                          | string |
+| en      | English label                         | string |
 
-### Libelles Example
+### Labels Example
 
-In this example, we define a libelle for the question `introduction.whichOrganization`. Libelles are used to present questions to respondents in different languages. In this case, we provide translations for both French and English. The text within the double asterisks `**` will be displayed in bold. The corresponding YAML output for the English translation is also shown.
+In this example, we define a label for the question `introduction.whichOrganization`. Labels are used to present questions to respondents in different languages. In this case, we provide translations for both French and English. The text within the double asterisks `**` will be displayed in bold. The corresponding YAML output for the English translation is also shown.
 
 | path                           | section      | fr                                                                 | en                                                                |
 | ------------------------------ | ------------ | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
 | introduction.whichOrganization | introduction | À quelle [\*\*organisation\*\*](#asterisks) êtes-vous affilié(e) ? | Which [\*\*organization\*\*](#asterisks) are you affiliated with? |
 
-<!-- TODO: Add {{nickname}} and other replacements in the libelles -->
+<!-- TODO: Add {{nickname}} and other replacements in the labels -->
 
-> <span id="asterisks">**Note:**</span> Libelle between double asterisks `**` will be displayed in bold font.
+> <span id="asterisks">**Note:**</span> Label between double asterisks `**` will be displayed in bold font.
 
-> <span id="asterisks">**Note:**</span> Libelle between double underscores `__` will be displayed in blue italic font.
+> <span id="asterisks">**Note:**</span> Label between double underscores `__` will be displayed in blue italic font.
 
-> <span id="asterisks">**Note:**</span> Libelle between double `_green_` will be displayed in green font.
+> <span id="asterisks">**Note:**</span> Label between double `_green_` will be displayed in green font.
 
-> <span id="asterisks">**Note:**</span> Libelle between double `_red_` will be displayed in red font.
+> <span id="asterisks">**Note:**</span> Label between double `_red_` will be displayed in red font.
 
 ```yaml
 # en/introduction.yml
