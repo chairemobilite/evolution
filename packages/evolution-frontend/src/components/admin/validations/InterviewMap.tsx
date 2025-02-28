@@ -25,7 +25,7 @@ export type SurveyMapTripProperties = {
     color?: string;
 };
 
-type InterviewMapProps = {
+export type InterviewMapProps = {
     center?: [number, number];
     updateCount?: number;
     places: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapPointProperties>;

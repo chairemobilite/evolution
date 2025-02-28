@@ -7,7 +7,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import InputText from 'chaire-lib-frontend/lib/components/input/InputText';
-import { WithTranslation } from 'react-i18next';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { useDispatch } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
@@ -15,7 +14,7 @@ import { SurveyAction } from '../../../store/survey';
 import { RootState } from '../../../store/configureStore';
 import { startUpdateSurveyValidateInterview } from '../../../actions/SurveyAdmin';
 
-interface ValidationCommentFormProps extends WithTranslation {
+interface ValidationCommentFormProps {
     interview: UserInterviewAttributes;
 }
 
