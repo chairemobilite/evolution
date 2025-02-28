@@ -18,7 +18,7 @@ import { generateMapFeatureFromInterview } from 'evolution-frontend/lib/services
 
 let InterviewStats = appConfig.getCustomInterviewStat();
 if (InterviewStats === undefined) {
-    InterviewStats = require('./InterviewStats').default;
+    InterviewStats = require('evolution-frontend/lib/components/admin/validations/InterviewStats').default;
 }
 
 // FIXME There shouldn't be any need for custom maps now, but keeping this for compatibility with older surveys
@@ -63,6 +63,7 @@ export const ValidationOnePageSummary = (props) => {
                             selectTrip={setActiveTripUuid}
                             activeTripUuid={activeTripUuid}
                             interview={props.interview}
+                            activePlacePath={activePlacePath}
                             user={props.user}
                             startUpdateInterview={props.startUpdateInterview}
                         /></AdminErrorBoundary>}
