@@ -1,4 +1,4 @@
-import runClientApp from 'evolution-legacy/lib/apps/admin/client';
+import runClientApp from 'evolution-frontend/lib/apps/admin';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 import appConfig, { EvolutionApplicationConfiguration } from 'evolution-frontend/lib/config/application.config';
 
