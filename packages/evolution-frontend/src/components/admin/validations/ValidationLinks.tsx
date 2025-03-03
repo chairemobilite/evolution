@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
@@ -37,7 +37,7 @@ type ValidationLinksProps = {
     interviewIsValidated: boolean;
 };
 
-const ValidationLinks: React.FunctionComponent<ValidationLinksProps & WithTranslation> = ({
+const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
     handleInterviewSummaryChange,
     updateValuesByPath,
     interviewIsValid,
@@ -49,9 +49,9 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps & WithTransl
     refreshInterview,
     resetInterview,
     interviewIsComplete,
-    interviewIsValidated,
-    t
-}: ValidationLinksProps & WithTranslation) => {
+    interviewIsValidated
+}: ValidationLinksProps) => {
+    const { t } = useTranslation('admin');
     const canConfirm = user.isAuthorized({ Interviews: ['confirm'] });
     return (
         <p className="center _large">
@@ -254,4 +254,4 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps & WithTransl
     );
 };
 
-export default withTranslation('admin')(ValidationLinks);
+export default ValidationLinks;

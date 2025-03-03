@@ -22,6 +22,7 @@ import FormErrors from 'chaire-lib-frontend/lib/components/pageParts/FormErrors'
 import { RootState } from '../../../store/configureStore';
 import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../../store/survey';
+import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 type InterviewSummaryProps = {
     prevInterviewUuid?: string;
@@ -33,7 +34,7 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
     const { t } = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const interview = useSelector((state: RootState) => state.survey.interview);
-    const user = useSelector((state: RootState) => state.auth.user);
+    const user = useSelector((state: RootState) => state.auth.user) as CliUser;
     const validationDataDirty = interview?.validationDataDirty;
 
     const refreshInterview = useCallback(() => {
@@ -45,10 +46,7 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
     }, [dispatch, interview.uuid]);
 
     const updateValuesByPath = useCallback(
-        (valuesByPath, e) => {
-            if (e && e.preventDefault) {
-                e.preventDefault();
-            }
+        (valuesByPath) => {
             dispatch(
                 startUpdateSurveyValidateInterview('validationOnePager', valuesByPath, undefined, undefined, () => {
                     /* nothing to do */
@@ -84,7 +82,6 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
                         refreshInterview={refreshInterview}
                         resetInterview={resetInterview}
                         user={user}
-                        t={t}
                     />
                     {validationDataDirty && (
                         <FormErrors errors={[t(['admin:ValidationDataDirty'])]} errorType="Warning" />

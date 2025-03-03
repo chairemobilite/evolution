@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { WithTranslation, withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import InterviewList from './InterviewList';
@@ -23,7 +23,7 @@ import { handleHttpOtherResponseCode } from '../../../services/errorManagement/e
 import { Dispatch } from 'redux';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 
-interface InterviewListComponentProps extends WithTranslation {
+interface InterviewListComponentProps {
     onInterviewSummaryChanged: (uuid: string, prevUuid?: string, nextUuid?: string) => void;
     initialSortBy: { id: string; desc?: boolean }[];
     interviewListChange: (show: boolean) => void;
@@ -41,6 +41,7 @@ type CellArgs = {
 const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = (
     props: InterviewListComponentProps
 ) => {
+    const { t } = useTranslation(['admin', 'main']);
     // We'll start our table without any data
     const [data, setData] = React.useState<InterviewStatusAttributesBase[]>([]);
     const [loading, setLoading] = React.useState(false);
@@ -131,14 +132,14 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
         const columns = [
             {
                 accessor: 'id',
-                label: props.t('admin:InterviewId'),
+                label: t('admin:InterviewId'),
                 Cell: ({ value }: CellArgs) => `#${value}`,
                 enableSortBy: true
             },
             {
                 // TODO, this column is specific to projects, it should come as props from the project
                 id: 'responses.accessCode',
-                label: props.t('admin:interviewByCodeFilter:title'),
+                label: t('admin:interviewByCodeFilter:title'),
                 accessor: 'responses.accessCode',
                 Filter: InterviewByCodeFilter,
                 enableSortBy: true
@@ -146,7 +147,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             {
                 id: 'created_at',
                 accessor: 'created_at',
-                label: props.t('admin:interviewByDateFilter:title'),
+                label: t('admin:interviewByDateFilter:title'),
                 Cell: ({ value }: CellArgs) =>
                     !_isBlank(value) ? new Date(value).toISOString().split('T')[0].replace('/', '-') : '?', // Converts to YYYY-MM-DD format
                 Filter: InterviewByDateFilter,
@@ -157,17 +158,13 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 Filter: InterviewCompletedFilter,
                 enableSortBy: false,
                 Cell: ({ value }: CellArgs) =>
-                    value ? props.t('admin:CompletedFemSingular') : props.t('admin:NotCompletedFemSingular')
+                    value ? t('admin:CompletedFemSingular') : t('admin:NotCompletedFemSingular')
             },
             {
                 accessor: 'is_valid',
                 Filter: ValidityColumnFilter,
                 Cell: ({ value }: CellArgs) =>
-                    value
-                        ? props.t('admin:Valid')
-                        : value === false
-                            ? props.t('admin:Invalid')
-                            : props.t('admin:UnknownValidity')
+                    value ? t('admin:Valid') : value === false ? t('admin:Invalid') : t('admin:UnknownValidity')
             },
             {
                 accessor: 'responses.household.size',
@@ -178,11 +175,11 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                             icon={faUserCircle}
                             className="faIconNoMargin"
                             /* eslint-disable-next-line react/prop-types */
-                            title={props.t('admin:persons')}
+                            title={t('admin:persons')}
                         />
                     </React.Fragment>
                 ),
-                label: props.t('admin:HouseholdSize'),
+                label: t('admin:HouseholdSize'),
                 enableSortBy: true
             },
             {
@@ -196,7 +193,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                             className="faIconNoMargin _error _red"
                             title={Object.keys(value)
                                 /* eslint-disable-next-line react/prop-types */
-                                .map((error: any) => props.t([`survey:validations:${error}`, `surveyAdmin:${error}`]))
+                                .map((error: any) => t([`survey:validations:${error}`, `surveyAdmin:${error}`]))
                                 .join('\n')}
                         />
                     ),
@@ -217,7 +214,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                             data-next-uuid={nextUuid}
                             onClick={handleInterviewSummaryChange}
                         >
-                            {props.t('admin:Validate') /* eslint-disable-line react/prop-types */}
+                            {t('admin:Validate') /* eslint-disable-line react/prop-types */}
                         </a>
                     );
                 }
@@ -233,7 +230,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             },
             {
                 accessor: 'responses.home.geography',
-                label: props.t('admin:interviewByHomeGeographyFilter:Title'),
+                label: t('admin:interviewByHomeGeographyFilter:Title'),
                 Cell: () => '',
                 Filter: InteviewByHomeGeographyFilter,
                 enableSortBy: false
@@ -241,7 +238,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
         ];
 
         return columns;
-    }, [props.t]);
+    }, []);
 
     return (
         <InterviewList
@@ -263,4 +260,4 @@ const mapDispatchToProps = (dispatch, _props: Omit<InterviewListComponentProps, 
     dispatch
 });
 
-export default connect(undefined, mapDispatchToProps)(withTranslation(['admin', 'main'])(InterviewListComponent));
+export default connect(undefined, mapDispatchToProps)(InterviewListComponent);
