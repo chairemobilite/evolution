@@ -360,7 +360,7 @@ def generate_import_statements(
         f"{custom_conditionals_import}"
         f"{custom_widgets_import}"
         f"{help_popup_import}"
-        f"import * as inputTypes from 'evolution-generator/lib/types/inputTypes';\n"
+        f"import * as inputTypes from 'evolution-common/lib/services/questionnaire/types';\n"
         f"{input_range_import}"
         f"{custom_validations_import}"
         f"import * as validations from 'evolution-generator/lib/common/validations';\n"
