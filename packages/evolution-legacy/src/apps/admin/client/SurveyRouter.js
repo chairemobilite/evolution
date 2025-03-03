@@ -8,7 +8,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router';
 
 import AdminMonitoringPage from 'evolution-frontend/lib/components/admin/pages/AdminMonitoringPage';
-import AdminValidationPage from '../../../components/admin/Validation';
+import AdminValidationPage from 'evolution-frontend/lib/components/admin/pages/ValidationPage';
 import AdminValidateSurveyPage from 'evolution-frontend/lib/components/admin/pages/ValidateSurvey';
 import UnauthorizedPage from 'chaire-lib-frontend/lib/components/pages/UnauthorizedPage';
 import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/MaintenancePage';
