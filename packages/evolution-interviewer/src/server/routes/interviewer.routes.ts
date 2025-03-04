@@ -7,7 +7,7 @@
 
 import moment from 'moment';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
-import serverHelper from 'evolution-legacy/lib/helpers/server';
+import serverHelper from 'evolution-backend/lib/services/adminExport/cache';
 import express from 'express';
 import papaparse from 'papaparse';
 
