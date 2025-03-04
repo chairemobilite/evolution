@@ -20,7 +20,8 @@ import waterBoundaries  from '../waterBoundaries.json';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
-import { validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
+import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
+import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 
 const personsWidgets = [
     'personNickname',
@@ -58,7 +59,7 @@ export const householdMembers: GroupConfig = {
     en: function(groupedObject: any, sequence) { return `Person ${sequence || groupedObject['_sequence']} ${groupedObject.nickname ? `• **${groupedObject.nickname}**` : ''}`; }
   },
   showGroupedObjectDeleteButton: function(interview, path) { 
-    const countPersons = helper.countPersons(interview);
+    const countPersons = odSurveyHelper.countPersons({ interview });
     if (config.isPartTwo === true)
     {
       return countPersons > 1;
@@ -89,7 +90,7 @@ export const personAge = {
   twoColumns: true,
   containsHtml: true,
   label: (t: TFunction, interview) => {
-    const householdSize = helper.countPersons(interview);
+    const householdSize = odSurveyHelper.countPersons({ interview });
     return t('survey:Age', { count: householdSize });
   },
   validations: function(value, customValue, interview, path, customPath) {
@@ -134,7 +135,7 @@ export const personNickname = {
     en: "Nickname or name which will allow you to identify this person during the interview"
   },
   conditional: function(interview, path) {
-    const householdSize = helper.countPersons(interview);
+    const householdSize = odSurveyHelper.countPersons({ interview });
     return [householdSize !== 1, null];
   },
   validations: function(value, customValue, interview, path, customPath) {
@@ -187,7 +188,7 @@ export const personGender = {
       value: 'custom',
       internalId: 3,
       label: (t:TFunction, interview, path) => {
-        const householdSize = helper.countPersons(interview);
+        const householdSize = odSurveyHelper.countPersons({ interview });
         const nickname      = surveyHelperNew.getResponse(interview, path, "Cette personne", '../nickname');
         return t('survey:gender:Custom', { count: householdSize, nickname });
       }
@@ -373,7 +374,7 @@ export const personTransitPassOwner = {
   ],
   label: {
     fr: function(interview, path) { 
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Possédez-vous un titre mensuel ou annuel de transport collectif valide ce mois-ci?`;
@@ -381,7 +382,7 @@ export const personTransitPassOwner = {
       return `Est-ce que ${surveyHelperNew.getResponse(interview, path, 'cette personne', '../nickname')} possède un titre mensuel ou annuel de transport collectif valide ce mois-ci?`;
     },
     en: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Do you have a monthly or annual transit pass that is valid for the current month?`;
@@ -503,7 +504,7 @@ export const personTransitPasses = {
   label: {
     fr: function(interview, path) { 
       const person        = surveyHelperNew.getResponse(interview, path, null, '../');
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Quel(s) titre(s) mensuel(s) ou annuel(s) de transport collectif détenez-vous?`;
@@ -511,7 +512,7 @@ export const personTransitPasses = {
       return `Quel(s) titre(s) mensuel(s) ou annuel(s) de transport collectif ${surveyHelperNew.getResponse(interview, path, 'cette personne', '../nickname')} détient-${helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle')}?`;
     },
     en: function(interview, path) { 
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Which monthly or annual transit pass(es) do you have?`;
@@ -569,7 +570,7 @@ export const personCellphoneOwner = {
   ],
   label: {
     fr: function(interview, path) { 
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Possédez-vous un téléphone cellulaire avec un forfait actif?`;
@@ -577,7 +578,7 @@ export const personCellphoneOwner = {
       return `Est-ce que ${surveyHelperNew.getResponse(interview, path, 'cette personne', '../nickname')} possède un téléphone cellulaire avec un forfait actif?`;
     },
     en: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Do you have a cellphone with an active plan/package?`;
@@ -639,7 +640,7 @@ export const personDrivingLicenseOwnership = {
   ],
   label: {
     fr: function(interview, path) { 
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Possédez-vous un permis de conduire?`;
@@ -647,7 +648,7 @@ export const personDrivingLicenseOwnership = {
       return `Est-ce que ${surveyHelperNew.getResponse(interview, path, 'cette personne', '../nickname')} possède un permis de conduire?`;
     },
     en: function(interview, path) { 
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Do you have a driver's license?`;
@@ -714,7 +715,7 @@ export const personCarsharingMember = {
   ],
   label: {
     fr: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Êtes-vous membre d'un service d'autopartage (Communauto, Auto-mobile ou Car2Go)?`;
@@ -722,7 +723,7 @@ export const personCarsharingMember = {
       return `Est-ce que ${surveyHelperNew.getResponse(interview, path, 'cette personne', '../nickname')} est membre d'un service d'autopartage (Communauto, Auto-mobile ou Car2Go)?`;
     },
     en: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Are you a member of a carsharing service (Communauto, Auto-mobile or Car2Go)?`;
@@ -789,7 +790,7 @@ export const personBikesharingMember = {
   ],
   label: {
     fr: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Êtes-vous membre d'un service de vélopartage (BIXI ou autre)?`;
@@ -797,7 +798,7 @@ export const personBikesharingMember = {
       return `Est-ce que ${surveyHelperNew.getResponse(interview, path, 'cette personne', '../nickname')} est membre d'un service de vélopartage (BIXI ou autre)?`;
     },
     en: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Are you a member of a bikesharing service (BIXI or other)?`;
@@ -856,7 +857,7 @@ export const personHasDisability = {
   ],
   label: {
     fr: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Avez-vous une incapacité physique ou intellectuelle permanente qui influence ou limite vos déplacements quotidiens?`;
@@ -864,7 +865,7 @@ export const personHasDisability = {
       return `Est-ce que ${surveyHelperNew.getResponse(interview, path, 'cette personne', '../nickname')} a une incapacité physique ou intellectuelle permanente qui influence ou limite ses déplacements quotidiens?`; 
     },
     en: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Do you have a permanent physical or intellectual disability that influences or limits your daily travel?`;
@@ -917,20 +918,22 @@ export const personDidTrips = {
   ],
   label: {
     fr: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
+      const tripsDate = surveyHelperNew.getResponse(interview, 'tripsDate') as string;
       if (householdSize === 1)
       {
-        return `Avez-vous effectué au moins un déplacement le ${helper.getFormattedTripsDate(interview)}?`;
+        return `Avez-vous effectué au moins un déplacement le ${getFormattedDate(tripsDate)}?`;
       }
-      return `Est-ce que ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} a effectué au moins un déplacement le ${helper.getFormattedTripsDate(interview)}?`;
+      return `Est-ce que ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} a effectué au moins un déplacement le ${getFormattedDate(tripsDate)}?`;
     },
     en: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
+      const tripsDate          = surveyHelperNew.getResponse(interview, 'tripsDate') as string;
       if (householdSize === 1)
       {
-        return `Did you make at least one trip on ${helper.getFormattedTripsDate(interview)}?`;
+        return `Did you make at least one trip on ${getFormattedDate(tripsDate)}?`;
       }
-      return `Did ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} make at least one trip on ${helper.getFormattedTripsDate(interview)}?`;
+      return `Did ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} make at least one trip on ${getFormattedDate(tripsDate)}?`;
     }
   },
   helpPopup: {
@@ -983,7 +986,7 @@ export const householdNoMemberOlderThan16YearsOld = {
   containsHtml: true,
   label: {
     fr: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `Vous devez avoir au moins 16 ans pour répondre à ce questionnaire.`;
@@ -991,7 +994,7 @@ export const householdNoMemberOlderThan16YearsOld = {
       return `Au moins un membre de votre ménage doit avoir 16 ans ou plus pour répondre à ce questionnaire. Veuillez vérifier les âges.`;
     },
     en: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
       if (householdSize === 1)
       {
         return `You must be at least 16 years old to respond to this survey.`;
@@ -1010,7 +1013,7 @@ export const householdNoMemberOlderThan16YearsOld = {
     }
   ],
   conditional: function(interview, path) {
-    const persons                   = helper.getPersons(interview);
+    const persons                   = odSurveyHelper.getPersons({ interview });
     let   allPersonHaveAge          = true;
     let   atLeastOnePerson16OrOlder = false;
     for (const personId in persons)
@@ -1043,7 +1046,7 @@ export const buttonSaveNextSectionHouseholdMembers = {
   confirmPopup: {
     content: {
       fr: function(interview, path) {
-        const householdSize = helper.countPersons(interview);
+        const householdSize = odSurveyHelper.countPersons({ interview });
         if (householdSize === 1)
         {
           return `Vous devez avoir au moins 16 ans pour répondre à ce questionnaire.`;
@@ -1051,7 +1054,7 @@ export const buttonSaveNextSectionHouseholdMembers = {
         return `Au moins un membre de votre ménage doit avoir 16 ans ou plus pour répondre à ce questionnaire. Veuillez vérifier les âges.`;
       },
       en: function(interview, path) {
-        const householdSize = helper.countPersons(interview);
+        const householdSize = odSurveyHelper.countPersons({ interview });
         if (householdSize === 1)
         {
           return `You must be at least 16 years old to respond to this survey.`;
@@ -1066,7 +1069,7 @@ export const buttonSaveNextSectionHouseholdMembers = {
       en: "OK"
     },
     conditional: function(interview) {
-      const persons                     = helper.getPersons(interview);
+      const persons                     = odSurveyHelper.getPersons({ interview });
       let   allPersonHaveAge            = true;
       let   atLeastOnePersonOlderThan16 = false;
       for (const personId in persons)
@@ -1086,7 +1089,7 @@ export const buttonSaveNextSectionHouseholdMembers = {
   },
   saveCallback: function(callbacks: InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
     
-    const personsCount  = helper.countPersons(interview);
+    const personsCount  = odSurveyHelper.countPersons({ interview });
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
     if (householdSize !== personsCount)
     {
@@ -1118,7 +1121,7 @@ export const selectPerson = {
     en: "To continue the interview, please select a household member"
   },
   choices: function(interview) {
-    const persons = helper.getPersons(interview);
+    const persons = odSurveyHelper.getPersons({ interview });
     return Object.keys(persons).filter((personId) => {
       const person = persons[personId];
       return person.age >= 5;
