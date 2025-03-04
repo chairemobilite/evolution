@@ -17,7 +17,7 @@ const KnexSessionStore = require('connect-session-knex')(expressSession);
 const morgan           = require('morgan') // http logger
 import trRoutingRouter from 'chaire-lib-backend/lib/api/trRouting.routes';
 import { userAuthModel } from 'chaire-lib-backend/lib/services/auth/userAuthModel';
-import adminRoutes from '../../../routes/admin/admin.routes';
+import adminRoutes from 'evolution-backend/lib/api/admin.routes';
 import configurePassport from 'chaire-lib-backend/lib/config/auth';
 
 //const WebSocket        = require('ws');
