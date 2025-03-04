@@ -9,9 +9,11 @@ import { booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
+import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { getHousehold, getActivePerson } from 'evolution-common/lib/services/odSurvey/helpers';
 import helper from '../helper';
 import waterBoundaries  from '../waterBoundaries.json';
+import { getFormattedDate } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 export const personWorkOnTheRoad = {
   type: "question",
@@ -42,7 +44,7 @@ export const personWorkOnTheRoad = {
       {
         return `Travaillez-vous sur la route de manière régulière (${surveyHelperNew.getResponse(interview, path, null, '../gender') == 'female' ? "livreuse, représentante, conductrice, policière" : "livreur, représentant, chauffeur, policier"}, etc.)?`;
       }
-      const person       = helper.getPerson(interview);
+      const person       = odSurveyHelper.getPerson({ interview }) as any;
       const genderString = helper.getGenderString(person, "livreuse, représentante, conductrice, policière", "livreur, représentant, chauffeur, policier", "livreur/se, représentant(e), conducteur/trice, policier/ère", "livreur/se, représentant(e), conducteur/trice, policier/ère")
       return `Est-ce que ${getActivePerson({ interview }).nickname || ''} travaille sur la route de manière régulière (${genderString}, etc.)?`;
     },
@@ -191,7 +193,7 @@ export const personUsualWorkPlaceIsHome = {
       }
       if (isOnTheRoadWorker === true)
       {
-        const person       = helper.getPerson(interview);
+        const person       = odSurveyHelper.getPerson({ interview }) as any;
         const genderString = helper.getGenderString(person, 'her', 'his', 'their', 'his/her');
         return `Does ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} usually start ${genderString} work-related trips from home?`;
       }
@@ -281,7 +283,7 @@ export const personWorkAtHomeNumberOfDaysPerWeek = {
       {
         return `En moyenne, combien de jours par semaine travaillez-vous à la maison?`;
       }
-      const person       = helper.getPerson(interview);
+      const person       = odSurveyHelper.getPerson({ interview }) as any;
       const genderString = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
       return `En moyenne, combien de jours par semaine ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} travaille-t-${genderString} à la maison?`;
     },
@@ -584,7 +586,7 @@ export const personNewPerson = {
   //containsHtml: true,
   label: {
     fr: function(interview, path) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       if (person.age >= 16)
       {
         const genderString = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
@@ -596,7 +598,7 @@ export const personNewPerson = {
       }
     },
     en: function(interview, path) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       if (person.age >= 16)
       {
         const genderString = helper.getGenderString(person, 'she', 'he', 'they', 'they');
@@ -636,7 +638,7 @@ export const partTwoIntroText = {
       const homeCity       = surveyHelperNew.getResponse(interview, 'home.city', "");
       const homeRegion     = surveyHelperNew.getResponse(interview, 'home.region', "");
       const homePostalCode = surveyHelperNew.getResponse(interview, 'home.postalCode', "");
-      const persons        = helper.getPersons(interview, true);
+      const persons        = odSurveyHelper.getPersonsArray({ interview });
       return `
         <p>Lors de la première partie, vous avez fourni les informations suivantes:</p>
         <p class="no-bottom-margin">Addresse du domicile: <span class="_strong">${homeAddress}, ${homeCity}, ${homeRegion}, ${homePostalCode}</span></p>
@@ -654,7 +656,7 @@ export const partTwoIntroText = {
       const homeCity       = surveyHelperNew.getResponse(interview, 'home.city', "");
       const homeRegion     = surveyHelperNew.getResponse(interview, 'home.region', "");
       const homePostalCode = surveyHelperNew.getResponse(interview, 'home.postalCode', "");
-      const persons        = helper.getPersons(interview, true);
+      const persons        = odSurveyHelper.getPersonsArray({ interview });
       return `
         <p>During the first part, you provided the following information:</p>
         <p class="no-bottom-margin">Home address: <span class="_strong">${homeAddress}, ${homeCity}, ${homeRegion}, ${homePostalCode}</span></p>
@@ -744,7 +746,7 @@ export const personDidTripsProfile = {
         en: "I don't know"
       },
       conditional: function(interview) {
-        const person = helper.getPerson(interview);
+        const person = odSurveyHelper.getPerson({ interview }) as any;
         if (person.age < 16)
         {
           return false;
@@ -755,20 +757,22 @@ export const personDidTripsProfile = {
   ],
   label: {
     fr: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
+      const tripsDate = surveyHelperNew.getResponse(interview, 'tripsDate') as string;
       if (householdSize === 1)
       {
-        return `Avez-vous effectué au moins un déplacement le ${helper.getFormattedTripsDate(interview)}?`;
+        return `Avez-vous effectué au moins un déplacement le ${getFormattedDate(tripsDate)}?`;
       }
-      return `Est-ce que ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} a effectué au moins un déplacement le ${helper.getFormattedTripsDate(interview)}?`;
+      return `Est-ce que ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} a effectué au moins un déplacement le ${getFormattedDate(tripsDate)}?`;
     },
     en: function(interview, path) {
-      const householdSize = helper.countPersons(interview);
+      const householdSize = odSurveyHelper.countPersons({ interview });
+      const tripsDate = surveyHelperNew.getResponse(interview, 'tripsDate') as string;
       if (householdSize === 1)
       {
-        return `Did you make at least one trip on ${helper.getFormattedTripsDate(interview)}?`;
+        return `Did you make at least one trip on ${getFormattedDate(tripsDate)}?`;
       }
-      return `Did ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} make at least one trip on ${helper.getFormattedTripsDate(interview)}?`;
+      return `Did ${surveyHelperNew.getResponse(interview, path, null, '../nickname')} make at least one trip on ${getFormattedDate(tripsDate)}?`;
     }
   },
   helpPopup: {
@@ -841,20 +845,22 @@ export const personDidTripsKnowTrips = {
   ],
   label: {
     fr: function(interview, path) {
-      const person       = helper.getPerson(interview);
+      const person       = odSurveyHelper.getPerson({ interview }) as any;
       const genderString = helper.getGenderString(person, "elle", "il", "il/elle", "il/elle");
-      return `Est-ce que ${person.nickname} est disponible pour répondre à la section sur les déplacements qu'${genderString} a effectués le ${helper.getFormattedTripsDate(interview)}?`;
+      const tripsDate = surveyHelperNew.getResponse(interview, 'tripsDate') as string;
+      return `Est-ce que ${person.nickname} est disponible pour répondre à la section sur les déplacements qu'${genderString} a effectués le ${getFormattedDate(tripsDate)}?`;
     },
     en: function(interview, path) {
-      const person       = helper.getPerson(interview);
+      const person       = odSurveyHelper.getPerson({ interview }) as any;
       const genderString = helper.getGenderString(person, "she", "he", "they", "he/she");
-      return `Is ${person.nickname} available to respond to the section about the trips ${genderString} made on ${helper.getFormattedTripsDate(interview)}?`;
+      const tripsDate = surveyHelperNew.getResponse(interview, 'tripsDate') as string;
+      return `Is ${person.nickname} available to respond to the section about the trips ${genderString} made on ${getFormattedDate(tripsDate)}?`;
     }
   },
   conditional: function(interview, path) {
-    const person       = helper.getPerson(interview);
+    const person       = odSurveyHelper.getPerson({ interview }) as any;
     const didTrips     = surveyHelperNew.getResponse(interview, path, null, '../didTripsOnTripsDate');
-    const countPersons = helper.countPersons(interview);
+    const countPersons = odSurveyHelper.countPersons({ interview });
     return [countPersons > 1 && person.age >= 16 && didTrips === 'yes', null];
   },
   validations: function(value, customValue, interview, path, customPath) {

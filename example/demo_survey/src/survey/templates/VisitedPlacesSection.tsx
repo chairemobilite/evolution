@@ -37,6 +37,7 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getPathForSection } from 'evolution-frontend/lib/services/url';
 import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
 import { SurveyContext } from 'evolution-frontend/lib/contexts/SurveyContext';
+import { getVisitedPlaceDescription } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 export const VisitedPlacesSection: React.FC<SectionProps> = (
     props: SectionProps
@@ -54,7 +55,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
             e.preventDefault();
         }
         props.startAddGroupedObjects(1, sequence, path, [], (function(interview) {
-        const person             = helper.getPerson(interview);
+        const person             = odSurveyHelper.getPerson({ interview }) as any;
         const journeys           = odSurveyHelper.getJourneysArray({ person });
         const currentJourney     = journeys[0];
         const visitedPlaces      = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
@@ -94,15 +95,6 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
         helper.deleteVisitedPlace(visitedPlacePath, props.interview, props.startRemoveGroupedObjects, props.startUpdateInterview);
     }
 
-    const mergeVisitedPlace = (person, visitedPlacePath, visitedPlace, visitedPlaces, e = undefined) => {
-        if (e)
-        {
-            e.preventDefault();
-        }
-        helper.mergeVisitedPlace(visitedPlacePath, props.interview, props.startRemoveGroupedObjects, props.startUpdateInterview);
-    }
-
-  
     if (!preloaded)
     {
       return <LoadingPage />;
@@ -111,7 +103,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
     surveyHelper.devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);')
     const widgetsComponentsByShortname = {};
     const personVisitedPlacesConfig    = surveyContext.widgets['personVisitedPlaces'];
-    const person                       = helper.getPerson(props.interview);
+    const person                       = odSurveyHelper.getPerson({ interview: props.interview });
     const journeys = odSurveyHelper.getJourneysArray({ person });
     const currentJourney = journeys[0];
     const householdSize                = surveyHelper.getResponse(props.interview, 'household.size', null);
@@ -121,9 +113,9 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
 
     const widgetsSchedules         = [];
     const percentLengthOfOneSecond = 100.0 / (28 * 3600);
-    const persons                  = helper.getPersons(props.interview);
+    const persons                  = odSurveyHelper.getPersons({ interview: props.interview });
     let   activePersonSchedule     = null;
-    const selectedVisitedPlaceId = helper.getActiveVisitedPlaceId(props.interview);
+    const selectedVisitedPlaceId = odSurveyHelper.getActiveVisitedPlace({ interview: props.interview, journey: currentJourney })?._uuid;
     for (let _personId in persons)
     {
       const _person                         = persons[_personId];
@@ -135,7 +127,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
       for (let i = 0, count = visitedPlaces.length; i < count; i++)
       {
         const visitedPlace  = visitedPlaces[i];
-        const visitedPlaceDescription = helper.getVisitedPlaceDescription(visitedPlace, true, false);
+        const visitedPlaceDescription = getVisitedPlaceDescription(visitedPlace, true, false);
         let   departureTime           = i === count - 1 ? 28*3600 : null;
         let   arrivalTime             = i === 0 ? 0 : null;
         if (visitedPlace.departureTime)
@@ -230,7 +222,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
     // setup visited places:
 
     const visitedPlaces          = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney});
-    const lastVisitedPlace       = helper.getLastVisitedPlace(visitedPlaces);
+    const lastVisitedPlace       = visitedPlaces.length > 0 ? visitedPlaces[visitedPlaces.length - 1] : null;
     const visitedPlacesList      = [];
 
     for (let i = 0, count = visitedPlaces.length; i < count; i++)
@@ -274,14 +266,6 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
             >
               <FontAwesomeIcon icon={faTrashAlt} className="" />
               {/*props.t('survey:visitedPlace:deleteVisitedPlace')*/}
-            </button>}
-            {!selectedVisitedPlaceId/*state.editActivated*/ && visitedPlace['_sequence'] !== 1 && visitedPlace['_sequence'] !== visitedPlaces.length && visitedPlaces.length > 3 && props.user && props.user.is_admin === true && props.loadingState === 0 && visitedPlaces.length > 1 && <button
-              type      = "button"
-              className = {`survey-section__button button red small`}
-              onClick   = {() => mergeVisitedPlace(person, visitedPlacePath, visitedPlace, visitedPlaces)}
-              title     = {t('survey:visitedPlace:mergeVisitedPlace')}
-            >
-              <FontAwesomeIcon icon={faArrowsAltV} className="" />
             </button>}
             { /* confirmPopup below: */ }
             { confirmDeleteVisitedPlace === visitedPlacePath
@@ -335,7 +319,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
            !selectedVisitedPlaceId
         && props.loadingState === 0 
         && visitedPlaces.length > 1 
-        && (lastVisitedPlace._uuid !== visitedPlace._uuid || (lastVisitedPlace._uuid === visitedPlace._uuid && visitedPlace.nextPlaceCategory === 'stayedThereUntilTheNextDay'))
+        && (lastVisitedPlace && lastVisitedPlace._uuid !== visitedPlace._uuid || (lastVisitedPlace._uuid === visitedPlace._uuid && visitedPlace.nextPlaceCategory === 'stayedThereUntilTheNextDay'))
       )
       {
         visitedPlacesList.push(
@@ -369,7 +353,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
             <ul className={`survey-visited-places-list ${selectedVisitedPlaceId || visitedPlaces.length <= 1 ? 'full-width' : ''}`}>
               {widgetsComponentsByShortname['personVisitedPlacesTitle']}
               {visitedPlacesList}
-              {!selectedVisitedPlaceId && (lastVisitedPlace && lastVisitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay' || visitedPlaces.length === 1) && props.loadingState === 0 
+              {!selectedVisitedPlaceId && (lastVisitedPlace && (lastVisitedPlace as any).nextPlaceCategory !== 'stayedThereUntilTheNextDay' || visitedPlaces.length === 1) && props.loadingState === 0 
               && <button
                 type      = "button"
                 className = "button blue center large"

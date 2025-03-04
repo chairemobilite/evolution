@@ -9,6 +9,7 @@ import moment from 'moment-business-days';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import helper from '../helper';
+import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 
 export const personNoWorkTripReason = {
   type: "question",
@@ -22,14 +23,14 @@ export const personNoWorkTripReason = {
       internalId: 1,
       label: {
         fr: function(interview, path) {
-          const person = helper.getPerson(interview);
+          const person = odSurveyHelper.getPerson({ interview }) as any;
           if (helper.isWorker(person.occupation))
           {
             return "Congé, ne travaillait pas";
           }
         },
         en: function(interview, path) {
-          const person = helper.getPerson(interview);
+          const person = odSurveyHelper.getPerson({ interview }) as any;
           if (helper.isWorker(person.occupation))
           {
             return "Leave, did not work";
@@ -125,7 +126,7 @@ export const personNoWorkTripReason = {
   sameLine: false,
   label: {
     fr: function(interview, path) {
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -134,7 +135,7 @@ export const personNoWorkTripReason = {
       return `Pour quelle raison ${person.nickname} n'a effectué aucun déplacement pour le travail le ${moment(surveyHelperNew.getResponse(interview, 'tripsDate')).format('LL')}?`;
     },
     en: function(interview, path) {
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -144,7 +145,7 @@ export const personNoWorkTripReason = {
     }
   },
   conditional: function(interview, path) {
-    const person = helper.getPerson(interview);
+    const person = odSurveyHelper.getPerson({ interview }) as any;
     if (!helper.isWorker(person.occupation))
     {
       return [false, 'nonApplicable'];
@@ -160,7 +161,8 @@ export const personNoWorkTripReason = {
     // add worker condition + not applicable for non-workers:
     if (helper.isWorker(person.occupation))
     {
-      const visitedPlaces            = helper.getVisitedPlaces(person, true);
+      const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
+      const visitedPlaces            = journey === undefined ? [] : odSurveyHelper.getVisitedPlacesArray({ journey });
       const workRelatedVisitedPlaces = visitedPlaces.filter((visitedPlace) => {
         return ['workUsual', 'workNotUsual', 'workOnTheRoad', 'workOnTheRoadFromUsualWork', 'workOnTheRoadFromHome'].indexOf(visitedPlace.activity) > -1;
       });
@@ -276,7 +278,7 @@ export const personNoSchoolTripReason = {
   sameLine: false,
   label: {
     fr: function(interview, path) {
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -285,7 +287,7 @@ export const personNoSchoolTripReason = {
       return `Pour quelle raison ${person.nickname} n'a effectué aucun déplacement pour les études le ${moment(surveyHelperNew.getResponse(interview, 'tripsDate')).format('LL')}?`;
     },
     en: function(interview, path) {
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       if (householdSize === 1)
       {
@@ -295,7 +297,7 @@ export const personNoSchoolTripReason = {
     }
   },
   conditional: function(interview, path) {
-    const person = helper.getPerson(interview);
+    const person = odSurveyHelper.getPerson({ interview }) as any;
     if (person.didTripsOnTripsDateKnowTrips === 'no' || person.didTripsOnTripsDate === 'dontKnow')
     {
       return [false, 'tripsUnknown'];
@@ -305,7 +307,8 @@ export const personNoSchoolTripReason = {
       return [false, 'nonApplicable'];
     }
     // add student condition + not applicable for non-student:
-    const visitedPlaces = helper.getVisitedPlaces(person);
+    const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
+    const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
     if (helper.isStudent(person.occupation))
     {
       const schoolRelatedVisitedPlaces = visitedPlaces.filter((visitedPlace) => {
@@ -363,8 +366,8 @@ export const personWhoAnsweredForThisPerson = {
     }
   },
   conditional: function(interview, path) {
-    const person           = helper.getPerson(interview);
-    const persons          = helper.getPersons(interview, false);
+    const person           = odSurveyHelper.getPerson({ interview }) as any;
+    const persons          = odSurveyHelper.getPersons({ interview});
     let   respondentId     = null;
     let   countRespondents = 0;
     for (let personId in persons)

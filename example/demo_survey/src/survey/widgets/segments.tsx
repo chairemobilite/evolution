@@ -219,7 +219,7 @@ export const segmentVehicleType = {
   conditional: function(interview, path) {
     const segment: any       = surveyHelperNew.getResponse(interview, path, null, '../');
     const mode               = segment ? segment.mode : null;
-    const person             = helper.getPerson(interview);
+    const person             = odSurveyHelper.getPerson({ interview }) as any;
     const isCarsharingMember = person.carsharingMember === 'yes';
     const householdCarNumber = surveyHelperNew.getResponse(interview, 'household.carNumber', null) as any;
     if (mode !== 'carDriver')
@@ -307,7 +307,7 @@ export const segmentUsedBikesharing = {
     }
     else
     {
-      const person              = helper.getPerson(interview);
+      const person              = odSurveyHelper.getPerson({ interview }) as any;
       const isBikesharingMember = person.bikesharingMember === 'yes';
       return [isBikesharingMember, "notABikesharingMember"];
     }
@@ -378,7 +378,7 @@ export const segmentDriver = {
         }
       }
     ];
-    const person  = helper.getPerson(interview);
+    const person  = odSurveyHelper.getPerson({ interview }) as any;
     const drivers = helper.getDrivers(interview, true);
     for (let i = 0, count = drivers.length; i < count; i++)
     {
@@ -447,10 +447,11 @@ export const segmentSubwayStationStart = {
     let   choices                = [];
     if (trip)
     {
-      const person         = helper.getPerson(interview);
-      const visitedPlaces: any  = helper.getVisitedPlaces(person, false);
-      const origin         = visitedPlaces[trip._originVisitedPlaceUuid];
-      const originGeometry = origin ? helper.getGeography(origin, person, interview) : null;
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
+      const visitedPlaces: any = odSurveyHelper.getVisitedPlaces({ journey });
+      const origin = visitedPlaces[trip._originVisitedPlaceUuid];
+      const originGeometry = origin ? odSurveyHelper.getVisitedPlaceGeography({ visitedPlace: origin, interview, person }) : null;
       if (originGeometry)
       {
         const originPoint = originGeometry;
@@ -504,7 +505,7 @@ export const segmentSubwayStationStart = {
   },
   label: {
     fr: function(interview, path) {
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
       const genderString  = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
       const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
@@ -520,7 +521,7 @@ export const segmentSubwayStationStart = {
       {
         return `At which subway station did you board the train at departure?`;
       }
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       return `At which subway station did ${person.nickname} board the train at departure?`;
     }
   },
@@ -575,10 +576,11 @@ export const segmentSubwayStationEnd = {
     let   choices                = [];
     if (trip)
     {
-      const person              = helper.getPerson(interview);
-      const visitedPlaces       = helper.getVisitedPlaces(person, false);
+      const person              = odSurveyHelper.getPerson({ interview }) as any;
+      const journey             = odSurveyHelper.getJourneys({ person })[0] as any;
+      const visitedPlaces       = odSurveyHelper.getVisitedPlaces({ journey });
       const destination         = visitedPlaces[trip._destinationVisitedPlaceUuid];
-      const destinationGeometry = destination ? helper.getGeography(destination, person, interview) : null;
+      const destinationGeometry = destination ? odSurveyHelper.getVisitedPlaceGeography( { visitedPlace: destination, interview, person }) : null;
       if (destinationGeometry)
       {
         const destinationPoint = destinationGeometry;
@@ -633,7 +635,7 @@ export const segmentSubwayStationEnd = {
   label: {
     fr: function(interview, path) {
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const genderString  = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
       const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
       if (householdSize === 1)
@@ -644,7 +646,7 @@ export const segmentSubwayStationEnd = {
     },
     en: function(interview, path) {
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       if (householdSize === 1)
       {
         return `At which subway station did you alight the train at arrival?`;
@@ -763,7 +765,7 @@ export const segmentSubwayTransferStations = {
       {
         return `À quelle(s) station(s) de métro avez-vous transféré? <br /><span class="_pale _oblique">Choisir \"Aucune\" si aucun transfert n'a été effectué</span>`;
       }
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const genderString  = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
       return `À quelle(s) station(s) de métro ${person.nickname} a-t-${genderString} transféré? <br /><span class="_pale _oblique">Choisir \"Aucune\" si aucun transfert n'a été effectué</span>`;
     },
@@ -773,7 +775,7 @@ export const segmentSubwayTransferStations = {
       {
         return `At which subway station did you transfer? <br /><span class="_pale _oblique">Choose \"None\" if no transfer occured</span>`;
       }
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       return `At which subway station did ${person.nickname} transfer? <br /><span class="_pale _oblique">Choose \"None\" if no transfer occured</span>`;
     }
   },
@@ -1580,10 +1582,11 @@ export const segmentTrainStationStart = {
     let   choices               = [];
     if (trip)
     {
-      const person         = helper.getPerson(interview);
-      const visitedPlaces  = helper.getVisitedPlaces(person, false);
-      const origin         = visitedPlaces[trip._originVisitedPlaceUuid];
-      const originGeometry = origin ? helper.getGeography(origin, person, interview) : null;
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
+      const visitedPlaces: any = odSurveyHelper.getVisitedPlaces({ journey });
+      const origin = visitedPlaces[trip._originVisitedPlaceUuid];
+      const originGeometry = origin ? odSurveyHelper.getVisitedPlaceGeography({ visitedPlace: origin, interview, person }) : null;
       if (originGeometry)
       {
         const originPoint = originGeometry;
@@ -1638,7 +1641,7 @@ export const segmentTrainStationStart = {
   label: {
     fr: function(interview, path) {
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const genderString  = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
       const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
       if (householdSize === 1)
@@ -1653,7 +1656,7 @@ export const segmentTrainStationStart = {
       {
         return `At which train station did you board the train at departure?`;
       }
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       return `At which train station did ${person.nickname} board the train at departure?`;
     }
   },
@@ -1708,10 +1711,11 @@ export const segmentTrainStationEnd = {
     let   choices               = [];
     if (trip)
     {
-      const person              = helper.getPerson(interview);
-      const visitedPlaces       = helper.getVisitedPlaces(person, false);
+      const person              = odSurveyHelper.getPerson({ interview }) as any;
+      const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
+      const visitedPlaces: any = odSurveyHelper.getVisitedPlaces({ journey });
       const destination         = visitedPlaces[trip._destinationVisitedPlaceUuid];
-      const destinationGeometry = destination ? helper.getGeography(destination, person, interview) : null;
+      const destinationGeometry = destination ? odSurveyHelper.getVisitedPlaceGeography({ visitedPlace: destination, interview, person })  : null;
       if (destinationGeometry)
       {
         const destinationPoint = destinationGeometry;
@@ -1766,7 +1770,7 @@ export const segmentTrainStationEnd = {
   label: {
     fr: function(interview, path) {
       const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const genderString  = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
       const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
       if (householdSize === 1)
@@ -1781,7 +1785,7 @@ export const segmentTrainStationEnd = {
       {
         return `At which train station did you alight the train at arrival?`;
       }
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       return `At which train station did ${person.nickname} alighted the train at arrival?`;
     }
   },
@@ -1884,7 +1888,7 @@ export const segmentBusLines = {
         return `Quelle(s) ligne(s) de bus avez-vous utilisée(s) (dans l'ordre chronologique)?<br />
         <span class="_pale _oblique">Pour chaque ligne utilisée, inscrivez son numéro ou son nom puis sélectionnez-la dans la liste des résultats.</span>`;
       }
-      const person        = helper.getPerson(interview);
+      const person        = odSurveyHelper.getPerson({ interview }) as any;
       const genderString  = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
       return `Quelle(s) ligne(s) de bus ${person.nickname} a-t-${genderString} utilisée(s) (dans l'ordre chronologique)?<br />
       <span class="_pale _oblique">Pour chaque ligne utilisée, inscrivez le numéro de la ligne ou son nom puis sélectionnez-la dans la liste des résultats.</span>`;
@@ -1896,7 +1900,7 @@ export const segmentBusLines = {
         return `Which bus line(s) did you use (in chronological order)<br />
         <span class="_pale _oblique">For each bus line used, write the ligne number or name, then select it from the menu.</span>`;
       }
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       return `Which bus line(s) did ${person.nickname} use (in chronological order)?<br />
       <span class="_pale _oblique">For each bus line used, write the ligne number or name, then select it from the menu.</span>`;
     }
@@ -1934,7 +1938,7 @@ export const tripJunctionGeography = {
         const tripTransferCategory = helper.getTripTransferCategory(trip);
         if (!_isBlank(tripTransferCategory))
         {
-          const person          = helper.getPerson(interview);
+          const person          = odSurveyHelper.getPerson({ interview }) as any;
           const genderString    = helper.getGenderString(person, 'elle', 'il', 'il/elle', 'il/elle');
           const genderString2   = helper.getGenderString(person, 'e', '', '(e)', '(e)');
           const nickname        = person.nickname;
@@ -2063,7 +2067,7 @@ export const tripJunctionGeography = {
         const tripTransferCategory = helper.getTripTransferCategory(trip);
         if (!_isBlank(tripTransferCategory))
         {
-          const person        = helper.getPerson(interview);
+          const person        = odSurveyHelper.getPerson({ interview }) as any;
           const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
           const isAlone       = householdSize === 1;
           const nickname      = isAlone ? 'you'  : person.nickname;
@@ -2192,15 +2196,16 @@ export const tripJunctionGeography = {
     url: (interview, path) => (`/dist/images/activities_icons/default_marker.svg`)
   },
   defaultCenter: function(interview, path) {
-    const person               = helper.getPerson(interview);
+    const person               = odSurveyHelper.getPerson({ interview }) as any;
+    const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
     const originVisitedPlaceId = surveyHelperNew.getResponse(interview, path, null, '../_originVisitedPlaceUuid');
-    const visitedPlaces        = helper.getVisitedPlaces(person, false);
+    const visitedPlaces        = odSurveyHelper.getVisitedPlaces({ journey });
     if (typeof originVisitedPlaceId === 'string')
     {
       const originVisitedPlace = visitedPlaces[originVisitedPlaceId];
       if (originVisitedPlace)
       {
-        const originGeography = helper.getGeography(originVisitedPlace, person, interview);
+        const originGeography = odSurveyHelper.getVisitedPlaceGeography({ visitedPlace: originVisitedPlace, person, interview });
         const originCoordinates = _get(originGeography, 'geometry.coordinates', null);
         if (originCoordinates)
         {
@@ -2331,7 +2336,7 @@ export const segmentParkingPaymentType = {
       {
         return `Avez-vous payé pour stationner le véhicule?`;
       }
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       return `Est-ce que ${person && person.nickname ? person.nickname : 'cette personne'} a payé pour stationner le véhicule?`;
     },
     en: function(interview, path) {
@@ -2340,7 +2345,7 @@ export const segmentParkingPaymentType = {
       {
         return `Did you pay to park the vehicle?`;
       }
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       return `Did ${person && person.nickname ? person.nickname : 'this person'} pay to park the vehicle?`;
     },
   },
@@ -2394,7 +2399,7 @@ export const segmentParkingPaymentType = {
                   en: "No (paid by employer)"
                 },
                 conditional: function(interview, path) {
-                  const person = helper.getPerson(interview);
+                  const person = odSurveyHelper.getPerson({ interview }) as any;
                   const journeys = odSurveyHelper.getJourneysArray({ person });
                   const currentJourney = journeys[journeys.length - 1];
                   const trip: any = surveyHelperNew.getResponse(interview, path, null, '../../');

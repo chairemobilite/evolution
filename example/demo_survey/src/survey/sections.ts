@@ -216,10 +216,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'buttonSelectPersonConfirm'
     ],
     preload: function(interview, { startUpdateInterview, callback }) {
-      const personsCount = helper.countPersons(interview);
+      const personsCount = odSurveyHelper.countPersons({ interview });
       if (personsCount === 1)
       {
-        const personIds = helper.getPersons(interview);
+        const personIds = odSurveyHelper.getPersons({ interview });
         startUpdateInterview('selectPerson', {
           'responses._activePersonId': Object.keys(personIds)[0],
           'responses._activeSection': 'profile'
@@ -233,7 +233,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
       return helper.householdMembersSectionComplete(interview);
     },
     completionConditional: function(interview) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.profileInfoForPersonComplete(person, interview);
     }
   },
@@ -257,7 +257,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
         callback(interview);
         return null;
       }
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       if (!helper.isWorker(person.occupation) && !helper.isStudent(person.occupation))
       {
         if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
@@ -281,7 +281,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
       return helper.householdMembersSectionComplete(interview);
     },
     completionConditional: function(interview) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.profileInfoForPersonComplete(person, interview);
     }
   },
@@ -306,7 +306,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'visitedPlacesOutro'
     ],
     preload: function (interview, { startUpdateInterview, callback }) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
       {
         startUpdateInterview('tripsIntro', {
@@ -338,7 +338,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
             startUpdateInterview('tripsIntro', {
                 ...(addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys`, [{ startDate: getResponse(interview, 'tripsDate') }])),
             }, null, null, (updatedInterview) => {
-                const _person = helper.getPerson(updatedInterview);
+                const _person = odSurveyHelper.getPerson({ interview: updatedInterview});
                 const journeys = odSurveyHelper.getJourneysArray({ person: _person });
                 const currentJourney = journeys[0];
                 startUpdateInterview('visitedPlaces', {
@@ -351,11 +351,11 @@ const sections: { [sectionName: string]: SectionConfig } = {
       return null;
     },
     enableConditional: function(interview) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.profileInfoForPersonComplete(person, interview);
     },
     completionConditional: function(interview) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.travelBehaviorForPersonComplete(person, interview);
     }
   },
@@ -387,7 +387,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
     ],
     preload: function (interview, { startUpdateInterview, callback }) {
       
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview }) as any;
       if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
       {
         startUpdateInterview('tripsIntro', {
@@ -420,8 +420,9 @@ const sections: { [sectionName: string]: SectionConfig } = {
       if (!_isBlank(tripsUpdatesValueByPath))
       {
         startUpdateInterview('visitedPlaces', tripsUpdatesValueByPath, null, null, function(_interview) {
-          const _person                = helper.getPerson(_interview);
-          const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(helper.getVisitedPlaces(_person));
+          const _person = odSurveyHelper.getPerson({ interview: _interview });
+          const journey = odSurveyHelper.getJourneysArray({ person: _person })[0];
+          const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(odSurveyHelper.getVisitedPlacesArray({ journey }));
           startUpdateInterview('visitedPlaces', {
             [`responses._activeVisitedPlaceId`]: selectedVisitedPlaceId,
             [`responses._activeJourneyId`]: currentJourney._uuid
@@ -430,7 +431,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
       }
       else
       {
-        const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(visitedPlaces);
+        const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney }));
         startUpdateInterview('visitedPlaces', {
           [`responses._activeVisitedPlaceId`]: selectedVisitedPlaceId,
           [`responses._activeJourneyId`]: currentJourney._uuid
@@ -439,11 +440,11 @@ const sections: { [sectionName: string]: SectionConfig } = {
       return null;
     },
     enableConditional: function(interview) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.tripsIntroForPersonComplete(person, interview);
     },
     completionConditional: function(interview) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.travelBehaviorForPersonComplete(person, interview);
     }
   },
@@ -467,10 +468,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'buttonContinueNextSection'
     ],
     preload: function (interview, { startUpdateInterview,callback }) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       if ((interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noSchoolTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noWorkTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.whoAnsweredForThisPerson`) <= -1)
       {
-        const person = helper.getPerson(interview);
+        const person = odSurveyHelper.getPerson({ interview });
         startUpdateInterview('travelBehavior', {
           [`responses.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid,
           'responses._activeSection': 'end'
@@ -481,11 +482,11 @@ const sections: { [sectionName: string]: SectionConfig } = {
       return null;
     },
     enableConditional: function(interview) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.tripsForPersonComplete(person, interview);
     },
     completionConditional: function(interview) {
-      const person = helper.getPerson(interview);
+      const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.travelBehaviorForPersonComplete(person, interview);
     }
   },
@@ -514,10 +515,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
     ],
     preload: function (interview, { startUpdateInterview, callback }) {
       
-      const persons = helper.getPersons(interview);
+      const persons = odSurveyHelper.getPersons({ interview });
       for (let personId in persons)
       {
-        const person = persons[personId];
+        const person = persons[personId] as any;
         if (person.age >= 5 && _isBlank(person.whoAnsweredForThisPerson))
         {
           startUpdateInterview('end', {
