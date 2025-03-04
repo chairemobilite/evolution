@@ -18,7 +18,6 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import i18n                     from 'evolution-frontend/lib/config/i18n.config';
 import * as surveyHelperNew     from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper     from 'evolution-common/lib/services/odSurvey/helpers';
-import getTripMultimodeCategory from './helperFunctions/getTripMultimodeCategory';
 import { getVisitedPlaceDescription } from 'evolution-frontend/lib/services/display/frontendHelper';
 
 
@@ -523,7 +522,6 @@ export default {
   tripsForPersonComplete                     : tripsForPersonComplete,
   travelBehaviorForPersonComplete            : travelBehaviorForPersonComplete,
   allPersonsTripsAndTravelBehaviorComplete   : allPersonsTripsAndTravelBehaviorComplete,
-  getTripMultimodeCategory                   : getTripMultimodeCategory,
   selectNextVisitedPlaceId                   : selectNextVisitedPlaceId,
   getOrigin                                  : getOrigin,
   getDestination                             : getDestination,
