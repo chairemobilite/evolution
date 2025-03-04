@@ -6,7 +6,7 @@
  */
 import path from 'path';
 
-import setupServer from 'evolution-legacy/lib/apps/admin/server';
+import setupServer from 'evolution-backend/lib/apps/admin';
 import { setProjectConfig } from 'evolution-backend/lib/config/projectConfig';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
