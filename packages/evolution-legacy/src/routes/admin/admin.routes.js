@@ -10,7 +10,7 @@ const _get           = require('lodash/get');
 
 import router from 'evolution-backend/lib/api/admin.routes';
 
-const helper         = require('../../helpers/server');
+const helper         = require('evolution-backend/lib/services/adminExport/cache');
 
 router.get('/cache/get/:cache_name', function(req, res) {
   const cacheName = req.params.cache_name;

@@ -9,7 +9,7 @@ import moment from 'moment-timezone';
 import _get from 'lodash/get';
 import { featureEach as turfFeatureEach, booleanPointInPolygon as turfPointInPolygon } from '@turf/turf';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import helper from 'evolution-legacy/lib/helpers/server';
+import helper from 'evolution-backend/lib/services/adminExport/cache';
 import zonesGeojson from '../../survey/zones.json';
 import getTripMultimodeCategory from 'evolution-legacy/lib/helpers/survey/helperFunctions/getTripMultimodeCategory';
 
