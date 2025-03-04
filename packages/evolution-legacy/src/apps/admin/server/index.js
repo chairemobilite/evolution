@@ -13,7 +13,7 @@ import yargs from 'yargs/yargs';
 import { hideBin } from 'yargs/helpers';
 import { registerTranslationDir } from 'chaire-lib-backend/lib/config/i18next';
 import express from 'express';
-import { setupServerApp } from './serverApp';
+import { setupServerApp } from 'evolution-backend/lib/apps/admin/serverApp';
 
 const argv = yargs(hideBin(process.argv)).argv;
 
