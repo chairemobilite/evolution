@@ -184,7 +184,7 @@ def test_generate_input_range(
 
             # Check that the TypeScript code is correct
             assert (
-                "import { type InputRangeConfig } from 'evolution-common/lib/services/questionnaire/types';"
+                "import { type InputRangeType } from 'evolution-common/lib/services/questionnaire/types';"
                 in ts_code
             )
 

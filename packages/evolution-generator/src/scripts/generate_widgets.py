@@ -184,7 +184,6 @@ def generate_widget_statement(row):
     elif input_type == "Select":
         widget = generate_select_widget(
             question_name,
-            section,
             path,
             choices,
             conditional,
@@ -195,7 +194,6 @@ def generate_widget_statement(row):
     elif input_type == "String":
         widget = generate_string_widget(
             question_name,
-            section,
             path,
             help_popup,
             conditional,
@@ -206,7 +204,6 @@ def generate_widget_statement(row):
     elif input_type == "Number":
         widget = generate_number_widget(
             question_name,
-            section,
             path,
             help_popup,
             conditional,
@@ -221,7 +218,6 @@ def generate_widget_statement(row):
     elif input_type == "Range":
         widget = generate_range_widget(
             question_name,
-            section,
             path,
             input_range,
             conditional,
@@ -232,7 +228,6 @@ def generate_widget_statement(row):
     elif input_type == "Checkbox":
         widget = generate_checkbox_widget(
             question_name,
-            section,
             path,
             choices,
             help_popup,
@@ -243,11 +238,11 @@ def generate_widget_statement(row):
         )
     elif input_type == "NextButton":
         widget = generate_next_button_widget(
-            question_name, section, path, confirm_popup, widget_label, row
+            question_name, path, confirm_popup, widget_label, row
         )
     elif input_type == "Text":
         widget = generate_text_widget(
-            question_name, section, path, conditional, validation, widget_label, row
+            question_name, path, conditional, validation, widget_label, row
         )
     else:
         widget = f"// {question_name}"
@@ -360,7 +355,7 @@ def generate_import_statements(
         f"{custom_conditionals_import}"
         f"{custom_widgets_import}"
         f"{help_popup_import}"
-        f"import * as inputTypes from 'evolution-common/lib/services/questionnaire/types';\n"
+        f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
         f"{input_range_import}"
         f"{custom_validations_import}"
         f"import * as validations from 'evolution-generator/lib/common/validations';\n"
@@ -385,7 +380,7 @@ def generate_skip_line(skip_line):
 
 # Generate all the widget parts
 def generate_constExport(question_name, input_type):
-    return f"export const {question_name}: inputTypes.{input_type} = {{"
+    return f"export const {question_name}: WidgetConfig.{input_type} = {{"
 
 
 def generate_defaultInputBase(defaultInputBase):
@@ -526,7 +521,7 @@ def generate_radio_widget(
     row,
 ):
     return (
-        f"{generate_constExport(question_name, 'InputRadio')}\n"
+        f"{generate_constExport(question_name, 'InputRadioType')}\n"
         f"{generate_defaultInputBase('inputRadioBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
@@ -543,10 +538,10 @@ def generate_radio_widget(
 
 # Generate Select widget
 def generate_select_widget(
-    question_name, section, path, choices, conditional, validation, widget_label, row
+    question_name, path, choices, conditional, validation, widget_label, row
 ):
     return (
-        f"{generate_constExport(question_name, 'InputSelect')}\n"
+        f"{generate_constExport(question_name, 'InputSelectType')}\n"
         f"{generate_defaultInputBase('inputSelectBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
@@ -560,10 +555,10 @@ def generate_select_widget(
 
 # Generate InputString widget
 def generate_string_widget(
-    question_name, section, path, help_popup, conditional, validation, widget_label, row
+    question_name, path, help_popup, conditional, validation, widget_label, row
 ):
     return (
-        f"{generate_constExport(question_name, 'InputString')}\n"
+        f"{generate_constExport(question_name, 'InputStringType')}\n"
         f"{generate_defaultInputBase('inputStringBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
@@ -578,10 +573,10 @@ def generate_string_widget(
 
 # Generate InputNumber widget
 def generate_number_widget(
-    question_name, section, path, help_popup, conditional, validation, widget_label, row
+    question_name, path, help_popup, conditional, validation, widget_label, row
 ):
     return (
-        f"{generate_constExport(question_name, 'InputString')}\n"
+        f"{generate_constExport(question_name, 'InputStringType')}\n"
         f"{generate_defaultInputBase('inputNumberBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
@@ -596,7 +591,7 @@ def generate_number_widget(
 # Generate InfoText widget
 def generate_info_text_widget(question_name, section, path, conditional, row):
     return (
-        f"{generate_constExport(question_name, 'InfoText')}\n"
+        f"{generate_constExport(question_name, 'TextWidgetConfig')}\n"
         f"{generate_defaultInputBase('infoTextBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row, shouldAddTwoColumns = False)}"
@@ -609,7 +604,6 @@ def generate_info_text_widget(question_name, section, path, conditional, row):
 # Generate InputRange widget
 def generate_range_widget(
     question_name,
-    section,
     path,
     input_range,
     conditional,
@@ -624,7 +618,7 @@ def generate_range_widget(
         "includeNotApplicable: true,\n" if includeNotApplicable else ""
     )
     return (
-        f"{generate_constExport(question_name, 'InputRange')}\n"
+        f"{generate_constExport(question_name, 'InputRangeType')}\n"
         f"{generate_defaultInputBase('inputRangeBase')},\n"
         f"{INDENT}...inputRange.{input_range},\n"
         f"{generate_path(path)},\n"
@@ -640,7 +634,6 @@ def generate_range_widget(
 # Generate InputCheckbox widget
 def generate_checkbox_widget(
     question_name,
-    section,
     path,
     choices,
     help_popup,
@@ -650,7 +643,7 @@ def generate_checkbox_widget(
     row,
 ):
     return (
-        f"{generate_constExport(question_name, 'InputCheckbox')}\n"
+        f"{generate_constExport(question_name, 'InputCheckboxType')}\n"
         f"{generate_defaultInputBase('inputCheckboxBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
@@ -664,11 +657,9 @@ def generate_checkbox_widget(
 
 
 # Generate NextButton widget
-def generate_next_button_widget(
-    question_name, section, path, confirm_popup, widget_label, row
-):
+def generate_next_button_widget(question_name, path, confirm_popup, widget_label, row):
     return (
-        f"{generate_constExport(question_name, 'InputButton')}\n"
+        f"{generate_constExport(question_name, 'ButtonWidgetConfig')}\n"
         f"{generate_defaultInputBase('buttonNextBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_confirm_popup(confirm_popup)}"
@@ -679,10 +670,10 @@ def generate_next_button_widget(
 
 # Generate Text textarea widget
 def generate_text_widget(
-    question_name, section, path, conditional, validation, widget_label, row
+    question_name, path, conditional, validation, widget_label, row
 ):
     return (
-        f"{generate_constExport(question_name, 'Text')}\n"
+        f"{generate_constExport(question_name, 'InputTextType')}\n"
         f"{generate_defaultInputBase('textBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"

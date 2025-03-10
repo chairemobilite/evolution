@@ -55,7 +55,7 @@ def generate_input_range(input_file: str, output_file: str):
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += f"import {{ type InputRangeConfig }} from 'evolution-common/lib/services/questionnaire/types';\n\n"
+        ts_code += f"import {{ type InputRangeType }} from 'evolution-common/lib/services/questionnaire/types';\n\n"
 
         # Iterate through each row in the sheet, starting from the second row
         for row in list(sheet.rows)[1:]:
@@ -106,7 +106,7 @@ def generate_input_range(input_file: str, output_file: str):
                 return f"{INDENT}{{\n{INDENT}{INDENT}fr: '{label_fr}',\n{INDENT}{INDENT}en: '{label_en}'\n{INDENT}}}{insert_comma}\n"
 
             # Generate TypeScript code
-            ts_code += f"export const {input_range_name}: InputRangeConfig = {{\n"
+            ts_code += f"export const {input_range_name}: Pick<InputRangeType,'labels' | 'minValue' | 'maxValue' | 'formatLabel' | 'trackClassName'> = {{\n"
             ts_code += f"{INDENT}labels: [\n"
             ts_code += generate_label(label_fr_min, label_en_min)
             # Check if both label_fr_middle and label_en_middle exist before calling generate_label

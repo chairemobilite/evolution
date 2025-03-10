@@ -107,7 +107,7 @@ def generate_choices(input_file: str, output_file: str):
 
         for choice_name, choices in choices_by_name.items():
             # Create a TypeScript const statement for each choiceName
-            ts_code += f"export const {choice_name}: Choices = [\n"
+            ts_code += f"export const {choice_name}: ChoiceType[] = [\n"
             for index, choice in enumerate(choices):
                 if choice.get("spread_choices_name", None) is not None:
                     # Spread choices from another choiceName when spread_choices_name is not None
@@ -158,7 +158,7 @@ def generate_import_statements(
         "// " if not has_custom_conditionals_import else ""
     ) + "import * as customConditionals from './customConditionals';\n"
     return (
-        f"import {{ type Choices }} from 'evolution-common/lib/services/questionnaire/types';\n"
+        f"import {{ type ChoiceType }} from 'evolution-common/lib/services/questionnaire/types';\n"
         f"{conditionals_import}"
         f"{custom_conditionals_import}\n"
     )

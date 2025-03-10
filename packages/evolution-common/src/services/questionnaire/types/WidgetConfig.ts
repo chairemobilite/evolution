@@ -38,8 +38,15 @@ export type HelpPopup = {
     content: I18nData;
 };
 
-// This represent if it's active (true) or not (false)
-export type Conditional = boolean | ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+/**
+ * Represents a conditional configuration for a widget.
+ *
+ * - If a boolean is returned, it indicates whether the widget is active or not.
+ * - If an array is returned:
+ *   - The first element is a boolean indicating whether the widget is active.
+ *   - The second element is the value the widget will take if it is not visible.
+ */
+export type WidgetConditional = ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
 
 /**
  * Validation function, which validates the value with potentially multiple
@@ -66,7 +73,7 @@ export type ValidationFunction = (
     isWarning?: boolean; // For now, used only in admin validations and auditing. Will be displayed differently in audits.
 }[];
 
-export type InputStringType = {
+export type InputStringType = BaseQuestionType & {
     inputType: 'string';
     defaultValue?: string | ParsingFunction<string>;
     maxLength?: number;
@@ -79,7 +86,7 @@ export type InputStringType = {
     keyboardInputMode?: 'none' | 'text' | 'numeric' | 'decimal' | 'tel' | 'search' | 'email' | 'url';
 };
 
-export type InputTextType = {
+export type InputTextType = BaseQuestionType & {
     inputType: 'text';
     defaultValue?: string | ParsingFunction<string>;
     maxLength?: number;
@@ -94,7 +101,7 @@ type BaseChoiceType = {
     hidden?: boolean;
     icon?: IconProp;
     iconPath?: string;
-    conditional?: Conditional;
+    conditional?: WidgetConditional;
     color?: string;
     size?: WidgetSize;
 };
@@ -117,7 +124,7 @@ export const isGroupedChoice = (choice: GroupedChoiceType | ChoiceType): choice 
     return typeof (choice as any).groupShortname === 'string';
 };
 
-export type InputCheckboxType = {
+export type InputCheckboxType = BaseQuestionType & {
     inputType: 'checkbox';
     choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
     // string css style for the icon size, for example '2em'
@@ -134,7 +141,7 @@ export type InputCheckboxType = {
     customAlignmentLengths?: number[];
 };
 
-export type InputRadioType = {
+export type InputRadioType = BaseQuestionType & {
     inputType: 'radio';
     choices: RadioChoiceType[] | ParsingFunction<RadioChoiceType[]>;
     // string css style for the icon size, for example '2em'
@@ -153,7 +160,7 @@ export type InputRadioType = {
     customAlignmentLengths?: number[];
 };
 
-export type InputRadioNumberType = {
+export type InputRadioNumberType = BaseQuestionType & {
     inputType: 'radioNumber';
     valueRange: {
         min: number | ParsingFunction<number>;
@@ -168,14 +175,14 @@ export type InputRadioNumberType = {
 };
 
 // TODO Could select widget have a custom 'other' field? Like checkbox and radios
-export type InputSelectType = {
+export type InputSelectType = BaseQuestionType & {
     inputType: 'select';
     choices: (GroupedChoiceType | ChoiceType)[] | ParsingFunction<(GroupedChoiceType | ChoiceType)[]>;
     // string css style for the icon size, for example '2em'
     datatype?: 'string' | 'integer' | 'float' | 'text';
 };
 
-export type InputMultiselectType = {
+export type InputMultiselectType = BaseQuestionType & {
     inputType: 'multiselect';
     choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
     // string css style for the icon size, for example '2em'
@@ -188,7 +195,7 @@ export type InputMultiselectType = {
     closeMenuOnSelect?: boolean;
 };
 
-export type InputButtonType = {
+export type InputButtonType = BaseQuestionType & {
     inputType: 'button';
     choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
     hideWhenRefreshing?: boolean;
@@ -197,7 +204,7 @@ export type InputButtonType = {
     sameLine?: boolean;
 };
 
-export type InputTimeType = {
+export type InputTimeType = BaseQuestionType & {
     inputType: 'time';
     suffixTimes?: ParsingFunction<{ [timeStr: string]: string }>;
     minTimeSecondsSinceMidnight?: number | ParsingFunction<number>;
@@ -206,20 +213,20 @@ export type InputTimeType = {
     addHourSeparators?: boolean;
 };
 
-export type InputRangeType = {
+export type InputRangeType = BaseQuestionType & {
     inputType: 'slider';
-    maxValue?: number;
-    minValue?: number;
-    formatLabel?: (value: number, lang: string) => string;
     labels?: I18nData[];
-    trackClassName?: string;
+    formatLabel?: (value: number, lang: string) => string;
+    minValue?: number;
+    maxValue?: number;
     /** Whether to include a 'not applicable' checkbox that will disable the input */
     includeNotApplicable?: boolean;
     /** An optional label for the 'not applicable' text. Only used if includeNotApplicable is true */
     notApplicableLabel?: I18nData;
+    trackClassName?: string;
 };
 
-export type InputDatePickerType = {
+export type InputDatePickerType = BaseQuestionType & {
     inputType: 'datePicker';
     showTimeSelect?: boolean;
     placeholderText?: I18nData;
@@ -243,26 +250,28 @@ type InputMapType = {
     defaultValue?: GeoJSON.Point | ParsingFunction<GeoJSON.Point>;
 };
 
-export type InputMapPointType = InputMapType & {
-    inputType: 'mapPoint';
-    showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
-};
+export type InputMapPointType = InputMapType &
+    BaseQuestionType & {
+        inputType: 'mapPoint';
+        showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
+    };
 
-export type InputMapFindPlaceType = InputMapType & {
-    inputType: 'mapFindPlace';
-    showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
-    searchPlaceButtonColor?: string | ParsingFunction<string>;
-    placesIcon?: IconData;
-    maxGeocodingResultsBounds?: ParsingFunction<
-        [{ lat: number; lng: number }, { lat: number; lng: number }] | undefined
-    >;
-    height?: string; // the height of the map container in css units: example: 28rem or 550px
-    coordinatesPrecision?: number; // number of decimals to keep for latitute longitude coordinates.
-    invalidGeocodingResultTypes?: string[];
-    showPhoto?: boolean;
-    autoConfirmIfSingleResult?: boolean;
-    updateDefaultValueWhenResponded?: boolean;
-};
+export type InputMapFindPlaceType = InputMapType &
+    BaseQuestionType & {
+        inputType: 'mapFindPlace';
+        showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
+        searchPlaceButtonColor?: string | ParsingFunction<string>;
+        placesIcon?: IconData;
+        maxGeocodingResultsBounds?: ParsingFunction<
+            [{ lat: number; lng: number }, { lat: number; lng: number }] | undefined
+        >;
+        height?: string; // the height of the map container in css units: example: 28rem or 550px
+        coordinatesPrecision?: number; // number of decimals to keep for latitute longitude coordinates.
+        invalidGeocodingResultTypes?: string[];
+        showPhoto?: boolean;
+        autoConfirmIfSingleResult?: boolean;
+        updateDefaultValueWhenResponded?: boolean;
+    };
 
 export type BaseQuestionType = {
     type: 'question';
@@ -290,25 +299,23 @@ export type BaseQuestionType = {
 
     helpPopup?: HelpPopup;
     validations?: ValidationFunction;
-    conditional?: Conditional;
+    conditional?: WidgetConditional;
 };
 
-export type QuestionWidgetConfig = BaseQuestionType &
-    (
-        | InputStringType
-        | InputTextType
-        | InputCheckboxType
-        | InputMultiselectType
-        | InputRadioType
-        | InputButtonType
-        | InputTimeType
-        | InputMapPointType
-        | InputMapFindPlaceType
-        | InputRangeType
-        | InputDatePickerType
-        | InputSelectType
-        | InputRadioNumberType
-    );
+export type QuestionWidgetConfig =
+    | InputStringType
+    | InputTextType
+    | InputCheckboxType
+    | InputMultiselectType
+    | InputRadioType
+    | InputButtonType
+    | InputTimeType
+    | InputMapPointType
+    | InputMapFindPlaceType
+    | InputRangeType
+    | InputDatePickerType
+    | InputSelectType
+    | InputRadioNumberType;
 
 export type TextWidgetConfig = {
     type: 'text';
@@ -317,7 +324,7 @@ export type TextWidgetConfig = {
     containsHtml?: ContainsHtml;
     text: I18nData;
     classes?: string;
-    conditional?: Conditional;
+    conditional?: WidgetConditional;
 };
 
 export type ButtonWidgetConfig = {
@@ -346,10 +353,10 @@ export type ButtonWidgetConfig = {
         confirmButtonLabel?: I18nData;
         cancelButtonColor?: string;
         confirmButtonColor?: string;
-        conditional?: Conditional;
+        conditional?: WidgetConditional;
     };
     size?: WidgetSize;
-    conditional?: Conditional;
+    conditional?: WidgetConditional;
 };
 
 export type SurveyMapObjectProperty = {
@@ -380,7 +387,7 @@ type SurveyMapObjectPolygonProperty = SurveyMapObjectProperty & {
 export type InfoMapWidgetConfig = {
     type: 'infoMap';
     path?: string;
-    conditional?: Conditional;
+    conditional?: WidgetConditional;
     title: I18nData;
     geojsons: ParsingFunction<{
         points?: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapObjectProperty>;
@@ -423,7 +430,7 @@ export type GroupConfig = {
     /** Whether to show a specific grouped object
      * FIXME: Is this redundant with filter?
      */
-    groupedObjectConditional?: Conditional;
+    groupedObjectConditional?: boolean | ParsingFunction<boolean>;
     /**
      * This function is called for the whole group and must return whether to
      * show the add button. The path received in the parsing function is the
@@ -441,7 +448,7 @@ export type GroupConfig = {
     groupedObjectDeleteButtonLabel?: I18nData;
     deleteConfirmPopup?: {
         content: I18nData;
-        conditional?: Conditional;
+        conditional?: boolean | ParsingFunction<boolean>;
         title?: I18nData;
         cancelAction?: React.MouseEventHandler;
         containsHtml?: ContainsHtml;
