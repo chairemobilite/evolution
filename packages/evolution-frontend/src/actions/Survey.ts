@@ -37,6 +37,8 @@ import i18n from '../config/i18n.config';
 import { handleClientError, handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import applicationConfiguration from '../config/application.config';
 import {
+    StartAddGroupedObjects,
+    StartRemoveGroupedObjects,
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
@@ -367,16 +369,19 @@ export const addConsent = (consented: boolean) => ({
  * @returns The dispatched action
  */
 export const startAddGroupedObjects = (
-    newObjectsCount: number,
-    insertSequence: number | undefined,
-    path: string,
-    attributes: { [objectField: string]: unknown }[] = [],
-    callback?: (interview: UserRuntimeInterviewAttributes) => void,
-    returnOnly = false
+    newObjectsCount: Parameters<StartAddGroupedObjects>[0],
+    insertSequence: Parameters<StartAddGroupedObjects>[1],
+    path: Parameters<StartAddGroupedObjects>[2],
+    attributes: Parameters<StartAddGroupedObjects>[3] = [],
+    callback?: Parameters<StartAddGroupedObjects>[4],
+    returnOnly: Parameters<StartAddGroupedObjects>[5] = false
 ) => {
     surveyHelper.devLog(`Add ${newObjectsCount} grouped objects for path ${path} at sequence ${insertSequence}`);
-    return (dispatch, getState) => {
-        const interview = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
+    return (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        const interview = _cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes; // needed because we cannot mutate state
         const changedValuesByPath = surveyHelper.addGroupedObjects(
             interview,
             newObjectsCount,
@@ -405,13 +410,16 @@ export const startAddGroupedObjects = (
  * @returns
  */
 export const startRemoveGroupedObjects = function (
-    paths: string | string[],
-    callback?: (interview: UserRuntimeInterviewAttributes) => void,
-    returnOnly = false
+    paths: Parameters<StartRemoveGroupedObjects>[0],
+    callback?: Parameters<StartRemoveGroupedObjects>[1],
+    returnOnly: Parameters<StartRemoveGroupedObjects>[2] = false
 ) {
     surveyHelper.devLog('Remove grouped objects at paths', paths);
-    return (dispatch, getState) => {
-        const interview = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
+    return (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        const interview = _cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes; // needed because we cannot mutate state
         const [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(interview, paths);
         if (returnOnly) {
             return [valuesByPath, unsetPaths];
