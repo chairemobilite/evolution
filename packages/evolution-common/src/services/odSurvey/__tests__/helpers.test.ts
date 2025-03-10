@@ -679,9 +679,67 @@ describe('getVisitedPlaces', () => {
         expect(Helpers.getVisitedPlacesArray({ journey: attributes })).toEqual([visitedPlaces.visitedPlace2, visitedPlaces.visitedPlace1]);
     });
 
+    each([
+        ['Null journey, no active journey', { }, false],
+        ['Null journey, active journey, with active visitedPlace', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', activeVisitedPlaceId: 'visitedPlace1' }, true],
+        ['Null journey, active journey, active visitedPlace for another journey', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', activeVisitedPlaceId: 'visitedPlaceP2V1' }, false],
+        ['With journey and active visitedPlace', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', activeVisitedPlaceId: 'visitedPlaceP2V1', testPersonId: 'personId2', testJourneyId: 'journeyId2' }, true],
+        ['With journey, no active visitedPlace', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', testPersonId: 'personId1', testJourneyId: 'journeyId1' }, false],
+        ['With journey, active visitedPlace for another journey', { activePersonId: 'personId1', activeJourneyId: 'journeyId1', activeVisitedPlaceId: 'visitedPlaceP2V1', testPersonId: 'personId1', testJourneyId: 'journeyId1'  }, false]
+    ]).test('getActiveVisitedPlace: %s', (_title, testData: { activePersonId?: string, activeJourneyId?: string, activeVisitedPlaceId?: string, testPersonId?: string, testJourneyId?: string }, expectResult) => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        // Set the persons and journeys for the test
+        interview.responses.household!.persons = {
+            personId1: {
+                _uuid: 'personId1',
+                _sequence: 1,
+                journeys: {
+                    journeyId1: {
+                        _uuid: 'journeyId1',
+                        _sequence: 1,
+                        visitedPlaces: visitedPlaces
+                    }
+                }
+            },
+            personId2: {
+                _uuid: 'personId2', _sequence: 2,
+                journeys: {
+                    journeyId2: {
+                        _uuid: 'journeyId2',
+                        _sequence: 1,
+                        visitedPlaces: {
+                            visitedPlaceP2V1: {
+                                _uuid: 'visitedPlaceP2V1',
+                                _sequence: 1
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (testData.activePersonId) {
+            interview.responses._activePersonId = testData.activePersonId;
+        }
+        if (testData.activeJourneyId) {
+            interview.responses._activeJourneyId = testData.activeJourneyId;
+        }
+        if (testData.activeVisitedPlaceId) {
+            interview.responses._activeVisitedPlaceId = testData.activeVisitedPlaceId;
+        }
+        const journey = testData.testPersonId && testData.testJourneyId ? interview.responses.household!.persons![testData.testPersonId].journeys![testData.testJourneyId] : null;
+        const result = expectResult ? interview.responses.household!.persons![(testData.testPersonId || testData.activePersonId) as string].journeys![(testData.testJourneyId || testData.activeJourneyId) as string].visitedPlaces![testData.activeVisitedPlaceId!] : null;
+        const activeVisitedPlace = Helpers.getActiveVisitedPlace({ interview, journey });
+        if (expectResult) {
+            expect(activeVisitedPlace).toBeTruthy();
+            expect(activeVisitedPlace).toEqual(result);
+        } else {
+            expect(activeVisitedPlace).toEqual(null);
+        }
+    });
+
 });
 
-describe('getNextVisitedPlace', () => {
+describe('getNext/PreviousVisitedPlace', () => {
 
     const journey: Journey = {
         _uuid: 'arbitraryJourney',
@@ -701,18 +759,32 @@ describe('getNextVisitedPlace', () => {
         }
     }
 
-    test('Without visited places', () => {
+    test('Next: without visited places', () => {
         expect(Helpers.getNextVisitedPlace({ journey, visitedPlaceId: 'place' })).toBeNull();
+    });
+
+    test('Previous: without visited places', () => {
+        expect(Helpers.getPreviousVisitedPlace({ journey, visitedPlaceId: 'place' })).toBeNull();
     });
 
     each([
         ['With place after', 'visitedPlace1', visitedPlaces.visitedPlace2],
         ['without place after', 'visitedPlace2', null],
         ['Non-existent place', 'nonExistentPlace', null]
-    ]).test('With places: %s', (_title, visitedPlaceId, expected) => {
+    ]).test('Next with places: %s', (_title, visitedPlaceId, expected) => {
         const attributes = _cloneDeep(journey);
         attributes.visitedPlaces = visitedPlaces;
         expect(Helpers.getNextVisitedPlace({ journey: attributes, visitedPlaceId })).toEqual(expected);
+    });
+
+    each([
+        ['With place before', 'visitedPlace2', visitedPlaces.visitedPlace1],
+        ['Without place before', 'visitedPlace1', null],
+        ['Non-existent place', 'nonExistentPlace', null]
+    ]).test('Previous with places: %s', (_title, visitedPlaceId, expected) => {
+        const attributes = _cloneDeep(journey);
+        attributes.visitedPlaces = visitedPlaces;
+        expect(Helpers.getPreviousVisitedPlace({ journey: attributes, visitedPlaceId })).toEqual(expected);
     });
 
 });
@@ -1169,7 +1241,7 @@ describe('getVisitedPlaceGeography', () => {
 
 });
 
-describe('getTrips', () => {
+describe('getSegments', () => {
 
     const trip: Trip = {
         _uuid: 'arbitraryTrip',
