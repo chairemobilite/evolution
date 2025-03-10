@@ -31,7 +31,7 @@ export const inputRangeValidation: ValidationFunction = (value) => {
             // Check if the value is less than 0 and not 'na'
             validation: !(Number(value) >= 0) && value !== 'na',
             errorMessage: {
-                fr: "Cette réponse doit être d'une valeur minimum de 0.",
+                fr: 'Cette réponse doit être d\'une valeur minimum de 0.',
                 en: 'This answer must be a minimum value of 0.'
             }
         },
@@ -183,28 +183,28 @@ export const ageValidation: ValidationFunction = (value) => {
         {
             validation: _isBlank(value),
             errorMessage: {
-                fr: "L'âge est requis.",
+                fr: 'L\'âge est requis.',
                 en: 'Age is required.'
             }
         },
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
             errorMessage: {
-                fr: "L'âge est invalide.",
+                fr: 'L\'âge est invalide.',
                 en: 'Age is invalid.'
             }
         },
         {
             validation: Number(value) < 0,
             errorMessage: {
-                fr: "L'âge doit être au moins de 0.",
+                fr: 'L\'âge doit être au moins de 0.',
                 en: 'Age must be at least 0.'
             }
         },
         {
             validation: Number(value) > 115,
             errorMessage: {
-                fr: "L'âge est trop élevé, veuillez vérifier.",
+                fr: 'L\'âge est trop élevé, veuillez vérifier.',
                 en: 'Age is too high, please validate.'
             }
         }

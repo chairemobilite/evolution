@@ -22,7 +22,7 @@ import {
     InputSelectType,
     InputStringType,
     InputTextType,
-    TextWidgetConfig,
+    TextWidgetConfig
 } from 'evolution-common/lib/services/questionnaire/types';
 
 // TODO: Add some missing types for the different input types
