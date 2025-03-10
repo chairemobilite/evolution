@@ -448,6 +448,33 @@ export const getVisitedPlacesArray = function ({ journey }: { journey: Journey }
 };
 
 /**
+ * Get the active visited place for a journey, or null if there is no active
+ * visited place, or if the active visited place is not part of the journey
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The participant interview
+ * @param {Journey|null} [options.journey=null] The journey for which to get the
+ * active visited place.  If null, the active journey will be used.
+ * @returns {Trip|null} The active visited place, or `null` if there is no
+ * active visited place.
+ */
+export const getActiveVisitedPlace = ({
+    interview,
+    journey = null
+}: {
+    interview: UserInterviewAttributes;
+    journey?: Journey | null;
+}): VisitedPlace | null => {
+    const activeJourney = journey !== null ? journey : getActiveJourney({ interview });
+    if (activeJourney === null) {
+        return null;
+    }
+    const visitedPlaces = getVisitedPlaces({ journey: activeJourney });
+    const activeTripId = getResponse(interview, '_activeVisitedPlaceId', null) as string | null;
+    return activeTripId ? visitedPlaces[activeTripId] || null : null;
+};
+
+/**
  * Replace visited places that are shortcuts to the given location by the data
  * of this location. Only the first shortcut will be replaced, the others will
  * use the first place as new shortcut
@@ -591,10 +618,10 @@ export const getVisitedPlaceGeography = function ({
  *
  * @param {Object} options - The options object.
  * @param {Journey} options.journey The journey the visited place is part of
- * @param {string} options.visitedPlaceId The ID of the visited place
- * from which we want the next place id
- * @returns {VisitedPlace | null} The next visited place, or `null` if the is no
- * visited place after
+ * @param {string} options.visitedPlaceId The ID of the visited place from which
+ * we want the next place id
+ * @returns {VisitedPlace | null} The next visited place, or `null` if there is
+ * no visited place after
  */
 export const getNextVisitedPlace = function ({
     journey,
@@ -610,6 +637,32 @@ export const getNextVisitedPlace = function ({
         }
     }
     return null; // provided visitedPlace was the last or not part of this journey
+};
+
+/**
+ * Get the place visited before the requested visited place id, in the journey
+ *
+ * @param {Object} options - The options object.
+ * @param {Journey} options.journey The journey the visited place is part of
+ * @param {string} options.visitedPlaceId The ID of the visited place from which
+ * we want the previous place id
+ * @returns {VisitedPlace | null} The previous visited place, or `null` if the
+ * visited place is the first one
+ */
+export const getPreviousVisitedPlace = function ({
+    journey,
+    visitedPlaceId
+}: {
+    journey: Journey;
+    visitedPlaceId: string;
+}): VisitedPlace | null {
+    const visitedPlacesArray = getVisitedPlacesArray({ journey });
+    for (let i = 1, count = visitedPlacesArray.length; i < count; i++) {
+        if (visitedPlacesArray[i]._uuid === visitedPlaceId) {
+            return visitedPlacesArray[i - 1];
+        }
+    }
+    return null; // provided visitedPlace was the first or not part of this journey
 };
 
 // *** Segments-related functions
