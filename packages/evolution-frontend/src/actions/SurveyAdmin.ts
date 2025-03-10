@@ -26,17 +26,26 @@ const fetch = async (url, opts) => {
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    StartAddGroupedObjects,
+    StartRemoveGroupedObjects,
+    UserRuntimeInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import { updateSection, updateInterview } from './Survey';
+import { ThunkDispatch } from 'redux-thunk';
+import { RootState } from '../store/configureStore';
+import { SurveyAction } from '../store/survey';
+import { LoadingStateAction } from '../store/loadingState';
+import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 
 export const startUpdateSurveyValidateInterview = function (
     sectionShortname: string | null,
     valuesByPath: { [path: string]: unknown } | null = null,
     unsetPaths: string[] | null = null,
     interview: UserRuntimeInterviewAttributes | null = null,
-    callback: (interview: UserRuntimeInterviewAttributes) => void
+    callback?: (interview: UserRuntimeInterviewAttributes) => void
 ) {
     return async (dispatch, getState) => {
         //surveyHelper.devLog(`Update interview and section with values by path`, valuesByPath);
@@ -216,64 +225,20 @@ export const startSetSurveyValidateInterview = (
 };
 
 // TODO: unit test
-export const startValidateAddGroupedObjects = (
-    newObjectsCount,
-    insertSequence,
-    path,
-    attributes = [],
-    callback,
-    returnOnly = false
-) => {
-    surveyHelper.devLog(`Add ${newObjectsCount} grouped objects for path ${path} at sequence ${insertSequence}`);
-    return (dispatch, getState) => {
-        const interview = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
-        const changedValuesByPath = surveyHelper.addGroupedObjects(
-            interview,
-            newObjectsCount,
-            insertSequence,
-            path,
-            attributes || []
-        );
-        if (returnOnly) {
-            return changedValuesByPath;
-        } else {
-            dispatch(
-                startUpdateSurveyValidateInterview('validationOnePager', changedValuesByPath, null, null, callback)
-            );
-        }
-    };
-};
-
-// Almost the same as startValidateRemoveGroupedObjects, TODO: refactor to use the same function
-// TODO: unit test
-export const startSurveyValidateRemoveGroupedObjects = function (paths, callback, returnOnly = false) {
-    surveyHelper.devLog('Remove grouped objects at paths', paths);
-    return (dispatch, getState) => {
-        const interview = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
-        let unsetPaths: string[] = [];
-        let valuesByPath: { [path: string]: unknown } = {};
-        [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(interview, paths);
-        if (returnOnly) {
-            return [valuesByPath, unsetPaths];
-        } else {
-            dispatch(startUpdateSurveyValidateInterview(null, valuesByPath, unsetPaths, null, callback));
-        }
-    };
-};
-
-// Almost the same as startValidateAddGroupedObjects, TODO: refactor to use the same function
-// TODO: unit test
 export const startSurveyValidateAddGroupedObjects = (
-    newObjectsCount,
-    insertSequence,
-    path,
-    attributes = [],
-    callback,
-    returnOnly = false
+    newObjectsCount: Parameters<StartAddGroupedObjects>[0],
+    insertSequence: Parameters<StartAddGroupedObjects>[1],
+    path: Parameters<StartAddGroupedObjects>[2],
+    attributes: Parameters<StartAddGroupedObjects>[3] = [],
+    callback?: Parameters<StartAddGroupedObjects>[4],
+    returnOnly: Parameters<StartAddGroupedObjects>[5] = false
 ) => {
     surveyHelper.devLog(`Add ${newObjectsCount} grouped objects for path ${path} at sequence ${insertSequence}`);
-    return (dispatch, getState) => {
-        const interview = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
+    return (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        const interview = _cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes; // needed because we cannot mutate state
         const changedValuesByPath = surveyHelper.addGroupedObjects(
             interview,
             newObjectsCount,
@@ -290,19 +255,24 @@ export const startSurveyValidateAddGroupedObjects = (
 };
 
 // TODO: unit test
-export const startValidateRemoveGroupedObjects = function (paths, callback, returnOnly = false) {
+export const startSurveyValidateRemoveGroupedObjects = (
+    paths: Parameters<StartRemoveGroupedObjects>[0],
+    callback?: Parameters<StartRemoveGroupedObjects>[1],
+    returnOnly: Parameters<StartRemoveGroupedObjects>[2] = false
+) => {
     surveyHelper.devLog('Remove grouped objects at paths', paths);
-    return (dispatch, getState) => {
-        const interview = _cloneDeep(getState().survey.interview); // needed because we cannot mutate state
+    return (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        const interview = _cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes; // needed because we cannot mutate state
         let unsetPaths: string[] = [];
         let valuesByPath: { [path: string]: unknown } = {};
         [valuesByPath, unsetPaths] = surveyHelper.removeGroupedObjects(interview, paths);
         if (returnOnly) {
             return [valuesByPath, unsetPaths];
         } else {
-            dispatch(
-                startUpdateSurveyValidateInterview('validationOnePager', valuesByPath, unsetPaths, null, callback)
-            );
+            dispatch(startUpdateSurveyValidateInterview(null, valuesByPath, unsetPaths, undefined, callback));
         }
     };
 };
