@@ -11,7 +11,6 @@ import _cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
 import _unset from 'lodash/unset';
 import bowser from 'bowser';
-import { NavigateFunction } from 'react-router';
 import { ThunkDispatch } from 'redux-thunk';
 
 /* eslint-disable-next-line */
@@ -37,6 +36,7 @@ import i18n from '../config/i18n.config';
 import { handleClientError, handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import applicationConfiguration from '../config/application.config';
 import {
+    GotoFunction,
     StartAddGroupedObjects,
     StartRemoveGroupedObjects,
     StartUpdateInterview,
@@ -432,11 +432,14 @@ export const startRemoveGroupedObjects = function (
 export const startSetInterview = (
     activeSection: string | null = null,
     surveyUuid: string | undefined = undefined,
-    navigate: NavigateFunction | undefined = undefined,
+    navigate: GotoFunction | undefined = undefined,
     preFilledResponses: { [key: string]: unknown } | undefined = undefined
 ) => {
     // FIXME There's a lot of code duplication with the startCreateInterview function, either merge them or make them more DRY
-    return async (dispatch, _getState) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        _getState: () => RootState
+    ) => {
         try {
             const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
             // get the interview from the server for the current user, or with a specific survey uuid
@@ -501,7 +504,10 @@ export const startSetInterview = (
 
 export const startCreateInterview = (preFilledResponses: { [key: string]: unknown } | undefined = undefined) => {
     const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
-    return async (dispatch, _getState) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        _getState: () => RootState
+    ) => {
         try {
             // create a new interview on the server for the current user
             const response = await fetch('/api/survey/createInterview', {
