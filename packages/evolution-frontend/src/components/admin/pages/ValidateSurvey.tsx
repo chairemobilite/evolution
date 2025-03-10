@@ -39,6 +39,8 @@ import { RootState } from '../../../store/configureStore';
 import { SurveyAction } from '../../../store/survey';
 import { SectionProps } from '../../hooks/useSectionTemplate';
 
+type StartSetInterview = (surveyUuid: string, callback?: (interview: UserRuntimeInterviewAttributes) => void) => void;
+
 export type SurveyProps = {
     interview: UserRuntimeInterviewAttributes;
     interviewLoaded: boolean;
@@ -51,10 +53,7 @@ export type SurveyProps = {
     location: Location;
     interviewContext: InterviewState;
     // FIXME This is the only difference with the Survey component props. Different name and arguments
-    startSetSurveyValidateInterview: (
-        surveyUuid: string | undefined,
-        callback?: (interview: UserRuntimeInterviewAttributes) => void
-    ) => void;
+    startSetSurveyValidateInterview: StartSetInterview;
     startUpdateInterview: StartUpdateInterview;
     startAddGroupedObjects: StartAddGroupedObjects;
     startRemoveGroupedObjects: StartRemoveGroupedObjects;
@@ -240,7 +239,7 @@ const ValidateSurveyWrapper = (props) => {
     const { sectionShortname, interviewUuid } = useParams();
     const { state } = React.useContext(InterviewContext);
 
-    const startSetInterviewAction = (interviewUuid, callback) =>
+    const startSetInterviewAction: StartSetInterview = (interviewUuid, callback) =>
         dispatch(startSetSurveyValidateInterview(interviewUuid, callback));
     const startUpdateInterviewAction = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
         dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback));
