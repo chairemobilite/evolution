@@ -27,7 +27,6 @@
       "evolution-common": "^0.5.0",
       "evolution-frontend": "^0.5.0",
       "evolution-generator": "^0.5.0",
-      "evolution-legacy": "^0.5.0",
       "i18next": "^24.0.5",
       "lodash": "^4.17.21",
       "moment": "^2.30.1",
