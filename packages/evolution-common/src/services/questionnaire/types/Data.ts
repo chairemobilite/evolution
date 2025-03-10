@@ -271,6 +271,13 @@ export interface InterviewStatusAttributesBase {
 }
 
 /**
+ * Function to redirect the page to a specific URL. It takes as argument either
+ * a string with the URL to redirect to, or an object with the pathname and
+ * search keys (to add as query strings)
+ */
+export type GotoFunction = (to: string | { pathname?: string; search?: string }) => void | Promise<void>;
+
+/**
  * Type of the callback to send interview updates to the server
  *
  * @param sectionShortname The shortname of the current section
@@ -281,16 +288,16 @@ export interface InterviewStatusAttributesBase {
  * will be exploded to the corresponding nested object path.
  * @param interview The current interview
  * @param callback An optional function to call after the interview has been updated
- * @param history The history object to redirect the user in case of error
+ * @param gotoFunction A function used to redirect the page to a specific URL
  * @returns void
  */
 export type StartUpdateInterview = (
     sectionShortname: string | null,
     valuesByPath?: { [path: string]: unknown },
     unsetPaths?: string[],
-    interview?: UserInterviewAttributes,
-    callback?: (interview: UserInterviewAttributes) => void,
-    history?: History
+    interview?: UserRuntimeInterviewAttributes,
+    callback?: (interview: UserRuntimeInterviewAttributes) => void,
+    gotoFunction?: GotoFunction
 ) => void;
 
 export type StartAddGroupedObjects = (
@@ -298,13 +305,13 @@ export type StartAddGroupedObjects = (
     insertSequence: number | undefined,
     path: string,
     attributes?: { [objectField: string]: unknown }[],
-    callback?: (interview: UserInterviewAttributes) => void,
+    callback?: (interview: UserRuntimeInterviewAttributes) => void,
     returnOnly?: boolean
 ) => any;
 
 export type StartRemoveGroupedObjects = (
     paths: string | string[],
-    callback?: (interview: UserInterviewAttributes) => void,
+    callback?: (interview: UserRuntimeInterviewAttributes) => void,
     returnOnly?: boolean
 ) => any;
 
@@ -323,7 +330,7 @@ export type ParsingFunctionWithCallbacks<T> = (
 
 export type ButtonAction = (
     callbacks: InterviewUpdateCallbacks,
-    interview: UserInterviewAttributes,
+    interview: UserRuntimeInterviewAttributes,
     path: string,
     section: string,
     sections: { [key: string]: any },

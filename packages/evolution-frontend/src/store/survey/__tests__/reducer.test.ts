@@ -4,11 +4,11 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { surveyReducer } from '../reducer';
 import { SurveyActionTypes } from '../types';
 
-const testInterview: UserInterviewAttributes = {
+const testInterview: UserRuntimeInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -31,7 +31,11 @@ const testInterview: UserInterviewAttributes = {
             q1: true
         }
     } as any,
-    is_valid: true
+    is_valid: true,
+    widgets: {},
+    groups: {},
+    visibleWidgets: [],
+    allWidgetsValid: true
 };
 test('Test setting an interview', () => {
     const action = {
