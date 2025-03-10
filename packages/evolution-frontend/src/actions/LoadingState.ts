@@ -5,10 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { LoadingStateActionTypes } from '../store/loadingState';
+
 export const incrementLoadingState = () => ({
-    type: 'INCREMENT_LOADING_STATE'
+    type: LoadingStateActionTypes.INCREMENT_LOADING_STATE
 });
 
 export const decrementLoadingState = () => ({
-    type: 'DECREMENT_LOADING_STATE'
+    type: LoadingStateActionTypes.DECREMENT_LOADING_STATE
 });

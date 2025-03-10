@@ -4,6 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+
 export enum SurveyActionTypes {
     SET_INTERVIEW = 'SET_INTERVIEW',
     UPDATE_INTERVIEW = 'UPDATE_INTERVIEW',
@@ -35,7 +37,7 @@ export type SurveyAction =
       };
 
 export interface SurveyState {
-    readonly interview?: any;
+    readonly interview?: UserRuntimeInterviewAttributes;
     readonly interviewLoaded?: boolean;
     readonly errors?: {
         [key: string]: {

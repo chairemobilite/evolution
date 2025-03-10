@@ -10,17 +10,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
-import { ButtonWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
+import { ButtonWidgetConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 
 type ButtonProps = InterviewUpdateCallbacks & {
     widgetConfig: ButtonWidgetConfig;
     widgetStatus: WidgetStatus;
     loadingState: number;
-    interview: UserInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     user?: CliUser;
     path: string;
     label?: string;
