@@ -6,6 +6,7 @@
  */
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { useLocation, useParams } from 'react-router';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import moment from 'moment';
@@ -21,7 +22,8 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import {
     startSetSurveyValidateInterview,
     startUpdateSurveyValidateInterview,
-    startSurveyValidateAddGroupedObjects
+    startSurveyValidateAddGroupedObjects,
+    startSurveyValidateRemoveGroupedObjects
 } from '../../../actions/SurveyAdmin';
 import { InterviewContext } from '../../../contexts/InterviewContext';
 import { withPreferencesHOC } from '../../hoc/WithPreferencesHoc';
@@ -34,8 +36,6 @@ import {
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { InterviewState } from '../../../contexts/InterviewContext';
 import { RootState } from '../../../store/configureStore';
-import { startRemoveGroupedObjects } from '../../../actions/Survey';
-import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../../store/survey';
 import { SectionProps } from '../../hooks/useSectionTemplate';
 
@@ -244,7 +244,14 @@ const ValidateSurveyWrapper = (props) => {
         dispatch(startSetSurveyValidateInterview(interviewUuid, callback));
     const startUpdateInterviewAction = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
         dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback));
-    const startAddGroupedObjectsAction = (newObjectsCount, insertSequence, path, attributes, callback, returnOnly) =>
+    const startAddGroupedObjectsAction: StartAddGroupedObjects = (
+        newObjectsCount,
+        insertSequence,
+        path,
+        attributes,
+        callback,
+        returnOnly
+    ) =>
         dispatch(
             startSurveyValidateAddGroupedObjects(
                 newObjectsCount,
@@ -255,8 +262,8 @@ const ValidateSurveyWrapper = (props) => {
                 returnOnly
             )
         );
-    const startRemoveGroupedObjectsAction = (paths, callback, returnOnly) =>
-        dispatch(startRemoveGroupedObjects(paths, callback, returnOnly));
+    const startRemoveGroupedObjectsAction: StartRemoveGroupedObjects = (paths, callback, returnOnly) =>
+        dispatch(startSurveyValidateRemoveGroupedObjects(paths, callback, returnOnly));
 
     return (
         <MainValidateSurvey
