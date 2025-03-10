@@ -204,7 +204,10 @@ export const startSetSurveyValidateInterview = (
         return;
     }
 ) => {
-    return async (dispatch, _getState) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        _getState: () => RootState
+    ) => {
         return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
             credentials: 'include'
         })
