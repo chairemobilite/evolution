@@ -23,6 +23,7 @@ import { RootState } from '../../../store/configureStore';
 import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../../store/survey';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 type InterviewSummaryProps = {
     prevInterviewUuid?: string;
@@ -33,9 +34,10 @@ type InterviewSummaryProps = {
 const InterviewSummary = (props: InterviewSummaryProps) => {
     const { t } = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
-    const interview = useSelector((state: RootState) => state.survey.interview);
+    const interview = useSelector((state: RootState) => state.survey.interview) as UserRuntimeInterviewAttributes;
     const user = useSelector((state: RootState) => state.auth.user) as CliUser;
-    const validationDataDirty = interview?.validationDataDirty;
+    // FIXME Add the validationDataDirty to the interview type, but it is only for the admin
+    const validationDataDirty = (interview as any)?.validationDataDirty;
 
     const refreshInterview = useCallback(() => {
         dispatch(startSetValidateInterview(interview.uuid));
@@ -73,9 +75,10 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
                         handleInterviewSummaryChange={props.handleInterviewSummaryChange}
                         updateValuesByPath={updateValuesByPath}
                         interviewIsValid={interview.is_valid}
-                        interviewIsQuestionable={interview.is_questionable}
+                        interviewIsQuestionable={interview.is_questionable || false}
                         interviewIsComplete={interview.is_completed}
-                        interviewIsValidated={interview.is_validated}
+                        // FIXME Add the is_validated to the interview type, but it is only for the admin
+                        interviewIsValidated={(interview as any).is_validated}
                         interviewUuid={interview.uuid}
                         prevInterviewUuid={props.prevInterviewUuid}
                         nextInterviewUuid={props.nextInterviewUuid}

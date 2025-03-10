@@ -289,8 +289,13 @@ const SurveyWrapper: React.FC = (props) => {
 
     const startSetInterviewAction = (sectionShortname, surveyUuid, preFilledResponses) =>
         dispatch(startSetInterview(sectionShortname, surveyUuid, navigate, preFilledResponses));
-    const startUpdateInterviewAction = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
-        dispatch(startUpdateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback, navigate));
+    const startUpdateInterviewAction: StartUpdateInterview = (
+        sectionShortname,
+        valuesByPath,
+        unsetPaths,
+        interview,
+        callback
+    ) => dispatch(startUpdateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback, navigate));
     const startAddGroupedObjectsAction = (newObjectsCount, insertSequence, path, attributes, callback, returnOnly) =>
         dispatch(startAddGroupedObjects(newObjectsCount, insertSequence, path, attributes, callback, returnOnly));
     const startRemoveGroupedObjectsAction = (paths, callback, returnOnly) =>

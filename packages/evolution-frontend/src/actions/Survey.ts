@@ -12,6 +12,7 @@ import isEqual from 'lodash/isEqual';
 import _unset from 'lodash/unset';
 import bowser from 'bowser';
 import { NavigateFunction } from 'react-router';
+import { ThunkDispatch } from 'redux-thunk';
 
 /* eslint-disable-next-line */
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
@@ -35,10 +36,25 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import i18n from '../config/i18n.config';
 import { handleClientError, handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import applicationConfiguration from '../config/application.config';
-import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    StartUpdateInterview,
+    UserRuntimeInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
+import { SurveyAction, SurveyActionTypes } from '../store/survey';
+import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
+import { LoadingStateAction } from '../store/loadingState';
+import { RootState } from '../store/configureStore';
 
-// called whenever an update occurs in interview responses or when section is switched to
-// TODO: unit test
+/**
+ * Called whenever an update occurs in interview responses or when section is
+ * switched to. This function should only be called by redux actions, in this
+ * file and the admin one.
+ *
+ * FIXME Better document what this does and how it works wrt returned values by
+ * path
+ *
+ * TODO: unit test
+ */
 export const updateSection = (
     sectionShortname: string,
     _interview: UserRuntimeInterviewAttributes,
@@ -71,17 +87,19 @@ export const updateSection = (
 };
 
 const startUpdateInterviewCallback = async (
-    dispatch,
-    getState,
-    requestedSectionShortname: string | null,
-    valuesByPath: { [path: string]: unknown } = {},
-    unsetPaths?: string[],
-    initialInterview?: UserRuntimeInterviewAttributes,
-    callback?: (interview: UserRuntimeInterviewAttributes) => void,
-    navigate?: NavigateFunction
+    dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+    getState: () => RootState,
+    requestedSectionShortname: Parameters<StartUpdateInterview>[0],
+    valuesByPath: Parameters<StartUpdateInterview>[1] = {},
+    unsetPaths?: Parameters<StartUpdateInterview>[2],
+    initialInterview?: Parameters<StartUpdateInterview>[3],
+    callback?: Parameters<StartUpdateInterview>[4],
+    navigate?: Parameters<StartUpdateInterview>[5]
 ) => {
     try {
-        const interview = initialInterview ? initialInterview : _cloneDeep(getState().survey.interview);
+        const interview = initialInterview
+            ? initialInterview
+            : (_cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes);
         const user = getState().auth?.user || undefined;
         dispatch(incrementLoadingState());
         if (valuesByPath && Object.keys(valuesByPath).length > 0) {
@@ -266,6 +284,14 @@ const startUpdateInterviewCallback = async (
     }
 };
 
+/**
+ * Redux action to call with a dispatch to update the interview in the store.
+ * @param interview The interview to update
+ * @param errors The current errors in the interview
+ * @param submitted FIXME Need to document this. Is it when the form was
+ * officially submitted with a next button?
+ * @returns
+ */
 export const updateInterview = (
     interview: UserRuntimeInterviewAttributes,
     errors: {
@@ -274,8 +300,8 @@ export const updateInterview = (
         };
     } = {},
     submitted = false
-) => ({
-    type: 'UPDATE_INTERVIEW',
+): SurveyAction => ({
+    type: SurveyActionTypes.UPDATE_INTERVIEW,
     interviewLoaded: true,
     interview,
     errors,
@@ -296,15 +322,18 @@ export const updateInterview = (
  */
 export const startUpdateInterview =
     (
-        sectionShortname: string | null,
-        valuesByPath?: { [path: string]: unknown },
-        unsetPaths?: string[],
-        interview?: UserRuntimeInterviewAttributes,
-        callback?: (interview: UserRuntimeInterviewAttributes) => void,
-        navigate?: NavigateFunction
+        sectionShortname: Parameters<StartUpdateInterview>[0],
+        valuesByPath?: Parameters<StartUpdateInterview>[1],
+        unsetPaths?: Parameters<StartUpdateInterview>[2],
+        interview?: Parameters<StartUpdateInterview>[3],
+        callback?: Parameters<StartUpdateInterview>[4],
+        navigate?: Parameters<StartUpdateInterview>[5]
     ) =>
-        async (dispatch, getState) => {
-            return await startUpdateInterviewCallback(
+        async (
+            dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+            getState: () => RootState
+        ) => {
+            await startUpdateInterviewCallback(
                 dispatch,
                 getState,
                 sectionShortname,
