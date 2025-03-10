@@ -29,6 +29,7 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import {
     StartAddGroupedObjects,
     StartRemoveGroupedObjects,
+    StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
@@ -40,14 +41,17 @@ import { SurveyAction } from '../store/survey';
 import { LoadingStateAction } from '../store/loadingState';
 import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 
-export const startUpdateSurveyValidateInterview = function (
-    sectionShortname: string | null,
-    valuesByPath: { [path: string]: unknown } | null = null,
-    unsetPaths: string[] | null = null,
-    interview: UserRuntimeInterviewAttributes | null = null,
-    callback?: (interview: UserRuntimeInterviewAttributes) => void
-) {
-    return async (dispatch, getState) => {
+export const startUpdateSurveyValidateInterview = (
+    sectionShortname: Parameters<StartUpdateInterview>[0],
+    valuesByPath?: Parameters<StartUpdateInterview>[1],
+    unsetPaths?: Parameters<StartUpdateInterview>[2],
+    interview?: Parameters<StartUpdateInterview>[3],
+    callback?: Parameters<StartUpdateInterview>[4]
+) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
         //surveyHelper.devLog(`Update interview and section with values by path`, valuesByPath);
         try {
             if (interview === null) {
@@ -216,7 +220,7 @@ export const startSetSurveyValidateInterview = (
                     response.json().then((body) => {
                         if (body.interview) {
                             const interview = body.interview;
-                            dispatch(startUpdateSurveyValidateInterview('home', {}, null, interview, callback));
+                            dispatch(startUpdateSurveyValidateInterview('home', {}, undefined, interview, callback));
                         }
                     });
                 }
@@ -252,7 +256,7 @@ export const startSurveyValidateAddGroupedObjects = (
         if (returnOnly) {
             return changedValuesByPath;
         } else {
-            dispatch(startUpdateSurveyValidateInterview(null, changedValuesByPath, null, null, callback));
+            dispatch(startUpdateSurveyValidateInterview(null, changedValuesByPath, undefined, undefined, callback));
         }
     };
 };
@@ -305,7 +309,13 @@ export const startResetValidateInterview = (
                         if (body.interview) {
                             const interview = body.interview;
                             dispatch(
-                                startUpdateSurveyValidateInterview('validationOnePager', {}, null, interview, callback)
+                                startUpdateSurveyValidateInterview(
+                                    'validationOnePager',
+                                    {},
+                                    undefined,
+                                    interview,
+                                    callback
+                                )
                             );
                         }
                     });
@@ -343,7 +353,13 @@ export const startSetValidateInterview = (
                         if (body.interview) {
                             const interview = body.interview;
                             dispatch(
-                                startUpdateSurveyValidateInterview('validationOnePager', {}, null, interview, callback)
+                                startUpdateSurveyValidateInterview(
+                                    'validationOnePager',
+                                    {},
+                                    undefined,
+                                    interview,
+                                    callback
+                                )
                             );
                         }
                     });

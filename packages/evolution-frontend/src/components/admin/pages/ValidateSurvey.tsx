@@ -241,8 +241,13 @@ const ValidateSurveyWrapper = (props) => {
 
     const startSetInterviewAction: StartSetInterview = (interviewUuid, callback) =>
         dispatch(startSetSurveyValidateInterview(interviewUuid, callback));
-    const startUpdateInterviewAction = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
-        dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback));
+    const startUpdateInterviewAction: StartUpdateInterview = (
+        sectionShortname,
+        valuesByPath,
+        unsetPaths,
+        interview,
+        callback
+    ) => dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback));
     const startAddGroupedObjectsAction: StartAddGroupedObjects = (
         newObjectsCount,
         insertSequence,
