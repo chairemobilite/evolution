@@ -44,7 +44,7 @@ type AttributeAndObjectPaths = {
  * @param responses
  * @returns
  */
-const replaceSectionsWithDurations = (responses) => {
+export const replaceSectionsWithDurations = (responses) => {
     // For each section, keep the first start time, the total duration, number of entries and whether it is completed
     const actualSections: {
         [sectionName: string]: { duration: number; firstStart: number; numberOfEntries: number; isCompleted: boolean };
@@ -78,13 +78,13 @@ const replaceSectionsWithDurations = (responses) => {
 };
 
 // Test whether this attribute is an array of objects
-const isArrayOfObjects = function (data: unknown): data is object[] {
+export const isArrayOfObjects = function (data: unknown): data is object[] {
     return (
         Array.isArray(data) && data.length > 0 && data.every((obj) => typeof obj === 'object' && !Array.isArray(obj))
     );
 };
 
-const getNestedAttributes = function (
+export const getNestedAttributes = function (
     parentAttribute: string,
     _object: { [key: string]: unknown },
     attributesAndObjectPaths: AttributeAndObjectPaths = {
@@ -135,7 +135,7 @@ const getNestedAttributes = function (
     return attributesAndObjectPaths;
 };
 
-const getPaths = function (parentPath, _object, attributes: string[] = []) {
+export const getPaths = function (parentPath, _object, attributes: string[] = []) {
     for (const attribute in _object) {
         if (attribute === '_actions') {
             continue;
@@ -157,7 +157,7 @@ const getPaths = function (parentPath, _object, attributes: string[] = []) {
     return attributes;
 };
 
-const removeUuidsFromPath = function (path, replaceUuidsBy = '_') {
+export const removeUuidsFromPath = function (path, replaceUuidsBy = '_') {
     const pathSplittedOnDot = path.split('.');
     const uuidsFound: string[] = [];
     let newPath = path;
@@ -183,7 +183,7 @@ const removeUuidsFromPath = function (path, replaceUuidsBy = '_') {
     return newPath;
 };
 
-const getLastUuidFromPath = function (path) {
+export const getLastUuidFromPath = function (path) {
     const pathSplittedOnDot = path.split('.').reverse();
     for (let i = 0, count = pathSplittedOnDot.length; i < count; i++) {
         const pathPart = pathSplittedOnDot[i];
@@ -194,7 +194,7 @@ const getLastUuidFromPath = function (path) {
     return undefined;
 };
 
-const getInterviewStream = (options: ExportOptions) =>
+export const getInterviewStream = (options: ExportOptions) =>
     interviewsDbQueries.getInterviewsStream({
         filters: {},
         select: {
@@ -204,7 +204,7 @@ const getInterviewStream = (options: ExportOptions) =>
         }
     });
 
-const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndObjectPaths> => {
+export const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndObjectPaths> => {
     const allAttributes: AttributeAndObjectPaths = {
         attributes: [],
         objectPaths: []
@@ -251,7 +251,7 @@ const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndObje
  * @returns An object where the keys are the objects to export and the values
  * are an array of path
  */
-const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: string]: string[] }> => {
+export const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: string]: string[] }> => {
     const paths = await getRenamedPaths(options);
 
     const pathsByObject = {
@@ -306,7 +306,7 @@ const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: str
  * @param pathKey The path key to use to add the coordinates to
  * @param value The value to add to the coordinates
  */
-const handleCoordinates = (container: any, pathKey: string, value: unknown) => {
+export const handleCoordinates = (container: any, pathKey: string, value: unknown) => {
     // force create the fields even if empty otherwise you may end up with an empty header for the lat/lon column if the first row has an empty geometry:
     container[pathKey.replace('.coordinates', '') + '.lon'] = undefined;
     container[pathKey.replace('.coordinates', '') + '.lat'] = undefined;
@@ -322,7 +322,7 @@ const handleCoordinates = (container: any, pathKey: string, value: unknown) => {
  * @param value The value to format
  * @returns The formatted value
  */
-const formatValue = (value: unknown): unknown => {
+export const formatValue = (value: unknown): unknown => {
     let valueString = value;
     if (Array.isArray(valueString)) {
         valueString = valueString.join('|');
