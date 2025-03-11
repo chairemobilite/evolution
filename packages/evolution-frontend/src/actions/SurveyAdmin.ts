@@ -54,11 +54,9 @@ export const startUpdateSurveyValidateInterview = (
     ) => {
         //surveyHelper.devLog(`Update interview and section with values by path`, valuesByPath);
         try {
-            if (interview === null) {
-                interview = _cloneDeep(getState().survey.interview);
-            }
-
-            //interview.sectionLoaded = null;
+            interview = interview
+                ? interview
+                : (_cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes);
 
             dispatch(incrementLoadingState());
 
@@ -68,9 +66,6 @@ export const startUpdateSurveyValidateInterview = (
                     JSON.parse(JSON.stringify(valuesByPath))
                 );
             }
-
-            //const oldInterview = _cloneDeep(interview);
-            //const previousSection = surveyHelper.getResponse(interview, '_activeSection', null);
 
             const affectedPaths = {};
 
@@ -200,7 +195,6 @@ export const startUpdateSurveyValidateInterview = (
  * @param {*} callback
  * @returns
  */
-// Almost the same as startSetValidateInterview, TODO: refactor to use the same function
 // TODO: unit test
 export const startSetSurveyValidateInterview = (
     interviewUuid: string,
@@ -220,7 +214,7 @@ export const startSetSurveyValidateInterview = (
                     response.json().then((body) => {
                         if (body.interview) {
                             const interview = body.interview;
-                            dispatch(startUpdateSurveyValidateInterview('home', {}, undefined, interview, callback));
+                            dispatch(startUpdateSurveyValidateInterview(null, {}, undefined, interview, callback));
                         }
                     });
                 }
@@ -294,12 +288,15 @@ export const startSurveyValidateRemoveGroupedObjects = (
  */
 // TODO: unit test
 export const startResetValidateInterview = (
-    interviewUuid,
-    callback = function () {
+    interviewUuid: string,
+    callback: (interview: UserRuntimeInterviewAttributes) => void = function () {
         return;
     }
 ) => {
-    return (dispatch, _getState) => {
+    return (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        _getState: () => RootState
+    ) => {
         return fetch(`/api/survey/validateInterview/${interviewUuid}?reset=true`, {
             credentials: 'include'
         })
@@ -308,65 +305,13 @@ export const startResetValidateInterview = (
                     response.json().then((body) => {
                         if (body.interview) {
                             const interview = body.interview;
-                            dispatch(
-                                startUpdateSurveyValidateInterview(
-                                    'validationOnePager',
-                                    {},
-                                    undefined,
-                                    interview,
-                                    callback
-                                )
-                            );
+                            dispatch(startUpdateSurveyValidateInterview(null, {}, undefined, interview, callback));
                         }
                     });
                 }
             })
             .catch((err) => {
                 surveyHelper.devLog('Error fetching interview to reset.', err);
-            });
-    };
-};
-
-/**
- * Fetch an interview from server and set it for display in a one page summary.
- *
- * TODO Only the section ('home', 'validationOnePager') is different from 'startSetSurveyValidateInterview' Re-use
- *
- * @param {*} interviewUuid The uuid of the interview to open
- * @param {*} callback
- * @returns
- */
-// TODO: unit test
-export const startSetValidateInterview = (
-    interviewUuid,
-    callback = function () {
-        return;
-    }
-) => {
-    return (dispatch, _getState) => {
-        return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
-            credentials: 'include'
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    response.json().then((body) => {
-                        if (body.interview) {
-                            const interview = body.interview;
-                            dispatch(
-                                startUpdateSurveyValidateInterview(
-                                    'validationOnePager',
-                                    {},
-                                    undefined,
-                                    interview,
-                                    callback
-                                )
-                            );
-                        }
-                    });
-                }
-            })
-            .catch((err) => {
-                surveyHelper.devLog('Error fetching interview to validate.', err);
             });
     };
 };
