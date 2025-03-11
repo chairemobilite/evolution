@@ -12,7 +12,7 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import ValidationOnePageSummary from './ValidationOnePageSummary';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import {
-    startSetValidateInterview,
+    startSetSurveyValidateInterview,
     startUpdateSurveyValidateInterview,
     startResetValidateInterview
 } from '../../../actions/SurveyAdmin';
@@ -40,7 +40,7 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
     const validationDataDirty = (interview as any)?.validationDataDirty;
 
     const refreshInterview = useCallback(() => {
-        dispatch(startSetValidateInterview(interview.uuid));
+        dispatch(startSetSurveyValidateInterview(interview.uuid));
     }, [dispatch, interview.uuid]);
 
     const resetInterview = useCallback(() => {
