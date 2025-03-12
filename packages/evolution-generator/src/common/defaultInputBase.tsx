@@ -27,7 +27,7 @@ import {
 // TODO: Make sure to add tests for these default inputs
 
 // Input Radio default params
-export const inputRadioBase: Pick<BaseQuestionType & InputRadioType, 'type' | 'inputType' | 'datatype' | 'columns'> = {
+export const inputRadioBase: Pick<InputRadioType, 'type' | 'inputType' | 'datatype' | 'columns'> = {
     type: 'question',
     inputType: 'radio',
     datatype: 'string',
@@ -35,10 +35,7 @@ export const inputRadioBase: Pick<BaseQuestionType & InputRadioType, 'type' | 'i
 };
 
 // Input Radio Number default params
-export const inputRadioNumberBase: Pick<
-    BaseQuestionType & InputRadioNumberType,
-    'type' | 'inputType' | 'columns' | 'sameLine'
-> = {
+export const inputRadioNumberBase: Pick<InputRadioNumberType, 'type' | 'inputType' | 'columns' | 'sameLine'> = {
     type: 'question',
     inputType: 'radioNumber',
     columns: 1,
@@ -46,7 +43,7 @@ export const inputRadioNumberBase: Pick<
 };
 
 // Input String default params
-export const inputStringBase: Pick<BaseQuestionType & InputStringType, 'type' | 'inputType' | 'datatype'> = {
+export const inputStringBase: Pick<InputStringType, 'type' | 'inputType' | 'datatype'> = {
     type: 'question',
     inputType: 'string',
     datatype: 'string'
@@ -54,7 +51,7 @@ export const inputStringBase: Pick<BaseQuestionType & InputStringType, 'type' | 
 
 // Input Number default params
 export const inputNumberBase: Pick<
-    BaseQuestionType & InputStringType,
+    InputStringType,
     'type' | 'inputType' | 'datatype' | 'size' | 'inputFilter' | 'keyboardInputMode'
 > = {
     type: 'question',
@@ -74,16 +71,13 @@ export const infoTextBase: Pick<TextWidgetConfig, 'type'> = {
 };
 
 // InputRange default params
-export const inputRangeBase: Pick<BaseQuestionType & InputRangeType, 'type' | 'inputType'> = {
+export const inputRangeBase: Pick<InputRangeType, 'type' | 'inputType'> = {
     type: 'question',
     inputType: 'slider'
 };
 
 // Checkbox default params
-export const inputCheckboxBase: Pick<
-    BaseQuestionType & InputCheckboxType,
-    'type' | 'inputType' | 'datatype' | 'columns'
-> = {
+export const inputCheckboxBase: Pick<InputCheckboxType, 'type' | 'inputType' | 'datatype' | 'columns'> = {
     type: 'question',
     inputType: 'checkbox',
     datatype: 'string',
@@ -91,7 +85,7 @@ export const inputCheckboxBase: Pick<
 };
 
 // Select default params
-export const inputSelectBase: Pick<BaseQuestionType & InputSelectType, 'type' | 'inputType' | 'datatype'> = {
+export const inputSelectBase: Pick<InputSelectType, 'type' | 'inputType' | 'datatype'> = {
     type: 'question',
     inputType: 'select',
     datatype: 'string'
@@ -112,7 +106,7 @@ export const buttonNextBase: Pick<
 };
 
 // Text textarea default params
-export const textBase: Pick<BaseQuestionType & InputTextType, 'type' | 'inputType' | 'datatype'> = {
+export const textBase: Pick<InputTextType, 'type' | 'inputType' | 'datatype'> = {
     type: 'question',
     inputType: 'text',
     datatype: 'text'

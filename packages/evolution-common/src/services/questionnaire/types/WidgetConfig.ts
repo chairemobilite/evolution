@@ -28,6 +28,26 @@ type WidgetDirectionAlign = 'center' | 'left' | 'right';
 // ChatGPT: This would represent the spatial alignment options as it "pertains to the spatial orientation"
 type WidgetSpaceAlign = 'vertical' | 'horizontal' | 'auto';
 
+// This represent if the content contains HTML
+type ContainsHtml = boolean;
+
+// This represent when the widget have a help popup
+export type HelpPopup = {
+    containsHtml?: ContainsHtml;
+    title: I18nData;
+    content: I18nData;
+};
+
+/**
+ * Represents a conditional configuration for a widget.
+ *
+ * - If a boolean is returned, it indicates whether the widget is active or not.
+ * - If an array is returned:
+ *   - The first element is a boolean indicating whether the widget is active.
+ *   - The second element is the value the widget will take if it is not visible.
+ */
+export type WidgetConditional = ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+
 /**
  * Validation function, which validates the value with potentially multiple
  * validation functions and return whether the specified error message should be
@@ -53,7 +73,7 @@ export type ValidationFunction = (
     isWarning?: boolean; // For now, used only in admin validations and auditing. Will be displayed differently in audits.
 }[];
 
-export type InputStringType = {
+export type InputStringType = BaseQuestionType & {
     inputType: 'string';
     defaultValue?: string | ParsingFunction<string>;
     maxLength?: number;
@@ -66,7 +86,7 @@ export type InputStringType = {
     keyboardInputMode?: 'none' | 'text' | 'numeric' | 'decimal' | 'tel' | 'search' | 'email' | 'url';
 };
 
-export type InputTextType = {
+export type InputTextType = BaseQuestionType & {
     inputType: 'text';
     defaultValue?: string | ParsingFunction<string>;
     maxLength?: number;
@@ -81,7 +101,7 @@ type BaseChoiceType = {
     hidden?: boolean;
     icon?: IconProp;
     iconPath?: string;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: WidgetConditional;
     color?: string;
     size?: WidgetSize;
 };
@@ -104,7 +124,7 @@ export const isGroupedChoice = (choice: GroupedChoiceType | ChoiceType): choice 
     return typeof (choice as any).groupShortname === 'string';
 };
 
-export type InputCheckboxType = {
+export type InputCheckboxType = BaseQuestionType & {
     inputType: 'checkbox';
     choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
     // string css style for the icon size, for example '2em'
@@ -121,7 +141,7 @@ export type InputCheckboxType = {
     customAlignmentLengths?: number[];
 };
 
-export type InputRadioType = {
+export type InputRadioType = BaseQuestionType & {
     inputType: 'radio';
     choices: RadioChoiceType[] | ParsingFunction<RadioChoiceType[]>;
     // string css style for the icon size, for example '2em'
@@ -140,7 +160,7 @@ export type InputRadioType = {
     customAlignmentLengths?: number[];
 };
 
-export type InputRadioNumberType = {
+export type InputRadioNumberType = BaseQuestionType & {
     inputType: 'radioNumber';
     valueRange: {
         min: number | ParsingFunction<number>;
@@ -155,14 +175,14 @@ export type InputRadioNumberType = {
 };
 
 // TODO Could select widget have a custom 'other' field? Like checkbox and radios
-export type InputSelectType = {
+export type InputSelectType = BaseQuestionType & {
     inputType: 'select';
     choices: (GroupedChoiceType | ChoiceType)[] | ParsingFunction<(GroupedChoiceType | ChoiceType)[]>;
     // string css style for the icon size, for example '2em'
     datatype?: 'string' | 'integer' | 'float' | 'text';
 };
 
-export type InputMultiselectType = {
+export type InputMultiselectType = BaseQuestionType & {
     inputType: 'multiselect';
     choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
     // string css style for the icon size, for example '2em'
@@ -175,7 +195,7 @@ export type InputMultiselectType = {
     closeMenuOnSelect?: boolean;
 };
 
-export type InputButtonType = {
+export type InputButtonType = BaseQuestionType & {
     inputType: 'button';
     choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
     hideWhenRefreshing?: boolean;
@@ -184,7 +204,7 @@ export type InputButtonType = {
     sameLine?: boolean;
 };
 
-export type InputTimeType = {
+export type InputTimeType = BaseQuestionType & {
     inputType: 'time';
     suffixTimes?: ParsingFunction<{ [timeStr: string]: string }>;
     minTimeSecondsSinceMidnight?: number | ParsingFunction<number>;
@@ -193,20 +213,20 @@ export type InputTimeType = {
     addHourSeparators?: boolean;
 };
 
-export type InputRangeType = {
+export type InputRangeType = BaseQuestionType & {
     inputType: 'slider';
-    maxValue?: number;
-    minValue?: number;
-    formatLabel?: (value: number, lang: string) => string;
     labels?: I18nData[];
-    trackClassName?: string;
+    formatLabel?: (value: number, lang: string) => string;
+    minValue?: number;
+    maxValue?: number;
     /** Whether to include a 'not applicable' checkbox that will disable the input */
     includeNotApplicable?: boolean;
     /** An optional label for the 'not applicable' text. Only used if includeNotApplicable is true */
     notApplicableLabel?: I18nData;
+    trackClassName?: string;
 };
 
-export type InputDatePickerType = {
+export type InputDatePickerType = BaseQuestionType & {
     inputType: 'datePicker';
     showTimeSelect?: boolean;
     placeholderText?: I18nData;
@@ -222,7 +242,7 @@ type InputMapType = {
     refreshGeocodingLabel?: I18nData;
     afterRefreshButtonText?: I18nData;
     icon?: IconData;
-    containsHtml?: boolean;
+    containsHtml?: ContainsHtml;
     maxZoom?: number;
     defaultZoom?: number;
     canBeCollapsed?: boolean;
@@ -230,26 +250,28 @@ type InputMapType = {
     defaultValue?: GeoJSON.Point | ParsingFunction<GeoJSON.Point>;
 };
 
-export type InputMapPointType = InputMapType & {
-    inputType: 'mapPoint';
-    showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
-};
+export type InputMapPointType = InputMapType &
+    BaseQuestionType & {
+        inputType: 'mapPoint';
+        showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
+    };
 
-export type InputMapFindPlaceType = InputMapType & {
-    inputType: 'mapFindPlace';
-    showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
-    searchPlaceButtonColor?: string | ParsingFunction<string>;
-    placesIcon?: IconData;
-    maxGeocodingResultsBounds?: ParsingFunction<
-        [{ lat: number; lng: number }, { lat: number; lng: number }] | undefined
-    >;
-    height?: string; // the height of the map container in css units: example: 28rem or 550px
-    coordinatesPrecision?: number; // number of decimals to keep for latitute longitude coordinates.
-    invalidGeocodingResultTypes?: string[];
-    showPhoto?: boolean;
-    autoConfirmIfSingleResult?: boolean;
-    updateDefaultValueWhenResponded?: boolean;
-};
+export type InputMapFindPlaceType = InputMapType &
+    BaseQuestionType & {
+        inputType: 'mapFindPlace';
+        showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
+        searchPlaceButtonColor?: string | ParsingFunction<string>;
+        placesIcon?: IconData;
+        maxGeocodingResultsBounds?: ParsingFunction<
+            [{ lat: number; lng: number }, { lat: number; lng: number }] | undefined
+        >;
+        height?: string; // the height of the map container in css units: example: 28rem or 550px
+        coordinatesPrecision?: number; // number of decimals to keep for latitute longitude coordinates.
+        invalidGeocodingResultTypes?: string[];
+        showPhoto?: boolean;
+        autoConfirmIfSingleResult?: boolean;
+        updateDefaultValueWhenResponded?: boolean;
+    };
 
 export type BaseQuestionType = {
     type: 'question';
@@ -265,7 +287,7 @@ export type BaseQuestionType = {
      */
     joinWith?: string;
     path: InterviewResponsePath;
-    containsHtml?: boolean;
+    containsHtml?: ContainsHtml;
     label: I18nData;
 
     /**
@@ -275,47 +297,41 @@ export type BaseQuestionType = {
      */
     useAssignedValueOnHide?: boolean;
 
-    helpPopup?: {
-        title: I18nData;
-        content: I18nData;
-        containsHtml?: boolean;
-    };
+    helpPopup?: HelpPopup;
     validations?: ValidationFunction;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: WidgetConditional;
 };
 
-export type QuestionWidgetConfig = BaseQuestionType &
-    (
-        | InputStringType
-        | InputTextType
-        | InputCheckboxType
-        | InputMultiselectType
-        | InputRadioType
-        | InputButtonType
-        | InputTimeType
-        | InputMapPointType
-        | InputMapFindPlaceType
-        | InputRangeType
-        | InputDatePickerType
-        | InputSelectType
-        | InputRadioNumberType
-    );
+export type QuestionWidgetConfig =
+    | InputStringType
+    | InputTextType
+    | InputCheckboxType
+    | InputMultiselectType
+    | InputRadioType
+    | InputButtonType
+    | InputTimeType
+    | InputMapPointType
+    | InputMapFindPlaceType
+    | InputRangeType
+    | InputDatePickerType
+    | InputSelectType
+    | InputRadioNumberType;
 
 export type TextWidgetConfig = {
     type: 'text';
     align?: WidgetDirectionAlign;
     path?: string;
-    containsHtml?: boolean;
+    containsHtml?: ContainsHtml;
     text: I18nData;
     classes?: string;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: WidgetConditional;
 };
 
 export type ButtonWidgetConfig = {
     type: 'button';
     // The 'path' is required to resolve ${relativePath} in conditional expressions.
     path?: string;
-    containsHtml?: boolean;
+    containsHtml?: ContainsHtml;
     color?: string;
     label: I18nData;
     /**
@@ -337,10 +353,10 @@ export type ButtonWidgetConfig = {
         confirmButtonLabel?: I18nData;
         cancelButtonColor?: string;
         confirmButtonColor?: string;
-        conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+        conditional?: WidgetConditional;
     };
     size?: WidgetSize;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: WidgetConditional;
 };
 
 export type SurveyMapObjectProperty = {
@@ -371,7 +387,7 @@ type SurveyMapObjectPolygonProperty = SurveyMapObjectProperty & {
 export type InfoMapWidgetConfig = {
     type: 'infoMap';
     path?: string;
-    conditional?: ParsingFunction<boolean | [boolean] | [boolean, unknown]>;
+    conditional?: WidgetConditional;
     title: I18nData;
     geojsons: ParsingFunction<{
         points?: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapObjectProperty>;
@@ -435,7 +451,7 @@ export type GroupConfig = {
         conditional?: boolean | ParsingFunction<boolean>;
         title?: I18nData;
         cancelAction?: React.MouseEventHandler;
-        containsHtml?: boolean;
+        containsHtml?: ContainsHtml;
     };
     addButtonLocation?: 'bottom' | 'top' | 'both';
     addButtonSize?: string;

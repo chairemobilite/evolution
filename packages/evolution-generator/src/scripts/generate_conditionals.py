@@ -80,7 +80,7 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
 
         # Add imports
         ts_code += f"import {{ checkConditionals }} from 'evolution-common/lib/services/conditionals/checkConditionals';{NEWLINE}"
-        ts_code += f"import {{ Conditional }} from 'evolution-generator/lib/types/inputTypes';{NEWLINE}"
+        ts_code += f"import {{ type WidgetConditional }} from 'evolution-common/lib/services/questionnaire/types';{NEWLINE}"
 
         # Create a TypeScript function for each conditional_name
         for conditional_name, conditionals in conditional_by_name.items():
@@ -90,7 +90,7 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
             )
             declare_relative_path = f"{INDENT}const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path{NEWLINE}"
 
-            ts_code += f"\nexport const {conditional_name}: Conditional = (interview{', path' if conditionals_has_path else ''}) => {{{NEWLINE}"
+            ts_code += f"\nexport const {conditional_name}: WidgetConditional = (interview{', path' if conditionals_has_path else ''}) => {{{NEWLINE}"
             ts_code += declare_relative_path if conditionals_has_path else ""
             ts_code += INDENT + "return checkConditionals({" + NEWLINE
             ts_code += INDENT + INDENT + "interview," + NEWLINE

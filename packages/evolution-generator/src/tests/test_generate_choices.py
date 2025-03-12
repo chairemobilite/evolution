@@ -232,7 +232,7 @@ def test_generate_choices(
 
             # Check that the TypeScript code is correct
             assert (
-                "import { Choices } from 'evolution-common/lib/services/surveyGenerator/types/inputTypes';"
+                "import { type ChoiceType } from 'evolution-common/lib/services/questionnaire/types';"
                 in ts_code
             )
 

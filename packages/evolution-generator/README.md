@@ -256,7 +256,7 @@ In this example, we define a widget for the question `end_email`. This widget is
 
 ```typescript
 // end/widgets.tsx
-export const end_email: inputTypes.InputString = {
+export const end_email: WidgetConfig.InputStringType = {
     ...defaultInputBase.inputStringBase,
     path: 'end.email',
     label: (t: TFunction) => t('end:end.email'),
