@@ -4,14 +4,15 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { NavigateFunction } from 'react-router';
-import { Dispatch } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
+import { GotoFunction } from 'evolution-common/lib/services/questionnaire/types';
+import { AuthAction, AuthState } from 'chaire-lib-frontend/lib/store/auth';
 
 const unauthorizedPage = '/unauthorized';
 const errorPage = '/error';
 
-const redirectToErrorPage = (navigate?: NavigateFunction) => {
+const redirectToErrorPage = (navigate?: GotoFunction) => {
     if (navigate) {
         // FIXME: Used history previous with following comment, make sure it is
         // still valid and update if necessary: History avoids reload the page
@@ -38,7 +39,7 @@ const redirectToErrorPage = (navigate?: NavigateFunction) => {
  */
 export const handleClientError = (
     error: unknown,
-    { interviewId, navigate }: { interviewId?: number; navigate?: NavigateFunction }
+    { interviewId, navigate }: { interviewId?: number; navigate?: GotoFunction }
 ) => {
     logClientSideMessage(error, { interviewId });
     redirectToErrorPage(navigate);
@@ -55,8 +56,8 @@ export const handleClientError = (
  */
 export const handleHttpOtherResponseCode = async (
     responseCode: number,
-    dispatch: Dispatch,
-    navigate?: NavigateFunction
+    dispatch: ThunkDispatch<{ auth: AuthState }, unknown, AuthAction>,
+    navigate?: GotoFunction
 ) => {
     if (responseCode === 401) {
         // Verify authentication, so that we get the new authentication status

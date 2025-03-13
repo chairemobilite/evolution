@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { UserInterviewAttributes } from '../../services/questionnaire/types';
+import { UserInterviewAttributes, UserRuntimeInterviewAttributes } from '../../services/questionnaire/types';
 
 const baseInterviewAttributes: Pick<
     UserInterviewAttributes,
@@ -42,7 +42,7 @@ const baseInterviewAttributes: Pick<
  * This base interview is used by many unit tests to test the behavior of the
  * widgets. Do not change it too much, as it may impact other tests.
  */
-export const interviewAttributesForTestCases: UserInterviewAttributes = {
+export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
     ...baseInterviewAttributes,
     responses: {
         home: {
@@ -273,5 +273,9 @@ export const interviewAttributesForTestCases: UserInterviewAttributes = {
             }
         }
     },
-    validations: {}
+    validations: {},
+    widgets: {},
+    groups: {},
+    visibleWidgets: [],
+    allWidgetsValid: true
 };

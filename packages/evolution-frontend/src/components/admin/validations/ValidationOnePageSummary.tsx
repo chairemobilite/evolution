@@ -26,7 +26,8 @@ const ValidationOnePageSummary = () => {
     const [InterviewStats, setInterviewStats] = useState<React.ComponentType<InterviewStatsProps> | null>(null);
     const [InterviewMap, setInterviewMap] = useState<React.ComponentType<InterviewMapProps> | null>(null);
 
-    const interview = useSelector((state: RootState) => state.survey.interview);
+    // FIXME Admin interview type should be different from participant, with more types
+    const interview = useSelector((state: RootState) => state.survey.interview) as any;
     const user = useSelector((state: RootState) => state.auth.user);
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const startUpdateInterview = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
