@@ -609,3 +609,25 @@ export const getWidgetChoiceFromValue = ({
     const baseChoices = choices.flatMap((choice) => choice.choices || [choice]);
     return baseChoices.find((choice) => choice.value === value);
 };
+
+/**
+ * Check if the section is complete
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} options.sectionName - The name of the section to check.
+ * @returns {boolean | null} - Returns true if the section is complete, false if not, or null if the section is not found.
+ *
+ * @description This function checks if the section is complete by looking at the `interview.responses._sections.${sectionName}._isCompleted` field.
+ */
+export const isSectionComplete = ({
+    interview,
+    sectionName
+}: {
+    interview: UserInterviewAttributes;
+    sectionName: string;
+}): boolean | null => {
+    const isSectionComplete = getResponse(interview, `_sections.${sectionName}._isCompleted`, null) as boolean | null;
+
+    return isSectionComplete;
+};

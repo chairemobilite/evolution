@@ -5,10 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { type ValidationFunction } from 'evolution-common/lib/services/questionnaire/types';
-import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
+import { type ValidationFunction } from '../../questionnaire/types';
+import * as surveyHelperNew from '../../../utils/helpers';
 
-// Make sure the question is answered
+/**
+ * Make sure the question is answered.
+ *
+ * @see {@link ValidationFunction}
+ */
 export const requiredValidation: ValidationFunction = (value) => {
     return [
         {
@@ -21,10 +25,20 @@ export const requiredValidation: ValidationFunction = (value) => {
     ];
 };
 
-// Optional question
+/**
+ * Optional question.
+ *
+ * @see {@link ValidationFunction}
+ */
 export const optionalValidation: ValidationFunction = () => [];
 
-// Make sure the InputRange is answered with a positive number
+/**
+ * Make sure the InputRange is answered with a positive number.
+ *
+ * The value must be a positive number or 'na'.
+ *
+ * @see {@link ValidationFunction}
+ */
 export const inputRangeValidation: ValidationFunction = (value) => {
     return [
         {
@@ -45,7 +59,13 @@ export const inputRangeValidation: ValidationFunction = (value) => {
     ];
 };
 
-// Verify if the value is a valid household size
+/**
+ * Verify if the value is a valid household size.
+ *
+ * The household size must be an integer between 1 and 18.
+ *
+ * @see {@link ValidationFunction}
+ */
 export const householdSizeValidation: ValidationFunction = (value) => {
     return [
         {
@@ -79,7 +99,16 @@ export const householdSizeValidation: ValidationFunction = (value) => {
     ];
 };
 
-// Verify if the value is a valid number of cars
+/**
+ * Verify if the value is a valid number of cars.
+ *
+ * The number of cars must be an integer between 0 and 13.
+ * The number of cars should not be more than 3 times the number of people in the household.
+ *
+ * Required interview.responses fields: 'household.size'
+ *
+ * @see {@link ValidationFunction}
+ */
 export const carNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
     const maxCarsPerPerson = 3;
@@ -128,7 +157,16 @@ export const carNumberValidation: ValidationFunction = (value, _customValue, int
     ];
 };
 
-// Verify if the value is a valid number of bikes
+/**
+ * Verify if the value is a valid number of bikes.
+ *
+ * The number of bikes must be an integer between 0 and 20.
+ * The number of bikes should not be more than 5 times the number of people in the household.
+ *
+ * Required interview.responses fields: 'household.size'
+ *
+ * @see {@link ValidationFunction}
+ */
 export const bikeNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
     const maxBikesPerPerson = 5;
@@ -177,7 +215,13 @@ export const bikeNumberValidation: ValidationFunction = (value, _customValue, in
     ];
 };
 
-// Verify if the value is a valid age
+/**
+ * Verify if the value is a valid age.
+ *
+ * The age must be an integer between 0 and 115.
+ *
+ * @see {@link ValidationFunction}
+ */
 export const ageValidation: ValidationFunction = (value) => {
     return [
         {
@@ -211,7 +255,13 @@ export const ageValidation: ValidationFunction = (value) => {
     ];
 };
 
-// Verify if the value is a valid email
+/**
+ * Verify if the value is a valid email.
+ *
+ * The email must be in a valid email format.
+ *
+ * @see {@link ValidationFunction}
+ */
 export const emailValidation: ValidationFunction = (value) => {
     return [
         {
@@ -235,7 +285,13 @@ export const emailValidation: ValidationFunction = (value) => {
     ];
 };
 
-// Verify if the value is a valid phone number. This validation is optional.
+/**
+ * Verify if the value is a valid phone number. This validation is optional.
+ *
+ * The phone number must be in the format 123-456-7890.
+ *
+ * @see {@link ValidationFunction}
+ */
 export const phoneValidation: ValidationFunction = (value) => {
     return [
         {
@@ -248,7 +304,13 @@ export const phoneValidation: ValidationFunction = (value) => {
     ];
 };
 
-// Verify the value is a valid postal code
+/**
+ * Verify the value is a valid postal code.
+ *
+ * The postal code must be in a valid Canadian format.
+ *
+ * @see {@link ValidationFunction}
+ */
 export const postalCodeValidation: ValidationFunction = (value) => {
     return [
         {

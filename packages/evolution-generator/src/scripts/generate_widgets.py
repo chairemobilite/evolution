@@ -348,8 +348,8 @@ def generate_import_statements(
     )
     return (
         f"import {{ TFunction }} from 'i18next';\n"
-        f"import * as defaultInputBase from 'evolution-generator/lib/common/defaultInputBase';\n"
-        f"import {{ defaultConditional }} from 'evolution-generator/lib/common/defaultConditional';\n"
+        f"import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';\n"
+        f"import {{ defaultConditional }} from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';\n"
         f"{choices_import}"
         f"{conditionals_import}"
         f"{custom_conditionals_import}"
@@ -358,7 +358,7 @@ def generate_import_statements(
         f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
         f"{input_range_import}"
         f"{custom_validations_import}"
-        f"import * as validations from 'evolution-generator/lib/common/validations';\n"
+        f"import * as validations from 'evolution-common/lib/services/widgets/validations/validations';\n"
         f"{cnt_person_import}"
         f"{gendered_suffix_import}"
     )

@@ -10,8 +10,8 @@
   "scripts": {
     "clean": "rimraf lib/",
     "cleanModules": "rimraf node_modules/",
-    "compile": "tsc",
-    "compile:dev": "tsc -w",
+    "compile": "echo 'no Typescript to compile for this workspace'",
+    "compile:dev": "echo 'no Typescript to compile for this workspace'",
     "test": "echo 'no tests to run for this workspace'",
     "test:unit": "echo 'no tests to run for this workspace'",
     "test:sequential": "echo 'no tests to run for this workspace'",

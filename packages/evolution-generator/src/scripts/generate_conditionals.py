@@ -79,7 +79,7 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += f"import {{ checkConditionals }} from 'evolution-common/lib/services/conditionals/checkConditionals';{NEWLINE}"
+        ts_code += f"import {{ checkConditionals }} from 'evolution-common/lib/services/widgets/conditionals/checkConditionals';{NEWLINE}"
         ts_code += f"import {{ type WidgetConditional }} from 'evolution-common/lib/services/questionnaire/types';{NEWLINE}"
 
         # Create a TypeScript function for each conditional_name

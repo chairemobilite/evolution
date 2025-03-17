@@ -8,9 +8,8 @@
 // to generate the code for a new section. It can be updated as desired.
 import React from 'react';
 
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
-import { SectionProps, useSectionTemplate } from 'evolution-frontend/lib/components/hooks/useSectionTemplate';
+import { SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate';
 
 export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => {
     const { preloaded } = useSectionTemplate(props);
