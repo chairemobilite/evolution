@@ -150,11 +150,25 @@ export const validateButtonActionWithCompleteSection: ButtonAction = (
             if (typeof saveCallback === 'function') {
                 saveCallback(callbacks, updatedInterview, path);
             } else {
-                // go to next section
+                // Calculate the completion percentage based on the next section index and total sections.
+                // The percentage will be 100% when the last section (completed section) is started.
+                const MAXIMUM_COMPLETION_PERCENTAGE = 100;
+                const currentCompletionPercentage: number = interview?.responses?._completionPercentage || 0;
+                const nextSectionIndex = Object.keys(sections).findIndex((key) => key === section) + 2;
+                const totalSections = Object.keys(sections).length;
+                const nextCompletionPercentage = Number(((nextSectionIndex / totalSections) * 100).toFixed(0));
+                const completionPercentage = Math.min(
+                    MAXIMUM_COMPLETION_PERCENTAGE,
+                    Math.max(currentCompletionPercentage, nextCompletionPercentage)
+                );
+
+                // Mark the section as completed and update the completion percentage
+                // Go to next section
                 window.scrollTo(0, 0);
                 callbacks.startUpdateInterview(section, {
                     'responses._activeSection': sections[section].nextSection,
-                    [`responses._sections.${section}._isCompleted`]: true
+                    [`responses._sections.${section}._isCompleted`]: true,
+                    'responses._completionPercentage': completionPercentage
                 });
             }
         }
