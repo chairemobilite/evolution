@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { getResponse, interpolatePath } from '../../utils/helpers';
+import { getResponse, interpolatePath } from '../../../utils/helpers';
 
 // Type definitions for conditionals, logical operators and comparison operators
 type PathType = string;

@@ -8,10 +8,8 @@ import { TFunction } from 'i18next';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import {
-    BaseQuestionType,
     ButtonWidgetConfig,
     InputCheckboxType,
     InputMapFindPlaceType,
@@ -23,6 +21,7 @@ import {
     InputTextType,
     TextWidgetConfig
 } from 'evolution-common/lib/services/questionnaire/types';
+import { validateButtonActionWithCompleteSection } from '../../services/display/frontendHelper';
 
 // TODO: Make sure to add tests for these default inputs
 
@@ -114,7 +113,7 @@ export const textBase: Pick<InputTextType, 'type' | 'inputType' | 'datatype'> = 
 
 // Find map place default params
 export const inputMapFindPlaceBase: Pick<
-    BaseQuestionType & InputMapFindPlaceType,
+    InputMapFindPlaceType,
     | 'type'
     | 'inputType'
     | 'height'

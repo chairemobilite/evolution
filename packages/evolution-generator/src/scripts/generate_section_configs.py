@@ -52,7 +52,7 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += f"import {{ isSectionComplete }} from 'evolution-generator/lib/helpers/configsHelpers';\n"
+        ts_code += f"import {{ isSectionComplete }} from 'evolution-common/lib/utils/helpers';\n"
         ts_code += f"import {{ SectionConfig }} from 'evolution-common/lib/services/questionnaire/types';\n"
         ts_code += f"import {{ widgetsNames }} from './widgetsNames';\n"
 
