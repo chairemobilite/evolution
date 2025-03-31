@@ -110,6 +110,10 @@ def generate_UI_tests(input_file: str, output_file: str):
                     f"/********** Tests {current_section} section **********/\n\n"
                 )
 
+                # Add a section progress bar test for the section
+                ts_code += f"// Progress bar test for {section} section\n"
+                ts_code += f"testHelpers.sectionProgressBarTest({{ context, sectionName: '{section}', completionPercentage: 0 }});\n\n"
+
             # Adjust path for widgets in groups using mappings or '?' for unknown groups
             if group:
                 # TODO: Get the group mapping from the Group widget path

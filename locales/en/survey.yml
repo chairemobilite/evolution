@@ -60,3 +60,6 @@ futureToday: "in {{count}} days"
 
 # Error message
 ResponseIsRequired: "This response is required."
+
+# Section Progress Bar
+completed: 'completed'

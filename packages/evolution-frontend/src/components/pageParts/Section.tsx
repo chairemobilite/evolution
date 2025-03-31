@@ -9,13 +9,15 @@ import React from 'react';
 import _get from 'lodash/get';
 import _shuffle from 'lodash/shuffle';
 
-import * as surveyHelper from 'evolution-common/lib/utils/helpers';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
+import { devLog } from 'evolution-common/lib/utils/helpers';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { Widget } from '../survey/Widget';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { SectionProps, useSectionTemplate } from '../hooks/useSectionTemplate';
+import SectionProgressBar from './SectionProgressBar';
 
 export const Section: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (
     props: SectionProps & WithTranslation & WithSurveyContextProps
@@ -76,7 +78,7 @@ export const Section: React.FC<SectionProps & WithTranslation & WithSurveyContex
 
     const widgetsComponentByShortname: { [key: string]: React.ReactNode } = {};
 
-    surveyHelper.devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);');
+    devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);');
     for (let i = 0, count = props.sectionConfig.widgets.length; i < count; i++) {
         const widgetShortname = props.sectionConfig.widgets[i];
 
@@ -104,7 +106,19 @@ export const Section: React.FC<SectionProps & WithTranslation & WithSurveyContex
 
     return (
         <section className={`survey-section survey-section-shortname-${props.shortname}`}>
-            <div className="survey-section__content">{sortedWidgetsComponents}</div>
+            <div className="survey-section__content">
+                {props?.sectionConfig?.title && config?.hasSectionProgressBar === true && (
+                    <React.Fragment>
+                        <SectionProgressBar
+                            title={props.sectionConfig.title}
+                            interview={props.interview}
+                            shortname={props.shortname}
+                            sections={props.surveyContext.sections}
+                        />
+                    </React.Fragment>
+                )}
+                <div>{sortedWidgetsComponents}</div>
+            </div>
         </section>
     );
 };

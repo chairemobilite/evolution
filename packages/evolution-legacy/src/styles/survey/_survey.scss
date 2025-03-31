@@ -1,168 +1,236 @@
 .form {
-  display: flex;
-  flex-direction: column;
-  >* {
-    margin-bottom: $m-size;
-  }
+    display: flex;
+    flex-direction: column;
+    > * {
+        margin-bottom: $m-size;
+    }
 }
 
 .survey {
-  margin-top: -1.8em;
-  //border-top: 1px solid $black-pale;
-  /*background-image: url(/dist/images/ornaments/ornament_wide_bottom_pale.svg), url(/dist/images/ornaments/ornament_flower_points_pale.svg);
-  background-size: 12rem, 6rem;
-  background-position: center 1.8em, 90% 100.5%;
-  background-repeat: no-repeat, no-repeat;*/
-  background-image: url(../../assets/images/ornaments/ornament_flower_points_pale.svg);
-  background-size: 6rem;
-  background-position: 90% 100.5%;
-  background-repeat: no-repeat;
-  padding: 2em 0 12rem 0;
-  display: flex;
-  align-items: top;
-  justify-content: center;
-  flex: 1;
-  min-height: 100vh; // this is to force the second background to be at the bottom of the window when the section height is smaller
-  
-  &.validation {
-    margin-top: 0;
-    background: none;
-    padding: 1em 0 1rem 0;
-    min-height: inherit;
-  }
-  
-  .apptr__form {
-    /*background: rgba(255,255,255,1);*/
-    /*border: 1px solid rgba(0,0,0,0.1);*/
-    max-width: 100rem;
-    margin: 0 auto;
-  }
-
-  .ornament_bottom {
-    padding-bottom: 3rem;
-    background: linear-gradient(to right, rgba(0,0,0,0.0) 0, $black-pale 30%, $black-pale 70%, rgba(0,0,0,0.0) 100%), url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
-    background-size: 100% 1px, 12rem;
-    background-position: left bottom 2.4rem, center bottom 1px;
-    background-repeat: no-repeat, no-repeat;
-    margin-bottom: 1rem;
-  }
-
-
-
-  h2 {
-    width: 100%;
-    text-align: center;
-    font-weight: 300;
-    color: $dark-pale;
-    font-size: $font-size-xlarge;
-    padding: 0;
-    margin: 0;
-  }
-
-  h2::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2.5rem;
-    margin-bottom: 1rem;
-    background: linear-gradient(to right, rgba(0,0,0,0.0) 0, $black-pale 30%, $black-pale 70%, rgba(0,0,0,0.0) 100%), url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
-    background-size: 100% 1px, 12rem;
-    background-position: left top, center top 1px;
-    background-repeat: no-repeat, no-repeat;
-  }
-
-  h3 {
-    width: 100%;
-    text-align: center;
-    font-weight: 300;
-    color: $dark-pale;
-    font-size: $font-size-large;
-    padding: 0;
-    margin: 0;
-  }
-
-  h3::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(to right, rgba(0,0,0,0.0) 0, rgba(0,0,0,0.0) 20%, $black-pale 40%, $black-pale 60%, rgba(0,0,0,0.0) 80%, rgba(0,0,0,0.0) 100%);
-    background-size: 100% 1px;
-    background-position: left top;
+    margin-top: -1.8em;
+    //border-top: 1px solid $black-pale;
+    /*background-image: url(/dist/images/ornaments/ornament_wide_bottom_pale.svg), url(/dist/images/ornaments/ornament_flower_points_pale.svg);
+    background-size: 12rem, 6rem;
+    background-position: center 1.8em, 90% 100.5%;
+    background-repeat: no-repeat, no-repeat;*/
+    background-image: url(../../assets/images/ornaments/ornament_flower_points_pale.svg);
+    background-size: 6rem;
+    background-position: 90% 100.5%;
     background-repeat: no-repeat;
-  }
-
-  .survey-group-object {
-    background-color: rgba(255,255,255,0.4);
-    border: 1px solid rgba(255,255,255,0.7);
-    border-radius: 0 0 1rem 1rem;
-    padding: 1rem;
-    margin-bottom: 2rem;
-  }
-  
-  .survey-group-object + .survey-group-object {
-    margin-top: -1rem;
-  }
-
-  .survey-group-object__title {
-    div {
-      display: 'flex';
-      justify-content: 'center';
-      align-items: 'center';
-    }
-    
-  }
-
-  .survey-section__content {
-    width: 100%;
-    padding: 0 $s-size;
-    @media only screen and (min-width: $desktop-breakpoint) {
-      padding: 0 $l-size;
-    }
-  }
-  
-  .survey-section-nav {
-  
+    padding: 2em 0 12rem 0;
     display: flex;
-    align-items: center;
+    align-items: top;
     justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-    
-    .nav-button {
-      color: $dark-pale;
-      font-size: $font-size-medium;
-      font-weight: 700;
-      line-height: 1;
-      text-decoration: none;
-      padding: 0 0.5rem;
-      margin: 0 0;
-      background: none;
-      display: inline-block;
-      border: none;
+    flex: 1;
+    min-height: 100vh; // this is to force the second background to be at the bottom of the window when the section height is smaller
+
+    &.validation {
+        margin-top: 0;
+        background: none;
+        padding: 1em 0 1rem 0;
+        min-height: inherit;
     }
 
-    .completed-section {
-      color: $green;
+    .apptr__form {
+        /*background: rgba(255,255,255,1);*/
+        /*border: 1px solid rgba(0,0,0,0.1);*/
+        max-width: 100rem;
+        margin: 0 auto;
     }
 
-    .active-section, .active-section.completed-section {
-      color: $blue;
+    .ornament_bottom {
+        padding-bottom: 3rem;
+        background: linear-gradient(
+                to right,
+                rgba(0, 0, 0, 0) 0,
+                $black-pale 30%,
+                $black-pale 70%,
+                rgba(0, 0, 0, 0) 100%
+            ),
+            url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
+        background-size:
+            100% 1px,
+            12rem;
+        background-position:
+            left bottom 2.4rem,
+            center bottom 1px;
+        background-repeat: no-repeat, no-repeat;
+        margin-bottom: 1rem;
     }
-  
-  }
-  
-  .survey-info-map__map-container {
-    margin-bottom: 1rem;
-  }
 
-  .infoMap-title p {
-    margin-bottom: 0;
-    text-align: center;
-  }
-  
+    h2 {
+        width: 100%;
+        text-align: center;
+        font-weight: 300;
+        color: $dark-pale;
+        font-size: $font-size-xlarge;
+        padding: 0;
+        margin: 0;
+    }
 
+    h2::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 2.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(
+                to right,
+                rgba(0, 0, 0, 0) 0,
+                $black-pale 30%,
+                $black-pale 70%,
+                rgba(0, 0, 0, 0) 100%
+            ),
+            url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
+        background-size:
+            100% 1px,
+            12rem;
+        background-position:
+            left top,
+            center top 1px;
+        background-repeat: no-repeat, no-repeat;
+    }
+
+    h3 {
+        width: 100%;
+        text-align: center;
+        font-weight: 300;
+        color: $dark-pale;
+        font-size: $font-size-large;
+        padding: 0;
+        margin: 0;
+    }
+
+    h3::after {
+        content: '';
+        display: block;
+        width: 100%;
+        height: 2px;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(
+            to right,
+            rgba(0, 0, 0, 0) 0,
+            rgba(0, 0, 0, 0) 20%,
+            $black-pale 40%,
+            $black-pale 60%,
+            rgba(0, 0, 0, 0) 80%,
+            rgba(0, 0, 0, 0) 100%
+        );
+        background-size: 100% 1px;
+        background-position: left top;
+        background-repeat: no-repeat;
+    }
+
+    .survey-group-object {
+        background-color: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: 0 0 1rem 1rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .survey-group-object + .survey-group-object {
+        margin-top: -1rem;
+    }
+
+    .survey-group-object__title {
+        div {
+            display: 'flex';
+            justify-content: 'center';
+            align-items: 'center';
+        }
+    }
+
+    .survey-section__content {
+        width: 100%;
+        padding: 0 $s-size;
+        @media only screen and (min-width: $desktop-breakpoint) {
+            padding: 0 $l-size;
+        }
+
+        // For SectionProgressBar.tsx
+        .survey-section__progress-bar {
+            display: flex;
+            gap: 1rem;
+            justify-content: left;
+            align-items: center;
+            margin: 1rem 0;
+
+            // Draw the progress bar as a circle
+            .circular-progress {
+                width: 100px;
+                height: 100px;
+
+                .bg {
+                    fill: none;
+                    stroke: $button-grey-gradient-top; // Background circle color
+                }
+
+                .fg {
+                    fill: none;
+                    stroke: $blue; // Foreground (progress) circle color
+                    stroke-linecap: round;
+                    transform: rotate(-90deg);
+                    transform-origin: center;
+                }
+
+                .percentage-text {
+                    font-size: $font-size-xlarge;
+                    font-weight: 700;
+                    dominant-baseline: middle; // Vertical alignment
+                }
+
+                .completed-text {
+                    font-size: $font-size-small;
+                    font-weight: 300;
+                    dominant-baseline: middle; // Vertical alignment
+                }
+            }
+        }
+    }
+
+    .survey-section-nav {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+
+        .nav-button {
+            color: $dark-pale;
+            font-size: $font-size-medium;
+            font-weight: 700;
+            line-height: 1;
+            text-decoration: none;
+            padding: 0 0.5rem;
+            margin: 0 0;
+            background: none;
+            display: inline-block;
+            border: none;
+        }
+
+        .completed-section {
+            color: $green;
+        }
+
+        .active-section,
+        .active-section.completed-section {
+            color: $blue;
+        }
+    }
+
+    .survey-info-map__map-container {
+        margin-bottom: 1rem;
+    }
+
+    .infoMap-title p {
+        margin-bottom: 0;
+        text-align: center;
+    }
+
+    .big-text {
+        font-size: $font-size-xlarge;
+        color: black;
+        font-weight: 700;
+    }
 }
-
-
