@@ -134,3 +134,72 @@ export const validateButtonAction: ButtonAction = (callbacks, interview, path, s
         }
     });
 };
+
+// Add that the section is completed when the button is clicked in addition to navigating to next section
+// FIXME This is a temporary move to typescript, but section navigation should be handled server side
+export const validateButtonActionWithCompleteSection: ButtonAction = (
+    callbacks,
+    interview,
+    path,
+    section,
+    sections,
+    saveCallback
+) => {
+    callbacks.startUpdateInterview(section, { _all: true }, undefined, interview, (updatedInterview) => {
+        if ((updatedInterview as any).allWidgetsValid) {
+            if (typeof saveCallback === 'function') {
+                saveCallback(callbacks, updatedInterview, path);
+            } else {
+                // Calculate the completion percentage based on the next section index and total sections.
+                // The percentage will be 100% when the last section (completed section) is started.
+                const MAXIMUM_COMPLETION_PERCENTAGE = 100;
+                const currentCompletionPercentage: number = interview?.responses?._completionPercentage || 0;
+                const nextSectionIndex = Object.keys(sections).findIndex((key) => key === section) + 2;
+                const totalSections = Object.keys(sections).length;
+                const nextCompletionPercentage = Number(((nextSectionIndex / totalSections) * 100).toFixed(0));
+                const completionPercentage = Math.min(
+                    MAXIMUM_COMPLETION_PERCENTAGE,
+                    Math.max(currentCompletionPercentage, nextCompletionPercentage)
+                );
+
+                // Mark the section as completed and update the completion percentage
+                // Go to next section
+                window.scrollTo(0, 0);
+                callbacks.startUpdateInterview(section, {
+                    'responses._activeSection': sections[section].nextSection,
+                    [`responses._sections.${section}._isCompleted`]: true,
+                    'responses._completionPercentage': completionPercentage
+                });
+            }
+        }
+    });
+};
+
+/**
+ * Get the visited place description
+ * @param visitedPlace The visited place for which to get the description
+ * @param withTimes Whether to add the times to the description
+ * @param allowHtml Whether the description can contain HTML characters
+ * @returns
+ */
+export const getVisitedPlaceDescription = function (
+    visitedPlace: VisitedPlace,
+    withTimes: boolean = false,
+    allowHtml: boolean = true
+): string {
+    let times = '';
+    if (withTimes) {
+        const arrivalTime =
+            visitedPlace.arrivalTime !== undefined ? ' ' + secondsSinceMidnightToTimeStr(visitedPlace.arrivalTime) : '';
+        const departureTime =
+            visitedPlace.departureTime !== undefined
+                ? ' -> ' + secondsSinceMidnightToTimeStr(visitedPlace.departureTime)
+                : '';
+        times = arrivalTime + departureTime;
+    }
+    if (allowHtml) {
+        return `${i18n.t(`survey:visitedPlace:activities:${visitedPlace.activity}`)}${visitedPlace.name ? ` • <em>${visitedPlace.name}</em>` : ''}${times}`;
+    } else {
+        return `${i18n.t(`survey:visitedPlace:activities:${visitedPlace.activity}`)}${visitedPlace.name ? ` • ${visitedPlace.name}` : ''}${times}`;
+    }
+};

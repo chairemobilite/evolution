@@ -71,9 +71,17 @@ type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTes
 type RedirectionTest = (
     params: { buttonText: Text; expectedRedirectionUrl: Url; nextPageUrl: Url } & CommonTestParameters
 ) => void;
-type NavBarButtonStatusTest = (params: { buttonText: Text; buttonStatus: "completed" | "active" | "activeAndCompleted" | "inactive"; isDisabled: boolean } & CommonTestParameters) => void;
+type NavBarButtonStatusTest = (
+    params: {
+        buttonText: Text;
+        buttonStatus: 'completed' | 'active' | 'activeAndCompleted' | 'inactive';
+        isDisabled: boolean;
+    } & CommonTestParameters
+) => void;
 type ChangePageFromNavBarTest = (params: { buttonText: Text; nextPageUrl: Url } & CommonTestParameters) => void;
-
+type SectionProgressBarTest = (
+    params: { sectionName: string; completionPercentage: number } & CommonTestParameters
+) => void;
 
 /**
  * Open the browser before all the tests and go to the home page
@@ -92,7 +100,11 @@ type ChangePageFromNavBarTest = (params: { buttonText: Text; nextPageUrl: Url } 
 export const initializeTestPage = async (
     browser: Browser,
     surveyObjectDetector: SurveyObjectDetector,
-    options: { urlSearchParams?: { [param: string]: string }, ignoreHTTPSErrors?: boolean, cookies?: { [cookieName: string]: string } } = {}
+    options: {
+        urlSearchParams?: { [param: string]: string };
+        ignoreHTTPSErrors?: boolean;
+        cookies?: { [cookieName: string]: string };
+    } = {}
 ): Promise<Page> => {
     const context = await browser.newContext({ ignoreHTTPSErrors: options.ignoreHTTPSErrors === true });
     const page = await context.newPage();
@@ -706,7 +718,7 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
 };
 
 /**
- * Waits for the google maps widget to be loaded and validated. 
+ * Waits for the google maps widget to be loaded and validated.
  * This is necessary for some tests that will try to go to the next page shortly after filling in the address, as we will stay on the page if the map isn't loaded.
  *
  * @param {Object} options - The options for the test.
@@ -1026,28 +1038,27 @@ export const verifyNavBarButtonStatus: NavBarButtonStatusTest = ({ context, butt
         const navBar = context.page.locator("div[class='survey-section-nav']");
         const button = navBar.getByText(buttonText);
         let expectedStatusClass;
-        switch(buttonStatus) {
-            case "completed":
-                expectedStatusClass = "nav-button completed-section";
+        switch (buttonStatus) {
+            case 'completed':
+                expectedStatusClass = 'nav-button completed-section';
                 break;
-            case "active":
-                expectedStatusClass = "nav-button active-section";
+            case 'active':
+                expectedStatusClass = 'nav-button active-section';
                 break;
-            case "activeAndCompleted":
-                expectedStatusClass = "nav-button active-section completed-section";
+            case 'activeAndCompleted':
+                expectedStatusClass = 'nav-button active-section completed-section';
                 break;
-            case "inactive":
-                expectedStatusClass = "nav-button";
+            case 'inactive':
+                expectedStatusClass = 'nav-button';
                 break;
         }
 
         expect(button).toHaveClass(expectedStatusClass);
 
         if (isDisabled) {
-            await expect(button).toHaveAttribute("disabled");
-        } 
-        else {
-            await expect(button).not.toHaveAttribute("disabled");
+            await expect(button).toHaveAttribute('disabled');
+        } else {
+            await expect(button).not.toHaveAttribute('disabled');
         }
     });
 };
@@ -1066,5 +1077,29 @@ export const changePageFromNavBar: ChangePageFromNavBarTest = ({ context, button
         await button.scrollIntoViewIfNeeded();
         await button.click();
         await expect(context.page).toHaveURL(nextPageUrl);
+    });
+};
+
+/**
+ * Validates the progress bar for a specific section in the survey.
+ * Ensures that the section name and the completion percentage are displayed correctly.
+ *
+ * @param {Object} options - The parameters for the test.
+ * @param {string} options.sectionName - The name of the section to validate in the progress bar.
+ * @param {number} options.completionPercentage - The expected completion percentage for the section.
+ */
+export const sectionProgressBarTest: SectionProgressBarTest = ({ context, sectionName, completionPercentage }) => {
+    test(`Validate progress bar for section "${sectionName}" with ${completionPercentage}% completion ${getTestCounter(context, `${sectionName} - ${completionPercentage}`)}`, async () => {
+        // Locate the progress bar section
+        const progressBarSection = context.page.locator("//div[contains(@class, 'survey-section__progress-bar')]");
+        await progressBarSection.scrollIntoViewIfNeeded();
+
+        // Verify the section name is displayed in the progress bar
+        const sectionNameHeader = progressBarSection.getByText(`${sectionName} - Section`);
+        await expect(sectionNameHeader).toBeVisible();
+
+        // Verify the completion percentage is displayed correctly
+        const completionPercentageText = progressBarSection.getByText(`${completionPercentage}%`);
+        await expect(completionPercentageText).toBeVisible();
     });
 };
