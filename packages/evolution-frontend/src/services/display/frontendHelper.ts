@@ -9,7 +9,7 @@ import moment from 'moment';
 
 import i18n from '../../config/i18n.config';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-import { ButtonAction, Person } from 'evolution-common/lib/services/questionnaire/types';
+import { ButtonAction, Person, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 
 type GenderedData = {
     [gender: string]: {
