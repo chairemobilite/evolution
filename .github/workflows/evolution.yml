@@ -5,9 +5,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, od_2023 ]
+    branches: [ main, od_2023, v0.3.0 ]
   pull_request:
-    branches: [ main, od_2023 ]
+    branches: [ main, od_2023, v0.3.0 ]
 
 jobs:
   build-and-test:
