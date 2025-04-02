@@ -112,7 +112,7 @@ export const Section: React.FC<SectionProps & WithTranslation & WithSurveyContex
                         <SectionProgressBar
                             title={props.sectionConfig.title}
                             interview={props.interview}
-                            shortname={props.shortname}
+                            sectionName={props.shortname}
                             sections={props.surveyContext.sections}
                         />
                     </React.Fragment>
