@@ -34,4 +34,7 @@ onePersonTestHelpers.completeProfilePage(context);
 // Test the end page
 onePersonTestHelpers.completeEndPage(context);
 
+// Test the completed page
+onePersonTestHelpers.completeCompletedPage(context);
+
 surveyTestHelpers.logout({ context });

@@ -631,3 +631,49 @@ export const isSectionComplete = ({
 
     return isSectionComplete;
 };
+
+/**
+ * Calculate the survey completion percentage based on the number of completed sections.
+ * The percentage begins at 0% when starting the first section and reaches 100% when the last section is initiated.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {Object} options.sections - The sections object.
+ * @param {string} options.sectionName - The shortname of the current section.
+ * @param {string} options.sectionTarget - The target section ('current' or 'next').
+ * @returns {number} - The calculated completion percentage.
+ */
+export const calculateSurveyCompletionPercentage = ({
+    interview,
+    sections,
+    sectionName,
+    sectionTarget
+}: {
+    interview: UserInterviewAttributes;
+    sections: { [key: string]: unknown };
+    sectionName: string;
+    sectionTarget: 'current' | 'next';
+}): number => {
+    const LAST_SECTION_NAME = 'completed';
+    const MINIMUM_COMPLETION_PERCENTAGE = 0;
+    const MAXIMUM_COMPLETION_PERCENTAGE = 100;
+
+    const storedCompletionPercentage: number =
+        interview?.responses?._completionPercentage || MINIMUM_COMPLETION_PERCENTAGE;
+    const sectionsWithoutCompleted = Object.keys(sections).filter((sectionName) => sectionName !== LAST_SECTION_NAME);
+    const totalSectionsWithoutCompleted = sectionsWithoutCompleted.length;
+    let targetSectionIndex = Object.keys(sections).findIndex((key) => key === sectionName);
+
+    // Increment the index if the section target is 'next'
+    if (sectionTarget === 'next') {
+        targetSectionIndex = Math.min(targetSectionIndex + 1, totalSectionsWithoutCompleted);
+    }
+
+    const currentCompletionPercentage = Number(((targetSectionIndex / totalSectionsWithoutCompleted) * 100).toFixed(0));
+    const completionPercentage = Math.min(
+        MAXIMUM_COMPLETION_PERCENTAGE,
+        Math.max(storedCompletionPercentage, currentCompletionPercentage)
+    );
+
+    return completionPercentage;
+};
