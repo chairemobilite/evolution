@@ -3,7 +3,7 @@ import * as testHelpers from 'evolution-frontend/tests/ui-testing/testHelpers';
 // These functions are used in both the one person and input verification tests, in order to avoid code duplication
 
 export function completeHomePage(context) {
-    testHelpers.sectionProgressBarTest({context, sectionName: 'Home', completionPercentage: 10 });
+    testHelpers.sectionProgressBarTest({context, sectionName: 'Home', completionPercentage: 0 });
     testHelpers.inputStringTest({ context, path: 'accessCode', value: '1111-2222' });
     testHelpers.inputRadioTest({ context, path: 'household.size', value: '1' });
     testHelpers.inputStringTest({ context, path: 'household.carNumber', value: '2' });
@@ -19,7 +19,7 @@ export function completeHomePage(context) {
 };
 
 export function completeHouseholdPage(context) {
-    testHelpers.sectionProgressBarTest({context, sectionName: 'Household members', completionPercentage: 20 });
+    testHelpers.sectionProgressBarTest({context, sectionName: 'Household members', completionPercentage: 11 });
     testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '30' });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'male' });
     testHelpers.inputSelectTest({ context, path: 'household.persons.${personId[0]}.occupation', value: 'fullTimeWorker' });
@@ -33,17 +33,21 @@ export function completeHouseholdPage(context) {
 };
 
 export function completeProfilePage(context) {
-    testHelpers.sectionProgressBarTest({context, sectionName: 'Profile', completionPercentage: 40 });
+    testHelpers.sectionProgressBarTest({context, sectionName: 'Profile', completionPercentage: 33 });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.workOnTheRoad', value: false });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.usualWorkPlaceIsHome', value: true });
     testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/end' });
 };
 
 export function completeEndPage(context) {
-    testHelpers.sectionProgressBarTest({context, sectionName: 'End', completionPercentage: 90 });
+    testHelpers.sectionProgressBarTest({context, sectionName: 'End', completionPercentage: 89 });
     testHelpers.inputSelectTest({ context, path: 'household.residentialPhoneType', value: 'landLine' });
     testHelpers.inputRadioTest({ context, path: 'household.didAlsoRespondByPhone', value: false });
     testHelpers.inputRadioTest({ context, path: 'household.wouldLikeToParticipateInOtherSurveys', value: false });
     testHelpers.inputSelectTest({ context, path: 'household.income', value: '060000_089999' });
     testHelpers.inputNextButtonTest({ context, text: 'Complete interview', nextPageUrl: '/survey/completed' });
 };
+
+export function completeCompletedPage(context) {
+    testHelpers.sectionProgressBarTest({context, sectionName: 'Interview completed', completionPercentage: 100 });
+}

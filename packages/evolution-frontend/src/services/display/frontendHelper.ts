@@ -10,6 +10,7 @@ import moment from 'moment';
 import i18n from '../../config/i18n.config';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { ButtonAction, Person, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
+import { calculateSurveyCompletionPercentage } from 'evolution-common/lib/utils/helpers';
 
 type GenderedData = {
     [gender: string]: {
@@ -150,17 +151,13 @@ export const validateButtonActionWithCompleteSection: ButtonAction = (
             if (typeof saveCallback === 'function') {
                 saveCallback(callbacks, updatedInterview, path);
             } else {
-                // Calculate the completion percentage based on the next section index and total sections.
-                // The percentage will be 100% when the last section (completed section) is started.
-                const MAXIMUM_COMPLETION_PERCENTAGE = 100;
-                const currentCompletionPercentage: number = interview?.responses?._completionPercentage || 0;
-                const nextSectionIndex = Object.keys(sections).findIndex((key) => key === section) + 2;
-                const totalSections = Object.keys(sections).length;
-                const nextCompletionPercentage = Number(((nextSectionIndex / totalSections) * 100).toFixed(0));
-                const completionPercentage = Math.min(
-                    MAXIMUM_COMPLETION_PERCENTAGE,
-                    Math.max(currentCompletionPercentage, nextCompletionPercentage)
-                );
+                // Calculate the survey completion percentage based on the number of completed sections
+                const completionPercentage = calculateSurveyCompletionPercentage({
+                    interview,
+                    sections,
+                    sectionName: section,
+                    sectionTarget: 'next'
+                });
 
                 // Mark the section as completed and update the completion percentage
                 // Go to next section

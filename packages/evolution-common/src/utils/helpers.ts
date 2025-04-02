@@ -17,10 +17,13 @@ import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Uuidable } from '../services/baseObjects/Uuidable';
 import * as odSurveyHelpers from '../services/odSurvey/helpers';
 import {
+    ChoiceType,
     I18nData,
     InterviewResponses,
     ParsingFunction,
-    UserInterviewAttributes
+    RadioChoiceType,
+    UserInterviewAttributes,
+    WidgetConfig
 } from '../services/questionnaire/types';
 
 // The helpers in this file are used to manipulate and parse the survey model,
@@ -549,4 +552,108 @@ export const removeGroupedObjects = (
         }
     }
     return [valuesByPath, unsetPaths];
+};
+
+/**
+ * Get the widget choice corresponding to the value for a radio, checkbox or
+ * select widget
+ *
+ * @param {Object} options - The options object.
+ * @param {WidgetConfig} options.widget The widget for which to get the choice
+ * @param {string|boolean} options.value The value to find
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @param {string} options.path The path of the field being parsed, in the
+ * interview responses
+ * @returns The choice corresponding to the value, or `undefined` if the widget
+ * does not have choices or if the choice is not found
+ */
+export const getWidgetChoiceFromValue = ({
+    widget,
+    value,
+    interview,
+    path
+}: {
+    widget: WidgetConfig;
+    value: string | boolean;
+    interview: UserInterviewAttributes;
+    path: string;
+}): ChoiceType | RadioChoiceType | undefined => {
+    if (
+        widget.type !== 'question' ||
+        (widget.inputType !== 'radio' && widget.inputType !== 'checkbox' && widget.inputType !== 'select')
+    ) {
+        return undefined;
+    }
+    const choices = typeof widget.choices === 'function' ? widget.choices(interview, path) : widget.choices;
+
+    const baseChoices = choices.flatMap((choice) => choice.choices || [choice]);
+    return baseChoices.find((choice) => choice.value === value);
+};
+
+/**
+ * Check if the section is complete
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} options.sectionName - The name of the section to check.
+ * @returns {boolean | null} - Returns true if the section is complete, false if not, or null if the section is not found.
+ *
+ * @description This function checks if the section is complete by looking at the `interview.responses._sections.${sectionName}._isCompleted` field.
+ */
+export const isSectionComplete = ({
+    interview,
+    sectionName
+}: {
+    interview: UserInterviewAttributes;
+    sectionName: string;
+}): boolean | null => {
+    const isSectionComplete = getResponse(interview, `_sections.${sectionName}._isCompleted`, null) as boolean | null;
+
+    return isSectionComplete;
+};
+
+/**
+ * Calculate the survey completion percentage based on the number of completed sections.
+ * The percentage begins at 0% when starting the first section and reaches 100% when the last section is initiated.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {Object} options.sections - The sections object.
+ * @param {string} options.sectionName - The shortname of the current section.
+ * @param {string} options.sectionTarget - The target section ('current' or 'next').
+ * @returns {number} - The calculated completion percentage.
+ */
+export const calculateSurveyCompletionPercentage = ({
+    interview,
+    sections,
+    sectionName,
+    sectionTarget
+}: {
+    interview: UserInterviewAttributes;
+    sections: { [key: string]: unknown };
+    sectionName: string;
+    sectionTarget: 'current' | 'next';
+}): number => {
+    const LAST_SECTION_NAME = 'completed';
+    const MINIMUM_COMPLETION_PERCENTAGE = 0;
+    const MAXIMUM_COMPLETION_PERCENTAGE = 100;
+
+    const storedCompletionPercentage: number =
+        interview?.responses?._completionPercentage || MINIMUM_COMPLETION_PERCENTAGE;
+    const sectionsWithoutCompleted = Object.keys(sections).filter((sectionName) => sectionName !== LAST_SECTION_NAME);
+    const totalSectionsWithoutCompleted = sectionsWithoutCompleted.length;
+    let targetSectionIndex = Object.keys(sections).findIndex((key) => key === sectionName);
+
+    // Increment the index if the section target is 'next'
+    if (sectionTarget === 'next') {
+        targetSectionIndex = Math.min(targetSectionIndex + 1, totalSectionsWithoutCompleted);
+    }
+
+    const currentCompletionPercentage = Number(((targetSectionIndex / totalSectionsWithoutCompleted) * 100).toFixed(0));
+    const completionPercentage = Math.min(
+        MAXIMUM_COMPLETION_PERCENTAGE,
+        Math.max(storedCompletionPercentage, currentCompletionPercentage)
+    );
+
+    return completionPercentage;
 };
