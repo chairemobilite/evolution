@@ -640,7 +640,7 @@ export const isSectionComplete = ({
  * @param {UserInterviewAttributes} options.interview - The interview object.
  * @param {Object} options.sections - The sections object.
  * @param {string} options.sectionName - The shortname of the current section.
- * @param {string} options.sectionTarget - The target section ('current' or 'next').
+ * @param {string} options.sectionTarget - The target section for the completion rate ('currentSection' or 'nextSection').
  * @returns {number} - The calculated completion percentage.
  */
 export const calculateSurveyCompletionPercentage = ({
@@ -652,28 +652,31 @@ export const calculateSurveyCompletionPercentage = ({
     interview: UserInterviewAttributes;
     sections: { [key: string]: unknown };
     sectionName: string;
-    sectionTarget: 'current' | 'next';
+    sectionTarget: 'currentSection' | 'nextSection';
 }): number => {
-    const LAST_SECTION_NAME = 'completed';
+    const LAST_SECTION_NAME = 'completed'; // NOTE: Only survey with the last section named 'completed' are supported for this function.
     const MINIMUM_COMPLETION_PERCENTAGE = 0;
     const MAXIMUM_COMPLETION_PERCENTAGE = 100;
 
+    // Get the stored completion percentage from the interview responses
     const storedCompletionPercentage: number =
         interview?.responses?._completionPercentage || MINIMUM_COMPLETION_PERCENTAGE;
+
+    // Count the number of sections without the last one
     const sectionsWithoutCompleted = Object.keys(sections).filter((sectionName) => sectionName !== LAST_SECTION_NAME);
     const totalSectionsWithoutCompleted = sectionsWithoutCompleted.length;
-    let targetSectionIndex = Object.keys(sections).findIndex((key) => key === sectionName);
 
-    // Increment the index if the section target is 'next'
-    if (sectionTarget === 'next') {
-        targetSectionIndex = Math.min(targetSectionIndex + 1, totalSectionsWithoutCompleted);
+    // Increment the index if the section target is 'nextSection'
+    let sectionTargetIndex = Object.keys(sections).findIndex((key) => key === sectionName);
+    if (sectionTarget === 'nextSection') {
+        sectionTargetIndex = Math.min(sectionTargetIndex + 1, totalSectionsWithoutCompleted);
     }
 
-    const currentCompletionPercentage = Number(((targetSectionIndex / totalSectionsWithoutCompleted) * 100).toFixed(0));
+    // Return the maximum survey completion percentage
+    const targetCompletionPercentage = Number(((sectionTargetIndex / totalSectionsWithoutCompleted) * 100).toFixed(0));
     const completionPercentage = Math.min(
         MAXIMUM_COMPLETION_PERCENTAGE,
-        Math.max(storedCompletionPercentage, currentCompletionPercentage)
+        Math.max(storedCompletionPercentage, targetCompletionPercentage)
     );
-
     return completionPercentage;
 };
