@@ -146,11 +146,12 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                 ts_section_code += f"{INDENT}nextSection: nextSectionName,\n"
                 if parent_section is not None:
                     ts_section_code += f"{INDENT}parentSection: parentSectionName,\n"
-                if title_en and title_fr is not None and in_nav == True:
+                if title_en and title_fr is not None:
                     ts_section_code += f"{INDENT}title: {{\n"
                     ts_section_code += f"{INDENT}{INDENT}fr: '{title_fr}',\n"
                     ts_section_code += f"{INDENT}{INDENT}en: '{title_en}'\n"
                     ts_section_code += f"{INDENT}}},\n"
+                if title_en and title_fr is not None and in_nav == True:
                     ts_section_code += f"{INDENT}menuName: {{\n"
                     ts_section_code += f"{INDENT}{INDENT}fr: '{title_fr}',\n"
                     ts_section_code += f"{INDENT}{INDENT}en: '{title_en}'\n"
