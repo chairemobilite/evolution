@@ -21,7 +21,7 @@ const SectionProgressBar: React.FC<SectionProgressBarProps> = ({ title, intervie
         interview,
         sections,
         sectionName,
-        sectionTarget: 'current'
+        sectionTarget: 'currentSection'
     });
 
     // Circular progress bar properties
