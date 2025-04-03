@@ -156,7 +156,7 @@ export const validateButtonActionWithCompleteSection: ButtonAction = (
                     interview,
                     sections,
                     sectionName: section,
-                    sectionTarget: 'next'
+                    sectionTarget: 'nextSection'
                 });
 
                 // Mark the section as completed and update the completion percentage
