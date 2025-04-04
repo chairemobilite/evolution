@@ -34,7 +34,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.7.1",
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@fortawesome/react-fontawesome": "^0.2.2",
-    "@react-google-maps/api": "^2.12.1",
+    "@react-google-maps/api": "^2.20.6",
     "@turf/turf": "^7.1.0",
     "@zeit/fetch-retry": "^5.0.1",
     "bowser": "^2.11.0",
