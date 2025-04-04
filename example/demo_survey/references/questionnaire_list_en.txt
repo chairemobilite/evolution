@@ -1,0 +1,608 @@
+// NOTE: This is a real example of a questionnaire survey list in English.
+// NOTE: The following content does not represent the actual questions of this demo survey.
+// NOTE: We can generate it with Evolution-Generator.
+
+Section: Home
+
+Please complete the following information regarding your household and home.
+
+How many people live permanently in your household during the week, including yourself?
+
+Does your household own or rent your home?
+- Rent
+- Own
+- I don't know
+- I prefer not to answer
+
+How many motorized vehicles of each type does your household own?
+Do not include carsharing vehicles
+
+Conventional or hybrid (non-plug-in) gasoline-powered car, SUV or pickup truck
+
+
+100% electric or plug-in hybrid vehicle
+
+
+Electric or gasoline-powered two-wheeler requiring a license (motorcycle, moped, scooter)
+
+Do you have access to private off-street parking?
+- Yes
+- No
+- I don't know
+
+City of your home
+
+Address of your home
+
+Postal code of your home (optional)
+For example, H1A 1A1
+
+Positioning your home
+Search for your home using its postal code or address by clicking the button below, or please position the location on the map by navigating, zooming, and clicking. Once the location is located, you can move the point for greater precision.
+
+Is there at least one person in your household with a permanent physical or mental dissability that limits their daily movements?
+- Yes
+- No
+- I prefer not to answer
+
+Do you (or someone in your household) own a secondary home (e.g., cabin)?
+- Yes
+- No, but we plan to have one in the next year
+- No, we do not have any secondary property
+
+Save and continue
+
+
+
+Section: Household
+
+We will now ask you questions about each member of your household.
+
+We will now ask you questions about yourself.
+
+Name or nickname that will allow you to identify this person for the remainder of the survey.
+Can be a nickname, initials, or an identifier that allows you to easily identify each person (eg: 'Me', 'Kiddo', 'Mum', 'JT'). This name is only used during the survey and will not be saved in the final file.
+
+Age
+For babies under the age of 1, write "0"
+
+Gender
+- Man
+- Woman
+- I prefer not to answer
+- Other (specify)
+
+Worker
+Including self-employed, artist, on sick leave or parental leave.
+- Yes, full time
+- Yes, part time
+- No
+
+Student
+- Yes, full time
+- Yes, part time
+- No
+
+Driving license
+- Yes
+- No
+- I don't know
+
+Save and continue
+
+
+
+Section: Transport
+
+Which household member are you?
+
+Do you have a permanent disability that limits your daily movements?
+- Yes
+- No
+
+In the past year, have you driven a carsharing vehicle?
+For example, Communauto
+- Yes
+- No
+- I don't know
+
+Do you have an OPUS card?
+- Yes, with subscription (weekly, monthly, yearly)
+- Yes, without subscription
+- No
+
+Have you used a bikesharing service (eg: BIXI, àVélo) in 2024?
+Please answer even if bikesharing services are not available where you live.
+- Yes, with subscription (weekly, monthly, yearly)
+- Yes, without subscription
+- No
+
+Do you own at least one regular bicycle?
+- Yes
+- No
+
+Do you own at least one electric-assist bicycle?
+- Yes
+- No
+
+Do you own at least one cargo bicycle?
+- Yes
+- No
+
+Is public transit available in your neighbourhood even if you don't personally use it?
+- Yes
+- No
+- I don't know
+
+Save and continue
+
+
+
+Section: Profile
+
+What is your main mode of transport at the moment?
+- Private vehicule as driver
+- Private vehicule as passenger
+- Shared vehicule (e.g. Communauto)
+- Public transit
+- Bike
+- Walk (or wheelchair)
+- Parantrasit
+- Other (specify)
+
+Do you have a workplace outside the home?
+- Yes
+- No
+- I don't know
+
+City of your workplace
+
+Address or name of your workplace
+Alternatively, please provide the postal code or nearest intersection (street 1 / street 2).
+If you have multiple regular workplaces, please indicate the one you go to most often.
+
+Positioning your workplace
+Search for your workplace using its address by clicking the button below, or please position the location on the map by navigating, zooming, and clicking. Once the location is located, you can move the point for greater precision.
+
+On average, over the last 4 weeks, how many times per week did you go to your usual workplace?
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Over the last 4 weeks, which mode of transport did you use most often to get to your usual workplace?
+- Private vehicule as driver
+- Private vehicule as passenger
+- Shared vehicule (e.g. Communauto)
+- Public transit
+- Bike
+- Walk (or wheelchair)
+- Parantrasit
+- Other (specify)
+
+Do you use any other mode of transport to get to work?
+- Yes
+- No
+
+What is your second most frequent mode of transport to get to work?
+- Private vehicule as driver
+- Private vehicule as passenger
+- Shared vehicule (e.g. Communauto)
+- Public transit
+- Bike
+- Walk (or wheelchair)
+- Parantrasit
+- Other (specify)
+
+Do you have a fixed place of study outside the home?
+- Yes
+- No
+- I don't know
+
+City of your place of study
+
+Name of your place of study
+Alternatively, please provide the address, postal code, or nearest intersection (street 1 / street 2).
+
+Positioning your place of study
+Search for your place of study using its address or its name by clicking the button below, or please position the location on the map by navigating, zooming, and clicking. Once the location is located, you can move the point for greater precision.
+
+On average, over the last 4 weeks, how many times per week did you go to your place of study?
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Over the last 4 weeks, which mode of transport did you use most often to get to your place of study?
+- Private vehicule as driver
+- Private vehicule as passenger
+- Shared vehicule (e.g. Communauto)
+- Public transit
+- Bike
+- Walk (or wheelchair)
+- Parantrasit
+- Other (specify)
+
+Do you use any other mode of transport to get to your place of study?
+- Yes
+- No
+
+What is your second most frequent mode of transport to get to your place of study?
+- Private vehicule as driver
+- Private vehicule as passenger
+- Shared vehicule (e.g. Communauto)
+- Public transit
+- Bike
+- Walk (or wheelchair)
+- Parantrasit
+- Other (specify)
+
+Save and continue
+
+
+
+Section: Usual places
+
+On average, during the last 4 weeks, how many times per week do you travel outside your home to do activities (including to your workplace and/or study place)?
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+For all of your trips, including for work/study, over the last 4 weeks, how often did you use the following modes?
+
+Walking or wheeling (using a wheelchair)
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Bicycle
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Car driver
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Car passenger
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Public transit
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Taxi or ridehailing (e.g. Uber)
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Paratransit
+- Never or almost never
+- Less than 1 time / week
+- 1 time / week
+- 2 times / week
+- 3 times / week
+- 4 times / week
+- 5 times / week or more
+
+Save and continue
+
+
+
+Section: Stages of change
+
+Among the following statements, which one best describes your use of the car as a driver?
+- I'm satisfied with my use of the car for my daily trips and see no reason to change my mode of transport.
+- I would like to reduce my car use, but it seems impossible.
+- I'm thinking of reducing my use, but I don't know how or when to do it.
+- My goal is to reduce my car use. I know which trip(s) to replace and which mode of transport to use, but I haven't started yet on a regular basis.
+- I'm trying to use other modes of transport than the car as much as possible. I will maintain or reduce my low car use even further in the coming months.
+- I don't use the car at all, or only very rarely. I can hardly reduce my use any further.
+
+Which of the following statements best describe your feeling towards the number of cars owned by your household?
+- My household does not own any vehicles and that is fine.
+- I'm satisfied with the number of vehicle(s) owned by my household. I don't see any reason to change.
+- I would like my household to have an extra vehicle to meet our mobility needs.
+- I would like my household to dispose of one of its vehicles.
+
+You indicated wanting an additional vehicle. Which statement best describes your current thinking?
+- We've started shopping and we know which vehicle we would like.
+- We have not yet made our choice of vehicle.
+- It seems impossible/very difficult at the moment to acquire an additional vehicle.
+
+You indicated wanting to dispose of one of your vehicle. Which statement best describes your current thinking?
+- It seems impossible/very difficult at the moment to dispose of one of our vehicle(s).
+- We are thinking seriously about it, but we don't how or when to do it.
+- We wait until the end of the vehicle's life to get rid of it and not replace it.
+
+Save and continue
+
+
+
+Section: Perceptions
+
+I feel free and independent when I drive a car
+
+A car is primarily a tool to accomplish what I want to do
+
+I only use a car to get from A to B
+
+It doesn’t matter to me what vehicle type I drive
+
+A car can give me a certain status and prestige
+
+I can distinguish myself from others (with my car)
+
+I have fun driving a car
+
+I feel safe when I travel by car
+
+To be in a car is comfortable and relaxing
+
+Save and continue
+
+
+
+Section: Perceptions
+
+Owning a car is expensive
+
+When you drive, you're always stuck in traffic
+
+Car maintenance is an unpleasant obligation
+
+To verify that you are paying attention, please select 8/10 for this question
+
+There are too many cars on the road
+
+Finding a parking space at the places I go is complicated
+
+Save and continue
+
+
+
+Section: Perceptions
+
+I love riding my bike
+
+I feel good after cycling
+
+I can reach many of my important destinations by bike
+
+I'm not the kind of person who rides a bicycle
+
+Cycling can be the quickest way to travel around
+
+I feel safe cycling in the city
+
+Cycling is part of me, of who I am
+
+I identify myself as a cyclist
+
+Save and continue
+
+
+
+Section: Perceptions
+
+I like taking public transport
+
+Taking public transport is relaxing
+
+I can reach many of my important destinations by public transport
+
+I'm not the kind of person who uses public transport
+
+Public transport can be the quickest way to get around
+
+I feel safe using public transport
+
+Getting around by public transport is part of who I am
+
+I identify as a public transport user
+
+Save and continue
+
+
+
+Section: Perceptions
+
+Traveling by {{mainMode}} is something…
+
+... I do frequently
+
+... I do automatically, without thinking
+
+... that belongs to my daily routine
+
+Save and continue
+
+
+
+Section: Perceptions
+
+Please indicate how much you agree with the following statements about your car
+
+Please indicate how much you agree with the following statements about cars in general
+
+If, for X reason, I had to give up my car (and no longer own one), I would be discouraged or angry
+
+If I had to give up my car, it wouldn't be easy, but I'd accept the situation
+
+I can't imagine my life without a car
+
+People close to me would disapprove or criticise me if I took public transport or travelled by bike
+
+People close to me would disapprove or criticise my decision to live without a car
+
+People who are important to me think it's normal to own a car
+
+Most people close to me (friends, colleagues, family, neighbours) own a car
+
+To verify that you are paying attention, please select 3/10 for this question.
+
+I identify myself as a motorist
+
+Save and continue
+
+
+
+Section: Perceptions
+
+I am concerned about environmental and climate issues
+
+I don't really see why I should change my habits when new technologies like electric cars will solve environmental problems
+
+Globally, the use of private cars has negative consequences (ex.: on the environment, on the climate, on population's health, on the quality of living environment).
+
+It's important for me to minimise the environmental footprint of my journeys
+
+Save and continue
+
+
+
+Section: Perceptions
+
+Finally, we would like to know your opinion on various solutions that can address mobility challenges, as well as what you would like to do personally
+
+I'm in favour of policies, regulations and planning that restrict the level of car traffic on our roads
+
+Motorists should pay more (in parking, taxes, etc.) because of the negative impacts of car use on the environment and on communities (GHG emissions, congestion, public finances, health, etc.)
+
+Our leaders should stop waging war on cars
+
+Companies like the one I work for should put in place facilities and measures to encourage us to use public and active transport
+
+Everyone should do their bit by using private cars less
+
+It would be a good idea to reduce the space on the street dedicated to cars (traffic lanes, parking) to leave more space for active modes and public transport (bike lanes, wider sidewalks, reserved lanes for buses and carpooling)
+
+In our neighbourhoods, I am in favour of measures such as reducing the maximum speed and adding speed bumps or curb extensions
+
+Adding lanes or building new roads would reduce congestion
+
+Save and continue
+
+
+
+Section: Perceptions
+
+Complete the sentence by indicating how much you agree with the following statements about your intentions in the coming months. In the future, I intend ...
+
+... inform myself more about the negative impacts associated with private car use
+
+… to increase the frequency at which I use an alternative transport mode for my daily trips (ex.: public transport, walking, cycling, etc.)
+
+... discuss the benefits of active transport (walking, cycling, etc.) with friends, colleagues and family
+
+... publicly demonstrate (e.g. on social networks, at meetings, etc.) my support for initiatives that promote the use of alternative modes of transport to the car (e.g. new cycle infrastructure, protected bus lanes)
+
+... buy a subscription to public transport, bixi or a car-sharing service
+
+... attend a meeting of my borough or city council to discuss mobility issues or propose solutions
+
+Save and continue
+
+
+
+Section: End
+
+What was your household income before taxes (gross income) in 2023?
+- Less than $14,999
+- $15,000 to $29,999
+- $30,000 to $59,999
+- $60,000 to $89,999
+- $90,000 to $119,999
+- $120,000 to $149,999
+- $150,000 and more
+- I don't know
+- I prefer not to answer
+
+Would you be interested in participating in other studies conducted by the Chaire Mobilité at Polytechnique Montréal?
+- Yes
+- No
+
+Email
+
+How do you assess the complexity of this questionnaire?
+
+How much time do you think you spent answering this questionnaire (in minutes)?
+
+Have you been inclined, at any point, to abandon the survey?
+- Yes
+- No
+
+In which section(s) were you inclined to abandon?
+Select all that apply
+- Home
+- Household
+- Transport
+- Profile
+- Usual places
+- Stages of change
+- Perceptions
+
+For which reason(s) were you inclined to abandon (optional)?
+
+Your comments and suggestions about the survey (optional)
+
+Your comments about your transportation experience in your region (optional)
+
+Finish the survey
+
+
+
+Section: Survey completed
+
+Thank you for your participation!
+
+We thank you for taking the time to fill out this survey. Your answers have been recorded. You can edit your answers by clicking on any of the sections in the menu at the top of the page.
+
+Thank you for your participation!
+
+However, there are no adults in your household. We thank you for taking the time to complete this survey.
+
+Thank you for your participation!
+
+Your home location is outside the surveyed territory. We thank you for taking the time to fill out this survey.
+
+
+

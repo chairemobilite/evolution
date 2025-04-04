@@ -12,7 +12,7 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
 
-const ExportInterviewData = ({ t }: WithTranslation) => {
+const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
     const [error, setError] = useState<string | undefined>(undefined);
     const [isPreparingCsvExportFiles, setIsPreparingCsvExportFiles] = useState(false);
     const [csvExportFilesReady, setCsvExportFilesReady] = useState(false);
@@ -57,7 +57,15 @@ const ExportInterviewData = ({ t }: WithTranslation) => {
             }
         } catch (err) {
             console.log('Error preparing export files.', err);
-            setError(TrError.isTrError(err) ? err.message : 'admin:export:PrepareDataError');
+
+            // Show the error message to the user
+            if (TrError.isTrError(err)) {
+                const { localizedMessage } = err.export();
+                setError(localizedMessage.toString());
+            } else {
+                setError('admin:export:PrepareDataError');
+            }
+
             setCsvExportFilesReady(false);
             setCsvExportFilePaths([]);
             setIsPreparingCsvExportFiles(false);
@@ -100,10 +108,76 @@ const ExportInterviewData = ({ t }: WithTranslation) => {
             }
         } catch (err) {
             console.log('Error fetching export files.', err);
-            setError(TrError.isTrError(err) ? err.message : 'admin:export:WaitForFileError');
+
+            // Show the error message to the user
+            if (TrError.isTrError(err)) {
+                const { localizedMessage } = err.export();
+                setError(localizedMessage.toString());
+            } else {
+                setError('admin:export:WaitForFileError');
+            }
+
             setCsvExportFilesReady(false);
             setCsvExportFilePaths([]);
             setIsPreparingCsvExportFiles(false);
+        }
+    };
+
+    // This function is used to download the survey questionnaire list as a .txt file
+    // NOTE: It is not related to the CSV export files, but it is included here for convenience
+    const downloadSurveyQuestionnaireListTxt = async () => {
+        try {
+            const lang = i18n.language; // Use i18n to get the current language
+            const apiUrl = `/api/admin/data/downloadSurveyQuestionnaireListTxt?lang=${lang}`;
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.status === 200) {
+                setError(undefined);
+
+                // Create a blob from the response and create a link to download it
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `questionnaire_list_${lang}.txt`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);
+            } else if (response.status === 404) {
+                throw new TrError(
+                    'Wrong response status ' + response.status,
+                    'downloadSurveyQuestionnaireListNotFound',
+                    'admin:export:DownloadSurveyQuestionnaireListNotFound'
+                );
+            } else if (response.status === 401) {
+                throw new TrError(
+                    'Wrong response status ' + response.status,
+                    'downloadSurveyQuestionnaireListUnauthorized',
+                    'admin:export:DownloadSurveyQuestionnaireListUnauthorized'
+                );
+            } else {
+                throw new TrError(
+                    'Wrong response status ' + response.status,
+                    'downloadSurveyQuestionnaireListError',
+                    'admin:export:DownloadSurveyQuestionnaireListError'
+                );
+            }
+        } catch (err) {
+            console.log('Error downloading survey questionnaire list.', err);
+
+            // Show the error message to the user
+            if (TrError.isTrError(err)) {
+                const { localizedMessage } = err.export();
+                setError(localizedMessage.toString());
+            } else {
+                setError('admin:export:DownloadSurveyQuestionnaireListError');
+            }
         }
     };
 
@@ -128,11 +202,19 @@ const ExportInterviewData = ({ t }: WithTranslation) => {
                 color="blue"
                 onClick={onPrepareCsvValidatedExportFiles}
                 label={t('admin:export:PrepareValidatedCsvExportFiles')}
+                align="left"
             />
             <Button
                 color="blue"
                 onClick={onPrepareCsvRespondentExportFiles}
                 label={t('admin:export:PrepareParticipantCsvExportFiles')}
+                align="left"
+            />
+            <Button
+                color="green"
+                onClick={downloadSurveyQuestionnaireListTxt}
+                label={t('admin:export:DownloadSurveyQuestionnaireListTxt')}
+                align="left"
             />
             {error && <FormErrors errors={[error]} />}
             {csvExportFilesReady && <ul>{csvFileExportLinks}</ul>}
