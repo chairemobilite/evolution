@@ -139,7 +139,11 @@
     "ServerExportForbidden": "You are not authorized to export data",
     "PrepareDataError": "Unexpected error while preparing data for export",
     "UpdateOrWaitError": "Error while updating export files. Please wait a few seconds and try again",
-    "WaitForFileError": "Error getting the files to export from server"
+    "WaitForFileError": "Error getting the files to export from server",
+    "DownloadSurveyQuestionnaireListTxt": "Download survey questionnaire list - Text file",
+    "DownloadSurveyQuestionnaireListError": "Error while downloading the survey questionnaire list",
+    "DownloadSurveyQuestionnaireListNotFound": "Survey questionnaire list file was not found",
+    "DownloadSurveyQuestionnaireListUnauthorized": "You are not authorized to download the survey questionnaire list"
   },
   "UnknownError": "An unknown error occurred. See console for logs or contact the administrators."
 }

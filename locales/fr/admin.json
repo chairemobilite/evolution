@@ -139,7 +139,11 @@
     "ServerExportForbidden": "Vous n'êtes pas autorisé à exporter les données d'enquête",
     "PrepareDataError": "Erreur inattendue en préparant les fichiers d'export",
     "UpdateOrWaitError": "Erreur lors de la mise à jour des fichiers d'export. Veuillez ré-essayer plus tard.",
-    "WaitForFileError": "Erreur en attendant la fin de la préparation des fichiers d'export"
+    "WaitForFileError": "Erreur en attendant la fin de la préparation des fichiers d'export",
+    "DownloadSurveyQuestionnaireListTxt": "Télécharger la liste des questionnaires d'enquête - Fichier texte",
+    "DownloadSurveyQuestionnaireListError": "Erreur lors du téléchargement de la liste des questionnaires d'enquête",
+    "DownloadSurveyQuestionnaireListNotFound": "Le fichier de la liste des questionnaires d'enquête est introuvable",
+    "DownloadSurveyQuestionnaireListUnauthorized": "Vous n'êtes pas autorisé à télécharger la liste des questionnaires d'enquête"
   },
   "UnknownError": "Une erreur s'est produite. Voir les logs de la console ou contacter les administrateurs de l'enquête."
 }
