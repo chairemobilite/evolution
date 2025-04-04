@@ -107,6 +107,52 @@ const ExportInterviewData = ({ t }: WithTranslation) => {
         }
     };
 
+    // This function is used to download the survey questionnaire list as a .txt file
+    // NOTE: It is not related to the CSV export files, but it is included here for convenience
+    const downloadSurveyQuestionnaireListTxt = async () => {
+        try {
+            const response = await fetch('/api/admin/data/downloadSurveyQuestionnaireListTxt', {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.status === 200) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'questionnaire_list_en.txt';
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                window.URL.revokeObjectURL(url);
+            } else if (response.status === 404) {
+                throw new TrError(
+                    'Wrong response status ' + response.status,
+                    'downloadSurveyQuestionnaireListNotFound',
+                    'admin:export:DownloadSurveyQuestionnaireListNotFound'
+                );
+            } else if (response.status === 401) {
+                throw new TrError(
+                    'Wrong response status ' + response.status,
+                    'downloadSurveyQuestionnaireListUnauthorized',
+                    'admin:export:DownloadSurveyQuestionnaireListUnauthorized'
+                );
+            } else {
+                throw new TrError(
+                    'Wrong response status ' + response.status,
+                    'downloadSurveyQuestionnaireListError',
+                    'admin:export:DownloadSurveyQuestionnaireListError'
+                );
+            }
+        } catch (err) {
+            console.log('Error downloading survey questionnaire list.', err);
+            setError(TrError.isTrError(err) ? err.message : 'admin:export:DownloadSurveyQuestionnaireListError');
+        }
+    };
+
     const onRefreshExportFiles = () => updateOrWaitForFiles(false);
 
     const csvFileExportLinks = csvExportFilePaths.map((csvFilePath) => (
@@ -128,11 +174,19 @@ const ExportInterviewData = ({ t }: WithTranslation) => {
                 color="blue"
                 onClick={onPrepareCsvValidatedExportFiles}
                 label={t('admin:export:PrepareValidatedCsvExportFiles')}
+                align="left"
             />
             <Button
                 color="blue"
                 onClick={onPrepareCsvRespondentExportFiles}
                 label={t('admin:export:PrepareParticipantCsvExportFiles')}
+                align="left"
+            />
+            <Button
+                color="green"
+                onClick={downloadSurveyQuestionnaireListTxt}
+                label={t('admin:export:DownloadSurveyQuestionnaireListTxt')}
+                align="left"
             />
             {error && <FormErrors errors={[error]} />}
             {csvExportFilesReady && <ul>{csvFileExportLinks}</ul>}

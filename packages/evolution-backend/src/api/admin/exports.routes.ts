@@ -70,4 +70,23 @@ export const addExportRoutes = () => {
             });
         }
     });
+
+    // Route to download survey questionnaire list
+    router.get('/data/downloadSurveyQuestionnaireListTxt', (req, res, _next) => {
+        console.log('requesting survey questionnaire list...');
+        const questionnaireFilePath = `${filePathOnServer}/references/questionnaire_list_en.txt`;
+        const fileExists = fileManager.fileExists(questionnaireFilePath);
+        if (fileExists) {
+            const fileName = path.basename(questionnaireFilePath);
+            res.setHeader('Content-disposition', `attachment; filename=${fileName}`);
+            res.set('Content-Type', 'text/plain');
+            console.log('sending file ', fileManager.getAbsolutePath(questionnaireFilePath));
+            return res.status(200).sendFile(fileManager.getAbsolutePath(questionnaireFilePath));
+        } else {
+            return res.status(404).json({
+                status: 'notFound',
+                message: 'file does not exist'
+            });
+        }
+    });
 };
