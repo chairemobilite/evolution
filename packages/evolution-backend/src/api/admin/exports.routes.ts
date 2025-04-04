@@ -13,6 +13,7 @@ import {
 } from '../../services/adminExport/exportAllToCsvByObject';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
+import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 
 // TODO Do not use the main admin router. Fine-tune the permissions for the export routes.
 import router from 'chaire-lib-backend/lib/api/admin.routes';
@@ -67,6 +68,37 @@ export const addExportRoutes = () => {
                 status: 'error',
                 csvExportFilePaths: [],
                 error: 'could not prepare csv files for export: ' + error
+            });
+        }
+    });
+
+    // Route to download survey questionnaire list text file
+    router.get('/data/downloadSurveyQuestionnaireListTxt', (req, res, _next) => {
+        try {
+            console.log('requesting survey questionnaire list...');
+            const lang = req.query.lang || 'en'; // Default to 'en' if no lang is provided
+            const questionnaireAbsoluteFilePath = directoryManager.getAbsolutePath(
+                `../references/questionnaire_list_${lang}.txt`
+            );
+            const fileExists = fileManager.fileExistsAbsolute(questionnaireAbsoluteFilePath);
+
+            if (fileExists) {
+                const fileName = path.basename(questionnaireAbsoluteFilePath);
+                res.setHeader('Content-disposition', `attachment; filename=${fileName}`);
+                res.set('Content-Type', 'text/plain');
+                console.log('sending file ', questionnaireAbsoluteFilePath);
+                return res.status(200).sendFile(questionnaireAbsoluteFilePath);
+            } else {
+                return res.status(404).json({
+                    status: 'notFound',
+                    message: `file does not exist for language: ${lang}`
+                });
+            }
+        } catch (error) {
+            console.error('Error in downloadSurveyQuestionnaireListTxt:', error);
+            return res.status(500).json({
+                status: 'error',
+                message: 'An unexpected error occurred while processing the request.'
             });
         }
     });
