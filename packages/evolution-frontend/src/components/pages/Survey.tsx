@@ -42,6 +42,12 @@ import { RootState } from '../../store/configureStore';
 import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../store/survey';
 
+type StartSetInterview = (
+    activeSection: string | null,
+    surveyUuid: string | undefined,
+    preFilledResponses: { [key: string]: unknown } | undefined
+) => void;
+
 export type SurveyProps = {
     interview: UserRuntimeInterviewAttributes;
     interviewLoaded: boolean;
@@ -54,11 +60,7 @@ export type SurveyProps = {
     uuid?: string;
     location: Location;
     interviewContext: InterviewState;
-    startSetInterview: (
-        activeSection: string | null,
-        surveyUuid: string | undefined,
-        preFilledResponses: { [key: string]: unknown } | undefined
-    ) => void;
+    startSetInterview: StartSetInterview;
     startUpdateInterview: StartUpdateInterview;
     startAddGroupedObjects: StartAddGroupedObjects;
     startRemoveGroupedObjects: StartRemoveGroupedObjects;
@@ -287,13 +289,24 @@ const SurveyWrapper: React.FC = (props) => {
     const { sectionShortname, uuid } = useParams();
     const { state } = React.useContext(InterviewContext);
 
-    const startSetInterviewAction = (sectionShortname, surveyUuid, preFilledResponses) =>
+    const startSetInterviewAction: StartSetInterview = (sectionShortname, surveyUuid, preFilledResponses) =>
         dispatch(startSetInterview(sectionShortname, surveyUuid, navigate, preFilledResponses));
-    const startUpdateInterviewAction = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
-        dispatch(startUpdateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback, navigate));
-    const startAddGroupedObjectsAction = (newObjectsCount, insertSequence, path, attributes, callback, returnOnly) =>
-        dispatch(startAddGroupedObjects(newObjectsCount, insertSequence, path, attributes, callback, returnOnly));
-    const startRemoveGroupedObjectsAction = (paths, callback, returnOnly) =>
+    const startUpdateInterviewAction: StartUpdateInterview = (
+        sectionShortname,
+        valuesByPath,
+        unsetPaths,
+        interview,
+        callback
+    ) => dispatch(startUpdateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback, navigate));
+    const startAddGroupedObjectsAction: StartAddGroupedObjects = (
+        newObjectsCount,
+        insertSequence,
+        path,
+        attributes,
+        callback,
+        returnOnly
+    ) => dispatch(startAddGroupedObjects(newObjectsCount, insertSequence, path, attributes, callback, returnOnly));
+    const startRemoveGroupedObjectsAction: StartRemoveGroupedObjects = (paths, callback, returnOnly) =>
         dispatch(startRemoveGroupedObjects(paths, callback, returnOnly));
 
     return (
