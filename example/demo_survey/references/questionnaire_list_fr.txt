@@ -1,0 +1,608 @@
+// NOTE: This is a real example of a questionnaire survey list in French.
+// NOTE: The following content does not represent the actual questions of this demo survey.
+// NOTE: We can generate it with Evolution-Generator.
+
+Section: Domicile
+
+Veuillez compléter les informations suivantes concernant votre ménage et votre domicile.
+
+Combien de personnes habitent votre domicile de façon permanente, y compris vous-même, pendant la semaine ?
+
+Votre ménage est-il locataire ou propriétaire de votre domicile ?
+- Locataire
+- Propriétaire
+- Je ne sais pas
+- Je préfère ne pas répondre
+
+Combien de véhicules motorisés de chaque type posséde votre ménage ?
+Ne pas inclure les véhicules en autopartage
+
+Véhicule automobile, VUS ou camoniette à essence conventionnel ou hybride (non-branchable)
+
+
+Véhicule 100 % électrique ou hybride branchable
+
+
+Deux-roues électrique ou à essence nécessitant un permis (moto, mobylette, scooter)
+
+Avez-vous accès à un stationnement privé hors-rue ?
+- Oui
+- Non
+- Je ne sais pas
+
+Ville de votre domicile
+
+Adresse de votre domicile
+
+Code postal de votre domicile (facultatif)
+Par exemple, H1A 1A1
+
+Positionnement de votre domicile
+Recherchez votre domicile en utilisant son code postal ou son adresse en cliquant sur le bouton ci-dessous, ou veuillez positionner le lieu sur la carte en naviguant, zoomant et cliquant. Une fois le lieu localisé, vous pouvez déplacer le point pour plus de précision.
+
+Y a-t-il au moins une personne dans votre ménage avec une incapacité physique ou mentale permanente qui limite ses déplacements quotidiens ?
+- Oui
+- Non
+- Je préfère ne pas répondre
+
+Possédez-vous (ou quelqu'un de votre ménage) une propriété secondaire (ex. chalet)?
+- Oui
+- Non, mais nous prévoyons en avoir une dans la prochaine année
+- Non, nous n'avons pas de propriété secondaire
+
+Enregistrer et continuer
+
+
+
+Section: Ménage
+
+Nous allons maintenant vous poser des questions concernant chacun des membres de votre ménage.
+
+Nous allons maintenant vous poser des questions vous concernant.
+
+Nom ou surnom pour identifier cette personne pour la suite de l'enquête.
+Peut être un surnom, des initiales, ou encore un identifiant qui vous permet facilement d'identifier chaque personne (ex.: 'Moi', 'Toto', 'Maman', 'PN'). Ce nom est seulement utilisé lors de l'enquête et ne sera pas enregistré dans le fichier final.
+
+Âge
+Pour les bébés de moins de 1 an, inscrivez "0"
+
+Genre
+- Homme
+- Femme
+- Je préfère ne pas répondre
+- Autre (spécifiez)
+
+Travailleur ou travailleuse
+Incluant travailleur autonome, artiste, travailleur en congé de maladie ou parental.
+- Oui, à temps plein
+- Oui, à temps partiel
+- Non
+
+Étudiant(e)
+- Oui, à temps plein
+- Oui, à temps partiel
+- Non
+
+Permis de conduire
+- Oui
+- Non
+- Je ne sais pas
+
+Enregistrer et continuer
+
+
+
+Section: Transport
+
+Quel membre du ménage êtes-vous?
+
+Avez-vous une incapacité permanente qui limite vos déplacements quotidiens?
+- Oui
+- Non
+
+Au cours de la dernière année, avez-vous conduit un véhicule d'autopartage ?
+Par exemple, Communauto
+- Oui
+- Non
+- Je ne sais pas
+
+Avez-vous une carte OPUS ?
+- Oui, avec abonnement (hebdomadaire, mensuel, annuel)
+- Oui, sans abonnement
+- Non
+
+Avez-vous utilisé un service de partage de vélos (ex.: BIXI, àVélo) en 2024 ?
+Veuillez répondre même si les services de partage de vélos ne sont pas disponibles là où vous habitez.
+- Oui, avec abonnement (hebdomadaire, mensuel, annuel)
+- Oui, sans abonnement
+- Non
+
+Possèdez-vous au moins un vélo régulier ?
+- Oui
+- Non
+
+Possèdez-vous au moins un vélo à assistance électrique ?
+- Oui
+- Non
+
+Possèdez-vous au moins un vélo cargo ?
+- Oui
+- Non
+
+Est-ce que le transport collectif est disponible dans votre quartier même si vous ne l'utilisez pas personnellement ?
+- Oui
+- Non
+- Je ne sais pas
+
+Enregistrer et continuer
+
+
+
+Section: Profil
+
+Quel est votre mode de transport principal en ce moment ?
+- Automobile privée comme conducteur·trice
+- Automobile privée comme passager·ère
+- Automobile partagée (ex: Communauto)
+- Transport collectif
+- Vélo
+- Marche (ou chaise roulante)
+- Transport adapté
+- Autre (spécifiez)
+
+Avez-vous un lieu de travail à l'extérieur du domicile ?
+- Oui
+- Non
+- Je ne sais pas
+
+Ville de votre lieu de travail
+
+Adresse ou nom de votre lieu de travail
+Vous pouvez également fournir le code postal ou l'intersection (rue 1 / rue 2) la plus proche.
+Si vous avez plusieurs lieux de travail réguliers, indiquez celui auquel vous vous rendez le plus souvent.
+
+Positionnement de votre lieu de travail
+Recherchez votre lieu de travail en utilisant son adresse en cliquant sur le bouton ci-dessous, ou veuillez positionner le lieu sur la carte en naviguant, zoomant et cliquant. Une fois le lieu localisé, vous pouvez déplacer le point pour plus de précision.
+
+En moyenne, au cours des 4 dernières semaines, combien de fois par semaine vous-êtes vous rendu sur votre lieu de travail habituel ?
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Au cours des 4 dernières semaines, quel mode de transport avez-vous utilisé le plus souvent pour vous rendre à votre lieu de travail habituel ?
+- Automobile privée comme conducteur·trice
+- Automobile privée comme passager·ère
+- Automobile partagée (ex: Communauto)
+- Transport collectif
+- Vélo
+- Marche (ou chaise roulante)
+- Transport adapté
+- Autre (spécifiez)
+
+Utilisez-vous un autre mode de transport pour vous rendre au travail ?
+- Oui
+- Non
+
+Quel est votre deuxième mode de transport le plus fréquent pour vous rendre au travail ?
+- Automobile privée comme conducteur·trice
+- Automobile privée comme passager·ère
+- Automobile partagée (ex: Communauto)
+- Transport collectif
+- Vélo
+- Marche (ou chaise roulante)
+- Transport adapté
+- Autre (spécifiez)
+
+Avez-vous un lieu d'études fixe à l'extérieur du domicile ?
+- Oui
+- Non
+- Je ne sais pas
+
+Ville de votre lieu d'études
+
+Nom de votre lieu d'études
+Vous pouvez également fournir l'adresse, le code postal ou l'intersection (rue 1 / rue 2) la plus proche.
+
+Positionnement de votre lieu d'études
+Recherchez votre lieu d'études en utilisant son adresse ou son nom en cliquant sur le bouton ci-dessous, ou veuillez positionner le lieu sur la carte en naviguant, zoomant et cliquant. Une fois le lieu localisé, vous pouvez déplacer le point pour plus de précision.
+
+En moyenne, au cours des 4 dernières semaines, combien de fois par semaine vous-êtes vous rendu à votre lieu d'études ?
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Au cours des 4 dernières semaines, quel mode de transport avez-vous utilisé le plus souvent pour vous rendre à votre lieu d'études ?
+- Automobile privée comme conducteur·trice
+- Automobile privée comme passager·ère
+- Automobile partagée (ex: Communauto)
+- Transport collectif
+- Vélo
+- Marche (ou chaise roulante)
+- Transport adapté
+- Autre (spécifiez)
+
+Utilisez-vous un autre mode de transport pour vous rendre à votre lieu d'études ?
+- Oui
+- Non
+
+Quel est votre deuxième mode de transport le plus fréquent pour vous rendre à votre lieu d'études ?
+- Automobile privée comme conducteur·trice
+- Automobile privée comme passager·ère
+- Automobile partagée (ex: Communauto)
+- Transport collectif
+- Vélo
+- Marche (ou chaise roulante)
+- Transport adapté
+- Autre (spécifiez)
+
+Enregistrer et continuer
+
+
+
+Section: Lieux Habituels
+
+En moyenne, au cours des 4 dernières semaines, combien de fois par semaine vous déplacez-vous hors de votre domicile pour réaliser des activités (incluant vers vos lieux de travail et/ou d'études) ? 
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Pour l'ensemble de vos déplacements incluant le travail/les études, au cours des 4 dernières semaines, à quelle fréquence utilisez-vous les modes de transport suivants ?
+
+Marche ou chaise roulante
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Vélo
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Auto conducteur
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Auto passager
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Transport collectif
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Taxi ou service de transport avec chauffeur (ex.: Uber)
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Transport adapté
+- Jamais ou presque jamais
+- Moins de 1 fois / semaine
+- 1 fois / semaine
+- 2 fois / semaine
+- 3 fois / semaine
+- 4 fois / semaine
+- 5 fois / semaine ou plus
+
+Enregistrer et continuer
+
+
+
+Section: Étapes du changement
+
+Parmi les énoncés suivants, lequel décrit le mieux votre sentiment vis-à-vis de votre utilisation de l'automobile à titre de conducteur ou conductrice ?
+- Je suis satisfait(e) de mon utilisation de l’auto pour mes déplacements quotidiens et je ne vois aucune raison de changer de mode de transport.
+- J’aimerais réduire mon utilisation de l’auto, mais cela me semble impossible.
+- Je pense à réduire mon utilisation, mais je ne sais pas comment ni quand le faire.
+- J’ai comme objectif de réduire mon utilisation de l’auto. Je sais quel(s) trajet(s) remplacer et quel mode de transport utiliser, mais je n’ai pas encore commencé à le faire de manière régulière.
+- J’essaie d’utiliser le plus possible d’autres modes de transport que l’auto. Je vais maintenir ou réduire encore plus ma faible utilisation de l’auto dans les mois à venir.
+- Je n'utilise pas ou que très rarement l'automobile. Je peux difficilement réduire davantage mon utilisation.
+
+Lequel des énoncés suivants décrit le mieux votre sentiment par rapport au nombre de véhicules de votre ménage ?
+- Mon ménage ne possède aucun véhicule et c'est très bien ainsi
+- Je suis satisfait·e du nombre de véhicule(s) que mon ménage possède. Je ne vois pas de raison de changer.
+- J'aimerais que mon ménage se procure un véhicule de plus pour répondre à nos besoins de mobilité.
+- J'aimerais que mon ménage se départisse de l'un de ses véhicules.
+
+Vous avez indiqué souhaiter avoir un véhicule de plus. Quel est le niveau d'avancement de votre réflexion ?
+- Nous avons commencer à magasiner et savons quel véhicule nous voulons. 
+- Nous n'avons pas encore fait notre choix de véhicule.
+- Cela nous semble impossible/très difficile présentement d'aquérir un véhicule de plus.
+
+Vous avez indiqué souhaiter vous départir d'un véhicule. Quel est le niveau d'avancement de votre réflexion ?
+- Cela nous semble impossible/très difficile présentement de se départir de l'un de nos véhicules.
+- Nous y pensons sérieusement, mais nous ne savons pas comment ni quand le faire.
+- Nous attendons la fin de vie du véhicule pour s'en débarasser et ne pas le remplacer.
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+Je me sens libre et indépendant·e lorsque je conduis une voiture
+
+Pour moi, une voiture est avant tout un outil pour accomplir ce que je veux faire
+
+Je n'utilise une voiture que pour aller de A à B.
+
+Le type de véhicule que je conduis n'a pas d'importance pour moi
+
+Une voiture peut me procurer un certain statut et prestige
+
+Je peux me distinguer des autres avec ma voiture.
+
+J'ai du plaisir à me déplacer en voiture
+
+Je me sens en sécurité quand je me déplace en voiture
+
+Me déplacer en voiture est confortable et relaxant
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+Posséder une auto est dispendieux
+
+En auto, on est toujours pris dans la congestion
+
+Entretenir une auto est une obligation déplaisante
+
+Pour vérifier que vous êtes attentif, veuillez sélectionner 8/10 pour cette question
+
+Il y a trop d'autos sur les routes
+
+Trouver un espace de stationnement aux endroits où je vais est compliqué
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+J'aime faire du vélo
+
+Je me sens bien après avoir fait du vélo
+
+Je peux me rendre à plusieurs de mes destinations importantes en vélo
+
+Je ne suis pas le genre de personne qui fait du vélo
+
+Le vélo peut être le moyen le plus rapide de se déplacer au quotidien
+
+Je me sens en sécurité à vélo en ville
+
+Faire du vélo fait partie de moi, de qui je suis
+
+Je m'identifie comme un·e cycliste
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+J'aime prendre le transport collectif
+
+Prendre le transport collectif est relaxant
+
+Je peux me rendre à plusieurs de mes destinations importantes en transport collectif
+
+Je ne suis pas le genre de personne qui utilise les transports en commun
+
+Le transport collectif peut être le moyen le plus rapide de se déplacer
+
+Je me sens en sécurité en transport collectif
+
+Me déplacer en transport collectif fait partie de moi, de qui je suis
+
+Je m'identifie comme un·e usager·ère du transport collectif
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+Me déplacer en {{mainMode}} est quelque chose…
+
+... que je fais fréquemment
+
+... que je fais de façon automatique, sans réfléchir
+
+... qui fait partie de ma routine quotidienne
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+Indiquez à quel point vous êtes en accord avec les énoncés suivants concernant votre auto
+
+Indiquez à quel point vous êtes en accord avec les énoncés suivants concernant l'auto en général
+
+Si je devais, pour X raison, me départir de mon auto (et ne plus en posséder une), je serais découragé·e ou en colère
+
+Si je devais me départir de mon auto, ce ne serait pas facile, mais j'accepterais la situation
+
+Je ne peux pas imaginer ma vie sans auto
+
+Mes proches désapprouveraient ou me critiqueraient si je me déplaçais en transport collectif ou en vélo
+
+Mes proches désapprouveraient ou critiqueraient mon choix de vivre sans voiture
+
+Les gens importants pour moi pensent qu'il est normal de posséder une voiture
+
+La plupart de mes proches (amis, collègues, famille, voisins) possèdent une auto
+
+Pour vérifier que vous êtes attentif, veuillez sélectionner 3/10 pour cette question.
+
+Je m'identifie comme un·e automobiliste
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+Je me considère préoccupé·e par les enjeux environnementaux et climatiques
+
+Je ne vois pas trop pourquoi je changerais mes habitudes alors que de nouvelles technologies comme l'auto électrique règleront les problèmes environnementaux
+
+De façon globale, l'utilisation de l'auto privée amène plusieurs conséquences négatives (ex. sur l'environnement, le climat, la santé de la population, la qualité des milieux de vie).
+
+Il est important pour moi de minimiser l'empreinte environmentale de mes déplacements
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+Pour terminer, nous aimerions connaître votre opinion sur diverses solutions pouvant répondre aux enjeux de mobilité, ainsi que ce que vous souhaitez faire personnellement
+
+Je suis favorable aux politiques, règlementations et aménagements qui limite la circulation automobile sur nos routes
+
+Les automobilistes devraient payer davantage (en stationnement, en taxes, etc.) en raison des impacts négatifs de l'utilisation de l'auto sur l'environnement et les collectivités (émissions de GES, congestion, finances publiques, santé, etc.)
+
+Nos dirigeant·es devraient arrêter de faire la guerre à l'auto
+
+Les entreprises, comme celle où je travaille, devraient mettre en place des installations et des mesures pour nous encourager à utiliser les transports collectifs et actifs
+
+Chaque individu devrait faire sa part en utilisant moins l'auto privée
+
+Ce serait une bonne idée de réduire l'espace réservé aux voitures sur les rues (voies de circulation, stationnement) pour laisser plus de place aux modes actifs et collectifs (pistes cyclables, trottoirs élargis, voies pour autobus et covoiturage) 
+
+Dans nos quartiers, je suis favorable à des mesures telles la diminution de la vitesse maximale et l'ajout de dos d'ânes ou de saillies de trottoirs
+
+Ajouter des voies ou construire de nouvelles routes permettrait de réduire la congestion
+
+Enregistrer et continuer
+
+
+
+Section: Perceptions
+
+Complétez la phrase en indiquant à quel point vous êtes en accord avec les énoncés suivants concernant vos intentions dans les prochains mois. Dans l'avenir, j'ai l'intention ...
+
+... de m'informer davantage sur les impacts négatifs associés à l'utilisation de l'auto privée
+
+... d'augmenter la fréquence à laquelle j'utilise un mode de transport alternatif pour mes trajets quotidiens (p.ex., transports en commun, marche, vélo)
+
+... de discuter avec mes proches (ami·es, collègues, famille) des bienfaits des transports actifs (marche, vélo, etc.)
+
+... de démontrer publiquement (p.ex., sur les réseaux sociaux, lors de rencontres, etc.) mon appui à des initiatives favorisant l'utilisation de modes de transport alternatifs à l'auto (p.ex., nouvelles infrastructures cyclables, voies protégées pour autobus)
+
+... d'acheter un abonnement au transport collectif, à bixi ou à un service d'autopartage
+
+... de participer à une séance du conseil de mon arrondissement ou de ma ville pour discuter des enjeux de mobilité ou proposer des solutions
+
+Enregistrer et continuer
+
+
+
+Section: Fin
+
+Quel était le revenu de votre ménage avant impôts (revenu brut) en 2023 ?
+- Moins de 14 999 $
+- 15 000 $ à 29 999 $
+- 30 000 $ à 59 999 $
+- 60 000 $ à 89 999 $
+- 90 000 $ à 119 999 $
+- 120 000 $ à 149 999 $
+- 150 000 $ et plus
+- Je ne sais pas
+- Je préfère ne pas répondre
+
+Souhaiteriez-vous participer à d'autres études menées par la Chaire Mobilité de Polytechnique Montréal ?
+- Oui
+- Non
+
+Courriel
+
+Comment évaluez-vous le niveau de complexité de ce questionnaire ?
+
+Combien de temps pensez-vous avoir passé à répondre à ce questionnaire (en minutes) ?
+
+Avez-vous été tenté(e), à un certain point, d'abandonner l'enquête ?
+- Oui
+- Non
+
+Dans quelle(s) section(s) avez-vous été tenté(e) d'abandonner?
+Sélectionnez toutes les réponses appropriées
+- Domicile
+- Ménage
+- Transport
+- Profil
+- Lieux Habituels
+- Étapes du changement
+- Perceptions
+
+Pour quelle(s) raison(s) avez-vous été tenté(e) d'abandonner (facultatif) ?
+
+Vos commentaires et suggestions sur l'enquête (facultatif)
+
+Vos commentaires concernant votre expérience de mobilité dans votre région (facultatif)
+
+Terminer l'enquête
+
+
+
+Section: Questionnaire complété
+
+Merci pour votre participation!
+
+Nous vous remercions d'avoir pris le temps de remplir cette enquête. Vos réponses ont été enregistrées avec succès. Vous pouvez modifier vos réponses en cliquant sur les sections dans le menu ci-dessus.
+
+Merci pour votre participation!
+
+Toutefois, il n'y a pas d'adultes dans votre ménage. Nous vous remercions d'avoir pris le temps de remplir cette enquête.
+
+Merci pour votre participation!
+
+Toutefois, votre domicile n'est pas dans le territoire enquêté. Nous vous remercions d'avoir pris le temps de remplir cette enquête.
+
+
+
