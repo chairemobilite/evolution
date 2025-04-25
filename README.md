@@ -51,45 +51,47 @@ For Linux users, follow these instructions to install dependencies.
 
 <!-- TODO: Install Node.js and Yarn on Windows -->
 
-The following instructions explain how to install dependencies for Windows. 
+The following instructions explain how to install dependencies for Windows.
 
-* Download PostgreSQL at `https://www.enterprisedb.com/downloads/postgres-postgresql-downloads`
-* Install PostgreSQL. During the installation, make sure you provide a password for your postgres database superuser, and that you install the components pgAdmin 4 and Stack Builder. You can use port 5432
-* `psql --version`: Verify your PostgreSQL version inside Powershell
-* Find and run the “Stack Builder” program that was installed with the database. Select the “Spatial Extensions” section and choose the latest “PostGIS Bundle” option. Accept the defaults and install
+- Download PostgreSQL at `https://www.enterprisedb.com/downloads/postgres-postgresql-downloads`
+- Install PostgreSQL. During the installation, make sure you provide a password for your postgres database superuser, and that you install the components pgAdmin 4 and Stack Builder. You can use port 5432
+- `psql --version`: Verify your PostgreSQL version inside Powershell
+- Find and run the “Stack Builder” program that was installed with the database. Select the “Spatial Extensions” section and choose the latest “PostGIS Bundle” option. Accept the defaults and install
 
-## Prepare and compile the application 
-The following instructions explain how to prepare and compile the application 
+## Prepare and compile the application
 
-* Create a `.env` file in the project root directory (you can copy the `.env.example` file) and setup the project
-* Update the `.env` with the Postgres connection string and create a new Google map API key if you need the Google map in the project
+The following instructions explain how to prepare and compile the application
 
-```env 
-    PG_CONNECTION_STRING_PREFIX = "postgres://postgres:<Password>@localhost:5432/" 
+- Create a `.env` file in the project root directory (you can copy the `.env.example` file) and setup the project
+- Update the `.env` with the Postgres connection string and create a new Google map API key if you need the Google map in the project
+
+```env
+    PG_CONNECTION_STRING_PREFIX = "postgres://postgres:<Password>@localhost:5432/"
     GOOGLE_API_KEY = "<MyGoogleApiKey>"
 ```
-* `git submodule init && git submodule update` will get the Transition repository
-* `yarn install` or just `yarn`: Will download the packages required by the application
-* `yarn compile`: Convert the typescript files to javascript
-* `yarn setup`: Run this command to setup the database for the current project
-* `yarn migrate`: Update the database schema with latest changes. This can be run whenever the source code is updated
-* Optionally `yarn create-user`: Run this task to create a new user in the database. The user will be able to login to the web interface. This command can be run entirely in a non-interactive mode with the following parameters: `yarn create-user --username <username> --email <email> --password <clearTextPassword> [--first_name <firstName> --last_name <lastName> --[no-]admin --[no-]valid --[no-]confirmed --prefs <jsonStringOfPreferences>]`. For example, to create and administrator user with the english language as preference, run the following command `yarn create-user --username admin --email admin@example.org --password MyAdminPassword --admin --prefs '{ "lang": "en" }'`
+
+- `git submodule init && git submodule update` will get the Transition repository
+- `yarn install` or just `yarn`: Will download the packages required by the application
+- `yarn compile`: Convert the typescript files to javascript
+- `yarn setup`: Run this command to setup the database for the current project
+- `yarn migrate`: Update the database schema with latest changes. This can be run whenever the source code is updated
+- Optionally `yarn create-user`: Run this task to create a new user in the database. The user will be able to login to the web interface. This command can be run entirely in a non-interactive mode with the following parameters: `yarn create-user --username <username> --email <email> --password <clearTextPassword> [--first_name <firstName> --last_name <lastName> --[no-]admin --[no-]valid --[no-]confirmed --prefs <jsonStringOfPreferences>]`. For example, to create and administrator user with the english language as preference, run the following command `yarn create-user --username admin --email admin@example.org --password MyAdminPassword --admin --prefs '{ "lang": "en" }'`
 
 ## Run the example application
 
-The example application contains 2 distinct application. For local development, we will run the participant app on port 8080 (the default port) and the administrative app on port 8082. Each application needs to build the client app and run the server. 
+The example application contains 2 distinct application. For local development, we will run the participant app on port 8080 (the default port) and the administrative app on port 8082. Each application needs to build the client app and run the server.
 
-To build and run the *participant application*:
+To build and run the _participant application_:
 
-* `yarn build:dev` or `yarn build:prod` to build the client app, respectively in development mode (with complete code for debug purposes), or production mode (with minified code for better performances)
-* `yarn start` will start the server and listen on port 8080
+- `yarn build:dev` or `yarn build:prod` to build the client app, respectively in development mode (with complete code for debug purposes), or production mode (with minified code for better performances)
+- `yarn start` will start the server and listen on port 8080
 
 The participant application can be reached at `http://localhost:8080`.
 
-To build and run the *administrative application*:
+To build and run the _administrative application_:
 
-* `yarn build:admin:dev` or `yarn build:admin:prod` to build the admin app, respectively in develpment adn production modes.
-* `HOST=http://localhost:8082 yarn start:admin --port 8082` will start the server on port 8082, while overwriting the HOST environment variable to match the admin URL.
+- `yarn build:admin:dev` or `yarn build:admin:prod` to build the admin app, respectively in development and production modes.
+- `HOST=http://localhost:8082 yarn start:admin --port 8082` will start the server on port 8082, while overwriting the HOST environment variable to match the admin URL.
 
 ## Update the application
 
@@ -124,6 +126,7 @@ cp packages/evolution-frontend/playwright-example.config.ts survey/playwright.co
 Install the dependencies and browsers to use for playwright by running `yarn test:ui:install-dependencies`. This will install all playwright browsers and dependencies. It is possible to fine-tune the browsers to install. See the playwright documentation for more information (https://playwright.dev/docs/browsers).
 
 For example, to run the tests on firefox, use
+
 ```
 npx playwright install --with-deps firefox
 ```
@@ -136,11 +139,12 @@ yarn start
 ```
 
 Run the UI tests
+
 ```
 yarn test:ui
 ```
 
-*Notes:* In the `test:ui` script to define in the project, add the `LOCALE_DIR` environment variable, to register the translations for the current project. For example, in the `demo_survey` project, the script is defined as follows:
+_Notes:_ In the `test:ui` script to define in the project, add the `LOCALE_DIR` environment variable, to register the translations for the current project. For example, in the `demo_survey` project, the script is defined as follows:
 
 ```
 "test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test"
@@ -178,3 +182,38 @@ surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Déplacements de l
 surveyTestHelpers.logout({ context });
 
 ```
+
+## Generate and View API Documentation with JSDoc
+
+**Note:** Currently, the JSDoc documentation only covers the `Evolution-Common` package. Some functions are still missing JSDoc comments, so the documentation may not be complete.
+
+For more details about JSDoc, visit the [official documentation](https://jsdoc.app/).
+
+### Installing JSDoc
+
+To install JSDoc globally, run the following command:
+
+```bash
+npm i -g jsdoc
+```
+
+### Generating API Documentation
+
+To generate the API documentation, use the following command:
+
+```bash
+yarn jsdoc
+```
+
+This will create the documentation in the `docs/api` folder.
+
+### Viewing the Documentation
+
+To view the generated HTML documentation, you can use an extension like **Live Server** in Visual Studio Code. Follow these steps:
+
+1. Install the **Live Server** extension from the VS Code marketplace.
+2. Open the `docs/api` folder in VS Code.
+3. Right-click on the `index.html` file and select **Open with Live Server**.
+4. The documentation will open in your default web browser.
+
+Alternatively, you can use any HTTP server to serve the `docs/api` folder and view the documentation in your browser.
