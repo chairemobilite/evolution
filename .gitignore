@@ -134,5 +134,5 @@ example/demo_generator/references
 example/demo_generator/src
 example/demo_generator/tests
 
-## JSDoc API Documentations
-/docs/api/
+## JSDoc Internal API Documentations
+/docs/internalApi/

@@ -2,7 +2,7 @@
     "plugins": ["plugins/markdown"],
     "recurseDepth": 10,
     "opts": {
-        "destination": "../../docs/api",
+        "destination": "../../docs/internalApi",
         "recurse": true
     },
     "source": {

@@ -197,23 +197,23 @@ To install JSDoc globally, run the following command:
 npm i -g jsdoc
 ```
 
-### Generating API Documentation
+### Generating internal API Documentation
 
-To generate the API documentation, use the following command:
+To generate the internal API documentation, use the following command:
 
 ```bash
 yarn jsdoc
 ```
 
-This will create the documentation in the `docs/api` folder.
+This will create the documentation in the `docs/internalApi` folder.
 
 ### Viewing the Documentation
 
 To view the generated HTML documentation, you can use an extension like **Live Server** in Visual Studio Code. Follow these steps:
 
 1. Install the **Live Server** extension from the VS Code marketplace.
-2. Open the `docs/api` folder in VS Code.
+2. Open the `docs/internalApi` folder in VS Code.
 3. Right-click on the `index.html` file and select **Open with Live Server**.
 4. The documentation will open in your default web browser.
 
-Alternatively, you can use any HTTP server to serve the `docs/api` folder and view the documentation in your browser.
+Alternatively, you can use any HTTP server to serve the `docs/internalApi` folder and view the documentation in your browser.
