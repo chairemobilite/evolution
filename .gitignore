@@ -130,9 +130,11 @@ __pycache__/
 
 # demo_generator example generated files
 example/demo_generator/locales
-example/demo_generator/references
+example/demo_generator/references/*
+!example/demo_generator/references/Household_Travel_Generate_Survey.xlsx
+!example/demo_generator/references/generatorConfigs.yaml
 example/demo_generator/src
-example/demo_generator/tests
+example/demo_generator/tests/template-tests-UI.ts
 
 ## JSDoc Internal API Documentations
 /docs/internalApi/
