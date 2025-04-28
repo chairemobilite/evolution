@@ -1,5 +1,5 @@
 survey_folder_path: ../../example/demo_generator
-excel_file_path: ../../packages/evolution-generator/src/examples/Example_Generate_Survey.xlsx
+excel_file_path: ../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx
 
 enabled_scripts:
     generate_excel: false
