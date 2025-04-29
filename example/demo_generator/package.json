@@ -15,9 +15,11 @@
       "compile": "echo 'Run `yarn compile:example` to compile the example generator app, once it is generated'",
       "compile:example": "tsc && yarn copy-files",
       "compile:dev": "yarn copy-files && tsc -w",
+      "start": "yarn node lib/server.js --max-old-space-size=4096",
       "reset": "rimraf src/ locales/ tests/ node_modules/ lib/",
       "format": "prettier-eslint ./**/*.{ts,tsx} --write",
-      "format:all": "yarn format"
+      "format:all": "yarn format",
+      "test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test"
     },
     "dependencies": {
       "chaire-lib-backend": "0.2.2",
