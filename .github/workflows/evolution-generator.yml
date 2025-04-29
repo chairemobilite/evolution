@@ -44,4 +44,4 @@ jobs:
     - name: Compile Evolution
       run: yarn compile
     - name: Compile Generated survey
-      run: yarn workspace demo_generator run compile:example
+      run: yarn workspace demo_generator run compile
