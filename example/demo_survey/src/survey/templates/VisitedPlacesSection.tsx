@@ -73,7 +73,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
             updateValuesByPath[`responses.${beforeLastVisitedPlacePath}.nextPlaceCategory`] = null;
         }
         updateValuesByPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
-        props.startUpdateInterview('visitedPlaces', updateValuesByPath);
+        props.startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesByPath });
         }));
     }
 
@@ -82,8 +82,9 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
         {
             e.preventDefault();
         }
-        props.startUpdateInterview('visitedPlaces', {
-            [`responses._activeVisitedPlaceId`]: visitedPlaceUuid
+        props.startUpdateInterview({
+            sectionShortname: 'visitedPlaces', 
+            valuesByPath: {[`responses._activeVisitedPlaceId`]: visitedPlaceUuid }
         });
     }
   
@@ -387,7 +388,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
               [`validations.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`]: {},
               [`responses._activeSection`]: 'tripsIntro'
             };
-            props.startUpdateInterview('visitedPlaces', valuesByPath);
+            props.startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath });
           }.bind(this)
         }>{t('survey:visitedPlace:resetVisitedPlaces')}</button></div>)}
       </section>

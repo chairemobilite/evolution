@@ -91,12 +91,14 @@ export const updateSection = (
 const startUpdateInterviewCallback = async (
     dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
     getState: () => RootState,
-    requestedSectionShortname: Parameters<StartUpdateInterview>[0],
-    valuesByPath: Parameters<StartUpdateInterview>[1] = {},
-    unsetPaths?: Parameters<StartUpdateInterview>[2],
-    initialInterview?: Parameters<StartUpdateInterview>[3],
-    callback?: Parameters<StartUpdateInterview>[4],
-    navigate?: Parameters<StartUpdateInterview>[5]
+    {
+        sectionShortname: requestedSectionShortname,
+        valuesByPath = {},
+        unsetPaths,
+        interview: initialInterview,
+        gotoFunction
+    }: Parameters<StartUpdateInterview>[0] = {},
+    callback?: Parameters<StartUpdateInterview>[1]
 ) => {
     try {
         const interview = initialInterview
@@ -271,13 +273,13 @@ const startUpdateInterviewCallback = async (
             }
         } else {
             console.log(`Update interview: wrong responses status: ${response.status}`);
-            await handleHttpOtherResponseCode(response.status, dispatch, navigate);
+            await handleHttpOtherResponseCode(response.status, dispatch, gotoFunction);
         }
     } catch (error) {
         console.log('Error updating interview', error);
 
         handleClientError(error instanceof Error ? error : new Error(String(error)), {
-            navigate,
+            navigate: gotoFunction,
             interviewId: getState().survey.interview!.id
         });
     } finally {
@@ -323,28 +325,12 @@ export const updateInterview = (
  * @returns The dispatched action
  */
 export const startUpdateInterview =
-    (
-        sectionShortname: Parameters<StartUpdateInterview>[0],
-        valuesByPath?: Parameters<StartUpdateInterview>[1],
-        unsetPaths?: Parameters<StartUpdateInterview>[2],
-        interview?: Parameters<StartUpdateInterview>[3],
-        callback?: Parameters<StartUpdateInterview>[4],
-        navigate?: Parameters<StartUpdateInterview>[5]
-    ) =>
+    (data?: Parameters<StartUpdateInterview>[0], callback?: Parameters<StartUpdateInterview>[1]) =>
         async (
             dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
             getState: () => RootState
         ) => {
-            await startUpdateInterviewCallback(
-                dispatch,
-                getState,
-                sectionShortname,
-                valuesByPath,
-                unsetPaths,
-                interview,
-                callback,
-                navigate
-            );
+            await startUpdateInterviewCallback(dispatch, getState, data, callback);
         };
 
 export const addConsent = (consented: boolean) => ({
@@ -392,7 +378,7 @@ export const startAddGroupedObjects = (
         if (returnOnly) {
             return changedValuesByPath;
         } else {
-            dispatch(startUpdateInterview(null, changedValuesByPath, undefined, undefined, callback));
+            dispatch(startUpdateInterview({ valuesByPath: changedValuesByPath }, callback));
         }
     };
 };
@@ -424,13 +410,13 @@ export const startRemoveGroupedObjects = function (
         if (returnOnly) {
             return [valuesByPath, unsetPaths];
         } else {
-            dispatch(startUpdateInterview(null, valuesByPath, unsetPaths, undefined, callback));
+            dispatch(startUpdateInterview({ valuesByPath, unsetPaths }, callback));
         }
     };
 };
 
 export const startSetInterview = (
-    activeSection: string | null = null,
+    activeSection: string | undefined = undefined,
     surveyUuid: string | undefined = undefined,
     navigate: GotoFunction | undefined = undefined,
     preFilledResponses: { [key: string]: unknown } | undefined = undefined
@@ -483,7 +469,12 @@ export const startSetInterview = (
                         valuesByPath['responses._browser'] = browserTechData;
                     }
                     dispatch(
-                        startUpdateInterview(activeSection, valuesByPath, undefined, interview, undefined, navigate)
+                        startUpdateInterview({
+                            sectionShortname: activeSection,
+                            valuesByPath,
+                            interview,
+                            gotoFunction: navigate
+                        })
                     );
                 } else {
                     // No interview for this user, create one
@@ -518,7 +509,7 @@ export const startCreateInterview = (preFilledResponses: { [key: string]: unknow
                 const body = await response.json();
                 if (body.interview) {
                     // Set active section and initial responses in the interview
-                    let activeSection: string | null = null;
+                    let activeSection: string | undefined = undefined;
                     // Find the first section to activate (the one without a previous one)
                     // FIXME This should be done in the backend, not here
                     for (const sectionShortname in applicationConfiguration.sections) {
@@ -537,7 +528,13 @@ export const startCreateInterview = (preFilledResponses: { [key: string]: unknow
                         });
                     }
                     // Update the interview with the initial responses
-                    dispatch(startUpdateInterview(activeSection, responses, undefined, body.interview));
+                    dispatch(
+                        startUpdateInterview({
+                            sectionShortname: activeSection,
+                            valuesByPath: responses,
+                            interview: body.interview
+                        })
+                    );
                 } else {
                     // we need to do something if no interview is returned (error)
                     handleClientError('createInterview returned success but no interview was returned', {});

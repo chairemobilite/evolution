@@ -45,7 +45,7 @@ export const getButtonSaveTripSegmentsConfig = (
             const journey = odHelpers.getActiveJourney({ interview });
             const nextTrip = journey !== null ? odHelpers.selectNextIncompleteTrip({ journey }) : null;
             updateValuesbyPath['responses._activeTripId'] = nextTrip ? nextTrip._uuid : null;
-            callbacks.startUpdateInterview('segments', updateValuesbyPath);
+            callbacks.startUpdateInterview({ sectionShortname: 'segments', valuesByPath: updateValuesbyPath });
         },
         conditional: function (interview, path) {
             const segments = getResponse(interview, path, {}, '../segments') as { [segmentId: string]: Segment };

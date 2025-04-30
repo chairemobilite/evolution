@@ -293,24 +293,31 @@ export type GotoFunction = (to: string | { pathname?: string; search?: string })
 /**
  * Type of the callback to send interview updates to the server
  *
- * @param sectionShortname The shortname of the current section
- * @param valuesByPath The values to update in the interview. The key is the
- * path to update and the value is the new value. A dot-separated path will be
- * exploded to the corresponding nested object path.
- * @param unsetPaths The paths to unset in the interview. A dot-separated path
- * will be exploded to the corresponding nested object path.
- * @param interview The current interview
- * @param callback An optional function to call after the interview has been updated
- * @param gotoFunction A function used to redirect the page to a specific URL
+ * @param {Object} data
+ * @param {string} [data.sectionShortname] The shortname of the current section
+ * @param {Object} [data.valuesByPath] The values to update in the interview.
+ * The key is the path to update and the value is the new value. A dot-separated
+ * path will be exploded to the corresponding nested object path.
+ * @param {string[]} [data.unsetPaths] The paths to unset in the interview. A
+ * dot-separated path will be exploded to the corresponding nested object path.
+ * @param {UserRuntimeInterviewAttributes} [data.interview] The current
+ * interview
+ * @param {GotoFunction} [data.gotoFunction] A function used to redirect the
+ * page to a specific URL
+ * @param {(interview: UserRuntimeInterviewAttributes) => void} [callback] An
+ * optional function to call after the interview has been updated
+ *
  * @returns void
  */
 export type StartUpdateInterview = (
-    sectionShortname: string | null,
-    valuesByPath?: { [path: string]: unknown },
-    unsetPaths?: string[],
-    interview?: UserRuntimeInterviewAttributes,
-    callback?: (interview: UserRuntimeInterviewAttributes) => void,
-    gotoFunction?: GotoFunction
+    data: {
+        sectionShortname?: string;
+        valuesByPath?: { [path: string]: unknown };
+        unsetPaths?: string[];
+        interview?: UserRuntimeInterviewAttributes;
+        gotoFunction?: GotoFunction;
+    },
+    callback?: (interview: UserRuntimeInterviewAttributes) => void
 ) => void;
 
 export type StartAddGroupedObjects = (

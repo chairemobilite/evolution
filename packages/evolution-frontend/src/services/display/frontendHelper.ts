@@ -121,19 +121,23 @@ export const secondsSinceMidnightToTimeStrWithSuffix = function (
 };
 
 export const validateButtonAction: ButtonAction = (callbacks, interview, path, section, sections, saveCallback) => {
-    callbacks.startUpdateInterview(section, { _all: true }, undefined, interview, (updatedInterview) => {
-        if ((updatedInterview as any).allWidgetsValid) {
-            if (typeof saveCallback === 'function') {
-                saveCallback(callbacks, updatedInterview, path);
-            } else {
-                // go to next section
-                window.scrollTo(0, 0);
-                callbacks.startUpdateInterview(section, {
-                    'responses._activeSection': sections[section].nextSection
-                });
+    callbacks.startUpdateInterview(
+        { sectionShortname: section, valuesByPath: { _all: true }, interview },
+        (updatedInterview) => {
+            if ((updatedInterview as any).allWidgetsValid) {
+                if (typeof saveCallback === 'function') {
+                    saveCallback(callbacks, updatedInterview, path);
+                } else {
+                    // go to next section
+                    window.scrollTo(0, 0);
+                    callbacks.startUpdateInterview({
+                        sectionShortname: section,
+                        valuesByPath: { 'responses._activeSection': sections[section].nextSection }
+                    });
+                }
             }
         }
-    });
+    );
 };
 
 // Add that the section is completed when the button is clicked in addition to navigating to next section
@@ -146,30 +150,36 @@ export const validateButtonActionWithCompleteSection: ButtonAction = (
     sections,
     saveCallback
 ) => {
-    callbacks.startUpdateInterview(section, { _all: true }, undefined, interview, (updatedInterview) => {
-        if ((updatedInterview as any).allWidgetsValid) {
-            if (typeof saveCallback === 'function') {
-                saveCallback(callbacks, updatedInterview, path);
-            } else {
-                // Calculate the survey completion percentage based on the number of completed sections
-                const completionPercentage = calculateSurveyCompletionPercentage({
-                    interview,
-                    sections,
-                    sectionName: section,
-                    sectionTarget: 'nextSection'
-                });
+    callbacks.startUpdateInterview(
+        { sectionShortname: section, valuesByPath: { _all: true }, interview },
+        (updatedInterview) => {
+            if ((updatedInterview as any).allWidgetsValid) {
+                if (typeof saveCallback === 'function') {
+                    saveCallback(callbacks, updatedInterview, path);
+                } else {
+                    // Calculate the survey completion percentage based on the number of completed sections
+                    const completionPercentage = calculateSurveyCompletionPercentage({
+                        interview,
+                        sections,
+                        sectionName: section,
+                        sectionTarget: 'nextSection'
+                    });
 
-                // Mark the section as completed and update the completion percentage
-                // Go to next section
-                window.scrollTo(0, 0);
-                callbacks.startUpdateInterview(section, {
-                    'responses._activeSection': sections[section].nextSection,
-                    [`responses._sections.${section}._isCompleted`]: true,
-                    'responses._completionPercentage': completionPercentage
-                });
+                    // Mark the section as completed and update the completion percentage
+                    // Go to next section
+                    window.scrollTo(0, 0);
+                    callbacks.startUpdateInterview({
+                        sectionShortname: section,
+                        valuesByPath: {
+                            'responses._activeSection': sections[section].nextSection,
+                            [`responses._sections.${section}._isCompleted`]: true,
+                            'responses._completionPercentage': completionPercentage
+                        }
+                    });
+                }
             }
         }
-    });
+    );
 };
 
 /**

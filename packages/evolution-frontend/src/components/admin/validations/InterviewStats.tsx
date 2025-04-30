@@ -67,7 +67,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
     const keepDiscard = ({ choice, personId }) => {
         const valuesByPath = {};
         valuesByPath[`responses.household.persons.${personId}.keepDiscard`] = choice;
-        props.startUpdateInterview(null, valuesByPath, undefined, undefined);
+        props.startUpdateInterview({ valuesByPath });
     };
 
     const interview = props.interview;

@@ -90,10 +90,13 @@ const sections: { [sectionName: string]: SectionConfig } = {
     ],
     preload: function (interview, { startUpdateInterview, callback }) {
       if (!getResponse(interview, 'tripsDate')) {
-        startUpdateInterview('home', {
-          'responses.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),
-          'responses._startedAt': moment().unix()
-        }, null, null, callback);
+        startUpdateInterview({
+          sectionShortname: 'home',
+          valuesByPath: {
+            'responses.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),
+            'responses._startedAt': moment().unix()
+          }
+        }, callback);
         return null;
       }
       callback(interview);
@@ -220,10 +223,13 @@ const sections: { [sectionName: string]: SectionConfig } = {
       if (personsCount === 1)
       {
         const personIds = odSurveyHelper.getPersons({ interview });
-        startUpdateInterview('selectPerson', {
-          'responses._activePersonId': Object.keys(personIds)[0],
-          'responses._activeSection': 'profile'
-        }, null, null, callback);
+        startUpdateInterview({
+          sectionShortname: 'selectPerson', 
+          valuesByPath: {
+            'responses._activePersonId': Object.keys(personIds)[0],
+            'responses._activeSection': 'profile'
+          }
+        }, callback);
         return null;
       }
       callback(interview);
@@ -262,15 +268,17 @@ const sections: { [sectionName: string]: SectionConfig } = {
       {
         if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
         {
-          startUpdateInterview('profile', {
-            'responses._activeSection': 'travelBehavior'
-          }, null, null, callback);
+          startUpdateInterview({
+            sectionShortname: 'profile',
+            valuesByPath: {'responses._activeSection': 'travelBehavior'}
+          }, callback);
         }
         else
         {
-          startUpdateInterview('profile', {
-            'responses._activeSection': 'tripsIntro'
-          }, null, null, callback);
+          startUpdateInterview({
+            sectionShortname: 'profile', 
+            valuesByPath: { 'responses._activeSection': 'tripsIntro' }
+          }, callback);
         }
         return null;
       }
@@ -309,12 +317,15 @@ const sections: { [sectionName: string]: SectionConfig } = {
       const person = odSurveyHelper.getPerson({ interview }) as any;
       if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
       {
-        startUpdateInterview('tripsIntro', {
-          [`responses.household.persons.${person._uuid}.journeys`]: undefined,
-          [`responses.household.persons.${person._uuid}.lastVisitedPlaceNotHome`]: undefined,
-          [`responses.household.persons.${person._uuid}.departurePlaceType`]: undefined,
-          'responses._activeSection': 'travelBehavior'
-        }, null, null, callback);
+        startUpdateInterview({
+          sectionShortname: 'tripsIntro', 
+          valuesByPath: {
+            [`responses.household.persons.${person._uuid}.journeys`]: undefined,
+            [`responses.household.persons.${person._uuid}.lastVisitedPlaceNotHome`]: undefined,
+            [`responses.household.persons.${person._uuid}.departurePlaceType`]: undefined,
+            'responses._activeSection': 'travelBehavior'
+          }
+        }, callback);
         return null;
       }
       else if (person.didTripsOnTripsDate === 'yes' || person.didTripsOnTripsDate === true)
@@ -327,23 +338,30 @@ const sections: { [sectionName: string]: SectionConfig } = {
             {
               const firstVisitedPlace         = visitedPlaces[0];
               const firstVisitedPlaceActivity = firstVisitedPlace ? firstVisitedPlace.activity : null;
-              startUpdateInterview('tripsIntro', {
-                [`responses.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.departurePlaceType`]: (firstVisitedPlaceActivity === 'home' ? 'home' : 'other'),
-                'responses._activeSection': 'visitedPlaces',
-                'responses._activeJourneyId': currentJourney._uuid
-              }, null, null, callback);
+              startUpdateInterview({
+                sectionShortname: 'tripsIntro', 
+                valuesByPath: {
+                  [`responses.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.departurePlaceType`]: (firstVisitedPlaceActivity === 'home' ? 'home' : 'other'),
+                  'responses._activeSection': 'visitedPlaces',
+                  'responses._activeJourneyId': currentJourney._uuid
+                }
+              }, callback);
             }
         } else {
             // Make sure to set initialize a journey for this person if it does not exist
-            startUpdateInterview('tripsIntro', {
-                ...(addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys`, [{ startDate: getResponse(interview, 'tripsDate') }])),
-            }, null, null, (updatedInterview) => {
+            startUpdateInterview({
+                sectionShortname: 'tripsIntro', 
+                valuesByPath: {
+                  ...(addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys`, [{ startDate: getResponse(interview, 'tripsDate') }])),
+                }
+            }, (updatedInterview) => {
                 const _person = odSurveyHelper.getPerson({ interview: updatedInterview});
                 const journeys = odSurveyHelper.getJourneysArray({ person: _person });
                 const currentJourney = journeys[0];
-                startUpdateInterview('visitedPlaces', {
-                    [`responses._activeJourneyId`]: currentJourney._uuid
-                }, null, null, callback);
+                startUpdateInterview({
+                    sectionShortname: 'visitedPlaces', 
+                    valuesByPath: { [`responses._activeJourneyId`]: currentJourney._uuid }
+                }, callback);
             });
         }
       }
@@ -390,9 +408,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
       const person = odSurveyHelper.getPerson({ interview }) as any;
       if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
       {
-        startUpdateInterview('tripsIntro', {
-          'responses._activeSection': 'travelBehavior'
-        }, null, null, callback);
+        startUpdateInterview({
+          sectionShortname: 'tripsIntro', 
+          valuesByPath: { 'responses._activeSection': 'travelBehavior' }
+        }, callback);
         return null;
       }
 
@@ -419,23 +438,29 @@ const sections: { [sectionName: string]: SectionConfig } = {
       }
       if (!_isBlank(tripsUpdatesValueByPath))
       {
-        startUpdateInterview('visitedPlaces', tripsUpdatesValueByPath, null, null, function(_interview) {
+        startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: tripsUpdatesValueByPath}, function(_interview) {
           const _person = odSurveyHelper.getPerson({ interview: _interview });
           const journey = odSurveyHelper.getJourneysArray({ person: _person })[0];
           const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(odSurveyHelper.getVisitedPlacesArray({ journey }));
-          startUpdateInterview('visitedPlaces', {
-            [`responses._activeVisitedPlaceId`]: selectedVisitedPlaceId,
-            [`responses._activeJourneyId`]: currentJourney._uuid
-          }, null, null, callback);
+          startUpdateInterview({
+            sectionShortname: 'visitedPlaces', 
+            valuesByPath: {
+              [`responses._activeVisitedPlaceId`]: selectedVisitedPlaceId,
+              [`responses._activeJourneyId`]: currentJourney._uuid
+            }
+          }, callback);
         });
       }
       else
       {
         const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney }));
-        startUpdateInterview('visitedPlaces', {
-          [`responses._activeVisitedPlaceId`]: selectedVisitedPlaceId,
-          [`responses._activeJourneyId`]: currentJourney._uuid
-        }, null, null, callback);
+        startUpdateInterview({
+          sectionShortname: 'visitedPlaces', 
+          valuesByPath: {
+            [`responses._activeVisitedPlaceId`]: selectedVisitedPlaceId,
+            [`responses._activeJourneyId`]: currentJourney._uuid
+          }
+        }, callback);
       }
       return null;
     },
@@ -472,10 +497,13 @@ const sections: { [sectionName: string]: SectionConfig } = {
       if ((interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noSchoolTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noWorkTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.whoAnsweredForThisPerson`) <= -1)
       {
         const person = odSurveyHelper.getPerson({ interview });
-        startUpdateInterview('travelBehavior', {
-          [`responses.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid,
-          'responses._activeSection': 'end'
-        }, null, null, callback);
+        startUpdateInterview({
+          sectionShortname: 'travelBehavior', 
+          valuesByPath: {
+            [`responses.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid,
+            'responses._activeSection': 'end'
+          }
+        }, callback);
         return null;
       }
       callback(interview);
@@ -521,19 +549,23 @@ const sections: { [sectionName: string]: SectionConfig } = {
         const person = persons[personId] as any;
         if (person.age >= 5 && _isBlank(person.whoAnsweredForThisPerson))
         {
-          startUpdateInterview('end', {
-            'responses._activePersonId'    : person._uuid,
-            'responses._activeSection'     : 'profile',
-            'responses._showNewPersonPopup': true
-          }, null, null, callback);
+          startUpdateInterview({
+            sectionShortname: 'end', 
+            valuesByPath: {
+              'responses._activePersonId'    : person._uuid,
+              'responses._activeSection'     : 'profile',
+              'responses._showNewPersonPopup': true
+            }
+          }, callback);
           return null;
         }
       }
       if (getResponse(interview, '_showNewPersonPopup', null) !== false)
       {
-        startUpdateInterview('end', {
-          'responses._showNewPersonPopup': false
-        }, null, null, callback);
+        startUpdateInterview({
+          sectionShortname: 'end', 
+          valuesByPath: { 'responses._showNewPersonPopup': false }
+        }, callback);
         return null;
       }
       callback(interview);
@@ -570,25 +602,31 @@ const sections: { [sectionName: string]: SectionConfig } = {
       {
         if (!user || (user && user.is_admin !== true))
         {
-          startUpdateInterview('end', {
-            'responses._partTwoCompletedAt': moment().unix(),
-            'responses._partTwoIsCompleted': true,
-            'responses._completedAt': moment().unix(),
-            'responses._isCompleted': true
-          }, null, null, callback);
+          startUpdateInterview({
+            sectionShortname: 'end', 
+            valuesByPath: {
+              'responses._partTwoCompletedAt': moment().unix(),
+              'responses._partTwoIsCompleted': true,
+              'responses._completedAt': moment().unix(),
+              'responses._isCompleted': true
+            }
+          }, callback);
         }
       }
       else
       {
         if (!user || (user && user.is_admin !== true))
         {
-          startUpdateInterview('end', {
-            'responses._completedAt': moment().unix(),
-            'responses._isCompleted': true
-          }, null, null, callback);
+          startUpdateInterview({
+            sectionShortname: 'end', 
+            valuesByPath: {
+              'responses._completedAt': moment().unix(),
+              'responses._isCompleted': true
+            }
+          }, callback);
         }
       }
-      startUpdateInterview('end', {}, null, null, callback);
+      startUpdateInterview({ sectionShortname: 'end', valuesByPath: {} }, callback);
       return null;
     }
     

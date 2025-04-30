@@ -283,8 +283,9 @@ describe('SegmentsSection behavior', () => {
 
         // Find and click (with mousedown/mouseup) on the button itself and make sure the action has been called
         fireEvent.click(editButton!);
-        expect(props.startUpdateInterview).toHaveBeenCalledWith('segments', {
-            ['responses._activeTripId']: 'trip1'
+        expect(props.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'segments',
+            valuesByPath: { ['responses._activeTripId']: 'trip1' }
         });
     });
 
@@ -300,8 +301,9 @@ describe('SegmentsSection behavior', () => {
 
         // Find and click (with mousedown/mouseup) on the button itself and make sure the action has been called
         fireEvent.click(editButton!);
-        expect(props.startUpdateInterview).toHaveBeenCalledWith('segments', {
-            ['responses._activeTripId']: 'trip2'
+        expect(props.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'segments',
+            valuesByPath: { ['responses._activeTripId']: 'trip2' }
         });
     });
     

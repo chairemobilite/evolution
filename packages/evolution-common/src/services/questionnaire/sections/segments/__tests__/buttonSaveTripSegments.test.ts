@@ -149,10 +149,13 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path.to.trip.segments', {});
         expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
         expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey });
-        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith('segments', {
-            'responses.path.to.trip.segments.segment1._isNew': false,
-            'responses.path.to.trip.segments.segment2._isNew': false,
-            'responses._activeTripId': 'trip1'
+        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'segments',
+            valuesByPath: {
+                'responses.path.to.trip.segments.segment1._isNew': false,
+                'responses.path.to.trip.segments.segment2._isNew': false,
+                'responses._activeTripId': 'trip1'
+            }
         });
     });
 
@@ -168,11 +171,14 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path.to.trip.segments', {});
         expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
         expect(mockedSelectNextIncompleteTrip).not.toHaveBeenCalled();
-        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith('segments', {
-            'responses.path.to.trip.segments.segment1._isNew': false,
-            'responses.path.to.trip.segments.segment2._isNew': false,
-            'responses._activeTripId': null
-        });
+        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'segments',
+            valuesByPath: {
+                'responses.path.to.trip.segments.segment1._isNew': false,
+                'responses.path.to.trip.segments.segment2._isNew': false,
+                'responses._activeTripId': null
+            }
+        })
     });
 
     test('should set all _isNew to `false` and select no trip if no incomplete trip', () => {
@@ -189,10 +195,13 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path.to.trip.segments', {});
         expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
         expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey });
-        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith('segments', {
-            'responses.path.to.trip.segments.segment1._isNew': false,
-            'responses.path.to.trip.segments.segment2._isNew': false,
-            'responses._activeTripId': null
+        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'segments',
+            valuesByPath: {
+                'responses.path.to.trip.segments.segment1._isNew': false,
+                'responses.path.to.trip.segments.segment2._isNew': false,
+                'responses._activeTripId': null
+            }
         });
     });
 
@@ -211,8 +220,9 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path.to.trip.segments', {});
         expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
         expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey });
-        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith('segments', {
-            'responses._activeTripId': 'trip1'
+        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'segments',
+            valuesByPath: { 'responses._activeTripId': 'trip1' }
         });
     });
 

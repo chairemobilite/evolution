@@ -43,7 +43,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../store/survey';
 
 type StartSetInterview = (
-    activeSection: string | null,
+    activeSection: string | undefined,
     surveyUuid: string | undefined,
     preFilledResponses: { [key: string]: unknown } | undefined
 ) => void;
@@ -100,11 +100,11 @@ class Survey extends React.Component<SurveyProps, SurveyState> {
         const existingActiveSection: string | null = this.props.interview
             ? (surveyHelperNew.getResponse(this.props.interview, '_activeSection', null) as string | null)
             : null;
-        const pathSectionShortname: string | null = this.props.sectionShortname || null;
-        const pathSectionParentSection: string | null =
+        const pathSectionShortname: string | undefined = this.props.sectionShortname;
+        const pathSectionParentSection: string | undefined =
             pathSectionShortname && this.props.surveyContext.sections[pathSectionShortname]
-                ? (this.props.surveyContext.sections[pathSectionShortname].parentSection as string | null)
-                : null;
+                ? (this.props.surveyContext.sections[pathSectionShortname].parentSection as string | undefined)
+                : undefined;
         this.props.startSetInterview(
             existingActiveSection || pathSectionParentSection,
             surveyUuid,
@@ -136,8 +136,9 @@ class Survey extends React.Component<SurveyProps, SurveyState> {
             return null;
         }
         if (allWidgetsValid) {
-            this.props.startUpdateInterview(activeSection, {
-                'responses._activeSection': parentSection
+            this.props.startUpdateInterview({
+                sectionShortname: activeSection,
+                valuesByPath: { 'responses._activeSection': parentSection }
             });
         } else {
             this.setState(
@@ -291,13 +292,8 @@ const SurveyWrapper: React.FC = (props) => {
 
     const startSetInterviewAction: StartSetInterview = (sectionShortname, surveyUuid, preFilledResponses) =>
         dispatch(startSetInterview(sectionShortname, surveyUuid, navigate, preFilledResponses));
-    const startUpdateInterviewAction: StartUpdateInterview = (
-        sectionShortname,
-        valuesByPath,
-        unsetPaths,
-        interview,
-        callback
-    ) => dispatch(startUpdateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback, navigate));
+    const startUpdateInterviewAction: StartUpdateInterview = (data, callback) =>
+        dispatch(startUpdateInterview({ ...data, gotoFunction: navigate }, callback));
     const startAddGroupedObjectsAction: StartAddGroupedObjects = (
         newObjectsCount,
         insertSequence,

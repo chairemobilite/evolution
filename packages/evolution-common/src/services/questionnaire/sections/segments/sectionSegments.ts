@@ -35,7 +35,7 @@ export const getSegmentsSectionConfig = (
             const currentJourney = odHelpers.getActiveJourney({ interview, person });
             if (person === null || currentJourney === null) {
                 responsesContent['responses._activeSection'] = 'tripsIntro';
-                startUpdateInterview('tripsIntro', responsesContent, undefined, undefined, callback);
+                startUpdateInterview({ sectionShortname: 'tripsIntro', valuesByPath: responsesContent }, callback);
                 return null;
             }
 
@@ -94,10 +94,11 @@ export const getSegmentsSectionConfig = (
 
             if (!_isEmpty(tripsUpdatesValueByPath) || !_isEmpty(tripsUpdatesUnsetPaths)) {
                 startUpdateInterview(
-                    sectionShortname,
-                    tripsUpdatesValueByPath,
-                    tripsUpdatesUnsetPaths,
-                    undefined,
+                    {
+                        sectionShortname,
+                        valuesByPath: tripsUpdatesValueByPath,
+                        unsetPaths: tripsUpdatesUnsetPaths
+                    },
                     (_interview) => {
                         const _currentJourney = odHelpers.getActiveJourney({ interview: _interview });
                         if (_currentJourney === null) {
@@ -106,20 +107,20 @@ export const getSegmentsSectionConfig = (
                                 'No active journey after updating trips in segments section, but there was an active journey earlier. What happened?'
                             );
                             responsesContent['responses._activeTripId'] = null;
-                            startUpdateInterview(sectionShortname, responsesContent, undefined, undefined, callback);
+                            startUpdateInterview({ sectionShortname, valuesByPath: responsesContent }, callback);
                             return;
                         }
                         const selectedTrip = odHelpers.selectNextIncompleteTrip({ journey: _currentJourney });
                         responsesContent['responses._activeTripId'] = selectedTrip !== null ? selectedTrip._uuid : null;
                         // FIXME There was an action generation for the segment section of this person, but the navigator should handle that
-                        startUpdateInterview(sectionShortname, responsesContent, undefined, undefined, callback);
+                        startUpdateInterview({ sectionShortname, valuesByPath: responsesContent }, callback);
                     }
                 );
             } else {
                 const selectedTrip = odHelpers.selectNextIncompleteTrip({ journey: currentJourney });
                 responsesContent['responses._activeTripId'] = selectedTrip !== null ? selectedTrip._uuid : null;
                 // FIXME There was an action generation for the segment section of this person, but the navigator should handle that
-                startUpdateInterview(sectionShortname, responsesContent, undefined, undefined, callback);
+                startUpdateInterview({ sectionShortname, valuesByPath: responsesContent }, callback);
             }
             return null;
         },

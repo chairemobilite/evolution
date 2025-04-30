@@ -130,7 +130,7 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: _cloneDeep(interviewAttributes) }, updateCallback);
         await callback(mockDispatch, mockGetState);
 
         // Verifications
@@ -183,7 +183,7 @@ describe('Update interview', () => {
         (expectedInterviewAsState.validations as any).section1.q2 = true;
         
         // Do the actual test
-        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), unsetPaths, _cloneDeep(interviewAttributes), updateCallback);
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), unsetPaths, interview: _cloneDeep(interviewAttributes) }, updateCallback);
         await callback(mockDispatch, mockGetState);
 
         // Verifications
@@ -231,7 +231,7 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview:_cloneDeep(interviewAttributes) }, updateCallback);
         await callback(mockDispatch, mockLocalGetState);
 
         // Verifications
@@ -281,7 +281,7 @@ describe('Update interview', () => {
         expectedInterviewAsState.sectionLoaded = 'section';
         
         // Do the actual test
-        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: _cloneDeep(interviewAttributes) }, updateCallback);
         await callback(mockDispatch, mockGetState);
 
         // Verifications
@@ -325,7 +325,7 @@ describe('Update interview', () => {
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
         
         // Do the actual test
-        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: _cloneDeep(interviewAttributes) }, updateCallback);
         await callback(mockDispatch, mockGetState);
 
         // Verifications
@@ -354,7 +354,7 @@ describe('Update interview', () => {
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
         
         // Do the actual test
-        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(interviewAttributes), updateCallback);
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: _cloneDeep(interviewAttributes) }, updateCallback);
         await callback(mockDispatch, mockGetState);
 
         // Verifications
@@ -382,7 +382,7 @@ describe('Update interview', () => {
         const expectedInterviewAsState = _cloneDeep(initialInterview);
 
         // Do the actual test
-        const callback = SurveyActions.startUpdateInterview('section', _cloneDeep(valuesByPath), undefined, _cloneDeep(initialInterview), updateCallback);
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: _cloneDeep(initialInterview) }, updateCallback);
         await callback(mockDispatch, mockGetState);
 
         // Verifications
@@ -438,7 +438,7 @@ describe('startAddGroupedObjects', () => {
         expect(mockedAddGroupedObject).toHaveBeenCalledTimes(1);
         expect(mockedAddGroupedObject).toHaveBeenCalledWith(interviewAttributes, newObjectCnt, insertSeq, path, []);
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
-        expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultAddGroupResponse, undefined, undefined, undefined);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith({ valuesByPath: defaultAddGroupResponse }, undefined);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
@@ -479,7 +479,7 @@ describe('startAddGroupedObjects', () => {
         expect(mockedAddGroupedObject).toHaveBeenCalledTimes(1);
         expect(mockedAddGroupedObject).toHaveBeenCalledWith(interviewAttributes, newObjectCnt, insertSeq, path, attributes);
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
-        expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultAddGroupResponse, undefined, undefined, callback);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith({ valuesByPath: defaultAddGroupResponse }, callback);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
@@ -513,7 +513,7 @@ describe('startRemoveGroupedObjects', () => {
         expect(mockedRemoveGroupedObject).toHaveBeenCalledTimes(1);
         expect(mockedRemoveGroupedObject).toHaveBeenCalledWith(interviewAttributes, paths);
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
-        expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultRemoveGroupResponse[0], defaultRemoveGroupResponse[1], undefined, undefined);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith({ valuesByPath: defaultRemoveGroupResponse[0], unsetPaths: defaultRemoveGroupResponse[1] }, undefined);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
@@ -548,7 +548,7 @@ describe('startRemoveGroupedObjects', () => {
         expect(mockedRemoveGroupedObject).toHaveBeenCalledTimes(1);
         expect(mockedRemoveGroupedObject).toHaveBeenCalledWith(interviewAttributes, paths);
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
-        expect(startUpdateInterviewSpy).toHaveBeenCalledWith(null, defaultRemoveGroupResponse[0], defaultRemoveGroupResponse[1], undefined, callback);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith({ valuesByPath: defaultRemoveGroupResponse[0], unsetPaths: defaultRemoveGroupResponse[1] }, callback);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
@@ -606,10 +606,13 @@ describe('startSetInterview', () => {
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith('sectionFirst',{
-            'responses._activeSection': 'sectionFirst',
-            'responses._browser': expect.anything()
-        }, undefined, returnedInterview, undefined, undefined);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'sectionFirst', 
+            valuesByPath: {
+                'responses._activeSection': 'sectionFirst',
+                'responses._browser': expect.anything()
+            }, interview: returnedInterview
+        });
 
     });
 
@@ -631,12 +634,15 @@ describe('startSetInterview', () => {
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith('sectionFirst',{
-            'responses._activeSection': 'sectionFirst',
-            'responses._browser': expect.anything(),
-            'responses.fieldA': 'valueA',
-            'responses.fieldB': 'valueB'
-        }, undefined, returnedInterview, undefined, undefined);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'sectionFirst',
+            valuesByPath: {
+                'responses._activeSection': 'sectionFirst',
+                'responses._browser': expect.anything(),
+                'responses.fieldA': 'valueA',
+                'responses.fieldB': 'valueB'
+            }, interview: returnedInterview
+        });
 
     });
 
@@ -679,10 +685,13 @@ describe('startSetInterview', () => {
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith('sectionFirst',{
-            'responses._activeSection': 'sectionFirst',
-            'responses._browser': expect.anything()
-        }, undefined, returnedInterview, undefined, undefined);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'sectionFirst',
+            valuesByPath: {
+                'responses._activeSection': 'sectionFirst',
+                'responses._browser': expect.anything()
+            }, interview: returnedInterview
+        });
 
     });
 
@@ -779,10 +788,13 @@ describe('startCreateInterview', () => {
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith('sectionFirst',{
-            'responses._activeSection': 'sectionFirst',
-            'responses._browser': expect.anything()
-        }, undefined, returnedInterview);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'sectionFirst',
+            valuesByPath: {
+                'responses._activeSection': 'sectionFirst',
+                'responses._browser': expect.anything()
+            }, interview: returnedInterview
+        });
 
     });
 
@@ -812,12 +824,15 @@ describe('startCreateInterview', () => {
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith('sectionFirst',{
-            'responses._activeSection': 'sectionFirst',
-            'responses._browser': expect.anything(),
-            'responses.fieldA': 'valueA',
-            'responses.fieldB': 'valueB'
-        }, undefined, returnedInterview);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'sectionFirst',
+            valuesByPath: {
+                'responses._activeSection': 'sectionFirst',
+                'responses._browser': expect.anything(),
+                'responses.fieldA': 'valueA',
+                'responses.fieldB': 'valueB'
+            }, interview: returnedInterview
+        });
 
     });
 

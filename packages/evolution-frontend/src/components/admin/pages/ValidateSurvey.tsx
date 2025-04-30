@@ -113,8 +113,9 @@ export class ValidateSurvey extends React.Component<SurveyProps, SurveyState> {
             return null;
         }
         if (allWidgetsValid) {
-            this.props.startUpdateInterview(activeSection, {
-                'responses._activeSection': parentSection
+            this.props.startUpdateInterview({
+                sectionShortname: activeSection,
+                valuesByPath: { 'responses._activeSection': parentSection }
             });
         } else {
             this.setState(
@@ -241,13 +242,8 @@ const ValidateSurveyWrapper = (props) => {
 
     const startSetInterviewAction: StartSetInterview = (interviewUuid, callback) =>
         dispatch(startSetSurveyValidateInterview(interviewUuid, callback));
-    const startUpdateInterviewAction: StartUpdateInterview = (
-        sectionShortname,
-        valuesByPath,
-        unsetPaths,
-        interview,
-        callback
-    ) => dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback));
+    const startUpdateInterviewAction: StartUpdateInterview = (data, callback) =>
+        dispatch(startUpdateSurveyValidateInterview(data, callback));
     const startAddGroupedObjectsAction: StartAddGroupedObjects = (
         newObjectsCount,
         insertSequence,

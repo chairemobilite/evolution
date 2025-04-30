@@ -59,8 +59,11 @@ const buttonSwitchPerson: ButtonWidgetConfig = {
         _saveCallback
     ) {
         // FIXME: We navigate to the selectPerson section... That means this widget should be part of a feature that contains this section
-        callbacks.startUpdateInterview(section, {
-            'responses._activeSection': 'selectPerson'
+        callbacks.startUpdateInterview({
+            sectionShortname: section,
+            valuesByPath: {
+                'responses._activeSection': 'selectPerson'
+            }
         });
     }
 };

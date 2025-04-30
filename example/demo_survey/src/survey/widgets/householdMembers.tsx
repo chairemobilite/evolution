@@ -1093,15 +1093,19 @@ export const buttonSaveNextSectionHouseholdMembers = {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
     if (householdSize !== personsCount)
     {
-      callbacks.startUpdateInterview('householdMembers', {
-        [`responses.household.size`]: personsCount,
-        [`responses._activeSection`]: 'selectPerson'
+      callbacks.startUpdateInterview({
+        sectionShortname: 'householdMembers',
+        valuesByPath: {
+          [`responses.household.size`]: personsCount,
+          [`responses._activeSection`]: 'selectPerson'
+        }
       });
     }
     else
     {
-      callbacks.startUpdateInterview('householdMembers', {
-        [`responses._activeSection`]: 'selectPerson'
+      callbacks.startUpdateInterview({
+        sectionShortname: 'householdMembers',
+        valuesByPath: { [`responses._activeSection`]: 'selectPerson' }
       });
     }
     //return null;
