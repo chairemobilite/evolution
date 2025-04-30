@@ -31,7 +31,7 @@ const ValidationCommentForm = ({ interview }: ValidationCommentFormProps) => {
             'responses._validationComment': e.target.value
         };
         dispatch(
-            startUpdateSurveyValidateInterview(null, valuesByPath, undefined, undefined, () => {
+            startUpdateSurveyValidateInterview({ valuesByPath }, () => {
                 /* parameter required, but nothing to do */
             })
         );

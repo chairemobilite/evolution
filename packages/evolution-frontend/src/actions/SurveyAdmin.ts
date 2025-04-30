@@ -42,11 +42,13 @@ import { LoadingStateAction } from '../store/loadingState';
 import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 
 export const startUpdateSurveyValidateInterview = (
-    sectionShortname: Parameters<StartUpdateInterview>[0],
-    valuesByPath?: Parameters<StartUpdateInterview>[1],
-    unsetPaths?: Parameters<StartUpdateInterview>[2],
-    interview?: Parameters<StartUpdateInterview>[3],
-    callback?: Parameters<StartUpdateInterview>[4]
+    {
+        sectionShortname,
+        valuesByPath = {},
+        unsetPaths,
+        interview: initialInterview
+    }: Parameters<StartUpdateInterview>[0],
+    callback?: Parameters<StartUpdateInterview>[1]
 ) => {
     return async (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
@@ -54,8 +56,8 @@ export const startUpdateSurveyValidateInterview = (
     ) => {
         //surveyHelper.devLog(`Update interview and section with values by path`, valuesByPath);
         try {
-            interview = interview
-                ? interview
+            const interview = initialInterview
+                ? initialInterview
                 : (_cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes);
 
             dispatch(incrementLoadingState());
@@ -113,32 +115,30 @@ export const startUpdateSurveyValidateInterview = (
             //{
             //  affectedPaths['_all'] = true;
             //}
-            const updatedInterviewAndValuesByPath = updateSection(
+            const [updatedInterview, updatedValuesByPath] = updateSection(
                 sectionShortname,
                 interview as UserRuntimeInterviewAttributes,
                 affectedPaths,
                 valuesByPath as { [path: string]: unknown }
             );
-            interview = updatedInterviewAndValuesByPath[0];
-            valuesByPath = updatedInterviewAndValuesByPath[1];
 
-            if (!interview.sectionLoaded || interview.sectionLoaded !== sectionShortname) {
-                valuesByPath['sectionLoaded'] = sectionShortname;
-                interview.sectionLoaded = sectionShortname;
+            if (!updatedInterview.sectionLoaded || updatedInterview.sectionLoaded !== sectionShortname) {
+                updatedValuesByPath['sectionLoaded'] = sectionShortname;
+                updatedInterview.sectionLoaded = sectionShortname;
             }
 
             // convert undefined values to unset (delete) because stringify will remove undefined values:
-            for (const path in valuesByPath) {
-                if (valuesByPath[path] === undefined) {
+            for (const path in updatedValuesByPath) {
+                if (updatedValuesByPath[path] === undefined) {
                     unsetPaths.push(path);
                 }
             }
 
-            if (isEqual(valuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
-                dispatch(updateInterview(_cloneDeep(interview)));
+            if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
+                dispatch(updateInterview(_cloneDeep(updatedInterview)));
                 dispatch(decrementLoadingState());
                 if (typeof callback === 'function') {
-                    callback(interview);
+                    callback(updatedInterview);
                 }
                 return null;
             }
@@ -152,9 +152,9 @@ export const startUpdateSurveyValidateInterview = (
                 credentials: 'include',
                 method: 'POST',
                 body: JSON.stringify({
-                    id: interview.id,
-                    participant_id: interview.participant_id,
-                    valuesByPath: valuesByPath,
+                    id: updatedInterview.id,
+                    participant_id: updatedInterview.participant_id,
+                    valuesByPath: updatedValuesByPath,
                     unsetPaths: unsetPaths
                     //responses  : interview.responses,
                     //validations: interview.validations
@@ -162,12 +162,12 @@ export const startUpdateSurveyValidateInterview = (
             });
             if (response.status === 200) {
                 const body = await response.json();
-                if (body.status === 'success' && body.interviewId === interview.uuid) {
+                if (body.status === 'success' && body.interviewId === updatedInterview.uuid) {
                     //surveyHelper.devLog('Interview saved to db');
                     //setTimeout(function() {
-                    dispatch(updateInterview(_cloneDeep(interview)));
+                    dispatch(updateInterview(_cloneDeep(updatedInterview)));
                     if (typeof callback === 'function') {
-                        callback(interview);
+                        callback(updatedInterview);
                     }
                     //}, 500, 'That was really slow!');
                 } else {
@@ -214,7 +214,7 @@ export const startSetSurveyValidateInterview = (
                     response.json().then((body) => {
                         if (body.interview) {
                             const interview = body.interview;
-                            dispatch(startUpdateSurveyValidateInterview(null, {}, undefined, interview, callback));
+                            dispatch(startUpdateSurveyValidateInterview({ valuesByPath: {}, interview }, callback));
                         }
                     });
                 }
@@ -250,7 +250,7 @@ export const startSurveyValidateAddGroupedObjects = (
         if (returnOnly) {
             return changedValuesByPath;
         } else {
-            dispatch(startUpdateSurveyValidateInterview(null, changedValuesByPath, undefined, undefined, callback));
+            dispatch(startUpdateSurveyValidateInterview({ valuesByPath: changedValuesByPath }, callback));
         }
     };
 };
@@ -273,7 +273,7 @@ export const startSurveyValidateRemoveGroupedObjects = (
         if (returnOnly) {
             return [valuesByPath, unsetPaths];
         } else {
-            dispatch(startUpdateSurveyValidateInterview(null, valuesByPath, unsetPaths, undefined, callback));
+            dispatch(startUpdateSurveyValidateInterview({ valuesByPath, unsetPaths }, callback));
         }
     };
 };
@@ -305,7 +305,7 @@ export const startResetValidateInterview = (
                     response.json().then((body) => {
                         if (body.interview) {
                             const interview = body.interview;
-                            dispatch(startUpdateSurveyValidateInterview(null, {}, undefined, interview, callback));
+                            dispatch(startUpdateSurveyValidateInterview({ valuesByPath: {}, interview }, callback));
                         }
                     });
                 }

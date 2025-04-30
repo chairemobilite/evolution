@@ -1553,13 +1553,13 @@ export const buttonSaveVisitedPlace = {
           const currentJourney = journeys[0];
           const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
           updateValuesbyPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
-          callbacks.startUpdateInterview('visitedPlaces', updateValuesbyPath);
+          callbacks.startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesbyPath });
         }).bind(this));
         return null;
       }
     }
     updateValuesbyPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
-    callbacks.startUpdateInterview('visitedPlaces', updateValuesbyPath);
+    callbacks.startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesbyPath });
     return null;
   },
   action: validateButtonAction

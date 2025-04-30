@@ -124,8 +124,8 @@ describe('getSegmentsSectionConfig preload function', () => {
     const widgetConfig = getSegmentsSectionConfig({});
 
     const mockCallback = jest.fn();
-    const mockStartUpdateInterview = jest.fn().mockImplementation((section, values, unsetPaths, interview, callback) => {
-        callback(interview);
+    const mockStartUpdateInterview = jest.fn().mockImplementation((data, callback) => {
+        callback(data.interview);
     });
 
     // Mock journey and person for all tests. Individual tests may override if needed
@@ -156,12 +156,15 @@ describe('getSegmentsSectionConfig preload function', () => {
         expect(mockedAddGroupedObjects).toHaveBeenCalledWith(interviewAttributesForTestCases, 1, 1, 'household.persons.testPerson1.journeys.testJourney1.trips', [{ _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' }]);
         expect(mockedRemoveGroupedObjects).not.toHaveBeenCalled();
         expect(mockStartUpdateInterview).toHaveBeenCalledTimes(2);
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, 'segments', {
-            'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId1': newTrip
-        }, [], undefined, expect.any(Function));
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, 'segments', {
-            'responses._activeTripId': null
-        }, undefined, undefined, mockCallback);
+        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, {
+            sectionShortname: 'segments',
+            valuesByPath: { 'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId1': newTrip },
+            unsetPaths: []
+        }, expect.any(Function));
+        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, {
+            sectionShortname: 'segments',
+            valuesByPath: { 'responses._activeTripId': null }
+        }, mockCallback);
         expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
     });
 
@@ -190,10 +193,11 @@ describe('getSegmentsSectionConfig preload function', () => {
         expect(mockedRemoveGroupedObjects).toHaveBeenCalledWith(interviewAttributesForTestCases, pathsToDelete);
         expect(mockedAddGroupedObjects).not.toHaveBeenCalled();
         expect(mockStartUpdateInterview).toHaveBeenCalledTimes(2);
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, 'segments', {}, pathsToDelete.flatMap(path => [ `response.${path}`, `validations.${path}` ]), undefined, expect.any(Function));
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, 'segments', {
-            'responses._activeTripId': null
-        }, undefined, undefined, mockCallback);
+        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, { sectionShortname: 'segments', valuesByPath: {}, unsetPaths: pathsToDelete.flatMap(path => [ `response.${path}`, `validations.${path}` ]) }, expect.any(Function));
+        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, {
+            sectionShortname: 'segments',
+            valuesByPath: { 'responses._activeTripId': null }
+        }, mockCallback);
         expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
     });
 
@@ -217,17 +221,22 @@ describe('getSegmentsSectionConfig preload function', () => {
         expect(mockedRemoveGroupedObjects).not.toHaveBeenCalled();
         expect(mockedAddGroupedObjects).not.toHaveBeenCalled();
         expect(mockStartUpdateInterview).toHaveBeenCalledTimes(2);
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, 'segments', {
-            'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._originVisitedPlaceUuid': places[0]._uuid,
-            'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._destinationVisitedPlaceUuid': places[1]._uuid,
-            'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId1.segments': undefined,
-            'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId2._originVisitedPlaceUuid': places[1]._uuid,
-            'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId2._destinationVisitedPlaceUuid': places[2]._uuid,
-            'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId2.segments': undefined,
-        }, [], undefined, expect.any(Function));
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, 'segments', {
-            'responses._activeTripId': null
-        }, undefined, undefined, mockCallback);
+        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, {
+            sectionShortname: 'segments',
+            valuesByPath: {
+                'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._originVisitedPlaceUuid': places[0]._uuid,
+                'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._destinationVisitedPlaceUuid': places[1]._uuid,
+                'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId1.segments': undefined,
+                'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId2._originVisitedPlaceUuid': places[1]._uuid,
+                'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId2._destinationVisitedPlaceUuid': places[2]._uuid,
+                'responses.household.persons.testPerson1.journeys.testJourney1.trips.tripId2.segments': undefined,
+            },
+            unsetPaths: []
+        }, expect.any(Function));
+        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, {
+            sectionShortname: 'segments',
+            valuesByPath: { 'responses._activeTripId': null }
+        }, mockCallback);
         expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
     });
 
@@ -253,9 +262,10 @@ describe('getSegmentsSectionConfig preload function', () => {
         expect(mockedRemoveGroupedObjects).not.toHaveBeenCalled();
         expect(mockedAddGroupedObjects).not.toHaveBeenCalled();
         expect(mockStartUpdateInterview).toHaveBeenCalledTimes(1);
-        expect(mockStartUpdateInterview).toHaveBeenCalledWith('segments', {
-            'responses._activeTripId': trips[1]._uuid
-        }, undefined, undefined, mockCallback);
+        expect(mockStartUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'segments',
+            valuesByPath: { 'responses._activeTripId': trips[1]._uuid }
+        }, mockCallback);
     });
 
     test('should go to next section if no active person', () => {
@@ -265,7 +275,7 @@ describe('getSegmentsSectionConfig preload function', () => {
         widgetConfig.preload!(interviewAttributesForTestCases, { startUpdateInterview: mockStartUpdateInterview, startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), callback: mockCallback } as any);
 
         expect(mockStartUpdateInterview).toHaveBeenCalledTimes(1);
-        expect(mockStartUpdateInterview).toHaveBeenCalledWith('tripsIntro', { 'responses._activeSection': 'tripsIntro' }, undefined, undefined, mockCallback);
+        expect(mockStartUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'tripsIntro', valuesByPath: { 'responses._activeSection': 'tripsIntro' } }, mockCallback);
     });
 
     test('should go to next section if no active journey', () => {
@@ -275,7 +285,7 @@ describe('getSegmentsSectionConfig preload function', () => {
         widgetConfig.preload!(interviewAttributesForTestCases, { startUpdateInterview: mockStartUpdateInterview, startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), callback: mockCallback } as any);
 
         expect(mockStartUpdateInterview).toHaveBeenCalledTimes(1);
-        expect(mockStartUpdateInterview).toHaveBeenCalledWith('tripsIntro', { 'responses._activeSection': 'tripsIntro' }, undefined, undefined, mockCallback);
+        expect(mockStartUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'tripsIntro', valuesByPath: { 'responses._activeSection': 'tripsIntro' } }, mockCallback);
     });
 
 });

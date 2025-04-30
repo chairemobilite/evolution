@@ -50,7 +50,7 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
     const updateValuesByPath = useCallback(
         (valuesByPath) => {
             dispatch(
-                startUpdateSurveyValidateInterview('validationOnePager', valuesByPath, undefined, undefined, () => {
+                startUpdateSurveyValidateInterview({ sectionShortname: 'validationOnePager', valuesByPath }, () => {
                     /* nothing to do */
                 })
             );

@@ -19,6 +19,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../../store/survey';
 import { InterviewMapProps } from './InterviewMap';
 import { InterviewStatsProps } from './InterviewStats';
+import { StartUpdateInterview } from 'evolution-common/lib/services/questionnaire/types';
 
 const ValidationOnePageSummary = () => {
     const [activePlacePath, setActivePlacePath] = React.useState<string | undefined>(undefined);
@@ -30,8 +31,8 @@ const ValidationOnePageSummary = () => {
     const interview = useSelector((state: RootState) => state.survey.interview) as any;
     const user = useSelector((state: RootState) => state.auth.user);
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
-    const startUpdateInterview = (sectionShortname, valuesByPath, unsetPaths, interview, callback) =>
-        dispatch(startUpdateSurveyValidateInterview(sectionShortname, valuesByPath, unsetPaths, interview, callback));
+    const startUpdateInterview: StartUpdateInterview = (data, callback) =>
+        dispatch(startUpdateSurveyValidateInterview(data, callback));
 
     useEffect(() => {
         const loadComponents = async () => {
