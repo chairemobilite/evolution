@@ -15,7 +15,11 @@ import config from 'chaire-lib-backend/lib/config/server.config';
 import interviewsDbQueries from '../../models/interviews.db.queries';
 import projectConfig from '../../config/projectConfig';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { InterviewAttributes, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    InterviewAttributes,
+    UserAction,
+    UserInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 
 export const addRolesToInterview = (interview: UserInterviewAttributes, user: UserAttributes) => {
     // Add the userRoles in the interview object
@@ -87,6 +91,7 @@ export const updateInterview = async (
         logDatabaseUpdates?: boolean;
         valuesByPath: { [key: string]: unknown };
         unsetPaths?: string[];
+        userAction?: UserAction;
         serverValidations?: ServerValidation;
         fieldsToUpdate?: (keyof InterviewAttributes)[];
         logData?: { [key: string]: unknown };
@@ -104,12 +109,19 @@ export const updateInterview = async (
     serverValuesByPath: { [key: string]: unknown };
     redirectUrl: string | undefined;
 }> => {
+    // FIXME This is just a workaround to avoid having to change the validation and server update code, as they will be revisited
+    // FIXME1: When validations and side effects are managed server-side, we won't have custom code for server validations and updates and we can send the user action to the `setInterviewFields` directly (issue #858)
+    const allValuesByPath =
+        options.userAction && options.userAction.type === 'widgetInteraction'
+            ? { [options.userAction.path]: options.userAction.value, ...options.valuesByPath }
+            : options.valuesByPath;
+
     const fieldsToUpdate = options.fieldsToUpdate || ['responses', 'validations'];
     const logData = options.logData || {};
     const serverValidations = await serverValidate(
         interview,
         options.serverValidations,
-        options.valuesByPath,
+        allValuesByPath,
         options.unsetPaths || []
     );
 
@@ -130,11 +142,11 @@ export const updateInterview = async (
         options.deferredUpdateCallback!(serverValuesByPath);
     };
     // Update values by path with caller provided values
-    setInterviewFields(interview, { valuesByPath: options.valuesByPath, unsetPaths: options.unsetPaths });
+    setInterviewFields(interview, { valuesByPath: allValuesByPath, unsetPaths: options.unsetPaths });
     const [serverValuesByPath, redirectUrl] = await serverUpdateField(
         interview,
         projectConfig.serverUpdateCallbacks,
-        options.valuesByPath,
+        allValuesByPath,
         options.unsetPaths,
         options.deferredUpdateCallback !== undefined ? deferredSaveFct : undefined
     );

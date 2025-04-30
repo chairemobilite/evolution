@@ -15,7 +15,7 @@ expect.extend(toHaveNoViolations);
 
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 import Button from '../Button';
-import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
+import { ButtonWidgetConfig, InterviewUpdateCallbacks, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
@@ -32,7 +32,7 @@ const userAttributes = {
     showUserInfo: true
 };
 
-const commonWidgetConfig = {
+const commonWidgetConfig: ButtonWidgetConfig = {
     type: 'button' as const,
     label: 'label',
     action: jest.fn()
@@ -185,10 +185,56 @@ describe('Button widget: behavioral tests', () => {
         // The next action should have been called
         expect(commonWidgetConfig.action).toHaveBeenCalledTimes(1);
         expect(commonWidgetConfig.action).toHaveBeenCalledWith({
-            startUpdateInterview: startUpdateInterviewMock,
+            startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock
         }, interviewAttributes, 'home.region', 'test', {}, undefined);
+    });
+
+    test('Button click, adding user action', async () => {
+        const testValuesByPath = { testPath: 'testvalue' };
+        // Call the startUpdateInterview, it should add the user action
+        const actionFunction: ButtonWidgetConfig['action'] = jest.fn().mockImplementation((callbacks: InterviewUpdateCallbacks, _i, _p, section) => {
+            callbacks.startUpdateInterview({ sectionShortname: section, valuesByPath: testValuesByPath });
+        });
+        const widgetConfig = {
+            ...commonWidgetConfig,
+            action: actionFunction
+        }
+        render(<Button
+            path='home.region'
+            section='test'
+            loadingState={0}
+            widgetConfig={widgetConfig}
+            interview={interviewAttributes}
+            user={userAttributes}
+            widgetStatus={defaultWidgetStatus}
+            startUpdateInterview={startUpdateInterviewMock}
+            startAddGroupedObjects={startAddGroupedObjectsMock}
+            startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+        />);
+        const user = userEvent.setup();
+
+        // Find and click (with mousedown/mouseup) on the button itself and make sure the action has been called
+        expect(screen.getByRole('button')).toBeInTheDocument();
+        await user.click(screen.getByRole('button'));
+
+        // The next action should have been called
+        expect(actionFunction).toHaveBeenCalledTimes(1);
+        expect(actionFunction).toHaveBeenCalledWith({
+            startUpdateInterview: expect.any(Function),
+            startAddGroupedObjects: startAddGroupedObjectsMock,
+            startRemoveGroupedObjects: startRemoveGroupedObjectsMock
+        }, interviewAttributes, 'home.region', 'test', {}, undefined);
+        expect(startUpdateInterviewMock).toHaveBeenCalledTimes(1);
+        expect(startUpdateInterviewMock).toHaveBeenCalledWith({
+            sectionShortname: 'test',
+            valuesByPath: testValuesByPath,
+            userAction: {
+                type: 'buttonClick',
+                buttonId: 'home.region'
+            }
+        }, undefined);
     });
 
     test('Button click, with modal, confirmed', async () => {
@@ -232,7 +278,7 @@ describe('Button widget: behavioral tests', () => {
         // The action should have been called
         expect(commonWidgetConfig.action).toHaveBeenCalledTimes(1);
         expect(commonWidgetConfig.action).toHaveBeenCalledWith({
-            startUpdateInterview: startUpdateInterviewMock,
+            startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock
         }, interviewAttributes, 'home.region', 'test', {}, undefined);
@@ -255,7 +301,7 @@ describe('Button widget: behavioral tests', () => {
             interview: interviewAttributes,
             user: userAttributes,
             widgetStatus: defaultWidgetStatus,
-            startUpdateInterview: startUpdateInterviewMock,
+            startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
         }
@@ -296,7 +342,7 @@ describe('Button widget: behavioral tests', () => {
             interview: interviewAttributes,
             user: userAttributes,
             widgetStatus: defaultWidgetStatus,
-            startUpdateInterview: startUpdateInterviewMock,
+            startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
         }
@@ -323,7 +369,7 @@ describe('Button widget: behavioral tests', () => {
         />);
         expect(commonWidgetConfig.action).toHaveBeenCalledTimes(1);
         expect(commonWidgetConfig.action).toHaveBeenCalledWith({
-            startUpdateInterview: startUpdateInterviewMock,
+            startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock
         }, interviewAttributes, 'home.region', 'test', {}, undefined);

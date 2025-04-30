@@ -201,24 +201,46 @@ describe('Update Interview', () => {
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
     });
 
-    test('With values by path and unset path', async() => {
+    test('With values by path, and user action not a "widgetInteraction"', async() => {
+        // Prepare test data
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = { 'responses.foo': 'abc', 'validated_data.foo': 'def' };
-        const unsetPaths = ['responses.accessCode'];
-        const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths });
+        const userAction = { type: 'buttonClick' as const, buttonId: 'test' };
+        const interview = await updateInterview(testAttributes, { userAction, valuesByPath: { 'responses.foo': 'abc', 'responses.testFields.fieldA': 'new' } });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, unsetPaths);
-        expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, unsetPaths, undefined);
 
         const expectedUpdatedValues = {
             responses: _cloneDeep(interviewAttributes.responses) as any,
             validations: _cloneDeep(interviewAttributes.validations)
         };
         expectedUpdatedValues.responses.foo = 'abc';
+        expectedUpdatedValues.responses.testFields.fieldA = 'new';
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+    });
+
+    test('With values by path, unset path and user action of type "widgetInteraction"', async() => {
+        // Prepare test data
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const valuesByPath = { 'responses.foo': 'abc', 'validated_data.foo': 'def' };
+        const userAction = { type: 'widgetInteraction' as const, widgetType: 'string', path: 'responses.bar', value: 100 };
+        const expectedValuseByPath = { ['responses.bar']: 100, ...valuesByPath };
+        const unsetPaths = ['responses.accessCode'];
+        const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths, userAction });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+        expect(mockedServerValidate).toHaveBeenCalledTimes(1);
+        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, expectedValuseByPath, unsetPaths);
+        expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], expectedValuseByPath, unsetPaths, undefined);
+
+        const expectedUpdatedValues = {
+            responses: _cloneDeep(interviewAttributes.responses) as any,
+            validations: _cloneDeep(interviewAttributes.validations)
+        };
+        expectedUpdatedValues.responses.foo = 'abc';
+        expectedUpdatedValues.responses.bar = 100;
         delete expectedUpdatedValues.responses.accessCode;
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
     });

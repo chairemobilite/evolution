@@ -62,14 +62,24 @@ export default (router: Router, authorizationMiddleware, loggingMiddleware: Inte
                 delete session.clientValues;
 
                 const content = req.body;
-                if (!content.valuesByPath || !content.interviewId) {
-                    console.log('Missing valuesByPath or unspecified interview ID');
+                if ((!content.valuesByPath && !content.userAction) || !content.interviewId) {
+                    if (!content.valuesByPath && !content.userAction) {
+                        console.log('updateInterview route: Missing valuesByPath or userAction');
+                    } else {
+                        console.log('updateInterview route: Unspecified interview ID');
+                    }
                     return res.status(400).json({ status: 'BadRequest' });
                 }
                 const valuesByPath = content.valuesByPath || {};
                 const unsetPaths = content.unsetPaths || [];
+                const userAction = content.userAction;
 
-                if (unsetPaths.length === 0 && Object.keys(valuesByPath).length === 0 && !sessionClientPaths) {
+                if (
+                    unsetPaths.length === 0 &&
+                    Object.keys(valuesByPath).length === 0 &&
+                    !userAction &&
+                    !sessionClientPaths
+                ) {
                     return res.status(200).json({
                         status: 'success',
                         interviewId: req.params.interviewUuid
@@ -83,6 +93,7 @@ export default (router: Router, authorizationMiddleware, loggingMiddleware: Inte
                     const retInterview = await updateInterview(interview, {
                         valuesByPath,
                         unsetPaths,
+                        userAction,
                         serverValidations: serverConfig.serverValidations,
                         fieldsToUpdate: ['responses', 'validations'],
                         deferredUpdateCallback: async (newValuesByPath) => {

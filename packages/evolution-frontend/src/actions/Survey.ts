@@ -88,15 +88,64 @@ export const updateSection = (
     return [interview, currentValuesByPath];
 };
 
+/**
+ * Update the interview fields with the modified values.
+ *
+ * DO NOT CALL from any other part of the code! Only the redux action should
+ * call this function.
+ *
+ * @param interview The interview to update. Its values will be modified
+ * @param updatedData The values by path, path to unset and userAction to apply
+ * @returns A key/value object where the keys are all paths affected by the
+ * update and true as value, for easier lookup
+ */
+export const updateInterviewData = (
+    interview: UserRuntimeInterviewAttributes,
+    updatedData: Pick<Parameters<StartUpdateInterview>[0], 'valuesByPath' | 'unsetPaths' | 'userAction'>
+): { [key: string]: boolean } => {
+    const affectedPaths = {};
+    if (Array.isArray(updatedData.unsetPaths)) {
+        // unsetPaths if array (each path in array has to be deleted)
+        for (let i = 0, count = updatedData.unsetPaths.length; i < count; i++) {
+            const path = updatedData.unsetPaths[i];
+            affectedPaths[path] = true;
+            _unset(interview, path);
+        }
+    }
+
+    if (updatedData.valuesByPath) {
+        if (updatedData.valuesByPath['_all'] === true) {
+            affectedPaths['_all'] = true;
+        }
+        for (const path in updatedData.valuesByPath) {
+            if (path !== '_all') {
+                affectedPaths[path] = true;
+                _set(interview, path, updatedData.valuesByPath[path]);
+            }
+        }
+    }
+
+    if (updatedData.userAction && updatedData.userAction.type === 'widgetInteraction') {
+        const path = updatedData.userAction.path;
+        if (path) {
+            affectedPaths[path] = true;
+            _set(interview, path, updatedData.userAction.value);
+        }
+    }
+
+    return affectedPaths;
+};
+
 const startUpdateInterviewCallback = async (
     dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
     getState: () => RootState,
     {
         sectionShortname: requestedSectionShortname,
         valuesByPath = {},
-        unsetPaths,
+        unsetPaths = [],
         interview: initialInterview,
-        gotoFunction
+        gotoFunction,
+        userAction
     }: Parameters<StartUpdateInterview>[0] = {},
     callback?: Parameters<StartUpdateInterview>[1]
 ) => {
@@ -113,19 +162,6 @@ const startUpdateInterviewCallback = async (
             );
         }
 
-        const affectedPaths = {};
-
-        if (Array.isArray(unsetPaths)) {
-            // unsetPaths if array (each path in array has to be deleted)
-            for (let i = 0, count = unsetPaths.length; i < count; i++) {
-                const path = unsetPaths[i];
-                affectedPaths[path] = true;
-                _unset(interview, path);
-            }
-        } else {
-            unsetPaths = [];
-        }
-
         // update language if needed:
         const oldLanguage = surveyHelper.getResponse(interview, '_language', null);
         const actualLanguage = i18n.language;
@@ -133,17 +169,7 @@ const startUpdateInterviewCallback = async (
             valuesByPath['responses._language'] = actualLanguage;
         }
 
-        if (valuesByPath) {
-            if (valuesByPath['_all'] === true) {
-                affectedPaths['_all'] = true;
-            }
-            for (const path in valuesByPath) {
-                if (path !== '_all') {
-                    affectedPaths[path] = true;
-                    _set(interview, path, valuesByPath[path]);
-                }
-            }
-        }
+        const affectedPaths = updateInterviewData(interview, { valuesByPath, unsetPaths, userAction });
 
         // TODO An Interview object could have a getActiveSection function to get this value
         const sectionShortname = surveyHelper.getResponse(
@@ -196,7 +222,8 @@ const startUpdateInterviewCallback = async (
                 interviewId: interview.uuid,
                 participant_id: updatedInterview.participant_id,
                 valuesByPath: updatedValuesByPath,
-                unsetPaths: unsetPaths
+                unsetPaths: unsetPaths,
+                userAction
             })
         });
 

@@ -5,10 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import _set from 'lodash/set';
 import _cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
-import _unset from 'lodash/unset';
 
 /* eslint-disable-next-line */
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
@@ -34,7 +32,7 @@ import {
 } from 'evolution-common/lib/services/questionnaire/types';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
-import { updateSection, updateInterview } from './Survey';
+import { updateSection, updateInterview, updateInterviewData } from './Survey';
 import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../store/configureStore';
 import { SurveyAction } from '../store/survey';
@@ -45,8 +43,9 @@ export const startUpdateSurveyValidateInterview = (
     {
         sectionShortname,
         valuesByPath = {},
-        unsetPaths,
-        interview: initialInterview
+        unsetPaths = [],
+        interview: initialInterview,
+        userAction
     }: Parameters<StartUpdateInterview>[0],
     callback?: Parameters<StartUpdateInterview>[1]
 ) => {
@@ -69,38 +68,7 @@ export const startUpdateSurveyValidateInterview = (
                 );
             }
 
-            const affectedPaths = {};
-
-            if (Array.isArray(unsetPaths)) {
-                // unsetPaths if array (each path in array has to be deleted)
-                for (let i = 0, count = unsetPaths.length; i < count; i++) {
-                    const path = unsetPaths[i];
-                    affectedPaths[path] = true;
-                    _unset(interview, path);
-                }
-            } else {
-                unsetPaths = [];
-            }
-
-            // update language if needed:
-            //const oldLanguage    = _get(interview, 'responses._language', null);
-            //const actualLanguage = null;//i18n.language;
-            //if (oldLanguage !== actualLanguage)
-            //{
-            //   valuesByPath['responses._language'] = actualLanguage;
-            //}
-
-            if (valuesByPath) {
-                if (valuesByPath['_all'] === true) {
-                    affectedPaths['_all'] = true;
-                }
-                for (const path in valuesByPath) {
-                    affectedPaths[path] = true;
-                    if (interview) {
-                        _set(interview, path, valuesByPath[path]);
-                    }
-                }
-            }
+            const affectedPaths = updateInterviewData(interview, { valuesByPath, unsetPaths, userAction });
 
             // TODO: update this so it works well with validationOnePager (admin). Should we force this? Anyway this code should be replaced/updated completely in the next version.
             sectionShortname =
@@ -155,9 +123,8 @@ export const startUpdateSurveyValidateInterview = (
                     id: updatedInterview.id,
                     participant_id: updatedInterview.participant_id,
                     valuesByPath: updatedValuesByPath,
-                    unsetPaths: unsetPaths
-                    //responses  : interview.responses,
-                    //validations: interview.validations
+                    unsetPaths: unsetPaths,
+                    userAction
                 })
             });
             if (response.status === 200) {

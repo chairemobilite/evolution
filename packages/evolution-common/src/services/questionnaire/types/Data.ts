@@ -291,6 +291,23 @@ export interface InterviewStatusAttributesBase {
 export type GotoFunction = (to: string | { pathname?: string; search?: string }) => void | Promise<void>;
 
 /**
+ * Type of the user action that can be sent to the server when updating the
+ * interview. This is used to track the actions of the user in the survey and
+ * to provide a better experience for the user.
+ */
+export type UserAction =
+    | {
+          type: 'buttonClick';
+          buttonId: string;
+      }
+    | {
+          type: 'widgetInteraction';
+          widgetType: string;
+          path: string;
+          value: unknown;
+      };
+
+/**
  * Type of the callback to send interview updates to the server
  *
  * @param {Object} data
@@ -304,6 +321,8 @@ export type GotoFunction = (to: string | { pathname?: string; search?: string })
  * interview
  * @param {GotoFunction} [data.gotoFunction] A function used to redirect the
  * page to a specific URL
+ * @param {UserAction} [data.userAction] The user action that triggered the
+ * update. Leave empty if the update was not triggered by a user action.
  * @param {(interview: UserRuntimeInterviewAttributes) => void} [callback] An
  * optional function to call after the interview has been updated
  *
@@ -316,6 +335,7 @@ export type StartUpdateInterview = (
         unsetPaths?: string[];
         interview?: UserRuntimeInterviewAttributes;
         gotoFunction?: GotoFunction;
+        userAction?: UserAction;
     },
     callback?: (interview: UserRuntimeInterviewAttributes) => void
 ) => void;
