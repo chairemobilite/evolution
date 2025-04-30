@@ -4,27 +4,39 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-/** Change the prefixes in the valuesByPath and unsetPaths from responses to validated_data. */
+
+import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
+
+/** Change the prefixes in the valuesByPath, unsetPaths and userAction from
+ * responses to validated_data. */
 export const mapResponsesToValidatedData = (
     valuesByPath: { [key: string]: unknown },
-    origUnsetPaths: string[]
-): { valuesByPath: { [key: string]: unknown }; unsetPaths: string[] } => {
+    unsetPaths: string[],
+    userAction?: UserAction
+): { valuesByPath: { [key: string]: unknown }; unsetPaths: string[]; userAction?: UserAction } => {
     // Content in valuesByPath and unsetPaths with prefix 'responses' should
-    // be put in 'validated_data' instead. This route should not modify the
-    // responses
+    // be put in 'validated_data' instead.
     const renameKey = (oldKey: string): string => {
         if (oldKey.startsWith('responses.') || oldKey === 'responses') {
             return oldKey.replace('responses', 'validated_data');
         }
         return oldKey;
     };
+
+    // Map the values by path keys
+    const updatedValuesByPath = {};
     Object.keys(valuesByPath).forEach((key) => {
         const newKey = renameKey(key);
-        if (newKey !== key) {
-            valuesByPath[newKey] = valuesByPath[key];
-            delete valuesByPath[key];
-        }
+        updatedValuesByPath[newKey] = valuesByPath[key];
     });
-    const unsetPaths = origUnsetPaths.map(renameKey);
-    return { valuesByPath, unsetPaths };
+    // Map the unset paths
+    const updatedUnsetPaths = unsetPaths.map(renameKey);
+    // Map the user action if it is provided and is a widget interaction
+    let updatedUserAction = userAction;
+    if (userAction && userAction.type === 'widgetInteraction') {
+        // If the user action is a widget interaction, we need to change the path
+        // in the user action as well
+        updatedUserAction = { ...userAction, path: renameKey(userAction.path) };
+    }
+    return { valuesByPath: updatedValuesByPath, unsetPaths: updatedUnsetPaths, userAction: updatedUserAction };
 };

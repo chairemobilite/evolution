@@ -10,7 +10,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
-import { ButtonWidgetConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    ButtonWidgetConfig,
+    StartUpdateInterview,
+    UserRuntimeInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
@@ -49,6 +53,20 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
         setLoadingState(props.loadingState);
     }, [props.loadingState]);
 
+    const startUpdateInterviewForButtonClick: StartUpdateInterview = React.useCallback(
+        (data, callback) => {
+            // Set the button click user action to the startUpdateInterview call
+            if (data.userAction === undefined) {
+                data.userAction = {
+                    type: 'buttonClick',
+                    buttonId: props.path
+                };
+            }
+            return props.startUpdateInterview(data, callback);
+        },
+        [props.startUpdateInterview]
+    );
+
     const onMouseDown = () => {
         setWasMouseDowned(true);
     };
@@ -65,7 +83,12 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
     const confirmButton = () => {
         props.widgetConfig.action(
             {
-                startUpdateInterview: props.startUpdateInterview,
+                // FIXME: setting the startUpdateInterview callback to the one
+                // sending the user action will cause multiple calls to this
+                // callback in the action to all send the userAction. If we move
+                // the navigation and side effects to the server, it does not
+                // matter, but a solution would need to be found if not.
+                startUpdateInterview: startUpdateInterviewForButtonClick,
                 startAddGroupedObjects: props.startAddGroupedObjects,
                 startRemoveGroupedObjects: props.startRemoveGroupedObjects
             },

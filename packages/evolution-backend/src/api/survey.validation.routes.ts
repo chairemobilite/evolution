@@ -80,21 +80,26 @@ router.post(
             const timestamp = moment().unix();
 
             const content = req.body;
-            if (!content.valuesByPath || !req.params.interviewUuid) {
-                console.log('Missing valuesByPath or unspecified interview ID');
+            if ((!content.valuesByPath && !content.userAction) || !req.params.interviewUuid) {
+                if (!content.valuesByPath && !content.userAction) {
+                    console.log('updateValidateInterview route: Missing valuesByPath or userAction');
+                } else {
+                    console.log('updateValidateInterview route: Unspecified interview ID');
+                }
                 return res.status(400).json({ status: 'BadRequest' });
             }
             const valuesByPath = content.valuesByPath || {};
             const origUnsetPaths = content.unsetPaths || [];
 
-            if (origUnsetPaths.length === 0 && Object.keys(valuesByPath).length === 0) {
+            if (origUnsetPaths.length === 0 && Object.keys(valuesByPath).length === 0 && !content.userAction) {
                 return res.status(200).json({ status: 'success', interviewId: req.params.interviewUuid });
             }
 
-            const { valuesByPath: mappedValuesByPath, unsetPaths } = mapResponsesToValidatedData(
-                valuesByPath,
-                origUnsetPaths
-            );
+            const {
+                valuesByPath: mappedValuesByPath,
+                unsetPaths,
+                userAction
+            } = mapResponsesToValidatedData(valuesByPath, origUnsetPaths, content.userAction);
 
             const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
             if (interview) {
@@ -111,6 +116,7 @@ router.post(
                 const retInterview = await updateInterview(interview, {
                     valuesByPath: mappedValuesByPath,
                     unsetPaths,
+                    userAction,
                     fieldsToUpdate: canConfirm ? [...fieldsToUpdate, 'is_validated'] : fieldsToUpdate,
                     logData: { adminValidation: true }
                 });

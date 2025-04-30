@@ -32,6 +32,7 @@ import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyCont
 import {
     isWidgetModal,
     StartUpdateInterview,
+    UserAction,
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
@@ -101,12 +102,16 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
         );
 
         const valuesByPath = {};
-        let needToUpdate = false;
+        let userAction: UserAction | undefined = undefined;
 
         if (!isEqual(parsedValue, previousValue) && !(parsedValue === null && previousValue === undefined)) {
-            needToUpdate = true;
             valuesByPath['validations.' + this.props.path] = isValid;
-            valuesByPath['responses.' + this.props.path] = parsedValue;
+            userAction = {
+                type: 'widgetInteraction',
+                widgetType: widgetConfig.inputType,
+                path: 'responses.' + this.props.path,
+                value: parsedValue
+            };
         }
 
         if (
@@ -114,18 +119,32 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             !isEqual(parsedCustomValue, previousCustomValue) &&
             !(parsedCustomValue === null && previousCustomValue === undefined)
         ) {
-            needToUpdate = true;
             valuesByPath['validations.' + this.props.customPath] = isValid;
-            valuesByPath['responses.' + this.props.customPath] = parsedCustomValue;
+            if (userAction === undefined) {
+                userAction = {
+                    type: 'widgetInteraction',
+                    widgetType: 'string',
+                    path: 'responses.' + this.props.customPath,
+                    value: parsedCustomValue
+                };
+            } else {
+                console.warn(
+                    'userAction already defined, but a custom value has been specified. It is thus possible to update more than one value for a single user action.'
+                );
+                valuesByPath['responses.' + this.props.customPath] = parsedCustomValue;
+            }
         }
 
-        if (needToUpdate || this.props.widgetConfig.inputType === 'button') {
+        if (userAction !== undefined || this.props.widgetConfig.inputType === 'button') {
             // force update with buttons
             let saveCallback = undefined;
             if (isValid && typeof (widgetConfig as any).saveCallback === 'function') {
-                saveCallback = (widgetConfig as any).saveCallback.bind(this);
+                saveCallback = (widgetConfig as any).saveCallback;
             }
-            this.props.startUpdateInterview({ sectionShortname: this.props.section, valuesByPath }, saveCallback);
+            this.props.startUpdateInterview(
+                { sectionShortname: this.props.section, valuesByPath, userAction },
+                saveCallback
+            );
         }
 
         if (isWidgetModal(widgetConfig) && this.state.modalIsOpen && isValid) {

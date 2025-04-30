@@ -164,11 +164,70 @@ describe('Update interview', () => {
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
     });
 
-    test('Call with an interview, with validation and unset path', async () => {
+    test('Call with a "widgetInteraction" user action and no validations by path', async () => {
+        // Prepare mock and test data
+        const updateCallback = jest.fn();
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
+        const valuesByPath = { 'validations.section1.q1': false };
+        const userAction = {
+            type: 'widgetInteraction' as const,
+            widgetType: 'string',
+            path: 'responses.section1.q1',
+            value: 'foo'
+        }
+        // Both path in user action and valuesByPath should have been updated
+        const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
+        (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
+        (expectedInterviewToPrepare.validations as any).section1.q1 = false;
+        const expectedInterviewAsState = _cloneDeep(expectedInterviewToPrepare);
+        expectedInterviewAsState.sectionLoaded = 'section';
+        
+        // Do the actual test
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: _cloneDeep(interviewAttributes), userAction }, updateCallback);
+        await callback(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'responses.section1.q1': true, 'validations.section1.q1': true }, { ...valuesByPath }, false, testUser);
+        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
+        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({
+                id: interviewAttributes.id,
+                interviewId: interviewAttributes.uuid,
+                participant_id: interviewAttributes.participant_id,
+                valuesByPath: { ...valuesByPath, sectionLoaded: 'section' },
+                unsetPaths: [],
+                userAction
+            })
+        }));
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, { 
+            type: 'INCREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, { 
+            type: 'UPDATE_INTERVIEW',
+            interviewLoaded: true,
+            interview: expectedInterviewAsState,
+            errors: {},
+            submitted: false
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, { 
+            type: 'DECREMENT_LOADING_STATE'
+        });
+        expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
+    });
+
+
+    test('Call with an interview, with validation, unset path and "buttonClick" action', async () => {
         // Prepare mock and test data
         const updateCallback = jest.fn();
         jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
         const valuesByPath = { 'responses.section1.q1': 'foo' };
+        const buttonClickUserAction = {
+            type: 'buttonClick' as const,
+            buttonId: 'test'
+        }
         const unsetPaths = ['responses.section2.q1'];
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
         (expectedInterviewToPrepare.responses as any).section1.q1 = 'foo';
@@ -183,7 +242,7 @@ describe('Update interview', () => {
         (expectedInterviewAsState.validations as any).section1.q2 = true;
         
         // Do the actual test
-        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), unsetPaths, interview: _cloneDeep(interviewAttributes) }, updateCallback);
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), unsetPaths, interview: _cloneDeep(interviewAttributes), userAction: buttonClickUserAction }, updateCallback);
         await callback(mockDispatch, mockGetState);
 
         // Verifications
@@ -197,7 +256,8 @@ describe('Update interview', () => {
                 interviewId: interviewAttributes.uuid,
                 participant_id: interviewAttributes.participant_id,
                 valuesByPath: { ...valuesByPath, 'validations.section1.q2': true, sectionLoaded: 'section' },
-                unsetPaths: ['responses.section2.q1']
+                unsetPaths: ['responses.section2.q1'],
+                userAction: buttonClickUserAction
             })
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(3);
