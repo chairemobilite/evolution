@@ -54,12 +54,12 @@ export const InputSelect = (props: InputSelectProps & WithTranslation) => {
         typeof widgetChoices === 'function' ? widgetChoices(props.interview, props.path, props.user) : widgetChoices;
 
     let isGrouped = false;
-    const selectOptions = choices.map((choice) => {
+    const selectOptions = choices.map((choice, optIdx) => {
         if (isGroupedChoice(choice)) {
             isGrouped = true;
             const groupSelectOptions = choice.choices.map((groupedChoice, index) => (
                 <InputSelectOptionT
-                    key={`${props.id}_opt_${index}`}
+                    key={`${props.id}_opt_${optIdx}_${index}`}
                     choice={groupedChoice as any}
                     path={props.path}
                     interview={props.interview}
@@ -75,8 +75,10 @@ export const InputSelect = (props: InputSelectProps & WithTranslation) => {
                 props.user
             );
             return _isBlank(groupLabel) ? (
-                <React.Fragment>
-                    <option disabled>_________</option>
+                <React.Fragment key={`input-select-group-container_${optIdx}`}>
+                    <option key={`input-select-container__disabled_${optIdx}`} disabled>
+                        _________
+                    </option>
                     {groupSelectOptions}
                 </React.Fragment>
             ) : (
