@@ -33,11 +33,11 @@
       "moment-business-days": "^1.2.0"
     },
     "devDependencies": {
-      "@types/geojson": "^7946.0.15",
-      "@types/lodash": "^4.17.13",
-      "@types/node": "^22.10.1",
-      "@typescript-eslint/eslint-plugin": "^8.17.0",
-      "@typescript-eslint/parser": "^8.17.0",
+      "@types/geojson": "^7946.0.16",
+      "@types/lodash": "^4.17.16",
+      "@types/node": "^22.15.14",
+      "@typescript-eslint/eslint-plugin": "^8.31.1",
+      "@typescript-eslint/parser": "^8.31.1",
       "cross-env": "^7.0.3",
       "eslint": "^8.57.1",
       "prettier-eslint-cli": "^8.0.1"

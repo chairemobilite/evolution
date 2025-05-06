@@ -11,11 +11,16 @@ import router from 'chaire-lib-backend/lib/api/admin.routes';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import { exportAllToCsvByObject } from '../../../services/adminExport/exportAllToCsvByObject';
+import { isAdmin } from 'chaire-lib-backend/src/services/auth/authorization';
+import _ from 'lodash';
 
 // Mock the authorization function, isAuthorized returns a function
-jest.mock('chaire-lib-backend/lib/services/auth/authorization', () =>
-    jest.fn().mockReturnValue(jest.fn().mockImplementation((req, res, next) => next()))
-);
+jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
+    __esModule: true,
+    default: jest.fn().mockReturnValue(jest.fn().mockImplementation((req, res, next) => next())),
+    isAdmin: jest.fn().mockReturnValue(jest.fn().mockImplementation((req, res, next) => next()))
+}));
+    
 // Mock the export functions
 jest.mock('../../../services/adminExport/exportAllToCsvByObject', () => ({
     exportAllToCsvByObject: jest.fn().mockReturnValue('exportStarted')

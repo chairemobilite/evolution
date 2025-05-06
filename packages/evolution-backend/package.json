@@ -25,7 +25,7 @@
         "format:all": "yarn format"
     },
     "dependencies": {
-        "@casl/ability": "^5.4.4",
+        "@casl/ability": "^6.7.3",
         "chaire-lib-backend": "^0.2.2",
         "chaire-lib-common": "^0.2.2",
         "connect-session-knex": "^4.0.2",
@@ -38,25 +38,26 @@
         "lodash": "^4.17.21",
         "moment": "^2.30.1",
         "morgan": "^1.10.0",
-        "papaparse": "^5.4.1",
+        "papaparse": "^5.5.2",
         "passport": "^0.7.0",
         "request-ip": "^3.3.0",
         "serve-favicon": "^2.5.0",
         "slugify": "^1.6.6",
-        "typescript": "^5.7.2",
-        "uuid": "^11.0.3",
+        "typescript": "^5.8.3",
+        "uuid": "^11.1.0",
         "workerpool": "^6.5.1",
         "yargs": "^17.7.2"
     },
     "devDependencies": {
         "@types/express": "^4.17.21",
-        "@types/geojson": "^7946.0.15",
+        "@types/express-session": "^1.18.1",
+        "@types/geojson": "^7946.0.16",
         "@types/jest": "^29.5.14",
         "@types/jest-each": "^24.3.0",
-        "@types/lodash": "^4.17.13",
-        "@types/node": "^22.10.1",
-        "@typescript-eslint/eslint-plugin": "^8.17.0",
-        "@typescript-eslint/parser": "^8.17.0",
+        "@types/lodash": "^4.17.16",
+        "@types/node": "^22.15.14",
+        "@typescript-eslint/eslint-plugin": "^8.31.1",
+        "@typescript-eslint/parser": "^8.31.1",
         "cross-env": "^7.0.3",
         "eslint": "^8.57.1",
         "eslint-plugin-n": "^15.7.0",
@@ -66,6 +67,7 @@
         "mock-knex": "^0.4.10",
         "prettier-eslint-cli": "^8.0.1",
         "stream-mock": "^2.0.5",
-        "ts-jest": "^29.2.5"
+        "supertest": "^7.0.0",
+        "ts-jest": "^29.3.2"
     }
 }
