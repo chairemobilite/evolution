@@ -35,7 +35,7 @@ module.exports = {
         fr: `/dist/images/logo_eod_2018_fr.svg`,
         en: `/dist/images/logo_eod_2018_en.svg`
     },
-    acceptUnknownDidTrips: false,
+    introductionTwoParagraph: true, // If true, show a footer in the introduction page
     adminAuth: {
         localLogin: {
             registerWithPassword: true,
