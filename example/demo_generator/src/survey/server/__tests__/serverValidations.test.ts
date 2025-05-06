@@ -1,3 +1,9 @@
+/*
+ * Copyright 2025, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
 import validations from '../serverValidations';
 import each from 'jest-each';
 
@@ -16,5 +22,4 @@ describe('Validate access code', function () {
     ]).test('Access code: %s', (_title, accessCode, expected) => {
         expect(accessCodeValidation[0].validation(accessCode)).toEqual(expected);
     });
-
 });

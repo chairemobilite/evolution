@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright 2025, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -35,8 +35,6 @@ module.exports = {
         fr: `/dist/images/logo_eod_2018_fr.svg`,
         en: `/dist/images/logo_eod_2018_en.svg`
     },
-    includePartTimeStudentOccupation: false,
-    includeWorkerAndStudentOccupation: false,
     acceptUnknownDidTrips: false,
     adminAuth: {
         localLogin: {
@@ -54,10 +52,6 @@ module.exports = {
         google: true,
         facebook: false
     },
-    logDatabaseUpdates: true,
-    askForAccessCode: true,
-    interviewableAge: 5,
-    isPartTwo: false,
     mapDefaultCenter: {
         lat: 45.503205,
         lon: -73.569417
