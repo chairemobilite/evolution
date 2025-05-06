@@ -1,7 +1,13 @@
+/*
+ * Copyright 2025, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
 import moment from 'moment-business-days';
 import { ObjectReadableMock } from 'stream-mock';
 import updateCallbacks, { updateAssignedDayRates } from '../serverFieldUpdate';
-import { InterviewAttributes } from 'evolution-common/lib/services/interviews/interview';
+import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import _cloneDeep from 'lodash/cloneDeep';
 import interviewsDbQueries from 'evolution-backend/lib/models/interviews.db.queries';
 import RandomUtils from 'chaire-lib-common/lib/utils/RandomUtils';
@@ -28,7 +34,7 @@ jest.mock('evolution-backend/lib/services/interviews/serverFieldUpdate', () => (
 }));
 const preFilledMock = getPreFilledResponsesByPath;
 
-const baseInterview: InterviewAttributes = {
+const baseInterview: UserInterviewAttributes = {
     responses: {
         household: {
             size: 1,
@@ -79,7 +85,6 @@ const baseInterview: InterviewAttributes = {
     is_completed: false,
     validations: {},
     is_valid: true,
-    logs: []
 };
 
 describe('test survey day assignation', function () {

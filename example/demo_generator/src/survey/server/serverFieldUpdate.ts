@@ -1,10 +1,15 @@
+/*
+ * Copyright 2025, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
 import moment from 'moment-business-days';
 import interviewsDbQueries from 'evolution-backend/lib/models/interviews.db.queries';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { _isBlank, _booleish } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { randomFromDistribution } from 'chaire-lib-common/lib/utils/RandomUtils';
 import { getPreFilledResponsesByPath } from 'evolution-backend/lib/services/interviews/serverFieldUpdate';
-import helper from '../helper';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { validateAccessCode } from 'evolution-backend/lib/services/accessCode';
@@ -121,13 +126,13 @@ export default [
                         assignedDayTarget[dow] === 0
                             ? 0
                             : Math.max(
-                                0.01,
-                                Math.pow(
-                                    assignedDayTarget[dow] /
+                                  0.01,
+                                  Math.pow(
+                                      assignedDayTarget[dow] /
                                           Math.max(0.005, currentDayRates === undefined ? 1 : currentDayRates[dow]),
-                                    3
-                                )
-                            ) *
+                                      3
+                                  )
+                              ) *
                                   defaultProbabilityOfDaysBefore[i] *
                                   100
                     );
@@ -228,15 +233,15 @@ export default [
                     weekDay === 0
                         ? config.trRoutingScenarios.DI
                         : weekDay === 6
-                            ? config.trRoutingScenarios.SA
-                            : config.trRoutingScenarios.SE;
+                          ? config.trRoutingScenarios.SA
+                          : config.trRoutingScenarios.SE;
                 if (scenario === undefined) {
                     return defaultResponse;
                 }
 
-                const originGeography = helper.getOriginGeography(trip, visitedPlaces, person, interview);
-                const destinationGeography = helper.getDestinationGeography(trip, visitedPlaces, person, interview);
-                const origin = helper.getOrigin(trip, visitedPlaces);
+                const originGeography = surveyHelper.getOriginGeography(trip, visitedPlaces, person, interview);
+                const destinationGeography = surveyHelper.getDestinationGeography(trip, visitedPlaces, person, interview);
+                const origin = surveyHelper.getOrigin(trip, visitedPlaces);
                 const timeOfTrip = origin.departureTime;
 
                 registerUpdateOperation({

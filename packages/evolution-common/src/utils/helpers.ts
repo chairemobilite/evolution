@@ -8,10 +8,12 @@ import _get from 'lodash/get';
 import _set from 'lodash/set';
 import { v4 as uuidV4 } from 'uuid';
 import sortBy from 'lodash/sortBy';
+import _cloneDeep from 'lodash/cloneDeep';
 import { i18n } from 'i18next';
 import moment from 'moment';
 import { isFeature } from 'geojson-validation';
 
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as LE from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -696,4 +698,141 @@ export const calculateSurveyCompletionPercentage = ({
         Math.max(storedCompletionPercentage, targetCompletionPercentage)
     );
     return completionPercentage;
+};
+
+/**
+ * Retrieve a visited place and its associated person in the household by the visited place ID.
+ *
+ * @param {string} visitedPlaceId - The ID of the visited place to find.
+ * @param {string|null} [attributePrefix=null] - Optional prefix for visited places attributes.
+ * @param {UserInterviewAttributes} interview - The interview object containing household data.
+ * @returns {{ person: object, visitedPlace: object } | null} - The person and visited place object, or null if not found.
+ */
+export const getVisitedPlaceAndPersonInHouseholdById = function (visitedPlaceId, attributePrefix = null, interview) {
+    const persons: any = getResponse(interview, 'household.persons', {});
+    for (const personId in persons) {
+        const person = persons[personId];
+        const personVisitedPlaces = person[attributePrefix ? attributePrefix + 'VisitedPlaces' : 'visitedPlaces'] || {};
+        for (const _visitedPlaceId in personVisitedPlaces) {
+            if (_visitedPlaceId === visitedPlaceId) {
+                return {
+                    person: person,
+                    visitedPlace: personVisitedPlaces[_visitedPlaceId]
+                };
+            }
+        }
+    }
+    return null;
+};
+
+/**
+ * Retrieve the geography (GeoJSON) of a visited place.
+ *
+ * @param {object} visitedPlace - The visited place object.
+ * @param {object} person - The person associated with the visited place.
+ * @param {UserInterviewAttributes} interview - The interview object.
+ * @param {boolean} [recursive=false] - Whether to recursively search for geography in related persons.
+ * @returns {object|null} - The GeoJSON object or null if not found.
+ */
+export const getGeography = function (visitedPlace, person, interview, recursive = false) {
+    if (visitedPlace === null || visitedPlace === undefined) {
+        return null;
+    }
+    let geojson: unknown = null;
+    if (visitedPlace.activityCategory === 'home') {
+        geojson = getResponse(interview, 'home.geography', null);
+    } else if (visitedPlace.activity === 'workUsual') {
+        geojson =
+            person.usualWorkPlace && person.usualWorkPlace.geography
+                ? person.usualWorkPlace.geography
+                : visitedPlace.geography;
+        if (_isBlank(geojson) && recursive === false) {
+            // it means the usualWorkPlace is for another person
+            const matchingVisitedPlaceAndPerson = getVisitedPlaceAndPersonInHouseholdById(
+                visitedPlace._uuid,
+                null,
+                interview
+            );
+            if (matchingVisitedPlaceAndPerson) {
+                return getGeography(visitedPlace, matchingVisitedPlaceAndPerson.person, interview, true);
+            } else {
+                return null;
+            }
+        }
+    } else if (visitedPlace.activity === 'schoolUsual') {
+        geojson =
+            person.usualSchoolPlace && person.usualSchoolPlace.geography
+                ? person.usualSchoolPlace.geography
+                : visitedPlace.geography;
+        if (_isBlank(geojson) && recursive === false) {
+            // it means the usualSchoolPlace is for another person
+            const matchingVisitedPlaceAndPerson = getVisitedPlaceAndPersonInHouseholdById(
+                visitedPlace._uuid,
+                null,
+                interview
+            );
+            if (matchingVisitedPlaceAndPerson) {
+                return getGeography(visitedPlace, matchingVisitedPlaceAndPerson.person, interview, true);
+            } else {
+                return null;
+            }
+        }
+    } else {
+        geojson = visitedPlace.geography;
+    }
+    return geojson ? _cloneDeep(geojson) : null;
+};
+
+/**
+ * Retrieve the origin visited place of a trip.
+ *
+ * @param {object} trip - The trip object.
+ * @param {object} visitedPlaces - The visited places object.
+ * @returns {object} - The origin visited place object.
+ */
+export const getOrigin = function (trip, visitedPlaces) {
+    const originVisitedPlaceId = trip._originVisitedPlaceUuid;
+    return visitedPlaces[originVisitedPlaceId];
+};
+
+/**
+ * Retrieve the destination visited place of a trip.
+ *
+ * @param {object} trip - The trip object.
+ * @param {object} visitedPlaces - The visited places object.
+ * @returns {object} - The destination visited place object.
+ */
+export const getDestination = function (trip, visitedPlaces) {
+    const destinationVisitedPlaceId = trip._destinationVisitedPlaceUuid;
+    return visitedPlaces[destinationVisitedPlaceId];
+};
+
+/**
+ * Retrieve the geography (GeoJSON) of the origin of a trip.
+ *
+ * @param {object} trip - The trip object.
+ * @param {object} visitedPlaces - The visited places object.
+ * @param {object} person - The person associated with the trip.
+ * @param {UserInterviewAttributes} interview - The interview object.
+ * @param {boolean} [recursive=false] - Whether to recursively search for geography in related persons.
+ * @returns {object|null} - The GeoJSON object or null if not found.
+ */
+export const getOriginGeography = function (trip, visitedPlaces, person, interview, recursive = false) {
+    const origin = getOrigin(trip, visitedPlaces);
+    return getGeography(origin, person, interview, recursive);
+};
+
+/**
+ * Retrieve the geography (GeoJSON) of the destination of a trip.
+ *
+ * @param {object} trip - The trip object.
+ * @param {object} visitedPlaces - The visited places object.
+ * @param {object} person - The person associated with the trip.
+ * @param {UserInterviewAttributes} interview - The interview object.
+ * @param {boolean} [recursive=false] - Whether to recursively search for geography in related persons.
+ * @returns {object|null} - The GeoJSON object or null if not found.
+ */
+export const getDestinationGeography = function (trip, visitedPlaces, person, interview, recursive = false) {
+    const destination = getDestination(trip, visitedPlaces);
+    return getGeography(destination, person, interview, recursive);
 };
