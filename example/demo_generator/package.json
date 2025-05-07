@@ -1,6 +1,6 @@
 {
     "engines": {
-      "node": ">=22.0.0"
+        "node": ">=22.0.0"
     },
     "name": "demo_generator",
     "version": "0.0.1",
@@ -9,38 +9,47 @@
     "private": true,
     "repository": "github.com/chairemobilite/evolution",
     "scripts": {
-      "clean": "rimraf lib/",
-      "cleanModules": "rimraf node_modules/",
-      "copy-files": "copyfiles -u 1 src/survey/*.json src/survey/geojson/*.json src/survey/*.geojson src/survey/geojson/*.geojson src/styles/*.scss ./lib/",
-      "compile": "echo 'Run `yarn compile:example` to compile the example generator app, once it is generated'",
-      "compile:example": "tsc && yarn copy-files",
-      "compile:dev": "yarn copy-files && tsc -w",
-      "reset": "rimraf src/ locales/ tests/ node_modules/ lib/",
-      "format": "prettier-eslint ./**/*.{ts,tsx} --write",
-      "format:all": "yarn format"
+        "build:dev": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=4096 --openssl-legacy-provider\" webpack watch --progress --color --node-env development --mode development",
+        "build:prod": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=1024 --openssl-legacy-provider\" webpack --progress --color --node-env production --mode production",
+        "build:admin:dev": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=4096 --openssl-legacy-provider\" webpack watch --config webpack.admin.config.js --progress --color --node-env development --mode development",
+        "build:admin:prod": "cross-env NODE_OPTIONS=\"--trace-deprecation --max_old_space_size=1024 --openssl-legacy-provider\" webpack --config webpack.admin.config.js --progress --color --node-env production --mode production",
+        "clean": "rimraf lib/",
+        "cleanModules": "rimraf node_modules/",
+        "copy-files": "copyfiles -u 1 src/survey/*.json src/survey/geojson/*.json src/survey/*.geojson src/survey/geojson/*.geojson src/styles/*.scss ./lib/",
+        "compile": "echo 'Run `yarn compile:example` to compile the example generator app, once it is generated'",
+        "compile:example": "tsc && yarn copy-files",
+        "compile:dev": "yarn copy-files && tsc -w",
+        "start": "yarn node lib/server.js --max-old-space-size=4096",
+        "start:admin": "yarn node lib/admin/server.js --max-old-space-size=4096",
+        "start:tracing": "yarn node -r ../../tracing.js lib/server.js --max-old-space-size=4096",
+        "start:admin:tracing": "yarn node -r ../../tracing.js lib/admin/server.js --max-old-space-size=4096",
+        "start:debug": "cross-env DEBUG=express:* yarn node --trace-warnings lib/server.js --max-old-space-size=4096",
+        "reset": "rimraf src/ locales/ tests/ node_modules/ lib/",
+        "format": "prettier-eslint ./**/*.{ts,tsx} --write",
+        "format:all": "yarn format",
+        "test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test"
     },
     "dependencies": {
-      "chaire-lib-backend": "0.2.2",
-      "chaire-lib-common": "0.2.2",
-      "chaire-lib-frontend": "0.2.2",
-      "evolution-backend": "^0.5.0",
-      "evolution-common": "^0.5.0",
-      "evolution-frontend": "^0.5.0",
-      "evolution-generator": "^0.5.0",
-      "i18next": "^24.0.5",
-      "lodash": "^4.17.21",
-      "moment": "^2.30.1",
-      "moment-business-days": "^1.2.0"
+        "chaire-lib-backend": "0.2.2",
+        "chaire-lib-common": "0.2.2",
+        "chaire-lib-frontend": "0.2.2",
+        "evolution-backend": "^0.5.0",
+        "evolution-common": "^0.5.0",
+        "evolution-frontend": "^0.5.0",
+        "evolution-generator": "^0.5.0",
+        "i18next": "^24.0.5",
+        "lodash": "^4.17.21",
+        "moment": "^2.30.1",
+        "moment-business-days": "^1.2.0"
     },
     "devDependencies": {
-      "@types/geojson": "^7946.0.16",
-      "@types/lodash": "^4.17.16",
-      "@types/node": "^22.15.14",
-      "@typescript-eslint/eslint-plugin": "^8.31.1",
-      "@typescript-eslint/parser": "^8.31.1",
-      "cross-env": "^7.0.3",
-      "eslint": "^8.57.1",
-      "prettier-eslint-cli": "^8.0.1"
+        "@types/geojson": "^7946.0.16",
+        "@types/lodash": "^4.17.16",
+        "@types/node": "^22.15.14",
+        "@typescript-eslint/eslint-plugin": "^8.31.1",
+        "@typescript-eslint/parser": "^8.31.1",
+        "cross-env": "^7.0.3",
+        "eslint": "^8.57.1",
+        "prettier-eslint-cli": "^8.0.1"
     }
-  }
-  
+}

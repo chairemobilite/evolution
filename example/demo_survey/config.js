@@ -52,8 +52,8 @@ module.exports = {
       directFirstLogin: true
     },
     anonymous: true,
-    google: true,
-    facebook: true
+    google: false,
+    facebook: false
   },
   logDatabaseUpdates: true,
   askForAccessCode: true,

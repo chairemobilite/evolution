@@ -120,9 +120,6 @@ profilingData*
 # Python cache
 __pycache__/
 
-# Generator survey example
-/example/demo_survey_generator
-
 # playwright test output
 **/playwright-report/
 **/test-results/
@@ -130,9 +127,14 @@ __pycache__/
 
 # demo_generator example generated files
 example/demo_generator/locales
-example/demo_generator/references
-example/demo_generator/src
-example/demo_generator/tests
+example/demo_generator/references/*
+!example/demo_generator/references/Household_Travel_Generate_Survey.xlsx
+!example/demo_generator/references/generatorConfigs.yaml
+example/demo_generator/src/survey/common
+example/demo_generator/src/survey/sections
+example/demo_generator/src/survey/sections.ts
+example/demo_generator/src/survey/widgetsConfigs.tsx
+example/demo_generator/tests/template-tests-UI.ts
 
 ## JSDoc Internal API Documentations
 /docs/internalApi/
