@@ -49,8 +49,7 @@ module.exports = {
             directFirstLogin: true
         },
         anonymous: true,
-        google: true,
-        facebook: false
+        google: false
     },
     mapDefaultCenter: {
         lat: 45.503205,

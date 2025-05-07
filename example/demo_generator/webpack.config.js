@@ -1,3 +1,5 @@
+// TODO: We should remove everything that is not used anymore in this file
+
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');

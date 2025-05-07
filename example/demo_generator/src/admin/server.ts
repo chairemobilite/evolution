@@ -6,7 +6,7 @@
  */
 import path from 'path';
 
-import setupServer from 'evolution-backend/lib/apps/participant/index';
+import setupServer from 'evolution-backend/lib/apps/admin';
 import { setProjectConfig } from 'evolution-backend/lib/config/projectConfig';
 import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
 import roleDefinitions from '../survey/server/roleDefinition';
