@@ -20,6 +20,7 @@ import {
     UserAction,
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
+import paradataEventsDbQueries from '../../models/paradataEvents.db.queries';
 
 export const addRolesToInterview = (interview: UserInterviewAttributes, user: UserAttributes) => {
     // Add the userRoles in the interview object
@@ -162,10 +163,6 @@ export const updateInterview = async (
     }
     interview.responses = interview.responses || {};
     interview.validations = interview.validations || {};
-    if (!interview.logs || !Array.isArray(interview.logs)) {
-        interview.logs = [];
-        //console.log(interview.logs);
-    }
 
     const databaseUpdateJson: Partial<InterviewAttributes> = {};
     fieldsToUpdate.forEach((field) => {
@@ -177,22 +174,27 @@ export const updateInterview = async (
     // logs if configured:
     // FIXME Type evolution's configs
     if (options.logDatabaseUpdates !== false && (config as any).logDatabaseUpdates) {
-        const timestamp = interview.responses._updatedAt || moment().unix();
+        // FIXME: Temporary fix to add paradata events in legacy mode. Refactoring how paradata is logged will come in next commit
         if (options.unsetPaths) {
-            interview.logs.push({
-                ...logData,
-                timestamp,
-                valuesByPath: options.valuesByPath,
-                unsetPaths: options.unsetPaths
+            paradataEventsDbQueries.log({
+                interviewId: interview.id,
+                eventType: logData.server === true ? 'legacy_server' : 'legacy',
+                eventData: {
+                    ...logData,
+                    valuesByPath: allValuesByPath,
+                    unsetPaths: options.unsetPaths
+                }
             });
         } else {
-            interview.logs.push({
-                ...logData,
-                timestamp,
-                valuesByPath: options.valuesByPath
+            paradataEventsDbQueries.log({
+                interviewId: interview.id,
+                eventType: logData.server === true ? 'legacy_server' : 'legacy',
+                eventData: {
+                    ...logData,
+                    valuesByPath: allValuesByPath
+                }
             });
         }
-        databaseUpdateJson.logs = interview.logs;
     }
 
     // Freeze the interviews when they are marked validated or completed (the participant won't be able to change the answers anymore)

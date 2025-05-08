@@ -109,7 +109,7 @@ export default class Interviews {
             responses._startedAt = moment().unix();
         }
         const interview = await interviewsDbQueries.create(
-            { participant_id: participantId, responses, is_active: true, validations: {}, logs: [] },
+            { participant_id: participantId, responses, is_active: true, validations: {} },
             returning
         );
         if (!interview.uuid || Object.keys(initialResponses).length === 0) {

@@ -34,7 +34,6 @@ const baseInterviewAttributes = {
         booleanField: true,
     },
     validations: {},
-    logs: [],
 };
 
 const localUserInterviewAttributes = {

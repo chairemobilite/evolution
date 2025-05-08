@@ -221,15 +221,13 @@ const getUserInterview = async (participantId: number): Promise<UserInterviewAtt
  * @returns An object with the json data sanitized
  */
 const sanitizeJsonData = (object: Partial<InterviewAttributes>) => {
-    const { logs, responses, validated_data, ...rest } = object;
+    const { responses, validated_data, ...rest } = object;
     const newResponses = responses !== undefined ? JSON.stringify(responses).replaceAll('\\u0000', '') : undefined;
-    const newLogs = logs !== undefined ? JSON.stringify(logs).replaceAll('\\u0000', '') : undefined;
     const newValidatedData =
         validated_data !== undefined ? JSON.stringify(validated_data).replaceAll('\\u0000', '') : undefined;
     return {
         ...rest,
         responses: newResponses,
-        logs: newLogs,
         validated_data: newValidatedData
     };
 };
@@ -802,9 +800,11 @@ const getInterviewsStream = function (params: {
  * well as for each log entry the timestamp and the values_by_path and
  * unset_paths data
  */
-const getInterviewLogsStream = function (interviewId?: number) {
-    // FIXME: Add the p.email and p.username
-    const select = [
+const getInterviewLogsStream = function (_interviewId?: number) {
+    throw new Error('Not implemented yet');
+
+    // FIXME: Log streams will come back in the next commits
+    /* const select = [
         'i.id',
         'i.uuid',
         'i.updated_at',
@@ -837,7 +837,7 @@ const getInterviewLogsStream = function (interviewId?: number) {
         ])
         .from(interviewsLogEntriesQuery)
         .orderBy(['id', 'timestamp'])
-        .stream();
+        .stream(); */
 };
 
 export default {

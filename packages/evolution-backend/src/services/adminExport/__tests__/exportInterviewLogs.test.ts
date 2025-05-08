@@ -14,7 +14,8 @@ import { exportInterviewLogTask } from '../exportInterviewLogs';
 jest.mock('../../../models/interviews.db.queries', () => ({
     getInterviewLogsStream: jest.fn().mockImplementation(() => new ObjectReadableMock([]))
 }));
-const mockGetInterviewLogsStream = interviewsDbQueries.getInterviewLogsStream as jest.MockedFunction<typeof interviewsDbQueries.getInterviewLogsStream>;
+// FIXME Fix this function when interview logs are back
+const mockGetInterviewLogsStream = interviewsDbQueries.getInterviewLogsStream as any;//jest.MockedFunction<typeof interviewsDbQueries.getInterviewLogsStream>;
 
 // Mock the csv file stream
 let fileStreams: {[key: string]: ObjectWritableMock } = {};

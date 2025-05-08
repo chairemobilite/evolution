@@ -92,7 +92,6 @@ const localUserInterviewAttributes = {
         booleanField: true
     },
     validations: {},
-    logs: [],
 } as any;
 
 const facebookUserInterviewAttributes = {
@@ -109,7 +108,6 @@ const facebookUserInterviewAttributes = {
         }
     },
     validations: {},
-    logs: []
 } as any;
 
 const googleUserInterviewAttributes = {
@@ -127,7 +125,6 @@ const googleUserInterviewAttributes = {
         }
     },
     validations: {},
-    logs: [],
     validated_data: {
         accessCode: '2222',
         home: {
@@ -174,7 +171,6 @@ describe('create new interviews', () => {
             participant_id: googleParticipant4.id,
             responses: {},
             validations: {},
-            logs: [],
             is_active: true
         };
         const returning = await dbQueries.create(newInterviewAttributes);
@@ -188,7 +184,6 @@ describe('create new interviews', () => {
             participant_id: googleParticipant2.id,
             responses: {},
             validations: {},
-            logs: [],
             is_active: true
         };
         const returning = await dbQueries.create(newInterviewAttributes, ['uuid', 'id', 'responses', 'participant_id']);
@@ -205,7 +200,6 @@ describe('create new interviews', () => {
             participant_id: googleParticipant3.id,
             responses: { foo: 'bar' },
             validations: {},
-            logs: [],
             is_active: true
         };
         const returning = await dbQueries.create(newInterviewAttributes as any, 'responses');
@@ -385,23 +379,6 @@ describe('Update Interview', () => {
         await expect(dbQueries.update('not a uuid', newAttributes, 'uuid'))
             .rejects
             .toThrow(expect.anything());
-    });
-
-    test('Update responses, validations and logs', async () => {
-        const addAttributes = { responses: { foo: 'test' }, validations: { accessCode: true, other: 'data' } };
-        const newAttributes = {
-            responses: Object.assign({}, localUserInterviewAttributes.responses, addAttributes.responses),
-            validations: Object.assign({}, localUserInterviewAttributes.validations, addAttributes.validations),
-            logs: [{ timestamp: 1234, valuesByPath: { 'responses.some': 'foo' } }]
-        };
-        const interview = await dbQueries.update(localUserInterviewAttributes.uuid, newAttributes, 'uuid');
-        expect(interview.uuid).toEqual(localUserInterviewAttributes.uuid);
-
-        // Re-read the interview
-        const updateInterview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid) as InterviewAttributes;
-        expect(updateInterview.responses).toEqual(newAttributes.responses);
-        expect(updateInterview.validations).toEqual(newAttributes.validations);
-        expect(updateInterview.logs).toEqual(newAttributes.logs);
     });
 
     test('Invalid null unicode character in json data', async () => {
@@ -950,7 +927,6 @@ describe('stream interviews query', () => {
             booleanField: true
         },
         validations: {},
-        logs: [],
     } as any;
     
     beforeAll(async () => {
@@ -1153,7 +1129,7 @@ describe('stream interviews query', () => {
     });
 
 });
-
+/*
 describe('Stream logs', () => {
 
     beforeEach(async () => {
@@ -1402,3 +1378,4 @@ describe('Stream logs', () => {
     });
 
 });
+*/

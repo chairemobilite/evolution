@@ -116,7 +116,8 @@ export const exportInterviewLogTask = async function ({
 
     console.log('reading interview log data...');
 
-    const queryStream = interviewsDbQueries.getInterviewLogsStream(interviewId);
+    // FIXME Fix this type when stream is back
+    const queryStream = interviewsDbQueries.getInterviewLogsStream(interviewId) as any;
     let i = 0;
     return new Promise((resolve, reject) => {
         queryStream

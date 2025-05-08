@@ -44,7 +44,6 @@ const allInterviews = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
     is_active: id % 2 === 0,
     responses: { accessCode: 'notsure' },
     validations: {},
-    logs: [],
     is_completed: false,
     is_questionable: false,
     survey_id: 1
@@ -189,8 +188,7 @@ describe('Create interviews', () => {
             participant_id: participantId,
             responses: { _startedAt: expect.anything() },
             is_active: true,
-            validations: {},
-            logs: []
+            validations: {}
         }, 'uuid');
         expect(newInterview).toEqual({ uuid: expect.anything() });
         expect(mockDbGetByUuid).not.toHaveBeenCalled();
@@ -211,8 +209,7 @@ describe('Create interviews', () => {
             participant_id: participantId,
             responses: { ...responses, _startedAt: expect.anything() },
             is_active: true,
-            validations: {},
-            logs: []
+            validations: {}
         }, 'uuid');
         expect(newInterview).toEqual({ uuid: expect.anything() });
         expect(mockDbGetByUuid).toHaveBeenCalledTimes(1);
@@ -230,8 +227,7 @@ describe('Create interviews', () => {
             participant_id: participantId,
             responses: { _startedAt: expect.anything() },
             is_active: true,
-            validations: {},
-            logs: []
+            validations: {}
         }, 'participant_id');
         expect(newInterview).toEqual({ participant_id: participantId });
         expect(mockDbGetByUuid).not.toHaveBeenCalled();
@@ -247,8 +243,7 @@ describe('Create interviews', () => {
             participant_id: participantId,
             responses: { _startedAt: expect.anything() },
             is_active: true,
-            validations: {},
-            logs: []
+            validations: {}
         }, returningFields);
         expect(newInterview).toEqual({ participant_id: participantId, uuid: expect.anything(), responses: { _startedAt: expect.anything() } });
         expect(mockDbGetByUuid).not.toHaveBeenCalled();
