@@ -1,0 +1,51 @@
+homepage:
+    introduction: >-
+        <p>Ce questionnaire est une démonstration de l'outil Generator, conçu pour montrer ses capacités à créer des enquêtes.</p>
+        <br />
+        <p>&#128204; Durée du questionnaire : <span class="_strong">Environ 10 minutes</span></p>
+        <br />  
+        <p>&#128204; Qui peut participer ?</p>
+        <ul>
+        <li><span class="_strong">Toute personne intéressée à tester cette démonstration</span></li>
+        </ul>
+        <p>Pour plus d’informations sur cette démonstration, consultez le formulaire d’information et de consentement.</p>
+        <br />
+        <p style="font-size: 80%; margin-bottom: 1rem">En cochant la boîte dessous, vous
+        consentez à la collecte, au traitement et aux utilisations possibles des données
+        décrites dans <a href="/dist/documents/demo_information_consent_form.pdf" target="_blank">le
+        formulaire d'information et de consentement</a>. Ce formulaire explique que les
+        données anonymisées peuvent être utilisées à des fins de démonstration.</p>
+    introductionParagraphTwo: >-
+        <p class="center _oblique" style="font-size: 85%; margin-bottom:
+        2rem; padding-top: 2rem;"><a href="/dist/documents/demo_information_consent_form.pdf" target="_blank">Formulaire
+        d’information et de consentement</a>&nbsp;| <a href="mailto:mobilite@polymtl.ca?subject=Questionnaire%20de%20démonstration"
+        target="_blank">Nous joindre par courriel</a></p>
+    start: Débuter
+    AgreementText: Je consens
+    ErrorNotAgreed: >-
+        Vous devez accepter les conditions d'utilisation pour débuter le questionnaire.
+footer: >-
+    <div style="display: flex;justify-content: center;"><div style="font-size:
+    80%;max-width: 700px;margin: 15px;"><p><a href="/dist/documents/demo_information_consent_form.pdf"
+    target="_blank">Formulaire d’information et de consentement</a>&nbsp;| <a href="mailto:mobilite@polymtl.ca?subject=Questionnaire%20de%20démonstration"
+    target="_blank">Nous joindre par courriel</a></p>
+auth:
+    EmailSubLabel: >-
+        <br /><span class="_pale _oblique">En cas de déconnexion, vous pourrez
+        indiquer votre courriel de nouveau et recevoir un lien sécurisé pour vous reconnecter
+        à votre entrevue</span>
+    missingUsernameOrEmail: Veuillez indiquer votre courriel
+    authenticationFailed: Votre courriel ou votre mot de passe est introuvable ou invalide
+    pleaseChooseAUsernameOrEnterYourEmail: Pour participer, veuillez entrer votre courriel
+    pleaseChooseAUsernameOrEnterYourEmailAndAPassword: >-
+        Pour vous enregistrer, entrez votre courriel, puis choisissez un mot de passe et confirmez-le.
+    usernameOrEmailAlreadyExists: >-
+        Votre courriel est déjà enregistré, veuillez utiliser votre compte déjà créé.
+    UseAnonymousLogin: Se connecter de façon anonyme,
+    WhyLoginInfo: ''
+    PasswordlessHeader: ''
+    AnonymousLoginExplanation: >-
+        Notez que si vous procédez sans courriel, vous ne pourrez
+        revenir dans votre questionnaire si votre session expire ou si vous changez de
+        navigateur.
+    Login: Confirmer

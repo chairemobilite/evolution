@@ -19,7 +19,10 @@ export default defineConfig({
     // Limit the number of workers on CI, use default locally.
     workers: process.env.CI ? 1 : undefined,
     // Reporter to use: [html, line, list, dot, json, junit, null]
-    reporter: 'html',
+    reporter:
+        process.env.CI === 'true'
+            ? [['list', { printSteps: true }]]
+            : [['html', { outputFolder: 'playwright-report', open: 'always' }]],
     use: {
         // Base URL to use in actions like `await page.goto('/')`.
         baseURL: 'http://localhost:8080',
@@ -64,7 +67,7 @@ export default defineConfig({
         //     name: 'Mobile Safari',
         //     use: { ...devices['iPhone 12'] }
         // }
-    ],
+    ]
 
     /* Run your local dev server before starting the tests */
     // webServer: [

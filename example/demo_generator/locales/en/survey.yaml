@@ -1,0 +1,45 @@
+homepage:
+    introduction: >-
+        <p>This survey is a demonstration of the Evolution Generator tool, designed to showcase its capabilities in creating surveys.</p>
+        <br />
+        <p>&#128204; Survey duration: <span class="_strong">Approximately 10 minutes</span></p>
+        <br />
+        <p>&#128204; Who can participate?</p>
+        <ul>
+        <li><span class="_strong">Anyone interested in testing this demo</span></li>
+        </ul>
+        <p>For more information about this demo, see the information and consent form.</p>
+        <br />
+        <p style="font-size: 80%; margin-bottom: 1rem">By checking
+        the box below, you consent to the collection, processing, and possible uses of
+        the data described in <a href="/dist/documents/demo_information_consent_form.pdf" target="_blank">the
+        Information and Consent Form</a>. This form explains that anonymized data may
+        be shared for research and planning purposes.</p>
+    introductionParagraphTwo: >-
+        <p class="center _oblique" style="font-size: 85%; margin-bottom:
+        2rem; padding-top: 2rem;"><a href="/dist/documents/demo_information_consent_form.pdf" target="_blank">Information
+        and Consent Form</a> | <a href="mailto:mobilite@polymtl.ca?subject=Demo%20Survey" target="_blank">Contact
+        us by email</a></p>
+    start: Start
+    AgreementText: I consent
+    ErrorNotAgreed: In order to start the survey, you must accept the terms of use.
+footer: >-
+    <div style="display: flex;justify-content: center;"><div style="font-size:
+    80%;max-width: 700px;margin: 15px;"><p><a href="/dist/documents/demo_information_consent_form.pdf"
+    target="_blank">Information and Consent Form</a> | <a href="mailto:mobilite@polymtl.ca?subject=Demo%20Survey"
+    target="_blank">Contact us by email</a></p></div></div>
+auth:
+    EmailSubLabel: >-
+        <br /><span class="_pale _oblique">In case of disconnection, you can enter your email again and you will 
+        receive a secured link to complete your survey</span>
+    missingUsernameOrEmail: Please provide your email address
+    authenticationFailed: Your email address or password was not found or is invalid
+    pleaseChooseAUsernameOrEnterYourEmail: To participate, please provide your email address
+    pleaseChooseAUsernameOrEnterYourEmailAndAPassword: >-
+        To register, please enter your email address, choose a password and confirm it.
+    UseAnonymousLogin: Log in anonymously
+    WhyLoginInfo: ''
+    PasswordlessHeader: ''
+    AnonymousLoginExplanation: >-
+        Note that if you proceed without an email, you won't be able to come back to the survey if your session expires.
+    Login: Confirm

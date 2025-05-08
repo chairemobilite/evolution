@@ -29,7 +29,6 @@ moment.updateLocale('en', {
 });
 
 module.exports = {
-
   projectShortname: 'demo_survey',
   projectDirectory: `${__dirname}/runtime`,
   logoPaths: {

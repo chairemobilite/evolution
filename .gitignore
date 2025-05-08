@@ -126,7 +126,10 @@ __pycache__/
 **/playwright.config.ts
 
 # demo_generator example generated files
-example/demo_generator/locales
+example/demo_generator/locales/en/*
+!example/demo_generator/locales/en/survey.yaml
+example/demo_generator/locales/fr/*
+!example/demo_generator/locales/fr/survey.yaml
 example/demo_generator/references/*
 !example/demo_generator/references/Household_Travel_Generate_Survey.xlsx
 !example/demo_generator/references/generatorConfigs.yaml
