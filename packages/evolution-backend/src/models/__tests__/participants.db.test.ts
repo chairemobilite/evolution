@@ -43,6 +43,7 @@ beforeAll(async () => {
 
 afterAll(async() => {
     await truncate(knex, 'sv_participants');
+    await knex.destroy();
 });
 
 each([

@@ -70,6 +70,7 @@ afterAll(async() => {
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'users');
     await truncate(knex, 'sv_participants');
+    await knex.destroy();
 });
 
 const assertAccessCounts = async (cnt: number) => {
