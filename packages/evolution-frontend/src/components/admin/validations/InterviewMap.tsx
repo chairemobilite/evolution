@@ -4,16 +4,15 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import config from 'evolution-common/lib/config/project.config';
 import { withTranslation } from 'react-i18next';
-import DeckGL from '@deck.gl/react';
+import DeckGL, { DeckGLRef } from '@deck.gl/react';
 import { WebMercatorViewport, MapViewState } from '@deck.gl/core';
 import { TileLayer } from '@deck.gl/geo-layers';
-import { IconLayer, BitmapLayer } from '@deck.gl/layers';
-import { AnimatedArrowPathLayer } from './AnimatedArrowPathLayer';
+import { IconLayer, BitmapLayer, PathLayer } from '@deck.gl/layers';
+import AnimatedArrowPathExtension from './AnimatedArrowPathLayerExtension';
 import * as VPAttr from 'evolution-common/lib/services/baseObjects/attributeTypes/VisitedPlaceAttributes';
-import { animate, linear } from 'popmotion';
 
 export type SurveyMapPointProperties = {
     activity: VPAttr.Activity;
@@ -33,6 +32,8 @@ export type InterviewMapProps = {
 };
 
 const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: InterviewMapProps) => {
+    const mapContainerRef = useRef<DeckGLRef>(null);
+
     const [viewState, setViewState] = useState<MapViewState>({
         longitude: props.center ? props.center[0] : config.mapDefaultCenter.lon,
         latitude: props.center ? props.center[1] : config.mapDefaultCenter.lat,
@@ -40,22 +41,6 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
     });
 
     const [zoom, setZoom] = useState<number>(13);
-
-    const loopLength = 10000;
-    const animationSpeed = 100;
-    const [currentTime, setCurrentTime] = useState<number>(0);
-
-    React.useEffect(() => {
-        const animation = animate({
-            from: 0,
-            to: loopLength,
-            duration: loopLength,
-            repeat: Infinity,
-            ease: linear,
-            onUpdate: setCurrentTime
-        });
-        return () => animation.stop();
-    }, [loopLength, animationSpeed]);
 
     const [hasLoaded, setHasLoaded] = useState<boolean>(false);
 
@@ -103,7 +88,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
         //onClick: (info) => props.selectPlace(info.object.path)
     });
 
-    const animatedArrowPathLayer = new AnimatedArrowPathLayer({
+    const animatedArrowPathLayer = new PathLayer({
         id: 'tripCurves',
         data: props.trips.features,
         getPath: (d) => d.geometry.coordinates,
@@ -111,25 +96,21 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
             getPath: props.updateCount || 1,
             getColor: props.updateCount || 1
         },
-        getDistanceBetweenArrows: 100.0,
         widthMaxPixels: 20,
-        currentTime,
-        speedDivider: 3000,
-        disableAnimation: false,
         pickable: true,
         filled: false,
         lineWidthScale: 1.0,
         widthUnits: 'pixels',
         capRounded: false,
         jointRounded: true,
-        billboard: true,
         zoom,
         getWidth: (d) => (d.properties.active ? 16 : 12),
         getColor: (d) => {
             const hex = (d.properties.color || '#000000').replace('#', '').toLowerCase();
             // convert to RGB:
             return hex.match(/[0-9a-f]{2}/g).map((x) => parseInt(x, 16));
-        }
+        },
+        extensions: [new AnimatedArrowPathExtension()]
     });
 
     const onAfterRender = () => {
@@ -151,8 +132,10 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
     return (
         <div className="admin__interview-map">
             <DeckGL
+                ref={mapContainerRef}
                 initialViewState={viewState}
                 controller={true}
+                _animate={true}
                 layers={layers}
                 onAfterRender={onAfterRender}
                 onViewStateChange={(params) => {
