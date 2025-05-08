@@ -66,6 +66,7 @@ afterAll(async() => {
     await truncate(knex, 'users');
     await truncate(knex, 'sv_participants');
     await knex.schema.dropMaterializedViewIfExists(viewName);
+    await knex.destroy();
 });
 
 describe('registerView', () => {

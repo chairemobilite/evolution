@@ -16,6 +16,7 @@ beforeAll(async () => {
 
 afterAll(async() => {
     await truncate(knex, 'sv_interviews_prefill');
+    await knex.destroy();
 });
 
 describe('set/get pre-filled answers', () => {

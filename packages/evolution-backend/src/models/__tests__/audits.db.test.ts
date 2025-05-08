@@ -67,6 +67,7 @@ afterAll(async() => {
     await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'sv_participants');
+    await knex.destroy();
 });
 
 const removeUndefined = (obj) => {
