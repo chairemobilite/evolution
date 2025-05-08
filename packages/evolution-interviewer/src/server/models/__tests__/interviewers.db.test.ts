@@ -65,7 +65,6 @@ beforeAll(async () => {
             is_completed: undefined,
             responses: baseResponses,
             validations: {},
-            logs: [],
             audits: { errorOne: 3, errorThree: 1 }
         };
         await create(knex, 'sv_participants', undefined, localParticipant as any);

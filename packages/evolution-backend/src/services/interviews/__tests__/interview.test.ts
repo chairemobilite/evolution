@@ -10,6 +10,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { updateInterview, setInterviewFields, copyResponsesToValidatedData } from '../interview';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import interviewsQueries from '../../../models/interviews.db.queries';
+import paradataEventsQueries from '../../../models/paradataEvents.db.queries';
 import serverValidate from '../../validations/serverValidation';
 import serverUpdate from '../serverFieldUpdate';
 import config from 'chaire-lib-backend/lib/config/server.config';
@@ -35,13 +36,10 @@ jest.mock('../../../models/interviews.db.queries', () => ({
 const mockUpdate = interviewsQueries.update as jest.MockedFunction<typeof interviewsQueries.update>;
 const mockGetInterviewByUuid = interviewsQueries.getInterviewByUuid as jest.MockedFunction<typeof interviewsQueries.getInterviewByUuid>;
 
-type CustomSurvey = {
-    accessCode: string;
-    testFields: {
-        fieldA: string;
-        fieldB: string;
-    }
-}
+jest.mock('../../../models/paradataEvents.db.queries', () => ({
+    log: jest.fn()
+}));
+const mockLog = paradataEventsQueries.log as jest.MockedFunction<typeof paradataEventsQueries.log>;
 
 const interviewAttributes: InterviewAttributes = {
     uuid: uuidV4(),
@@ -58,8 +56,7 @@ const interviewAttributes: InterviewAttributes = {
         }
     } as any,
     survey_id: 1,
-    validations: {},
-    logs: []
+    validations: {}
 };
 (interviewsQueries.update as any).mockResolvedValue({ uuid: interviewAttributes.uuid });
 
@@ -84,7 +81,6 @@ describe('Set interview fields', () => {
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
-            logs: interviewAttributes.logs,
             responses: {
                 accessCode: '2222',
                 testFields: {
@@ -114,7 +110,6 @@ describe('Set interview fields', () => {
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
-            logs: interviewAttributes.logs,
             responses: {
                 accessCode: '2222',
                 newField: { foo: 'bar' }
@@ -141,7 +136,6 @@ describe('Set interview fields', () => {
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
-            logs: interviewAttributes.logs,
             responses: {
                 accessCode: '2222',
                 testFields: {
@@ -169,7 +163,6 @@ describe('Set interview fields', () => {
             is_valid: !interviewAttributes.is_valid,
             is_active: !interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
-            logs: interviewAttributes.logs,
             validations: {},
             survey_id: 1
         });
@@ -180,9 +173,7 @@ describe('Set interview fields', () => {
 describe('Update Interview', () => {
 
     beforeEach(async () => {
-        (interviewsQueries.update as any).mockClear();
-        mockedServerValidate.mockClear();
-        mockedServerUpdate.mockClear();
+        jest.clearAllMocks();
     });
 
     test('With values by path', async() => {
@@ -199,6 +190,7 @@ describe('Update Interview', () => {
         expectedUpdatedValues.responses.foo = 'abc';
         expectedUpdatedValues.responses.testFields.fieldA = 'new';
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With values by path, and user action not a "widgetInteraction"', async() => {
@@ -217,6 +209,7 @@ describe('Update Interview', () => {
         expectedUpdatedValues.responses.foo = 'abc';
         expectedUpdatedValues.responses.testFields.fieldA = 'new';
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With values by path, unset path and user action of type "widgetInteraction"', async() => {
@@ -243,6 +236,7 @@ describe('Update Interview', () => {
         expectedUpdatedValues.responses.bar = 100;
         delete expectedUpdatedValues.responses.accessCode;
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('Specifying fields to update', async() => {
@@ -261,6 +255,7 @@ describe('Update Interview', () => {
             validated_data: { foo: 'abc' },
         };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With completed', async() => {
@@ -297,6 +292,7 @@ describe('Update Interview', () => {
         expect(interviewsQueries.update).toHaveBeenCalledTimes(3);
 
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: null });
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With valid', async() => {
@@ -333,6 +329,7 @@ describe('Update Interview', () => {
         expect(interviewsQueries.update).toHaveBeenCalledTimes(3);
 
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: null });
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With no field to be updated', async() => {
@@ -347,6 +344,7 @@ describe('Update Interview', () => {
             validations: _cloneDeep(interviewAttributes.validations)
         };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With invalid server validations', async() => {
@@ -379,6 +377,7 @@ describe('Update Interview', () => {
         expectedUpdatedValues.responses.foo = 'abc';
         expectedUpdatedValues.validations.foo = false;
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With server field updates', async() => {
@@ -415,6 +414,7 @@ describe('Update Interview', () => {
         delete expectedUpdatedValues.responses.accessCode;
         expectedUpdatedValues.validations = { testFields: { fieldA: valuesByPath['validations.testFields.fieldA'] } };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With server field updates and execution callback', async() => {
@@ -475,6 +475,7 @@ describe('Update Interview', () => {
         };
         asyncExpectedUpdatedValues.responses.testFields.fieldC = asyncUpdatedValuesByPath['responses.testFields.fieldC'];
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, asyncExpectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With server field updates and redirect URL', async() => {
@@ -512,6 +513,7 @@ describe('Update Interview', () => {
         delete expectedUpdatedValues.responses.accessCode;
         expectedUpdatedValues.validations = { testFields: { fieldA: valuesByPath['validations.testFields.fieldA'] } };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
     });
 
     test('With logs', async() => {
@@ -521,10 +523,6 @@ describe('Update Interview', () => {
             const testAttributes = _cloneDeep(interviewAttributes);
             const valuesByPath = { 'responses.foo': 'abc' };
             testAttributes.responses._updatedAt = updatedAt;
-            testAttributes.logs = [{
-                timestamp: 12,
-                valuesByPath: {}
-            }];
             const interview = await updateInterview(testAttributes, { valuesByPath });
             expect(interview.interviewId).toEqual(testAttributes.uuid);
             expect(interview.serverValidations).toEqual(true);
@@ -533,18 +531,15 @@ describe('Update Interview', () => {
             const expectedUpdatedValues = {
                 responses: _cloneDeep(interviewAttributes.responses) as any,
                 validations: _cloneDeep(interviewAttributes.validations),
-                logs: [{
-                    timestamp: 12,
-                    valuesByPath: {}
-                },
-                {
-                    timestamp: updatedAt,
-                    valuesByPath
-                }]
             };
             expectedUpdatedValues.responses.foo = 'abc';
             expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+            expect(mockLog).toHaveBeenCalledWith({
+                interviewId: testAttributes.id,
+                eventType: 'legacy',
+                eventData: { valuesByPath }
+            });
         } finally {
             (config as any).logDatabaseUpdates = false;
         }
@@ -557,10 +552,6 @@ describe('Update Interview', () => {
             const testAttributes = _cloneDeep(interviewAttributes);
             const valuesByPath = { 'responses.foo': 'abc' };
             testAttributes.responses._updatedAt = updatedAt;
-            testAttributes.logs = [{
-                timestamp: 12,
-                valuesByPath: {}
-            }];
             const interview = await updateInterview(testAttributes, { valuesByPath, logData: { shouldBeInLog: 'test' } });
             expect(interview.interviewId).toEqual(testAttributes.uuid);
             expect(interview.serverValidations).toEqual(true);
@@ -568,20 +559,16 @@ describe('Update Interview', () => {
 
             const expectedUpdatedValues = {
                 responses: _cloneDeep(interviewAttributes.responses) as any,
-                validations: _cloneDeep(interviewAttributes.validations),
-                logs: [{
-                    timestamp: 12,
-                    valuesByPath: {}
-                },
-                {
-                    shouldBeInLog: 'test',
-                    timestamp: updatedAt,
-                    valuesByPath
-                }]
+                validations: _cloneDeep(interviewAttributes.validations)
             };
             expectedUpdatedValues.responses.foo = 'abc';
             expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+            expect(mockLog).toHaveBeenCalledWith({
+                interviewId: testAttributes.id,
+                eventType: 'legacy',
+                eventData: { valuesByPath, shouldBeInLog: 'test' }
+            });
         } finally {
             (config as any).logDatabaseUpdates = false;
         }
