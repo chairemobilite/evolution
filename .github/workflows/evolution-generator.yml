@@ -10,25 +10,47 @@ on:
     branches: [ main ]
 
 jobs:
-  generate-and-build:
+  generate-build-and-test:
     runs-on: ubuntu-24.04 # As of Nov 2024, ubuntu-latest is too old for peotry
+    services:
+      postgres:
+        image: postgis/postgis
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        env:
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: testdb
+    strategy:
+      matrix:
+        node-version: [22.x]
+    env:
+      PROJECT_CONFIG: ${{ github.workspace }}/example/demo_generator/config.js
+      PG_CONNECTION_STRING_PREFIX: postgres://testuser:testpassword@localhost:5432/
+      PG_DATABASE_PRODUCTION: testdb
+      CI: true ## This is to make sure that the tests run in CI mode
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: true
     - name: copy env file
       run: cp .env.example .env
-    - name: Use Node.js 22
+    - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
-        node-version: 22.x # Latest stable as of Nov 2024
+        node-version: ${{ matrix.node-version }}
     - name: Install poetry
       run: pipx install poetry
     - name: Run Poetry
       working-directory: packages/evolution-generator
       run: poetry install
     - name: Generate survey
-      run: yarn generateSurvey:example
+      run: yarn generateSurvey:generator
     - name: Install
       run: yarn
     - name: Format python
@@ -44,4 +66,28 @@ jobs:
     - name: Compile Evolution
       run: yarn compile
     - name: Compile Generated survey
-      run: yarn workspace demo_generator run compile:example
+      run: yarn compile:generator
+    - name: Build Client bundle
+      run: yarn build:prod:generator
+      # Skipped build:admin:generator since we don't have UI for them at the moment
+    - name: Create DB
+      run: yarn setup && yarn migrate
+      env:
+        NODE_ENV: production
+    - name: Get Playwright config
+      run: cp packages/evolution-frontend/playwright-example.config.ts example/demo_generator/playwright.config.ts
+    - name: Start application
+      run: yarn start:generator &
+      env:
+        NODE_ENV: production
+    - name: Run tests
+      run: yarn test:ui:generator
+    - name: Archive UI Test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-results-${{matrix.node-version}} # This is to make sure that the results are stored in a unique name
+        path: example/demo_generator/test-results
+        retention-days: 2
+      # End of automated UI tests
+

@@ -13,14 +13,29 @@ You can see the documentation for the Evolution-Generator [here](../../packages/
 To generate the files, run the following command from the root of the `evolution` project:
 
 ```bash
-yarn generateSurvey:example
+yarn generateSurvey:generator
 ```
 
 ## How to Start
 
 To start using this demo, follow the steps below:
 
-> **Note:** This section will be updated soon with more detailed instructions.
+1. After generating the files, navigate to the root of the `evolution` project.
+
+2. Run the following commands in sequence:
+
+    ```bash
+    yarn install
+    yarn compile
+    yarn compile:generator
+    yarn build:prod:generator
+    yarn setup
+    yarn migrate
+    yarn start:generator
+    yarn test:ui:generator
+    ```
+
+These steps will set up the project, compile the necessary files, and start the generator along with running UI tests.
 
 ## Limitations
 

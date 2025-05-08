@@ -14,7 +14,7 @@ export type CommonTestParametersModify = testHelpers.CommonTestParameters & {
 
 // Complete landing page tests
 export const completeLandingPageTests = ({ context }: CommonTestParametersModify) => {
-    testHelpers.hasTitleTest({ context, title: 'Household Travel Survey' });
+    testHelpers.hasTitleTest({ context, title: 'Enquête sur les déplacements des ménages' });
     testHelpers.hasFrenchTest({ context });
     testHelpers.switchToEnglishTest({ context });
     testHelpers.hasConsentTest({ context });
