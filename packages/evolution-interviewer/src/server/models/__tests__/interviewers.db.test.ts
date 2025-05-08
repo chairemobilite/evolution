@@ -83,6 +83,7 @@ afterAll(async() => {
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'users');
     await truncate(knex, 'sv_participants');
+    await knex.destroy();
 });
 
 describe('getInterviewerDataBatch', () => {
@@ -101,7 +102,7 @@ describe('getInterviewerDataBatch', () => {
                 update_count: (i + 1) * 4,
                 created_at: moment('2023-08-24 22:57:00'),
                 updated_at: moment('2023-08-24 22:59:00')
-            } as any, 'interview_id');
+            } as any, { returning: 'interview_id'});
         }
         for (let i = 3; i < 5; i++) {
             await create(knex, 'sv_interviews_accesses', undefined, {
@@ -111,7 +112,7 @@ describe('getInterviewerDataBatch', () => {
                 update_count: (i + 1) * 4,
                 created_at: moment('2023-08-24 22:57:00'),
                 updated_at: moment('2023-08-24 22:59:00')
-            } as any, 'interview_id');
+            } as any, { returning: 'interview_id'});
         }
 
         // Test
@@ -135,7 +136,7 @@ describe('getInterviewerDataBatch', () => {
                 updated_at: moment(`2023-08-${24 + i} 22:59:00`)
             };
             interviewerData.localUser.push(data);
-            await create(knex, 'sv_interviews_accesses', undefined, data as any, 'interview_id');
+            await create(knex, 'sv_interviews_accesses', undefined, data as any, { returning: 'interview_id'});
         }
         // anotherUser edited 4 interviews, embedded within a week (from august 21 to 27)
         for (let i = 0; i < 4; i++) {
@@ -148,7 +149,7 @@ describe('getInterviewerDataBatch', () => {
                 updated_at: moment(`2023-08-${24 + i} 22:59:00`)
             };
             interviewerData.anotherUser.push(data);
-            await create(knex, 'sv_interviews_accesses', undefined, data as any, 'interview_id');
+            await create(knex, 'sv_interviews_accesses', undefined, data as any, { returning: 'interview_id'});
         }
 
         const findData = (dbData, toFind) => dbData.findIndex(data => toFind.interview_id === data.interview_id && toFind.user_id === data.user_id) !== -1;
@@ -203,7 +204,7 @@ describe('getInterviewerDataBatch', () => {
                     update_count: (i + 1) * 4,
                     created_at: moment('2023-08-24 22:57:00'),
                     updated_at: moment('2023-08-24 22:59:00')
-                } as any, 'interview_id');
+                } as any, { returning: 'interview_id'});
                 expectedResults.push({
                     email: localUser.email, 
                     interview_id: i
@@ -217,7 +218,7 @@ describe('getInterviewerDataBatch', () => {
                     update_count: (i + 1) * 4,
                     created_at: moment('2023-08-24 22:57:00'),
                     updated_at: moment('2023-08-24 22:59:00')
-                } as any, 'interview_id');
+                } as any, { returning: 'interview_id'});
                 expectedResults.push({
                     email: anotherUser.email, 
                     interview_id: i

@@ -10,8 +10,9 @@ import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.qu
 import { _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 import dbQueries from '../interviews.db.queries';
-import { InterviewAttributes, INTERVIEWER_PARTICIPANT_PREFIX, InterviewListAttributes, InterviewResponses } from 'evolution-common/lib/services/interviews/interview';
+import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 import moment from 'moment';
+import { InterviewAttributes, InterviewListAttributes, InterviewResponses } from 'evolution-common/lib/services/questionnaire/types';
 
 const permission1 = 'role1';
 const permission2 = 'role2';
