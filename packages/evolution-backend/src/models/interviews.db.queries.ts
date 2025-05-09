@@ -790,56 +790,6 @@ const getInterviewsStream = function (params: {
     return interviewsQuery.stream();
 };
 
-/**
- * Streams the interview logs.  Logs will be split such that each row is a
- * single timestamped log data from the logs array.
- *
- * @param {number|undefined} interviewId The id of the interview to get the logs for
- * @returns An interview logs stream. Returned fields are the interview id,
- * uuid, updated_at, is_valid, is_completed, is_validated, is_questionable, as
- * well as for each log entry the timestamp and the values_by_path and
- * unset_paths data
- */
-const getInterviewLogsStream = function (_interviewId?: number) {
-    throw new Error('Not implemented yet');
-
-    // FIXME: Log streams will come back in the next commits
-    /* const select = [
-        'i.id',
-        'i.uuid',
-        'i.updated_at',
-        'i.is_valid',
-        'i.is_completed',
-        'i.is_validated',
-        'i.is_questionable',
-        knex.raw('json_array_elements(logs) as logEntry')
-    ];
-
-    const interviewsLogEntriesQuery = knex
-        .select(...select)
-        .from(`${tableName} as i`)
-        .whereNotNull('logs');
-    if (interviewId) {
-        interviewsLogEntriesQuery.andWhere('i.id', interviewId);
-    }
-    return knex
-        .select([
-            'id',
-            'uuid',
-            'updated_at',
-            'is_valid',
-            'is_completed',
-            'is_validated',
-            'is_questionable',
-            knex.raw('(logEntry->>\'timestamp\')::numeric as timestamp'),
-            knex.raw('logEntry->\'valuesByPath\' as values_by_path'),
-            knex.raw('logEntry->\'unsetPaths\' as unset_paths')
-        ])
-        .from(interviewsLogEntriesQuery)
-        .orderBy(['id', 'timestamp'])
-        .stream(); */
-};
-
 export default {
     findByResponse,
     getInterviewByUuid,
@@ -849,6 +799,5 @@ export default {
     update,
     getList,
     getValidationAuditStats,
-    getInterviewsStream,
-    getInterviewLogsStream
+    getInterviewsStream
 };
