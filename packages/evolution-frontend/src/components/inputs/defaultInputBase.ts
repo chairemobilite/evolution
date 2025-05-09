@@ -136,9 +136,9 @@ export const inputMapFindPlaceBase: Pick<
         size: [70, 70]
     },
     defaultCenter: config.mapDefaultCenter,
-    refreshGeocodingLabel: (t: TFunction) => t('customLibelle:RefreshGeocodingLabel'),
+    refreshGeocodingLabel: (t: TFunction) => t('customLabel:RefreshGeocodingLabel'),
     showSearchPlaceButton: () => true,
-    afterRefreshButtonText: (t: TFunction) => t('customLibelle:GeographyAfterRefresh'),
+    afterRefreshButtonText: (t: TFunction) => t('customLabel:GeographyAfterRefresh'),
     validations: (value, _customValue, interview, path) => {
         const geography: any = surveyHelper.getResponse(interview, path as string, null);
         return [

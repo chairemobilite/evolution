@@ -330,9 +330,9 @@ def generate_import_statements(
     custom_conditionals_import = (
         "// " if not has_custom_conditionals_import else ""
     ) + "import * as customConditionals from '../../common/customConditionals';\n"
-    help_popup_import = (
+    custom_help_popup_import = (
         "// " if not has_help_popup_import else ""
-    ) + "import * as helpPopup from '../../common/helpPopup';\n"
+    ) + "import * as customHelpPopup from '../../common/customHelpPopup';\n"
     input_range_import = (
         "// " if not has_input_range_import else ""
     ) + "import * as inputRange from '../../common/inputRange';\n"
@@ -350,17 +350,17 @@ def generate_import_statements(
         f"import {{ TFunction }} from 'i18next';\n"
         f"import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';\n"
         f"import {{ defaultConditional }} from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';\n"
+        f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
+        f"import * as validations from 'evolution-common/lib/services/widgets/validations/validations';\n"
         f"{choices_import}"
         f"{conditionals_import}"
-        f"{custom_conditionals_import}"
-        f"{custom_widgets_import}"
-        f"{help_popup_import}"
-        f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
         f"{input_range_import}"
-        f"{custom_validations_import}"
-        f"import * as validations from 'evolution-common/lib/services/widgets/validations/validations';\n"
         f"{cnt_person_import}"
         f"{gendered_suffix_import}"
+        f"{custom_conditionals_import}"
+        f"{custom_widgets_import}"
+        f"{custom_help_popup_import}"
+        f"{custom_validations_import}"
     )
 
 
@@ -419,14 +419,14 @@ def generate_label(
 
 def generate_help_popup(help_popup, comma=True, skip_line=True):
     if help_popup:
-        return f"{INDENT}helpPopup: helpPopup.{help_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
+        return f"{INDENT}helpPopup: customHelpPopup.{help_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
     else:
         return ""
 
 
 def generate_confirm_popup(confirm_popup, comma=True, skip_line=True):
     if confirm_popup:
-        return f"{INDENT}confirmPopup: helpPopup.{confirm_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
+        return f"{INDENT}confirmPopup: customHelpPopup.{confirm_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
     else:
         return ""
 

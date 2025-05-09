@@ -28,7 +28,7 @@ To start using this demo, follow the steps below:
     yarn install
     yarn compile
     yarn compile:generator
-    yarn build:prod:generator
+    yarn build:dev:generator
     yarn setup
     yarn migrate
     yarn start:generator
