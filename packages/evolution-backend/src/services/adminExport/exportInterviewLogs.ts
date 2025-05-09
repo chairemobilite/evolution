@@ -10,7 +10,7 @@ import { unparse } from 'papaparse';
 
 import { execJob } from '../../tasks/serverWorkerPool';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
-import interviewsDbQueries from '../../models/interviews.db.queries';
+import paradataEventsQueries from '../../models/paradataEvents.db.queries';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 export const filePathOnServer = 'exports/interviewLogs';
@@ -116,8 +116,7 @@ export const exportInterviewLogTask = async function ({
 
     console.log('reading interview log data...');
 
-    // FIXME Fix this type when stream is back
-    const queryStream = interviewsDbQueries.getInterviewLogsStream(interviewId) as any;
+    const queryStream = paradataEventsQueries.getParadataStream(interviewId);
     let i = 0;
     return new Promise((resolve, reject) => {
         queryStream
@@ -126,8 +125,9 @@ export const exportInterviewLogTask = async function ({
                 reject(error);
             })
             .on('data', (row) => {
-                const { values_by_path, unset_paths, ...logData } = row;
+                const { values_by_path, unset_paths, timestamp_sec, event_date, ...logData } = row;
 
+                // FIXME Filter also on the user_action when we support more than just legacy events
                 // Filter the log data according to export options
                 const { filteredValuesByPath, filteredUnsetPaths } = filterLogData(
                     { values_by_path, unset_paths },
@@ -140,7 +140,13 @@ export const exportInterviewLogTask = async function ({
 
                 // Prepare the log data to export
                 const exportLog = exportLogToRows(
-                    { ...logData, values_by_path: filteredValuesByPath, unset_paths: filteredUnsetPaths },
+                    {
+                        ...logData,
+                        event_date: new Date(event_date).toISOString(),
+                        timestampMs: Math.round(timestamp_sec * 1000),
+                        values_by_path: filteredValuesByPath,
+                        unset_paths: filteredUnsetPaths
+                    },
                     withValues
                 );
 
