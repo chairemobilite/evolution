@@ -1,0 +1,9 @@
+RefreshGeocodingLabel: Chercher le lieu
+GeographyAfterRefresh: >-
+    <strong>Vérifiez que le lieu est bien placé</strong>, sinon déplacez le marqueur
+    ou cliquez au bon endroit sur la carte.
+HomeHouseholdSizeHelpContent: >-
+    <ul><li><strong>Inclure:</strong></li><ul><li>Vous-même</li><li>Les enfants en
+    garde partagée s'ils étaient présents à votre domicile le {{assignedDate}}</li><li>Les
+    chambreuses, chambreurs et colocataires, ainsi que tous ceux et celles qui vivent
+    en  communauté domestique</li></ul></ul>

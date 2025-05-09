@@ -41,7 +41,7 @@ auth:
         Pour vous enregistrer, entrez votre courriel, puis choisissez un mot de passe et confirmez-le.
     usernameOrEmailAlreadyExists: >-
         Votre courriel est déjà enregistré, veuillez utiliser votre compte déjà créé.
-    UseAnonymousLogin: Se connecter de façon anonyme,
+    UseAnonymousLogin: Se connecter de façon anonyme
     WhyLoginInfo: ''
     PasswordlessHeader: ''
     AnonymousLoginExplanation: >-

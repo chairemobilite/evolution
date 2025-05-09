@@ -158,58 +158,58 @@ export const carNumberValidation: ValidationFunction = (value, _customValue, int
 };
 
 /**
- * Verify if the value is a valid number of bikes.
+ * Verify if the value is a valid number of bicycles.
  *
- * The number of bikes must be an integer between 0 and 20.
- * The number of bikes should not be more than 5 times the number of people in the household.
+ * The number of bicycles must be an integer between 0 and 20.
+ * The number of bicycles should not be more than 5 times the number of people in the household.
  *
  * Required interview.responses fields: 'household.size'
  *
  * @see {@link ValidationFunction}
  */
-export const bikeNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
+export const bicycleNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-    const maxBikesPerPerson = 5;
+    const maxBicyclesPerPerson = 5;
 
     return [
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
             errorMessage: {
                 fr: 'Le nombre de vélos est invalide.',
-                en: 'The number of bikes is invalid.'
+                en: 'The number of bicycles is invalid.'
             }
         },
         {
             validation: _isBlank(value),
             errorMessage: {
                 fr: 'Le nombre de vélos est requis.',
-                en: 'The number of bikes is required.'
+                en: 'The number of bicycles is required.'
             }
         },
         {
             validation: Number(value) < 0,
             errorMessage: {
                 fr: 'Le nombre de vélos doit être au moins de 0.',
-                en: 'The number of bikes must be at least 0.'
+                en: 'The number of bicycles must be at least 0.'
             }
         },
-        // The number of bikes should not be 5 times greater than the number of people in the household
+        // The number of bicycles should not be 5 times greater than the number of people in the household
         {
             validation:
                 !_isBlank(householdSize) &&
                 !isNaN(Number(householdSize)) &&
                 typeof householdSize === 'number' &&
-                Number(value) / householdSize > maxBikesPerPerson,
+                Number(value) / householdSize > maxBicyclesPerPerson,
             errorMessage: {
-                fr: `Le nombre de vélos doit être au maximum ${Number(householdSize) * maxBikesPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne sont pas utilisés régulièrement.`,
-                en: `The number of bikes must be at most ${Number(householdSize) * maxBikesPerPerson} for the number of people in the household. Do not include collection bikes or bikes that are not used on a regular basis.`
+                fr: `Le nombre de vélos doit être au maximum ${Number(householdSize) * maxBicyclesPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne sont pas utilisés régulièrement.`,
+                en: `The number of bicycles must be at most ${Number(householdSize) * maxBicyclesPerPerson} for the number of people in the household. Do not include collection bicycles or bicycles that are not used on a regular basis.`
             }
         },
         {
             validation: Number(value) > 20,
             errorMessage: {
                 fr: 'Le nombre de vélos doit être au maximum 20.',
-                en: 'The number of bikes must be at most to 20.'
+                en: 'The number of bicycles must be at most to 20.'
             }
         }
     ];

@@ -1,6 +1,6 @@
-# Run the UI tests
+# This workflow is used to run the UI test for the Demo-Generator application.
 
-name: UI Tests
+name: Generator UI Test
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
   # We are not running on Pull Request, since we need the Google API Key
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  generate-build-and-test:
+    runs-on: ubuntu-24.04 # As of Nov 2024, ubuntu-latest is too old for peotry
     services:
       postgres:
         image: postgis/postgis
@@ -28,7 +28,7 @@ jobs:
       matrix:
         node-version: [22.x]
     env:
-      PROJECT_CONFIG: ${{ github.workspace }}/example/demo_survey/config.js
+      PROJECT_CONFIG: ${{ github.workspace }}/example/demo_generator/config.js
       PG_CONNECTION_STRING_PREFIX: postgres://testuser:testpassword@localhost:5432/
       PG_DATABASE_PRODUCTION: testdb
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY_GITHUB_PUBLIC }}
@@ -43,30 +43,50 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Install poetry
+      run: pipx install poetry
+    - name: Run Poetry
+      working-directory: packages/evolution-generator
+      run: poetry install
+    - name: Generate survey
+      run: yarn generateSurvey:generator
     - name: Install
       run: yarn
-    - name: Compile
+    - name: Format python
+      run: yarn format:python
+    - name: Check git status after python format
+      run: |
+        if [[ -n "$(git status --porcelain)" ]]; then
+          echo "Code formatting issues found. Please run 'yarn format' locally and commit changes."
+          git status
+          git diff
+          exit 1
+        fi
+    - name: Compile Evolution
       run: yarn compile
+    - name: Compile Generated survey
+      run: yarn compile:generator
     - name: Build Client bundle
-      run: yarn build:prod
-      # Skipped build:admin since we don't have UI for them at the moment
+      run: yarn build:prod:generator
+      # Skipped build:admin:generator since we don't have UI for them at the moment
     - name: Create DB
       run: yarn setup && yarn migrate
       env:
         NODE_ENV: production
     - name: Get Playwright config
-      run: cp packages/evolution-frontend/playwright-example.config.ts example/demo_survey/playwright.config.ts
+      run: cp packages/evolution-frontend/playwright-example.config.ts example/demo_generator/playwright.config.ts
     - name: Start application
-      run: yarn start &
+      run: yarn start:generator &
       env:
         NODE_ENV: production
-    - name: Run tests
-      run: yarn test:ui
+    - name: Run UI test
+      run: yarn test:ui:generator
     - name: Archive UI Test results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: playwright-results-${{matrix.node-version}} # This is to make sure that the results are stored in a unique name
-        path: example/demo_survey/test-results
+        path: example/demo_generator/test-results
         retention-days: 2
-      # End of automated UI tests
+      # End of automated UI test
+

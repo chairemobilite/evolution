@@ -31,4 +31,10 @@ commonTestsHelpers.completeLandingPageTests({ context });
 commonTestsHelpers.completeLoginPageTests({ context });
 
 // Complete home section tests for a two-person household
-// commonTestsHelpers.completeHomeSectionTests({ context, householdSize: 2 });
+commonTestsHelpers.completeHomeSectionTests({ context, householdSize: 2 });
+
+// Complete household section tests for a two-person household
+commonTestsHelpers.completeHouseholdSectionTests({ context, householdSize: 2 });
+
+// Complete household section tests
+commonTestsHelpers.completeCompletedSectionTests({ context });

@@ -128,13 +128,18 @@ __pycache__/
 # demo_generator example generated files
 example/demo_generator/locales/en/*
 !example/demo_generator/locales/en/survey.yaml
+!example/demo_generator/locales/en/custom*.yaml
 example/demo_generator/locales/fr/*
 !example/demo_generator/locales/fr/survey.yaml
+!example/demo_generator/locales/fr/custom*.yaml
 example/demo_generator/references/*
 !example/demo_generator/references/Household_Travel_Generate_Survey.xlsx
 !example/demo_generator/references/generatorConfigs.yaml
-example/demo_generator/src/survey/common
-example/demo_generator/src/survey/sections
+example/demo_generator/src/survey/common/*
+!example/demo_generator/src/survey/common/custom*.tsx
+example/demo_generator/src/survey/sections/**/*
+!example/demo_generator/src/survey/sections/**/
+!example/demo_generator/src/survey/sections/**/custom*.tsx
 example/demo_generator/src/survey/sections.ts
 example/demo_generator/src/survey/widgetsConfigs.tsx
 example/demo_generator/tests/template-tests-UI.ts
