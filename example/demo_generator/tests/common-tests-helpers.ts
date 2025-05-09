@@ -28,6 +28,9 @@ export const completeLoginPageTests = ({ context }: CommonTestParametersModify) 
 
 // Complete home section tests
 export const completeHomeSectionTests = ({ context, householdSize }: CommonTestParametersModify) => {
+    testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'active', isDisabled: false });
+    testHelpers.sectionProgressBarTest({ context, sectionName: 'Home', completionPercentage: 0 });
+    testHelpers.inputStringTest({ context, path: 'accessCode', value: '0000-0000' });
     testHelpers.inputRadioTest({
         context,
         path: 'acceptToBeContactedForHelp',
@@ -103,5 +106,12 @@ export const completeHomeSectionTests = ({ context, householdSize }: CommonTestP
         context,
         text: 'Save and continue',
         nextPageUrl: '/survey/householdMembers'
+    });
+
+    testHelpers.verifyNavBarButtonStatus({
+        context,
+        buttonText: 'Home',
+        buttonStatus: 'completed',
+        isDisabled: false
     });
 };
