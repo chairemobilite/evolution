@@ -9,6 +9,7 @@ import { participantAuthModel } from '../services/auth/participantAuthModel';
 import Interviews from '../services/interviews/interviews';
 import isAuthorized from 'chaire-lib-backend/lib/services/auth/authorization';
 import { InterviewsSubject } from '../services/auth/roleDefinition';
+import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 
 const router = express.Router();
 
@@ -42,7 +43,11 @@ router.post('/createNew', async (req, res) => {
             userName = `${req.body.createUser}_${suffixCount++}`;
         }
         const participant = await participantAuthModel.createAndSave({ username: userName });
-        const interview = await Interviews.createInterviewForUser(participant.attributes.id, initialResponses);
+        const interview = await Interviews.createInterviewForUser(
+            participant.attributes.id,
+            initialResponses,
+            (req.user as UserAttributes).id
+        );
 
         return res.status(200).json({
             status: 'success',

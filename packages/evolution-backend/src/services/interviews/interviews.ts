@@ -26,6 +26,7 @@ import {
     InterviewListAttributes,
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
+import { getParadataLoggingFunction } from '../logging/paradataLogging';
 
 export type FilterType = string | string[] | ValueFilterType;
 
@@ -99,10 +100,10 @@ export default class Interviews {
     static createInterviewForUser = async (
         participantId: number,
         initialResponses: { [key: string]: any },
+        creatingUserId?: number | undefined,
         returning: string | string[] = 'uuid'
     ): Promise<Partial<InterviewAttributes>> => {
         // TODO Make sure there is no active interview for this user already?
-
         // Create the interview for this user, make sure the start time is set
         const responses = _cloneDeep(initialResponses);
         if (responses._startedAt === undefined) {
@@ -125,6 +126,7 @@ export default class Interviews {
             valuesByPath[`responses.${key}`] = initialResponses[key];
         });
         await updateInterview(userInterview, {
+            logUpdate: getParadataLoggingFunction(userInterview.id, creatingUserId),
             valuesByPath,
             fieldsToUpdate: ['responses']
         });
@@ -275,7 +277,6 @@ export default class Interviews {
                     changesAfterCleaningInterview.valuesByPath.audits = audits;
                     updateInterview(interview, {
                         fieldsToUpdate: ['audits'],
-                        logDatabaseUpdates: false,
                         valuesByPath: changesAfterCleaningInterview.valuesByPath
                     })
                         .then(() => {
@@ -316,7 +317,6 @@ export default class Interviews {
                     const interview = row;
                     updateInterview(interview, {
                         fieldsToUpdate: ['validated_data', 'is_completed', 'is_validated', 'is_valid'],
-                        logDatabaseUpdates: false,
                         valuesByPath: {
                             validated_data: interview.responses,
                             is_completed: null,
