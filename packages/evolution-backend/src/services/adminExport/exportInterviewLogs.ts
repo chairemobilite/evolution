@@ -49,7 +49,7 @@ const exportLogToRows = (
     logData: { values_by_path: { [key: string]: any }; unset_paths: string[]; [key: string]: any },
     withValues: boolean
 ): { [key: string]: any }[] => {
-    const { values_by_path, unset_paths, ...rest } = logData;
+    const { values_by_path, unset_paths, user_action, ...rest } = logData;
     if (!withValues) {
         const { valuesByPath, valuesByPathInit } = Object.entries(values_by_path).reduce(
             (acc: { valuesByPath: string[]; valuesByPathInit: string[] }, [key, value]) => {
@@ -62,9 +62,18 @@ const exportLogToRows = (
             },
             { valuesByPath: [], valuesByPathInit: [] }
         );
+
         return [
             {
                 ...rest,
+                widgetType:
+                    !_isBlank(user_action) && user_action.type === 'widgetInteraction' ? user_action.widgetType : '',
+                widgetPath:
+                    !_isBlank(user_action) && user_action.type === 'widgetInteraction'
+                        ? user_action.path
+                        : !_isBlank(user_action) && user_action.type === 'buttonClick'
+                            ? user_action.buttonId
+                            : '',
                 modifiedFields: !_isBlank(valuesByPath) ? valuesByPath.join('|') : '',
                 initializedFields: !_isBlank(valuesByPathInit) ? valuesByPathInit.join('|') : '',
                 unsetFields: (unset_paths || []).join('|')
@@ -84,6 +93,17 @@ const exportLogToRows = (
                 field: path,
                 value: ''
             }))
+        )
+        .concat(
+            !_isBlank(user_action) && user_action.type === 'widgetInteraction'
+                ? [
+                    {
+                        ...rest,
+                        field: user_action.path,
+                        value: JSON.stringify(user_action.value)
+                    }
+                ]
+                : []
         );
 };
 
