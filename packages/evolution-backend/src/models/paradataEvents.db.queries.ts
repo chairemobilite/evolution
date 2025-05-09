@@ -10,6 +10,14 @@ import TrError from 'chaire-lib-common/lib/utils/TrError';
 const tableName = 'paradata_events';
 const interviewsTable = 'sv_interviews';
 
+type ParadataEventType =
+    | 'legacy'
+    | 'legacy_server'
+    | 'widget_interaction'
+    | 'button_click'
+    | 'side_effect'
+    | 'server_event';
+
 const log = async ({
     interviewId,
     userId,
@@ -18,7 +26,7 @@ const log = async ({
 }: {
     interviewId: number;
     userId?: number;
-    eventType: string;
+    eventType: ParadataEventType;
     eventData?: Record<string, any>;
 }): Promise<boolean> => {
     try {

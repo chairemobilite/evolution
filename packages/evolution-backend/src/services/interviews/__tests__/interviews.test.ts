@@ -13,6 +13,7 @@ import interviewsAccessesQueries from '../../../models/interviewsAccesses.db.que
 import { registerAccessCodeValidationFunction } from '../../accessCode';
 import { updateInterview } from '../interview';
 import moment from 'moment';
+import { getParadataLoggingFunction } from '../../logging/paradataLogging';
 
 jest.mock('../../../models/interviews.db.queries', () => ({
     findByResponse: jest.fn(),
@@ -34,6 +35,11 @@ jest.mock('../interview', () => ({
     updateInterview: jest.fn()
 }));
 const mockInterviewUpdate = updateInterview as jest.MockedFunction<typeof updateInterview>;
+
+jest.mock('../../logging/paradataLogging', () => ({
+    getParadataLoggingFunction: jest.fn().mockReturnValue(undefined)
+}));
+const mockGetParadataLogFunction = getParadataLoggingFunction as jest.MockedFunction<typeof getParadataLoggingFunction>;
 
 // Create 10 interviews, half are active
 const allInterviews = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
@@ -164,9 +170,7 @@ describe('Create interviews', () => {
     let createdInterview: InterviewAttributes | undefined = undefined;
 
     beforeEach(() => {
-        mockDbCreate.mockClear();
-        mockDbGetByUuid.mockClear();
-        mockInterviewUpdate.mockClear();
+        jest.clearAllMocks();
         mockDbCreate.mockImplementationOnce(async (interview, returning = 'uuid') => {
             const newInterview = {
                 ...interview,
@@ -221,7 +225,8 @@ describe('Create interviews', () => {
     });
 
     test('Create and return single other field', async() => {
-        const newInterview = await Interviews.createInterviewForUser(participantId, {}, 'participant_id');
+        const userId = 1;
+        const newInterview = await Interviews.createInterviewForUser(participantId, {}, userId, 'participant_id');
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
@@ -237,7 +242,7 @@ describe('Create interviews', () => {
     test('Create and return many other field', async() => {
         const initialTimeStamp = moment().unix();
         const returningFields = ['participant_id', 'responses', 'uuid'];
-        const newInterview = await Interviews.createInterviewForUser(participantId, {}, returningFields);
+        const newInterview = await Interviews.createInterviewForUser(participantId, {}, undefined, returningFields);
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
@@ -251,6 +256,33 @@ describe('Create interviews', () => {
 
         // Make sure timestamp in response is higher than the one at the beginning of the test
         expect((newInterview.responses as any)._startedAt).toBeGreaterThanOrEqual(initialTimeStamp);
+    });
+
+    test('Create with log update', async() => {
+        mockDbGetByUuid.mockImplementationOnce(async () => createdInterview);
+        // Return a log function and make sure it is passed to the update
+        const logFunction = jest.fn();
+        const userId = 123
+        mockGetParadataLogFunction.mockReturnValueOnce(logFunction);
+
+        const newInterview = await Interviews.createInterviewForUser(participantId, { initial: 'value' }, userId);
+        expect(mockDbCreate).toHaveBeenCalledTimes(1);
+        expect(mockDbCreate).toHaveBeenCalledWith({
+            participant_id: participantId,
+            responses: { _startedAt: expect.anything(), initial: 'value' },
+            is_active: true,
+            validations: {}
+        }, 'uuid');
+        expect(newInterview).toEqual({ uuid: expect.anything() });
+        expect(mockDbGetByUuid).toHaveBeenCalledTimes(1);
+        expect(mockDbGetByUuid).toHaveBeenCalledWith(newInterview.uuid);
+        expect(mockGetParadataLogFunction).toHaveBeenCalledTimes(1);
+        expect(mockGetParadataLogFunction).toHaveBeenCalledWith(createdInterview!.id, userId);
+        expect(mockInterviewUpdate).toHaveBeenCalledWith(createdInterview, {
+            logUpdate: logFunction,
+            valuesByPath: { 'responses.initial': 'value' },
+            fieldsToUpdate: ['responses']
+        });
     });
 
 });
