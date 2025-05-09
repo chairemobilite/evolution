@@ -87,8 +87,7 @@ describe('is User allowed', () => {
             validations: {},
             is_valid: true,
             is_active,
-            survey_id: 1,
-            logs: []
+            survey_id: 1
         };
         expect(isUserAllowed(user, interview, requestedPermissions)).toEqual(expectedResult);
     });

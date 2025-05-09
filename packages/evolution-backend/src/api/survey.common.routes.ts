@@ -19,6 +19,7 @@ import serverConfig from '../config/projectConfig';
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
 import { logClientSide } from '../services/logging/messageLogging';
 import { addRolesToInterview, updateInterview } from '../services/interviews/interview';
+import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
 
 export const activateInterview = async (
     req: Request,
@@ -91,6 +92,7 @@ export default (router: Router, authorizationMiddleware, loggingMiddleware: Inte
                     interview.responses._ip = ip;
                     interview.responses._updatedAt = timestamp;
                     const retInterview = await updateInterview(interview, {
+                        logUpdate: getParadataLoggingFunction(interview.id, loggingMiddleware.getUserIdForLogging(req)),
                         valuesByPath,
                         unsetPaths,
                         userAction,

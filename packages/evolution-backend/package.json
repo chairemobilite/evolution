@@ -40,6 +40,7 @@
         "morgan": "^1.10.0",
         "papaparse": "^5.5.2",
         "passport": "^0.7.0",
+        "p-queue": "^6.6.2",
         "request-ip": "^3.3.0",
         "serve-favicon": "^2.5.0",
         "slugify": "^1.6.6",

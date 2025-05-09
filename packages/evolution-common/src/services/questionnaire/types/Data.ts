@@ -233,7 +233,6 @@ export interface UserInterviewAttributes {
 export interface InterviewAttributes extends UserInterviewAttributes {
     is_active?: boolean;
     is_started?: boolean;
-    logs: { timestamp: number; valuesByPath: { [key: string]: unknown }; unsetPaths?: string[] }[];
     validated_data?: ValidatedResponses;
     audits?: InterviewAudits;
     is_validated?: boolean;

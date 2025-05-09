@@ -74,7 +74,6 @@ describe('runAndSaveInterviewAudits', () => {
     const interviewAttributes: InterviewAttributes = {
         id: interviewId,
         uuid: 'arbitrary',
-        logs: [],
         participant_id: 1,
         is_valid: true,
         responses: {

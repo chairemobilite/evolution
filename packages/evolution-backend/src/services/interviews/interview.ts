@@ -11,7 +11,6 @@ import moment from 'moment';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import serverValidate, { ServerValidation } from '../validations/serverValidation';
 import serverUpdateField from './serverFieldUpdate';
-import config from 'chaire-lib-backend/lib/config/server.config';
 import interviewsDbQueries from '../../models/interviews.db.queries';
 import projectConfig from '../../config/projectConfig';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -20,6 +19,7 @@ import {
     UserAction,
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
+import { ParadataLoggingFunction } from '../logging/paradataLogging';
 
 export const addRolesToInterview = (interview: UserInterviewAttributes, user: UserAttributes) => {
     // Add the userRoles in the interview object
@@ -88,7 +88,7 @@ export const setInterviewFields = (
 export const updateInterview = async (
     interview: InterviewAttributes,
     options: {
-        logDatabaseUpdates?: boolean;
+        logUpdate?: ParadataLoggingFunction;
         valuesByPath: { [key: string]: unknown };
         unsetPaths?: string[];
         userAction?: UserAction;
@@ -134,7 +134,7 @@ export const updateInterview = async (
         }
         // Call the update function again, but without the execution callback to avoid endless loops if the call is made again
         await updateInterview(reloadedInterview, {
-            logDatabaseUpdates: options.logDatabaseUpdates,
+            logUpdate: options.logUpdate,
             valuesByPath: serverValuesByPath,
             fieldsToUpdate: options.fieldsToUpdate,
             logData: { server: true }
@@ -162,10 +162,6 @@ export const updateInterview = async (
     }
     interview.responses = interview.responses || {};
     interview.validations = interview.validations || {};
-    if (!interview.logs || !Array.isArray(interview.logs)) {
-        interview.logs = [];
-        //console.log(interview.logs);
-    }
 
     const databaseUpdateJson: Partial<InterviewAttributes> = {};
     fieldsToUpdate.forEach((field) => {
@@ -174,32 +170,22 @@ export const updateInterview = async (
         (databaseUpdateJson as any)[field] = interview[field];
     });
 
-    // logs if configured:
-    // FIXME Type evolution's configs
-    if (options.logDatabaseUpdates !== false && (config as any).logDatabaseUpdates) {
-        const timestamp = interview.responses._updatedAt || moment().unix();
-        if (options.unsetPaths) {
-            interview.logs.push({
-                ...logData,
-                timestamp,
-                valuesByPath: options.valuesByPath,
-                unsetPaths: options.unsetPaths
-            });
-        } else {
-            interview.logs.push({
-                ...logData,
-                timestamp,
-                valuesByPath: options.valuesByPath
-            });
-        }
-        databaseUpdateJson.logs = interview.logs;
-    }
-
     // Freeze the interviews when they are marked validated or completed (the participant won't be able to change the answers anymore)
     if (!_isBlank(databaseUpdateJson.is_valid) || !_isBlank(databaseUpdateJson.is_completed)) {
         databaseUpdateJson.is_frozen = true;
     }
     const retInterview = await interviewsDbQueries.update(interview.uuid, databaseUpdateJson);
+    // logs this update event, asynchronously to avoid blocking the flow
+    options.logUpdate?.({
+        valuesByPath: options.valuesByPath,
+        userAction: options.userAction,
+        unsetPaths: options.unsetPaths,
+        server: !!logData.server
+    });
+    // Log additional server update if necessary
+    if (Object.keys(serverValuesByPath).length > 0) {
+        options.logUpdate?.({ valuesByPath: serverValuesByPath, server: true });
+    }
     return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath, redirectUrl };
 };
 

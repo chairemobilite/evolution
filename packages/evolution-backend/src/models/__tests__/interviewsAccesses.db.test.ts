@@ -49,7 +49,6 @@ const localUserInterviewAttributes = {
         booleanField: true,
     },
     validations: {},
-    logs: [],
     audits: { errorOne: 3, errorThree: 1 }
 } as any;
 

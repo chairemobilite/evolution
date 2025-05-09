@@ -10,7 +10,7 @@ import { unparse } from 'papaparse';
 
 import { execJob } from '../../tasks/serverWorkerPool';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
-import interviewsDbQueries from '../../models/interviews.db.queries';
+import paradataEventsQueries from '../../models/paradataEvents.db.queries';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 export const filePathOnServer = 'exports/interviewLogs';
@@ -49,7 +49,7 @@ const exportLogToRows = (
     logData: { values_by_path: { [key: string]: any }; unset_paths: string[]; [key: string]: any },
     withValues: boolean
 ): { [key: string]: any }[] => {
-    const { values_by_path, unset_paths, ...rest } = logData;
+    const { values_by_path, unset_paths, user_action, ...rest } = logData;
     if (!withValues) {
         const { valuesByPath, valuesByPathInit } = Object.entries(values_by_path).reduce(
             (acc: { valuesByPath: string[]; valuesByPathInit: string[] }, [key, value]) => {
@@ -62,9 +62,18 @@ const exportLogToRows = (
             },
             { valuesByPath: [], valuesByPathInit: [] }
         );
+
         return [
             {
                 ...rest,
+                widgetType:
+                    !_isBlank(user_action) && user_action.type === 'widgetInteraction' ? user_action.widgetType : '',
+                widgetPath:
+                    !_isBlank(user_action) && user_action.type === 'widgetInteraction'
+                        ? user_action.path
+                        : !_isBlank(user_action) && user_action.type === 'buttonClick'
+                            ? user_action.buttonId
+                            : '',
                 modifiedFields: !_isBlank(valuesByPath) ? valuesByPath.join('|') : '',
                 initializedFields: !_isBlank(valuesByPathInit) ? valuesByPathInit.join('|') : '',
                 unsetFields: (unset_paths || []).join('|')
@@ -84,6 +93,17 @@ const exportLogToRows = (
                 field: path,
                 value: ''
             }))
+        )
+        .concat(
+            !_isBlank(user_action) && user_action.type === 'widgetInteraction'
+                ? [
+                    {
+                        ...rest,
+                        field: user_action.path,
+                        value: JSON.stringify(user_action.value)
+                    }
+                ]
+                : []
         );
 };
 
@@ -116,7 +136,7 @@ export const exportInterviewLogTask = async function ({
 
     console.log('reading interview log data...');
 
-    const queryStream = interviewsDbQueries.getInterviewLogsStream(interviewId);
+    const queryStream = paradataEventsQueries.getParadataStream(interviewId);
     let i = 0;
     return new Promise((resolve, reject) => {
         queryStream
@@ -125,8 +145,9 @@ export const exportInterviewLogTask = async function ({
                 reject(error);
             })
             .on('data', (row) => {
-                const { values_by_path, unset_paths, ...logData } = row;
+                const { values_by_path, unset_paths, timestamp_sec, event_date, ...logData } = row;
 
+                // FIXME Filter also on the user_action when we support more than just legacy events
                 // Filter the log data according to export options
                 const { filteredValuesByPath, filteredUnsetPaths } = filterLogData(
                     { values_by_path, unset_paths },
@@ -139,7 +160,13 @@ export const exportInterviewLogTask = async function ({
 
                 // Prepare the log data to export
                 const exportLog = exportLogToRows(
-                    { ...logData, values_by_path: filteredValuesByPath, unset_paths: filteredUnsetPaths },
+                    {
+                        ...logData,
+                        event_date: new Date(event_date).toISOString(),
+                        timestampMs: Math.round(timestamp_sec * 1000),
+                        values_by_path: filteredValuesByPath,
+                        unset_paths: filteredUnsetPaths
+                    },
                     withValues
                 );
 

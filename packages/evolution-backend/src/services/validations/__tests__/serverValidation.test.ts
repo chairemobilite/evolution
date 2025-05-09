@@ -32,7 +32,6 @@ const interviewAttributes: InterviewAttributes = {
     is_questionable: false,
     responses: {},
     validations: {},
-    logs: [],
     survey_id: 1
 };
 

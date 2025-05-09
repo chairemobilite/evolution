@@ -21,6 +21,7 @@ import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtension
 import { Audits } from '../services/audits/Audits';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import validateUuidMiddleware from './helpers/validateUuidMiddleware';
+import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
 
 const router = express.Router();
 
@@ -114,6 +115,7 @@ router.post(
                 ];
                 interview.responses._updatedAt = timestamp;
                 const retInterview = await updateInterview(interview, {
+                    logUpdate: getParadataLoggingFunction(interview.id, (req.user as UserAttributes).id),
                     valuesByPath: mappedValuesByPath,
                     unsetPaths,
                     userAction,
