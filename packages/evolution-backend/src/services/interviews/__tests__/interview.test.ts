@@ -10,12 +10,12 @@ import { v4 as uuidV4 } from 'uuid';
 import { updateInterview, setInterviewFields, copyResponsesToValidatedData } from '../interview';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import interviewsQueries from '../../../models/interviews.db.queries';
-import paradataEventsQueries from '../../../models/paradataEvents.db.queries';
 import serverValidate from '../../validations/serverValidation';
 import serverUpdate from '../serverFieldUpdate';
 import config from 'chaire-lib-backend/lib/config/server.config';
 import { registerServerUpdateCallbacks } from '../../../config/projectConfig';
 import TestUtils from 'chaire-lib-common/lib/test/TestUtils';
+import { ParadataLoggingFunction } from '../../logging/paradataLogging';
 
 jest.mock('../../validations/serverValidation', () =>
     jest.fn()
@@ -36,10 +36,7 @@ jest.mock('../../../models/interviews.db.queries', () => ({
 const mockUpdate = interviewsQueries.update as jest.MockedFunction<typeof interviewsQueries.update>;
 const mockGetInterviewByUuid = interviewsQueries.getInterviewByUuid as jest.MockedFunction<typeof interviewsQueries.getInterviewByUuid>;
 
-jest.mock('../../../models/paradataEvents.db.queries', () => ({
-    log: jest.fn()
-}));
-const mockLog = paradataEventsQueries.log as jest.MockedFunction<typeof paradataEventsQueries.log>;
+const mockLog = jest.fn() as jest.MockedFunction<ParadataLoggingFunction>;
 
 const interviewAttributes: InterviewAttributes = {
     uuid: uuidV4(),
@@ -417,7 +414,7 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With server field updates and execution callback', async() => {
+    test('With server field updates and execution callback, with paradata logging', async() => {
         const deferredUpdateCallback = jest.fn();
         const testAttributes = _cloneDeep(interviewAttributes);
         const valuesByPath = { 'responses.testFields.fieldB': 'abc', 'responses.testFields.fieldA': 'clientVal', 'validations.testFields.fieldA': true };
@@ -448,7 +445,7 @@ describe('Update Interview', () => {
         const reloadedInterview = { ...testAttributes, responses: expectedUpdatedValues.responses, validations: expectedUpdatedValues.validations }
         mockGetInterviewByUuid.mockResolvedValueOnce(reloadedInterview);
 
-        const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths, deferredUpdateCallback });
+        const interview = await updateInterview(testAttributes, { logUpdate: mockLog, valuesByPath, unsetPaths, deferredUpdateCallback });
         await TestUtils.flushPromises();
         registerServerUpdateCallbacks([]);
         expect(interview).toEqual({
@@ -475,7 +472,23 @@ describe('Update Interview', () => {
         };
         asyncExpectedUpdatedValues.responses.testFields.fieldC = asyncUpdatedValuesByPath['responses.testFields.fieldC'];
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, asyncExpectedUpdatedValues);
-        expect(mockLog).not.toHaveBeenCalled();
+        expect(mockLog).toHaveBeenCalledTimes(3);
+        // Should have been called once with server false with original updated data
+        expect(mockLog).toHaveBeenCalledWith({
+            server: false,
+            valuesByPath,
+            unsetPaths
+        });
+        // Should have been called once with server flag and simple updated values by path
+        expect(mockLog).toHaveBeenCalledWith({
+            server: true,
+            valuesByPath: updatedValuesByPath
+        });
+        // Should have been called once with server flag and async values by path
+        expect(mockLog).toHaveBeenCalledWith({
+            server: true,
+            valuesByPath: asyncUpdatedValuesByPath
+        });
     });
 
     test('With server field updates and redirect URL', async() => {
@@ -517,13 +530,17 @@ describe('Update Interview', () => {
     });
 
     test('With logs', async() => {
-        (config as any).logDatabaseUpdates = true;
         try {
+            // Prepare data to update
             const updatedAt = 1234; // Update timestamp
             const testAttributes = _cloneDeep(interviewAttributes);
             const valuesByPath = { 'responses.foo': 'abc' };
             testAttributes.responses._updatedAt = updatedAt;
-            const interview = await updateInterview(testAttributes, { valuesByPath });
+
+            // Do the update
+            const interview = await updateInterview(testAttributes, { logUpdate: mockLog, valuesByPath });
+
+            // Validate the resulting updates
             expect(interview.interviewId).toEqual(testAttributes.uuid);
             expect(interview.serverValidations).toEqual(true);
             expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
@@ -535,24 +552,24 @@ describe('Update Interview', () => {
             expectedUpdatedValues.responses.foo = 'abc';
             expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
-            expect(mockLog).toHaveBeenCalledWith({
-                interviewId: testAttributes.id,
-                eventType: 'legacy',
-                eventData: { valuesByPath }
-            });
+            expect(mockLog).toHaveBeenCalledWith({ valuesByPath, server: false });
         } finally {
             (config as any).logDatabaseUpdates = false;
         }
     });
 
     test('With default logs', async() => {
-        (config as any).logDatabaseUpdates = true;
         try {
+            // Prepare data to update
             const updatedAt = 1234; // Update timestamp
             const testAttributes = _cloneDeep(interviewAttributes);
             const valuesByPath = { 'responses.foo': 'abc' };
             testAttributes.responses._updatedAt = updatedAt;
-            const interview = await updateInterview(testAttributes, { valuesByPath, logData: { shouldBeInLog: 'test' } });
+
+            // Do the update
+            const interview = await updateInterview(testAttributes, { logUpdate: mockLog, valuesByPath, logData: { shouldBeInLog: 'test' } });
+
+            // Validate the resulting updates
             expect(interview.interviewId).toEqual(testAttributes.uuid);
             expect(interview.serverValidations).toEqual(true);
             expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
@@ -564,11 +581,7 @@ describe('Update Interview', () => {
             expectedUpdatedValues.responses.foo = 'abc';
             expectedUpdatedValues.responses._updatedAt = updatedAt;
             expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
-            expect(mockLog).toHaveBeenCalledWith({
-                interviewId: testAttributes.id,
-                eventType: 'legacy',
-                eventData: { valuesByPath, shouldBeInLog: 'test' }
-            });
+            expect(mockLog).toHaveBeenCalledWith({ valuesByPath, server: false });
         } finally {
             (config as any).logDatabaseUpdates = false;
         }
@@ -589,6 +602,26 @@ describe('Update Interview', () => {
             error = err;
         }
         expect(error).toBeDefined();
+
+    });
+
+    test('Database error and logging', async() => {
+        const testAttributes = _cloneDeep(interviewAttributes);
+        (interviewsQueries.update as any).mockRejectedValueOnce('fake error');
+
+        let error: unknown = undefined;
+        try {
+            await updateInterview(testAttributes,
+                {
+                    logUpdate: mockLog,
+                    valuesByPath: { 'responses.foo': 'abc', 'responses.testFields.fieldA': 'new' }
+                }
+            );
+        } catch (err) {
+            error = err;
+        }
+        expect(error).toBeDefined();
+        expect(mockLog).not.toHaveBeenCalled();
 
     });
 

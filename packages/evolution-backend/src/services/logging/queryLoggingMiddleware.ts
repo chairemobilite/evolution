@@ -12,6 +12,8 @@ import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.quer
 export type InterviewLoggingMiddlewares = {
     openingInterview: (validationMode: boolean) => (req: Request, res: Response, next: NextFunction) => void;
     updatingInterview: (validationMode: boolean) => (req: Request, res: Response, next: NextFunction) => void;
+    /** Get the ID of the user to whom logs should be associated with. Participants should return undefined */
+    getUserIdForLogging: (req: Request) => number | undefined;
 };
 
 const openingInterview = (validationMode: boolean) => (req: Request, _res: Response, next: NextFunction) => {
@@ -40,10 +42,12 @@ const updatingInterview = (validationMode: boolean) => (req: Request, _res: Resp
 
 export const defaultMiddlewares: InterviewLoggingMiddlewares = {
     openingInterview: () => (_req: Request, _res: Response, next: NextFunction) => next(),
-    updatingInterview: () => (_req: Request, _res: Response, next: NextFunction) => next()
+    updatingInterview: () => (_req: Request, _res: Response, next: NextFunction) => next(),
+    getUserIdForLogging: (_req: Request) => undefined
 };
 
 export const logUserAccessesMiddleware: InterviewLoggingMiddlewares = {
     openingInterview,
-    updatingInterview
+    updatingInterview,
+    getUserIdForLogging: (req: Request) => (req.user as UserAttributes).id
 };
