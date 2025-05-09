@@ -6,16 +6,16 @@
  */
 import Papa from 'papaparse';
 import { ObjectReadableMock, ObjectWritableMock } from 'stream-mock';
-import interviewsDbQueries from '../../../models/interviews.db.queries';
+import paradataDbQueries from '../../../models/paradataEvents.db.queries';
 
 import { exportInterviewLogTask } from '../exportInterviewLogs';
 
 // Mock the database log stream
-jest.mock('../../../models/interviews.db.queries', () => ({
-    getInterviewLogsStream: jest.fn().mockImplementation(() => new ObjectReadableMock([]))
+jest.mock('../../../models/paradataEvents.db.queries', () => ({
+    getParadataStream: jest.fn().mockImplementation(() => new ObjectReadableMock([]))
 }));
 // FIXME Fix this function when interview logs are back
-const mockGetInterviewLogsStream = interviewsDbQueries.getInterviewLogsStream as any;//jest.MockedFunction<typeof interviewsDbQueries.getInterviewLogsStream>;
+const mockGetInterviewLogsStream = paradataDbQueries.getParadataStream as jest.MockedFunction<typeof paradataDbQueries.getParadataStream>;
 
 // Mock the csv file stream
 let fileStreams: {[key: string]: ObjectWritableMock } = {};
@@ -42,43 +42,49 @@ beforeEach(() => {
 describe('exportInterviewLogTask', () => {
 
     // Common data for all logs of the interview
-    const commonInterviewData = { id: 1, uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: true, is_completed: true, is_validated: null, is_questionable: null };
-    const commonInterviewDataInRows = { id: '1', uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: 'true', is_completed: 'true', is_validated: '', is_questionable: '' };
+    const commonInterviewData = { id: 1, uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: true, is_completed: true, is_validated: null, is_questionable: null, user_id: null };
+    const commonInterviewDataInRows = { id: '1', uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: 'true', is_completed: 'true', is_validated: '', is_questionable: '', user_id: '' };
 
     const logs: { [key: string]: any }[] = [
         {
             // Normal log with a bit of everything, including null values
             ...commonInterviewData,
-            timestamp: 1,
+            timestamp_sec: 1,
+            event_date: new Date(1 * 1000),
             values_by_path: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true, 'responses.household.size': 3, 'responses._activeTripId': null },
             unset_paths: [ 'responses.home.someField', 'validations.home.someField' ]
         }, {
             // No unset paths
             ...commonInterviewData,
-            timestamp: 2,
+            timestamp_sec: 2,
+            event_date: new Date(2 * 1000),
             values_by_path: { 'responses.home.address': 'somewhere over the rainbow', 'validations.home.address': true },
         }, {
             // Unset paths, but empty values_by_path
             ...commonInterviewData,
-            timestamp: 3,
+            timestamp_sec: 3,
+            event_date: new Date(3 * 1000),
             values_by_path: {},
             unset_paths: [ 'responses.home.address', 'validations.home.address' ]
         }, {
             // No participant responses in values_by_path
             ...commonInterviewData,
-            timestamp: 4,
+            timestamp_sec: 4,
+            event_date: new Date(4 * 1000),
             values_by_path: { 'validations.home.region': true, 'validations.home.country': true },
             unset_paths: [ 'responses.home.region', 'responses.home.country' ]
         }, {
             // No participant responses in unset_paths
             ...commonInterviewData,
-            timestamp: 5,
+            timestamp_sec: 5,
+            event_date: new Date(5 * 1000),
             values_by_path: { 'responses.household.carNumber': 1, 'responses.household.bikeNumber': 10, 'validations.household.carNumber': false, 'validations.household.bikeNumber': true },
             unset_paths: [ 'validations.home.region', 'validation.home.country' ]
         }, {
             // No participant responses in values_by_path and unset_paths
             ...commonInterviewData,
-            timestamp: 6,
+            timestamp_sec: 6,
+            event_date: new Date(6 * 1000),
             values_by_path: { 'validated_data.home.address': '6760 rue Saint-Vallier Montréal', 'validated_data.home.city': 'Montréal' },
             unset_paths: [ 'validated_data.home.country' ]
         }
@@ -137,7 +143,8 @@ describe('exportInterviewLogTask', () => {
             }));
             const modifiedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
             const initializedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
-            expect(logRows[i].timestamp).toEqual(String(i+1));
+            expect(logRows[i].timestampMs).toEqual(String((i+1) * 1000));
+            expect(logRows[i].event_date).toEqual(new Date((i+1) * 1000).toISOString());
             expect(logRows[i].modifiedFields).toEqual(modifiedKeys);
             expect(logRows[i].initializedFields).toEqual(initializedKeys);
             expect(logRows[i].unsetFields).toEqual(logs[i].unset_paths !== undefined ? logs[i].unset_paths.join('|') : '');
@@ -172,7 +179,8 @@ describe('exportInterviewLogTask', () => {
             }));
             const modifiedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value !== null).filter(([key, value]) => key.startsWith('responses.')).map(([key, value]) => key).join('|');
             const initializedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value === null).filter(([key, value]) => key.startsWith('responses.')).map(([key, value]) => key).join('|');
-            expect(logRows[i].timestamp).toEqual(String(i+1));
+            expect(logRows[i].timestampMs).toEqual(String((i+1) * 1000));
+            expect(logRows[i].event_date).toEqual(new Date((i+1) * 1000).toISOString());
             expect(logRows[i].modifiedFields).toEqual(modifiedKeys);
             expect(logRows[i].initializedFields).toEqual(initializedKeys);
             expect(logRows[i].unsetFields).toEqual(logs[i].unset_paths !== undefined ? logs[i].unset_paths.filter(key => key.startsWith('responses.')).join('|') : '');
@@ -207,22 +215,24 @@ describe('exportInterviewLogTask', () => {
             const currentLog = logs[i];
             // Find a row for each value by path
             for (let [key, value] of Object.entries(currentLog.values_by_path)) {
-                const foundRow = logRows.find(row => row.field === key && row.timestamp === String(i+1));
+                const foundRow = logRows.find(row => row.field === key && row.timestampMs === String((i+1) * 1000));
                 expect(foundRow).toBeDefined();
                 expect(foundRow).toEqual({
                     ...commonInterviewDataInRows,
-                    timestamp: String(i+1),
+                    timestampMs: String((i+1) * 1000),
+                    event_date: new Date((i+1) * 1000).toISOString(),
                     field: key,
                     value: JSON.stringify(value)
                 });
             }
             // Find a row for each unset path
             for (let path of currentLog.unset_paths || []) {
-                const foundRow = logRows.find(row => row.field === path && row.timestamp === String(i+1));
+                const foundRow = logRows.find(row => row.field === path && row.timestampMs === String((i+1) * 1000));
                 expect(foundRow).toBeDefined();
                 expect(foundRow).toEqual({
                     ...commonInterviewDataInRows,
-                    timestamp: String(i+1),
+                    timestampMs: String((i+1) * 1000),
+                    event_date: new Date((i+1) * 1000).toISOString(),
                     field: path,
                     value: ''
                 });
@@ -258,12 +268,13 @@ describe('exportInterviewLogTask', () => {
             const currentLog = logs[i];
             // Find a row for each value by path
             for (let [key, value] of Object.entries(currentLog.values_by_path)) {
-                const foundRow = logRows.find(row => row.field === key && row.timestamp === String(i+1));
+                const foundRow = logRows.find(row => row.field === key && row.timestampMs === String((i+1) * 1000));
                 if (key.startsWith('responses.')) {
                     expect(foundRow).toBeDefined();
                     expect(foundRow).toEqual({
                         ...commonInterviewDataInRows,
-                        timestamp: String(i+1),
+                        event_date: new Date((i+1) * 1000).toISOString(),
+                        timestampMs: String((i+1) * 1000),
                         field: key,
                         value: JSON.stringify(value)
                     });
@@ -273,12 +284,13 @@ describe('exportInterviewLogTask', () => {
             }
             // Find a row for each unset path
             for (let path of currentLog.unset_paths || []) {
-                const foundRow = logRows.find(row => row.field === path && row.timestamp === String(i+1));
+                const foundRow = logRows.find(row => row.field === path && row.timestampMs === String((i+1) * 1000));
                 if (path.startsWith('responses.')) {
                     expect(foundRow).toBeDefined();
                     expect(foundRow).toEqual({
                         ...commonInterviewDataInRows,
-                        timestamp: String(i+1),
+                        event_date: new Date((i+1) * 1000).toISOString(),
+                        timestampMs: String((i+1) * 1000),
                         field: path,
                         value: ''
                     });
