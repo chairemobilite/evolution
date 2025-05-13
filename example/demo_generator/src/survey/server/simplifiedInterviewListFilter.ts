@@ -8,9 +8,9 @@ import { defaultConfig } from 'evolution-backend/lib/config/projectConfig';
 import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 // TODO Type the unknown attributes here
-// Add the access code to the validation status list
+// Add the access code to the simplifiedInterview status list
 export default (interview: InterviewListAttributes) => {
-    const status = defaultConfig.validationListFilter(interview);
+    const status = defaultConfig.simplifiedInterviewListFilter(interview);
     status.responses = {
         ...status.responses,
         accessCode: interview.responses ? (interview.responses as any).accessCode : undefined

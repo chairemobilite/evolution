@@ -10,7 +10,7 @@ import setupServer from 'evolution-backend/lib/apps/admin';
 import { setProjectConfig } from 'evolution-backend/lib/config/projectConfig';
 import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
 import roleDefinitions from '../survey/server/roleDefinition';
-import validationListFilter from '../survey/server/validationListFilter';
+import simplifiedInterviewListFilter from '../survey/server/simplifiedInterviewListFilter';
 import serverUpdateCallbacks from '../survey/server/serverFieldUpdate';
 import serverValidations from '../survey/server/serverValidations';
 
@@ -19,7 +19,7 @@ const configureServer = () => {
         serverUpdateCallbacks,
         serverValidations,
         roleDefinitions,
-        validationListFilter
+        simplifiedInterviewListFilter
     });
 };
 

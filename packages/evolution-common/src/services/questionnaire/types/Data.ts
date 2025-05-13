@@ -266,7 +266,7 @@ export interface InterviewListAttributes {
 }
 
 /**
- * Type of the interview for validation and administrative lists
+ * Type of the interview for audit and administrative lists
  *
  * TODO: See if the consumers of this type can template it so it can be fully
  * typed per project

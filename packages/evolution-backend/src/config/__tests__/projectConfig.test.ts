@@ -35,9 +35,9 @@ const nullResponsesInterview = {
     google: false
 };
 
-describe('Validation List Filter', () => {
-    test('test default validation filter', () => {
-        const interviewStatus = projectConfig.validationListFilter(interview);
+describe('Simplified Interview List Filter', () => {
+    test('test default simplified interview list filter', () => {
+        const interviewStatus = projectConfig.simplifiedInterviewListFilter(interview);
         expect(interviewStatus).toEqual({
             id: interview.id,
             uuid: interview.uuid,
@@ -52,8 +52,8 @@ describe('Validation List Filter', () => {
         });
     });
 
-    test('test default validation filter with null values for resonses and validated data', () => {
-        const interviewStatus = projectConfig.validationListFilter(nullResponsesInterview as any);
+    test('test default simplified interview list filter with null values for responses and validated data', () => {
+        const interviewStatus = projectConfig.simplifiedInterviewListFilter(nullResponsesInterview as any);
         expect(interviewStatus).toEqual({
             id: interview.id,
             uuid: interview.uuid,
@@ -68,13 +68,13 @@ describe('Validation List Filter', () => {
     });
 
     test('Add project specific filter', () => {
-        setProjectConfig({ validationListFilter: (interview: InterviewListAttributes) => {
-            const status = defaultConfig.validationListFilter(interview) as InterviewStatusAttributesBase;
+        setProjectConfig({ simplifiedInterviewListFilter: (interview: InterviewListAttributes) => {
+            const status = defaultConfig.simplifiedInterviewListFilter(interview) as InterviewStatusAttributesBase;
             (status.responses as any).accessCode = (interview.responses as any).accessCode;
             return status;
         } });
 
-        const interviewStatus = projectConfig.validationListFilter(interview);
+        const interviewStatus = projectConfig.simplifiedInterviewListFilter(interview);
         expect(interviewStatus).toEqual({
             id: interview.id,
             uuid: interview.uuid,

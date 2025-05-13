@@ -84,7 +84,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
         });
 
         try {
-            const response = await fetch('/api/validationList', {
+            const response = await fetch('/api/simplifiedInterviewList', {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json'

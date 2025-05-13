@@ -142,7 +142,7 @@ router.post(
     }
 );
 
-router.post('/validationList', async (req, res) => {
+router.post('/simplifiedInterviewList', async (req, res) => {
     try {
         const { pageIndex, pageSize, updatedAt, sortBy, ...filters } = req.body;
         const page =
@@ -172,10 +172,10 @@ router.post('/validationList', async (req, res) => {
         return res.status(200).json({
             status: 'success',
             totalCount: response.totalCount,
-            interviews: response.interviews.map(projectConfig.validationListFilter)
+            interviews: response.interviews.map(projectConfig.simplifiedInterviewListFilter)
         });
     } catch (error) {
-        console.log('error getting interview list:', error);
+        console.log('error getting simplified interview list:', error);
         return res.status(500).json({ status: 'Error' });
     }
 });

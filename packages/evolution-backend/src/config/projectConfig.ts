@@ -15,10 +15,11 @@ import {
 
 interface ProjectServerConfig {
     /**
-     * Filters the interview object to return minimal data. Used server side
-     * before sending validation list to server
+     * Simplify the interview object to return minimal data.
+     * The filter will choose which fields to keep in the simplified interview.
+     * Used server side before sending interview list to server
      */
-    validationListFilter: (interview: InterviewListAttributes) => InterviewStatusAttributesBase;
+    simplifiedInterviewListFilter: (interview: InterviewListAttributes) => InterviewStatusAttributesBase;
     serverUpdateCallbacks: ServerFieldUpdateCallback[];
     serverValidations: ServerValidation;
     roleDefinitions: (() => void) | undefined;
@@ -53,7 +54,7 @@ interface ProjectServerConfig {
 }
 
 export const defaultConfig: ProjectServerConfig = {
-    validationListFilter: (interview: InterviewListAttributes) => {
+    simplifiedInterviewListFilter: (interview: InterviewListAttributes) => {
         const {
             id,
             uuid,
