@@ -217,3 +217,6 @@ To view the generated HTML documentation, you can use an extension like **Live S
 4. The documentation will open in your default web browser.
 
 Alternatively, you can use any HTTP server to serve the `docs/internalApi` folder and view the documentation in your browser.
+
+## Nomenclature
+For naming consistency, see [Nomenclature](docs/nomenclature.md)
