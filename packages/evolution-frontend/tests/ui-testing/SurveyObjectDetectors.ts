@@ -10,6 +10,7 @@
 // Regexes for specific survey objects
 const uuidRegex = /[0-9a-f-]{36}/g;
 const personObjectKeyRegex = /^responses\.household\.persons\.([0-9a-f-]{36})$/;
+const vehicleObjectKeyRegex = /^responses\.household\.vehicles\.([0-9a-f-]{36})$/;
 const journeyObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}$/;
 const visitedPlaceObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.visitedPlaces.[0-9a-f-]{36}$/;
 const tripObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}$/;
@@ -18,16 +19,19 @@ const activePersonKeyRegex = /^responses\._activePersonId$/;
 const activeJourneyKeyRegex = /^responses\._activeJourneyId$/;
 const activeVisitedPlaceKeyRegex = /^responses\._activeVisitedPlaceId$/;
 const activeTripKeyRegex = /^responses\._activeTripId$/;
+const activeVehicleKeyRegex = /^responses\._activeVehicleId$/;
 
 export class SurveyObjectDetector {
     // Store the survey object IDs
     private personIds: string[] = [];
+    private vehicleIds: string[] = [];
     private journeys: { [personId: string]: string[] } = {};
     private visitedPlaces: { [journeyId: string]: string[] } = {};
     private trips: { [journeyId: string]: string[] } = {};
     private segments: { [tripId: string]: string[] } = {};
     // Store the active object IDs
     private activePersonId: string | undefined = undefined;
+    private activeVehicleId: string | undefined = undefined;
     private activeJourneyId: string | undefined = undefined;
     private activeVisitedPlaceId: string | undefined = undefined;
     private activeTripId: string | undefined = undefined;
@@ -40,6 +44,17 @@ export class SurveyObjectDetector {
         if (matchGroups !== null) {
             const personIndex = Number((matchGroups[0].match(/\d+/g) as any)[0]);
             newString = str.replace(personIdRegex, this.personIds[personIndex]);
+        }
+        return newString;
+    }
+
+    private replaceWithVehicleId(str: string): string {
+        let newString = str;
+        const vehicleIdRegex = /\$\{vehicleId\[(\d+)\]\}/g;
+        const matchGroups = str.match(vehicleIdRegex);
+        if (matchGroups !== null) {
+            const vehicleIndex = Number((matchGroups[0].match(/\d+/g) as any)[0]);
+            newString = str.replace(vehicleIdRegex, this.vehicleIds[vehicleIndex]);
         }
         return newString;
     }
@@ -60,6 +75,7 @@ export class SurveyObjectDetector {
         return newString;
     }
 
+    private activeVehicleStr = '${activeVehicleId}';
     private activePersonStr = '${activePersonId}';
     private activeJourneyStr = '${activeJourneyId}';
     private activeVisitedPlaceStr = '${activeVisitedPlaceId}';
@@ -74,7 +90,9 @@ export class SurveyObjectDetector {
      */
     public replaceWithIds(str: string): string {
         let newString = this.replaceWithPersonId(str);
+        newString = this.replaceWithVehicleId(newString);
         newString = this.replaceWithActiveObjectId(newString, this.activePersonStr, this.activePersonId);
+        newString = this.replaceWithActiveObjectId(newString, this.activeVehicleStr, this.activeVehicleId);
         newString = this.replaceWithActiveObjectId(newString, this.activeJourneyStr, this.activeJourneyId);
         newString = this.replaceWithActiveObjectId(newString, this.activeVisitedPlaceStr, this.activeVisitedPlaceId);
         newString = this.replaceWithActiveObjectId(newString, this.activeTripStr, this.activeTripId);
@@ -92,6 +110,20 @@ export class SurveyObjectDetector {
             personObjects.forEach((key) => {
                 const personData = data[key];
                 this.personIds[personData['_sequence'] - 1] = personData['_uuid'];
+            });
+        }
+    }
+
+    // Detect the vehicle ids from the survey update data
+    private detectVehicleIds(data: any) {
+        // Get the vehicle objects and store the vehicle ids
+        const vehicleObjects = Object.keys(data).filter((key) => key.match(vehicleObjectKeyRegex) !== null);
+        if (vehicleObjects.length > 0) {
+            // FIXME _sequence and _uuid may not be set, or they may come differently, for example when adding a vehicle manually ?
+            this.vehicleIds = Array(vehicleObjects.length);
+            vehicleObjects.forEach((key) => {
+                const vehicleData = data[key];
+                this.vehicleIds[vehicleData['_sequence'] - 1] = vehicleData['_uuid'];
             });
         }
     }
@@ -187,6 +219,7 @@ export class SurveyObjectDetector {
      */
     public detectSurveyObjects(data: any) {
         this.detectPersonIds(data);
+        this.detectVehicleIds(data);
         this.detectJourneys(data);
         this.detectVisitedPlaces(data);
         this.detectTrips(data);
@@ -195,5 +228,6 @@ export class SurveyObjectDetector {
         this.detectActiveObject(data, activeJourneyKeyRegex, (activeId) => this.activeJourneyId = activeId);
         this.detectActiveObject(data, activeVisitedPlaceKeyRegex, (activeId) => this.activeVisitedPlaceId = activeId);
         this.detectActiveObject(data, activeTripKeyRegex, (activeId) => this.activeTripId = activeId);
+        this.detectActiveObject(data, activeVehicleKeyRegex, (activeId) => this.activeVehicleId = activeId);
     }
 }

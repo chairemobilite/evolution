@@ -12,7 +12,7 @@
 
 * **Answer** Answer to a specific question, field or attribute during the interview. An Answer can be generated automatically during RealTimeValidation
 
-* **SurveyObject** An object common to most travel survey. Examples: Interview, Home, Household, Person, VisitedPlace, Journey, Trip, Segment, Vehicle, etc. Interview is the parent survey object containing all of these.
+* **SurveyObject** An object common to most travel survey. Examples: Interview, Home, Household, Person, Vehicle, VisitedPlace, Journey, Trip, Segment, etc. Interview is the parent survey object containing all of these.
 
 * **Response** Includes all the Answers to questions in the questionnaire from a respondent or an interviewer (associated with a single interview)
 
