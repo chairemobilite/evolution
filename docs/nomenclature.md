@@ -12,6 +12,8 @@
 
 * **Answer** Answer to a specific question, field or attribute during the interview. An Answer can be generated automatically during RealTimeValidation
 
+* **SurveyObject** An object common to most travel survey. Examples: Interview, Home, Household, Person, VisitedPlace, Journey, Trip, Segment, Vehicle, etc. Interview is the parent survey object containing all of these.
+
 * **Response** Includes all the Answers to questions in the questionnaire from a respondent or an interviewer (associated with a single interview)
 
    a. **RespondentInterview**
@@ -37,7 +39,7 @@
 
     * **AuditCheck** A single validation/check. Example: check if household size is consistent with the number of Person objects in the Response. Each AuditCheck has a type: error (which should be reviewed and eventually corrected or rejected), warning (which may be corrected but could be ignored, or could even result in a rejection in some cases), or note (just a message to classify the interview like "has at least one transit trip", "is a single person interview")
 
-    * **AuditCheckResult** The result of an audit check on a specific Response or survey object in a Response (Household, Person, VisitedPlace, Trip, etc.). Example: If the household size does not equal the number of Person objects in the Response, the AuditCheckResult will be false
+    * **AuditCheckResult** The result of an audit check on a specific Response or on a SurveyObject in a Response. Example: If the household size does not equal the number of Person objects in the Response, the AuditCheckResult will be false
 
     * **AuditReport** All the AuditCheckResults for a single Response
 
