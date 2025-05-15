@@ -6,14 +6,14 @@
  */
 // This file is meant as the entry point of the worker pool, to be run in workers directly
 import workerpool from 'workerpool';
-import { exportAllToCsvByObjectTask } from '../services/adminExport/exportAllToCsvByObject';
+import { exportAllToCsvBySurveyObjectTask } from '../services/adminExport/exportAllToCsvBySurveyObject';
 import { exportInterviewLogTask } from '../services/adminExport/exportInterviewLogs';
 
 // Worker pool for evolution backend tasks
 const run = async () => {
     // create a worker and register public functions
     workerpool.worker({
-        exportAllToCsvByObject: exportAllToCsvByObjectTask,
+        exportAllToCsvBySurveyObject: exportAllToCsvBySurveyObjectTask,
         exportInterviewLog: exportInterviewLogTask
     });
 };

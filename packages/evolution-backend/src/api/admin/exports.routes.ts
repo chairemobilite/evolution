@@ -6,11 +6,11 @@
  */
 import path from 'path';
 import {
-    exportAllToCsvByObject,
+    exportAllToCsvBySurveyObject,
     filePathOnServer,
     getExportFiles,
     isExportRunning
-} from '../../services/adminExport/exportAllToCsvByObject';
+} from '../../services/adminExport/exportAllToCsvBySurveyObject';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
@@ -53,11 +53,11 @@ export const addExportRoutes = () => {
     });
 
     // Route to prepare the csv files to export
-    router.get('/data/prepareCsvFileForExportByObject', (req, res, _next) => {
+    router.get('/data/prepareCsvFileForExportBySurveyObject', (req, res, _next) => {
         console.log('preparing csv export files...');
         try {
             const validatedResponses = req.query.responseType !== 'participant';
-            const taskRunning = exportAllToCsvByObject({
+            const taskRunning = exportAllToCsvBySurveyObject({
                 responseType: validatedResponses ? 'validatedIfAvailable' : 'participant'
             });
             return res.status(200).json({
