@@ -35,13 +35,16 @@ const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
     ) => {
         setIsPreparingCsvExportFiles(true);
         try {
-            const response = await fetch('/api/admin/data/prepareCsvFileForExportByObject?responseType=' + exportType, {
-                method: 'GET',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
+            const response = await fetch(
+                '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=' + exportType,
+                {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 }
-            });
+            );
             if (response.status === 200) {
                 updateOrWaitForFiles();
             } else {

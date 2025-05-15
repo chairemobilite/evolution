@@ -8,12 +8,12 @@
 // data for playwright tests
 
 // Regexes for specific survey objects
-const uuidRegex = /[0-9a-f-]{36}/g
-const personObjectKeyRegex = /^responses\.household\.persons\.([0-9a-f-]{36})$/
-const journeyObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}$/
-const visitedPlaceObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.visitedPlaces.[0-9a-f-]{36}$/
-const tripObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}$/
-const segmentObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}.segments.[0-9a-f-]{36}$/
+const uuidRegex = /[0-9a-f-]{36}/g;
+const personObjectKeyRegex = /^responses\.household\.persons\.([0-9a-f-]{36})$/;
+const journeyObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}$/;
+const visitedPlaceObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.visitedPlaces.[0-9a-f-]{36}$/;
+const tripObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}$/;
+const segmentObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}.segments.[0-9a-f-]{36}$/;
 const activePersonKeyRegex = /^responses\._activePersonId$/;
 const activeJourneyKeyRegex = /^responses\._activeJourneyId$/;
 const activeVisitedPlaceKeyRegex = /^responses\._activeVisitedPlaceId$/;
@@ -66,8 +66,8 @@ export class SurveyObjectDetector {
     private activeTripStr = '${activeTripId}';
 
     /**
-     * Replace any object ID in ${objectId[n]} or ${objectPath} format with the
-     * actual object ID
+     * Replace any survey object ID in ${surveyObjectId[n]} or ${surveyObjectPath} format with the
+     * actual survey object ID
      *
      * @param str The string from which to replace the ids
      * @returns the replaced string
@@ -85,11 +85,11 @@ export class SurveyObjectDetector {
     // Detect the person ids from the survey update data
     private detectPersonIds(data: any) {
         // Get the person objects and store the person ids
-        const personObjects = Object.keys(data).filter(key => key.match(personObjectKeyRegex) !== null);
+        const personObjects = Object.keys(data).filter((key) => key.match(personObjectKeyRegex) !== null);
         if (personObjects.length > 0) {
             // FIXME _sequence and _uuid may not be set, or they may come differently, for example when adding a person manually ?
             this.personIds = Array(personObjects.length);
-            personObjects.forEach(key => {
+            personObjects.forEach((key) => {
                 const personData = data[key];
                 this.personIds[personData['_sequence'] - 1] = personData['_uuid'];
             });
@@ -98,7 +98,7 @@ export class SurveyObjectDetector {
 
     private detectActiveObject(data: any, activeObjectKeyRegex: RegExp, setter: (str: string) => void) {
         // Get the person objects and store the person ids
-        const activeObjectKey = Object.keys(data).find(key => key.match(activeObjectKeyRegex) !== null);
+        const activeObjectKey = Object.keys(data).find((key) => key.match(activeObjectKeyRegex) !== null);
         if (activeObjectKey !== undefined) {
             setter(data[activeObjectKey]);
         }
@@ -106,15 +106,15 @@ export class SurveyObjectDetector {
 
     private detectJourneys(data: any) {
         // Get the journey objects and store the journey ids
-        const journeyObjectsKeys = Object.keys(data).filter(key => key.match(journeyObjectKeyRegex) !== null);
+        const journeyObjectsKeys = Object.keys(data).filter((key) => key.match(journeyObjectKeyRegex) !== null);
         if (journeyObjectsKeys.length > 0) {
-            journeyObjectsKeys.map(key => {
+            journeyObjectsKeys.map((key) => {
                 const matchGroups = key.match(uuidRegex);
                 if (matchGroups !== null && matchGroups.length === 2) {
                     return { personId: matchGroups[0], journeyId: matchGroups[1], data: data[key] };
                 }
                 throw `Invalid journey found: ${key}`;
-            }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach(personJourney => {
+            }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach((personJourney) => {
                 if (!this.journeys[personJourney.personId]) {
                     this.journeys[personJourney.personId] = [];
                 }
@@ -125,15 +125,15 @@ export class SurveyObjectDetector {
 
     private detectVisitedPlaces(data: any) {
         // Get the visited place objects and store the visited places ids
-        const visitedPlaceObjectKeys = Object.keys(data).filter(key => key.match(visitedPlaceObjectKeyRegex) !== null);
+        const visitedPlaceObjectKeys = Object.keys(data).filter((key) => key.match(visitedPlaceObjectKeyRegex) !== null);
         if (visitedPlaceObjectKeys.length > 0) {
-            visitedPlaceObjectKeys.map(key => {
+            visitedPlaceObjectKeys.map((key) => {
                 const matchGroups = key.match(uuidRegex);
                 if (matchGroups !== null && matchGroups.length === 3) {
                     return { journeyId: matchGroups[1], visitedPlaceId: matchGroups[2], data: data[key] };
                 }
                 throw `Invalid visited place found: ${key}`;
-            }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach(journeyVisitedPlace => {
+            }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach((journeyVisitedPlace) => {
                 if (!this.visitedPlaces[journeyVisitedPlace.journeyId]) {
                     this.visitedPlaces[journeyVisitedPlace.journeyId] = [];
                 }
@@ -144,15 +144,15 @@ export class SurveyObjectDetector {
 
     private detectTrips(data: any) {
         // Get the trip objects and store the trip ids
-        const tripObjectKeys = Object.keys(data).filter(key => key.match(tripObjectKeyRegex) !== null);
+        const tripObjectKeys = Object.keys(data).filter((key) => key.match(tripObjectKeyRegex) !== null);
         if (tripObjectKeys.length > 0) {
-            tripObjectKeys.map(key => {
+            tripObjectKeys.map((key) => {
                 const matchGroups = key.match(uuidRegex);
                 if (matchGroups !== null && matchGroups.length === 3) {
                     return { journeyId: matchGroups[1], tripId: matchGroups[2], data: data[key] };
                 }
                 throw `Invalid trip found: ${key}`;
-            }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach(journeyTrip => {
+            }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach((journeyTrip) => {
                 if (!this.trips[journeyTrip.journeyId]) {
                     this.trips[journeyTrip.journeyId] = [];
                 }
@@ -163,15 +163,15 @@ export class SurveyObjectDetector {
 
     private detectSegments(data: any) {
         // Get the segment objects and store their ids
-        const segmentObjectKeys = Object.keys(data).filter(key => key.match(segmentObjectKeyRegex) !== null);
+        const segmentObjectKeys = Object.keys(data).filter((key) => key.match(segmentObjectKeyRegex) !== null);
         if (segmentObjectKeys.length > 0) {
-            segmentObjectKeys.map(key => {
+            segmentObjectKeys.map((key) => {
                 const matchGroups = key.match(uuidRegex);
                 if (matchGroups !== null && matchGroups.length === 4) {
                     return { tripId: matchGroups[2], segmentId: matchGroups[3], data: data[key] };
                 }
                 throw `Invalid segment found: ${key}`;
-            }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach(segmentTrip => {
+            }).sort((a, b) => a.data['_sequence'] - b.data['_sequence']).forEach((segmentTrip) => {
                 if (!this.segments[segmentTrip.tripId]) {
                     this.segments[segmentTrip.tripId] = [];
                 }
@@ -196,4 +196,4 @@ export class SurveyObjectDetector {
         this.detectActiveObject(data, activeVisitedPlaceKeyRegex, (activeId) => this.activeVisitedPlaceId = activeId);
         this.detectActiveObject(data, activeTripKeyRegex, (activeId) => this.activeTripId = activeId);
     }
-};
+}

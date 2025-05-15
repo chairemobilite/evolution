@@ -26,7 +26,7 @@ type GroupType = {
     options: OptionType[];
 };
 
-const objectTypesSortOrder = ['interview', 'home', 'household', 'person', 'visitedPlace', 'trip', 'segment'];
+const surveyObjectsSortOrder = ['interview', 'home', 'household', 'person', 'visitedPlace', 'trip', 'segment'];
 
 /**
  * Textbox input for column filter
@@ -101,15 +101,15 @@ export const ValidationAuditFilter = ({
     const selectedAuditChoicesByLevel: { [level: string]: OptionType[] } = {};
 
     for (const level of auditLevels) {
-        const auditsByObjectType = auditStats[level] || {};
+        const auditsBySurveyObject = auditStats[level] || {};
         selectedAuditChoicesByLevel[level] = [];
         selectedAuditKeyByLevel[level] = [];
         const groupedChoices: GroupType[] = [];
 
-        for (let i = 0, countI = objectTypesSortOrder.length; i < countI; i++) {
-            const objectType = objectTypesSortOrder[i];
+        for (let i = 0, countI = surveyObjectsSortOrder.length; i < countI; i++) {
+            const surveyObject = surveyObjectsSortOrder[i];
             const choices: OptionType[] = [];
-            const audits = auditsByObjectType[objectType] || [];
+            const audits = auditsBySurveyObject[surveyObject] || [];
             for (let j = 0, countJ = audits.length; j < countJ; j++) {
                 const audit = audits[j];
                 const choice = {
@@ -123,7 +123,7 @@ export const ValidationAuditFilter = ({
                 choices.push(choice);
             }
             groupedChoices.push({
-                label: t(`admin:auditObjectTypes:${objectType}`),
+                label: t(`admin:auditSurveyObjects:${surveyObject}`),
                 options: choices
             });
         }

@@ -22,9 +22,9 @@ import config from 'evolution-common/lib/config/project.config';
 
 export const filePathOnServer = 'exports/interviewData';
 
-type AttributeAndObjectPaths = {
+type AttributeAndSurveyObjectPaths = {
     attributes: string[];
-    objectPaths: string[];
+    surveyObjectPaths: string[];
 };
 
 /**
@@ -87,9 +87,9 @@ const isArrayOfObjects = function (data: unknown): data is object[] {
 const getNestedAttributes = function (
     parentAttribute: string,
     _object: { [key: string]: unknown },
-    attributesAndObjectPaths: AttributeAndObjectPaths = {
+    attributesAndSurveyObjectPaths: AttributeAndSurveyObjectPaths = {
         attributes: [],
-        objectPaths: []
+        surveyObjectPaths: []
     }
 ) {
     for (const attribute in _object) {
@@ -104,7 +104,7 @@ const getNestedAttributes = function (
             attributeRenamed = '_';
         }
         if (attributeIsUuid) {
-            attributesAndObjectPaths.objectPaths.push(parentAttribute);
+            attributesAndSurveyObjectPaths.surveyObjectPaths.push(parentAttribute);
         }
 
         if (isArrayOfObjects(_object[attribute])) {
@@ -115,7 +115,7 @@ const getNestedAttributes = function (
             getNestedAttributes(
                 (parentAttribute ? parentAttribute + '.' : '') + attributeRenamed,
                 _object[attribute] as any,
-                attributesAndObjectPaths
+                attributesAndSurveyObjectPaths
             );
         } else if (
             _object[attribute] !== undefined &&
@@ -126,13 +126,15 @@ const getNestedAttributes = function (
             getNestedAttributes(
                 (parentAttribute ? parentAttribute + '.' : '') + attributeRenamed,
                 _object[attribute] as any,
-                attributesAndObjectPaths
+                attributesAndSurveyObjectPaths
             );
         } else {
-            attributesAndObjectPaths.attributes.push((parentAttribute ? parentAttribute + '.' : '') + attributeRenamed);
+            attributesAndSurveyObjectPaths.attributes.push(
+                (parentAttribute ? parentAttribute + '.' : '') + attributeRenamed
+            );
         }
     }
-    return attributesAndObjectPaths;
+    return attributesAndSurveyObjectPaths;
 };
 
 const getPaths = function (parentPath, _object, attributes: string[] = []) {
@@ -204,10 +206,10 @@ const getInterviewStream = (options: ExportOptions) =>
         }
     });
 
-const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndObjectPaths> => {
-    const allAttributes: AttributeAndObjectPaths = {
+const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndSurveyObjectPaths> => {
+    const allAttributes: AttributeAndSurveyObjectPaths = {
         attributes: [],
-        objectPaths: []
+        surveyObjectPaths: []
     };
     const queryStream = getInterviewStream(options);
     let i = 0;
@@ -223,11 +225,11 @@ const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndObje
                 replaceSectionsWithDurations(responses);
                 const newAttributes = getNestedAttributes('', responses, undefined);
                 allAttributes.attributes.push(...newAttributes.attributes);
-                allAttributes.objectPaths.push(...newAttributes.objectPaths);
+                allAttributes.surveyObjectPaths.push(...newAttributes.surveyObjectPaths);
                 allAttributes.attributes = _uniq(allAttributes.attributes).sort((a, b) => {
                     return a.localeCompare(b);
                 });
-                allAttributes.objectPaths = _uniq(allAttributes.objectPaths).sort((a, b) => {
+                allAttributes.surveyObjectPaths = _uniq(allAttributes.surveyObjectPaths).sort((a, b) => {
                     return b.split('._.').length - a.split('._.').length;
                 });
 
@@ -245,16 +247,16 @@ const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndObje
 };
 
 /**
- * Get all paths available in the responses, with each object type having its
+ * Get all paths available in the responses, with each survey object type having its
  * own set of paths. The root object is `interview`
  * @param options export options.
- * @returns An object where the keys are the objects to export and the values
+ * @returns An object where the keys are the survey objects to export and the values
  * are an array of path
  */
-const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: string]: string[] }> => {
+const getPathsBySurveyObject = async (options: ExportOptions): Promise<{ [objName: string]: string[] }> => {
     const paths = await getRenamedPaths(options);
 
-    const pathsByObject = {
+    const pathsBySurveyObject = {
         interview: [
             'hasValidatedData',
             'is_valid',
@@ -266,10 +268,10 @@ const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: str
         ]
     };
 
-    // Initialise the pathsByObject, which should create a file per object
-    for (let i = 0, count = paths.objectPaths.length; i < count; i++) {
-        const objectPath = paths.objectPaths[i];
-        pathsByObject[objectPath] = [];
+    // Initialise the pathsBySurveyObject, which should create a file per object
+    for (let i = 0, count = paths.surveyObjectPaths.length; i < count; i++) {
+        const surveyObjectPath = paths.surveyObjectPaths[i];
+        pathsBySurveyObject[surveyObjectPath] = [];
     }
 
     // For each attribute path, see if it is part of an object, otherwise, it is added to the interviews paths
@@ -277,27 +279,27 @@ const getPathsByObject = async (options: ExportOptions): Promise<{ [objName: str
         let foundObjectPath = false;
         const attribute = paths.attributes[i];
         let attributeNamespace = '';
-        for (let j = 0; j < paths.objectPaths.length; j++) {
-            const objectPath = paths.objectPaths[j];
+        for (let j = 0; j < paths.surveyObjectPaths.length; j++) {
+            const surveyObjectPath = paths.surveyObjectPaths[j];
             // Object paths are sorted by length, so the first one that is a prefix of the attribute is the one we want
-            if (attribute.startsWith(objectPath + '.') && objectPath.length > attributeNamespace.length) {
-                attributeNamespace = objectPath;
-                pathsByObject[objectPath].push(attribute);
+            if (attribute.startsWith(surveyObjectPath + '.') && surveyObjectPath.length > attributeNamespace.length) {
+                attributeNamespace = surveyObjectPath;
+                pathsBySurveyObject[surveyObjectPath].push(attribute);
                 foundObjectPath = true;
             }
         }
         if (!foundObjectPath) {
-            pathsByObject['interview'].push(attribute);
+            pathsBySurveyObject['interview'].push(attribute);
         }
     }
 
-    for (const objectPath in pathsByObject) {
-        pathsByObject[objectPath] = pathsByObject[objectPath].sort((a, b) => {
+    for (const surveyObjectPath in pathsBySurveyObject) {
+        pathsBySurveyObject[surveyObjectPath] = pathsBySurveyObject[surveyObjectPath].sort((a, b) => {
             return a.localeCompare(b);
         });
     }
 
-    return pathsByObject;
+    return pathsBySurveyObject;
 };
 
 /**
@@ -333,7 +335,7 @@ const formatValue = (value: unknown): unknown => {
 };
 
 /**
- * Task to generate the CSV files by object.
+ * Task to generate the CSV files by survey object.
  *
  * NOTE: THIS SHOULD ONLY BE CALLED FROM A WORKERPOOL OR TASKS, NOT THE MAIN
  * THREAD
@@ -345,29 +347,36 @@ const formatValue = (value: unknown): unknown => {
  * @param {ExportOptions} options The export options
  * @returns
  */
-export const exportAllToCsvByObjectTask = async function (
+export const exportAllToCsvBySurveyObjectTask = async function (
     options: ExportOptions = { responseType: 'validatedIfAvailable' }
 ) {
-    const pathsByObject = await getPathsByObject(options);
+    const pathsBySurveyObject = await getPathsBySurveyObject(options);
 
     // Initialize export data objects with all possible fields for each path.
     // Those will be the base object to fill for each interview, to make sure all
     // keys are available for each exported row.
-    const exportedDataByObjectPath: any = {};
-    for (const objectPath in pathsByObject) {
-        exportedDataByObjectPath[objectPath] = {};
-        for (let i = 0, count = pathsByObject[objectPath].length; i < count; i++) {
-            if (objectPath !== 'interview') {
-                exportedDataByObjectPath[objectPath]._interviewUuid = undefined;
-                exportedDataByObjectPath[objectPath]._parentUuid = undefined;
+    const exportedDataBySurveyObjectPath: any = {};
+    for (const surveyObjectPath in pathsBySurveyObject) {
+        exportedDataBySurveyObjectPath[surveyObjectPath] = {};
+        for (let i = 0, count = pathsBySurveyObject[surveyObjectPath].length; i < count; i++) {
+            if (surveyObjectPath !== 'interview') {
+                exportedDataBySurveyObjectPath[surveyObjectPath]._interviewUuid = undefined;
+                exportedDataBySurveyObjectPath[surveyObjectPath]._parentUuid = undefined;
             } else {
-                exportedDataByObjectPath[objectPath]._interviewUuid = undefined;
+                exportedDataBySurveyObjectPath[surveyObjectPath]._interviewUuid = undefined;
             }
-            const pathWithoutObjectPath = pathsByObject[objectPath][i].replace(objectPath + '._.', '');
-            if (pathWithoutObjectPath.endsWith('.geometry.coordinates')) {
-                handleCoordinates(exportedDataByObjectPath[objectPath], pathWithoutObjectPath, undefined);
+            const pathWithoutSurveyObjectPath = pathsBySurveyObject[surveyObjectPath][i].replace(
+                surveyObjectPath + '._.',
+                ''
+            );
+            if (pathWithoutSurveyObjectPath.endsWith('.geometry.coordinates')) {
+                handleCoordinates(
+                    exportedDataBySurveyObjectPath[surveyObjectPath],
+                    pathWithoutSurveyObjectPath,
+                    undefined
+                );
             } else {
-                exportedDataByObjectPath[objectPath][pathWithoutObjectPath] = undefined;
+                exportedDataBySurveyObjectPath[surveyObjectPath][pathWithoutSurveyObjectPath] = undefined;
             }
         }
     }
@@ -375,19 +384,19 @@ export const exportAllToCsvByObjectTask = async function (
     // create csv files and streams:
     // Make sure the file path exists
     fileManager.directoryManager.createDirectoryIfNotExists(filePathOnServer);
-    const csvFilePathByObjectPath: {
-        [objectName: string]: fs.WriteStream;
+    const csvFilePathBySurveyObjectPath: {
+        [surveyObjectName: string]: fs.WriteStream;
     } = {};
-    const wroteHeaderByObjectPath = {};
+    const wroteHeaderBySurveyObjectPath = {};
     const csvFilePaths: string[] = [];
     const fileNamePrefix = options.responseType === 'validatedIfAvailable' ? 'validated' : 'participant';
-    for (const objectPath in pathsByObject) {
-        const csvFilePath = `${filePathOnServer}/${fileNamePrefix}_${objectPath.replaceAll('._.', '_').replaceAll('.', '_')}_${config.projectShortname}.csv`;
+    for (const surveyObjectPath in pathsBySurveyObject) {
+        const csvFilePath = `${filePathOnServer}/${fileNamePrefix}_${surveyObjectPath.replaceAll('._.', '_').replaceAll('.', '_')}_${config.projectShortname}.csv`;
         const csvStream = fs.createWriteStream(fileManager.getAbsolutePath(csvFilePath));
         csvStream.on('error', console.error);
-        csvFilePathByObjectPath[objectPath] = csvStream;
+        csvFilePathBySurveyObjectPath[surveyObjectPath] = csvStream;
         csvFilePaths.push(csvFilePath);
-        wroteHeaderByObjectPath[objectPath] = false;
+        wroteHeaderBySurveyObjectPath[surveyObjectPath] = false;
     }
 
     console.log('reading interview data...');
@@ -424,20 +433,20 @@ export const exportAllToCsvByObjectTask = async function (
                 const interview = row;
                 const responses = interview.responses;
                 replaceSectionsWithDurations(responses);
-                const exportedInterviewDataByObjectPath = _cloneDeep(exportedDataByObjectPath);
+                const exportedInterviewDataBySurveyObjectPath = _cloneDeep(exportedDataBySurveyObjectPath);
 
                 const interviewPaths = getPaths('', responses, undefined);
-                const objectsByObjectPath = {
-                    interview: exportedInterviewDataByObjectPath.interview
+                const objectsBySurveyObjectPath = {
+                    interview: exportedInterviewDataBySurveyObjectPath.interview
                 };
-                objectsByObjectPath.interview.hasValidatedData = row.validated_data_available;
-                objectsByObjectPath.interview.is_valid = interview.is_valid;
-                objectsByObjectPath.interview.is_completed = interview.is_completed;
-                objectsByObjectPath.interview.is_validated = interview.is_validated;
-                objectsByObjectPath.interview.is_questionable = interview.is_questionable;
-                objectsByObjectPath.interview._interviewUuid = interview.uuid;
-                objectsByObjectPath.interview._interviewer_count = interview.interviewer_count;
-                objectsByObjectPath.interview._interviewer_created = interview.interviewer_created;
+                objectsBySurveyObjectPath.interview.hasValidatedData = row.validated_data_available;
+                objectsBySurveyObjectPath.interview.is_valid = interview.is_valid;
+                objectsBySurveyObjectPath.interview.is_completed = interview.is_completed;
+                objectsBySurveyObjectPath.interview.is_validated = interview.is_validated;
+                objectsBySurveyObjectPath.interview.is_questionable = interview.is_questionable;
+                objectsBySurveyObjectPath.interview._interviewUuid = interview.uuid;
+                objectsBySurveyObjectPath.interview._interviewer_count = interview.interviewer_count;
+                objectsBySurveyObjectPath.interview._interviewer_created = interview.interviewer_created;
                 //console.log('interviewPaths', interviewPaths);
 
                 for (let j = 0, countJ = interviewPaths.length; j < countJ; j++) {
@@ -445,33 +454,40 @@ export const exportAllToCsvByObjectTask = async function (
                     const pathUuid = getLastUuidFromPath(path);
                     const pathWithoutUuids = removeUuidsFromPath(path);
                     let foundObjectPath = false;
-                    for (const objectPath in exportedInterviewDataByObjectPath) {
-                        if (pathWithoutUuids.startsWith(objectPath + '.')) {
-                            if (!objectsByObjectPath[objectPath]) {
-                                objectsByObjectPath[objectPath] = {};
+                    for (const surveyObjectPath in exportedInterviewDataBySurveyObjectPath) {
+                        if (pathWithoutUuids.startsWith(surveyObjectPath + '.')) {
+                            if (!objectsBySurveyObjectPath[surveyObjectPath]) {
+                                objectsBySurveyObjectPath[surveyObjectPath] = {};
                             }
-                            if (!objectsByObjectPath[objectPath][pathUuid]) {
-                                objectsByObjectPath[objectPath][pathUuid] = _cloneDeep(
-                                    exportedInterviewDataByObjectPath[objectPath]
+                            if (!objectsBySurveyObjectPath[surveyObjectPath][pathUuid]) {
+                                objectsBySurveyObjectPath[surveyObjectPath][pathUuid] = _cloneDeep(
+                                    exportedInterviewDataBySurveyObjectPath[surveyObjectPath]
                                 );
-                                objectsByObjectPath[objectPath][pathUuid]._interviewUuid = interview.uuid;
+                                objectsBySurveyObjectPath[surveyObjectPath][pathUuid]._interviewUuid = interview.uuid;
                             }
-                            if (path.endsWith('._uuid') && !objectsByObjectPath[objectPath][pathUuid]._parentUuid) {
+                            if (
+                                path.endsWith('._uuid') &&
+                                !objectsBySurveyObjectPath[surveyObjectPath][pathUuid]._parentUuid
+                            ) {
                                 const parentUuid = _get(
                                     responses,
                                     surveyHelperNew.getPath(path, '../../../_uuid') as string
                                 );
-                                objectsByObjectPath[objectPath][pathUuid]._parentUuid = parentUuid
+                                objectsBySurveyObjectPath[surveyObjectPath][pathUuid]._parentUuid = parentUuid
                                     ? parentUuid
                                     : interview.uuid;
                             }
                             const value = _get(responses, path);
-                            const pathSuffix = pathWithoutUuids.replace(objectPath + '._.', '');
+                            const pathSuffix = pathWithoutUuids.replace(surveyObjectPath + '._.', '');
 
                             if (pathSuffix.endsWith('.geometry.coordinates')) {
-                                handleCoordinates(objectsByObjectPath[objectPath][pathUuid], pathSuffix, value);
+                                handleCoordinates(
+                                    objectsBySurveyObjectPath[surveyObjectPath][pathUuid],
+                                    pathSuffix,
+                                    value
+                                );
                             } else {
-                                objectsByObjectPath[objectPath][pathUuid][pathSuffix] = formatValue(value);
+                                objectsBySurveyObjectPath[surveyObjectPath][pathUuid][pathSuffix] = formatValue(value);
                             }
                             foundObjectPath = true;
                             break;
@@ -480,39 +496,39 @@ export const exportAllToCsvByObjectTask = async function (
                     if (!foundObjectPath) {
                         const value = _get(responses, path);
                         if (pathWithoutUuids.endsWith('.geometry.coordinates')) {
-                            handleCoordinates(objectsByObjectPath.interview, pathWithoutUuids, value);
+                            handleCoordinates(objectsBySurveyObjectPath.interview, pathWithoutUuids, value);
                         } else {
-                            objectsByObjectPath.interview[pathWithoutUuids] = formatValue(value);
+                            objectsBySurveyObjectPath.interview[pathWithoutUuids] = formatValue(value);
                         }
                     }
                 }
 
-                for (const objectPath in objectsByObjectPath) {
-                    if (objectPath !== 'interview') {
-                        const objectsToWrite = Object.values(objectsByObjectPath[objectPath]) as any[];
+                for (const surveyObjectPath in objectsBySurveyObjectPath) {
+                    if (surveyObjectPath !== 'interview') {
+                        const objectsToWrite = Object.values(objectsBySurveyObjectPath[surveyObjectPath]) as any[];
                         writeToFile(
-                            csvFilePathByObjectPath[objectPath],
+                            csvFilePathBySurveyObjectPath[surveyObjectPath],
                             unparse(objectsToWrite, {
-                                header: !wroteHeaderByObjectPath[objectPath],
+                                header: !wroteHeaderBySurveyObjectPath[surveyObjectPath],
                                 newline: '\n',
                                 quoteChar: '"',
                                 delimiter: ',',
                                 quotes: true
                             }) + '\n'
                         );
-                        wroteHeaderByObjectPath[objectPath] = true;
+                        wroteHeaderBySurveyObjectPath[surveyObjectPath] = true;
                     } else {
                         writeToFile(
-                            csvFilePathByObjectPath[objectPath],
-                            unparse([objectsByObjectPath[objectPath]], {
-                                header: !wroteHeaderByObjectPath[objectPath],
+                            csvFilePathBySurveyObjectPath[surveyObjectPath],
+                            unparse([objectsBySurveyObjectPath[surveyObjectPath]], {
+                                header: !wroteHeaderBySurveyObjectPath[surveyObjectPath],
                                 newline: '\n',
                                 quoteChar: '"',
                                 delimiter: ',',
                                 quotes: true
                             }) + '\n'
                         );
-                        wroteHeaderByObjectPath[objectPath] = true;
+                        wroteHeaderBySurveyObjectPath[surveyObjectPath] = true;
                     }
                 }
 
@@ -523,8 +539,11 @@ export const exportAllToCsvByObjectTask = async function (
             })
             .on('end', () => {
                 console.log('All interview objects exported for response type: ', options.responseType);
-                const csvStreamEndPromises = Object.keys(csvFilePathByObjectPath).map(
-                    (object) => new Promise<void>((resolve) => csvFilePathByObjectPath[object].end(() => resolve()))
+                const csvStreamEndPromises = Object.keys(csvFilePathBySurveyObjectPath).map(
+                    (surveyObjectPath) =>
+                        new Promise<void>((resolve) =>
+                            csvFilePathBySurveyObjectPath[surveyObjectPath].end(() => resolve())
+                        )
                 );
                 Promise.all(csvStreamEndPromises)
                     .then(() => resolve(csvFilePaths))
@@ -543,15 +562,15 @@ let runningExportNonce: undefined | object = undefined;
  * @param options The export options
  * @returns A message saying the export is started
  */
-export const exportAllToCsvByObject = function (options: ExportOptions) {
+export const exportAllToCsvBySurveyObject = function (options: ExportOptions) {
     if (runningExportNonce !== undefined) {
         return 'alreadyRunning';
     }
     runningExportNonce = new Object();
-    execJob('exportAllToCsvByObject', [options])
-        .then(() => console.log('Export by object completed'))
+    execJob('exportAllToCsvBySurveyObject', [options])
+        .then(() => console.log('Export by survey object completed'))
         .catch((error) => {
-            console.log('Export by object failed:', error);
+            console.log('Export by survey object failed:', error);
         })
         .then(() => {
             runningExportNonce = undefined;
