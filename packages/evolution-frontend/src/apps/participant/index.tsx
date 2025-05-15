@@ -22,6 +22,7 @@ import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/
 import '../../styles/survey/styles-participant-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
 import SegmentsSection from '../../components/survey/sectionTemplates/TripsAndSegmentsSection';
+import CookieBanner from '../../components/pageParts/CookieBanner';
 
 setApplicationConfiguration({ homePage: '/survey', templateMapping: { tripsAndSegmentsWithMap: SegmentsSection } });
 
@@ -51,6 +52,7 @@ const App = (settings?: AppSettings) => {
                     <Provider store={store}>
                         <I18nextProvider i18n={i18n}>
                             <BrowserRouter>
+                                <CookieBanner/>
                                 <SurveyRouter />
                             </BrowserRouter>
                         </I18nextProvider>
