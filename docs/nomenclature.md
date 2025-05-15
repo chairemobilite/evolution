@@ -2,7 +2,7 @@
 
 ## Interview and Questionnaire
 
-* **Interview** All data related with an interview goes the interview. It includes the Response (see below) and all metadata (interview id, language, validity, etc.).
+* **Interview** All data related with an interview goes to the Interview object. It includes the Response (see below) and all metadata (interview id, language, validity, etc.).
 
 * **Questionnaire** The configuration of widgets in each section
 
