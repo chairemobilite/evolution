@@ -26,7 +26,16 @@ type GroupType = {
     options: OptionType[];
 };
 
-const surveyObjectsSortOrder = ['interview', 'home', 'household', 'person', 'visitedPlace', 'trip', 'segment'];
+const surveyObjectsSortOrder = [
+    'interview',
+    'home',
+    'household',
+    'person',
+    'vehicle',
+    'visitedPlace',
+    'trip',
+    'segment'
+];
 
 /**
  * Textbox input for column filter
