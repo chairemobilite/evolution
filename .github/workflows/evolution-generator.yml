@@ -29,6 +29,10 @@ jobs:
     - name: Run Poetry
       working-directory: packages/evolution-generator
       run: poetry install
+    - name: Run Python unit tests
+      working-directory: packages/evolution-generator
+      run: |
+        poetry run pytest -v --disable-warnings --tb=short
     - name: Generate survey
       run: yarn generateSurvey:generator
     - name: Install
