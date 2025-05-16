@@ -33,6 +33,7 @@ generateSurvey = "scripts.generate_survey:main"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.8.0"
+pytest = "^8.3.5"
 
 [build-system]
 requires = ["poetry-core"]

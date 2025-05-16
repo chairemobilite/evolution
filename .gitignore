@@ -125,6 +125,10 @@ __pycache__/
 **/test-results/
 **/playwright.config.ts
 
+# Evolution-Genrator packages
+packages/evolution-generator/src/tests/references/
+packages/evolution-generator/src/tests/survey/common/
+
 # demo_generator example generated files
 example/demo_generator/locales/en/*
 !example/demo_generator/locales/en/survey.yaml
