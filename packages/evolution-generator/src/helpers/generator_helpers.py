@@ -9,7 +9,7 @@ from openpyxl import Workbook  # Read data from Excel, File system operations
 from typing import List, Union  # Types for Python
 
 # Define constants
-MOCKER_EXCEL_FILE = "generator/examples/test.xlsx"
+MOCKER_EXCEL_FILE = "src/tests/references/test.xlsx"
 INDENT = "    "  # 4-space indentation
 
 
