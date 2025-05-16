@@ -5,19 +5,19 @@
 # Note: This script tests the generate_choices functions.
 import os  # File system operations
 import pytest  # Testing framework
-from generator.scripts.generate_choices import generate_choices
-from generator.helpers.generator_helpers import (
+from scripts.generate_choices import generate_choices
+from helpers.generator_helpers import (
     create_mocked_excel_data,
     delete_file_if_exists,
 )
 
 
 # Define constants
-MOCKED_EXCEL_FILE = "generator/examples/test.xlsx"
-GOOD_INPUT_FILE = "generator/examples/test.xlsx"
-BAD_INPUT_FILE = "generator/examples/test.csv"
-GOOD_OUPUT_FILE = "generator/examples/survey/common/choices.tsx"
-BAD_OUTPUT_FILE = "generator/examples/survey/common/choices.txt"
+MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
+GOOD_INPUT_FILE = "src/tests/references/test.xlsx"
+BAD_INPUT_FILE = "src/tests/references/test.csv"
+GOOD_OUPUT_FILE = "src/tests/survey/common/choices.tsx"
+BAD_OUTPUT_FILE = "src/tests/survey/common/choices.txt"
 GOOD_SHEET_NAME = "Choices"
 BAD_SHEET_NAME = "ChoicesBad"
 GOOD_HEADERS = [
@@ -111,31 +111,17 @@ GOOD_ROWS_DATA = [
     ],
 ]
 BAD_ROWS_DATA = [["badRowData"]]
-# BAD_NUMBER_OF_COLUMNS_ROW_DATA = [
-#     [
-#         "confidentInputRange",
-#         "Pas du tout confiant",
-#         "Très confiant",
-#         "Not at all confident",
-#         "Very confident",
-#         -10,
-#         100,
-#         "%",
-#         "%",
-#         "tooMuchData",
-#     ]
-# ]
 
 
 @pytest.mark.parametrize(
     "sheet_name, headers, row_data, input_file, output_file, expected_error",
     [
-        # Test that the example works great
+        # Test that the demo_generator example works great
         (
             None,  # No mocked Excel data
             None,  # No mocked Excel data
             None,  # No mocked Excel data
-            "generator/examples/Example_Generate_Survey.xlsx",
+            "../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx",
             GOOD_OUPUT_FILE,
             None,  # No error expected
         ),
@@ -164,16 +150,16 @@ BAD_ROWS_DATA = [["badRowData"]]
             GOOD_ROWS_DATA,
             GOOD_INPUT_FILE,
             BAD_OUTPUT_FILE,
-            f"Invalid output file extension for {BAD_OUTPUT_FILE} : must be an TypeScript .tsx file",
+            f"Invalid output file extension for {BAD_OUTPUT_FILE} : must be an TypeScript .ts or .tsx file",
         ),
-        # Test that the function catch bad sheet name
+        # Test that the function catch that the sheet does not exist
         (
             BAD_SHEET_NAME,
             GOOD_HEADERS,
             GOOD_ROWS_DATA,
             GOOD_INPUT_FILE,
             GOOD_OUPUT_FILE,
-            "Invalid sheet name in Choices sheet",
+            f"Sheet with name {GOOD_SHEET_NAME} does not exist",
         ),
         # Test that the function catch bad headers
         (
@@ -182,26 +168,17 @@ BAD_ROWS_DATA = [["badRowData"]]
             GOOD_ROWS_DATA,
             GOOD_INPUT_FILE,
             GOOD_OUPUT_FILE,
-            "Invalid headers in Choices sheet",
+            f"Missing expected header in {GOOD_SHEET_NAME} sheet: choicesName",
         ),
-        # # TODO: Test that the function catch bad row data
-        # (
-        #     GOOD_SHEET_NAME,
-        #     GOOD_HEADERS,
-        #     BAD_ROWS_DATA,
-        #     GOOD_INPUT_FILE,
-        #     GOOD_OUPUT_FILE,
-        #     "Invalid row data in Choices sheet",
-        # ),
-        # # TODO: Test that the function catch bad number of columns in row data
-        # (
-        #     GOOD_SHEET_NAME,
-        #     GOOD_HEADERS,
-        #     BAD_NUMBER_OF_COLUMNS_ROW_DATA,
-        #     GOOD_INPUT_FILE,
-        #     GOOD_OUPUT_FILE,
-        #     "Invalid number of column in Choices sheet",
-        # ),
+        # Test that the function catch bad row data
+        (
+            GOOD_SHEET_NAME,
+            GOOD_HEADERS,
+            BAD_ROWS_DATA,
+            GOOD_INPUT_FILE,
+            GOOD_OUPUT_FILE,
+            "Invalid row data in Choices sheet",
+        ),
     ],
 )
 def test_generate_choices(

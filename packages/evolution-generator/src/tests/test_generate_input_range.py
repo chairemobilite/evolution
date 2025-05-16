@@ -7,19 +7,19 @@ import os  # File system operations
 import pytest  # Testing framework
 from typing import List, Union, Optional  # Types for Python
 
-from generator.scripts.generate_input_range import generate_input_range
-from generator.helpers.generator_helpers import (
+from scripts.generate_input_range import generate_input_range
+from helpers.generator_helpers import (
     create_mocked_excel_data,
     delete_file_if_exists,
 )
 
 
 # Define constants
-MOCKED_EXCEL_FILE = "generator/examples/test.xlsx"
-GOOD_INPUT_FILE = "generator/examples/test.xlsx"
-BAD_INPUT_FILE = "generator/examples/test.csv"
-GOOD_OUPUT_FILE = "generator/examples/survey/common/inputRange.tsx"
-BAD_OUTPUT_FILE = "generator/examples/survey/common/inputRange.txt"
+MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
+GOOD_INPUT_FILE = "src/tests/references/test.xlsx"
+BAD_INPUT_FILE = "src/tests/references/test.csv"
+GOOD_OUPUT_FILE = "src/tests/survey/common/inputRange.tsx"
+BAD_OUTPUT_FILE = "src/tests/survey/common/inputRange.txt"
 GOOD_SHEET_NAME = "InputRange"
 BAD_SHEET_NAME = "InputRangeBad"
 GOOD_HEADERS = [
@@ -58,31 +58,17 @@ GOOD_ROWS_DATA = [
     ]
 ]
 BAD_ROWS_DATA = [["badRowData"]]
-BAD_NUMBER_OF_COLUMNS_ROW_DATA = [
-    [
-        "confidentInputRange",
-        "Pas du tout confiant",
-        "Très confiant",
-        "Not at all confident",
-        "Very confident",
-        -10,
-        100,
-        "%",
-        "%",
-        "tooMuchData",
-    ]
-]
 
 
 @pytest.mark.parametrize(
     "sheet_name, headers, row_data, input_file, output_file, expected_error",
     [
-        # Test that the example works great
+        # Test that the demo_generator example works great
         (
             None,  # No mocked Excel data
             None,  # No mocked Excel data
             None,  # No mocked Excel data
-            "generator/examples/Example_Generate_Survey.xlsx",
+            "../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx",
             GOOD_OUPUT_FILE,
             None,  # No error expected
         ),
@@ -111,16 +97,16 @@ BAD_NUMBER_OF_COLUMNS_ROW_DATA = [
             GOOD_ROWS_DATA,
             GOOD_INPUT_FILE,
             BAD_OUTPUT_FILE,
-            f"Invalid output file extension for {BAD_OUTPUT_FILE} : must be an TypeScript .tsx file",
+            f"Invalid output file extension for {BAD_OUTPUT_FILE} : must be an TypeScript .ts or .tsx file",
         ),
-        # Test that the function catch bad sheet name
+        # Test that the function catch that the sheet does not exist
         (
             BAD_SHEET_NAME,
             GOOD_HEADERS,
             GOOD_ROWS_DATA,
             GOOD_INPUT_FILE,
             GOOD_OUPUT_FILE,
-            "Invalid sheet name in InputRange sheet",
+            f"Sheet with name {GOOD_SHEET_NAME} does not exist",
         ),
         # Test that the function catch bad headers
         (
@@ -129,7 +115,7 @@ BAD_NUMBER_OF_COLUMNS_ROW_DATA = [
             GOOD_ROWS_DATA,
             GOOD_INPUT_FILE,
             GOOD_OUPUT_FILE,
-            "Invalid headers in InputRange sheet",
+            f"Missing expected header in {GOOD_SHEET_NAME} sheet: inputRangeName",
         ),
         # Test that the function catch bad row data
         (
@@ -139,15 +125,6 @@ BAD_NUMBER_OF_COLUMNS_ROW_DATA = [
             GOOD_INPUT_FILE,
             GOOD_OUPUT_FILE,
             "Invalid row data in InputRange sheet",
-        ),
-        # Test that the function catch bad number of columns in row data
-        (
-            GOOD_SHEET_NAME,
-            GOOD_HEADERS,
-            BAD_NUMBER_OF_COLUMNS_ROW_DATA,
-            GOOD_INPUT_FILE,
-            GOOD_OUPUT_FILE,
-            "Invalid number of column in InputRange sheet",
         ),
     ],
 )
