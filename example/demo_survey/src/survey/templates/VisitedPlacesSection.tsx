@@ -70,9 +70,9 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
         {
             const beforeLastVisitedPlace     = visitedPlaces[visitedPlaces.length - 2];
             const beforeLastVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${beforeLastVisitedPlace._uuid}`;
-            updateValuesByPath[`responses.${beforeLastVisitedPlacePath}.nextPlaceCategory`] = null;
+            updateValuesByPath[`response.${beforeLastVisitedPlacePath}.nextPlaceCategory`] = null;
         }
-        updateValuesByPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
+        updateValuesByPath[`response._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
         props.startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesByPath });
         }));
     }
@@ -84,7 +84,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
         }
         props.startUpdateInterview({
             sectionShortname: 'visitedPlaces', 
-            valuesByPath: {[`responses._activeVisitedPlaceId`]: visitedPlaceUuid }
+            valuesByPath: {[`response._activeVisitedPlaceId`]: visitedPlaceUuid }
         });
     }
   
@@ -382,11 +382,11 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
           key       = {`header__nav-reset`}
           onClick   = {function() { 
             const valuesByPath = {
-              [`responses.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`]: {},
+              [`response.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`]: {},
               [`validations.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`]: {},
-              [`responses.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`]: {},
+              [`response.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`]: {},
               [`validations.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`]: {},
-              [`responses._activeSection`]: 'tripsIntro'
+              [`response._activeSection`]: 'tripsIntro'
             };
             props.startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath });
           }.bind(this)

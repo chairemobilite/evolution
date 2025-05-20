@@ -115,7 +115,7 @@ export class ValidateSurvey extends React.Component<SurveyProps, SurveyState> {
         if (allWidgetsValid) {
             this.props.startUpdateInterview({
                 sectionShortname: activeSection,
-                valuesByPath: { 'responses._activeSection': parentSection }
+                valuesByPath: { 'response._activeSection': parentSection }
             });
         } else {
             this.setState(

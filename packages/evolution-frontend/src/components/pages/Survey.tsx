@@ -45,7 +45,7 @@ import { SurveyAction } from '../../store/survey';
 type StartSetInterview = (
     activeSection: string | undefined,
     surveyUuid: string | undefined,
-    preFilledResponses: { [key: string]: unknown } | undefined
+    preFilledResponse: { [key: string]: unknown } | undefined
 ) => void;
 
 export type SurveyProps = {
@@ -109,8 +109,8 @@ class Survey extends React.Component<SurveyProps, SurveyState> {
             existingActiveSection || pathSectionParentSection,
             surveyUuid,
             this.props.interviewContext.status === 'entering' &&
-                Object.keys(this.props.interviewContext.responses).length > 0
-                ? this.props.interviewContext.responses
+                Object.keys(this.props.interviewContext.response).length > 0
+                ? this.props.interviewContext.response
                 : undefined
         );
 
@@ -138,7 +138,7 @@ class Survey extends React.Component<SurveyProps, SurveyState> {
         if (allWidgetsValid) {
             this.props.startUpdateInterview({
                 sectionShortname: activeSection,
-                valuesByPath: { 'responses._activeSection': parentSection }
+                valuesByPath: { 'response._activeSection': parentSection }
             });
         } else {
             this.setState(
@@ -290,8 +290,8 @@ const SurveyWrapper: React.FC = (props) => {
     const { sectionShortname, uuid } = useParams();
     const { state } = React.useContext(InterviewContext);
 
-    const startSetInterviewAction: StartSetInterview = (sectionShortname, surveyUuid, preFilledResponses) =>
-        dispatch(startSetInterview(sectionShortname, surveyUuid, navigate, preFilledResponses));
+    const startSetInterviewAction: StartSetInterview = (sectionShortname, surveyUuid, preFilledResponse) =>
+        dispatch(startSetInterview(sectionShortname, surveyUuid, navigate, preFilledResponse));
     const startUpdateInterviewAction: StartUpdateInterview = (data, callback) =>
         dispatch(startUpdateInterview({ ...data, gotoFunction: navigate }, callback));
     const startAddGroupedObjectsAction: StartAddGroupedObjects = (

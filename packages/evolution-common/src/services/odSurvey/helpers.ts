@@ -22,7 +22,7 @@ import config from '../../config/project.config';
 import { loopActivities } from './types';
 
 // This file contains helper function that retrieves various data from the
-// responses field of the interview
+// response field of the interview
 
 // TODO This should eventually all be replaced with function directly from a
 // survey object that will return other survey objects, once the objects have
@@ -55,7 +55,7 @@ export const getPerson = ({
 };
 
 /**
- * Get the household object in the interview responses, or an empty object if
+ * Get the household object in the interview response, or an empty object if
  * the household has not been initialized
  *
  * @param {Object} options - The options object.
@@ -63,11 +63,11 @@ export const getPerson = ({
  * @returns {Partial<Household>} The household object or an empty object if not initialized.
  */
 export const getHousehold = ({ interview }: { interview: UserInterviewAttributes }): Partial<Household> => {
-    return interview.responses.household || {};
+    return interview.response.household || {};
 };
 
 /**
- * Get the currently active person, as defined in the interview responses. If
+ * Get the currently active person, as defined in the interview response. If
  * the active person is not set but there are persons defined, the first one
  * will be returned. If the person is not found, `null` will be returned
  *
@@ -76,7 +76,7 @@ export const getHousehold = ({ interview }: { interview: UserInterviewAttributes
  * @returns {Person | null} The active person object or `null` if not found.
  */
 export const getActivePerson = ({ interview }: { interview: UserInterviewAttributes }): Person | null => {
-    const currentPerson = interview.responses._activePersonId;
+    const currentPerson = interview.response._activePersonId;
     const hh = getHousehold({ interview });
     if (currentPerson !== undefined) {
         return (hh.persons || {})[currentPerson] || null;
@@ -93,7 +93,7 @@ export const getActivePerson = ({ interview }: { interview: UserInterviewAttribu
  */
 
 /**
- * Get the persons object in the interview responses, or an empty object if
+ * Get the persons object in the interview response, or an empty object if
  * there are no persons in the survey.
  *
  * @param {Object} options - The options object.
@@ -101,11 +101,11 @@ export const getActivePerson = ({ interview }: { interview: UserInterviewAttribu
  * @returns {PersonsObject} The persons object or an empty object if no persons exist.
  */
 export const getPersons = ({ interview }: { interview: UserInterviewAttributes }): { [personId: string]: Person } => {
-    return (interview.responses.household || {}).persons || {};
+    return (interview.response.household || {}).persons || {};
 };
 
 /**
- * Get the persons array from the interview responses, or an empty array if
+ * Get the persons array from the interview response, or an empty array if
  * there are no persons in the survey
  *
  * @param {Object} options - The options object.
@@ -120,7 +120,7 @@ export const getPersonsArray = ({ interview }: { interview: UserInterviewAttribu
 };
 
 /**
- * Get the interviewable persons array from the interview responses, or an empty
+ * Get the interviewable persons array from the interview response, or an empty
  * array if there are no persons with the interviewable age in the survey. The
  * person is considered interviewable if the age is greater than the
  * interviewable age defined in the configuration or if the age is not set.
@@ -533,12 +533,12 @@ export const replaceVisitedPlaceShortcuts = ({
     const firstPlacePath = `household.persons.${firstVisitedPlace.person._uuid}.journeys.${firstVisitedPlace.journey._uuid}.visitedPlaces.${firstVisitedPlace.visitedPlace._uuid}`;
 
     if ((originalVisitedPlace as any).shortcut) {
-        updatedValuesByPath[`responses.${firstPlacePath}.shortcut`] = (originalVisitedPlace as any).shortcut;
+        updatedValuesByPath[`response.${firstPlacePath}.shortcut`] = (originalVisitedPlace as any).shortcut;
     } else {
-        unsetPaths.push(`responses.${firstPlacePath}.shortcut`);
-        updatedValuesByPath[`responses.${firstPlacePath}.name`] = (originalVisitedPlace as any).name;
+        unsetPaths.push(`response.${firstPlacePath}.shortcut`);
+        updatedValuesByPath[`response.${firstPlacePath}.name`] = (originalVisitedPlace as any).name;
     }
-    updatedValuesByPath[`responses.${firstPlacePath}.geography`] = (originalVisitedPlace as any).geography;
+    updatedValuesByPath[`response.${firstPlacePath}.geography`] = (originalVisitedPlace as any).geography;
 
     // Replace all other places' shortcut with first place
     placesWithShortcut
@@ -546,7 +546,7 @@ export const replaceVisitedPlaceShortcuts = ({
         .forEach(
             (place) =>
                 (updatedValuesByPath[
-                    `responses.household.persons.${place.person._uuid}.journeys.${place.journey._uuid}.visitedPlaces.${place.visitedPlace._uuid}.shortcut`
+                    `response.household.persons.${place.person._uuid}.journeys.${place.journey._uuid}.visitedPlaces.${place.visitedPlace._uuid}.shortcut`
                 ] = firstPlacePath)
         );
 

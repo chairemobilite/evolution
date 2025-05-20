@@ -48,7 +48,7 @@ import { LoadingStateAction } from '../store/loadingState';
 import { RootState } from '../store/configureStore';
 
 /**
- * Called whenever an update occurs in interview responses or when section is
+ * Called whenever an update occurs in interview response or when section is
  * switched to. This function should only be called by redux actions, in this
  * file and the admin one.
  *
@@ -166,7 +166,7 @@ const startUpdateInterviewCallback = async (
         const oldLanguage = surveyHelper.getResponse(interview, '_language', null);
         const actualLanguage = i18n.language;
         if (oldLanguage !== actualLanguage) {
-            valuesByPath['responses._language'] = actualLanguage;
+            valuesByPath['response._language'] = actualLanguage;
         }
 
         const affectedPaths = updateInterviewData(interview, { valuesByPath, unsetPaths, userAction });
@@ -209,7 +209,7 @@ const startUpdateInterviewCallback = async (
             return null;
         }
 
-        // Send update responses to the server
+        // Send update response to the server
         const response = await fetch('/api/survey/updateInterview', {
             headers: {
                 Accept: 'application/json',
@@ -237,7 +237,7 @@ const startUpdateInterviewCallback = async (
                 // TODO This shouldn't be done here in this manner. See https://github.com/chairemobilite/transition/issues/1245
                 const currentServerErrors = Object.assign({}, getState().survey.errors || {});
                 for (const path in currentServerErrors) {
-                    if (updatedValuesByPath[`responses.${path}`] || unsetPaths[`responses.${path}`]) {
+                    if (updatedValuesByPath[`response.${path}`] || unsetPaths[`response.${path}`]) {
                         delete currentServerErrors[path];
                     }
                 }
@@ -299,7 +299,7 @@ const startUpdateInterviewCallback = async (
                 // we need to do something if no interview is returned (error)
             }
         } else {
-            console.log(`Update interview: wrong responses status: ${response.status}`);
+            console.log(`Update interview: wrong response status: ${response.status}`);
             await handleHttpOtherResponseCode(response.status, dispatch, gotoFunction);
         }
     } catch (error) {
@@ -446,7 +446,7 @@ export const startSetInterview = (
     activeSection: string | undefined = undefined,
     surveyUuid: string | undefined = undefined,
     navigate: GotoFunction | undefined = undefined,
-    preFilledResponses: { [key: string]: unknown } | undefined = undefined
+    preFilledResponse: { [key: string]: unknown } | undefined = undefined
 ) => {
     // FIXME There's a lot of code duplication with the startCreateInterview function, either merge them or make them more DRY
     return async (
@@ -468,7 +468,7 @@ export const startSetInterview = (
                 // Get the interview from the response
                 if (body.interview) {
                     const interview = body.interview;
-                    // Set active section and initial responses in the interview
+                    // Set active section and initial response in the interview
                     // Find the first section to activate, if none requested (the one without a previous one)
                     // FIXME This should be done in the backend, not here
                     // FIXME 2 If there was a previous active section in the interview, why not just use that instead of setting it anew
@@ -481,19 +481,19 @@ export const startSetInterview = (
                         }
                     }
                     const valuesByPath = {
-                        'responses._activeSection': activeSection
+                        'response._activeSection': activeSection
                     };
-                    if (preFilledResponses) {
-                        Object.keys(preFilledResponses).forEach((key) => {
-                            valuesByPath[`responses.${key}`] = preFilledResponses[key];
+                    if (preFilledResponse) {
+                        Object.keys(preFilledResponse).forEach((key) => {
+                            valuesByPath[`response.${key}`] = preFilledResponse[key];
                         });
                     }
                     // update browser data if different:
                     // TODO We need to track the different browser/user accesses
-                    const existingBrowserUa = _get(interview, 'responses._browser._ua', null);
+                    const existingBrowserUa = _get(interview, 'response._browser._ua', null);
                     const newBrowserUa = browserTechData.getUA();
                     if (existingBrowserUa !== newBrowserUa) {
-                        valuesByPath['responses._browser'] = browserTechData;
+                        valuesByPath['response._browser'] = browserTechData;
                     }
                     dispatch(
                         startUpdateInterview({
@@ -507,10 +507,10 @@ export const startSetInterview = (
                     // No interview for this user, create one
                     // FIXME Shouldn't the server do this? The createInterview and setInterview should be merged
                     // FIXME 2 Does it make sense to create a new interview if there is a surveyUUID?
-                    dispatch(startCreateInterview(preFilledResponses));
+                    dispatch(startCreateInterview(preFilledResponse));
                 }
             } else {
-                console.log(`Get active interview: wrong responses status: ${response.status}`);
+                console.log(`Get active interview: wrong response status: ${response.status}`);
                 handleHttpOtherResponseCode(response.status, dispatch, navigate);
             }
         } catch (err) {
@@ -520,7 +520,7 @@ export const startSetInterview = (
     };
 };
 
-export const startCreateInterview = (preFilledResponses: { [key: string]: unknown } | undefined = undefined) => {
+export const startCreateInterview = (preFilledResponse: { [key: string]: unknown } | undefined = undefined) => {
     const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
     return async (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
@@ -535,7 +535,7 @@ export const startCreateInterview = (preFilledResponses: { [key: string]: unknow
                 // Get the interview from the response
                 const body = await response.json();
                 if (body.interview) {
-                    // Set active section and initial responses in the interview
+                    // Set active section and initial response in the interview
                     let activeSection: string | undefined = undefined;
                     // Find the first section to activate (the one without a previous one)
                     // FIXME This should be done in the backend, not here
@@ -545,20 +545,20 @@ export const startCreateInterview = (preFilledResponses: { [key: string]: unknow
                             break;
                         }
                     }
-                    const responses = {
-                        'responses._activeSection': activeSection,
-                        'responses._browser': browserTechData
+                    const response = {
+                        'response._activeSection': activeSection,
+                        'response._browser': browserTechData
                     };
-                    if (preFilledResponses) {
-                        Object.keys(preFilledResponses).forEach((key) => {
-                            responses[`responses.${key}`] = preFilledResponses[key];
+                    if (preFilledResponse) {
+                        Object.keys(preFilledResponse).forEach((key) => {
+                            response[`response.${key}`] = preFilledResponse[key];
                         });
                     }
-                    // Update the interview with the initial responses
+                    // Update the interview with the initial response
                     dispatch(
                         startUpdateInterview({
                             sectionShortname: activeSection,
-                            valuesByPath: responses,
+                            valuesByPath: response,
                             interview: body.interview
                         })
                     );
@@ -567,7 +567,7 @@ export const startCreateInterview = (preFilledResponses: { [key: string]: unknow
                     handleClientError('createInterview returned success but no interview was returned', {});
                 }
             } else {
-                console.log(`Creating interview: wrong responses status: ${response.status}`);
+                console.log(`Creating interview: wrong response status: ${response.status}`);
                 handleHttpOtherResponseCode(response.status, dispatch);
             }
         } catch (err) {

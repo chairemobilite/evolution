@@ -10,35 +10,34 @@ import * as React from 'react';
 import appConfig from '../config/application.config';
 import { URLSearchParams } from 'url';
 
-// TODO Can this be InterviewResponses from 'evolution-common/lib/services/interviews/interview'? To be confirmed
-export type InterviewResponses = { [key: string]: any };
+// TODO Can this be InterviewResponse from 'evolution-common/lib/services/interviews/interview'? To be confirmed
+export type InterviewResponse = { [key: string]: any };
 
 export type InterviewState =
-    | { status: 'list'; responses: InterviewResponses }
-    | { status: 'creating'; responses: InterviewResponses; username: string }
-    | { status: 'error'; responses: InterviewResponses }
-    | { status: 'success'; responses: InterviewResponses; interviewUuid: string }
-    | { status: 'entering'; responses: InterviewResponses };
+    | { status: 'list'; response: InterviewResponse }
+    | { status: 'creating'; response: InterviewResponse; username: string }
+    | { status: 'error'; response: InterviewResponse }
+    | { status: 'success'; response: InterviewResponse; interviewUuid: string }
+    | { status: 'entering'; response: InterviewResponse };
 
 type InterviewAction =
     | { type: 'createNew'; username: string; queryData: URLSearchParams }
     | { type: 'list' }
-    | { type: 'update_responses'; responses: InterviewResponses }
+    | { type: 'update_response'; response: InterviewResponse }
     | { type: 'success'; interviewUuid: string }
     | { type: 'enter'; queryData: URLSearchParams };
 
-const queryDataToResponses = (queryData: URLSearchParams, stateResponses: InterviewResponses) => {
+const queryDataToResponse = (queryData: URLSearchParams, stateResponse: InterviewResponse) => {
     const alphaNumRegex = /^[a-z0-9-_]+/i;
-    const responses: { [key: string]: string } = {};
+    const response: { [key: string]: string } = {};
     appConfig.allowedUrlFields.forEach((field) => {
         const value = queryData.get(field) as string;
         if (!_isBlank(value)) {
             const alphaNumSource = value.match(alphaNumRegex);
-            if (alphaNumSource && _get(stateResponses, field) !== alphaNumSource[0])
-                responses[field] = alphaNumSource[0];
+            if (alphaNumSource && _get(stateResponse, field) !== alphaNumSource[0]) response[field] = alphaNumSource[0];
         }
     });
-    return Object.keys(responses).length !== 0 ? Object.assign({}, stateResponses, responses) : stateResponses;
+    return Object.keys(response).length !== 0 ? Object.assign({}, stateResponse, response) : stateResponse;
 };
 
 export function interviewReducer(state: InterviewState, action: InterviewAction): InterviewState {
@@ -46,24 +45,24 @@ export function interviewReducer(state: InterviewState, action: InterviewAction)
     case 'createNew':
         return {
             status: 'creating',
-            responses: queryDataToResponses(action.queryData, state.responses),
+            response: queryDataToResponse(action.queryData, state.response),
             username: action.username
         };
     case 'list':
         return { ...state, status: 'list' };
     case 'success':
-        return { status: 'success', responses: state.responses, interviewUuid: action.interviewUuid };
-    case 'update_responses':
-        return { ...state, status: 'list', responses: action.responses };
+        return { status: 'success', response: state.response, interviewUuid: action.interviewUuid };
+    case 'update_response':
+        return { ...state, status: 'list', response: action.response };
     case 'enter':
         return {
             status: 'entering',
-            responses: queryDataToResponses(action.queryData, state.responses)
+            response: queryDataToResponse(action.queryData, state.response)
         };
     }
 }
 
-export const initialState = { status: 'list' as const, responses: {} };
+export const initialState = { status: 'list' as const, response: {} };
 
 export const InterviewContext = React.createContext<{
     state: InterviewState;

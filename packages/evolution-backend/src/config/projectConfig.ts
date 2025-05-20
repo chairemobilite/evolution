@@ -23,7 +23,7 @@ interface ProjectServerConfig {
     serverValidations: ServerValidation;
     roleDefinitions: (() => void) | undefined;
     /**
-     * This function is provided by surveys to validate and audit the complete responses.
+     * This function is provided by surveys to validate and audit the complete response.
      * It will receive the content of the validated_data and should return the
      * individual audits. It is optional. If the survey does not require auditing, just leave blank.
      */
@@ -65,7 +65,7 @@ export const defaultConfig: ProjectServerConfig = {
             username,
             facebook,
             google,
-            responses,
+            response,
             validated_data,
             audits
         } = interview;
@@ -80,9 +80,9 @@ export const defaultConfig: ProjectServerConfig = {
             username,
             facebook,
             google,
-            responses: {
-                _isCompleted: responses?._isCompleted,
-                household: { size: responses?.household?.size },
+            response: {
+                _isCompleted: response?._isCompleted,
+                household: { size: response?.household?.size },
                 _validationComment: validated_data?._validationComment
             },
             audits
@@ -124,9 +124,9 @@ export const setProjectConfig = (config: Partial<ProjectServerConfig>) => {
 /**
  * Register server-side callbacks to be called when certain fields are updated.
  * These callbacks are used to add/modify field values in the interview
- * depending on certain other responses fields.
+ * depending on certain other response fields.
  *
- * @param serverCallbacks An array of callbacks to call when responses are
+ * @param serverCallbacks An array of callbacks to call when response is
  * updated
  */
 export const registerServerUpdateCallbacks = (serverCallbacks: ServerFieldUpdateCallback[]) => {

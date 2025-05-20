@@ -27,7 +27,7 @@ const interviewAttributes: UserInterviewAttributes = {
     participant_id: 1,
     is_completed: false,
     is_questionable: false,
-    responses: {
+    response: {
         section1: {
             q1: 'abc',
             q2: 3
@@ -66,7 +66,7 @@ const interviewAttributesWithHh: UserInterviewAttributes = {
     participant_id: 1,
     is_completed: false,
     is_questionable: false,
-    responses: {
+    response: {
         section1: {
             q1: 'abc',
             q2: 3
@@ -108,7 +108,7 @@ const arbitraryFunction = jest.fn();
 beforeEach(() => {
     mockedT.mockClear();
     arbitraryFunction.mockClear();
-})
+});
 
 test('devLog', () => {
     // Not really a test, just make sure it does not throw
@@ -147,9 +147,9 @@ each([
     [3, 'string', '3'],
     [null, 'string', null],
     [undefined, 'string', undefined],
-    [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0,0]}, properties: {} }, 'geojson', { type: 'Feature', geometry: { type: 'Point', coordinates: [0,0]}, properties: {} }],
+    [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0,0] }, properties: {} }, 'geojson', { type: 'Feature', geometry: { type: 'Point', coordinates: [0,0] }, properties: {} }],
     // Should add the properties to the feature
-    [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0,0]} }, 'geojson', { type: 'Feature', geometry: { type: 'Point', coordinates: [0,0]}, properties: {} }],
+    [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0,0] } }, 'geojson', { type: 'Feature', geometry: { type: 'Point', coordinates: [0,0] }, properties: {} }],
     [{ type: 'Feature', geometry: 'not a geometry' }, 'geojson', null],
     [3, 'geojson', null],
     ['not a feature', 'geojson', null],
@@ -186,12 +186,12 @@ test('getPath without relative path', () => {
 });
 
 each([
-    ['section1.q1', 'def', undefined, ((interviewAttributesWithHh.responses as any).section1 as any).q1],
+    ['section1.q1', 'def', undefined, ((interviewAttributesWithHh.response as any).section1 as any).q1],
     ['section1.q3', 'def', undefined, 'def'],
     ['section1.q3', undefined, undefined, undefined],
-    ['section1.q1', 'def', '../../section2.q1', ((interviewAttributesWithHh.responses as any).section2 as any).q1],
+    ['section1.q1', 'def', '../../section2.q1', ((interviewAttributesWithHh.response as any).section2 as any).q1],
     ['section1.q1', 'def', 'section2.q1', null],
-    ['section1', 'def', undefined, ((interviewAttributesWithHh.responses as any).section1 as any)],
+    ['section1', 'def', undefined, ((interviewAttributesWithHh.response as any).section1 as any)],
 ]).test('getResponse: %s %s %s', (path, defaultValue, relativePath, expected) => {
     expect(Helpers.getResponse(interviewAttributesWithHh, path, defaultValue, relativePath)).toEqual(expected);
 });
@@ -408,7 +408,7 @@ each([
 ]).test('survey start: %s %s', (configValue, surveyStart, expected) => {
     config.surveyStart = configValue;
     const interview = _cloneDeep(interviewAttributes);
-    interview.responses._startedAt = surveyStart;
+    interview.response._startedAt = surveyStart;
     expect(Helpers.surveyStarted(interview)).toEqual(expected);
 });
 
@@ -424,7 +424,7 @@ each([
 ]).test('survey ended: %s %s', (configValue, surveyStart, expected) => {
     config.surveyEnd = configValue;
     const interview = _cloneDeep(interviewAttributes);
-    interview.responses._startedAt = surveyStart;
+    interview.response._startedAt = surveyStart;
     expect(Helpers.surveyEnded(interview)).toEqual(expected);
 });
 
@@ -439,99 +439,99 @@ each([
     ['2023-12-13', moment('2023-12-14').unix(), true]
 ]).test('survey start: %s %s', (dateCompare, surveyStart, expected) => {
     const interview = _cloneDeep(interviewAttributes);
-    interview.responses._startedAt = surveyStart;
+    interview.response._startedAt = surveyStart;
     expect(Helpers.interviewOnOrAfter(dateCompare, interview)).toEqual(expected);
 });
 
 describe('Group functions', () => {
     each([
         ['one object at the end', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 1, -1, [], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
-            'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { } 
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { }
         }],
         ['0 objects', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 0, -1, [], { }],
         ['one object at sequence', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 1, 2, [], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 3,
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2 },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 3,
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2 },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { }
         }],
         ['one object at sequence 0, should be 1', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 1, 0, [], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj1._sequence': 2,
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 3,
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 1 },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj1._sequence': 2,
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 3,
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 1 },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { }
         }],
         ['one object at sequence too large', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 1, 5, [], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { }
         }],
         ['2 objects, no previous objects', {}, 2, undefined, [], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 1 },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 1 },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { },
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 2 },
-            'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { } 
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 2 },
+            'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { }
         }],
         ['3 objects, at sequence 2', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 3, 2, [], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 5,
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2 },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 5,
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2 },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { },
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3 },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3 },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { },
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4 },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4 },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { }
         }],
         ['with attributes, same count',  {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 3, 2, [{ myVal: 'first' }, { myVal: 'second', other: 'test' }, { myVal: 'third' }], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 5,
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2, myVal: 'first' },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 5,
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2, myVal: 'first' },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { },
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3, myVal: 'second', other: 'test' },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3, myVal: 'second', other: 'test' },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { },
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4, myVal: 'third' },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4, myVal: 'third' },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { }
         }],
         ['with attributes, unequal count',  {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 3, 2, [{ myVal: 'first' }, { myVal: 'second', other: 'test' }], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 5,
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2, myVal: 'first' },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2._sequence': 5,
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 2, myVal: 'first' },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { },
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3, myVal: 'second', other: 'test' },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { _uuid: 'newObj1', _sequence: 3, myVal: 'second', other: 'test' },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj1': { },
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4 },
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { _uuid: 'newObj2', _sequence: 4 },
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj2': { }
         }],
         ['negative object count', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, -1, -1, [], { }],
         ['negative, but not -1, sequence', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 1, -2, [], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
-            'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { } 
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { _uuid: 'newObj0', _sequence: 3 },
+            'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.newObj0': { }
         }]
     ]).test('add grouped objects: %s', (_title, previousObj, count, seq, attributes, expected) => {
         // Mock the uuid return value
@@ -540,76 +540,76 @@ describe('Group functions', () => {
         }
         const basePath = 'household.persons.personId1.journeys.journeyId1.visitedPlaces';
         const interview = _cloneDeep(interviewAttributesWithHh);
-        interview.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces = previousObj;
+        interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces = previousObj;
         expect(Helpers.addGroupedObjects(interview, count, seq, basePath, attributes)).toEqual(expected);
     });
 
     each([
         ['single object to remove at the end', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 'obj2', {}, [
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2'
         ]],
         ['multiple objects to remove at the end', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2},
-            obj3: { _uuid: 'obj3', _sequence: 3}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 },
+            obj3: { _uuid: 'obj3', _sequence: 3 }
         }, ['obj2', 'obj3'], {}, [
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3',
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3',
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3'
         ]],
         ['single object to remove in the middle', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2},
-            obj3: { _uuid: 'obj3', _sequence: 3}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 },
+            obj3: { _uuid: 'obj3', _sequence: 3 }
         }, 'obj2', {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3._sequence': 2
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3._sequence': 2
         }, [
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2'
         ]],
         ['multiple objects to remove at various location', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2},
-            obj3: { _uuid: 'obj3', _sequence: 3},
-            obj4: { _uuid: 'obj4', _sequence: 4},
-            obj5: { _uuid: 'obj5', _sequence: 5}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 },
+            obj3: { _uuid: 'obj3', _sequence: 3 },
+            obj4: { _uuid: 'obj4', _sequence: 4 },
+            obj5: { _uuid: 'obj5', _sequence: 5 }
         }, ['obj2', 'obj4'], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3._sequence': 2,
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj5._sequence': 3
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3._sequence': 2,
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj5._sequence': 3
         }, [
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj4',
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj4',
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj4'
         ]],
         ['unexisting objects', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, 'objnone', {}, []],
         ['no path to remove', {
-            obj1: { _uuid: 'obj1', _sequence: 1},
-            obj2: { _uuid: 'obj2', _sequence: 2}
+            obj1: { _uuid: 'obj1', _sequence: 1 },
+            obj2: { _uuid: 'obj2', _sequence: 2 }
         }, [], {}, []],
         ['No sequence in previous object data', {
-            obj1: { _uuid: 'obj1'},
-            obj2: { _uuid: 'obj2'},
-            obj3: { _uuid: 'obj3'}
+            obj1: { _uuid: 'obj1' },
+            obj2: { _uuid: 'obj2' },
+            obj3: { _uuid: 'obj3' }
         }, ['obj2'], {
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3._sequence': 2
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj3._sequence': 2
         }, [
-            'responses.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
+            'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2',
             'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.obj2'
         ]]
     ]).test('remove grouped objects: %s', (_title, previousObj, paths, expectedByPath, expectedUnset) => {
         const basePath = 'household.persons.personId1.journeys.journeyId1.visitedPlaces';
         const interview = _cloneDeep(interviewAttributesWithHh);
-        const completePaths = typeof paths === 'string' ? `${basePath}.${paths}` : paths.map(path => `${basePath}.${path}`);
-        interview.responses.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces = previousObj;
+        const completePaths = typeof paths === 'string' ? `${basePath}.${paths}` : paths.map((path) => `${basePath}.${path}`);
+        interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces = previousObj;
         expect(Helpers.removeGroupedObjects(interview, completePaths)).toEqual([expectedByPath, expectedUnset]);
     });
 });
@@ -619,7 +619,7 @@ describe('getWidgetChoiceFromValue', () => {
         { groupShortname: 'group', groupLabel: 'groupLabel', choices: [
             { value: 'sub_value1', label: 'label1' },
             { value: 'sub_value2', label: 'label2' }
-        ]},
+        ] },
         { value: 'value3', label: 'label3' }
     ];
     const radioChoices = [

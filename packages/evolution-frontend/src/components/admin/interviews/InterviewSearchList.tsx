@@ -68,8 +68,8 @@ const InterviewSearchList: React.FunctionComponent<InterviewSearchListProps & Wi
     );
 
     React.useEffect(() => {
-        fetchData(state.responses.accessCode);
-    }, [state.responses]);
+        fetchData(state.response.accessCode);
+    }, [state.response]);
 
     // TODO This is very specific to the interviewer use case, generalize it and use a function to generate username, maybe as prop
     return (

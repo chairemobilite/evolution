@@ -83,7 +83,7 @@ describe('is User allowed', () => {
             participant_id: 1,
             is_completed: true,
             is_questionable: false,
-            responses: {},
+            response: {},
             validations: {},
             is_valid: true,
             is_active,

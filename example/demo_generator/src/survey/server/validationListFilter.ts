@@ -11,9 +11,9 @@ import { InterviewListAttributes } from 'evolution-common/lib/services/questionn
 // Add the access code to the validation status list
 export default (interview: InterviewListAttributes) => {
     const status = defaultConfig.validationListFilter(interview);
-    status.responses = {
-        ...status.responses,
-        accessCode: interview.responses ? (interview.responses as any).accessCode : undefined
+    status.response = {
+        ...status.response,
+        accessCode: interview.response ? (interview.response as any).accessCode : undefined
     } as any;
     return status;
 };

@@ -26,7 +26,7 @@ export type EvolutionApplicationConfiguration = {
     projectHelpers: { [helperName: string]: () => any };
     /**
      * Fields that, if present in the original query string to the survey, will
-     * be pre-filled in the responses
+     * be pre-filled in the response
      */
     allowedUrlFields: string[];
 

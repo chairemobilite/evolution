@@ -16,20 +16,20 @@ const exportJsonFileDirectory = 'exports/interviewsJson';
  */
 const exportInterviews = function (exportJsonFileDirectory) {
     return knex
-        .select('id', 'uuid', 'responses', 'validated_data')
+        .select('id', 'uuid', 'response', 'validated_data')
         .from('sv_interviews')
         .orderBy('id')
         .then((rows) => {
             for (let i = 0, count = rows.length; i < count; i++) {
                 const interview = rows[i];
-                const responses = interview.responses;
-                responses.id = interview.id;
-                responses.uuid = interview.uuid;
+                const response = interview.response;
+                response.id = interview.id;
+                response.uuid = interview.uuid;
 
                 fileManager.directoryManager.createDirectoryIfNotExists(exportJsonFileDirectory);
                 fs.writeFileSync(
                     exportJsonFileDirectory + '/' + interview.id + '__' + interview.uuid + '.json',
-                    JSON.stringify(responses, null, 2) // add linefeeds for readability
+                    JSON.stringify(response, null, 2) // add linefeeds for readability
                 );
             }
         });

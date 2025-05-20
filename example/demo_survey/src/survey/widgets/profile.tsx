@@ -706,13 +706,13 @@ export const partOneConfirmed = {
     if (partOneConfirmed === 'confirm')
     {
       this.props.startUpdateInterview('partTwoIntro', {
-        'responses._activeSection': 'selectPerson'
+        'response._activeSection': 'selectPerson'
       });
     }
     else if (partOneConfirmed === 'modify')
     {
       this.props.startUpdateInterview('partTwoIntro', {
-        'responses._activeSection': 'home'
+        'response._activeSection': 'home'
       });
     }
   }

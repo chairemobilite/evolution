@@ -45,7 +45,7 @@ type RecursiveFinalKeyOf<TObj extends object> = {
           : `${TKey}`;
 }[keyof TObj & (string | number)];
 
-export type InterviewResponsePath = RecursiveFinalKeyOf<Required<InterviewResponses>>;
+export type InterviewResponsePath = RecursiveFinalKeyOf<Required<InterviewResponse>>;
 
 type RecursivePartial<T> = {
     [P in keyof T]?: T[P] extends (infer U)[]
@@ -55,15 +55,15 @@ type RecursivePartial<T> = {
           : T[P];
 };
 
-export type PartialInterviewResponses = RecursivePartial<InterviewResponses>;
+export type PartialInterviewResponse = RecursivePartial<InterviewResponse>;
 
-// Type for the validations, which should have the same keys as the responses, but with boolean values
+// Type for the validations, which should have the same keys as the response, but with boolean values
 type RecursiveBoolean<TObj extends object> = {
     [TKey in keyof TObj]?: TObj[TKey] extends object ? RecursiveBoolean<Required<TObj[TKey]>> : boolean;
 };
-export type InterviewValidations = RecursiveBoolean<Required<InterviewResponses>>;
+export type InterviewValidations = RecursiveBoolean<Required<InterviewResponse>>;
 
-// The following types are those in the responses field of the interview object.
+// The following types are those in the response field of the interview object.
 // They use the types of the survey objects for the attributes, but extended
 // attributes are in an object with the key being the object uuid, instead of an
 // array of objects, like the composed attributes of the corresponding objects
@@ -153,9 +153,9 @@ type SectionStatus = {
  * TODO Update to use new types in surveyObjects
  *
  * @export
- * @interface InterviewResponses
+ * @interface InterviewResponse
  */
-export type InterviewResponses = {
+export type InterviewResponse = {
     // Volatile survey workflow fields:
     _activePersonId?: string;
     _activeTripId?: string;
@@ -184,7 +184,7 @@ export type InterviewResponses = {
         }[];
     };
 
-    // Actual responses
+    // Actual response
     household?: Household;
     home?: {
         region?: string;
@@ -195,7 +195,7 @@ export type InterviewResponses = {
     [key: string]: any;
 };
 
-type ValidatedResponses = InterviewResponses & {
+type ValidatedResponse = InterviewResponse & {
     _validatedDataCopiedAt?: number;
     _validationComment?: string;
 };
@@ -216,7 +216,7 @@ export interface UserInterviewAttributes {
     uuid: string;
     participant_id: number;
     is_completed: boolean;
-    responses: InterviewResponses;
+    response: InterviewResponse;
     validations: InterviewValidations;
     is_valid: boolean;
     is_questionable?: boolean;
@@ -233,7 +233,7 @@ export interface UserInterviewAttributes {
 export interface InterviewAttributes extends UserInterviewAttributes {
     is_active?: boolean;
     is_started?: boolean;
-    validated_data?: ValidatedResponses;
+    validated_data?: ValidatedResponse;
     audits?: InterviewAudits;
     is_validated?: boolean;
     is_questionable?: boolean;
@@ -250,8 +250,8 @@ export interface InterviewListAttributes {
     id: number;
     uuid: string;
     participant_id: number;
-    responses: InterviewResponses;
-    validated_data: ValidatedResponses;
+    response: InterviewResponse;
+    validated_data: ValidatedResponse;
     is_valid?: boolean;
     is_completed?: boolean;
     is_validated?: boolean;
@@ -273,7 +273,7 @@ export interface InterviewListAttributes {
 export interface InterviewStatusAttributesBase {
     id: number;
     uuid: string;
-    responses: PartialInterviewResponses;
+    response: PartialInterviewResponse;
     is_valid?: boolean;
     is_completed?: boolean;
     is_validated?: boolean;
@@ -420,7 +420,7 @@ export type RuntimeInterviewAttributes = {
             };
         };
     };
-    // Contains the paths in the responses of the visible widgets... FIXME Rename?
+    // Contains the paths in the response of the visible widgets... FIXME Rename?
     visibleWidgets: string[];
     allWidgetsValid: boolean;
     // Name of the currently loaded section

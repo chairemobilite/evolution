@@ -11,10 +11,10 @@ import express, { Request, Response } from 'express';
 import moment from 'moment';
 
 import Interviews, { FilterType } from '../services/interviews/interviews';
-import { updateInterview, copyResponsesToValidatedData } from '../services/interviews/interview';
+import { updateInterview, copyResponseToValidatedData } from '../services/interviews/interview';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import projectConfig from '../config/projectConfig';
-import { mapResponsesToValidatedData } from '../services/interviews/interviewUtils';
+import { mapResponseToValidatedData } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
 import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -37,26 +37,26 @@ router.get(
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
                 if (interview) {
                     const forceCopy = _booleish(req.query.reset) === true;
-                    // Copy the responses in the validated_data
+                    // Copy the response in the validated_data
                     if (forceCopy || _isBlank(interview.validated_data)) {
-                        await copyResponsesToValidatedData(interview);
+                        await copyResponseToValidatedData(interview);
                     }
                     // Run audits on the validated_data
                     const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interview);
-                    // TODO Here, the responses field should not make it to frontend. But make sure there are no side effect in the frontend, where the _responses is used or checked.
-                    const { responses, validated_data, ...rest } = interview;
+                    // TODO Here, the response field should not make it to frontend. But make sure there are no side effect in the frontend, where the _response is used or checked.
+                    const { response, validated_data, ...rest } = interview;
                     return res.status(200).json({
                         status: 'success',
                         interview: {
-                            responses: validated_data,
-                            _responses: responses,
+                            response: validated_data,
+                            _response: response,
                             surveyObjectsAndAudits: objectsAndAudits,
                             ...rest,
                             validationDataDirty:
-                                responses._updatedAt !== undefined &&
+                                response._updatedAt !== undefined &&
                                 interview.is_frozen !== true &&
                                 (validated_data?._validatedDataCopiedAt === undefined ||
-                                    validated_data._validatedDataCopiedAt < responses._updatedAt)
+                                    validated_data._validatedDataCopiedAt < response._updatedAt)
                         }
                     });
                 } else {
@@ -100,7 +100,7 @@ router.post(
                 valuesByPath: mappedValuesByPath,
                 unsetPaths,
                 userAction
-            } = mapResponsesToValidatedData(valuesByPath, origUnsetPaths, content.userAction);
+            } = mapResponseToValidatedData(valuesByPath, origUnsetPaths, content.userAction);
 
             const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
             if (interview) {
@@ -113,7 +113,7 @@ router.post(
                     'is_completed',
                     'is_questionable'
                 ];
-                interview.responses._updatedAt = timestamp;
+                interview.response._updatedAt = timestamp;
                 const retInterview = await updateInterview(interview, {
                     logUpdate: getParadataLoggingFunction(interview.id, (req.user as UserAttributes).id),
                     valuesByPath: mappedValuesByPath,

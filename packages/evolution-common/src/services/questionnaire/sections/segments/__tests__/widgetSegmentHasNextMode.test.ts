@@ -83,9 +83,9 @@ describe('segmentHasNextMode conditional', () => {
 
     // Prepare test data with active person/journey/trip
     const testInterview = _cloneDeep(interviewAttributesForTestCases);
-    testInterview.responses._activePersonId = 'personId2';
-    testInterview.responses._activeJourneyId = 'journeyId2';
-    testInterview.responses._activeTripId = 'tripId1P2';
+    testInterview.response._activePersonId = 'personId2';
+    testInterview.response._activeJourneyId = 'journeyId2';
+    testInterview.response._activeTripId = 'tripId1P2';
 
     const segmentPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1';
     const currentSegment = getResponse(interviewAttributesForTestCases, segmentPath);
@@ -140,9 +140,9 @@ describe('segmentHasNextMode conditional', () => {
     test('should be displayed if last segment of many', () => {
         // Prepare interview data and use trip 2 or person 2, who has 2 segments
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
 
         // Test conditional, using the last segment
         const result = conditional!(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId2P2T2.hasNextMode');
@@ -152,9 +152,9 @@ describe('segmentHasNextMode conditional', () => {
     test('should not be displayed if not last segment of many and should return true', () => {
         // Prepare interview data and use trip 2 or person 2, who has 2 segments
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
 
         // Test conditional, using the first segment
         const result = conditional!(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2.hasNextMode');
@@ -179,7 +179,7 @@ describe('segmentHasNextMode label', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-    })
+    });
 
     test('should return the right label for normal activities', () => {
         // Prepare mocked data
@@ -190,13 +190,13 @@ describe('segmentHasNextMode label', () => {
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.hasNextMode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: 'other'});
+        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: 'other' });
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentHasNextMode', 'segments:SegmentHasNextMode'], {
             context,
             nickname: 'p2',
@@ -205,8 +205,8 @@ describe('segmentHasNextMode label', () => {
             count: 1
         });
         expect(mockedT).toHaveBeenCalledTimes(2);
-        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.responses.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2, interview });
-        expect(mockedGetCountOrSelfDeclared).toHaveBeenCalledWith({ interview, person: interview.responses.household!.persons!.personId2 });
+        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2, interview });
+        expect(mockedGetCountOrSelfDeclared).toHaveBeenCalledWith({ interview, person: interview.response.household!.persons!.personId2 });
     });
 
     test('should return label with generic place names, when origin/destination do not exist', () => {
@@ -214,15 +214,15 @@ describe('segmentHasNextMode label', () => {
         const context = 'currentContext';
         const count = 3;
         mockedGetContext.mockReturnValue(context);
-        mockedGetCountOrSelfDeclared.mockReturnValueOnce(count)
+        mockedGetCountOrSelfDeclared.mockReturnValueOnce(count);
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
         // Change trip for one with undefined origin/destination
-        interview.responses.household!.persons!.personId2!.journeys!.journeyId2!.trips!.tripId2P2 = {
+        interview.response.household!.persons!.personId2!.journeys!.journeyId2!.trips!.tripId2P2 = {
             _uuid: 'tripId2P2',
             _sequence: 2,
             _originVisitedPlaceUuid: 'unexistingOrigin',
@@ -235,11 +235,11 @@ describe('segmentHasNextMode label', () => {
                     modePre: 'walk'
                 }
             }
-        }
+        };
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.hasNextMode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: ''});
+        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: '' });
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentHasNextMode', 'segments:SegmentHasNextMode'], {
             context,
             nickname: 'p2',
@@ -255,15 +255,15 @@ describe('segmentHasNextMode label', () => {
         const context = 'currentContext';
         const count = 3;
         mockedGetContext.mockReturnValue(context);
-        mockedGetCountOrSelfDeclared.mockReturnValueOnce(count)
+        mockedGetCountOrSelfDeclared.mockReturnValueOnce(count);
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
         // Change the activity of the destination to a loop activity
-        interview.responses.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2!.activity = 'leisureStroll';
+        interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2!.activity = 'leisureStroll';
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.hasNextMode`);
@@ -288,13 +288,13 @@ describe('segmentHasNextMode label', () => {
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.hasNextMode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: 'other'});
+        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: 'other' });
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentHasNextMode', 'segments:SegmentHasNextMode'], {
             context: undefined,
             nickname: 'p2',

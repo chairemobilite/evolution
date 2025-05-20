@@ -9,7 +9,7 @@ import { ValidationFunction } from '../questionnaire/types/WidgetConfig';
 import { ParserFunction } from '../parsers/ParserFunction';
 
 /**
- * This type describes the paths in the responses field,
+ * This type describes the paths in the response field,
  * with data for validation and export.
  * Path config include custom admin validations,
  * flag to include the path in export files or not,

@@ -20,35 +20,35 @@ afterAll(async() => {
 });
 
 describe('set/get pre-filled answers', () => {
-    const responses = { ['home.address']: { value: 'address' } };
-    const otherResponse = { 
-        ['home.address']: { value: 'new address', actionIfPresent: 'force' as const }, 
+    const response = { ['home.address']: { value: 'address' } };
+    const otherResponse = {
+        ['home.address']: { value: 'new address', actionIfPresent: 'force' as const },
         ['home.city']: { value: 'Montreal', actionIfPresent: 'doNothing' as const }
     };
 
-    test('Get unexisting responses', async() => {
+    test('Get unexisting response', async() => {
         expect(await dbQueries.getByReferenceValue('data')).toBeUndefined();
     });
 
-    test('Add new responses for reference field', async () => {
-        await dbQueries.setPreFilledResponsesForRef('data', responses);
-        const preFilledResponses = await dbQueries.getByReferenceValue('data');
-        expect(preFilledResponses).toEqual(responses);
-    });
-    
-    test('Add new responses for the same reference field', async () => {
-        await dbQueries.setPreFilledResponsesForRef('data', otherResponse);
-        const preFilledResponses = await dbQueries.getByReferenceValue('data');
-        expect(preFilledResponses).toEqual(otherResponse);
+    test('Add new response for reference field', async () => {
+        await dbQueries.setPreFilledResponseForRef('data', response);
+        const preFilledResponse = await dbQueries.getByReferenceValue('data');
+        expect(preFilledResponse).toEqual(response);
     });
 
-    test('Add responses for another reference field', async () => {
-        await dbQueries.setPreFilledResponsesForRef('foo', responses);
-        const preFilledResponses = await dbQueries.getByReferenceValue('data');
-        expect(preFilledResponses).toEqual(otherResponse);
+    test('Add new response for the same reference field', async () => {
+        await dbQueries.setPreFilledResponseForRef('data', otherResponse);
+        const preFilledResponse = await dbQueries.getByReferenceValue('data');
+        expect(preFilledResponse).toEqual(otherResponse);
+    });
 
-        const newPreFilledResponses = await dbQueries.getByReferenceValue('foo');
-        expect(newPreFilledResponses).toEqual(responses);
+    test('Add response for another reference field', async () => {
+        await dbQueries.setPreFilledResponseForRef('foo', response);
+        const preFilledResponse = await dbQueries.getByReferenceValue('data');
+        expect(preFilledResponse).toEqual(otherResponse);
+
+        const newPreFilledResponse = await dbQueries.getByReferenceValue('foo');
+        expect(newPreFilledResponse).toEqual(response);
     });
 
 });

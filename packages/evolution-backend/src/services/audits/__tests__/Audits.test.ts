@@ -76,7 +76,7 @@ describe('runAndSaveInterviewAudits', () => {
         uuid: 'arbitrary',
         participant_id: 1,
         is_valid: true,
-        responses: {
+        response: {
             fieldA: 'a',
             fieldB: 'b',
             someObject: {

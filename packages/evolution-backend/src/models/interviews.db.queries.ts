@@ -93,7 +93,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
             .select(
                 'i.id',
                 'i.uuid',
-                knex.raw('responses->\'home\' as home'),
+                knex.raw('response->\'home\' as home'),
                 'i.is_completed',
                 'i.is_questionable',
                 'i.is_valid',
@@ -118,7 +118,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
                 }
             });
         };
-        whereBuilder('"i"."responses"', searchObject);
+        whereBuilder('"i"."response"', searchObject);
         if (whereRawString.length === 0) {
             console.log('No search specified, nothing will be returned');
             return [];
@@ -140,7 +140,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
     } catch (error) {
         console.error(error);
         throw new TrError(
-            `cannot find interviews by responses because of a database error (knex error: ${error})`,
+            `cannot find interviews by response because of a database error (knex error: ${error})`,
             'TITQGC0002'
         );
     }
@@ -186,7 +186,7 @@ const getUserInterview = async (participantId: number): Promise<UserInterviewAtt
             .select(
                 'sv_interviews.id',
                 'sv_interviews.uuid',
-                'responses',
+                'response',
                 'validations',
                 'participant_id',
                 'is_valid',
@@ -221,13 +221,13 @@ const getUserInterview = async (participantId: number): Promise<UserInterviewAtt
  * @returns An object with the json data sanitized
  */
 const sanitizeJsonData = (object: Partial<InterviewAttributes>) => {
-    const { responses, validated_data, ...rest } = object;
-    const newResponses = responses !== undefined ? JSON.stringify(responses).replaceAll('\\u0000', '') : undefined;
+    const { response, validated_data, ...rest } = object;
+    const newResponse = response !== undefined ? JSON.stringify(response).replaceAll('\\u0000', '') : undefined;
     const newValidatedData =
         validated_data !== undefined ? JSON.stringify(validated_data).replaceAll('\\u0000', '') : undefined;
     return {
         ...rest,
-        responses: newResponses,
+        response: newResponse,
         validated_data: newValidatedData
     };
 };
@@ -343,8 +343,8 @@ const addOrderByClause = (
         knexQuery.orderBy(field, order);
         return;
     }
-    // TODO only responses field order by is supported
-    const prefix = jsonObject[0] === 'responses' ? `${tblAlias}.responses` : undefined;
+    // TODO only response field order by is supported
+    const prefix = jsonObject[0] === 'response' ? `${tblAlias}.response` : undefined;
     if (prefix !== undefined) {
         const field = jsonObject.slice(1).join('.');
         // Order by without raw does not work for object accessed fields
@@ -369,9 +369,9 @@ const getRawWhereClause = (
 ): (string | [string, string | boolean | number] | undefined)[] => {
     // Make sure the field is a legitimate field to avoid sql injection. Field
     // is either the name of a field, or a dot-separated path in a json object
-    // of the 'responses' field. We should not accept anything else.
+    // of the 'response' field. We should not accept anything else.
     // TODO Once the individual surveys are typed and the expected
-    // responses are known in advance, try to completely type the responses
+    // response are known in advance, try to completely type the response
     // object and make sure the field here matches an actual path
     const dotSeparatedStringRegex = /^[\w.]*$/g;
     const match = field.match(dotSeparatedStringRegex);
@@ -449,8 +449,8 @@ const getRawWhereClause = (
     }
     }
     const jsonObject = field.split('.');
-    // TODO only responses field order by is supported
-    const prefix = jsonObject[0] === 'responses' ? `${tblAlias}.responses` : undefined;
+    // TODO only response field order by is supported
+    const prefix = jsonObject[0] === 'response' ? `${tblAlias}.response` : undefined;
     if (prefix !== undefined) {
         const field = jsonObject.slice(1).join('\'->\'');
         if (isFeature(filter.value) && isPolygon((filter.value as GeoJSON.Feature).geometry)) {
@@ -578,7 +578,7 @@ const getList = async (params: {
                 'i.uuid',
                 'i.updated_at',
                 'i.created_at',
-                'i.responses',
+                'i.response',
                 'i.validated_data',
                 'audits.audits',
                 'i.is_valid',
@@ -695,14 +695,14 @@ const getValidationAuditStats = async (params: {
  * @param {{ [key: string]: ValueFilterType }} params.filters specifies the
  * fields on which to filter the interviews to stream.
  * @param {Object} [params.select] allows to fine-tune the fields to return,
- * including or excluding audits, and some combination or responses and
+ * including or excluding audits, and some combination or response and
  * validated_data
  * @param {boolean} [params.select.includeAudits=true] whether to include the
  * audits in the stream
  * @param {boolean} [params.select.includeInterviewerData=false] whether to
  * include the interviewer accesses data in the stream
  * @param {'none' | 'participant' | 'validated' | 'both' |
- * 'validatedIfAvailable'} [params.select.responses='both'] which responses to
+ * 'validatedIfAvailable'} [params.select.responseType='both'] which response to
  * include in the stream
  * @param {(string | { field: string; order: 'asc' | 'desc' })[]} [params.sort]
  * specifies which field to sort the interviews by. By default, it is not sorted
@@ -713,7 +713,8 @@ const getInterviewsStream = function (params: {
     select?: {
         includeAudits?: boolean;
         includeInterviewerData?: boolean;
-        responses?: 'none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable';
+        // validatedIfAvailable: will return validated if available, otherwise will return participant response
+        responseType?: 'none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable';
     };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }) {
@@ -722,10 +723,10 @@ const getInterviewsStream = function (params: {
     const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
     const sortFields = params.sort || [];
     const selectFields = Object.assign(
-        { includeAudits: true, responses: 'both', includeInterviewerData: false },
+        { includeAudits: true, responseType: 'both', includeInterviewerData: false },
         params.select || {}
     );
-    const responseType = selectFields.responses || 'both';
+    const responseType = selectFields.responseType || 'both';
     const select = [
         'i.id',
         'i.uuid',
@@ -742,19 +743,17 @@ const getInterviewsStream = function (params: {
     }
     switch (responseType) {
     case 'participant':
-        select.push('i.responses');
+        select.push('i.response');
         break;
     case 'validated':
         select.push('i.validated_data');
         break;
     case 'both':
-        select.push('i.responses');
+        select.push('i.response');
         select.push('i.validated_data');
         break;
     case 'validatedIfAvailable':
-        select.push(
-            knex.raw('case when validated_data is null then responses else validated_data end as responses')
-        );
+        select.push(knex.raw('case when validated_data is null then response else validated_data end as response'));
         break;
     case 'none':
         break;

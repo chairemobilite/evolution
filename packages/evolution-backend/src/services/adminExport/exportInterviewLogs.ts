@@ -16,29 +16,29 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 export const filePathOnServer = 'exports/interviewLogs';
 
 type ExportLogOptions = {
-    participantResponsesOnly?: boolean;
+    participantResponseOnly?: boolean;
     withValues?: boolean;
     interviewId?: number;
 };
 
 const filterLogData = (
     logData: { values_by_path: { [key: string]: any }; unset_paths: string[] },
-    participantResponsesOnly: boolean
+    participantResponseOnly: boolean
 ) => {
     const valuesByPath = logData.values_by_path || {};
-    if (participantResponsesOnly === false) {
+    if (participantResponseOnly === false) {
         return {
             filteredValuesByPath: valuesByPath,
             filteredUnsetPaths: logData.unset_paths
         };
     }
     const filteredValuesByPath = Object.keys(valuesByPath)
-        .filter((key) => key.startsWith('responses.'))
+        .filter((key) => key.startsWith('response.'))
         .reduce((acc, key) => {
             acc[key] = valuesByPath[key];
             return acc;
         }, {});
-    const filteredUnsetPaths = (logData.unset_paths || []).filter((path) => path.startsWith('responses.'));
+    const filteredUnsetPaths = (logData.unset_paths || []).filter((path) => path.startsWith('response.'));
     return {
         filteredValuesByPath,
         filteredUnsetPaths
@@ -121,14 +121,14 @@ const exportLogToRows = (
  * @returns The name of the file where the logs are exported
  */
 export const exportInterviewLogTask = async function ({
-    participantResponsesOnly = false,
+    participantResponseOnly = false,
     withValues = false,
     interviewId
 }: ExportLogOptions): Promise<string> {
     // create csv files and streams:
     // Make sure the file path exists
     fileManager.directoryManager.createDirectoryIfNotExists(filePathOnServer);
-    const fileName = `interviewLogs${interviewId ? `_${interviewId}` : ''}${participantResponsesOnly ? '_responses' : '_all'}${withValues ? '_withValues' : ''}_${new Date().toISOString().replace(/:/g, '-')}`;
+    const fileName = `interviewLogs${interviewId ? `_${interviewId}` : ''}${participantResponseOnly ? '_response' : '_all'}${withValues ? '_withValues' : ''}_${new Date().toISOString().replace(/:/g, '-')}`;
     const csvFilePath = `${filePathOnServer}/${fileName}.csv`;
     const csvStream = fs.createWriteStream(fileManager.getAbsolutePath(csvFilePath));
     csvStream.on('error', console.error);
@@ -151,7 +151,7 @@ export const exportInterviewLogTask = async function ({
                 // Filter the log data according to export options
                 const { filteredValuesByPath, filteredUnsetPaths } = filterLogData(
                     { values_by_path, unset_paths },
-                    participantResponsesOnly
+                    participantResponseOnly
                 );
                 if (_isBlank(filteredValuesByPath) && _isBlank(filteredUnsetPaths)) {
                     // no data to export for this log

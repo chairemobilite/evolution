@@ -106,14 +106,14 @@ export type ExtendedInterviewAttributesWithComposedObjects = InterviewWithCompos
  * The Interview class is central to the survey process, handling data throughout various stages:
  *
  * 1. Interview Step:
- *    - The Interview object is progressively filled with respondent responses.
+ *    - The Interview object is progressively filled with respondent response.
  *    - Paradata is collected throughout the interview process.
  *    - Both interview data and paradata (interview metadata) are stored in the Interview instance.
  *
  * 2a. Audit Step:
  *    - When an admin/auditor person opens the auditing dashboard:
  *      a. The interview is loaded in auditing mode. This involves cloning the interview
- *         object to keep the original responses intact. The copy has isAuditingVersion
+ *         object to keep the original response intact. The copy has isAuditingVersion
  *         flag set to true in the db. This copy will includes any change made by the admin/auditor person.
  *         TODO: consider using db views to separate interviews based on the isAuditingVersion flag.
  *      b. An automatic auditing/enhancement process runs on the backend.

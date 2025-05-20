@@ -1096,8 +1096,8 @@ export const buttonSaveNextSectionHouseholdMembers = {
       callbacks.startUpdateInterview({
         sectionShortname: 'householdMembers',
         valuesByPath: {
-          [`responses.household.size`]: personsCount,
-          [`responses._activeSection`]: 'selectPerson'
+          [`response.household.size`]: personsCount,
+          [`response._activeSection`]: 'selectPerson'
         }
       });
     }
@@ -1105,7 +1105,7 @@ export const buttonSaveNextSectionHouseholdMembers = {
     {
       callbacks.startUpdateInterview({
         sectionShortname: 'householdMembers',
-        valuesByPath: { [`responses._activeSection`]: 'selectPerson' }
+        valuesByPath: { [`response._activeSection`]: 'selectPerson' }
       });
     }
     //return null;

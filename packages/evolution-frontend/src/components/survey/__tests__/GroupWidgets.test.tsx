@@ -90,7 +90,7 @@ const startRemoveGroupedObjectsMock = jest.fn();
 // Add some grouped object data in the interview
 const interview = _cloneDeep(interviewAttributes) as UserRuntimeInterviewAttributes;
 const groupedObjectIds = [ 'obj0Uuid', 'obj1Uuid', 'obj2Uuid' ];
-interview.responses.myGroups = {
+interview.response.myGroups = {
     [groupedObjectIds[0]]: {
         _uuid: groupedObjectIds[0],
         _sequence: 0,
@@ -111,15 +111,15 @@ interview.responses.myGroups = {
     myGroup: {
         [groupedObjectIds[0]]: {
             widgetText: { isVisible: true },
-            widgetQuestion: { isVisible: true, value: interview.responses.myGroups[groupedObjectIds[0]].quest }
+            widgetQuestion: { isVisible: true, value: interview.response.myGroups[groupedObjectIds[0]].quest }
         },
         [groupedObjectIds[1]]: {
             widgetText: { isVisible: true },
-            widgetQuestion: { isVisible: true, value: interview.responses.myGroups[groupedObjectIds[1]].quest }
+            widgetQuestion: { isVisible: true, value: interview.response.myGroups[groupedObjectIds[1]].quest }
         },
         [groupedObjectIds[2]]: {
             widgetText: { isVisible: true },
-            widgetQuestion: { isVisible: true, value: interview.responses.myGroups[groupedObjectIds[2]].quest }
+            widgetQuestion: { isVisible: true, value: interview.response.myGroups[groupedObjectIds[2]].quest }
         }
     }
 }
@@ -232,7 +232,7 @@ describe('Group', () => {
         const interviewWithNested = _cloneDeep(interviewAttributes) as UserRuntimeInterviewAttributes;
         const groupedObjectIds = [ 'obj0Uuid', 'obj1Uuid', 'obj2Uuid' ];
         const nestedGroupObjectIds = [ 'nestedObj0Uuid', 'nestedObj1Uuid' ];
-        interviewWithNested.responses.myGroups = {
+        interviewWithNested.response.myGroups = {
             [groupedObjectIds[0]]: {
                 _uuid: groupedObjectIds[0],
                 _sequence: 0,
@@ -275,11 +275,11 @@ describe('Group', () => {
             widgetGroups: {
                 [nestedGroupObjectIds[0]]: {
                     widgetText: { isVisible: true },
-                    widgetQuestion: { isVisible: true, value: interviewWithNested.responses.myGroups[groupedObjectIds[0]].myNestedGroups[nestedGroupObjectIds[0]].quest }
+                    widgetQuestion: { isVisible: true, value: interviewWithNested.response.myGroups[groupedObjectIds[0]].myNestedGroups[nestedGroupObjectIds[0]].quest }
                 },
                 [nestedGroupObjectIds[1]]: {
                     widgetText: { isVisible: true },
-                    widgetQuestion: { isVisible: true, value: interviewWithNested.responses.myGroups[groupedObjectIds[0]].myNestedGroups[nestedGroupObjectIds[1]].quest }
+                    widgetQuestion: { isVisible: true, value: interviewWithNested.response.myGroups[groupedObjectIds[0]].myNestedGroups[nestedGroupObjectIds[1]].quest }
                 }
             }
         }

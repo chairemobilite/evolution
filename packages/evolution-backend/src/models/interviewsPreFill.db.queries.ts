@@ -13,25 +13,25 @@ const getByReferenceValue = async (
     refValue: string
 ): Promise<{ [path: string]: { value: unknown; actionIfPresent?: 'force' | 'doNothing' } } | undefined> => {
     try {
-        const interviewsQuery = await knex.select('responses').from(tableName).where('reference_field', refValue);
-        return interviewsQuery.length === 0 ? undefined : interviewsQuery[0].responses;
+        const interviewsQuery = await knex.select('response').from(tableName).where('reference_field', refValue);
+        return interviewsQuery.length === 0 ? undefined : interviewsQuery[0].response;
     } catch (error) {
         console.error(error);
         throw new TrError(
-            `cannot get pre-filled responses for ref value because of a database error (knex error: ${error})`,
+            `cannot get pre-filled response for ref value because of a database error (knex error: ${error})`,
             'TIPFQGC0001'
         );
     }
 };
 
-const setPreFilledResponsesForRef = async (
+const setPreFilledResponseForRef = async (
     refValue: string,
-    responses: { [path: string]: { value: unknown; actionIfPresent?: 'force' | 'doNothing' } }
+    response: { [path: string]: { value: unknown; actionIfPresent?: 'force' | 'doNothing' } }
 ): Promise<boolean> => {
     try {
-        const previousResponses = await getByReferenceValue(refValue);
-        const dbObject = { reference_field: refValue, responses };
-        if (previousResponses === undefined) {
+        const previousResponse = await getByReferenceValue(refValue);
+        const dbObject = { reference_field: refValue, response };
+        if (previousResponse === undefined) {
             await knex(tableName).insert(dbObject).returning('reference_field');
             return true;
         } else {
@@ -41,7 +41,7 @@ const setPreFilledResponsesForRef = async (
     } catch (error) {
         console.error(error);
         throw new TrError(
-            `cannot set pre-filled responses for ref value because of a database error (knex error: ${error})`,
+            `cannot set pre-filled response for ref value because of a database error (knex error: ${error})`,
             'TIPFQGC0002'
         );
     }
@@ -49,5 +49,5 @@ const setPreFilledResponsesForRef = async (
 
 export default {
     getByReferenceValue,
-    setPreFilledResponsesForRef
+    setPreFilledResponseForRef
 };

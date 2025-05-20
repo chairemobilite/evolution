@@ -32,7 +32,7 @@ const HomePage: React.FunctionComponent = () => {
             // Avoid infinite loops
             navigate(goToPage === '' || goToPage === '/' ? '/survey' : goToPage);
         }
-        // If there is a query string, add to the responses
+        // If there is a query string, add to the response
         if (location.search && location.search !== '') {
             if (state.status !== 'entering') {
                 dispatch({ type: 'enter', queryData: new URLSearchParams(location.search) });

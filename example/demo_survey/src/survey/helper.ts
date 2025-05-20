@@ -194,27 +194,27 @@ const updateVisitedPlaces = function(person, visitedPlaces, includeSelectedVisit
     const nextVisitedPlace     = (i + 1 < count) ? visitedPlaces[i + 1] : null;
     if (nextVisitedPlace && nextVisitedPlace.activity === 'home' && visitedPlace.nextPlaceCategory !== 'wentBackHome')
     {
-      updateValuesByPath[`responses.${visitedPlacePath}.nextPlaceCategory`] = 'wentBackHome';
+      updateValuesByPath[`response.${visitedPlacePath}.nextPlaceCategory`] = 'wentBackHome';
     }
     if (nextVisitedPlace && nextVisitedPlace.activity !== 'home' && visitedPlace.nextPlaceCategory === 'wentBackHome')
     {
-      updateValuesByPath[`responses.${visitedPlacePath}.nextPlaceCategory`] = 'visitedAnotherPlace';
+      updateValuesByPath[`response.${visitedPlacePath}.nextPlaceCategory`] = 'visitedAnotherPlace';
     }
     if (!nextVisitedPlace && !_isBlank(visitedPlace.nextPlaceCategory) && visitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay') // we need to nullify path for the previous visited place:
     {
-      updateValuesByPath[`responses.${visitedPlacePath}.nextPlaceCategory`] = null;
+      updateValuesByPath[`response.${visitedPlacePath}.nextPlaceCategory`] = null;
     }
     if (i === 0 && !_isBlank(visitedPlace.arrivalTime))
     {
-      updateValuesByPath[`responses.${visitedPlacePath}.arrivalTime`] = null;
+      updateValuesByPath[`response.${visitedPlacePath}.arrivalTime`] = null;
     }
     if (visitedPlace.nextPlaceCategory === 'stayedThereUntilTheNextDay' && i === (count - 1) && !_isBlank(visitedPlace.departureTime))
     {
-      updateValuesByPath[`responses.${visitedPlacePath}.departureTime`] = null;
+      updateValuesByPath[`response.${visitedPlacePath}.departureTime`] = null;
     }
     if (includeSelectedVisitedPlaceId)
     {
-      updateValuesByPath['responses._activeVisitedPlaceId'] = selectNextVisitedPlaceId(visitedPlaces);
+      updateValuesByPath['response._activeVisitedPlaceId'] = selectNextVisitedPlaceId(visitedPlaces);
     }
     return updateValuesByPath;
   }

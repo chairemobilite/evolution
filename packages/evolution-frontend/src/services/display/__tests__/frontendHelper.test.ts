@@ -176,7 +176,7 @@ describe('validateButtonAction', () => {
             { sectionShortname: 'section', valuesByPath: { _all: true }, interview },
             expect.any(Function)
         );
-        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'section', valuesByPath: { 'responses._activeSection': 'next' } });
+        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'section', valuesByPath: { 'response._activeSection': 'next' } });
     });
 
     test('with callback', () => {
@@ -237,9 +237,9 @@ describe('validateButtonActionWithCompleteSection', () => {
         expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'section', 
             valuesByPath: {
-                'responses._activeSection': 'next',
-                'responses._sections.section._isCompleted': true,
-                'responses._completionPercentage': 100
+                'response._activeSection': 'next',
+                'response._sections.section._isCompleted': true,
+                'response._completionPercentage': 100
             }
         });
     });
@@ -277,7 +277,7 @@ describe('validateButtonActionWithCompleteSection', () => {
 describe('getVisitedPlaceDescription', () => {
     const interview = _cloneDeep(interviewAttributesForTestCases);
     // Add times to places
-    const visitedPlaces = interview.responses.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!;
+    const visitedPlaces = interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!;
 
     beforeEach(() => {
         jest.clearAllMocks();

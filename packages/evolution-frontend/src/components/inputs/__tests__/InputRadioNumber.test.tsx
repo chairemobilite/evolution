@@ -14,7 +14,7 @@ const interview = {
     uuid: "",
     participant_id: 1,
     is_completed: false,
-    responses: {},
+    response: {},
     validations: {},
     is_valid: true
 }

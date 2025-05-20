@@ -32,7 +32,6 @@ export class ErrorBoundary extends React.Component<React.PropsWithChildren<Error
         // Display fallback UI
         this.setState({ hasError: true });
         console.log('An exception occurred in a react component', error, info);
-        // Send update responses to the server
         logClientSideMessage(error, { interviewId: this.props.interviewId });
     }
 

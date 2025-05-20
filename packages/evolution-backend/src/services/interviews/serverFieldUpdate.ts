@@ -3,14 +3,14 @@ import { getResponse } from 'evolution-common/lib/utils/helpers';
 import prefilledDbQueries from '../../models/interviewsPreFill.db.queries';
 
 /**
- * Return type of the values to update in the responses. The keys is the
- * complete path in the 'responses' field and the value is the new value for
+ * Return type of the values to update in the response. The keys is the
+ * complete path in the 'response' field and the value is the new value for
  * this field.
  */
 type FieldUpdateCallbackResponseCallbackType = { [affectedResponseFieldPath: string]: unknown };
 /**
  * Return type of the callback. Either an object with the fields in the
- * 'responses' to update, or an array with the fields to update, as well as an
+ * 'response' to update, or an array with the fields to update, as well as an
  * external URL to which to redirect. Redirecting to an external URL will
  * terminate the interview for the user.
  */
@@ -29,7 +29,7 @@ type FieldUpdateCallbackReturnType =
  * @param {Function} args.operation  The operation to register is a function
  *     that receives a `isCancelled` callback to verify the cancellation status
  *     of the operation. The execution itself should be done in this function.
- *     It should return an object where the keys are the path in the responses
+ *     It should return an object where the keys are the path in the response
  *     field and the value is the value to update.
  *
  *     It is the responsibility of the operation to check if it is cancelled once
@@ -58,7 +58,7 @@ export type ServerFieldUpdateCallback = {
      * to register a long-running, time-consuming operations. This will run the
      * operation in the background and will not block the current update call.
      * When the response is obtained, it will automatically notify the interview
-     * to save the responses data and send it back to the client later, if
+     * to save the response data and send it back to the client later, if
      * necessary. To avoid many operations running at the same time for a given
      * field, the registration function takes a name to associate with, and a
      * unique operation identifier. If an operation with the same name is
@@ -77,8 +77,8 @@ export type ServerFieldUpdateCallback = {
     ) => Promise<FieldUpdateCallbackReturnType>;
     /**
      * Indicate whether to run this field update callback on validated data as
-     * well, or if it is only for responses. Defaults to false, ie only
-     * responses from the survey participant will trigger this callback, not
+     * well, or if it is only for response. Defaults to false, ie only
+     * response from the survey participant will trigger this callback, not
      * validations.
      * */
     runOnValidatedData?: boolean;
@@ -98,7 +98,7 @@ const waitExecuteCallback = async (
         Object.keys(updatedValuesByPath).forEach((key) => {
             if (getResponse(interview, key as any, undefined) !== updatedValuesByPath[key]) {
                 serverValuesByPath[
-                    completePath.startsWith('validated_data.') ? `validated_data.${key}` : `responses.${key}`
+                    completePath.startsWith('validated_data.') ? `validated_data.${key}` : `response.${key}`
                 ] = updatedValuesByPath[key];
             }
         });
@@ -118,12 +118,12 @@ const getUpdateCallbackForPath = (
     serverUpdateCallbacks: ServerFieldUpdateCallback[],
     path: string
 ): UpdateCallbackForPathResponseType | undefined => {
-    if (!path.startsWith('responses.') && !path.startsWith('validated_data.')) {
+    if (!path.startsWith('response.') && !path.startsWith('validated_data.')) {
         return undefined;
     }
     const isValidatedData = path.startsWith('validated_data.');
     const responsePath = !isValidatedData
-        ? path.substring('responses.'.length)
+        ? path.substring('response.'.length)
         : path.substring('validated_data.'.length);
     const serverCallback = serverUpdateCallbacks.find(({ field }) =>
         typeof field === 'string' ? responsePath === field : responsePath.match(field.regex) !== null
@@ -165,15 +165,15 @@ class InterviewUpdateOperation {
         const isCancelled = () =>
             InterviewUpdateOperation.getCurrentOperation(args.opName, this.interviewUuid) !== args.opUniqueId;
         try {
-            const responsesByPath = await args.operation(isCancelled);
+            const responseByPath = await args.operation(isCancelled);
             if (isCancelled()) {
                 return;
             }
 
-            // Convert the responses to the format expected by the deferred callback
+            // Convert the response to the format expected by the deferred callback
             const asyncServerValuesByPath = {};
-            Object.keys(responsesByPath).forEach((key) => {
-                asyncServerValuesByPath[`responses.${key}`] = responsesByPath[key];
+            Object.keys(responseByPath).forEach((key) => {
+                asyncServerValuesByPath[`response.${key}`] = responseByPath[key];
             });
 
             // Call the update callback
@@ -200,7 +200,7 @@ class InterviewUpdateOperation {
  * path.
  *
  * It returns an object, compatible with the valuesByPath parameter, where the
- * key is the complete path in the interview (including the 'responses.' prefix)
+ * key is the complete path in the interview (including the 'response.' prefix)
  * and the value is the value to set in the interview. If the value returned by
  * server update callback is the same as the previous value in the interview, it
  * won't be returned.
@@ -235,7 +235,7 @@ const updateFields = async (
         .map((path) => getUpdateCallbackForPath(serverUpdateCallbacks, path))
         .filter((callbackPair) => callbackPair !== undefined) as UpdateCallbackForPathResponseType[];
 
-    // Map callback results to responses before calling the asynchronous execution callback is specified
+    // Map callback results to response before calling the asynchronous execution callback is specified
     const deferredCallback =
         deferredUpdateCallback !== undefined
             ? new InterviewUpdateOperation(interview.uuid, deferredUpdateCallback).registerOperation
@@ -274,7 +274,7 @@ const updateFields = async (
     return [serverValuesByPath, redirectUrl];
 };
 
-export type PreFillResponses = {
+export type PreFillResponse = {
     [path: string]: {
         value: unknown;
         actionIfPresent: 'force' | 'doNothing';
@@ -282,29 +282,29 @@ export type PreFillResponses = {
 };
 
 /**
- * Get prefilled responses by path. The keys in the return value is the complete
- * path in the interview responses and the value is the value of this response
- * field. Only the responses that need to be updated are returned. If a value is
+ * Get prefilled response by path. The keys in the return value is the complete
+ * path in the interview response and the value is the value of this response
+ * field. Only the response that need to be updated are returned. If a value is
  * already set and the field should not be forced, or if the value is the same,
  * it won't be returned
  *
  * @param referenceValue The reference value for which to get the prefilled
  * answers
  * @param interview The interview to update
- * @returns The responses to update
+ * @returns The response to update
  */
-export const getPreFilledResponsesByPath = async (
+export const getPreFilledResponseByPath = async (
     referenceValue: string,
     interview: InterviewAttributes
 ): Promise<{ [key: string]: unknown }> => {
     try {
-        const prefilledResponses = await prefilledDbQueries.getByReferenceValue(referenceValue);
-        if (!prefilledResponses) {
+        const prefilledResponse = await prefilledDbQueries.getByReferenceValue(referenceValue);
+        if (!prefilledResponse) {
             return {};
         }
         const prefilledValuesByPath = {};
-        Object.keys(prefilledResponses).forEach((path) => {
-            const { value, actionIfPresent } = prefilledResponses[path];
+        Object.keys(prefilledResponse).forEach((path) => {
+            const { value, actionIfPresent } = prefilledResponse[path];
             const currentResponse = getResponse(interview, path as any);
             if ((currentResponse !== undefined && actionIfPresent !== 'force') || value === currentResponse) {
                 return;
@@ -313,7 +313,7 @@ export const getPreFilledResponsesByPath = async (
         });
         return prefilledValuesByPath;
     } catch (error) {
-        console.error(`Error getting prefilled responses for ${referenceValue}: ${error}`);
+        console.error(`Error getting prefilled response for ${referenceValue}: ${error}`);
         return {};
     }
 };
@@ -322,21 +322,21 @@ export type PreFilledInterviewResponse = {
     [path: string]: { value: unknown; actionIfPresent?: 'force' | 'doNothing' };
 };
 /**
- * Save in the prefilled responses table the responses for the reference value.
- * The can be later fetched with `getPreFilledResponsesByPath` in a server
+ * Save in the prefilled response table the response for the reference value.
+ * The can be later fetched with `getPreFilledResponseByPath` in a server
  * update callback to fill the interview with those answers
  *
- * @param referenceValue The value to identify this set of responses
- * @param responses The responses to prefill
+ * @param referenceValue The value to identify this set of response
+ * @param response The response to prefill
  */
-export const setPreFilledResponses = async (
+export const setPreFilledResponse = async (
     referenceValue: string,
-    responses: PreFilledInterviewResponse
+    response: PreFilledInterviewResponse
 ): Promise<boolean> => {
     try {
-        return await prefilledDbQueries.setPreFilledResponsesForRef(referenceValue, responses);
+        return await prefilledDbQueries.setPreFilledResponseForRef(referenceValue, response);
     } catch (error) {
-        console.error(`Error setting prefilled responses for ${referenceValue}: ${error}`);
+        console.error(`Error setting prefilled response for ${referenceValue}: ${error}`);
         return false;
     }
 };

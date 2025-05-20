@@ -109,7 +109,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             userAction = {
                 type: 'widgetInteraction',
                 widgetType: widgetConfig.inputType,
-                path: 'responses.' + this.props.path,
+                path: 'response.' + this.props.path,
                 value: parsedValue
             };
         }
@@ -124,14 +124,14 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
                 userAction = {
                     type: 'widgetInteraction',
                     widgetType: 'string',
-                    path: 'responses.' + this.props.customPath,
+                    path: 'response.' + this.props.customPath,
                     value: parsedCustomValue
                 };
             } else {
                 console.warn(
                     'userAction already defined, but a custom value has been specified. It is thus possible to update more than one value for a single user action.'
                 );
-                valuesByPath['responses.' + this.props.customPath] = parsedCustomValue;
+                valuesByPath['response.' + this.props.customPath] = parsedCustomValue;
             }
         }
 
@@ -197,7 +197,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
                 ? true
                 : false;
         const widgetContent = () => {
-            if (!(this.props.interview && this.props.interview.responses)) {
+            if (!(this.props.interview && this.props.interview.response)) {
                 return <InputLoading />;
             }
 

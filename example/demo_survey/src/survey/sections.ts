@@ -93,8 +93,8 @@ const sections: { [sectionName: string]: SectionConfig } = {
         startUpdateInterview({
           sectionShortname: 'home',
           valuesByPath: {
-            'responses.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),
-            'responses._startedAt': moment().unix()
+            'response.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),
+            'response._startedAt': moment().unix()
           }
         }, callback);
         return null;
@@ -183,15 +183,15 @@ const sections: { [sectionName: string]: SectionConfig } = {
       const updateValuesByPath = {};
       if (_isBlank(getResponse(interview, 'tripsDate', null)))
       {
-        updateValuesByPath['responses.tripsDate'] = moment().prevBusinessDay().format('YYYY-MM-DD');
+        updateValuesByPath['response.tripsDate'] = moment().prevBusinessDay().format('YYYY-MM-DD');
       }
       if (_isBlank(getResponse(interview, '_partTwoStartedAt', null)))
       {
-        updateValuesByPath['responses._partTwoStartedAt'] = moment().unix();
+        updateValuesByPath['response._partTwoStartedAt'] = moment().unix();
       }
       if (!helper.householdMembersSectionPartOneComplete(interview))
       {
-        updateValuesByPath['responses._activeSection'] = 'home';
+        updateValuesByPath['response._activeSection'] = 'home';
       }
       if (Object.keys(updateValuesByPath).length > 0)
       {
@@ -226,8 +226,8 @@ const sections: { [sectionName: string]: SectionConfig } = {
         startUpdateInterview({
           sectionShortname: 'selectPerson', 
           valuesByPath: {
-            'responses._activePersonId': Object.keys(personIds)[0],
-            'responses._activeSection': 'profile'
+            'response._activePersonId': Object.keys(personIds)[0],
+            'response._activeSection': 'profile'
           }
         }, callback);
         return null;
@@ -270,14 +270,14 @@ const sections: { [sectionName: string]: SectionConfig } = {
         {
           startUpdateInterview({
             sectionShortname: 'profile',
-            valuesByPath: {'responses._activeSection': 'travelBehavior'}
+            valuesByPath: {'response._activeSection': 'travelBehavior'}
           }, callback);
         }
         else
         {
           startUpdateInterview({
             sectionShortname: 'profile', 
-            valuesByPath: { 'responses._activeSection': 'tripsIntro' }
+            valuesByPath: { 'response._activeSection': 'tripsIntro' }
           }, callback);
         }
         return null;
@@ -320,10 +320,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
         startUpdateInterview({
           sectionShortname: 'tripsIntro', 
           valuesByPath: {
-            [`responses.household.persons.${person._uuid}.journeys`]: undefined,
-            [`responses.household.persons.${person._uuid}.lastVisitedPlaceNotHome`]: undefined,
-            [`responses.household.persons.${person._uuid}.departurePlaceType`]: undefined,
-            'responses._activeSection': 'travelBehavior'
+            [`response.household.persons.${person._uuid}.journeys`]: undefined,
+            [`response.household.persons.${person._uuid}.lastVisitedPlaceNotHome`]: undefined,
+            [`response.household.persons.${person._uuid}.departurePlaceType`]: undefined,
+            'response._activeSection': 'travelBehavior'
           }
         }, callback);
         return null;
@@ -341,9 +341,9 @@ const sections: { [sectionName: string]: SectionConfig } = {
               startUpdateInterview({
                 sectionShortname: 'tripsIntro', 
                 valuesByPath: {
-                  [`responses.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.departurePlaceType`]: (firstVisitedPlaceActivity === 'home' ? 'home' : 'other'),
-                  'responses._activeSection': 'visitedPlaces',
-                  'responses._activeJourneyId': currentJourney._uuid
+                  [`response.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.departurePlaceType`]: (firstVisitedPlaceActivity === 'home' ? 'home' : 'other'),
+                  'response._activeSection': 'visitedPlaces',
+                  'response._activeJourneyId': currentJourney._uuid
                 }
               }, callback);
             }
@@ -360,7 +360,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
                 const currentJourney = journeys[0];
                 startUpdateInterview({
                     sectionShortname: 'visitedPlaces', 
-                    valuesByPath: { [`responses._activeJourneyId`]: currentJourney._uuid }
+                    valuesByPath: { [`response._activeJourneyId`]: currentJourney._uuid }
                 }, callback);
             });
         }
@@ -410,7 +410,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
       {
         startUpdateInterview({
           sectionShortname: 'tripsIntro', 
-          valuesByPath: { 'responses._activeSection': 'travelBehavior' }
+          valuesByPath: { 'response._activeSection': 'travelBehavior' }
         }, callback);
         return null;
       }
@@ -420,7 +420,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
       
       if (showNewPersonPopup !== false)
       {
-        tripsUpdatesValueByPath['responses._showNewPersonPopup'] = false;
+        tripsUpdatesValueByPath['response._showNewPersonPopup'] = false;
       }
       
       // Journeys should not be empty
@@ -445,8 +445,8 @@ const sections: { [sectionName: string]: SectionConfig } = {
           startUpdateInterview({
             sectionShortname: 'visitedPlaces', 
             valuesByPath: {
-              [`responses._activeVisitedPlaceId`]: selectedVisitedPlaceId,
-              [`responses._activeJourneyId`]: currentJourney._uuid
+              [`response._activeVisitedPlaceId`]: selectedVisitedPlaceId,
+              [`response._activeJourneyId`]: currentJourney._uuid
             }
           }, callback);
         });
@@ -457,8 +457,8 @@ const sections: { [sectionName: string]: SectionConfig } = {
         startUpdateInterview({
           sectionShortname: 'visitedPlaces', 
           valuesByPath: {
-            [`responses._activeVisitedPlaceId`]: selectedVisitedPlaceId,
-            [`responses._activeJourneyId`]: currentJourney._uuid
+            [`response._activeVisitedPlaceId`]: selectedVisitedPlaceId,
+            [`response._activeJourneyId`]: currentJourney._uuid
           }
         }, callback);
       }
@@ -500,8 +500,8 @@ const sections: { [sectionName: string]: SectionConfig } = {
         startUpdateInterview({
           sectionShortname: 'travelBehavior', 
           valuesByPath: {
-            [`responses.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid,
-            'responses._activeSection': 'end'
+            [`response.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid,
+            'response._activeSection': 'end'
           }
         }, callback);
         return null;
@@ -552,9 +552,9 @@ const sections: { [sectionName: string]: SectionConfig } = {
           startUpdateInterview({
             sectionShortname: 'end', 
             valuesByPath: {
-              'responses._activePersonId'    : person._uuid,
-              'responses._activeSection'     : 'profile',
-              'responses._showNewPersonPopup': true
+              'response._activePersonId'    : person._uuid,
+              'response._activeSection'     : 'profile',
+              'response._showNewPersonPopup': true
             }
           }, callback);
           return null;
@@ -564,7 +564,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
       {
         startUpdateInterview({
           sectionShortname: 'end', 
-          valuesByPath: { 'responses._showNewPersonPopup': false }
+          valuesByPath: { 'response._showNewPersonPopup': false }
         }, callback);
         return null;
       }
@@ -605,10 +605,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
           startUpdateInterview({
             sectionShortname: 'end', 
             valuesByPath: {
-              'responses._partTwoCompletedAt': moment().unix(),
-              'responses._partTwoIsCompleted': true,
-              'responses._completedAt': moment().unix(),
-              'responses._isCompleted': true
+              'response._partTwoCompletedAt': moment().unix(),
+              'response._partTwoIsCompleted': true,
+              'response._completedAt': moment().unix(),
+              'response._isCompleted': true
             }
           }, callback);
         }
@@ -620,8 +620,8 @@ const sections: { [sectionName: string]: SectionConfig } = {
           startUpdateInterview({
             sectionShortname: 'end', 
             valuesByPath: {
-              'responses._completedAt': moment().unix(),
-              'responses._isCompleted': true
+              'response._completedAt': moment().unix(),
+              'response._isCompleted': true
             }
           }, callback);
         }

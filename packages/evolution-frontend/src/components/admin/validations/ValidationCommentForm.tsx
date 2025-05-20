@@ -28,7 +28,7 @@ const ValidationCommentForm = ({ interview }: ValidationCommentFormProps) => {
         }
 
         const valuesByPath = {
-            'responses._validationComment': e.target.value
+            'response._validationComment': e.target.value
         };
         dispatch(
             startUpdateSurveyValidateInterview({ valuesByPath }, () => {
@@ -43,7 +43,7 @@ const ValidationCommentForm = ({ interview }: ValidationCommentFormProps) => {
             <br />
             <InputText
                 id={'surveyValidationComment'}
-                value={interview.responses._validationComment}
+                value={interview.response._validationComment}
                 onValueChange={onValueChange}
             />
         </React.Fragment>

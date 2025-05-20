@@ -60,12 +60,12 @@ export const setInterviewFields = (
  * @param {{ [key: string]: unknown }} options.valuesByPath - A key-value map of
  * values to update in the interview. The key is the dot-separated hierarchical
  * path to the field to update. For example, to update a field in response, it
- * could be `{ 'responses.mySection.myField': 'myValue' }`.
+ * could be `{ 'response.mySection.myField': 'myValue' }`.
  * @param {string[] | undefined} options.unsetPaths - array of dot-separated
  * paths whose value to unset.
  * @param {ServerValidation | undefined} options.serverValidations - Server-side
  * validations to do on the data. If any new field to set does not validate, the
- * value will be set in the responses object, but a corresponding value will be
+ * value will be set in the response object, but a corresponding value will be
  * set to false in the validations object.
  * @param {(keyof InterviewAttributes)[] | undefined} options.fieldsToUpdate -
  * Array of fields that can be updated in the response. This makes sure only
@@ -116,7 +116,7 @@ export const updateInterview = async (
             ? { [options.userAction.path]: options.userAction.value, ...options.valuesByPath }
             : options.valuesByPath;
 
-    const fieldsToUpdate = options.fieldsToUpdate || ['responses', 'validations'];
+    const fieldsToUpdate = options.fieldsToUpdate || ['response', 'validations'];
     const logData = options.logData || {};
     const serverValidations = await serverValidate(
         interview,
@@ -160,7 +160,7 @@ export const updateInterview = async (
             _set(interview.validations, `${path}`, false);
         }
     }
-    interview.responses = interview.responses || {};
+    interview.response = interview.response || {};
     interview.validations = interview.validations || {};
 
     const databaseUpdateJson: Partial<InterviewAttributes> = {};
@@ -189,12 +189,12 @@ export const updateInterview = async (
     return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath, redirectUrl };
 };
 
-export const copyResponsesToValidatedData = async (interview: InterviewAttributes) => {
+export const copyResponseToValidatedData = async (interview: InterviewAttributes) => {
     // TODO The frontend code that was replaced by this method said: // TODO The copy to validated_data should include the audit
 
-    // Keep the _validationComment from current validated_data, then copy original responses
+    // Keep the _validationComment from current validated_data, then copy original response
     const validationComment = interview.validated_data ? interview.validated_data._validationComment : undefined;
-    interview.validated_data = _cloneDeep(interview.responses);
+    interview.validated_data = _cloneDeep(interview.response);
     interview.validated_data._validatedDataCopiedAt = moment().unix();
     if (validationComment) {
         interview.validated_data._validationComment = validationComment;

@@ -26,7 +26,7 @@ const localUser = {
     permissions: {
         [permission1]: true
     }
-}
+};
 
 const anotherUser = {
     id: 2,
@@ -36,7 +36,7 @@ const anotherUser = {
     permissions: {
         [permission2]: true
     }
-}
+};
 
 const localUserInterviewAttributes = {
     uuid: uuidV4(),
@@ -44,7 +44,7 @@ const localUserInterviewAttributes = {
     is_valid: false,
     is_active: true,
     is_completed: undefined,
-    responses: {
+    response: {
         accessCode: '11111',
         booleanField: true,
     },
@@ -75,7 +75,7 @@ afterAll(async() => {
 const assertAccessCounts = async (cnt: number) => {
     const data = await dbQueries.collection();
     expect(data.length).toEqual(cnt);
-}
+};
 
 describe('userOpenedInterview', () => {
 
@@ -92,24 +92,24 @@ describe('userOpenedInterview', () => {
     test('Interview does not exist', async() => {
         let exception: any = undefined;
         try {
-            await dbQueries.userOpenedInterview({ interviewUuid: uuidV4(), userId: localUser.id })
+            await dbQueries.userOpenedInterview({ interviewUuid: uuidV4(), userId: localUser.id });
         } catch (error) {
             exception = error;
         }
         expect(exception).toBeDefined();
-        expect((exception as any).message).toEqual(expect.stringContaining("cannot log the user opening the interview (knex error: The requested interview does not exist:"))
+        expect((exception as any).message).toEqual(expect.stringContaining('cannot log the user opening the interview (knex error: The requested interview does not exist:'));
         await assertAccessCounts(1);
     });
 
     test('User does not exist', async() => {
         let exception: any = undefined;
         try {
-            await dbQueries.userOpenedInterview({ interviewUuid:localUserInterviewAttributes.uuid, userId: localUser.id - 1 })
+            await dbQueries.userOpenedInterview({ interviewUuid:localUserInterviewAttributes.uuid, userId: localUser.id - 1 });
         } catch (error) {
             exception = error;
         }
         expect(exception).toBeDefined();
-        expect((exception as any).message).toEqual(expect.stringContaining('violates foreign key constraint "sv_interviews_accesses_user_id_foreign")'))
+        expect((exception as any).message).toEqual(expect.stringContaining('violates foreign key constraint "sv_interviews_accesses_user_id_foreign")'));
         await assertAccessCounts(1);
     });
 
@@ -129,10 +129,10 @@ describe('userUpdatedInterview', () => {
 
     const assertUpdateCounts = async (userId: number, validationMode: boolean, updateCnt: number) => {
         const data = await dbQueries.collection();
-        const record = data.find(access => access.user_id === userId && access.for_validation === validationMode)
+        const record = data.find((access) => access.user_id === userId && access.for_validation === validationMode);
         expect(record).toBeDefined();
         expect(record?.update_count).toEqual(updateCnt);
-    }
+    };
 
     test('User updated interview in edit mode', async() => {
         expect(await dbQueries.userUpdatedInterview({ interviewUuid: localUserInterviewAttributes.uuid, userId: anotherUser.id })).toEqual(true);
@@ -173,76 +173,76 @@ describe('userUpdatedInterview', () => {
     test('Interview does not exist', async() => {
         let exception: any = undefined;
         try {
-            await dbQueries.userUpdatedInterview({ interviewUuid: uuidV4(), userId: localUser.id })
+            await dbQueries.userUpdatedInterview({ interviewUuid: uuidV4(), userId: localUser.id });
         } catch (error) {
             exception = error;
         }
         expect(exception).toBeDefined();
-        expect((exception as any).message).toEqual(expect.stringContaining("cannot log the user updating an interview (knex error: The requested interview does not exist:"))
-        
+        expect((exception as any).message).toEqual(expect.stringContaining('cannot log the user updating an interview (knex error: The requested interview does not exist:'));
+
     });
 
     test('User does not exist', async() => {
         let exception: any = undefined;
         try {
-            await dbQueries.userUpdatedInterview({ interviewUuid:localUserInterviewAttributes.uuid, userId: localUser.id - 1 })
+            await dbQueries.userUpdatedInterview({ interviewUuid:localUserInterviewAttributes.uuid, userId: localUser.id - 1 });
         } catch (error) {
             exception = error;
         }
         expect(exception).toBeDefined();
-        expect((exception as any).message).toEqual(expect.stringContaining('violates foreign key constraint "sv_interviews_accesses_user_id_foreign")'))
+        expect((exception as any).message).toEqual(expect.stringContaining('violates foreign key constraint "sv_interviews_accesses_user_id_foreign")'));
     });
 
 });
 
-describe(`Stat editing users`, () => {
+describe('Stat editing users', () => {
 
     test('Stat all users', async () => {
         const statUsers = await dbQueries.statEditingUsers({});
         expect(statUsers.length).toEqual(4);
         statUsers.forEach((statUser) => {
             switch(statUser.email) {
-                case localUser.email: 
-                    expect(statUser.update_count).toEqual(statUser.for_validation ? 2 : 0);
-                    break;
-                case anotherUser.email:
-                    expect(statUser.update_count).toEqual(2);
-                    break;
-                default:
-                    throw `Unexpected user email ${statUser.email}`;
+            case localUser.email:
+                expect(statUser.update_count).toEqual(statUser.for_validation ? 2 : 0);
+                break;
+            case anotherUser.email:
+                expect(statUser.update_count).toEqual(2);
+                break;
+            default:
+                throw `Unexpected user email ${statUser.email}`;
             }
-        })
+        });
     });
 
     test('Stat for specific permission', async () => {
-        const statUsers = await dbQueries.statEditingUsers({ permissions: [permission2]});
+        const statUsers = await dbQueries.statEditingUsers({ permissions: [permission2] });
         expect(statUsers.length).toEqual(2);
         statUsers.forEach((statUser) => {
             switch(statUser.email) {
-                case anotherUser.email:
-                    expect(statUser.update_count).toEqual(2);
-                    break;
-                default:
-                    throw `Unexpected user email ${statUser.email}`;
+            case anotherUser.email:
+                expect(statUser.update_count).toEqual(2);
+                break;
+            default:
+                throw `Unexpected user email ${statUser.email}`;
             }
-        })
+        });
     });
 
     test('Stat for multiple permission', async () => {
-        const statUsers = await dbQueries.statEditingUsers({ permissions: [permission2, permission1]});
+        const statUsers = await dbQueries.statEditingUsers({ permissions: [permission2, permission1] });
         expect(statUsers.length).toEqual(4);
         statUsers.forEach((statUser) => {
             switch(statUser.email) {
-                case localUser.email: 
-                    expect(statUser.update_count).toEqual(statUser.for_validation ? 2 : 0);
-                    break;
-                case anotherUser.email:
-                    expect(statUser.update_count).toEqual(2);
-                    break;
-                default:
-                    throw `Unexpected user email ${statUser.email}`;
+            case localUser.email:
+                expect(statUser.update_count).toEqual(statUser.for_validation ? 2 : 0);
+                break;
+            case anotherUser.email:
+                expect(statUser.update_count).toEqual(2);
+                break;
+            default:
+                throw `Unexpected user email ${statUser.email}`;
             }
-        })
+        });
     });
 
 });

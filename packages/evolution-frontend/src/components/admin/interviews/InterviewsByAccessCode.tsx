@@ -35,10 +35,10 @@ const InterviewsByAccessCode: React.FC = () => {
     const { state, dispatch } = React.useContext(InterviewContext);
 
     React.useEffect(() => {
-        if (params.accessCode !== state.responses.accessCode) {
-            dispatch({ type: 'update_responses', responses: { accessCode: params.accessCode } });
+        if (params.accessCode !== state.response.accessCode) {
+            dispatch({ type: 'update_response', response: { accessCode: params.accessCode } });
         }
-    }, [params.accessCode, state.responses]);
+    }, [params.accessCode, state.response]);
 
     return (
         <div className="admin">

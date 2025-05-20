@@ -89,7 +89,7 @@ const ValidationPage = () => {
                 </div>
                 <InterviewListComponent
                     onInterviewSummaryChanged={handleInterviewSummaryChange}
-                    initialSortBy={[{ id: 'responses.accessCode' }]}
+                    initialSortBy={[{ id: 'response.accessCode' }]}
                     interviewListChange={handleInterviewListChange}
                     showInterviewList={showInterviewList}
                     validationInterview={interview}

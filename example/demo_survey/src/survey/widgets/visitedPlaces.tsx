@@ -1525,23 +1525,23 @@ export const buttonSaveVisitedPlace = {
     const updateValuesbyPath       = {};
     if (previousVisitedPlace && previousVisitedPlace.nextPlaceCategory !== 'wentBackHome' && visitedPlace.activity === 'home')
     {
-      updateValuesbyPath[`responses.${previousVisitedPlacePath}.nextPlaceCategory`] = 'wentBackHome';
+      updateValuesbyPath[`response.${previousVisitedPlacePath}.nextPlaceCategory`] = 'wentBackHome';
     }
     if (previousVisitedPlace && previousVisitedPlace.nextPlaceCategory !== 'visitedAnotherPlace' && visitedPlace.activity !== 'home')
     {
-      updateValuesbyPath[`responses.${previousVisitedPlacePath}.nextPlaceCategory`] = 'visitedAnotherPlace';
+      updateValuesbyPath[`response.${previousVisitedPlacePath}.nextPlaceCategory`] = 'visitedAnotherPlace';
     }
     if (nextVisitedPlace && visitedPlace.nextPlaceCategory !== 'wentBackHome' && nextVisitedPlace.activity === 'home')
     {
       nextVisitedPlace.activity = null;
-      updateValuesbyPath[`responses.${nextVisitedPlacePath}.activity`] = null;
+      updateValuesbyPath[`response.${nextVisitedPlacePath}.activity`] = null;
     }
     if (nextVisitedPlace && visitedPlace.nextPlaceCategory !== 'visitedAnotherPlace' && nextVisitedPlace.activity !== 'home')
     {
       nextVisitedPlace.activity = null;
-      updateValuesbyPath[`responses.${nextVisitedPlacePath}.activity`] = null;
+      updateValuesbyPath[`response.${nextVisitedPlacePath}.activity`] = null;
     }
-    updateValuesbyPath[`responses.${visitedPlacePath}._isNew`] =  false;
+    updateValuesbyPath[`response.${visitedPlacePath}._isNew`] =  false;
     if (visitedPlace.nextPlaceCategory === 'wentBackHome')
     {
       const nextVisitedPlace = odSurveyHelper.getNextVisitedPlace({ visitedPlaceId: visitedPlace._uuid, journey: currentJourney });
@@ -1552,13 +1552,13 @@ export const buttonSaveVisitedPlace = {
           const journeys = odSurveyHelper.getJourneysArray({ person });
           const currentJourney = journeys[0];
           const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
-          updateValuesbyPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
+          updateValuesbyPath[`response._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
           callbacks.startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesbyPath });
         }).bind(this));
         return null;
       }
     }
-    updateValuesbyPath[`responses._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
+    updateValuesbyPath[`response._activeVisitedPlaceId`] = helper.selectNextVisitedPlaceId(visitedPlaces);
     callbacks.startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesbyPath });
     return null;
   },

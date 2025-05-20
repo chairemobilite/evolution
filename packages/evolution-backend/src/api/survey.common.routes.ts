@@ -89,15 +89,15 @@ export default (router: Router, authorizationMiddleware, loggingMiddleware: Inte
 
                 const interview = await Interviews.getInterviewByUuid(content.interviewId);
                 if (interview) {
-                    interview.responses._ip = ip;
-                    interview.responses._updatedAt = timestamp;
+                    interview.response._ip = ip;
+                    interview.response._updatedAt = timestamp;
                     const retInterview = await updateInterview(interview, {
                         logUpdate: getParadataLoggingFunction(interview.id, loggingMiddleware.getUserIdForLogging(req)),
                         valuesByPath,
                         unsetPaths,
                         userAction,
                         serverValidations: serverConfig.serverValidations,
-                        fieldsToUpdate: ['responses', 'validations'],
+                        fieldsToUpdate: ['response', 'validations'],
                         deferredUpdateCallback: async (newValuesByPath) => {
                             // Reload the session as this can be called much later
                             session.reload((err) => {

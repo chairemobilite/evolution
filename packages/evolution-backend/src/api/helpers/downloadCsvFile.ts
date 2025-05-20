@@ -11,11 +11,11 @@ import papaparse from 'papaparse';
 import moment from 'moment';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 
-// Restricted responses to exclude from the CSV
+// Restricted response to exclude from the CSV
 export type ExcludedField = 'interview_id' | 'user_email' | 'user_username';
 
 /**
- * Download the CSV file with the expected responses.
+ * Download the CSV file with the expected response.
  * @param {Object} params - The parameters object.
  * @param {Response} params.res - The response object.
  * @param {string} params.fileName - The name of the CSV file to be downloaded.
@@ -44,7 +44,7 @@ export const downloadCsvFile = async ({
 
         // Fetch the data from the database using a stream
         const queryStream = knex
-            .select('i.id as interview_id', 'p.email AS user_email', 'p.username AS user_username', 'responses')
+            .select('i.id as interview_id', 'p.email AS user_email', 'p.username AS user_username', 'response')
             .from('sv_interviews AS i')
             .leftJoin('sv_participants AS p', 'i.participant_id', 'p.id')
             .orderBy('i.id')
@@ -75,7 +75,7 @@ export const downloadCsvFile = async ({
 
                     // Add requested fields
                     requestedFields.forEach((response) => {
-                        csvRow[response] = get(row.responses, response, null);
+                        csvRow[response] = get(row.response, response, null);
                     });
 
                     csvContent.push(csvRow);

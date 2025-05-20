@@ -8,7 +8,7 @@ import _get from 'lodash/get';
 import _set from 'lodash/set';
 import _isEqual from 'lodash/isEqual';
 import _cloneDeep from 'lodash/cloneDeep';
-import { InterviewAttributes, InterviewResponses } from '../questionnaire/types';
+import { InterviewAttributes, InterviewResponse } from '../questionnaire/types';
 
 /**
  * Prefix used for the username of the participants created for a
@@ -23,23 +23,23 @@ export const INTERVIEWER_PARTICIPANT_PREFIX = 'telephone';
  * @param validations TODO Type
  * @param surveyProjectHelper TODO Type
  * @returns The audit result, where the key is the ID of the validation to run
- * and the value is the number of times this validation fails on the responses.
+ * and the value is the number of times this validation fails on the response.
  */
 export const auditInterview = function (
-    validatedData: InterviewResponses,
-    originalResponses: InterviewResponses,
+    validatedData: InterviewResponse,
+    originalResponse: InterviewResponse,
     interview: InterviewAttributes,
     validations: any,
     surveyProjectHelper: any
 ): { [validationId: string]: number } {
     const auditsCountByValidationId: { [validationId: string]: number } = {};
-    const responses = validatedData ? validatedData : originalResponses;
-    const household = _get(responses, 'household', {});
-    const home = _get(responses, 'home', {});
+    const response = validatedData ? validatedData : originalResponse;
+    const household = _get(response, 'household', {});
+    const home = _get(response, 'home', {});
     const validatedInterview = _cloneDeep(interview);
-    validatedInterview.responses = responses;
-    // TODO Rethink this, the _responses field does not exist on the type and should not have to exist
-    (validatedInterview as any)._responses = originalResponses;
+    validatedInterview.response = response;
+    // TODO Rethink this, the _response field does not exist on the type and should not have to exist
+    (validatedInterview as any)._response = originalResponse;
     const persons = surveyProjectHelper.getPersons(validatedInterview, false);
     const personsArray = surveyProjectHelper.getPersons(validatedInterview, true);
     const audits: any[] = [];
@@ -49,7 +49,7 @@ export const auditInterview = function (
             null,
             {},
             validatedInterview,
-            responses,
+            response,
             household,
             home,
             persons,
@@ -62,7 +62,7 @@ export const auditInterview = function (
             null,
             {},
             validatedInterview,
-            responses,
+            response,
             household,
             home,
             persons,
@@ -78,7 +78,7 @@ export const auditInterview = function (
                 null,
                 {},
                 validatedInterview,
-                responses,
+                response,
                 household,
                 home,
                 persons,
@@ -98,7 +98,7 @@ export const auditInterview = function (
                     null,
                     {},
                     validatedInterview,
-                    responses,
+                    response,
                     household,
                     home,
                     persons,
@@ -122,7 +122,7 @@ export const auditInterview = function (
                     null,
                     {},
                     validatedInterview,
-                    responses,
+                    response,
                     household,
                     home,
                     persons,
@@ -147,7 +147,7 @@ export const auditInterview = function (
                         null,
                         {},
                         validatedInterview,
-                        responses,
+                        response,
                         household,
                         home,
                         persons,
@@ -179,11 +179,11 @@ export const auditInterview = function (
 };
 
 // this function will use parsers to clean and fix the interviews. Parsers can change any path in the interview, to normalize repsonses or clean errors or typos in some fields:
-// the input is validated_data responses if available, otherwise, it will use original respondent responses
-// output will be valuesByPath which are each changes made to the responses, by path
+// the input is validated_data response if available, otherwise, it will use original respondent response
+// output will be valuesByPath which are each changes made to the response, by path
 export const getChangesAfterCleaningInterview = function (
     validatedData,
-    originalResponses,
+    originalResponse,
     interview,
     parsers,
     surveyProjectHelper
@@ -194,12 +194,12 @@ export const getChangesAfterCleaningInterview = function (
 
     let changeModesWalk = false;
 
-    const responses = validatedData || originalResponses;
+    const response = validatedData || originalResponse;
     const validatedInterview = _cloneDeep(interview);
-    validatedInterview.responses = responses;
-    validatedInterview._responses = originalResponses;
-    const household = responses.household || {};
-    const home = responses.home || {};
+    validatedInterview.response = response;
+    validatedInterview._response = originalResponse;
+    const household = response.household || {};
+    const home = response.home || {};
     const persons = surveyProjectHelper.getPersons(validatedInterview, false);
     const personsArray = surveyProjectHelper.getPersons(validatedInterview, true);
 
@@ -209,7 +209,7 @@ export const getChangesAfterCleaningInterview = function (
             const newValue = parser.parsers.interview[path](
                 {},
                 validatedInterview,
-                responses,
+                response,
                 household,
                 home,
                 persons,
@@ -227,13 +227,13 @@ export const getChangesAfterCleaningInterview = function (
                 const newValue = parser.parsers.household[path](
                     {},
                     validatedInterview,
-                    responses,
+                    response,
                     household,
                     home,
                     persons,
                     personsArray
                 );
-                const absolutePath = 'responses.household.' + path;
+                const absolutePath = 'response.household.' + path;
                 const oldValue = _get(validatedInterview, absolutePath);
                 if (!_isEqual(newValue, oldValue)) {
                     valuesByPath[absolutePath] = newValue;
@@ -248,14 +248,14 @@ export const getChangesAfterCleaningInterview = function (
                 const newValue = parser.parsers.person[path](
                     {},
                     validatedInterview,
-                    responses,
+                    response,
                     household,
                     home,
                     persons,
                     personsArray,
                     person
                 );
-                const absolutePath = `responses.household.persons.${personId}.` + path;
+                const absolutePath = `response.household.persons.${personId}.` + path;
                 const oldValue = _get(validatedInterview, absolutePath);
                 if (!_isEqual(newValue, oldValue)) {
                     valuesByPath[absolutePath] = newValue;
@@ -272,7 +272,7 @@ export const getChangesAfterCleaningInterview = function (
                     const newValue = parser.parsers.visitedPlace[path](
                         {},
                         validatedInterview,
-                        responses,
+                        response,
                         household,
                         home,
                         persons,
@@ -283,7 +283,7 @@ export const getChangesAfterCleaningInterview = function (
                         visitedPlace
                     );
                     const absolutePath =
-                        `responses.household.persons.${personId}.visitedPlaces.${visitedPlaceId}.` + path;
+                        `response.household.persons.${personId}.visitedPlaces.${visitedPlaceId}.` + path;
                     const oldValue = _get(validatedInterview, absolutePath);
                     if (!_isEqual(newValue, oldValue)) {
                         valuesByPath[absolutePath] = newValue;
@@ -302,7 +302,7 @@ export const getChangesAfterCleaningInterview = function (
                     const newValue = parser.parsers.trip[path](
                         {},
                         validatedInterview,
-                        responses,
+                        response,
                         household,
                         home,
                         persons,
@@ -312,7 +312,7 @@ export const getChangesAfterCleaningInterview = function (
                         tripsArray,
                         trip
                     );
-                    const absolutePath = `responses.household.persons.${personId}.trips.${tripId}.` + path;
+                    const absolutePath = `response.household.persons.${personId}.trips.${tripId}.` + path;
                     const oldValue = _get(validatedInterview, absolutePath);
                     if (!_isEqual(newValue, oldValue)) {
                         valuesByPath[absolutePath] = newValue;
@@ -333,7 +333,7 @@ export const getChangesAfterCleaningInterview = function (
                         const newValue = parser.parsers.segment[path](
                             {},
                             validatedInterview,
-                            responses,
+                            response,
                             household,
                             home,
                             persons,
@@ -347,7 +347,7 @@ export const getChangesAfterCleaningInterview = function (
                             segment
                         );
                         const absolutePath =
-                            `responses.household.persons.${personId}.trips.${tripId}.segments.${segmentId}.` + path;
+                            `response.household.persons.${personId}.trips.${tripId}.segments.${segmentId}.` + path;
                         const oldValue = _get(validatedInterview, absolutePath);
                         if (!_isEqual(newValue, oldValue)) {
                             valuesByPath[absolutePath] = newValue;

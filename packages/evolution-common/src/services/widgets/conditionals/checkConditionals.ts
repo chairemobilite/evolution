@@ -21,7 +21,7 @@ type SingleConditionalsType = {
 };
 type ConditionalsType = SingleConditionalsType[];
 
-// Check interview responses with conditions, returning the result and null.
+// Check interview response with conditions, returning the result and null.
 export const checkConditionals = ({
     interview,
     conditionals
@@ -35,7 +35,7 @@ export const checkConditionals = ({
         // Extract components of the conditional
         const { logicalOperator, path, comparisonOperator, value, parentheses } = conditional;
 
-        // Replace response placeholders specified between brackets in a path by the corresponding value in the interview responses.
+        // Replace response placeholders specified between brackets in a path by the corresponding value in the interview response.
         const interpolatedPath = interpolatePath(interview, path);
 
         // Get the response for the interpolated path

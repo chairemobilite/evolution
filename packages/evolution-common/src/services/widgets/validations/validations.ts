@@ -105,7 +105,7 @@ export const householdSizeValidation: ValidationFunction = (value) => {
  * The number of cars must be an integer between 0 and 13.
  * The number of cars should not be more than 3 times the number of people in the household.
  *
- * Required interview.responses fields: 'household.size'
+ * Required interview.response fields: 'household.size'
  *
  * @see {@link ValidationFunction}
  */
@@ -163,7 +163,7 @@ export const carNumberValidation: ValidationFunction = (value, _customValue, int
  * The number of bicycles must be an integer between 0 and 20.
  * The number of bicycles should not be more than 5 times the number of people in the household.
  *
- * Required interview.responses fields: 'household.size'
+ * Required interview.response fields: 'household.size'
  *
  * @see {@link ValidationFunction}
  */

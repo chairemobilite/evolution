@@ -19,7 +19,7 @@ const createDirectoryIfNotExists = function(absoluteDirectoryPath) {
 };
 createDirectoryIfNotExists(exportJsonFileDirectory);
 
-const exportValidInterviews = function() { return knex.select('id', 'uuid', 'responses')
+const exportValidInterviews = function() { return knex.select('id', 'uuid', 'response')
   .from('sv_interviews')
   .whereRaw(`is_valid IS TRUE`)
   .orderBy('id')
@@ -28,10 +28,10 @@ const exportValidInterviews = function() { return knex.select('id', 'uuid', 'res
     {
       
       const interview = rows[i];
-      const responses = interview.responses || {accessCode: null};
-      const glo_domic = responses.household ? responses.household[prefix + "glo_domic"] : {feuillet: null};
+      const response = interview.response || {accessCode: null};
+      const glo_domic = response.household ? response.household[prefix + "glo_domic"] : {feuillet: null};
 
-      fs.writeFileSync(exportJsonFileDirectory + '/' + (responses.accessCode || (glo_domic ? glo_domic.feuillet : null)) + '_' + interview.uuid + '.json', JSON.stringify(responses));
+      fs.writeFileSync(exportJsonFileDirectory + '/' + (response.accessCode || (glo_domic ? glo_domic.feuillet : null)) + '_' + interview.uuid + '.json', JSON.stringify(response));
 
     }
     process.exit();

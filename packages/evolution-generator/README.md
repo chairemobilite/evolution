@@ -215,7 +215,7 @@ Widgets are the building blocks of your survey. They define the structure and in
 | active               | Widget activation status                                | boolean |
 | section              | Section to which the question belongs                   | string  |
 | group                | Group to which the question belongs (optional)          | string? |
-| path                 | Path of the responses object for the question           | string  |
+| path                 | Path of the response object for the question           | string  |
 | fr                   | French label for the question                           | string  |
 | en                   | English label for the question                          | string  |
 | [conditional](#cond) | Conditional logic for displaying the widget (optional)  | string? |
@@ -227,7 +227,7 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 > <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Custom, Radio, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text
 
-> <span id="cond">**Note:**</span> The `conditional` field allows you to define conditional logic for displaying the widget based on other responses. For example, you can specify a condition like `nbPersonsSevenOrMoreConditional` to show the widget only if the number of people is 7 or more.
+> <span id="cond">**Note:**</span> The `conditional` field allows you to define conditional logic for displaying the widget based on other response. For example, you can specify a condition like `nbPersonsSevenOrMoreConditional` to show the widget only if the number of people is 7 or more.
 
 > <span id="val">**Note:**</span> The `validation` field is optional and allows you to define validation logic for the widget. For example, `moreOrEqualTo7Validation` signifies that the widget will be considered valid if the entered value is equal to or greater than 7.
 
@@ -239,7 +239,7 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 ### Widgets Example
 
-In this example, we define a widget for the question `end_email`. This widget is an active InputString, and the path to the responses object for the question is `end.email`. The French and English labels for the question, the conditional logic for displaying the widget, and the validation logic are also provided. The corresponding TypeScript code and a visual representation of this widget are shown below:
+In this example, we define a widget for the question `end_email`. This widget is an active InputString, and the path to the response object for the question is `end.email`. The French and English labels for the question, the conditional logic for displaying the widget, and the validation logic are also provided. The corresponding TypeScript code and a visual representation of this widget are shown below:
 
 | Field        | Value                           |
 | ------------ | ------------------------------- |
@@ -355,12 +355,12 @@ In your survey logic, conditionals play a key role in determining if the widget 
 | --------------------------- | ------------------------------------------- | ----------------------- |
 | conditionalName             | Name of the conditional                     | string                  |
 | logicalOperator             | Logical operator (optional)                 | && or \|\|              |
-| path                        | Path to the responses object for comparison | string                  |
+| path                        | Path to the response object for comparison | string                  |
 | [comparisonOperator](#comp) | Operator for comparison                     | ===, ==, >, <, >= or <= |
 | value                       | Value for the comparison                    | number or string        |
 | [parentheses](#par)         | Parentheses (optional)                      | ( or )                  |
 
-> <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent responses with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path responses is greater than or equal to the value.
+> <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent response with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path response is greater than or equal to the value.
 
 > <span id="par">**Note:**</span> The `parentheses` field is optional and allows you to add priority to the conditional logic by using opening and closing parentheses. This is useful for specifying the order in which conditions should be evaluated. For example, you can use parentheses to create complex conditions like `conditional1 || (conditional2 && conditional3)`, where `conditional2 && conditional3` is evaluated first due to the parentheses.
 
@@ -373,7 +373,7 @@ In this example, we are creating a conditional named `hasDrivingLicenseCondition
 | hasDrivingLicenseConditional |                 | [${relativePath}](#rel).age            | >=                 | 16    |             |
 | hasDrivingLicenseConditional | &&              | [${relativePath}](#rel).drivingLicense | ===                | yes   |             |
 
-> <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, facilitating the reference to responses object that share a common parent or group with the current widget.
+> <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, facilitating the reference to response object that share a common parent or group with the current widget.
 
 The corresponding TypeScript code for this conditional is shown below:
 
@@ -523,7 +523,7 @@ In the context of your survey logic, labels play a crucial role in presenting qu
 
 | Field   | Description                           | Type   |
 | ------- | ------------------------------------- | ------ |
-| path    | Path of the responses                 | string |
+| path    | Path of the response                 | string |
 | section | Section to which the question belongs | string |
 | fr      | French label                          | string |
 | en      | English label                         | string |

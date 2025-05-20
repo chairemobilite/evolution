@@ -14,21 +14,21 @@ const interview: InterviewListAttributes = {
     participant_id: 4,
     is_valid: true,
     is_completed: true,
-    responses: { accessCode: 'notsure', foo: 'bar', household: { size: 0 } } as any,
+    response: { accessCode: 'notsure', foo: 'bar', household: { size: 0 } } as any,
     validated_data: {},
     username: 'test',
     facebook: false,
     google: false,
-    audits: { 'errorMsg': 2, 'errorMsg2': 5}
+    audits: { 'errorMsg': 2, 'errorMsg2': 5 }
 };
 
-const nullResponsesInterview = {
+const nullResponseInterview = {
     id: 1,
     uuid: 'arbitrary',
     participant_id: 4,
     is_valid: true,
     is_completed: true,
-    responses: null,
+    response: null,
     validated_data: null,
     username: 'test',
     facebook: false,
@@ -47,13 +47,13 @@ describe('Validation List Filter', () => {
             username: interview.username,
             facebook: interview.facebook,
             google: interview.google,
-            responses: { household: { size: 0 }},
+            response: { household: { size: 0 } },
             audits: interview.audits
         });
     });
 
-    test('test default validation filter with null values for resonses and validated data', () => {
-        const interviewStatus = projectConfig.validationListFilter(nullResponsesInterview as any);
+    test('test default validation filter with null values for response and validated data', () => {
+        const interviewStatus = projectConfig.validationListFilter(nullResponseInterview as any);
         expect(interviewStatus).toEqual({
             id: interview.id,
             uuid: interview.uuid,
@@ -63,14 +63,14 @@ describe('Validation List Filter', () => {
             username: interview.username,
             facebook: interview.facebook,
             google: interview.google,
-            responses: { household: { size: undefined }, _isCompleted: undefined, _validationComment: undefined }
+            response: { household: { size: undefined }, _isCompleted: undefined, _validationComment: undefined }
         });
     });
 
     test('Add project specific filter', () => {
         setProjectConfig({ validationListFilter: (interview: InterviewListAttributes) => {
             const status = defaultConfig.validationListFilter(interview) as InterviewStatusAttributesBase;
-            (status.responses as any).accessCode = (interview.responses as any).accessCode;
+            (status.response as any).accessCode = (interview.response as any).accessCode;
             return status;
         } });
 
@@ -84,10 +84,10 @@ describe('Validation List Filter', () => {
             username: interview.username,
             facebook: interview.facebook,
             google: interview.google,
-            responses: { accessCode: (interview.responses as any).accessCode, household: { size: 0 } },
+            response: { accessCode: (interview.response as any).accessCode, household: { size: 0 } },
             audits: interview.audits
         });
-    })
+    });
 });
 
 describe('Transition API configuration', () => {
@@ -127,7 +127,7 @@ describe('Transition API configuration', () => {
         setProjectConfig({
             // Nothing to set
         });
-        expect(projectConfig.transitionApi).toBeUndefined()
+        expect(projectConfig.transitionApi).toBeUndefined();
     });
 
     test('Should use the values specified in the config if set', () => {
@@ -162,5 +162,5 @@ describe('Transition API configuration', () => {
             password: 'password'
         });
     });
-})
+});
 

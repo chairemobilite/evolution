@@ -13,7 +13,7 @@ const testInterview: UserRuntimeInterviewAttributes = {
     uuid: 'arbitrary uuid',
     participant_id: 1,
     is_completed: false,
-    responses: {
+    response: {
         section1: {
             q1: 'abc',
             q2: 3
