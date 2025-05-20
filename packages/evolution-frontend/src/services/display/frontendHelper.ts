@@ -132,7 +132,7 @@ export const validateButtonAction: ButtonAction = (callbacks, interview, path, s
                     window.scrollTo(0, 0);
                     callbacks.startUpdateInterview({
                         sectionShortname: section,
-                        valuesByPath: { 'responses._activeSection': sections[section].nextSection }
+                        valuesByPath: { 'response._activeSection': sections[section].nextSection }
                     });
                 }
             }
@@ -171,9 +171,9 @@ export const validateButtonActionWithCompleteSection: ButtonAction = (
                     callbacks.startUpdateInterview({
                         sectionShortname: section,
                         valuesByPath: {
-                            'responses._activeSection': sections[section].nextSection,
-                            [`responses._sections.${section}._isCompleted`]: true,
-                            'responses._completionPercentage': completionPercentage
+                            'response._activeSection': sections[section].nextSection,
+                            [`response._sections.${section}._isCompleted`]: true,
+                            'response._completionPercentage': completionPercentage
                         }
                     });
                 }

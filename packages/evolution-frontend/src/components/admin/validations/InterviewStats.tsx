@@ -66,20 +66,20 @@ const InterviewStats = (props: InterviewStatsProps) => {
 
     const keepDiscard = ({ choice, personId }) => {
         const valuesByPath = {};
-        valuesByPath[`responses.household.persons.${personId}.keepDiscard`] = choice;
+        valuesByPath[`response.household.persons.${personId}.keepDiscard`] = choice;
         props.startUpdateInterview({ valuesByPath });
     };
 
     const interview = props.interview;
-    const responses = interview.responses;
-    const household = _get(responses, 'household');
-    const home = _get(responses, 'home') as any;
+    const response = interview.response;
+    const household = _get(response, 'household');
+    const home = _get(response, 'home') as any;
     const persons = odSurveyHelper.getPersons({ interview });
 
     const interviewErrors = emptyErrorResults;
     const householdErrors = emptyErrorResults;
 
-    const formattedTripsDate = responses.tripsDate ? moment(responses.tripsDate).format('LL') : '-';
+    const formattedTripsDate = response.tripsDate ? moment(response.tripsDate).format('LL') : '-';
 
     const personsStats: JSX.Element[] = [];
     for (const personId in persons) {
@@ -96,7 +96,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
             const visitedPlaceErrors = emptyErrorResults;
 
             const visitedPlaceId = visitedPlace._uuid;
-            const visitedPlacePath = `responses.household.persons.${personId}.visitedPlaces.${visitedPlaceId}`;
+            const visitedPlacePath = `response.household.persons.${personId}.visitedPlaces.${visitedPlaceId}`;
             const visitedPlaceStats = (
                 <div className="" key={visitedPlaceId} onClick={() => props.selectPlace(visitedPlacePath)}>
                     <span className={`_widget${props.activePlacePath === visitedPlacePath ? ' _active' : ''}`}>
@@ -403,10 +403,10 @@ const InterviewStats = (props: InterviewStatsProps) => {
                     </span>
                 )}
                 <span className="_widget">
-                    Code d&apos;accès: <span className="_strong">{responses.accessCode || 'Aucun'}</span>
+                    Code d&apos;accès: <span className="_strong">{response.accessCode || 'Aucun'}</span>
                 </span>
                 <span className="_widget">
-                    Langue d&apos;entrevue: <span className="_strong">{responses._language || '?'}</span>
+                    Langue d&apos;entrevue: <span className="_strong">{response._language || '?'}</span>
                 </span>
                 <span className="_widget">
                     Date de déplacements: <span className="_strong">{formattedTripsDate}</span>

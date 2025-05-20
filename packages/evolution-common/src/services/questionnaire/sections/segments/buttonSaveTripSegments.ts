@@ -40,11 +40,11 @@ export const getButtonSaveTripSegmentsConfig = (
                 const segment = segments[segmentUuid];
                 segment._isNew = false;
                 const segmentPath = `${segmentsPath}.${segmentUuid}`;
-                updateValuesbyPath[`responses.${segmentPath}._isNew`] = false;
+                updateValuesbyPath[`response.${segmentPath}._isNew`] = false;
             }
             const journey = odHelpers.getActiveJourney({ interview });
             const nextTrip = journey !== null ? odHelpers.selectNextIncompleteTrip({ journey }) : null;
-            updateValuesbyPath['responses._activeTripId'] = nextTrip ? nextTrip._uuid : null;
+            updateValuesbyPath['response._activeTripId'] = nextTrip ? nextTrip._uuid : null;
             callbacks.startUpdateInterview({ sectionShortname: 'segments', valuesByPath: updateValuesbyPath });
         },
         conditional: function (interview, path) {

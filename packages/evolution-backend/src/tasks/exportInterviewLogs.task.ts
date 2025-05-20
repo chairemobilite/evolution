@@ -12,10 +12,10 @@ import { exportInterviewLogTask } from '../services/adminExport/exportInterviewL
 class ExportInterviewLogs {
     async run(argv) {
         const withValues = argv.withValues === true;
-        const participantResponsesOnly = argv.participantResponsesOnly === true;
+        const participantResponseOnly = argv.participantResponseOnly === true;
         const interviewId = argv.interviewId as number | undefined;
         // TODO Support options from the command line
-        const csvFilePath = await exportInterviewLogTask({ withValues, participantResponsesOnly, interviewId });
+        const csvFilePath = await exportInterviewLogTask({ withValues, participantResponseOnly, interviewId });
 
         console.log('Interview logs exported to:', fileManager.getAbsolutePath(csvFilePath));
     }

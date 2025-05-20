@@ -45,7 +45,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
         }
         props.startUpdateInterview({
             sectionShortname: 'segments',
-            valuesByPath: { ['responses._activeTripId']: tripUuid }
+            valuesByPath: { ['response._activeTripId']: tripUuid }
         });
     };
 

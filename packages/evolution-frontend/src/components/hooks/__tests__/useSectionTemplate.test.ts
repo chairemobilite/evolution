@@ -24,7 +24,7 @@ describe('useSectionTemplate', () => {
                 preload: jest.fn(),
                 widgets: []
             },
-            interview: { responses: { field1: 'test' }} as any,
+            interview: { response: { field1: 'test' }} as any,
             errors: {},
             user: {} as any,
             startUpdateInterview: jest.fn(),

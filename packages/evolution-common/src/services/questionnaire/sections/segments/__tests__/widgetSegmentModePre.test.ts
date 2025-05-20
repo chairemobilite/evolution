@@ -94,9 +94,9 @@ describe('Mode choices conditionals', () => {
     test('carDriver conditional should return true if person has driving license', () => {
         // Prepare test data with active person/journey/trip
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId1';
-        interview.responses._activeJourneyId = 'journeyId1';
-        interview.responses._activeTripId = 'tripId1P1';
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+        interview.response._activeTripId = 'tripId1P1';
 
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
@@ -108,9 +108,9 @@ describe('Mode choices conditionals', () => {
     test('carDriver conditional should return false if person does not have driving license', () => {
         // Prepare test data with active person/journey/trip
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId1P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId1P2';
 
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
@@ -122,9 +122,9 @@ describe('Mode choices conditionals', () => {
     test('carDriver conditional should return true if no driving license information is available', () => {
         // Prepare test data with active person/journey/trip
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId3';
-        interview.responses._activeJourneyId = 'journeyId3';
-        interview.responses._activeTripId = 'tripId1P3';
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId1P3';
 
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
@@ -136,10 +136,10 @@ describe('Mode choices conditionals', () => {
     test('carDriver conditional should return false if no driving license information is available, but person is too young', () => {
         // Prepare test data with active person/journey/trip
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId3';
-        interview.responses._activeJourneyId = 'journeyId3';
-        interview.responses._activeTripId = 'tripId1P3';
-        interview.responses.household!.persons!.personId3!.age = 15;
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId1P3';
+        interview.response.household!.persons!.personId3!.age = 15;
 
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
@@ -188,9 +188,9 @@ describe('Mode choices labels', () => {
     test('should return the right label for walk choice with person with disability', () => {
         // Set the hasDisability property to 'yes' to the active person
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
+        interview.response._activePersonId = 'personId2';
         const person = surveyHelper.getPerson({ interview });
-        person!.hasDisability = 'yes'
+        person!.hasDisability = 'yes';
         const mockedT = jest.fn();
         const choice = choices.find((choice) => choice.value === 'walk');
         translateString(choice?.label, { t: mockedT } as any, interview, 'path');
@@ -231,9 +231,9 @@ describe('ModePre conditional', () => {
 
     // Prepare test data with active person/journey/trip
     const testInterview = _cloneDeep(interviewAttributesForTestCases);
-    testInterview.responses._activePersonId = 'personId2';
-    testInterview.responses._activeJourneyId = 'journeyId2';
-    testInterview.responses._activeTripId = 'tripId1P2';
+    testInterview.response._activePersonId = 'personId2';
+    testInterview.response._activeJourneyId = 'journeyId2';
+    testInterview.response._activeTripId = 'tripId1P2';
 
     const segmentPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1';
     const currentSegment = getResponse(interviewAttributesForTestCases, segmentPath);
@@ -313,7 +313,7 @@ describe('ModePre label', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-    })
+    });
 
     test('should return the right label for first segment', () => {
         // Prepare mocked data
@@ -325,9 +325,9 @@ describe('ModePre label', () => {
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.modePre`);
@@ -338,9 +338,9 @@ describe('ModePre label', () => {
             count: 1
         });
         expect(mockedT).toHaveBeenCalledTimes(1);
-        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.responses.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.shoppingPlace1P2, interview });
-        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.responses.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2, interview });
-        expect(mockedGetCountOrSelfDeclared).toHaveBeenCalledWith({ interview, person: interview.responses.household!.persons!.personId2 });
+        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.shoppingPlace1P2, interview });
+        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2, interview });
+        expect(mockedGetCountOrSelfDeclared).toHaveBeenCalledWith({ interview, person: interview.response.household!.persons!.personId2 });
     });
 
     test('should return label with generic place names, when origin/destination do not exist', () => {
@@ -348,15 +348,15 @@ describe('ModePre label', () => {
         const context = 'currentContext';
         const count = 3;
         mockedGetContext.mockReturnValue(context);
-        mockedGetCountOrSelfDeclared.mockReturnValueOnce(count)
+        mockedGetCountOrSelfDeclared.mockReturnValueOnce(count);
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
         // Change trip for one with undefined origin/destination
-        interview.responses.household!.persons!.personId2!.journeys!.journeyId2!.trips!.tripId2P2 = {
+        interview.response.household!.persons!.personId2!.journeys!.journeyId2!.trips!.tripId2P2 = {
             _uuid: 'tripId2P2',
             _sequence: 2,
             _originVisitedPlaceUuid: 'unexistingOrigin',
@@ -369,7 +369,7 @@ describe('ModePre label', () => {
                     modePre: 'walk'
                 }
             }
-        }
+        };
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.modePre`);
@@ -404,9 +404,9 @@ describe('ModePre label', () => {
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId2P2T2.modePre`);
@@ -431,9 +431,9 @@ describe('ModePre label', () => {
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.modePre`);

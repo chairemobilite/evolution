@@ -6,7 +6,7 @@
  */
 import { v4 as uuidV4 } from 'uuid';
 import each from 'jest-each';
-import _isEqual from 'lodash/isEqual'
+import _isEqual from 'lodash/isEqual';
 
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.queries';
@@ -31,7 +31,7 @@ const localUser = {
     ...localParticipant,
     id: 2,
     uuid: uuidV4()
-}
+};
 
 const testInterviewAttributes1 = {
     id: 100,
@@ -40,7 +40,7 @@ const testInterviewAttributes1 = {
     is_valid: false,
     is_active: true,
     is_completed: undefined,
-    responses: {
+    response: {
         accessCode: '11111',
         booleanField: true,
     },
@@ -54,7 +54,7 @@ const testInterviewAttributes2 = {
     is_valid: false,
     is_active: true,
     is_completed: undefined,
-    responses: {
+    response: {
         accessCode: '11111',
         booleanField: true,
     },
@@ -120,7 +120,7 @@ describe('paradata log', () => {
                 user_id: expectedData.userId
             }));
         }
-    }
+    };
 
     test('Log for a participant (no user id)', async() => {
         expect(await dbQueries.log({
@@ -138,7 +138,7 @@ describe('paradata log', () => {
             eventData: defaultEventData,
             userId: localUser.id
         })).toEqual(true);
-        await validateLogData([{ userId: localUser.id, eventData: defaultEventData}]);
+        await validateLogData([{ userId: localUser.id, eventData: defaultEventData }]);
     });
 
     test('Log multiple data', async() => {
@@ -159,11 +159,11 @@ describe('paradata log', () => {
         ];
         await Promise.all(promises);
         await validateLogData([
-            { userId: localUser.id, eventData: defaultEventData},
+            { userId: localUser.id, eventData: defaultEventData },
             { userId: null, eventData: secondEventData }
         ]);
     });
-    
+
     each([
         ['Invalid event type', { eventType: 'invalid_event_type' }],
         ['Unknown user', { userId: localUser.id + 1 } ],
@@ -189,7 +189,7 @@ describe('Stream paradata', () => {
     });
 
     // Wait for a number of millisecond: in a db tests, inserts are often done too rapidly and we may want to throttle
-    const throttle = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    const throttle = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Insert a number of logs in the database, waiting for a delay between each insert
     const insertSomeLogs = async (logData: Record<string, any>, interviewId: number) => {
@@ -224,15 +224,15 @@ describe('Stream paradata', () => {
         // Add a few logs to one of the interview, with/without valuesByPath, with/without unsetPaths
         const logData = [
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true }
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true }
             }, {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true },
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true },
                 unsetPaths: []
             }, {
                 valuesByPath: { },
-                unsetPaths: [ 'responses.data' ]
+                unsetPaths: [ 'response.data' ]
             }, {
-                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+                unsetPaths: [ 'response.data.someField', 'validations.data.someField' ]
             }
         ];
 
@@ -272,34 +272,34 @@ describe('Stream paradata', () => {
             expect(true).toBe(false);
             done();
         });
-        
+
     });
 
     test('Stream interview logs, many interview logs, should be sorted by interview/time', (done) => {
         // Add a few logs to one of the interview, with/without valuesByPath, with/without unsetPaths
         const logData1 = [
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true }
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true }
             },
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true },
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true },
                 unsetPaths: []
             },
             {
                 valuesByPath: { },
-                unsetPaths: [ 'responses.data' ]
+                unsetPaths: [ 'response.data' ]
             },
             {
-                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+                unsetPaths: [ 'response.data.someField', 'validations.data.someField' ]
             }
         ];
         const logData2 = [
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 2, 2 ]}, 'validations.home.geography': false }
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 2, 2 ] }, 'validations.home.geography': false }
             },
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 3, 3 ]}, 'validations.home.geography': true },
-                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 3, 3 ] }, 'validations.home.geography': true },
+                unsetPaths: [ 'response.data.someField', 'validations.data.someField' ]
             }
         ];
         const insertLogs = async () => {
@@ -311,9 +311,9 @@ describe('Stream paradata', () => {
 
             // And finally for the first again
             await insertSomeLogs(logData2, testInterviewAttributes1.id);
-        }
+        };
         insertLogs().then(() => {
-            
+
             let nbLogs = 0;
             let lastTimestamp = -1;
             let currentInterviewId = undefined;
@@ -373,27 +373,27 @@ describe('Stream paradata', () => {
         // Add a few logs to the interview, with/without valuesByPath, with/without unsetPaths
         const logData1 = [
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true }
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true }
             },
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 1, 1 ]}, 'validations.home.geography': true },
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true },
                 unsetPaths: []
             },
             {
                 valuesByPath: { },
-                unsetPaths: [ 'responses.data' ]
+                unsetPaths: [ 'response.data' ]
             },
             {
-                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+                unsetPaths: [ 'response.data.someField', 'validations.data.someField' ]
             }
         ];
         const logData2 = [
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 2, 2 ]}, 'validations.home.geography': false }
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 2, 2 ] }, 'validations.home.geography': false }
             },
             {
-                valuesByPath: { 'responses.home.geography': { type: 'Point', coordinates: [ 3, 3 ]}, 'validations.home.geography': true },
-                unsetPaths: [ 'responses.data.someField', 'validations.data.someField' ]
+                valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 3, 3 ] }, 'validations.home.geography': true },
+                unsetPaths: [ 'response.data.someField', 'validations.data.someField' ]
             }
         ];
         const insertLogs = async () => {
@@ -405,11 +405,11 @@ describe('Stream paradata', () => {
 
             // And finally for the first again
             await insertSomeLogs(logData2, testInterviewAttributes1.id);
-        }
+        };
         insertLogs().then(() => {
             let nbLogs = 0;
             let lastTimestamp = -1;
-            
+
             // This is the expected logs for the interview 1, a concatenation of the 2 log data arrays
             const logsFor1 = logData1.concat(logData2 as any);
 

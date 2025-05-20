@@ -25,11 +25,11 @@ const mockButtonValidate = jest.fn();
 const options = {
     buttonActions: { validateButtonAction: mockButtonValidate },
     iconMapper: { 'check-circle': 'check-circle' as any }
-}
+};
 
 beforeEach(() => {
     jest.clearAllMocks();
-})
+});
 
 describe('getButtonSaveTripSegmentsConfig', () => {
 
@@ -83,7 +83,7 @@ describe('getButtonSaveTripSegmentsConfig conditional', () => {
     });
 
     test('shoud return `false` if the last segment has next mode', () => {
-        mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1, hasNextMode: true }, segment2: { _uuid: 'segment2', _sequence: 2, hasNextMode: true }});
+        mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1, hasNextMode: true }, segment2: { _uuid: 'segment2', _sequence: 2, hasNextMode: true } });
         const conditional = widgetConfig.conditional;
         expect(conditional).toBeDefined();
         expect((conditional as any)(interviewAttributesForTestCases, 'path')).toEqual([false, undefined]);
@@ -91,7 +91,7 @@ describe('getButtonSaveTripSegmentsConfig conditional', () => {
     });
 
     test('shoud return `false` if the last segment has next mode is not set', () => {
-        mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1 }});
+        mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1 } });
         const conditional = widgetConfig.conditional;
         expect(conditional).toBeDefined();
         expect((conditional as any)(interviewAttributesForTestCases, 'path')).toEqual([false, undefined]);
@@ -99,7 +99,7 @@ describe('getButtonSaveTripSegmentsConfig conditional', () => {
     });
 
     test('shoud return `true` if the last segment does not have nex mode', () => {
-        mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1, hasNextMode: false }});
+        mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1, hasNextMode: false } });
         const conditional = widgetConfig.conditional;
         expect(conditional).toBeDefined();
         expect((conditional as any)(interviewAttributesForTestCases, 'path')).toEqual([true, undefined]);
@@ -116,7 +116,7 @@ describe('getButtonSaveTripSegmentsConfig button action', () => {
         const action = widgetConfig.action;
         action({ startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn() }, interviewAttributesForTestCases, 'path', 'segments', {});
         expect(mockButtonValidate).toHaveBeenCalled();
-    })
+    });
 });
 
 describe('getButtonSaveTripSegmentsConfig save callback', () => {
@@ -128,14 +128,14 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
     const buttonPath = 'path.to.trip.buttonAction';
     const saveCallback = widgetConfig.saveCallback;
     const updateCallbacks =
-        { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn() }
+        { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn() };
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     test('should set all _isNew to `false` and select next incomplete trip', () => {
-        // Mock function responses: 2 segments, active journey and incomplete trip
+        // Mock function response: 2 segments, active journey and incomplete trip
         const journey = { _uuid: 'journey', _sequence: 1 };
         const incompleteTrip = { _uuid: 'trip1', _sequence: 1 };
         mockedGetResponse.mockReturnValueOnce({ segment1: { _uuid: 'segment1', _sequence: 1 }, segment2: { _uuid: 'segment2', _sequence: 2 } });
@@ -152,15 +152,15 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
             valuesByPath: {
-                'responses.path.to.trip.segments.segment1._isNew': false,
-                'responses.path.to.trip.segments.segment2._isNew': false,
-                'responses._activeTripId': 'trip1'
+                'response.path.to.trip.segments.segment1._isNew': false,
+                'response.path.to.trip.segments.segment2._isNew': false,
+                'response._activeTripId': 'trip1'
             }
         });
     });
 
     test('should set all _isNew to `false` and select no trip if no active journey', () => {
-        // Mock function responses: 2 segments no active journey
+        // Mock function response: 2 segments no active journey
         mockedGetResponse.mockReturnValueOnce({ segment1: { _uuid: 'segment1', _sequence: 1 }, segment2: { _uuid: 'segment2', _sequence: 2 } });
         mockedGetActiveJourney.mockReturnValueOnce(null);
 
@@ -174,15 +174,15 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
             valuesByPath: {
-                'responses.path.to.trip.segments.segment1._isNew': false,
-                'responses.path.to.trip.segments.segment2._isNew': false,
-                'responses._activeTripId': null
+                'response.path.to.trip.segments.segment1._isNew': false,
+                'response.path.to.trip.segments.segment2._isNew': false,
+                'response._activeTripId': null
             }
-        })
+        });
     });
 
     test('should set all _isNew to `false` and select no trip if no incomplete trip', () => {
-        // Mock function responses: 2 segments, active journey and incomplete trip
+        // Mock function response: 2 segments, active journey and incomplete trip
         const journey = { _uuid: 'journey', _sequence: 1 };
         mockedGetResponse.mockReturnValueOnce({ segment1: { _uuid: 'segment1', _sequence: 1 }, segment2: { _uuid: 'segment2', _sequence: 2 } });
         mockedGetActiveJourney.mockReturnValueOnce(journey);
@@ -198,15 +198,15 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
             valuesByPath: {
-                'responses.path.to.trip.segments.segment1._isNew': false,
-                'responses.path.to.trip.segments.segment2._isNew': false,
-                'responses._activeTripId': null
+                'response.path.to.trip.segments.segment1._isNew': false,
+                'response.path.to.trip.segments.segment2._isNew': false,
+                'response._activeTripId': null
             }
         });
     });
 
     test('should just set next incomplete trip is no segments', () => {
-        // Mock function responses: 2 segments, active journey and incomplete trip
+        // Mock function response: 2 segments, active journey and incomplete trip
         const journey = { _uuid: 'journey', _sequence: 1 };
         const incompleteTrip = { _uuid: 'trip1', _sequence: 1 };
         mockedGetResponse.mockReturnValueOnce({ });
@@ -222,7 +222,7 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey });
         expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
-            valuesByPath: { 'responses._activeTripId': 'trip1' }
+            valuesByPath: { 'response._activeTripId': 'trip1' }
         });
     });
 

@@ -28,7 +28,7 @@ type AttributeAndSurveyObjectPaths = {
 };
 
 /**
- * This modifies the responses _sections object to calculate the total duration
+ * This modifies the response _sections object to calculate the total duration
  * of sections as otherwise, only the latest start time of each section will be
  * available.
  *
@@ -41,15 +41,15 @@ type AttributeAndSurveyObjectPaths = {
  * when the first FIXME is fixed as we can prevent logging section logs or log
  * differently if it comes from a validator.
  *
- * @param responses
+ * @param response
  * @returns
  */
-const replaceSectionsWithDurations = (responses) => {
+const replaceSectionsWithDurations = (response) => {
     // For each section, keep the first start time, the total duration, number of entries and whether it is completed
     const actualSections: {
         [sectionName: string]: { duration: number; firstStart: number; numberOfEntries: number; isCompleted: boolean };
     } = {};
-    const sectionLogs = responses._sections;
+    const sectionLogs = response._sections;
     if (sectionLogs === undefined) {
         return;
     }
@@ -74,7 +74,7 @@ const replaceSectionsWithDurations = (responses) => {
         }
     });
     // Replace the current _sections object with the new one, the exporter will do the rest.
-    responses._sections = actualSections;
+    response._sections = actualSections;
 };
 
 // Test whether this attribute is an array of objects
@@ -201,7 +201,7 @@ const getInterviewStream = (options: ExportOptions) =>
         filters: {},
         select: {
             includeAudits: false,
-            responses: options.responseType,
+            responseType: options.responseType,
             includeInterviewerData: true
         }
     });
@@ -221,9 +221,9 @@ const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndSurv
             })
             .on('data', (row) => {
                 const interview = row;
-                const responses = interview.responses;
-                replaceSectionsWithDurations(responses);
-                const newAttributes = getNestedAttributes('', responses, undefined);
+                const response = interview.response;
+                replaceSectionsWithDurations(response);
+                const newAttributes = getNestedAttributes('', response, undefined);
                 allAttributes.attributes.push(...newAttributes.attributes);
                 allAttributes.surveyObjectPaths.push(...newAttributes.surveyObjectPaths);
                 allAttributes.attributes = _uniq(allAttributes.attributes).sort((a, b) => {
@@ -233,7 +233,7 @@ const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndSurv
                     return b.split('._.').length - a.split('._.').length;
                 });
 
-                //fs.writeFileSync(exportJsonFileDirectory + '/' + interview.id + '__' + interview.uuid + '.json', JSON.stringify(responses));
+                //fs.writeFileSync(exportJsonFileDirectory + '/' + interview.id + '__' + interview.uuid + '.json', JSON.stringify(response));
                 if ((i + 1) % 1000 === 0) {
                     console.log(`reading paths for interview ${i + 1}`);
                 }
@@ -247,7 +247,7 @@ const getRenamedPaths = async (options: ExportOptions): Promise<AttributeAndSurv
 };
 
 /**
- * Get all paths available in the responses, with each survey object type having its
+ * Get all paths available in the response, with each survey object type having its
  * own set of paths. The root object is `interview`
  * @param options export options.
  * @returns An object where the keys are the survey objects to export and the values
@@ -431,11 +431,11 @@ export const exportAllToCsvBySurveyObjectTask = async function (
             })
             .on('data', (row) => {
                 const interview = row;
-                const responses = interview.responses;
-                replaceSectionsWithDurations(responses);
+                const response = interview.response;
+                replaceSectionsWithDurations(response);
                 const exportedInterviewDataBySurveyObjectPath = _cloneDeep(exportedDataBySurveyObjectPath);
 
-                const interviewPaths = getPaths('', responses, undefined);
+                const interviewPaths = getPaths('', response, undefined);
                 const objectsBySurveyObjectPath = {
                     interview: exportedInterviewDataBySurveyObjectPath.interview
                 };
@@ -470,14 +470,14 @@ export const exportAllToCsvBySurveyObjectTask = async function (
                                 !objectsBySurveyObjectPath[surveyObjectPath][pathUuid]._parentUuid
                             ) {
                                 const parentUuid = _get(
-                                    responses,
+                                    response,
                                     surveyHelperNew.getPath(path, '../../../_uuid') as string
                                 );
                                 objectsBySurveyObjectPath[surveyObjectPath][pathUuid]._parentUuid = parentUuid
                                     ? parentUuid
                                     : interview.uuid;
                             }
-                            const value = _get(responses, path);
+                            const value = _get(response, path);
                             const pathSuffix = pathWithoutUuids.replace(surveyObjectPath + '._.', '');
 
                             if (pathSuffix.endsWith('.geometry.coordinates')) {
@@ -494,7 +494,7 @@ export const exportAllToCsvBySurveyObjectTask = async function (
                         }
                     }
                     if (!foundObjectPath) {
-                        const value = _get(responses, path);
+                        const value = _get(response, path);
                         if (pathWithoutUuids.endsWith('.geometry.coordinates')) {
                             handleCoordinates(objectsBySurveyObjectPath.interview, pathWithoutUuids, value);
                         } else {

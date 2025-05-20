@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { UserInterviewAttributes, InterviewResponses, Household, Person } from '../questionnaire/types';
+import { UserInterviewAttributes, InterviewResponse, Household, Person } from '../questionnaire/types';
 
 /**
  * Parser function to change/manipulate/enhance values for export.
@@ -16,7 +16,7 @@ import { UserInterviewAttributes, InterviewResponses, Household, Person } from '
  */
 export type ParserFunction = (
     interview: UserInterviewAttributes,
-    responses: InterviewResponses & { [key: string]: any },
+    response: InterviewResponse & { [key: string]: any },
     household: Household,
     home: {
         region?: string;

@@ -56,9 +56,9 @@ export const addExportRoutes = () => {
     router.get('/data/prepareCsvFileForExportBySurveyObject', (req, res, _next) => {
         console.log('preparing csv export files...');
         try {
-            const validatedResponses = req.query.responseType !== 'participant';
+            const validatedResponse = req.query.responseType !== 'participant';
             const taskRunning = exportAllToCsvBySurveyObject({
-                responseType: validatedResponses ? 'validatedIfAvailable' : 'participant'
+                responseType: validatedResponse ? 'validatedIfAvailable' : 'participant'
             });
             return res.status(200).json({
                 status: taskRunning

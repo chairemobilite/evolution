@@ -62,7 +62,7 @@ const buttonSwitchPerson: ButtonWidgetConfig = {
         callbacks.startUpdateInterview({
             sectionShortname: section,
             valuesByPath: {
-                'responses._activeSection': 'selectPerson'
+                'response._activeSection': 'selectPerson'
             }
         });
     }

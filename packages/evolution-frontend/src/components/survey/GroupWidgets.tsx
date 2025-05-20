@@ -75,13 +75,13 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
     let title = '';
     const localizedName = props.widgetConfig.name;
     if (typeof localizedName === 'function') {
-        title = localizedName(props.t, _get(props.interview.responses, path), props.sequence, props.interview, path);
+        title = localizedName(props.t, _get(props.interview.response, path), props.sequence, props.interview, path);
     } else if (typeof localizedName === 'object') {
         title =
             typeof localizedName[props.i18n.language] === 'string'
                 ? localizedName[props.i18n.language]
                 : (localizedName[props.i18n.language] as any)(
-                    _get(props.interview.responses, path),
+                    _get(props.interview.response, path),
                     props.sequence,
                     props.interview,
                     path
@@ -143,9 +143,9 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
 
     const groupedObjects = () => {
         const { interview, path } = props;
-        if (interview && interview.responses) {
+        if (interview && interview.response) {
             let groupedObjects = {};
-            const allGroupedObjects = _get(interview.responses, path, {});
+            const allGroupedObjects = _get(interview.response, path, {});
             if (typeof widgetConfig.filter === 'function') {
                 groupedObjects = widgetConfig.filter(interview, allGroupedObjects);
             } else {

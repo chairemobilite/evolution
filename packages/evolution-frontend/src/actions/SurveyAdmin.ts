@@ -111,7 +111,7 @@ export const startUpdateSurveyValidateInterview = (
                 return null;
             }
 
-            //const differences = surveyHelper.differences(interview.responses, oldInterview.responses);
+            //const differences = surveyHelper.differences(interview.response, oldInterview.response);
             const response = await fetch(`/api/survey/updateValidateInterview/${interview.uuid}`, {
                 headers: {
                     Accept: 'application/json',
@@ -141,7 +141,7 @@ export const startUpdateSurveyValidateInterview = (
                     // we need to do something if no interview is returned (error)
                 }
             } else {
-                console.log(`startUpdateSurveyValidateInterview: wrong responses status: ${response.status}`);
+                console.log(`startUpdateSurveyValidateInterview: wrong response status: ${response.status}`);
                 handleHttpOtherResponseCode(response.status, dispatch);
             }
             // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
@@ -247,7 +247,7 @@ export const startSurveyValidateRemoveGroupedObjects = (
 
 /**
  * Fetch an interview from server and re-initialize the validated_data to the
- * participant's responses, but keeping the validation comments.
+ * participant's response, but keeping the validation comments.
  *
  * @param {*} interviewUuid The uuid of the interview to open
  * @param {*} callback

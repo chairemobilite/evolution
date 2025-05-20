@@ -17,72 +17,72 @@ describe('getPreviousTripSingleSegment', () => {
     test('No active trip', () => {
         // Prepare test data
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId1';
-        interview.responses._activeJourneyId = 'journeyId1';
-        interview.responses._activeTripId = undefined;
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+        interview.response._activeTripId = undefined;
 
         // Get person and test the function
-        const person = odHelpers.getPerson({interview}) as Person;
+        const person = odHelpers.getPerson({ interview }) as Person;
         expect(helpers.getPreviousTripSingleSegment({ interview, person })).toBeUndefined();
     });
 
     test('No active journey', () => {
         // Prepare test data
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId1';
-        interview.responses._activeJourneyId = undefined;
-        interview.responses._activeTripId = 'tripId1P1';
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = undefined;
+        interview.response._activeTripId = 'tripId1P1';
 
         // Get person and test the function
-        const person = odHelpers.getPerson({interview}) as Person;
+        const person = odHelpers.getPerson({ interview }) as Person;
         expect(helpers.getPreviousTripSingleSegment({ interview, person })).toBeUndefined();
     });
 
     test('No previous trips', () => {
         // Prepare test data
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId1';
-        interview.responses._activeJourneyId = 'journeyId1';
-        interview.responses._activeTripId = 'tripId1P1';
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+        interview.response._activeTripId = 'tripId1P1';
 
         // Get person and test the function
-        const person = odHelpers.getPerson({interview}) as Person;
+        const person = odHelpers.getPerson({ interview }) as Person;
         expect(helpers.getPreviousTripSingleSegment({ interview, person })).toBeUndefined();
     });
 
     test('Previous trip, but no segments', () => {
         // Prepare test data
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId1';
-        interview.responses._activeJourneyId = 'journeyId1';
-        interview.responses._activeTripId = 'tripId2P1';
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+        interview.response._activeTripId = 'tripId2P1';
 
         // Get person and test the function
-        const person = odHelpers.getPerson({interview}) as Person;
+        const person = odHelpers.getPerson({ interview }) as Person;
         expect(helpers.getPreviousTripSingleSegment({ interview, person })).toBeUndefined();
     });
 
     test('Previous trip, one segment', () => {
         // Prepare test data, trip 2 of person 2 as trip 1 has a single mode
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
 
         // Get person and test the function
-        const person = odHelpers.getPerson({interview}) as Person;
-        expect(helpers.getPreviousTripSingleSegment({ interview, person })).toEqual(interview.responses.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2.segments!.segmentId1P2T1);
+        const person = odHelpers.getPerson({ interview }) as Person;
+        expect(helpers.getPreviousTripSingleSegment({ interview, person })).toEqual(interview.response.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2.segments!.segmentId1P2T1);
     });
 
     test('Previous trip, multiple segments', () => {
         // Prepare test data, trip 3 of person 2 as trip 2 has 2 modes
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId3P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId3P2';
 
         // Get person and test the function
-        const person = odHelpers.getPerson({interview}) as Person;
+        const person = odHelpers.getPerson({ interview }) as Person;
         expect(helpers.getPreviousTripSingleSegment({ interview, person })).toBeUndefined();
     });
 });
@@ -97,12 +97,12 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
     ]).test('undefined data for %s', (_field, pathOfValueToUndefine) => {
         // Prepare test data, trip 2 of person 3 should be a simple chain
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId3';
-        interview.responses._activeJourneyId = 'journeyId3';
-        interview.responses._activeTripId = 'tripId2P3';
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId2P3';
         setResponse(interview, pathOfValueToUndefine, undefined);
-        const person = odHelpers.getPerson({interview}) as Person;
-        const journey = odHelpers.getActiveJourney({interview, person }) as Journey;
+        const person = odHelpers.getPerson({ interview }) as Person;
+        const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 to make sure it would return `true` if everything was right otherwise
         journey.trips!.tripId1P3.segments = {
@@ -112,7 +112,7 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
                 _isNew: false,
                 mode: 'walk'
             }
-        }
+        };
 
         expect(helpers.isSimpleChainSingleModeReturnTrip({
             interview,
@@ -126,11 +126,11 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
     test('Previous trip is not a simple chain', () => {
         // Prepare test data, trip 2 of person 2 is not a simple as it has other destinations
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
-        const person = odHelpers.getPerson({interview}) as Person;
-        const journey = odHelpers.getActiveJourney({interview, person }) as Journey;
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
+        const person = odHelpers.getPerson({ interview }) as Person;
+        const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with simple mode
         journey.trips!.tripId1P2.segments = {
@@ -140,7 +140,7 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
                 _isNew: false,
                 mode: 'walk'
             }
-        }
+        };
 
         expect(helpers.isSimpleChainSingleModeReturnTrip({
             interview,
@@ -154,11 +154,11 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
     test('Previous trip is simple chain and has single not simple mode', () => {
         // Prepare test data, trip 2 of person 3 should be a simple chain
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId3';
-        interview.responses._activeJourneyId = 'journeyId3';
-        interview.responses._activeTripId = 'tripId2P3';
-        const person = odHelpers.getPerson({interview}) as Person;
-        const journey = odHelpers.getActiveJourney({interview, person }) as Journey;
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId2P3';
+        const person = odHelpers.getPerson({ interview }) as Person;
+        const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with not simle mode
         journey.trips!.tripId1P3.segments = {
@@ -168,7 +168,7 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
                 _isNew: false,
                 mode: 'transitFerry'
             }
-        }
+        };
 
         expect(helpers.isSimpleChainSingleModeReturnTrip({
             interview,
@@ -182,11 +182,11 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
     test('Previous trip is simlpe chain and has 2 simple modes', () => {
         // Prepare test data, trip 2 of person 3 should be a simple chain
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId3';
-        interview.responses._activeJourneyId = 'journeyId3';
-        interview.responses._activeTripId = 'tripId2P3';
-        const person = odHelpers.getPerson({interview}) as Person;
-        const journey = odHelpers.getActiveJourney({interview, person }) as Journey;
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId2P3';
+        const person = odHelpers.getPerson({ interview }) as Person;
+        const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add 2 segments with simple modes to trip1 with not simle mode
         journey.trips!.tripId1P3.segments = {
@@ -202,7 +202,7 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
                 _isNew: false,
                 mode: 'bicycle'
             }
-        }
+        };
 
         expect(helpers.isSimpleChainSingleModeReturnTrip({
             interview,
@@ -216,11 +216,11 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
     test('Previous trip is simple chain and has single simple mode', () => {
         // Prepare test data, trip 2 of person 3 should be a simple chain
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId3';
-        interview.responses._activeJourneyId = 'journeyId3';
-        interview.responses._activeTripId = 'tripId2P3';
-        const person = odHelpers.getPerson({interview}) as Person;
-        const journey = odHelpers.getActiveJourney({interview, person }) as Journey;
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId2P3';
+        const person = odHelpers.getPerson({ interview }) as Person;
+        const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with single simple mode
         journey.trips!.tripId1P3.segments = {
@@ -230,7 +230,7 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
                 _isNew: false,
                 mode: 'walk'
             }
-        }
+        };
 
         expect(helpers.isSimpleChainSingleModeReturnTrip({
             interview,
@@ -244,11 +244,11 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
     test('simple chain/simple mode, but moving activity at origin', () => {
         // Prepare test data, trip 2 of person 3 should be a simple chain
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId3';
-        interview.responses._activeJourneyId = 'journeyId3';
-        interview.responses._activeTripId = 'tripId2P3';
-        const person = odHelpers.getPerson({interview}) as Person;
-        const journey = odHelpers.getActiveJourney({interview, person }) as Journey;
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId2P3';
+        const person = odHelpers.getPerson({ interview }) as Person;
+        const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with single simple mode
         journey.trips!.tripId1P3.segments = {
@@ -258,7 +258,7 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
                 _isNew: false,
                 mode: 'walk'
             }
-        }
+        };
 
         // Change activity of origin to a moving one
         journey.visitedPlaces!.schoolPlace1P3.activity = 'workOnTheRoad';
@@ -275,11 +275,11 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
     test('simple chain/simple mode, but moving activity at destination', () => {
         // Prepare test data, trip 2 of person 3 should be a simple chain
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.responses._activePersonId = 'personId3';
-        interview.responses._activeJourneyId = 'journeyId3';
-        interview.responses._activeTripId = 'tripId2P3';
-        const person = odHelpers.getPerson({interview}) as Person;
-        const journey = odHelpers.getActiveJourney({interview, person }) as Journey;
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId2P3';
+        const person = odHelpers.getPerson({ interview }) as Person;
+        const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with single simple mode
         journey.trips!.tripId1P3.segments = {
@@ -289,7 +289,7 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
                 _isNew: false,
                 mode: 'walk'
             }
-        }
+        };
 
         // Change activity destinations to a moving one
         journey.visitedPlaces!.homePlace1P3.activity = 'workOnTheRoad';
@@ -302,24 +302,24 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
             trip: journey.trips!.tripId2P3,
             previousTrip: journey.trips!.tripId1P3
         })).toEqual(false);
-    })
+    });
 });
 
 describe('shouldShowSameAsReverseTripQuestion', () => {
 
     // Prepare test data with default active person/journey/trip, tripId2P1 is return trip of a simple chain
     const baseTestInterview = _cloneDeep(interviewAttributesForTestCases);
-    baseTestInterview.responses._activePersonId = 'personId1';
-    baseTestInterview.responses._activeJourneyId = 'journeyId1';
-    baseTestInterview.responses._activeTripId = 'tripId2P1';
+    baseTestInterview.response._activePersonId = 'personId1';
+    baseTestInterview.response._activeJourneyId = 'journeyId1';
+    baseTestInterview.response._activeTripId = 'tripId2P1';
     // Add a segment for tripId1P1, with simple mode
-    baseTestInterview.responses.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId1P1.segments = {
+    baseTestInterview.response.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId1P1.segments = {
         segmentId1P1T1: { _isNew: false, modePre: 'walk', mode: 'walk', _uuid: 'segmentId1P1T1', _sequence: 1 }
     };
 
     // Add a segment for tripId2P1, tests will initialize it
-    const baseTestSegment = { _uuid: 'segmentId1P1T2', _sequence: 1, _isNew: true }
-    baseTestInterview.responses.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId2P1.segments = {
+    const baseTestSegment = { _uuid: 'segmentId1P1T2', _sequence: 1, _isNew: true };
+    baseTestInterview.response.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId2P1.segments = {
         segmentId1P1T2: baseTestSegment
     };
 
@@ -336,7 +336,7 @@ describe('shouldShowSameAsReverseTripQuestion', () => {
     test('Segment is new, trip is null, previousTrip is null', () => {
         // Unset active trip
         const interview = _cloneDeep(baseTestInterview);
-        delete interview.responses._activeTripId;
+        delete interview.response._activeTripId;
 
         // Test conditional
         const result = helpers.shouldShowSameAsReverseTripQuestion!({ interview, segment: baseTestSegment });
@@ -347,7 +347,7 @@ describe('shouldShowSameAsReverseTripQuestion', () => {
         // Prepare interview data, use the segment from the first trip of P1
         const interview = _cloneDeep(baseTestInterview);
         // Unset active trip
-        interview.responses._activeTripId = 'tripId1P1';
+        interview.response._activeTripId = 'tripId1P1';
         setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1._isNew', true);
         const segment = getResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1') as any;
 
@@ -359,9 +359,9 @@ describe('shouldShowSameAsReverseTripQuestion', () => {
     test('Segment is new, with previous trip, not simple chain', () => {
         // Prepare interview data, take tripId2P2, it is not a simple chain
         const interview = _cloneDeep(baseTestInterview);
-        interview.responses._activePersonId = 'personId2';
-        interview.responses._activeJourneyId = 'journeyId2';
-        interview.responses._activeTripId = 'tripId2P2';
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId2P2';
         setResponse(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2._isNew', true);
         const segment = getResponse(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2') as any;
 

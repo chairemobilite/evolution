@@ -29,7 +29,7 @@ const baseInterviewAttributes = {
     is_valid: false,
     is_active: true,
     is_completed: undefined,
-    responses: {
+    response: {
         accessCode: '11111',
         booleanField: true,
     },

@@ -8,7 +8,7 @@ import each from 'jest-each';
 import { checkConditionals } from '../checkConditionals';
 
 const interview = {
-    responses: {
+    response: {
         _activePersonId: 'bb6c33d8-5b68-4eb4-a031-2ffad0fd2ba5',
         _isNull: null,
         _isArray: ['a', 'b', 'c'],
@@ -51,23 +51,23 @@ each([
         [false, null]
     ],
     [
-        '_isString === interview.responses._isString, should return true.',
+        '_isString === interview.response._isString, should return true.',
         [
             {
                 path: '_isString',
                 comparisonOperator: '===',
-                value: interview.responses._isString
+                value: interview.response._isString
             }
         ],
         [true, null]
     ],
     [
-        '_isString !== interview.responses._isString, should return false.',
+        '_isString !== interview.response._isString, should return false.',
         [
             {
                 path: '_isString',
                 comparisonOperator: '!==',
-                value: interview.responses._isString
+                value: interview.response._isString
             }
         ],
         [false, null]
@@ -161,12 +161,12 @@ each([
         [false, null]
     ],
     [
-        '_isTrueBoolean === interview.responses._isTrueBoolean, should return true.',
+        '_isTrueBoolean === interview.response._isTrueBoolean, should return true.',
         [
             {
                 path: '_isTrueBoolean',
                 comparisonOperator: '===',
-                value: interview.responses._isTrueBoolean
+                value: interview.response._isTrueBoolean
             }
         ],
         [true, null]
@@ -177,7 +177,7 @@ each([
             {
                 path: '_isTrueBoolean',
                 comparisonOperator: 'wrongComparisonOperator',
-                value: interview.responses._isTrueBoolean
+                value: interview.response._isTrueBoolean
             }
         ],
         [false, null]

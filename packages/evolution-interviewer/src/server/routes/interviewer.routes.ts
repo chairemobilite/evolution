@@ -18,7 +18,7 @@ import interviewerDbQueries from '../models/interviewers.db.queries';
 
 const updateInterviewerCache = async function (
     options: { start: number; end: number; userId: number },
-    interviewDataFct: (responses) => { [key: string]: unknown },
+    interviewDataFct: (response) => { [key: string]: unknown },
     batchSize = 100
 ) {
     let batchRowsCount = Infinity;
@@ -36,15 +36,15 @@ const updateInterviewerCache = async function (
         offset += batchSize;
         for (let i = 0; i < batchRowsCount; i++) {
             const row = rows[i];
-            const responses = row.responses;
-            if (!responses) {
+            const response = row.response;
+            if (!response) {
                 continue;
             }
 
-            const interviewData = interviewDataFct(responses);
+            const interviewData = interviewDataFct(response);
             // get interview main timestamps:
-            const startedAtTimestamp = responses._startedAt ? responses._startedAt : null;
-            const completedAtTimestamp = responses._completedAt ? responses._completedAt : null;
+            const startedAtTimestamp = response._startedAt ? response._startedAt : null;
+            const completedAtTimestamp = response._completedAt ? response._completedAt : null;
             const interviewerStarted = moment(row.created_at).unix();
             const interviewerEnded = moment(row.updated_at).unix();
 
@@ -88,7 +88,7 @@ const updateInterviewerCache = async function (
  * @returns
  */
 export default function (interviewDataFct: {
-    data: (responses) => { [key: string]: unknown };
+    data: (response) => { [key: string]: unknown };
     aggregate: (dataForInterviewer: any[]) => { [key: string]: unknown };
 }) {
     const router = express.Router();

@@ -82,7 +82,7 @@ beforeEach(() => {
             widgets: ['activePersonTitle', 'buttonSwitchPerson', 'personTripsTitle', 'personTrips', 'personVisitedPlacesMap', 'buttonConfirmNextSection']
         },
         interview: {
-            responses: {}
+            response: {}
         } as any,
         errors: {},
         user: {
@@ -285,7 +285,7 @@ describe('SegmentsSection behavior', () => {
         fireEvent.click(editButton!);
         expect(props.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
-            valuesByPath: { ['responses._activeTripId']: 'trip1' }
+            valuesByPath: { ['response._activeTripId']: 'trip1' }
         });
     });
 
@@ -303,7 +303,7 @@ describe('SegmentsSection behavior', () => {
         fireEvent.click(editButton!);
         expect(props.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
-            valuesByPath: { ['responses._activeTripId']: 'trip2' }
+            valuesByPath: { ['response._activeTripId']: 'trip2' }
         });
     });
     

@@ -28,15 +28,15 @@ export const generateMapFeatureFromInterview = (
         features: []
     } as GeoJSON.FeatureCollection<GeoJSON.LineString>;
 
-    const responses = interview.responses;
+    const response = interview.response;
     const persons = odSurveyHelper.getPersonsArray({ interview });
 
     const roundedCoordinatesPairsCount = {};
     const coordinatesByVisitedPlaceUuid = {};
     // Add the home geography to the places
-    const homeGeography = responses.home?.geography ? responses.home.geography : null;
+    const homeGeography = response.home?.geography ? response.home.geography : null;
     if (homeGeography) {
-        const path = 'responses.home.geography.geometry.coordinates';
+        const path = 'response.home.geography.geometry.coordinates';
         const place = {
             type: 'Feature' as const,
             geometry: homeGeography.geometry,
@@ -52,7 +52,7 @@ export const generateMapFeatureFromInterview = (
     // Add the visited places and trips to the places and trips collections for each person
     for (const person of persons) {
         const personColor = (person as any)._color || '#000000';
-        const personPath = `responses.household.persons.${person._uuid}`;
+        const personPath = `response.household.persons.${person._uuid}`;
         const journeys = odSurveyHelper.getJourneysArray({ person });
         for (const journey of journeys) {
             const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });

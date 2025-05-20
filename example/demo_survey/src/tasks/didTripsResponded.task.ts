@@ -6,7 +6,7 @@
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 
-const fetchDidTripsFromDb = function() { return knex.select('sv_interviews.id', 'sv_interviews.updated_at', 'responses', 'validations', 'user_id')
+const fetchDidTripsFromDb = function() { return knex.select('sv_interviews.id', 'sv_interviews.updated_at', 'response', 'validations', 'user_id')
   .from('sv_interviews')
   .leftJoin('users', 'users.id', 'sv_interviews.user_id')
   .whereRaw(`sv_interviews.is_active IS TRUE AND users.is_valid IS TRUE`)
@@ -17,10 +17,10 @@ const fetchDidTripsFromDb = function() { return knex.select('sv_interviews.id', 
     for (let i = 0, count = rows.length; i < count; i++)
     {
       const interview  = rows[i];
-      const responses  = interview.responses;
-      if (responses._completedAt > 0)
+      const response  = interview.response;
+      if (response._completedAt > 0)
       {
-        const persons = responses && responses.household ? responses.household.persons : {};
+        const persons = response && response.household ? response.household.persons : {};
         for (const personId in persons)
         {
           const person = persons[personId];

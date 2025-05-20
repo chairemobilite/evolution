@@ -77,7 +77,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             is_completed: true,
             is_validated: null,
             is_questionable: null,
-            responses: {
+            response: {
                 household: {
                     size: 1,
                     persons: {
@@ -103,7 +103,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(2);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responses: 'validatedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'validatedIfAvailable' } });
 
         // Check the content of the interview file
         const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_interview_test.csv'));
@@ -121,16 +121,16 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewer_count: '',
             _interviewer_created: '',
             hasValidatedData: 'true',
-            'household.size': String(interviewData.responses.household.size),
+            'household.size': String(interviewData.response.household.size),
             is_completed: String(interviewData.is_completed),
             is_questionable: '',
             is_valid: String(interviewData.is_valid),
             is_validated: '',
-            'arrayOfObjects.0.a': String(interviewData.responses.arrayOfObjects[0].a),
-            'arrayOfObjects.0.b': String(interviewData.responses.arrayOfObjects[0].b),
-            'arrayOfObjects.1.a': String(interviewData.responses.arrayOfObjects[1].a),
-            'arrayOfObjects.1.b': String(interviewData.responses.arrayOfObjects[1].b),
-            'arrayOfStrings': interviewData.responses.arrayOfStrings.join('|'),
+            'arrayOfObjects.0.a': String(interviewData.response.arrayOfObjects[0].a),
+            'arrayOfObjects.0.b': String(interviewData.response.arrayOfObjects[0].b),
+            'arrayOfObjects.1.a': String(interviewData.response.arrayOfObjects[1].a),
+            'arrayOfObjects.1.b': String(interviewData.response.arrayOfObjects[1].b),
+            'arrayOfStrings': interviewData.response.arrayOfStrings.join('|'),
             'household.personsDidTrips': person1Uuid
         });
 
@@ -150,7 +150,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewUuid: interviewData.uuid,
             _parentUuid: interviewData.uuid,
             _uuid: person1Uuid,
-            age: String(interviewData.responses.household.persons[person1Uuid].age),
+            age: String(interviewData.response.household.persons[person1Uuid].age),
         });
     });
 
@@ -169,7 +169,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             is_completed: true,
             is_validated: null,
             is_questionable: null,
-            responses: {
+            response: {
                 household: {
                     size: 1,
                     persons: {
@@ -245,7 +245,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(3);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responses: 'validatedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'validatedIfAvailable' } });
 
         // Check the content of the interview file
         const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_interview_test.csv'));
@@ -263,7 +263,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewer_count: '',
             _interviewer_created: '',
             hasValidatedData: 'true',
-            'household.size': String(interviewData.responses.household.size),
+            'household.size': String(interviewData.response.household.size),
             is_completed: String(interviewData.is_completed),
             is_questionable: '',
             is_valid: String(interviewData.is_valid),
@@ -285,15 +285,15 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewUuid: interviewData.uuid,
             _parentUuid: interviewData.uuid,
             _uuid: person1Uuid,
-            age: String(interviewData.responses.household.persons[person1Uuid].age),
+            age: String(interviewData.response.household.persons[person1Uuid].age),
             nickname: ''
         });
         expect(personsRows[1]).toEqual({
             _interviewUuid: interviewData.uuid,
             _parentUuid: interviewData.uuid,
             _uuid: person2Uuid,
-            age: String(interviewData.responses.household.persons[person2Uuid].age),
-            nickname: interviewData.responses.household.persons[person2Uuid].nickname
+            age: String(interviewData.response.household.persons[person2Uuid].age),
+            nickname: interviewData.response.household.persons[person2Uuid].nickname
         });
 
         // Check the content of the visited places file
@@ -310,34 +310,34 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewUuid: interviewData.uuid,
             _parentUuid: person1Uuid,
             _uuid: visitedPlace1P1Uuid,
-            name: interviewData.responses.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].name,
-            'geography.type': interviewData.responses.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.type,
-            'geography.properties.action': interviewData.responses.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.properties.action,
-            'geography.geometry.type': interviewData.responses.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.type,
-            'geography.geometry.lat': String(interviewData.responses.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.coordinates[1]),
-            'geography.geometry.lon': String(interviewData.responses.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.coordinates[0]),
+            name: interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].name,
+            'geography.type': interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.type,
+            'geography.properties.action': interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.properties.action,
+            'geography.geometry.type': interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.type,
+            'geography.geometry.lat': String(interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.coordinates[1]),
+            'geography.geometry.lon': String(interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.coordinates[0]),
         });
         expect(visitedPlacesRows[1]).toEqual({
             _interviewUuid: interviewData.uuid,
             _parentUuid: person2Uuid,
             _uuid: visitedPlace1P2Uuid,
-            name: interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].name,
-            'geography.type': interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.type,
-            'geography.properties.action': interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.properties.action,
-            'geography.geometry.type': interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.type,
-            'geography.geometry.lat': String(interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.coordinates[1]),
-            'geography.geometry.lon': String(interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.coordinates[0]),
+            name: interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].name,
+            'geography.type': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.type,
+            'geography.properties.action': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.properties.action,
+            'geography.geometry.type': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.type,
+            'geography.geometry.lat': String(interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.coordinates[1]),
+            'geography.geometry.lon': String(interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.coordinates[0]),
         });
         expect(visitedPlacesRows[2]).toEqual({
             _interviewUuid: interviewData.uuid,
             _parentUuid: person2Uuid,
             _uuid: visitedPlace2P2Uuid,
-            name: interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].name,
-            'geography.type': interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.type,
-            'geography.properties.action': interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.properties.action,
-            'geography.geometry.type': interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.type,
-            'geography.geometry.lat': String(interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.coordinates[1]),
-            'geography.geometry.lon': String(interviewData.responses.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.coordinates[0]),
+            name: interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].name,
+            'geography.type': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.type,
+            'geography.properties.action': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.properties.action,
+            'geography.geometry.type': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.type,
+            'geography.geometry.lat': String(interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.coordinates[1]),
+            'geography.geometry.lon': String(interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.coordinates[0]),
         });
 
     });
@@ -352,7 +352,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             is_completed: true,
             is_validated: null,
             is_questionable: null,
-            responses: {
+            response: {
                 arrayOfObjectsIn1Only: [{ a: 1, b: 2 }, { a: 3, b: 4 }],
                 arrayOfStrings: ['a', 'b', 'c'],
                 arrayOrString: 'string'
@@ -366,7 +366,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             is_completed: true,
             is_validated: null,
             is_questionable: null,
-            responses: {
+            response: {
                 arrayOfStrings: ['d', 'e', 'c'],
                 arrayOrString: ['an', 'array'],
                 fieldIn2: 2,
@@ -384,7 +384,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responses: 'validatedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'validatedIfAvailable' } });
 
         // Check the content of the interview file
         const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_interview_test.csv'));
@@ -405,11 +405,11 @@ describe('exportAllToCsvBySurveyObject', () => {
             is_questionable: '',
             is_valid: String(interviewData[0].is_valid),
             is_validated: '',
-            'arrayOfObjectsIn1Only.0.a': String(interviewData[0].responses.arrayOfObjectsIn1Only![0].a),
-            'arrayOfObjectsIn1Only.0.b': String(interviewData[0].responses.arrayOfObjectsIn1Only![0].b),
-            'arrayOfObjectsIn1Only.1.a': String(interviewData[0].responses.arrayOfObjectsIn1Only![1].a),
-            'arrayOfObjectsIn1Only.1.b': String(interviewData[0].responses.arrayOfObjectsIn1Only![1].b),
-            'arrayOfStrings': interviewData[0].responses.arrayOfStrings.join('|'),
+            'arrayOfObjectsIn1Only.0.a': String(interviewData[0].response.arrayOfObjectsIn1Only![0].a),
+            'arrayOfObjectsIn1Only.0.b': String(interviewData[0].response.arrayOfObjectsIn1Only![0].b),
+            'arrayOfObjectsIn1Only.1.a': String(interviewData[0].response.arrayOfObjectsIn1Only![1].a),
+            'arrayOfObjectsIn1Only.1.b': String(interviewData[0].response.arrayOfObjectsIn1Only![1].b),
+            'arrayOfStrings': interviewData[0].response.arrayOfStrings.join('|'),
             'arrayOrString': 'string',
             fieldIn2: '',
             arrayIn2Only: ''
@@ -428,10 +428,10 @@ describe('exportAllToCsvBySurveyObject', () => {
             'arrayOfObjectsIn1Only.0.b': '',
             'arrayOfObjectsIn1Only.1.a': '',
             'arrayOfObjectsIn1Only.1.b': '',
-            'arrayOfStrings': interviewData[1].responses.arrayOfStrings.join('|'),
-            'arrayOrString': (interviewData[1].responses.arrayOrString as string[]).join('|'),
-            fieldIn2: String(interviewData[1].responses.fieldIn2),
-            arrayIn2Only: interviewData[1].responses.arrayIn2Only!.join('|'),
+            'arrayOfStrings': interviewData[1].response.arrayOfStrings.join('|'),
+            'arrayOrString': (interviewData[1].response.arrayOrString as string[]).join('|'),
+            fieldIn2: String(interviewData[1].response.fieldIn2),
+            arrayIn2Only: interviewData[1].response.arrayIn2Only!.join('|'),
         });
 
     });

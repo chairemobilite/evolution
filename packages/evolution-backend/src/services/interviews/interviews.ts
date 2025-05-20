@@ -7,8 +7,8 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { auditInterview, getChangesAfterCleaningInterview } from 'evolution-common/lib/services/interviews/interview';
-import { updateInterview, setInterviewFields, copyResponsesToValidatedData } from './interview';
-import { mapResponsesToValidatedData } from './interviewUtils';
+import { updateInterview, setInterviewFields, copyResponseToValidatedData } from './interview';
+import { mapResponseToValidatedData } from './interviewUtils';
 import { validateAccessCode } from '../accessCode';
 import { validate as validateUuid } from 'uuid';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -99,36 +99,36 @@ export default class Interviews {
 
     static createInterviewForUser = async (
         participantId: number,
-        initialResponses: { [key: string]: any },
+        initialResponse: { [key: string]: any },
         creatingUserId?: number | undefined,
         returning: string | string[] = 'uuid'
     ): Promise<Partial<InterviewAttributes>> => {
         // TODO Make sure there is no active interview for this user already?
         // Create the interview for this user, make sure the start time is set
-        const responses = _cloneDeep(initialResponses);
-        if (responses._startedAt === undefined) {
-            responses._startedAt = moment().unix();
+        const response = _cloneDeep(initialResponse);
+        if (response._startedAt === undefined) {
+            response._startedAt = moment().unix();
         }
         const interview = await interviewsDbQueries.create(
-            { participant_id: participantId, responses, is_active: true, validations: {} },
+            { participant_id: participantId, response, is_active: true, validations: {} },
             returning
         );
-        if (!interview.uuid || Object.keys(initialResponses).length === 0) {
+        if (!interview.uuid || Object.keys(initialResponse).length === 0) {
             return interview as InterviewAttributes;
         }
-        // update interview with initial responses so that server updates are run on the initial responses
+        // update interview with initial response so that server updates are run on the initial response
         const userInterview = await Interviews.getInterviewByUuid(interview.uuid);
         if (userInterview === undefined) {
             throw 'Interview just created was not found!';
         }
         const valuesByPath = {};
-        Object.keys(initialResponses).forEach((key) => {
-            valuesByPath[`responses.${key}`] = initialResponses[key];
+        Object.keys(initialResponse).forEach((key) => {
+            valuesByPath[`response.${key}`] = initialResponse[key];
         });
         await updateInterview(userInterview, {
             logUpdate: getParadataLoggingFunction(userInterview.id, creatingUserId),
             valuesByPath,
-            fieldsToUpdate: ['responses']
+            fieldsToUpdate: ['response']
         });
         return interview as InterviewAttributes;
     };
@@ -203,7 +203,7 @@ export default class Interviews {
                     }
                     i++;
                     if (_isBlank(interview.validated_data)) {
-                        copyResponsesToValidatedData(interview)
+                        copyResponseToValidatedData(interview)
                             .then(
                                 () =>
                                     new Promise((res1, _rej1) => {
@@ -218,7 +218,7 @@ export default class Interviews {
                                     })
                             )
                             .catch((error) => {
-                                console.error('Error copying responses to validated data', error);
+                                console.error('Error copying response to validated data', error);
                             })
                             .finally(() => {
                                 queryStream.resume();
@@ -256,10 +256,10 @@ export default class Interviews {
                     queryStream.pause();
                     // Pausing the connnection is useful if your processing involves I/O
                     const interview = row;
-                    const changesAfterCleaningInterview = mapResponsesToValidatedData(
+                    const changesAfterCleaningInterview = mapResponseToValidatedData(
                         getChangesAfterCleaningInterview(
                             interview.validated_data,
-                            interview.responses,
+                            interview.response,
                             interview,
                             parsers,
                             surveyProjectHelper
@@ -269,7 +269,7 @@ export default class Interviews {
                     setInterviewFields(interview, changesAfterCleaningInterview);
                     const audits = auditInterview(
                         interview.validated_data,
-                        interview.responses,
+                        interview.response,
                         interview,
                         validations,
                         surveyProjectHelper
@@ -318,7 +318,7 @@ export default class Interviews {
                     updateInterview(interview, {
                         fieldsToUpdate: ['validated_data', 'is_completed', 'is_validated', 'is_valid'],
                         valuesByPath: {
-                            validated_data: interview.responses,
+                            validated_data: interview.response,
                             is_completed: null,
                             is_validated: null,
                             is_valid: null

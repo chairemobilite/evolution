@@ -24,7 +24,7 @@ const localUser = {
     permissions: {
         [permission1]: true
     }
-}
+};
 
 const anotherUser = {
     id: 2,
@@ -34,9 +34,9 @@ const anotherUser = {
     permissions: {
         [permission2]: true
     }
-}
+};
 
-const baseResponses = {
+const baseResponse = {
     accessCode: '11111',
     booleanField: true,
 };
@@ -55,7 +55,7 @@ beforeAll(async () => {
             id: i,
             email: `example${i}@transition.city`,
             is_valid: true
-        }
+        };
         const localUserInterviewAttributes = {
             id: i,
             uuid: uuidV4(),
@@ -63,7 +63,7 @@ beforeAll(async () => {
             is_valid: false,
             is_active: true,
             is_completed: undefined,
-            responses: baseResponses,
+            response: baseResponse,
             validations: {},
             audits: { errorOne: 3, errorThree: 1 }
         };
@@ -74,7 +74,7 @@ beforeAll(async () => {
     await truncate(knex, 'users');
     await create(knex, 'users', undefined, localUser as any);
     await create(knex, 'users', undefined, anotherUser as any);
-    
+
 });
 
 afterAll(async() => {
@@ -89,7 +89,7 @@ describe('getInterviewerDataBatch', () => {
 
     beforeEach(async () => {
         await truncate(knex, 'sv_interviews_accesses');
-    })
+    });
 
     test('Return only interviews for edition, not validation', async() => {
         // localUser edited 4 interviews and validated 2, one which overlaps the edition
@@ -101,7 +101,7 @@ describe('getInterviewerDataBatch', () => {
                 update_count: (i + 1) * 4,
                 created_at: moment('2023-08-24 22:57:00'),
                 updated_at: moment('2023-08-24 22:59:00')
-            } as any, { returning: 'interview_id'});
+            } as any, { returning: 'interview_id' });
         }
         for (let i = 3; i < 5; i++) {
             await create(knex, 'sv_interviews_accesses', undefined, {
@@ -111,7 +111,7 @@ describe('getInterviewerDataBatch', () => {
                 update_count: (i + 1) * 4,
                 created_at: moment('2023-08-24 22:57:00'),
                 updated_at: moment('2023-08-24 22:59:00')
-            } as any, { returning: 'interview_id'});
+            } as any, { returning: 'interview_id' });
         }
 
         // Test
@@ -124,7 +124,7 @@ describe('getInterviewerDataBatch', () => {
         const interviewerData: { localUser: any[], anotherUser: any[]} = {
             localUser: [],
             anotherUser: []
-        }
+        };
         for (let i = 0; i < 4; i++) {
             const data = {
                 interview_id: i,
@@ -135,7 +135,7 @@ describe('getInterviewerDataBatch', () => {
                 updated_at: moment(`2023-08-${24 + i} 22:59:00`)
             };
             interviewerData.localUser.push(data);
-            await create(knex, 'sv_interviews_accesses', undefined, data as any, { returning: 'interview_id'});
+            await create(knex, 'sv_interviews_accesses', undefined, data as any, { returning: 'interview_id' });
         }
         // anotherUser edited 4 interviews, embedded within a week (from august 21 to 27)
         for (let i = 0; i < 4; i++) {
@@ -148,10 +148,10 @@ describe('getInterviewerDataBatch', () => {
                 updated_at: moment(`2023-08-${24 + i} 22:59:00`)
             };
             interviewerData.anotherUser.push(data);
-            await create(knex, 'sv_interviews_accesses', undefined, data as any, { returning: 'interview_id'});
+            await create(knex, 'sv_interviews_accesses', undefined, data as any, { returning: 'interview_id' });
         }
 
-        const findData = (dbData, toFind) => dbData.findIndex(data => toFind.interview_id === data.interview_id && toFind.user_id === data.user_id) !== -1;
+        const findData = (dbData, toFind) => dbData.findIndex((data) => toFind.interview_id === data.interview_id && toFind.user_id === data.user_id) !== -1;
 
         // august 18 to 23 should return 3 interviews, for anotherUser
         let data = await dbQueries.getInterviewerDataBatch({ offset: 0, limit: 20, start: moment('2023-08-18 00:00:00').unix(), end: moment('2023-08-23 23:59:59').unix() });
@@ -203,9 +203,9 @@ describe('getInterviewerDataBatch', () => {
                     update_count: (i + 1) * 4,
                     created_at: moment('2023-08-24 22:57:00'),
                     updated_at: moment('2023-08-24 22:59:00')
-                } as any, { returning: 'interview_id'});
+                } as any, { returning: 'interview_id' });
                 expectedResults.push({
-                    email: localUser.email, 
+                    email: localUser.email,
                     interview_id: i
                 });
             }
@@ -217,14 +217,14 @@ describe('getInterviewerDataBatch', () => {
                     update_count: (i + 1) * 4,
                     created_at: moment('2023-08-24 22:57:00'),
                     updated_at: moment('2023-08-24 22:59:00')
-                } as any, { returning: 'interview_id'});
+                } as any, { returning: 'interview_id' });
                 expectedResults.push({
-                    email: anotherUser.email, 
+                    email: anotherUser.email,
                     interview_id: i
                 });
             }
         }
-        
+
         // Return by pages of 3, make sure there are no duplicates and that they are sorted
         const pageSize = 3;
         const expectedPageCount = Math.ceil(expectedResults.length / pageSize);
@@ -237,7 +237,7 @@ describe('getInterviewerDataBatch', () => {
         // Find all the interviews that were inserted
         for (let i = 0; i < expectedResults.length; i++) {
             const expected = expectedResults[i];
-            expect(allResults.findIndex((result => result.interview_id === expected.interview_id && result.email === expected.email))).toBeGreaterThanOrEqual(0);
+            expect(allResults.findIndex(((result) => result.interview_id === expected.interview_id && result.email === expected.email))).toBeGreaterThanOrEqual(0);
         }
 
         // Make sure they are sorted

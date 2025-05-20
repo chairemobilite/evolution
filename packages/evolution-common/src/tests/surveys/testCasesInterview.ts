@@ -44,7 +44,7 @@ const baseInterviewAttributes: Pick<
  */
 export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
     ...baseInterviewAttributes,
-    responses: {
+    response: {
         home: {
             geography: {
                 type: 'Feature',

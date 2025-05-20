@@ -6,8 +6,8 @@
  */
 
 export type ExportOptions = {
-    /** Specifies which set of responses should be exported. 'validated' means
+    /** Specifies which set of response should be exported. 'validated' means
      * it exports the validated data if available, 'participant' is the original
-     * participant responses */
+     * participant response */
     responseType: 'participant' | 'validatedIfAvailable';
 };

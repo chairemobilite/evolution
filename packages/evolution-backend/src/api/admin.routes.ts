@@ -33,7 +33,7 @@ const getStartedAndCompletedInterviewsByDay = async (res) => {
     const subquery = knex('sv_interviews').select(
         'id',
         knex.raw('to_char(created_at, \'YYYY-MM-DD\') as started_at_date'),
-        knex.raw('case when responses->>\'_completedAt\' is null then 0 else 1 end as completed_at')
+        knex.raw('case when response->>\'_completedAt\' is null then 0 else 1 end as completed_at')
     );
     const responses = await knex(subquery.as('resp_data'))
         .select('started_at_date')
@@ -57,7 +57,7 @@ const getStartedAndCompletedInterviewsByDay = async (res) => {
         dates.push(dateStr);
     }
 
-    // Process database data into responses fields
+    // Process database data into response field
     const dataByDate = {};
     responses.forEach((dateCount) => (dataByDate[dateCount['started_at_date']] = dateCount));
 

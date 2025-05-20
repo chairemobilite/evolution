@@ -26,7 +26,7 @@ const mockedCountPersons = odHelpers.countPersons as jest.MockedFunction<typeof 
 
 beforeEach(() => {
     jest.clearAllMocks();
-})
+});
 
 describe('getSwitchPersonWidgets', () => {
 
@@ -106,9 +106,9 @@ describe('activePersonTitle widget', () => {
             utilHelpers.translateString(text, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
             expect(mockedT).toHaveBeenCalledWith(['customSurvey:ActivePersonTitle', 'survey:ActivePersonTitle'], { context: 'unnamed', name: 1 });
         });
-        
+
     });
-    
+
 });
 
 describe('buttonSwitchPerson widget', () => {
@@ -138,7 +138,7 @@ describe('buttonSwitchPerson widget', () => {
         expect(action).toBeDefined();
         const callbackMocks = { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn() };
         action(callbackMocks, interviewAttributesForTestCases, 'path', 'section', {}, jest.fn());
-        expect(callbackMocks.startUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'section', valuesByPath: { 'responses._activeSection': 'selectPerson'}});
+        expect(callbackMocks.startUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'section', valuesByPath: { 'response._activeSection': 'selectPerson' } });
     });
 
     test('label', () => {

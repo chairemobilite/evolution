@@ -30,17 +30,17 @@ const interviewAttributes: InterviewAttributes = {
     is_active: true,
     is_completed: false,
     is_questionable: false,
-    responses: {},
+    response: {},
     validations: {},
     survey_id: 1
 };
 
 describe('With validation testField', () => {
     each([
-        ['Not validated field', { 'responses.someField': 'abc' }, true],
-        ['Valid testField', { 'responses.testField': '121' }, true],
-        ['Invalid testField', { 'responses.testField': '122' }, { testField: validations.testField.validations[0].errorMessage }],
-        ['Invalid client side', { 'validations.testField': false, 'responses.testField': '122' }, true],
+        ['Not validated field', { 'response.someField': 'abc' }, true],
+        ['Valid testField', { 'response.testField': '121' }, true],
+        ['Invalid testField', { 'response.testField': '122' }, { testField: validations.testField.validations[0].errorMessage }],
+        ['Invalid client side', { 'validations.testField': false, 'response.testField': '122' }, true],
         ['No data', { }, true],
     ]).test('%s', async (_description, valuesByPath, result) => {
         expect(await serverValidation(interviewAttributes, validations, valuesByPath, [])).toEqual(result);

@@ -117,7 +117,7 @@ const prepareSimpleWidget = (
     if (
         previousStatus &&
         data.affectedPaths['_all'] !== true &&
-        data.affectedPaths['responses.' + path] !== true &&
+        data.affectedPaths['response.' + path] !== true &&
         previousStatus.isVisible &&
         previousStatus.isVisible === isVisible &&
         undefined === assignedValue &&
@@ -174,7 +174,7 @@ const prepareSimpleWidget = (
                 : surveyHelper.parse(widgetConfig.defaultValue, data.interview, path, data.user);
         if (value !== defaultValue) {
             surveyHelper.setResponse(data.interview, path, defaultValue);
-            data.valuesByPath['responses.' + path] = defaultValue;
+            data.valuesByPath['response.' + path] = defaultValue;
             value = defaultValue;
             visibleValueUpdated = true;
             isResponded = !_isBlank(defaultValue);
@@ -189,7 +189,7 @@ const prepareSimpleWidget = (
         const customDefaultValue = surveyHelper.parse(widgetConfig.customDefaultValue, data.interview, path, data.user);
         if (customPath && customValue !== customDefaultValue) {
             surveyHelper.setResponse(data.interview, customPath, customDefaultValue);
-            data.valuesByPath['responses.' + customPath] = customDefaultValue;
+            data.valuesByPath['response.' + customPath] = customDefaultValue;
             customValue = customDefaultValue;
             visibleValueUpdated = true;
             isCustomResponded = !_isBlank(customDefaultValue);
@@ -217,7 +217,7 @@ const prepareSimpleWidget = (
         !(assignedValue === null && value === undefined)
     ) {
         surveyHelper.setResponse(data.interview, path, assignedValue);
-        data.valuesByPath['responses.' + path] = assignedValue;
+        data.valuesByPath['response.' + path] = assignedValue;
         surveyHelper.devLog('need to update path', path);
         surveyHelper.devLog('change values', [value, assignedValue]);
         value = assignedValue;
@@ -233,7 +233,7 @@ const prepareSimpleWidget = (
         !(customAssignedValue === null && customValue === undefined)
     ) {
         surveyHelper.setResponse(data.interview, customPath, customAssignedValue);
-        data.valuesByPath['responses.' + customPath] = customAssignedValue;
+        data.valuesByPath['response.' + customPath] = customAssignedValue;
         surveyHelper.devLog('need to update custom path', customPath);
         surveyHelper.devLog('change custom values', [customValue, customAssignedValue]);
         customValue = customAssignedValue;
@@ -256,7 +256,7 @@ const prepareSimpleWidget = (
         // If validation status has changed, but this path is not affected by the
         // update, it's an internal value change, the user did not interact with
         // this version of the widget yet, set validation to true
-        if (!(data.affectedPaths['_all'] === true || data.affectedPaths['responses.' + path] === true)) {
+        if (!(data.affectedPaths['_all'] === true || data.affectedPaths['response.' + path] === true)) {
             isValid = true;
             errorMessage = undefined;
         }
@@ -294,7 +294,7 @@ const prepareSimpleWidget = (
         value,
         customValue,
         currentUpdateKey:
-            (data.updateKey && data.affectedPaths['responses.' + path] === true) || visibleValueUpdated
+            (data.updateKey && data.affectedPaths['response.' + path] === true) || visibleValueUpdated
                 ? (previousStatus?.currentUpdateKey || 0) + 1
                 : previousStatus?.currentUpdateKey || 0
     };

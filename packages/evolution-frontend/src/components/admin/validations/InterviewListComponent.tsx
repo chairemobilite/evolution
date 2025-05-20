@@ -138,9 +138,9 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             },
             {
                 // TODO, this column is specific to projects, it should come as props from the project
-                id: 'responses.accessCode',
+                id: 'response.accessCode',
                 label: t('admin:interviewByCodeFilter:title'),
-                accessor: 'responses.accessCode',
+                accessor: 'response.accessCode',
                 Filter: InterviewByCodeFilter,
                 enableSortBy: true
             },
@@ -154,7 +154,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 enableSortBy: true
             },
             {
-                accessor: 'responses._isCompleted',
+                accessor: 'response._isCompleted',
                 Filter: InterviewCompletedFilter,
                 enableSortBy: false,
                 Cell: ({ value }: CellArgs) =>
@@ -167,7 +167,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                     value ? t('admin:Valid') : value === false ? t('admin:Invalid') : t('admin:UnknownValidity')
             },
             {
-                accessor: 'responses.household.size',
+                accessor: 'response.household.size',
                 Cell: ({ value }: CellArgs) => (
                     <React.Fragment>
                         {value || '?'}
@@ -220,7 +220,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 }
             },
             {
-                accessor: 'responses._validationComment',
+                accessor: 'response._validationComment',
                 Cell: ({ value }: CellArgs) =>
                     _isBlank(value) ? (
                         ''
@@ -229,7 +229,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                     )
             },
             {
-                accessor: 'responses.home.geography',
+                accessor: 'response.home.geography',
                 label: t('admin:interviewByHomeGeographyFilter:Title'),
                 Cell: () => '',
                 Filter: InteviewByHomeGeographyFilter,

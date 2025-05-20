@@ -34,7 +34,7 @@ const InterviewsCreateNew: React.FunctionComponent = () => {
                 method: 'POST',
                 body: JSON.stringify({
                     createUser: state.username,
-                    responses: state.responses
+                    response: state.response
                 })
             });
 

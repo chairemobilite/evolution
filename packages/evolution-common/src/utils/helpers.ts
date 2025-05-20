@@ -20,7 +20,7 @@ import * as odSurveyHelpers from '../services/odSurvey/helpers';
 import {
     ChoiceType,
     I18nData,
-    InterviewResponses,
+    InterviewResponse,
     ParsingFunction,
     RadioChoiceType,
     UserInterviewAttributes,
@@ -51,7 +51,7 @@ export const translateString = (
  *
  * @param value The value to parse
  * @param interview The interview attributes
- * @param path The path of the field being parsed, in the interview (responses?)
+ * @param path The path of the field being parsed, in the interview (response?)
  * @param user The current user's information
  * @returns The parsed string value, or the value itself if it is a string
  */
@@ -70,7 +70,7 @@ export const parseString = (
  *
  * @param value The value to parse
  * @param interview The interview attributes
- * @param path The path of the field being parsed, in the interview (responses?)
+ * @param path The path of the field being parsed, in the interview (response?)
  * @param user The current user's information
  * @param defaultBoolean default boolean value if undefined or null. TODO Do we
  * really want a default value of true?
@@ -104,7 +104,7 @@ export const parseBoolean = (
  *
  * @param value The value to parse
  * @param interview The interview attributes
- * @param path The path of the field being parsed, in the interview (responses?)
+ * @param path The path of the field being parsed, in the interview (response?)
  * @param user The current user's information
  * @returns The parsed value of type T, or the value itself if it is a string
  */
@@ -123,7 +123,7 @@ export const parse = <T>(
  *
  * @param value The value to parse
  * @param interview The interview attributes
- * @param path The path of the field being parsed, in the interview (responses?)
+ * @param path The path of the field being parsed, in the interview (response?)
  * @param user The current user's information
  * @returns The parsed number value, or the value itself
  */
@@ -142,14 +142,14 @@ export const parseInteger = (
 
 /**
  * Replace response placeholders specified between brackets in a path by the
- * corresponding value in the interview responses.
+ * corresponding value in the interview response.
  *
  * For example, if the value of the 'section1.field1' response is 'foo', path
  * 'prefix.{section1.field1}.suffix' would resolve to 'prefix.foo.suffix'
  *
  * @param interview The interview
  * @param path The path, with possibly response placeholders between brackets
- * @returns The path with interpolated responses
+ * @returns The path with interpolated response
  */
 export const interpolatePath = (interview: UserInterviewAttributes, path: string): string => {
     const splittedInterpolationPath = path ? path.match(/\{(.+?)\}/g) : null;
@@ -289,7 +289,7 @@ export const getResponse = (
 ): unknown | null => {
     const newPath = getPath(path, relativePath);
     if (newPath && interview) {
-        const value = _get(interview.responses, newPath, defaultValue);
+        const value = _get(interview.response, newPath, defaultValue);
         return value === null || value === undefined ? defaultValue : value;
     } else {
         return null;
@@ -307,7 +307,7 @@ export const getResponse = (
  * @param value value to set
  * @param relativePath The relative path from the given path (with prefixed ../
  * to go back in the path)
- * @returns The interview responses with the field set
+ * @returns The interview response with the field set
  */
 export const setResponse = (
     // TODO Can this really be undefined? it was previously in the if clause, but try to make it not be undefined
@@ -315,10 +315,10 @@ export const setResponse = (
     path: string,
     value: unknown = undefined,
     relativePath?: string
-): InterviewResponses | null => {
+): InterviewResponse | null => {
     const newPath = getPath(path, relativePath);
     if (newPath && interview) {
-        return _set(interview.responses, newPath, value);
+        return _set(interview.response, newPath, value);
     } else {
         // TODO Keep the null value for return for legacy purposes, but it should return the object
         return null;
@@ -326,7 +326,7 @@ export const setResponse = (
 };
 
 /**
- * Get the household object in the interview responses, or an empty object if
+ * Get the household object in the interview response, or an empty object if
  * the household has not been initialized
  *
  * @param interview The interview object
@@ -336,7 +336,7 @@ export const setResponse = (
 export const getHousehold = (interview) => odSurveyHelpers.getHousehold({ interview });
 
 /**
- * Get the currently active person, as defined in the interview responses. If
+ * Get the currently active person, as defined in the interview response. If
  * the active person is not set but there are persons defined, the first one
  * will be returned. If the person is not found, an empty object will be
  * returned.
@@ -375,7 +375,7 @@ export const getValidation = (
  * @param value value to set
  * @param relativePath The relative path from the given path (with prefixed ../
  * to go back in the path)
- * @returns The interview responses with the field set
+ * @returns The interview response with the field set
  */
 export const setValidation = (
     interview: UserInterviewAttributes,
@@ -474,7 +474,7 @@ const startDateGreaterEqual = (startDate: number | undefined, compare: string | 
  * @returns {boolean} `true` if the survey has started, `false` otherwise.
  */
 export const surveyStarted = (interview: UserInterviewAttributes): boolean => {
-    const isSurveyStarted = startDateGreaterEqual(interview.responses._startedAt, config.surveyStart);
+    const isSurveyStarted = startDateGreaterEqual(interview.response._startedAt, config.surveyStart);
     return isSurveyStarted === null ? true : isSurveyStarted;
 };
 
@@ -485,12 +485,12 @@ export const surveyStarted = (interview: UserInterviewAttributes): boolean => {
  * @returns {boolean} `true` if the survey has ended, `false` otherwise.
  */
 export const surveyEnded = (interview: UserInterviewAttributes): boolean => {
-    const isSurveyEnded = startDateGreaterEqual(interview.responses._startedAt, config.surveyEnd);
+    const isSurveyEnded = startDateGreaterEqual(interview.response._startedAt, config.surveyEnd);
     return isSurveyEnded === null ? true : isSurveyEnded;
 };
 
 export const interviewOnOrAfter = (date: string, interview: UserInterviewAttributes) => {
-    return startDateGreaterEqual(interview.responses._startedAt, date);
+    return startDateGreaterEqual(interview.response._startedAt, date);
 };
 
 /**
@@ -523,7 +523,7 @@ export const addGroupedObjects = (
     attributes: { [key: string]: unknown }[] = []
 ): { [modifiedValue: string]: unknown } => {
     const changedValuesByPath = {};
-    const groupedObjects = _get(interview.responses, path, {});
+    const groupedObjects = _get(interview.response, path, {});
     const groupedObjectsArray = sortBy(Object.values(groupedObjects), ['_sequence']) as Uuidable[];
     // Make sure sequence is within bounds:
     const objStartSequence =
@@ -534,13 +534,13 @@ export const addGroupedObjects = (
     // increment sequences of groupedObjects after the insertSequence:
     for (let seq = objStartSequence, count = groupedObjectsArray.length; seq <= count; seq++) {
         const groupedObject = groupedObjectsArray[seq - 1];
-        changedValuesByPath[`responses.${path}.${groupedObject._uuid}._sequence`] = seq + newObjectsCount;
+        changedValuesByPath[`response.${path}.${groupedObject._uuid}._sequence`] = seq + newObjectsCount;
     }
     for (let i = 0; i < newObjectsCount; i++) {
         const uniqueId = uuidV4();
         const newSequence = objStartSequence + i;
         const newObjectAttributes = attributes[i] ? attributes[i] : {};
-        changedValuesByPath[`responses.${path}.${uniqueId}`] = {
+        changedValuesByPath[`response.${path}.${uniqueId}`] = {
             _sequence: newSequence,
             _uuid: uniqueId,
             ...newObjectAttributes
@@ -578,12 +578,12 @@ export const removeGroupedObjects = (
         const groupedObject = groupedObjectsArray[i];
         const groupedObjectPath = getPath(removePaths[0], `../${groupedObject._uuid}`);
         if (groupedObjectPath !== null && removePaths.includes(groupedObjectPath)) {
-            unsetPaths.push(`responses.${groupedObjectPath}`);
+            unsetPaths.push(`response.${groupedObjectPath}`);
             unsetPaths.push(`validations.${groupedObjectPath}`);
             pathRemovedCount++;
         } else {
             if (pathRemovedCount > 0) {
-                valuesByPath['responses.' + groupedObjectPath + '._sequence'] =
+                valuesByPath['response.' + groupedObjectPath + '._sequence'] =
                     ((groupedObject as any)._sequence || i + 1) - pathRemovedCount;
             }
         }
@@ -600,7 +600,7 @@ export const removeGroupedObjects = (
  * @param {string|boolean} options.value The value to find
  * @param {UserInterviewAttributes} options.interview The interview object
  * @param {string} options.path The path of the field being parsed, in the
- * interview responses
+ * interview response
  * @returns The choice corresponding to the value, or `undefined` if the widget
  * does not have choices or if the choice is not found
  */
@@ -635,7 +635,7 @@ export const getWidgetChoiceFromValue = ({
  * @param {string} options.sectionName - The name of the section to check.
  * @returns {boolean | null} - Returns true if the section is complete, false if not, or null if the section is not found.
  *
- * @description This function checks if the section is complete by looking at the `interview.responses._sections.${sectionName}._isCompleted` field.
+ * @description This function checks if the section is complete by looking at the `interview.response._sections.${sectionName}._isCompleted` field.
  */
 export const isSectionComplete = ({
     interview,
@@ -675,9 +675,9 @@ export const calculateSurveyCompletionPercentage = ({
     const MINIMUM_COMPLETION_PERCENTAGE = 0;
     const MAXIMUM_COMPLETION_PERCENTAGE = 100;
 
-    // Get the stored completion percentage from the interview responses
+    // Get the stored completion percentage from the interview response
     const storedCompletionPercentage: number =
-        interview?.responses?._completionPercentage || MINIMUM_COMPLETION_PERCENTAGE;
+        interview?.response?._completionPercentage || MINIMUM_COMPLETION_PERCENTAGE;
 
     // Count the number of sections without the last one
     const sectionsWithoutCompleted = Object.keys(sections).filter((sectionName) => sectionName !== LAST_SECTION_NAME);

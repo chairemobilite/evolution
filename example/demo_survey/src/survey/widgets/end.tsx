@@ -219,11 +219,11 @@ export const householdDateNextContact = {
     showTimeSelect: false,
     placeholderText: { fr: 'Cliquer pour sélectionner la date', en: 'Click to select date' },
     maxDate: (interview, path) => {
-        const startDate = interview.responses._startedAt ? moment.unix(interview.responses._startedAt) : moment();
+        const startDate = interview.response._startedAt ? moment.unix(interview.response._startedAt) : moment();
         return startDate.add(2, 'months').toDate()
     },
     minDate:(interview, path) => {
-        const startDate = interview.responses._startedAt ? moment.unix(interview.responses._startedAt) : moment();
+        const startDate = interview.response._startedAt ? moment.unix(interview.response._startedAt) : moment();
         return startDate.add(2, 'weeks').toDate()
     },
     locale: { fr: 'fr', en: 'en-CA' },

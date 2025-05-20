@@ -32,7 +32,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                 (req.user as UserAttributes).id,
                 {},
                 loggingMiddleware.getUserIdForLogging(req),
-                ['id', 'uuid', 'is_valid', 'is_completed', 'responses', 'participant_id']
+                ['id', 'uuid', 'is_valid', 'is_completed', 'response', 'participant_id']
             );
             return res.status(200).json({ status: 'success', interview });
         } catch (error) {

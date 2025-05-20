@@ -9,7 +9,7 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/questionn
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
 
-import { checkConditional, checkChoicesConditional } from "../Conditional";
+import { checkConditional, checkChoicesConditional } from '../Conditional';
 
 const userAttributes = {
     id: 1,
@@ -20,7 +20,7 @@ const userAttributes = {
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 type CustomSurvey = {
     section1?: {
@@ -39,7 +39,7 @@ const interviewAttributes: UserInterviewAttributes = {
     uuid: 'arbitrary uuid',
     participant_id: 1,
     is_completed: false,
-    responses: {
+    response: {
         section1: {
             q1: 'abc',
             q2: 3
@@ -81,7 +81,7 @@ each([
     ['function which returns 2-elements array with null: false', jest.fn().mockReturnValue([false, null]), [false, null, null]],
     ['function which returns 2-elements array with value: false', jest.fn().mockReturnValue([false, 'string']), [false, 'string', null]],
     ['legacy return value', jest.fn().mockReturnValue(null), [false, undefined, undefined]],
-    ['function with error', jest.fn().mockImplementation(() => { throw 'error' }), [false, undefined, undefined]],
+    ['function with error', jest.fn().mockImplementation(() => { throw 'error'; }), [false, undefined, undefined]],
 ]).test('Test check conditional %s', (_title, conditional, expectedResult) => {
     expect(checkConditional(conditional, interviewAttributes, 'path', userAttributes)).toEqual(expectedResult);
     if (typeof conditional === 'function') {
@@ -118,7 +118,7 @@ describe('Test check choice conditional', () => {
         ] },
         { value: 'e', condition: true },
         { value: 'f', conditional: [false, 'a'] }
-    ]
+    ];
 
     each([
         ['Choices with boolean values (false)', withTrueFalseValues, false, [true, false]],
@@ -147,7 +147,7 @@ describe('Test check choice conditional', () => {
         ['Choices with various conditional values, some false, multi-response, some changes with duplicates', variousConditional, ['c', 'd', 'f'], [false, ['a']]],
     ]).test('%s', (_title, choices, currentValue: undefined | null | string | string[], expectedResult) => {
         const interview = _cloneDeep(interviewAttributes);
-        (interview.responses as any).choicePath = currentValue;
+        (interview.response as any).choicePath = currentValue;
         expect(checkChoicesConditional(currentValue, choices, interview, 'choicePath', userAttributes)).toEqual(expectedResult);
     });
-})
+});

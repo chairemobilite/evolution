@@ -73,11 +73,11 @@ A type representing an individual audit entry.
 ## Data Flow and Processes
 
 1. **Interview Creation**: An Interview object is created when a respondent starts a survey.
-2. **Data Collection**: As the respondent progresses through the survey, the Interview object is populated with responses and paradata.
+2. **Data Collection**: As the respondent progresses through the survey, the Interview object is populated with response and paradata.
 3. **Auditing**: After completion, the InterviewAudited object is created to facilitate the auditing process.
 4. **Enhancement**: Additional attributes and statistics are calculated and added to the interview data, subpart of the auditing process.
 5. **Weighting**: (If applicable) Weighting is applied to relevant objects (e.g., Household, Person) to adjust for population representation.
-6. **Export**: Processed and audited data is prepared for export and analysis. There are three types of exported data: original unmodified responses data, audited interview data and admin/analysis data (including audited data, paradata and confidential attributes).
+6. **Export**: Processed and audited data is prepared for export and analysis. There are three types of exported data: original unmodified response data, audited interview data and admin/analysis data (including audited data, paradata and confidential attributes).
 
 ## Future Developments
 

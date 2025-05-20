@@ -37,7 +37,7 @@ router.get('/interviewByCode', async (req, res) => {
 router.post('/createNew', async (req, res) => {
     try {
         let userName = req.body.createUser;
-        const initialResponses = req.body.responses || {};
+        const initialResponse = req.body.response || {};
         let suffixCount = 0;
         while ((await participantAuthModel.find({ username: userName })) !== undefined) {
             userName = `${req.body.createUser}_${suffixCount++}`;
@@ -45,7 +45,7 @@ router.post('/createNew', async (req, res) => {
         const participant = await participantAuthModel.createAndSave({ username: userName });
         const interview = await Interviews.createInterviewForUser(
             participant.attributes.id,
-            initialResponses,
+            initialResponse,
             (req.user as UserAttributes).id
         );
 

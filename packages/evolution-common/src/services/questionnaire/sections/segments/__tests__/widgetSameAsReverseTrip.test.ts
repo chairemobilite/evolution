@@ -140,9 +140,9 @@ describe('sameAsReverseTripWidget label', () => {
     test('With return home, context and previous segment', () => {
         // tripId2P1 is return trip home
         const baseTestInterview = _cloneDeep(interviewAttributesForTestCases);
-        baseTestInterview.responses._activePersonId = 'personId1';
-        baseTestInterview.responses._activeJourneyId = 'journeyId1';
-        baseTestInterview.responses._activeTripId = 'tripId2P1';
+        baseTestInterview.response._activePersonId = 'personId1';
+        baseTestInterview.response._activeJourneyId = 'journeyId1';
+        baseTestInterview.response._activeTripId = 'tripId2P1';
 
         // Return the previous segment
         mockedGetPreviousTripSingleSegment.mockReturnValueOnce({ _isNew: false, modePre: 'walk', mode: 'walk', _uuid: 'segmentId1P1T1', _sequence: 1 });
@@ -164,9 +164,9 @@ describe('sameAsReverseTripWidget label', () => {
     test('With return to other place, no context and missing previous segment', () => {
         // tripId3P1 would be a return to another place (it's not really a simple loop, but the label does not validate it, the conditional should have done it)
         const baseTestInterview = _cloneDeep(interviewAttributesForTestCases);
-        baseTestInterview.responses._activePersonId = 'personId1';
-        baseTestInterview.responses._activeJourneyId = 'journeyId1';
-        baseTestInterview.responses._activeTripId = 'tripId3P1';
+        baseTestInterview.response._activePersonId = 'personId1';
+        baseTestInterview.response._activeJourneyId = 'journeyId1';
+        baseTestInterview.response._activeTripId = 'tripId3P1';
 
         // No previous segment
         mockedGetPreviousTripSingleSegment.mockReturnValueOnce(undefined);

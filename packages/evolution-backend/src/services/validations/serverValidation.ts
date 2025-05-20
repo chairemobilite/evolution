@@ -45,14 +45,14 @@ const validate = async (
     const errors: { [key: string]: { [key: string]: string } } = {};
     const fieldsToValidate = Object.keys(serverValidations).filter(
         (key) =>
-            valuesByPath['responses.' + key] !== undefined &&
+            valuesByPath['response.' + key] !== undefined &&
             (valuesByPath['validations.' + key] === undefined || valuesByPath['validations.' + key] === true)
     );
     for (let i = 0; i < fieldsToValidate.length; i++) {
         const key = fieldsToValidate[i];
         const validations = serverValidations[key].validations;
         const validationErrors = validations.filter((validation) =>
-            validation.validation(valuesByPath['responses.' + key], interview)
+            validation.validation(valuesByPath['response.' + key], interview)
         );
         if (validationErrors.length !== 0) {
             errors[key] = validationErrors[0].errorMessage;

@@ -12,7 +12,7 @@ type InterviewerSurveyData = {
     email: string;
     created_at: string;
     updated_at: string;
-    responses: any;
+    response: any;
 };
 
 const getInterviewerDataBatch = async function (options: {
@@ -22,7 +22,7 @@ const getInterviewerDataBatch = async function (options: {
     end: number;
 }): Promise<InterviewerSurveyData[]> {
     return (await knex
-        .select('a.user_id', 'a.interview_id', 'u.email', 'a.created_at', 'a.updated_at', 'i.responses')
+        .select('a.user_id', 'a.interview_id', 'u.email', 'a.created_at', 'a.updated_at', 'i.response')
         .from('sv_interviews_accesses as a')
         .innerJoin('sv_interviews as i', 'a.interview_id', 'i.id')
         .innerJoin('users as u', 'a.user_id', 'u.id')

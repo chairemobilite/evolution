@@ -9,17 +9,17 @@
 
 // Regexes for specific survey objects
 const uuidRegex = /[0-9a-f-]{36}/g;
-const personObjectKeyRegex = /^responses\.household\.persons\.([0-9a-f-]{36})$/;
-const vehicleObjectKeyRegex = /^responses\.household\.vehicles\.([0-9a-f-]{36})$/;
-const journeyObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}$/;
-const visitedPlaceObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.visitedPlaces.[0-9a-f-]{36}$/;
-const tripObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}$/;
-const segmentObjectKeyRegex = /^responses\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}.segments.[0-9a-f-]{36}$/;
-const activePersonKeyRegex = /^responses\._activePersonId$/;
-const activeJourneyKeyRegex = /^responses\._activeJourneyId$/;
-const activeVisitedPlaceKeyRegex = /^responses\._activeVisitedPlaceId$/;
-const activeTripKeyRegex = /^responses\._activeTripId$/;
-const activeVehicleKeyRegex = /^responses\._activeVehicleId$/;
+const personObjectKeyRegex = /^response\.household\.persons\.([0-9a-f-]{36})$/;
+const vehicleObjectKeyRegex = /^response\.household\.vehicles\.([0-9a-f-]{36})$/;
+const journeyObjectKeyRegex = /^response\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}$/;
+const visitedPlaceObjectKeyRegex = /^response\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.visitedPlaces.[0-9a-f-]{36}$/;
+const tripObjectKeyRegex = /^response\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}$/;
+const segmentObjectKeyRegex = /^response\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}.segments.[0-9a-f-]{36}$/;
+const activePersonKeyRegex = /^response\._activePersonId$/;
+const activeJourneyKeyRegex = /^response\._activeJourneyId$/;
+const activeVisitedPlaceKeyRegex = /^response\._activeVisitedPlaceId$/;
+const activeTripKeyRegex = /^response\._activeTripId$/;
+const activeVehicleKeyRegex = /^response\._activeVehicleId$/;
 
 export class SurveyObjectDetector {
     // Store the survey object IDs

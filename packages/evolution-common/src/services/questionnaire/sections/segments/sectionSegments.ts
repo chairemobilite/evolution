@@ -29,13 +29,13 @@ export const getSegmentsSectionConfig = (
 
         // FIXME Preload part, which is more a side-effect than a configuration, part of it is navigation, part is side effects
         preload: function (interview, { startUpdateInterview, callback }) {
-            const responsesContent = {};
+            const responseContent = {};
 
             const person = odHelpers.getPerson({ interview });
             const currentJourney = odHelpers.getActiveJourney({ interview, person });
             if (person === null || currentJourney === null) {
-                responsesContent['responses._activeSection'] = 'tripsIntro';
-                startUpdateInterview({ sectionShortname: 'tripsIntro', valuesByPath: responsesContent }, callback);
+                responseContent['response._activeSection'] = 'tripsIntro';
+                startUpdateInterview({ sectionShortname: 'tripsIntro', valuesByPath: responseContent }, callback);
                 return null;
             }
 
@@ -64,12 +64,12 @@ export const getSegmentsSectionConfig = (
                     trip._destinationVisitedPlaceUuid !== destination._uuid
                 ) {
                     // update origin and destination if wrong for this sequence:
-                    tripsUpdatesValueByPath[`responses.${tripsPath}.${trip._uuid}._originVisitedPlaceUuid`] =
+                    tripsUpdatesValueByPath[`response.${tripsPath}.${trip._uuid}._originVisitedPlaceUuid`] =
                         origin._uuid;
-                    tripsUpdatesValueByPath[`responses.${tripsPath}.${trip._uuid}._destinationVisitedPlaceUuid`] =
+                    tripsUpdatesValueByPath[`response.${tripsPath}.${trip._uuid}._destinationVisitedPlaceUuid`] =
                         destination._uuid;
                     // also delete existing segments:
-                    tripsUpdatesValueByPath[`responses.${tripsPath}.${trip._uuid}.segments`] = undefined;
+                    tripsUpdatesValueByPath[`response.${tripsPath}.${trip._uuid}.segments`] = undefined;
                 }
             }
 
@@ -106,21 +106,21 @@ export const getSegmentsSectionConfig = (
                             console.error(
                                 'No active journey after updating trips in segments section, but there was an active journey earlier. What happened?'
                             );
-                            responsesContent['responses._activeTripId'] = null;
-                            startUpdateInterview({ sectionShortname, valuesByPath: responsesContent }, callback);
+                            responseContent['response._activeTripId'] = null;
+                            startUpdateInterview({ sectionShortname, valuesByPath: responseContent }, callback);
                             return;
                         }
                         const selectedTrip = odHelpers.selectNextIncompleteTrip({ journey: _currentJourney });
-                        responsesContent['responses._activeTripId'] = selectedTrip !== null ? selectedTrip._uuid : null;
+                        responseContent['response._activeTripId'] = selectedTrip !== null ? selectedTrip._uuid : null;
                         // FIXME There was an action generation for the segment section of this person, but the navigator should handle that
-                        startUpdateInterview({ sectionShortname, valuesByPath: responsesContent }, callback);
+                        startUpdateInterview({ sectionShortname, valuesByPath: responseContent }, callback);
                     }
                 );
             } else {
                 const selectedTrip = odHelpers.selectNextIncompleteTrip({ journey: currentJourney });
-                responsesContent['responses._activeTripId'] = selectedTrip !== null ? selectedTrip._uuid : null;
+                responseContent['response._activeTripId'] = selectedTrip !== null ? selectedTrip._uuid : null;
                 // FIXME There was an action generation for the segment section of this person, but the navigator should handle that
-                startUpdateInterview({ sectionShortname, valuesByPath: responsesContent }, callback);
+                startUpdateInterview({ sectionShortname, valuesByPath: responseContent }, callback);
             }
             return null;
         },
