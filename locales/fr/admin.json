@@ -43,7 +43,7 @@
   "usersPageTitle": "Utilisateurs",
   "errorsCount": "{{n}} erreurs",
   "refreshInterview": "Rafraîchir les données du serveur",
-  "resetInterview": "Réinitialiser les données validées aux réponses originales du répondant",
+  "resetInterview": "Réinitialiser les réponses corrigées aux réponses originales",
   "closeInterviewSummary": "Fermer",
   "editValidationInterview": "Éditer l'entrevue",
   "prevInterview": "Voir entrevue précédente",
@@ -132,7 +132,7 @@
   "HouseholdSize": "Taille du ménage",
   "Select": "Sélectionner",
   "export": {
-    "PrepareValidatedCsvExportFiles": "Préparer les fichiers CSV par objet (réponses validées si disponibles)",
+    "PrepareValidatedCsvExportFiles": "Préparer les fichiers CSV par objet (réponses corrigées si disponibles)",
     "PrepareParticipantCsvExportFiles": "Préparer les fichiers CSV par objet (réponses originales)",
     "RefreshExportFiles": "Rafraîchir la liste des fichiers d'export",
     "ServerErrorForExport": "Erreur de serveur pendant la préparation des fichiers d'export",

@@ -37,7 +37,7 @@ const headers = {
   glo_deplac_mode: true
 }
 
-const exportValidAndCompletedInterviews = function() { return knex.select('id', 'uuid', 'validated_data')
+const exportValidAndCompletedInterviews = function() { return knex.select('id', 'uuid', 'corrected_response')
   .from('sv_interviews')
   .whereRaw(`is_valid IS TRUE AND is_completed IS TRUE AND is_validated IS TRUE`)
   .orderBy('id')
@@ -46,21 +46,21 @@ const exportValidAndCompletedInterviews = function() { return knex.select('id', 
     {
       
       const interview     = rows[i];
-      const validatedData = interview.validated_data;
-      const glo_domic     = validatedData.household[prefix + "glo_domic"];
+      const correctedResponse = interview.corrected_response;
+      const glo_domic     = correctedResponse.household[prefix + "glo_domic"];
 
-      if (moment(validatedData.tripsDate) <= moment('2018-12-21') && (!validatedData.accessCode || (validatedData.accessCode && !validatedData.accessCode.endsWith('?'))))
+      if (moment(correctedResponse.tripsDate) <= moment('2018-12-21') && (!correctedResponse.accessCode || (correctedResponse.accessCode && !correctedResponse.accessCode.endsWith('?'))))
       {
         glo_domic.uuid      = interview.uuid;
-        glo_domic.codeacces = validatedData.accessCode;
+        glo_domic.codeacces = correctedResponse.accessCode;
         glo_domicCsv       += json2csv(glo_domic, {header: headers.glo_domic}) + "\n";
         headers.glo_domic   = false;
         
-        const glo_local    = validatedData.household[prefix + "home__glo_local"];
+        const glo_local    = correctedResponse.household[prefix + "home__glo_local"];
         glo_localCsv      += json2csv(glo_local, {header: headers.glo_local}) + "\n";
         headers.glo_local  = false;
 
-        const personsArray = Object.values(validatedData.household.persons).sort((personA: any, personB: any) => {
+        const personsArray = Object.values(correctedResponse.household.persons).sort((personA: any, personB: any) => {
           return personA['_sequence'] - personB['_sequence'];
         });
 
@@ -154,7 +154,7 @@ const exportValidAndCompletedInterviews = function() { return knex.select('id', 
         }
       }
 
-      fs.writeFileSync(exportJsonFileDirectory + '/' + (validatedData.accessCode || glo_domic.feuillet) + '_' + interview.uuid + '.json', JSON.stringify(validatedData));
+      fs.writeFileSync(exportJsonFileDirectory + '/' + (correctedResponse.accessCode || glo_domic.feuillet) + '_' + interview.uuid + '.json', JSON.stringify(correctedResponse));
 
     }
     fs.writeFileSync(exportFileDirectory + '/glo_domic.csv', glo_domicCsv);

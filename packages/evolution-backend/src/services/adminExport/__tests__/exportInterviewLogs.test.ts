@@ -85,8 +85,8 @@ describe('exportInterviewLogTask', () => {
             ...commonInterviewData,
             timestamp_sec: 6,
             event_date: new Date(6 * 1000),
-            values_by_path: { 'validated_data.home.address': '6760 rue Saint-Vallier Montréal', 'validated_data.home.city': 'Montréal' },
-            unset_paths: [ 'validated_data.home.country' ]
+            values_by_path: { 'corrected_response.home.address': '6760 rue Saint-Vallier Montréal', 'corrected_response.home.city': 'Montréal' },
+            unset_paths: [ 'corrected_response.home.country' ]
         }
     ];
 

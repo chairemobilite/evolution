@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { v4 as uuidV4 } from 'uuid';
-import { updateInterview, setInterviewFields, copyResponseToValidatedData } from '../interview';
+import { updateInterview, setInterviewFields, copyResponseToCorrectedResponse } from '../interview';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import interviewsQueries from '../../../models/interviews.db.queries';
 import serverValidate from '../../validations/serverValidation';
@@ -212,7 +212,7 @@ describe('Update Interview', () => {
     test('With values by path, unset path and user action of type "widgetInteraction"', async() => {
         // Prepare test data
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = { 'response.foo': 'abc', 'validated_data.foo': 'def' };
+        const valuesByPath = { 'response.foo': 'abc', 'corrected_response.foo': 'def' };
         const userAction = { type: 'widgetInteraction' as const, widgetType: 'string', path: 'response.bar', value: 100 };
         const expectedValuseByPath = { ['response.bar']: 100, ...valuesByPath };
         const unsetPaths = ['response.accessCode'];
@@ -238,8 +238,8 @@ describe('Update Interview', () => {
 
     test('Specifying fields to update', async() => {
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = { 'validated_data.foo': 'abc', 'response.bar': 'abc' };
-        const interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['validated_data'] });
+        const valuesByPath = { 'corrected_response.foo': 'abc', 'response.bar': 'abc' };
+        const interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['corrected_response'] });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
@@ -249,7 +249,7 @@ describe('Update Interview', () => {
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined, undefined);
 
         const expectedUpdatedValues = {
-            validated_data: { foo: 'abc' },
+            corrected_response: { foo: 'abc' },
         };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
         expect(mockLog).not.toHaveBeenCalled();
@@ -627,7 +627,7 @@ describe('Update Interview', () => {
 
 });
 
-describe('copyResponseToValidatedData', () => {
+describe('copyResponseToCorrectedResponse', () => {
 
     beforeEach(async () => {
         mockUpdate.mockClear();
@@ -636,19 +636,19 @@ describe('copyResponseToValidatedData', () => {
     test('First copy', async() => {
         const testAttributes = _cloneDeep(interviewAttributes);
 
-        expect(testAttributes.validated_data).not.toBeDefined();
-        await copyResponseToValidatedData(testAttributes);
-        expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.response));
-        expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
+        expect(testAttributes.corrected_response).not.toBeDefined();
+        await copyResponseToCorrectedResponse(testAttributes);
+        expect(testAttributes.corrected_response).toEqual(expect.objectContaining(testAttributes.response));
+        expect(testAttributes.corrected_response?._correctedResponseCopiedAt).toBeDefined();
         expect(mockUpdate).toHaveBeenCalledTimes(1);
-        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { validated_data: testAttributes.validated_data });
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { corrected_response: testAttributes.corrected_response });
     });
 
     test('Copy with existing validation data', async() => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const originalTimestamp = moment('2023-09-12 15:02:00').unix();
-        testAttributes.validated_data = {
-            _validatedDataCopiedAt: originalTimestamp,
+        testAttributes.corrected_response = {
+            _correctedResponseCopiedAt: originalTimestamp,
             accessCode: '2222',
             testFields: {
                 fieldA: 'test',
@@ -656,11 +656,11 @@ describe('copyResponseToValidatedData', () => {
             }
         } as any,
 
-        await copyResponseToValidatedData(testAttributes);
-        expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.response));
-        expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
-        expect(testAttributes.validated_data?._validatedDataCopiedAt).not.toEqual(originalTimestamp);
-        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { validated_data: testAttributes.validated_data });
+        await copyResponseToCorrectedResponse(testAttributes);
+        expect(testAttributes.corrected_response).toEqual(expect.objectContaining(testAttributes.response));
+        expect(testAttributes.corrected_response?._correctedResponseCopiedAt).toBeDefined();
+        expect(testAttributes.corrected_response?._correctedResponseCopiedAt).not.toEqual(originalTimestamp);
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { corrected_response: testAttributes.corrected_response });
     });
 
     test('Copy with existing and comment', async() => {
@@ -668,8 +668,8 @@ describe('copyResponseToValidatedData', () => {
         const originalTimestamp = moment('2023-09-12 15:02:00').unix();
 
         const validationComment = 'This was commented previously';
-        testAttributes.validated_data = {
-            _validatedDataCopiedAt: originalTimestamp,
+        testAttributes.corrected_response = {
+            _correctedResponseCopiedAt: originalTimestamp,
             accessCode: '2222',
             testFields: {
                 fieldA: 'test',
@@ -678,11 +678,11 @@ describe('copyResponseToValidatedData', () => {
             _validationComment: validationComment
         } as any,
 
-        await copyResponseToValidatedData(testAttributes);
-        expect(testAttributes.validated_data).toEqual(expect.objectContaining(testAttributes.response));
-        expect(testAttributes.validated_data?._validationComment).toEqual(validationComment);
-        expect(testAttributes.validated_data?._validatedDataCopiedAt).toBeDefined();
-        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { validated_data: testAttributes.validated_data });
+        await copyResponseToCorrectedResponse(testAttributes);
+        expect(testAttributes.corrected_response).toEqual(expect.objectContaining(testAttributes.response));
+        expect(testAttributes.corrected_response?._validationComment).toEqual(validationComment);
+        expect(testAttributes.corrected_response?._correctedResponseCopiedAt).toBeDefined();
+        expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { corrected_response: testAttributes.corrected_response });
     });
 
 });

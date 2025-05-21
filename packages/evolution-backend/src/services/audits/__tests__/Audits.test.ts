@@ -86,7 +86,7 @@ describe('runAndSaveInterviewAudits', () => {
         } as any,
         validations: {},
         is_completed: false,
-        validated_data: {
+        corrected_response: {
             fieldA: 'modifiedA',
             fieldB: 'modifiedB',
             someObject: {
@@ -114,8 +114,8 @@ describe('runAndSaveInterviewAudits', () => {
         expect(mockInterviewAudits).not.toHaveBeenCalled();
     });
 
-    test('validated_data not set in interview', async () => {
-        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(_omit(interviewAttributes, 'validated_data'));
+    test('corrected_response not set in interview', async () => {
+        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(_omit(interviewAttributes, 'corrected_response'));
         expect(objectsAndAudits.audits).toEqual([]);
         expect(mockInterviewAudits).not.toHaveBeenCalled();
     });

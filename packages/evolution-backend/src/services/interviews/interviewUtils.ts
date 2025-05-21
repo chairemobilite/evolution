@@ -8,17 +8,17 @@
 import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
 
 /** Change the prefixes in the valuesByPath, unsetPaths and userAction from
- * response to validated_data. */
-export const mapResponseToValidatedData = (
+ * response to corrected_response. */
+export const mapResponseToCorrectedResponse = (
     valuesByPath: { [key: string]: unknown },
     unsetPaths: string[],
     userAction?: UserAction
 ): { valuesByPath: { [key: string]: unknown }; unsetPaths: string[]; userAction?: UserAction } => {
     // Content in valuesByPath and unsetPaths with prefix 'response' should
-    // be put in 'validated_data' instead.
+    // be put in 'corrected_response' instead.
     const renameKey = (oldKey: string): string => {
         if (oldKey.startsWith('response.') || oldKey === 'response') {
-            return oldKey.replace('response', 'validated_data');
+            return oldKey.replace('response', 'corrected_response');
         }
         return oldKey;
     };

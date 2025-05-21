@@ -16,7 +16,7 @@ const exportJsonFileDirectory = 'exports/interviewsJson';
  */
 const exportInterviews = function (exportJsonFileDirectory) {
     return knex
-        .select('id', 'uuid', 'response', 'validated_data')
+        .select('id', 'uuid', 'response', 'corrected_response')
         .from('sv_interviews')
         .orderBy('id')
         .then((rows) => {

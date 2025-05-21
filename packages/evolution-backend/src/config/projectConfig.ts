@@ -24,7 +24,7 @@ interface ProjectServerConfig {
     roleDefinitions: (() => void) | undefined;
     /**
      * This function is provided by surveys to validate and audit the complete response.
-     * It will receive the content of the validated_data and should return the
+     * It will receive the content of the corrected_response and should return the
      * individual audits. It is optional. If the survey does not require auditing, just leave blank.
      */
     auditInterview?: (attributes: InterviewAttributes) => Promise<SurveyObjectsWithAudits>;
@@ -66,7 +66,7 @@ export const defaultConfig: ProjectServerConfig = {
             facebook,
             google,
             response,
-            validated_data,
+            corrected_response,
             audits
         } = interview;
         return {
@@ -83,7 +83,7 @@ export const defaultConfig: ProjectServerConfig = {
             response: {
                 _isCompleted: response?._isCompleted,
                 household: { size: response?.household?.size },
-                _validationComment: validated_data?._validationComment
+                _validationComment: corrected_response?._validationComment
             },
             audits
         };
