@@ -33,12 +33,12 @@ const getStartedAndCompletedInterviewsByDay = async (res) => {
     const subquery = knex('sv_interviews').select(
         'id',
         knex.raw('to_char(created_at, \'YYYY-MM-DD\') as started_at_date'),
-        knex.raw('case when response->>\'_completedAt\' is null then 0 else 1 end as completed_at')
+        knex.raw('case when response->>\'_completedAt\' is null then 0 else 1 end as is_completed')
     );
     const responses = await knex(subquery.as('resp_data'))
         .select('started_at_date')
         .count({ started_at: 'id' })
-        .sum({ completed_at: 'completed_at' })
+        .sum({ is_completed: 'is_completed' })
         .whereNotNull('started_at_date')
         .groupBy('started_at_date')
         .orderBy('started_at_date');
@@ -63,7 +63,7 @@ const getStartedAndCompletedInterviewsByDay = async (res) => {
 
     const started = dates.map((date) => (dataByDate[date] !== undefined ? Number(dataByDate[date]['started_at']) : 0));
     const completed = dates.map((date) =>
-        dataByDate[date] !== undefined ? Number(dataByDate[date]['completed_at']) : 0
+        dataByDate[date] !== undefined ? Number(dataByDate[date]['is_completed']) : 0
     );
     const startedCount = started.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
     const completedCount = completed.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
