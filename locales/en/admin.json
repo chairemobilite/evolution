@@ -16,6 +16,7 @@
   "ShowMore": "Show more",
   "ReloadCache": "Refresh",
   "Validate": "Validate",
+  "Correct": "Correct",
   "ShowInvalidInterviews": "Show invalid interviews",
   "HideInvalidInterviews": "Hide invalid interviews",
   "SetValid": "Set as valid",
@@ -132,7 +133,7 @@
   "HouseholdSize": "Household size",
   "Select": "Select",
   "export": {
-    "PrepareValidatedCsvExportFiles": "Prepare CSV files by object (corrected responses if available)",
+    "PrepareCorrectedCsvExportFiles": "Prepare CSV files by object (corrected responses if available)",
     "PrepareParticipantCsvExportFiles": "Prepare CSV files for export by object (original responses)",
     "RefreshExportFiles": "Refresh export file list",
     "ServerErrorForExport": "Server error while preparing export files",

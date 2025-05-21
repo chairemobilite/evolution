@@ -12,12 +12,12 @@ import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 import { ThunkDispatch } from 'redux-thunk';
 
 import InterviewSummary from '../validations/InterviewSummary';
-import { startSetSurveyValidateInterview } from '../../../actions/SurveyAdmin';
+import { startSetSurveyCorrectedInterview } from '../../../actions/SurveyAdmin';
 import InterviewListComponent from '../validations/InterviewListComponent';
 import { RootState } from '../../../store/configureStore';
 import { SurveyAction } from '../../../store/survey';
 
-const ValidationPage = () => {
+const ReviewPage = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const interview = useSelector((state: RootState) => state.survey.interview);
@@ -43,7 +43,7 @@ const ValidationPage = () => {
                 const nextUuid = listButton.getAttribute('data-next-uuid');
 
                 dispatch(
-                    startSetSurveyValidateInterview(interviewUuid, () => {
+                    startSetSurveyCorrectedInterview(interviewUuid, () => {
                         setPrevInterviewUuid(prevUuid === null ? undefined : prevUuid);
                         setNextInterviewUuid(nextUuid === null ? undefined : nextUuid);
                     })
@@ -99,4 +99,4 @@ const ValidationPage = () => {
     );
 };
 
-export default ValidationPage;
+export default ReviewPage;

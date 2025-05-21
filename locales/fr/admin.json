@@ -14,6 +14,7 @@
   "Invalid": "Invalide",
   "UnknownValidity": "Validité?",
   "Validate": "Valider",
+  "Correct": "Corriger",
   "ShowInvalidInterviews": "Montrer les entrevues invalides",
   "HideInvalidInterviews": "Cacher les entrevues invalides",
   "SetValid": "Rendre valide",
@@ -132,7 +133,7 @@
   "HouseholdSize": "Taille du ménage",
   "Select": "Sélectionner",
   "export": {
-    "PrepareValidatedCsvExportFiles": "Préparer les fichiers CSV par objet (réponses corrigées si disponibles)",
+    "PrepareCorrectedCsvExportFiles": "Préparer les fichiers CSV par objet (réponses corrigées si disponibles)",
     "PrepareParticipantCsvExportFiles": "Préparer les fichiers CSV par objet (réponses originales)",
     "RefreshExportFiles": "Rafraîchir la liste des fichiers d'export",
     "ServerErrorForExport": "Erreur de serveur pendant la préparation des fichiers d'export",

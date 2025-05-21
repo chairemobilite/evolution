@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import appConfig from '../../../config/application.config';
 import config from 'evolution-common/lib/config/project.config';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
-import { startUpdateSurveyValidateInterview } from '../../../actions/SurveyAdmin';
+import { startUpdateSurveyCorrectedInterview } from '../../../actions/SurveyAdmin';
 import ValidationCommentForm from './ValidationCommentForm';
 import AdminErrorBoundary from '../hoc/AdminErrorBoundary';
 import { generateMapFeatureFromInterview } from '../../../services/admin/odSurveyAdminHelper';
@@ -32,7 +32,7 @@ const ValidationOnePageSummary = () => {
     const user = useSelector((state: RootState) => state.auth.user);
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const startUpdateInterview: StartUpdateInterview = (data, callback) =>
-        dispatch(startUpdateSurveyValidateInterview(data, callback));
+        dispatch(startUpdateSurveyCorrectedInterview(data, callback));
 
     useEffect(() => {
         const loadComponents = async () => {

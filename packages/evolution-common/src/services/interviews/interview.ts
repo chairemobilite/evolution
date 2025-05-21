@@ -25,6 +25,7 @@ export const INTERVIEWER_PARTICIPANT_PREFIX = 'telephone';
  * @returns The audit result, where the key is the ID of the validation to run
  * and the value is the number of times this validation fails on the response.
  */
+// FIXME: move this to backend
 export const auditInterview = function (
     correctedResponse: InterviewResponse,
     originalResponse: InterviewResponse,
@@ -36,19 +37,21 @@ export const auditInterview = function (
     const response = correctedResponse ? correctedResponse : originalResponse;
     const household = _get(response, 'household', {});
     const home = _get(response, 'home', {});
-    const validatedInterview = _cloneDeep(interview);
-    validatedInterview.response = response;
+    const correctedInterview = _cloneDeep(interview);
+    correctedInterview.response = response;
+    // FIXME: Redesign this with cloneDeep at the right place.
+    //        Audit should not touch the interview data, but we should make sure of that.
     // TODO Rethink this, the _response field does not exist on the type and should not have to exist
-    (validatedInterview as any)._response = originalResponse;
-    const persons = surveyProjectHelper.getPersons(validatedInterview, false);
-    const personsArray = surveyProjectHelper.getPersons(validatedInterview, true);
+    (correctedInterview as any)._response = originalResponse;
+    const persons = surveyProjectHelper.getPersons(correctedInterview, false);
+    const personsArray = surveyProjectHelper.getPersons(correctedInterview, true);
     const audits: any[] = [];
     audits.push(
-        ...surveyProjectHelper.validateInterview(
+        ...surveyProjectHelper.auditInterview(
             validations.interview,
             null,
             {},
-            validatedInterview,
+            correctedInterview,
             response,
             household,
             home,
@@ -57,11 +60,11 @@ export const auditInterview = function (
         ).audits
     );
     audits.push(
-        ...surveyProjectHelper.validateHousehold(
+        ...surveyProjectHelper.auditHousehold(
             validations.household,
             null,
             {},
-            validatedInterview,
+            correctedInterview,
             response,
             household,
             home,
@@ -77,7 +80,7 @@ export const auditInterview = function (
                 validations.person,
                 null,
                 {},
-                validatedInterview,
+                correctedInterview,
                 response,
                 household,
                 home,
@@ -97,7 +100,7 @@ export const auditInterview = function (
                     validations.visitedPlace,
                     null,
                     {},
-                    validatedInterview,
+                    correctedInterview,
                     response,
                     household,
                     home,
@@ -121,7 +124,7 @@ export const auditInterview = function (
                     validations.trip,
                     null,
                     {},
-                    validatedInterview,
+                    correctedInterview,
                     response,
                     household,
                     home,
@@ -146,7 +149,7 @@ export const auditInterview = function (
                         validations.segment,
                         null,
                         {},
-                        validatedInterview,
+                        correctedInterview,
                         response,
                         household,
                         home,

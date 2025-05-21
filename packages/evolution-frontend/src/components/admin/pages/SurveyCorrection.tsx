@@ -20,10 +20,10 @@ import SectionNav from '../../pageParts/SectionNav';
 import { withSurveyContext, WithSurveyContextProps } from '../../hoc/WithSurveyContextHoc';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import {
-    startSetSurveyValidateInterview,
-    startUpdateSurveyValidateInterview,
-    startSurveyValidateAddGroupedObjects,
-    startSurveyValidateRemoveGroupedObjects
+    startSetSurveyCorrectedInterview,
+    startUpdateSurveyCorrectedInterview,
+    startSurveyCorrectedAddGroupedObjects,
+    startSurveyCorrectedRemoveGroupedObjects
 } from '../../../actions/SurveyAdmin';
 import { InterviewContext } from '../../../contexts/InterviewContext';
 import { withPreferencesHOC } from '../../hoc/WithPreferencesHoc';
@@ -53,7 +53,7 @@ export type SurveyProps = {
     location: Location;
     interviewContext: InterviewState;
     // FIXME This is the only difference with the Survey component props. Different name and arguments
-    startSetSurveyValidateInterview: StartSetInterview;
+    startSetSurveyCorrectedInterview: StartSetInterview;
     startUpdateInterview: StartUpdateInterview;
     startAddGroupedObjects: StartAddGroupedObjects;
     startRemoveGroupedObjects: StartRemoveGroupedObjects;
@@ -66,10 +66,10 @@ type SurveyState = {
 
 /**
  * FIXME See if we can factor out the differences between the Survey and
- * ValidateSurvey components and send them as prop to a single common Survey
+ * SurveyCorrection components and send them as prop to a single common Survey
  * component.
  */
-export class ValidateSurvey extends React.Component<SurveyProps, SurveyState> {
+export class SurveyCorrection extends React.Component<SurveyProps, SurveyState> {
     constructor(props) {
         super(props);
         this.state = {
@@ -95,7 +95,7 @@ export class ValidateSurvey extends React.Component<SurveyProps, SurveyState> {
 
     componentDidMount() {
         const interviewUuid = this.props.interviewUuid;
-        this.props.startSetSurveyValidateInterview(interviewUuid);
+        this.props.startSetSurveyCorrectedInterview(interviewUuid);
     }
 
     onKeyPress(e) {
@@ -226,9 +226,9 @@ export class ValidateSurvey extends React.Component<SurveyProps, SurveyState> {
     }
 }
 
-const MainValidateSurvey = withTranslation()(withSurveyContext(withPreferencesHOC(ValidateSurvey)));
+const MainSurveyCorrection = withTranslation()(withSurveyContext(withPreferencesHOC(SurveyCorrection)));
 
-const ValidateSurveyWrapper = (props) => {
+const SurveyCorrectionWrapper = (props) => {
     const interview = useSelector((state: RootState) => state.survey.interview);
     const interviewLoaded = useSelector((state: RootState) => state.survey.interviewLoaded);
     const errors = useSelector((state: RootState) => state.survey.errors);
@@ -241,9 +241,9 @@ const ValidateSurveyWrapper = (props) => {
     const { state } = React.useContext(InterviewContext);
 
     const startSetInterviewAction: StartSetInterview = (interviewUuid, callback) =>
-        dispatch(startSetSurveyValidateInterview(interviewUuid, callback));
+        dispatch(startSetSurveyCorrectedInterview(interviewUuid, callback));
     const startUpdateInterviewAction: StartUpdateInterview = (data, callback) =>
-        dispatch(startUpdateSurveyValidateInterview(data, callback));
+        dispatch(startUpdateSurveyCorrectedInterview(data, callback));
     const startAddGroupedObjectsAction: StartAddGroupedObjects = (
         newObjectsCount,
         insertSequence,
@@ -253,7 +253,7 @@ const ValidateSurveyWrapper = (props) => {
         returnOnly
     ) =>
         dispatch(
-            startSurveyValidateAddGroupedObjects(
+            startSurveyCorrectedAddGroupedObjects(
                 newObjectsCount,
                 insertSequence,
                 path,
@@ -263,10 +263,10 @@ const ValidateSurveyWrapper = (props) => {
             )
         );
     const startRemoveGroupedObjectsAction: StartRemoveGroupedObjects = (paths, callback, returnOnly) =>
-        dispatch(startSurveyValidateRemoveGroupedObjects(paths, callback, returnOnly));
+        dispatch(startSurveyCorrectedRemoveGroupedObjects(paths, callback, returnOnly));
 
     return (
-        <MainValidateSurvey
+        <MainSurveyCorrection
             {...props}
             sectionShortname={sectionShortname}
             interviewUuid={interviewUuid}
@@ -278,7 +278,7 @@ const ValidateSurveyWrapper = (props) => {
             loadingState={loadingState}
             location={location}
             interviewContext={state}
-            startSetSurveyValidateInterview={startSetInterviewAction}
+            startSetSurveyCorrectedInterview={startSetInterviewAction}
             startUpdateInterview={startUpdateInterviewAction}
             startAddGroupedObjects={startAddGroupedObjectsAction}
             startRemoveGroupedObjects={startRemoveGroupedObjectsAction}
@@ -286,4 +286,4 @@ const ValidateSurveyWrapper = (props) => {
     );
 };
 
-export default ValidateSurveyWrapper;
+export default SurveyCorrectionWrapper;

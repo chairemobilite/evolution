@@ -28,7 +28,7 @@ const router = express.Router();
 router.use(interviewUserIsAuthorized(['validate', 'read']));
 
 router.get(
-    '/survey/validateInterview/:interviewUuid',
+    '/survey/correctInterview/:interviewUuid',
     validateUuidMiddleware,
     logUserAccessesMiddleware.openingInterview(true),
     async (req: Request, res: Response) => {
@@ -73,7 +73,7 @@ router.get(
 );
 
 router.post(
-    '/survey/updateValidateInterview/:interviewUuid',
+    '/survey/updateCorrectedInterview/:interviewUuid',
     validateUuidMiddleware,
     logUserAccessesMiddleware.updatingInterview(true),
     async (req: Request, res: Response) => {
@@ -83,9 +83,9 @@ router.post(
             const content = req.body;
             if ((!content.valuesByPath && !content.userAction) || !req.params.interviewUuid) {
                 if (!content.valuesByPath && !content.userAction) {
-                    console.log('updateValidateInterview route: Missing valuesByPath or userAction');
+                    console.log('updateCorrectedInterview route: Missing valuesByPath or userAction');
                 } else {
-                    console.log('updateValidateInterview route: Unspecified interview ID');
+                    console.log('updateCorrectedInterview route: Unspecified interview ID');
                 }
                 return res.status(400).json({ status: 'BadRequest' });
             }
