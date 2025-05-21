@@ -26,7 +26,7 @@ const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
         return onPrepareCsvExportFiles('participant');
     };
 
-    const onPrepareCsvValidatedExportFiles = async () => {
+    const onPrepareCsvCorrectedExportFiles = async () => {
         return onPrepareCsvExportFiles('correctedIfAvailable');
     };
 
@@ -203,8 +203,8 @@ const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
             {isPreparingCsvExportFiles && <LoadingPage />}
             <Button
                 color="blue"
-                onClick={onPrepareCsvValidatedExportFiles}
-                label={t('admin:export:PrepareValidatedCsvExportFiles')}
+                onClick={onPrepareCsvCorrectedExportFiles}
+                label={t('admin:export:PrepareCorrectedCsvExportFiles')}
                 align="left"
             />
             <Button

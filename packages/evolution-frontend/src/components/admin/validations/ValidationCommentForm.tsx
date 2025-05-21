@@ -12,7 +12,7 @@ import { useDispatch } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../../store/survey';
 import { RootState } from '../../../store/configureStore';
-import { startUpdateSurveyValidateInterview } from '../../../actions/SurveyAdmin';
+import { startUpdateSurveyCorrectedInterview } from '../../../actions/SurveyAdmin';
 
 interface ValidationCommentFormProps {
     interview: UserInterviewAttributes;
@@ -31,7 +31,7 @@ const ValidationCommentForm = ({ interview }: ValidationCommentFormProps) => {
             'response._validationComment': e.target.value
         };
         dispatch(
-            startUpdateSurveyValidateInterview({ valuesByPath }, () => {
+            startUpdateSurveyCorrectedInterview({ valuesByPath }, () => {
                 /* parameter required, but nothing to do */
             })
         );

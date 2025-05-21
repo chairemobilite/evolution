@@ -39,7 +39,7 @@ import { SurveyAction } from '../store/survey';
 import { LoadingStateAction } from '../store/loadingState';
 import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 
-export const startUpdateSurveyValidateInterview = (
+export const startUpdateSurveyCorrectedInterview = (
     {
         sectionShortname,
         valuesByPath = {},
@@ -112,7 +112,7 @@ export const startUpdateSurveyValidateInterview = (
             }
 
             //const differences = surveyHelper.differences(interview.response, oldInterview.response);
-            const response = await fetch(`/api/survey/updateValidateInterview/${interview.uuid}`, {
+            const response = await fetch(`/api/survey/updateCorrectedInterview/${interview.uuid}`, {
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json'
@@ -141,7 +141,7 @@ export const startUpdateSurveyValidateInterview = (
                     // we need to do something if no interview is returned (error)
                 }
             } else {
-                console.log(`startUpdateSurveyValidateInterview: wrong response status: ${response.status}`);
+                console.log(`startUpdateSurveyCorrectedInterview: wrong response status: ${response.status}`);
                 handleHttpOtherResponseCode(response.status, dispatch);
             }
             // Loading state needs to be decremented, no matter the return value, otherwise the page won't get updated
@@ -163,7 +163,7 @@ export const startUpdateSurveyValidateInterview = (
  * @returns
  */
 // TODO: unit test
-export const startSetSurveyValidateInterview = (
+export const startSetSurveyCorrectedInterview = (
     interviewUuid: string,
     callback: (interview: UserRuntimeInterviewAttributes) => void = function () {
         return;
@@ -173,7 +173,7 @@ export const startSetSurveyValidateInterview = (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
         _getState: () => RootState
     ) => {
-        return fetch(`/api/survey/validateInterview/${interviewUuid}`, {
+        return fetch(`/api/survey/correctInterview/${interviewUuid}`, {
             credentials: 'include'
         })
             .then((response) => {
@@ -181,19 +181,19 @@ export const startSetSurveyValidateInterview = (
                     response.json().then((body) => {
                         if (body.interview) {
                             const interview = body.interview;
-                            dispatch(startUpdateSurveyValidateInterview({ valuesByPath: {}, interview }, callback));
+                            dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                         }
                     });
                 }
             })
             .catch((err) => {
-                surveyHelper.devLog('Error fetching interview to validate.', err);
+                surveyHelper.devLog('Error fetching interview to correct.', err);
             });
     };
 };
 
 // TODO: unit test
-export const startSurveyValidateAddGroupedObjects = (
+export const startSurveyCorrectedAddGroupedObjects = (
     newObjectsCount: Parameters<StartAddGroupedObjects>[0],
     insertSequence: Parameters<StartAddGroupedObjects>[1],
     path: Parameters<StartAddGroupedObjects>[2],
@@ -217,13 +217,13 @@ export const startSurveyValidateAddGroupedObjects = (
         if (returnOnly) {
             return changedValuesByPath;
         } else {
-            dispatch(startUpdateSurveyValidateInterview({ valuesByPath: changedValuesByPath }, callback));
+            dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: changedValuesByPath }, callback));
         }
     };
 };
 
 // TODO: unit test
-export const startSurveyValidateRemoveGroupedObjects = (
+export const startSurveyCorrectedRemoveGroupedObjects = (
     paths: Parameters<StartRemoveGroupedObjects>[0],
     callback?: Parameters<StartRemoveGroupedObjects>[1],
     returnOnly: Parameters<StartRemoveGroupedObjects>[2] = false
@@ -240,7 +240,7 @@ export const startSurveyValidateRemoveGroupedObjects = (
         if (returnOnly) {
             return [valuesByPath, unsetPaths];
         } else {
-            dispatch(startUpdateSurveyValidateInterview({ valuesByPath, unsetPaths }, callback));
+            dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath, unsetPaths }, callback));
         }
     };
 };
@@ -254,7 +254,7 @@ export const startSurveyValidateRemoveGroupedObjects = (
  * @returns
  */
 // TODO: unit test
-export const startResetValidateInterview = (
+export const startResetCorrectedInterview = (
     interviewUuid: string,
     callback: (interview: UserRuntimeInterviewAttributes) => void = function () {
         return;
@@ -264,7 +264,7 @@ export const startResetValidateInterview = (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
         _getState: () => RootState
     ) => {
-        return fetch(`/api/survey/validateInterview/${interviewUuid}?reset=true`, {
+        return fetch(`/api/survey/correctInterview/${interviewUuid}?reset=true`, {
             credentials: 'include'
         })
             .then((response) => {
@@ -272,7 +272,7 @@ export const startResetValidateInterview = (
                     response.json().then((body) => {
                         if (body.interview) {
                             const interview = body.interview;
-                            dispatch(startUpdateSurveyValidateInterview({ valuesByPath: {}, interview }, callback));
+                            dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                         }
                     });
                 }

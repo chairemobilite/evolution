@@ -12,9 +12,9 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import ValidationOnePageSummary from './ValidationOnePageSummary';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import {
-    startSetSurveyValidateInterview,
-    startUpdateSurveyValidateInterview,
-    startResetValidateInterview
+    startSetSurveyCorrectedInterview,
+    startUpdateSurveyCorrectedInterview,
+    startResetCorrectedInterview
 } from '../../../actions/SurveyAdmin';
 import ValidationLinks from './ValidationLinks';
 import AdminErrorBoundary from '../hoc/AdminErrorBoundary';
@@ -40,17 +40,17 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
     const validationDataDirty = (interview as any)?.validationDataDirty;
 
     const refreshInterview = useCallback(() => {
-        dispatch(startSetSurveyValidateInterview(interview.uuid));
+        dispatch(startSetSurveyCorrectedInterview(interview.uuid));
     }, [dispatch, interview.uuid]);
 
     const resetInterview = useCallback(() => {
-        dispatch(startResetValidateInterview(interview.uuid));
+        dispatch(startResetCorrectedInterview(interview.uuid));
     }, [dispatch, interview.uuid]);
 
     const updateValuesByPath = useCallback(
         (valuesByPath) => {
             dispatch(
-                startUpdateSurveyValidateInterview({ sectionShortname: 'validationOnePager', valuesByPath }, () => {
+                startUpdateSurveyCorrectedInterview({ sectionShortname: 'validationOnePager', valuesByPath }, () => {
                     /* nothing to do */
                 })
             );

@@ -214,7 +214,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                             data-next-uuid={nextUuid}
                             onClick={handleInterviewSummaryChange}
                         >
-                            {t('admin:Validate') /* eslint-disable-line react/prop-types */}
+                            {t('admin:Correct') /* eslint-disable-line react/prop-types */}
                         </a>
                     );
                 }

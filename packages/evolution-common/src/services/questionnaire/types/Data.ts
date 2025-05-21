@@ -195,7 +195,7 @@ export type InterviewResponse = {
     [key: string]: any;
 };
 
-type ValidatedResponse = InterviewResponse & {
+type CorrectedResponse = InterviewResponse & {
     _correctedResponseCopiedAt?: number;
     _validationComment?: string;
 };
@@ -233,7 +233,7 @@ export interface UserInterviewAttributes {
 export interface InterviewAttributes extends UserInterviewAttributes {
     is_active?: boolean;
     is_started?: boolean;
-    corrected_response?: ValidatedResponse;
+    corrected_response?: CorrectedResponse;
     audits?: InterviewAudits;
     is_validated?: boolean;
     is_questionable?: boolean;
@@ -251,7 +251,7 @@ export interface InterviewListAttributes {
     uuid: string;
     participant_id: number;
     response: InterviewResponse;
-    corrected_response: ValidatedResponse;
+    corrected_response: CorrectedResponse;
     is_valid?: boolean;
     is_completed?: boolean;
     is_validated?: boolean;

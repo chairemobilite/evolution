@@ -8,8 +8,8 @@ import React from 'react';
 import { Route, Routes } from 'react-router';
 
 import AdminMonitoringPage from '../pages/AdminMonitoringPage';
-import AdminValidationPage from '../pages/ValidationPage';
-import AdminValidateSurveyPage from '../pages/ValidateSurvey';
+import AdminReviewPage from '../pages/ReviewPage';
+import AdminSurveyCorrectionPage from '../pages/SurveyCorrection';
 import UnauthorizedPage from 'chaire-lib-frontend/lib/components/pages/UnauthorizedPage';
 import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/MaintenancePage';
 import { LoginPage as AdminLoginPage } from 'chaire-lib-frontend/lib/components/pages';
@@ -63,11 +63,11 @@ const AdminSurveyRouter: React.FunctionComponent = () => (
         />
         <Route
             path="/admin/survey/:sectionShortname"
-            element={<PrivateRoute component={AdminValidateSurveyPage} permissions={{ Interviews: ['validate'] }} />}
+            element={<PrivateRoute component={AdminSurveyCorrectionPage} permissions={{ Interviews: ['validate'] }} />}
         />
         <Route
             path="/admin/survey/interview/:interviewUuid"
-            element={<PrivateRoute component={AdminValidateSurveyPage} permissions={{ Interviews: ['validate'] }} />}
+            element={<PrivateRoute component={AdminSurveyCorrectionPage} permissions={{ Interviews: ['validate'] }} />}
         />
         <Route
             path="/interviews/byCode/:accessCode"
@@ -88,7 +88,7 @@ const AdminSurveyRouter: React.FunctionComponent = () => (
         <Route path="/admin/monitoring" element={<AdminRoute component={AdminMonitoringPage} />} />
         <Route
             path="/admin/validation"
-            element={<PrivateRoute component={AdminValidationPage} permissions={{ Interviews: ['validate'] }} />}
+            element={<PrivateRoute component={AdminReviewPage} permissions={{ Interviews: ['validate'] }} />}
         />
         <Route path="/admin/users" element={<AdminRoute component={UsersPage} />} />
         <Route path="/admin" element={<AdminRoute component={AdminMonitoringPage} />} />
