@@ -221,14 +221,14 @@ const getUserInterview = async (participantId: number): Promise<UserInterviewAtt
  * @returns An object with the json data sanitized
  */
 const sanitizeJsonData = (object: Partial<InterviewAttributes>) => {
-    const { response, validated_data, ...rest } = object;
+    const { response, corrected_response, ...rest } = object;
     const newResponse = response !== undefined ? JSON.stringify(response).replaceAll('\\u0000', '') : undefined;
-    const newValidatedData =
-        validated_data !== undefined ? JSON.stringify(validated_data).replaceAll('\\u0000', '') : undefined;
+    const newCorrectedResponse =
+        corrected_response !== undefined ? JSON.stringify(corrected_response).replaceAll('\\u0000', '') : undefined;
     return {
         ...rest,
         response: newResponse,
-        validated_data: newValidatedData
+        corrected_response: newCorrectedResponse
     };
 };
 
@@ -579,7 +579,7 @@ const getList = async (params: {
                 'i.updated_at',
                 'i.created_at',
                 'i.response',
-                'i.validated_data',
+                'i.corrected_response',
                 'audits.audits',
                 'i.is_valid',
                 'i.is_completed',
@@ -696,13 +696,13 @@ const getValidationAuditStats = async (params: {
  * fields on which to filter the interviews to stream.
  * @param {Object} [params.select] allows to fine-tune the fields to return,
  * including or excluding audits, and some combination or response and
- * validated_data
+ * corrected_response
  * @param {boolean} [params.select.includeAudits=true] whether to include the
  * audits in the stream
  * @param {boolean} [params.select.includeInterviewerData=false] whether to
  * include the interviewer accesses data in the stream
- * @param {'none' | 'participant' | 'validated' | 'both' |
- * 'validatedIfAvailable'} [params.select.responseType='both'] which response to
+ * @param {'none' | 'participant' | 'corrected' | 'both' |
+ * 'correctedIfAvailable'} [params.select.responseType='both'] which response to
  * include in the stream
  * @param {(string | { field: string; order: 'asc' | 'desc' })[]} [params.sort]
  * specifies which field to sort the interviews by. By default, it is not sorted
@@ -713,8 +713,8 @@ const getInterviewsStream = function (params: {
     select?: {
         includeAudits?: boolean;
         includeInterviewerData?: boolean;
-        // validatedIfAvailable: will return validated if available, otherwise will return participant response
-        responseType?: 'none' | 'participant' | 'validated' | 'both' | 'validatedIfAvailable';
+        // correctedIfAvailable: will return corrected if available, otherwise will return participant response
+        responseType?: 'none' | 'participant' | 'corrected' | 'both' | 'correctedIfAvailable';
     };
     sort?: (string | { field: string; order: 'asc' | 'desc' })[];
 }) {
@@ -736,7 +736,7 @@ const getInterviewsStream = function (params: {
         'i.is_validated',
         'i.is_questionable',
         'i.survey_id',
-        knex.raw('case when validated_data is null then false else true end as validated_data_available')
+        knex.raw('case when corrected_response is null then false else true end as corrected_response_available')
     ];
     if (selectFields.includeAudits || selectFields.includeAudits === undefined) {
         select.push('i.audits');
@@ -745,15 +745,17 @@ const getInterviewsStream = function (params: {
     case 'participant':
         select.push('i.response');
         break;
-    case 'validated':
-        select.push('i.validated_data');
+    case 'corrected':
+        select.push('i.corrected_response');
         break;
     case 'both':
         select.push('i.response');
-        select.push('i.validated_data');
+        select.push('i.corrected_response');
         break;
-    case 'validatedIfAvailable':
-        select.push(knex.raw('case when validated_data is null then response else validated_data end as response'));
+    case 'correctedIfAvailable':
+        select.push(
+            knex.raw('case when corrected_response is null then response else corrected_response end as response')
+        );
         break;
     case 'none':
         break;

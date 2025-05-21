@@ -15,7 +15,7 @@ const interview: InterviewListAttributes = {
     is_valid: true,
     is_completed: true,
     response: { accessCode: 'notsure', foo: 'bar', household: { size: 0 } } as any,
-    validated_data: {},
+    corrected_response: {},
     username: 'test',
     facebook: false,
     google: false,
@@ -29,7 +29,7 @@ const nullResponseInterview = {
     is_valid: true,
     is_completed: true,
     response: null,
-    validated_data: null,
+    corrected_response: null,
     username: 'test',
     facebook: false,
     google: false
@@ -52,7 +52,7 @@ describe('Validation List Filter', () => {
         });
     });
 
-    test('test default validation filter with null values for response and validated data', () => {
+    test('test default validation filter with null values for response and corrected response', () => {
         const interviewStatus = projectConfig.validationListFilter(nullResponseInterview as any);
         expect(interviewStatus).toEqual({
             id: interview.id,

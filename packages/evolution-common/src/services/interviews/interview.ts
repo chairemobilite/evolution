@@ -26,14 +26,14 @@ export const INTERVIEWER_PARTICIPANT_PREFIX = 'telephone';
  * and the value is the number of times this validation fails on the response.
  */
 export const auditInterview = function (
-    validatedData: InterviewResponse,
+    correctedResponse: InterviewResponse,
     originalResponse: InterviewResponse,
     interview: InterviewAttributes,
     validations: any,
     surveyProjectHelper: any
 ): { [validationId: string]: number } {
     const auditsCountByValidationId: { [validationId: string]: number } = {};
-    const response = validatedData ? validatedData : originalResponse;
+    const response = correctedResponse ? correctedResponse : originalResponse;
     const household = _get(response, 'household', {});
     const home = _get(response, 'home', {});
     const validatedInterview = _cloneDeep(interview);
@@ -179,10 +179,10 @@ export const auditInterview = function (
 };
 
 // this function will use parsers to clean and fix the interviews. Parsers can change any path in the interview, to normalize repsonses or clean errors or typos in some fields:
-// the input is validated_data response if available, otherwise, it will use original respondent response
+// the input is corrected_response response if available, otherwise, it will use original respondent response
 // output will be valuesByPath which are each changes made to the response, by path
 export const getChangesAfterCleaningInterview = function (
-    validatedData,
+    correctedResponse,
     originalResponse,
     interview,
     parsers,
@@ -194,7 +194,7 @@ export const getChangesAfterCleaningInterview = function (
 
     let changeModesWalk = false;
 
-    const response = validatedData || originalResponse;
+    const response = correctedResponse || originalResponse;
     const validatedInterview = _cloneDeep(interview);
     validatedInterview.response = response;
     validatedInterview._response = originalResponse;

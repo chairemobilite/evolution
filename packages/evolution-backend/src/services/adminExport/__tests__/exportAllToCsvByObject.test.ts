@@ -91,22 +91,22 @@ describe('exportAllToCsvBySurveyObject', () => {
                 arrayOfObjects: [{ a: 1, b: 2 }, { a: 3, b: 4 }],
                 arrayOfStrings: ['a', 'b', 'c'],
             },
-            validated_data_available: true,
+            corrected_response_available: true,
         };
 
         // Add the interview to the stream twice, for the paths and the export
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
 
-        await exportAllToCsvBySurveyObjectTask({ responseType: 'validatedIfAvailable' });
+        await exportAllToCsvBySurveyObjectTask({ responseType: 'correctedIfAvailable' });
 
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(2);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'validatedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' } });
 
         // Check the content of the interview file
-        const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_interview_test.csv'));
+        const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_interview_test.csv'));
         expect(interviewCsvFileName).toBeDefined();
 
         const csvStream = fileStreams[interviewCsvFileName as string];
@@ -120,7 +120,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewUuid: interviewData.uuid,
             _interviewer_count: '',
             _interviewer_created: '',
-            hasValidatedData: 'true',
+            hasCorrectedResponse: 'true',
             'household.size': String(interviewData.response.household.size),
             is_completed: String(interviewData.is_completed),
             is_questionable: '',
@@ -135,7 +135,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         });
 
         // Check the content of the persons file
-        const personsCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_household_persons_test.csv'));
+        const personsCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_household_persons_test.csv'));
         expect(personsCsvFileName).toBeDefined();
 
         const personsCsvStream = fileStreams[personsCsvFileName as string];
@@ -232,23 +232,23 @@ describe('exportAllToCsvBySurveyObject', () => {
                     personsDidTrips: [person1Uuid, person2Uuid]
                 }
             },
-            validated_data_available: true,
+            corrected_response_available: true,
         };
 
         // Add the interview to the stream twice, for the paths and the export
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
 
-        const filenames = await exportAllToCsvBySurveyObjectTask({ responseType: 'validatedIfAvailable' });
+        const filenames = await exportAllToCsvBySurveyObjectTask({ responseType: 'correctedIfAvailable' });
         console.log('filenames', filenames);
 
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(3);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'validatedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' } });
 
         // Check the content of the interview file
-        const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_interview_test.csv'));
+        const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_interview_test.csv'));
         expect(interviewCsvFileName).toBeDefined();
 
         const csvStream = fileStreams[interviewCsvFileName as string];
@@ -262,7 +262,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewUuid: interviewData.uuid,
             _interviewer_count: '',
             _interviewer_created: '',
-            hasValidatedData: 'true',
+            hasCorrectedResponse: 'true',
             'household.size': String(interviewData.response.household.size),
             is_completed: String(interviewData.is_completed),
             is_questionable: '',
@@ -272,7 +272,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         });
 
         // Check the content of the persons file
-        const personsCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_household_persons_test.csv'));
+        const personsCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_household_persons_test.csv'));
         expect(personsCsvFileName).toBeDefined();
 
         const personsCsvStream = fileStreams[personsCsvFileName as string];
@@ -297,7 +297,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         });
 
         // Check the content of the visited places file
-        const visitedPlacesCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_household_persons_visitedPlaces_test.csv'));
+        const visitedPlacesCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_household_persons_visitedPlaces_test.csv'));
         expect(visitedPlacesCsvFileName).toBeDefined();
 
         const visitedPlacesCsvStream = fileStreams[visitedPlacesCsvFileName as string];
@@ -357,7 +357,7 @@ describe('exportAllToCsvBySurveyObject', () => {
                 arrayOfStrings: ['a', 'b', 'c'],
                 arrayOrString: 'string'
             },
-            validated_data_available: true,
+            corrected_response_available: true,
         }, {
             id: 2,
             uuid: uuidV4(),
@@ -372,22 +372,22 @@ describe('exportAllToCsvBySurveyObject', () => {
                 fieldIn2: 2,
                 arrayIn2Only: ['x']
             },
-            validated_data_available: true,
+            corrected_response_available: true,
         }];
 
         // Add the interview to the stream twice, for the paths and the export
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock(interviewData) as any);
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock(interviewData) as any);
 
-        await exportAllToCsvBySurveyObjectTask({ responseType: 'validatedIfAvailable' });
+        await exportAllToCsvBySurveyObjectTask({ responseType: 'correctedIfAvailable' });
 
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'validatedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' } });
 
         // Check the content of the interview file
-        const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('validated_interview_test.csv'));
+        const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_interview_test.csv'));
         expect(interviewCsvFileName).toBeDefined();
 
         const csvStream = fileStreams[interviewCsvFileName as string];
@@ -400,7 +400,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewUuid: interviewData[0].uuid,
             _interviewer_count: '',
             _interviewer_created: '',
-            hasValidatedData: 'true',
+            hasCorrectedResponse: 'true',
             is_completed: String(interviewData[0].is_completed),
             is_questionable: '',
             is_valid: String(interviewData[0].is_valid),
@@ -419,7 +419,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewUuid: interviewData[1].uuid,
             _interviewer_count: '',
             _interviewer_created: '',
-            hasValidatedData: 'true',
+            hasCorrectedResponse: 'true',
             is_completed: String(interviewData[1].is_completed),
             is_questionable: '',
             is_valid: String(interviewData[1].is_valid),

@@ -246,7 +246,7 @@ export const startSurveyValidateRemoveGroupedObjects = (
 };
 
 /**
- * Fetch an interview from server and re-initialize the validated_data to the
+ * Fetch an interview from server and re-initialize the corrected_response to the
  * participant's response, but keeping the validation comments.
  *
  * @param {*} interviewUuid The uuid of the interview to open

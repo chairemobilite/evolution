@@ -125,10 +125,10 @@ const googleUserInterviewAttributes = {
         }
     },
     validations: {},
-    validated_data: {
+    corrected_response: {
         accessCode: '2222',
         home: {
-            someField: 'validated',
+            someField: 'corrected',
             otherField: 'changed',
             arrayField: ['foo', 'bar']
         }
@@ -949,11 +949,11 @@ describe('stream interviews query', () => {
             .on('data', (row) => {
                 expect(row.audits).toBeDefined();
                 expect(row.response).toBeDefined();
-                expect(row.validated_data).toBeDefined();
-                if (row.validated_data_available) {
-                    expect(row.validated_data).not.toBeNull();
+                expect(row.corrected_response).toBeDefined();
+                if (row.corrected_response_available) {
+                    expect(row.corrected_response).not.toBeNull();
                 } else {
-                    expect(row.validated_data).toBeNull();
+                    expect(row.corrected_response).toBeNull();
                 }
                 i++;
             })
@@ -973,11 +973,11 @@ describe('stream interviews query', () => {
             .on('data', (row) => {
                 expect(row.audits).not.toBeDefined();
                 expect(row.response).toBeDefined();
-                expect(row.validated_data).toBeDefined();
-                if (row.validated_data_available) {
-                    expect(row.validated_data).not.toBeNull();
+                expect(row.corrected_response).toBeDefined();
+                if (row.corrected_response_available) {
+                    expect(row.corrected_response).not.toBeNull();
                 } else {
-                    expect(row.validated_data).toBeNull();
+                    expect(row.corrected_response).toBeNull();
                 }
                 i++;
             })
@@ -997,7 +997,7 @@ describe('stream interviews query', () => {
             .on('data', (row) => {
                 expect(row.audits).toBeDefined();
                 expect(row.response).toBeDefined();
-                expect(row.validated_data).not.toBeDefined();
+                expect(row.corrected_response).not.toBeDefined();
                 i++;
             })
             .on('end', () => {
@@ -1006,8 +1006,8 @@ describe('stream interviews query', () => {
             });
     });
 
-    test('Stream with only validated_data', (done) => {
-        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responseType: 'validated' } });
+    test('Stream with only corrected_response', (done) => {
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responseType: 'corrected' } });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
@@ -1016,7 +1016,7 @@ describe('stream interviews query', () => {
             .on('data', (row) => {
                 expect(row.audits).toBeDefined();
                 expect(row.response).not.toBeDefined();
-                expect(row.validated_data).toBeDefined();
+                expect(row.corrected_response).toBeDefined();
                 i++;
             })
             .on('end', () => {
@@ -1025,7 +1025,7 @@ describe('stream interviews query', () => {
             });
     });
 
-    test('Stream without response or validated_data or audits', (done) => {
+    test('Stream without response or corrected_response or audits', (done) => {
         const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { includeAudits: false, responseType: 'none' } });
         queryStream.on('error', (error) => {
             console.error(error);
@@ -1035,7 +1035,7 @@ describe('stream interviews query', () => {
             .on('data', (row) => {
                 expect(row.audits).not.toBeDefined();
                 expect(row.response).not.toBeDefined();
-                expect(row.validated_data).not.toBeDefined();
+                expect(row.corrected_response).not.toBeDefined();
                 i++;
             })
             .on('end', () => {
@@ -1044,7 +1044,7 @@ describe('stream interviews query', () => {
             });
     });
 
-    test('Stream with both response and validated_data', (done) => {
+    test('Stream with both response and corrected_response', (done) => {
         const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responseType: 'both' } });
         queryStream.on('error', (error) => {
             console.error(error);
@@ -1054,7 +1054,7 @@ describe('stream interviews query', () => {
             .on('data', (row) => {
                 expect(row.audits).toBeDefined();
                 expect(row.response).toBeDefined();
-                expect(row.validated_data).toBeDefined();
+                expect(row.corrected_response).toBeDefined();
                 i++;
             })
             .on('end', () => {
@@ -1063,8 +1063,8 @@ describe('stream interviews query', () => {
             });
     });
 
-    test('Stream with validated_data if available', (done) => {
-        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responseType: 'validatedIfAvailable' } });
+    test('Stream with corrected_response if available', (done) => {
+        const queryStream = dbQueries.getInterviewsStream({ filters: {}, select: { responseType: 'correctedIfAvailable' } });
         queryStream.on('error', (error) => {
             console.error(error);
             expect(true).toBe(false);
@@ -1073,12 +1073,12 @@ describe('stream interviews query', () => {
             .on('data', (row) => {
                 expect(row.audits).toBeDefined();
                 expect(row.response).toBeDefined();
-                expect(row.validated_data).not.toBeDefined();
-                if (row.validated_data_available) {
+                expect(row.corrected_response).not.toBeDefined();
+                if (row.corrected_response_available) {
                     if (row.uuid === googleUserInterviewAttributes.uuid) {
-                        expect(row.response).toEqual(googleUserInterviewAttributes.validated_data);
+                        expect(row.response).toEqual(googleUserInterviewAttributes.corrected_response);
                     } else {
-                        expect('There is a unknown row with validated_data').toEqual('Only the google participant interview should have validated_data');
+                        expect('There is a unknown row with corrected_response').toEqual('Only the google participant interview should have corrected_response');
                     }
                 } else {
                     expect(row.uuid).not.toEqual(googleUserInterviewAttributes.uuid);
@@ -1105,11 +1105,11 @@ describe('stream interviews query', () => {
             .on('data', (row) => {
                 expect(row.audits).toBeDefined();
                 expect(row.response).toBeDefined();
-                expect(row.validated_data).toBeDefined();
-                if (row.validated_data_available) {
-                    expect(row.validated_data).not.toBeNull();
+                expect(row.corrected_response).toBeDefined();
+                if (row.corrected_response_available) {
+                    expect(row.corrected_response).not.toBeNull();
                 } else {
-                    expect(row.validated_data).toBeNull();
+                    expect(row.corrected_response).toBeNull();
                 }
                 if (row.uuid === interviewerInterviewAttributes.uuid) {
                     expect(row.interviewer_created).toEqual(true);

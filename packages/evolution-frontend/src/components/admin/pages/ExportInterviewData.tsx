@@ -27,11 +27,11 @@ const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
     };
 
     const onPrepareCsvValidatedExportFiles = async () => {
-        return onPrepareCsvExportFiles('validatedIfAvailable');
+        return onPrepareCsvExportFiles('correctedIfAvailable');
     };
 
     const onPrepareCsvExportFiles = async (
-        exportType: 'validatedIfAvailable' | 'participant' = 'validatedIfAvailable'
+        exportType: 'correctedIfAvailable' | 'participant' = 'correctedIfAvailable'
     ) => {
         setIsPreparingCsvExportFiles(true);
         try {

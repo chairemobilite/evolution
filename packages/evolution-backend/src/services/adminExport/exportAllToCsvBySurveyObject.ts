@@ -34,7 +34,7 @@ type AttributeAndSurveyObjectPaths = {
  *
  * FIXME This won't be necessary once section logs are in a separate table
  *
- * FIXME In the case of the validated interview data, the durations will
+ * FIXME In the case of the corrected interview data, the durations will
  * probably include the time a validation may have spent looking at an interview
  * and will add up to the durations. To get the participant's duration, the file
  * with the participant data should be used. But that should not be a problem
@@ -258,7 +258,7 @@ const getPathsBySurveyObject = async (options: ExportOptions): Promise<{ [objNam
 
     const pathsBySurveyObject = {
         interview: [
-            'hasValidatedData',
+            'hasCorrectedResponse',
             'is_valid',
             'is_completed',
             'is_validated',
@@ -348,7 +348,7 @@ const formatValue = (value: unknown): unknown => {
  * @returns
  */
 export const exportAllToCsvBySurveyObjectTask = async function (
-    options: ExportOptions = { responseType: 'validatedIfAvailable' }
+    options: ExportOptions = { responseType: 'correctedIfAvailable' }
 ) {
     const pathsBySurveyObject = await getPathsBySurveyObject(options);
 
@@ -389,7 +389,7 @@ export const exportAllToCsvBySurveyObjectTask = async function (
     } = {};
     const wroteHeaderBySurveyObjectPath = {};
     const csvFilePaths: string[] = [];
-    const fileNamePrefix = options.responseType === 'validatedIfAvailable' ? 'validated' : 'participant';
+    const fileNamePrefix = options.responseType === 'correctedIfAvailable' ? 'corrected' : 'participant';
     for (const surveyObjectPath in pathsBySurveyObject) {
         const csvFilePath = `${filePathOnServer}/${fileNamePrefix}_${surveyObjectPath.replaceAll('._.', '_').replaceAll('.', '_')}_${config.projectShortname}.csv`;
         const csvStream = fs.createWriteStream(fileManager.getAbsolutePath(csvFilePath));
@@ -439,7 +439,7 @@ export const exportAllToCsvBySurveyObjectTask = async function (
                 const objectsBySurveyObjectPath = {
                     interview: exportedInterviewDataBySurveyObjectPath.interview
                 };
-                objectsBySurveyObjectPath.interview.hasValidatedData = row.validated_data_available;
+                objectsBySurveyObjectPath.interview.hasCorrectedResponse = row.corrected_response_available;
                 objectsBySurveyObjectPath.interview.is_valid = interview.is_valid;
                 objectsBySurveyObjectPath.interview.is_completed = interview.is_completed;
                 objectsBySurveyObjectPath.interview.is_validated = interview.is_validated;

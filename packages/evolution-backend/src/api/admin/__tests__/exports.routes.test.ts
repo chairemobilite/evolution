@@ -57,27 +57,27 @@ beforeAll(() => {
 });
 
 describe('prepareCsvFileForExportBySurveyObject route', () => {
-    it('Should prepare validated data by default', async () => {
+    it('Should prepare corrected response by default', async () => {
         const response = await request(app).get('/api/admin/data/prepareCsvFileForExportBySurveyObject');
         expect(response.status).toBe(200);
         expect(response.body).toEqual({
             status: 'exportStarted'
         });
-        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'validatedIfAvailable' });
+        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
     });
 
-    it('Should prepare validated data, if specified', async () => {
+    it('Should prepare corrected response, if specified', async () => {
         const response = await request(app).get(
-            '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=validatedIfAvailable'
+            '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=correctedIfAvailable'
         );
         expect(response.status).toBe(200);
         expect(response.body).toEqual({
             status: 'exportStarted'
         });
-        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'validatedIfAvailable' });
+        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
     });
 
-    it('Should prepare validated data, if invalid value is specified', async () => {
+    it('Should prepare corrected response, if invalid value is specified', async () => {
         const response = await request(app).get(
             '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=unknownType'
         );
@@ -85,7 +85,7 @@ describe('prepareCsvFileForExportBySurveyObject route', () => {
         expect(response.body).toEqual({
             status: 'exportStarted'
         });
-        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'validatedIfAvailable' });
+        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
     });
 
     it('Should prepare participant data, if specified', async () => {

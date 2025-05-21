@@ -7,8 +7,8 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { auditInterview, getChangesAfterCleaningInterview } from 'evolution-common/lib/services/interviews/interview';
-import { updateInterview, setInterviewFields, copyResponseToValidatedData } from './interview';
-import { mapResponseToValidatedData } from './interviewUtils';
+import { updateInterview, setInterviewFields, copyResponseToCorrectedResponse } from './interview';
+import { mapResponseToCorrectedResponse } from './interviewUtils';
 import { validateAccessCode } from '../accessCode';
 import { validate as validateUuid } from 'uuid';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -202,8 +202,8 @@ export default class Interviews {
                         console.info(`Auditing interview ${i}`);
                     }
                     i++;
-                    if (_isBlank(interview.validated_data)) {
-                        copyResponseToValidatedData(interview)
+                    if (_isBlank(interview.corrected_response)) {
+                        copyResponseToCorrectedResponse(interview)
                             .then(
                                 () =>
                                     new Promise((res1, _rej1) => {
@@ -218,7 +218,7 @@ export default class Interviews {
                                     })
                             )
                             .catch((error) => {
-                                console.error('Error copying response to validated data', error);
+                                console.error('Error copying response to corrected response', error);
                             })
                             .finally(() => {
                                 queryStream.resume();
@@ -256,9 +256,9 @@ export default class Interviews {
                     queryStream.pause();
                     // Pausing the connnection is useful if your processing involves I/O
                     const interview = row;
-                    const changesAfterCleaningInterview = mapResponseToValidatedData(
+                    const changesAfterCleaningInterview = mapResponseToCorrectedResponse(
                         getChangesAfterCleaningInterview(
-                            interview.validated_data,
+                            interview.corrected_response,
                             interview.response,
                             interview,
                             parsers,
@@ -268,7 +268,7 @@ export default class Interviews {
                     );
                     setInterviewFields(interview, changesAfterCleaningInterview);
                     const audits = auditInterview(
-                        interview.validated_data,
+                        interview.corrected_response,
                         interview.response,
                         interview,
                         validations,
@@ -316,9 +316,9 @@ export default class Interviews {
                     // Pausing the connnection is useful if your processing involves I/O
                     const interview = row;
                     updateInterview(interview, {
-                        fieldsToUpdate: ['validated_data', 'is_completed', 'is_validated', 'is_valid'],
+                        fieldsToUpdate: ['corrected_response', 'is_completed', 'is_validated', 'is_valid'],
                         valuesByPath: {
-                            validated_data: interview.response,
+                            corrected_response: interview.response,
                             is_completed: null,
                             is_validated: null,
                             is_valid: null

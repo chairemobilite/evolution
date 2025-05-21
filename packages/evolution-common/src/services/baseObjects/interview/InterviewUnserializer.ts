@@ -18,7 +18,7 @@ export type ExtendedInterviewWithComposedAttributes = InterviewAttributes & {
 };
 
 /**
- * Validate the interview params coming from the frontend as json unvalidated data.
+ * Validate the interview params coming from the frontend as json unvalidated response.
  * This method does not audit the content, it just make sure that the values are of
  * the correct type and that required data is present.
  * @param dirtyParams the json data

@@ -189,15 +189,17 @@ export const updateInterview = async (
     return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath, redirectUrl };
 };
 
-export const copyResponseToValidatedData = async (interview: InterviewAttributes) => {
-    // TODO The frontend code that was replaced by this method said: // TODO The copy to validated_data should include the audit
+export const copyResponseToCorrectedResponse = async (interview: InterviewAttributes) => {
+    // TODO The frontend code that was replaced by this method said: // TODO The copy to corrected_response should include the audit
 
-    // Keep the _validationComment from current validated_data, then copy original response
-    const validationComment = interview.validated_data ? interview.validated_data._validationComment : undefined;
-    interview.validated_data = _cloneDeep(interview.response);
-    interview.validated_data._validatedDataCopiedAt = moment().unix();
+    // Keep the _validationComment from current corrected_response, then copy original response
+    const validationComment = interview.corrected_response
+        ? interview.corrected_response._validationComment
+        : undefined;
+    interview.corrected_response = _cloneDeep(interview.response);
+    interview.corrected_response._correctedResponseCopiedAt = moment().unix();
     if (validationComment) {
-        interview.validated_data._validationComment = validationComment;
+        interview.corrected_response._validationComment = validationComment;
     }
-    await interviewsDbQueries.update(interview.uuid, { validated_data: interview.validated_data });
+    await interviewsDbQueries.update(interview.uuid, { corrected_response: interview.corrected_response });
 };

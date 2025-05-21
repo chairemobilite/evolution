@@ -20,7 +20,7 @@ export class Audits {
     };
 
     static runAndSaveInterviewAudits = async (interview: InterviewAttributes): Promise<SurveyObjectsWithAudits> => {
-        if (!serverConfig.auditInterview || !interview.validated_data) {
+        if (!serverConfig.auditInterview || !interview.corrected_response) {
             return {
                 audits: []
             };

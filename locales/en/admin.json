@@ -43,7 +43,7 @@
   "usersPageTitle": "Users",
   "errorsCount": "{{n}} errors",
   "refreshInterview": "Get latest changes from server",
-  "resetInterview": "Reset validated data to original participant responses",
+  "resetInterview": "Reset corrected responses to original responses",
   "closeInterviewSummary": "Close",
   "editValidationInterview": "Edit survey",
   "prevInterview": "View previous survey",
@@ -132,7 +132,7 @@
   "HouseholdSize": "Household size",
   "Select": "Select",
   "export": {
-    "PrepareValidatedCsvExportFiles": "Prepare CSV files by object (validated, if available)",
+    "PrepareValidatedCsvExportFiles": "Prepare CSV files by object (corrected responses if available)",
     "PrepareParticipantCsvExportFiles": "Prepare CSV files for export by object (original responses)",
     "RefreshExportFiles": "Refresh export file list",
     "ServerErrorForExport": "Server error while preparing export files",

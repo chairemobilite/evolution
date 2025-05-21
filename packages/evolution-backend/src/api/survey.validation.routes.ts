@@ -11,10 +11,10 @@ import express, { Request, Response } from 'express';
 import moment from 'moment';
 
 import Interviews, { FilterType } from '../services/interviews/interviews';
-import { updateInterview, copyResponseToValidatedData } from '../services/interviews/interview';
+import { updateInterview, copyResponseToCorrectedResponse } from '../services/interviews/interview';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import projectConfig from '../config/projectConfig';
-import { mapResponseToValidatedData } from '../services/interviews/interviewUtils';
+import { mapResponseToCorrectedResponse } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
 import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -37,26 +37,26 @@ router.get(
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
                 if (interview) {
                     const forceCopy = _booleish(req.query.reset) === true;
-                    // Copy the response in the validated_data
-                    if (forceCopy || _isBlank(interview.validated_data)) {
-                        await copyResponseToValidatedData(interview);
+                    // Copy the response in the corrected_response
+                    if (forceCopy || _isBlank(interview.corrected_response)) {
+                        await copyResponseToCorrectedResponse(interview);
                     }
-                    // Run audits on the validated_data
+                    // Run audits on the corrected_response
                     const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interview);
                     // TODO Here, the response field should not make it to frontend. But make sure there are no side effect in the frontend, where the _response is used or checked.
-                    const { response, validated_data, ...rest } = interview;
+                    const { response, corrected_response, ...rest } = interview;
                     return res.status(200).json({
                         status: 'success',
                         interview: {
-                            response: validated_data,
+                            response: corrected_response,
                             _response: response,
                             surveyObjectsAndAudits: objectsAndAudits,
                             ...rest,
                             validationDataDirty:
                                 response._updatedAt !== undefined &&
                                 interview.is_frozen !== true &&
-                                (validated_data?._validatedDataCopiedAt === undefined ||
-                                    validated_data._validatedDataCopiedAt < response._updatedAt)
+                                (corrected_response?._correctedResponseCopiedAt === undefined ||
+                                    corrected_response._correctedResponseCopiedAt < response._updatedAt)
                         }
                     });
                 } else {
@@ -100,13 +100,13 @@ router.post(
                 valuesByPath: mappedValuesByPath,
                 unsetPaths,
                 userAction
-            } = mapResponseToValidatedData(valuesByPath, origUnsetPaths, content.userAction);
+            } = mapResponseToCorrectedResponse(valuesByPath, origUnsetPaths, content.userAction);
 
             const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
             if (interview) {
                 const canConfirm = isUserAllowed(req.user as UserAttributes, interview, ['confirm']);
                 const fieldsToUpdate: (keyof InterviewAttributes)[] = [
-                    'validated_data',
+                    'corrected_response',
                     'validations',
                     'audits',
                     'is_valid',

@@ -76,12 +76,12 @@ export type ServerFieldUpdateCallback = {
         registerUpdateOperation?: RegisterUpdateOperationType
     ) => Promise<FieldUpdateCallbackReturnType>;
     /**
-     * Indicate whether to run this field update callback on validated data as
+     * Indicate whether to run this field update callback on corrected response as
      * well, or if it is only for response. Defaults to false, ie only
      * response from the survey participant will trigger this callback, not
      * validations.
      * */
-    runOnValidatedData?: boolean;
+    runOnCorrectedResponse?: boolean;
 };
 
 const waitExecuteCallback = async (
@@ -98,7 +98,7 @@ const waitExecuteCallback = async (
         Object.keys(updatedValuesByPath).forEach((key) => {
             if (getResponse(interview, key as any, undefined) !== updatedValuesByPath[key]) {
                 serverValuesByPath[
-                    completePath.startsWith('validated_data.') ? `validated_data.${key}` : `response.${key}`
+                    completePath.startsWith('corrected_response.') ? `corrected_response.${key}` : `response.${key}`
                 ] = updatedValuesByPath[key];
             }
         });
@@ -118,17 +118,17 @@ const getUpdateCallbackForPath = (
     serverUpdateCallbacks: ServerFieldUpdateCallback[],
     path: string
 ): UpdateCallbackForPathResponseType | undefined => {
-    if (!path.startsWith('response.') && !path.startsWith('validated_data.')) {
+    if (!path.startsWith('response.') && !path.startsWith('corrected_response.')) {
         return undefined;
     }
-    const isValidatedData = path.startsWith('validated_data.');
-    const responsePath = !isValidatedData
+    const isCorrectedResponse = path.startsWith('corrected_response.');
+    const responsePath = !isCorrectedResponse
         ? path.substring('response.'.length)
-        : path.substring('validated_data.'.length);
+        : path.substring('corrected_response.'.length);
     const serverCallback = serverUpdateCallbacks.find(({ field }) =>
         typeof field === 'string' ? responsePath === field : responsePath.match(field.regex) !== null
     );
-    return serverCallback !== undefined && (!isValidatedData || serverCallback.runOnValidatedData === true)
+    return serverCallback !== undefined && (!isCorrectedResponse || serverCallback.runOnCorrectedResponse === true)
         ? { responsePath, callback: serverCallback, completePath: path }
         : undefined;
 };
