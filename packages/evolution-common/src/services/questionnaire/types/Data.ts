@@ -174,11 +174,12 @@ export type InterviewResponse = {
 
     _sections?: {
         [sectionName: string]: SectionStatus & {
-            [subSection: string]: SectionStatus;
+            [iterationContextString: string]: SectionStatus;
         };
     } & {
         _actions: {
             section: string;
+            iterationContext?: string[];
             action: 'start';
             ts: number;
         }[];
