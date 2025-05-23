@@ -633,9 +633,13 @@ export const getWidgetChoiceFromValue = ({
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview - The interview object.
  * @param {string} options.sectionName - The name of the section to check.
- * @returns {boolean | null} - Returns true if the section is complete, false if not, or null if the section is not found.
+ * @returns {boolean | null} - Returns true if the section is complete, false if
+ * not, or null if the section is not found.
  *
- * @description This function checks if the section is complete by looking at the `interview.response._sections.${sectionName}._isCompleted` field.
+ * @description This function checks if the section is complete by looking at
+ * the `interview.response._sections.${sectionName}._isCompleted` field.
+ * @deprecated Use the `isSectionCompleted` function in the `navigationHelpers`
+ * module instead, which accounts for the iteration context as well.
  */
 export const isSectionComplete = ({
     interview,
