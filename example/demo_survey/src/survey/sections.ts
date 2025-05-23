@@ -14,7 +14,7 @@ import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers'
 import { getSegmentsSectionConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/sectionSegments';
 import helper from './helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
+import { getAndValidateSurveySections, SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 
 
 const homeWidgets = [
@@ -80,10 +80,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
       fr: "Domicile",
       en: "Home"
     },
-    menuName: {
-      fr: "Domicile",
-      en: "Home"
-    },
     widgets: [
       ...homeWidgets,
       'buttonSaveNextSection'
@@ -115,9 +111,12 @@ const sections: { [sectionName: string]: SectionConfig } = {
       fr: "Membres du ménage",
       en: "Household members"
     },
-    menuName: {
-      fr: "Votre ménage",
-      en: "Your household"
+    navMenu: {
+      type: 'inNav',
+      menuName: {
+        fr: "Votre ménage",
+        en: "Your household"
+      }
     },
     widgets: [
       'householdMembers',
@@ -210,9 +209,12 @@ const sections: { [sectionName: string]: SectionConfig } = {
       fr: "Sélection du membre du ménage",
       en: "Household member selection"
     },
-    menuName: {
-      fr: "Profil",
-      en: "Profile"
+    navMenu: {
+      type: 'inNav',
+      menuName: {
+        fr: "Profil",
+        en: "Profile"
+      }
     },
     widgets: [
       'selectPerson',
@@ -247,12 +249,11 @@ const sections: { [sectionName: string]: SectionConfig } = {
   profile: {
     previousSection: 'selectPerson',
     nextSection: "tripsIntro",
-    parentSection: "selectPerson",
-    title: {
-      fr: "Profil",
-      en: "Profile"
+    navMenu: {
+      type: 'hidden',
+      parentSection: 'selectPerson'
     },
-    menuName: {
+    title: {
       fr: "Profil",
       en: "Profile"
     },
@@ -301,9 +302,12 @@ const sections: { [sectionName: string]: SectionConfig } = {
       fr: "Introduction aux déplacements",
       en: "Trips introduction"
     },
-    menuName: {
-      fr: "Déplacements",
-      en: "Trips"
+    navMenu: {
+      type: 'inNav',
+      menuName: {
+        fr: "Déplacements",
+        en: "Trips"
+      },
     },
     widgets: [
       'activePersonTitle',
@@ -381,13 +385,12 @@ const sections: { [sectionName: string]: SectionConfig } = {
   visitedPlaces: {
     previousSection: 'tripsIntro',
     nextSection: "segments",
-    parentSection: 'tripsIntro',
+    navMenu: {
+      type: 'hidden',
+      parentSection: 'tripsIntro'
+    },
     template: 'visitedPlaces',
     title: {
-      fr: "Déplacements",
-      en: "Trips"
-    },
-    menuName: {
       fr: "Déplacements",
       en: "Trips"
     },
@@ -479,10 +482,13 @@ const sections: { [sectionName: string]: SectionConfig } = {
   travelBehavior: {
     previousSection: 'segments',
     nextSection: "end",
-    parentSection: 'tripsIntro',
     title: {
       fr: "Mobilité",
       en: "Travel behavior"
+    },
+    navMenu: {
+      type: 'hidden',
+      parentSection: 'tripsIntro'
     },
     widgets: [
       'activePersonTitle',
@@ -523,10 +529,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
     previousSection: 'travelBehavior',
     nextSection: "completed",
     title: {
-      fr: "Fin",
-      en: "End"
-    },
-    menuName: {
       fr: "Fin",
       en: "End"
     },
@@ -589,7 +591,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
   completed: {
     previousSection: 'end',
     nextSection: null,
-    parentSection: 'end',
+    navMenu: {
+      type: 'hidden',
+      parentSection: 'end'
+    },
     title: {
       fr: "Entrevue complétée",
       en: "Interview completed"
@@ -634,4 +639,4 @@ const sections: { [sectionName: string]: SectionConfig } = {
 
 };
 
-export default sections;
+export default getAndValidateSurveySections(sections);

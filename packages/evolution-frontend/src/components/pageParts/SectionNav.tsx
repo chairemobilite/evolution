@@ -11,14 +11,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleRight } from '@fortawesome/free-solid-svg-icons/faAngleRight';
 
 import { SurveyContext } from '../../contexts/SurveyContext';
-import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { SurveySections, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { devLog, parseBoolean, translateString } from 'evolution-common/lib/utils/helpers';
 import { RootState } from '../../store/configureStore';
 
 type SectionNavProps = {
     activeSection: string;
-    sections: { [sectionShortname: string]: SectionConfig };
+    sections: SurveySections;
     onChangeSection: (
         parentSection: string,
         activeSection: string,
@@ -49,6 +49,10 @@ const SectionNav = function ({
 
     const sectionNavLinks: React.ReactNode[] = [];
     let firstSectionShortname: string | null = null;
+    // Determine which section is the active one in the menu for the navigation
+    const activeSectionConfig = sections[activeSection];
+    const activeMenuSection =
+        activeSectionConfig.navMenu.type === 'inNav' ? activeSection : activeSectionConfig.navMenu.parentSection;
     // FIXME Extract the sections to navigate and their status to a function, but not now as we may revisit the structure of the survey flow
     for (let i = 0, count = sectionShortnames.length; i < count; i++) {
         const sectionShortname = sectionShortnames[i];
@@ -67,11 +71,8 @@ const SectionNav = function ({
 
         completedStatusBySectionShortname[sectionShortname] = completed;
 
-        const parentSection = sectionConfig.parentSection || sectionShortname;
-        const activeSectionConfig = sections[activeSection];
-        const activeParentSection = activeSectionConfig.parentSection;
         // Display in the navigation if the section is a top-level one
-        if (sectionConfig.parentSection === undefined) {
+        if (sectionConfig.navMenu.type === 'inNav') {
             // Add a separator before adding the link if it is not the first section
             if (sectionNavLinks.length > 0) {
                 sectionNavLinks.push(
@@ -86,17 +87,17 @@ const SectionNav = function ({
                 <button
                     type="button"
                     key={`sectionNavLink__${sectionShortname}`}
-                    className={`nav-button${sectionShortname === activeSection || (activeParentSection && activeParentSection === parentSection) ? ' active-section' : ''}${completed === true ? ' completed-section' : ''}`}
+                    className={`nav-button${sectionShortname === activeMenuSection ? ' active-section' : ''}${completed === true ? ' completed-section' : ''}`}
                     onClick={
                         enabled && loadingState === 0
-                            ? () => onChangeSection(parentSection, activeSection, allWidgetsValid)
+                            ? () => onChangeSection(sectionShortname, activeSection, allWidgetsValid)
                             : () => {
                                 return;
                             }
                     }
                     disabled={!enabled || loadingState > 0}
                 >
-                    {translateString(sectionConfig.menuName, i18n, interview, sectionShortname)}
+                    {translateString(sectionConfig.navMenu.menuName, i18n, interview, sectionShortname)}
                 </button>
             );
         }

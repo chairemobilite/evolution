@@ -100,10 +100,13 @@ class Survey extends React.Component<SurveyProps, SurveyState> {
         const existingActiveSection: string | null = this.props.interview
             ? (surveyHelperNew.getResponse(this.props.interview, '_activeSection', null) as string | null)
             : null;
+        // FIXME This will have to be updated when the new navigation is implemented, not sure it works correctly
         const pathSectionShortname: string | undefined = this.props.sectionShortname;
         const pathSectionParentSection: string | undefined =
-            pathSectionShortname && this.props.surveyContext.sections[pathSectionShortname]
-                ? (this.props.surveyContext.sections[pathSectionShortname].parentSection as string | undefined)
+            pathSectionShortname &&
+            this.props.surveyContext.sections[pathSectionShortname] &&
+            this.props.surveyContext.sections[pathSectionShortname].navMenu.type === 'hidden'
+                ? this.props.surveyContext.sections[pathSectionShortname].navMenu.parentSection
                 : undefined;
         this.props.startSetInterview(
             existingActiveSection || pathSectionParentSection,
