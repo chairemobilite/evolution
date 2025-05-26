@@ -181,6 +181,16 @@ def generate_widget_statement(row):
             widget_label,
             row,
         )
+    elif input_type == "RadioNumber":
+        widget = generate_radio_number_widget(
+            question_name,
+            path,
+            help_popup,
+            conditional,
+            validation,
+            widget_label,
+            row,
+        )
     elif input_type == "Select":
         widget = generate_select_widget(
             question_name,
@@ -559,6 +569,62 @@ def generate_radio_widget(
         f"{widget_label},\n"
         f"{generate_help_popup(help_popup)}"
         f"{generate_choices(choices)},\n"
+        f"{generate_conditional(conditional)},\n"
+        f"{generate_validation(validation)}\n"
+        f"}};"
+    )
+
+
+# Generate InputRadioNumber widget
+def generate_radio_number_widget(
+    question_name,
+    path,
+    help_popup,
+    conditional,
+    validation,
+    widget_label,
+    row,
+):
+    """
+    - Parses min and max from the 'parameters' column (format: min=0\\nmax=17), defaults to min=0, max=6.
+    - Parses overMaxAllowed from the 'appearance' column (set to true if 'overMaxAllowed' is present).
+    - Generates the TypeScript widget code for InputRadioNumberType.
+    """
+    min_value = 0  # Default min value
+    max_value = 6  # Default max value
+    parameters = row.get("parameters", "")
+    if parameters:
+        for line in parameters.splitlines():
+            if line.startswith("min="):
+                try:
+                    min_value = int(line.split("=", 1)[1])
+                except Exception:
+                    pass
+            elif line.startswith("max="):
+                try:
+                    max_value = int(line.split("=", 1)[1])
+                except Exception:
+                    pass
+
+    appearance = row.get("appearance", "")
+    over_max_allowed = "overMaxAllowed" in appearance
+
+    value_range = (
+        f"{INDENT}valueRange: {{\n"
+        f"{INDENT}{INDENT}min: {min_value},\n"
+        f"{INDENT}{INDENT}max: {max_value}\n"
+        f"{INDENT}}},\n"
+    )
+    over_max = f"{INDENT}overMaxAllowed: true,\n" if over_max_allowed else ""
+    return (
+        f"{generate_constExport(question_name, 'InputRadioNumberType')}\n"
+        f"{generate_defaultInputBase('inputRadioNumberBase')},\n"
+        f"{generate_path(path)},\n"
+        f"{generate_common_properties(row)}"
+        f"{widget_label},\n"
+        f"{value_range}"
+        f"{over_max}"
+        f"{generate_help_popup(help_popup)}"
         f"{generate_conditional(conditional)},\n"
         f"{generate_validation(validation)}\n"
         f"}};"

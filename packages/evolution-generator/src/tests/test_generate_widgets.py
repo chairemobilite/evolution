@@ -7,6 +7,7 @@ from scripts.generate_widgets import (
     generate_common_properties,
     generate_info_text_widget,
     generate_radio_widget,
+    generate_radio_number_widget,
     generate_label,
 )
 
@@ -157,7 +158,138 @@ def test_generate_radio_widget_basic():
     assert "conditional: defaultConditional" in code
     assert "validations: validations.requiredValidation" in code
     assert code.strip().endswith("};")
-    print(code)
+
+
+def test_generate_radio_widget_complex():
+    """Test generate_radio_widget with all fields set"""
+    row = {
+        "questionName": "acceptToBeContactedForHelp",
+        "inputType": "Radio",
+        "section": "home",
+        "path": "acceptToBeContactedForHelp",
+        "conditional": "someConditional",
+        "validation": "someValidation",
+        "inputRange": "",
+        "help_popup": "someHelpPopup",
+        "choices": "yesNo",
+        "twoColumns": True,
+        "containsHtml": True,
+        "customPath": "custom.path",
+        "customChoice": "customChoiceValue",
+    }
+    widget_label = generate_label(
+        row["section"],
+        row["path"],
+        False,
+        False,
+    )
+    code = generate_radio_widget(
+        row["questionName"],
+        row["path"],
+        row["choices"],
+        row["help_popup"],
+        row["conditional"],
+        row["validation"],
+        widget_label,
+        row,
+    )
+    assert (
+        "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType = {"
+        in code
+    )
+    assert "...defaultInputBase.inputRadioBase," in code
+    assert "path: 'acceptToBeContactedForHelp'," in code
+    assert "twoColumns: true" in code
+    assert "containsHtml: true" in code
+    assert "customPath: 'custom.path'" in code
+    assert "customChoice: 'customChoiceValue'" in code
+    assert "label: (t: TFunction) => t('home:acceptToBeContactedForHelp')" in code
+    assert "helpPopup: customHelpPopup.someHelpPopup" in code
+    assert "choices: choices.yesNo" in code
+    assert "conditional: conditionals.someConditional" in code
+    assert "validations: validations.someValidation" in code
+    assert code.strip().endswith("};")
+
+
+def test_generate_radio_number_widget_basic():
+    """Test generate_radio_number_widget with minimal required fields"""
+    row = {
+        "questionName": "household_size",
+        "inputType": "RadioNumber",
+        "section": "home",
+        "path": "household.size",
+        "help_popup": "",
+        "conditional": "",
+        "validation": "",
+        "parameters": "",
+        "appearance": "",
+    }
+    widget_label = generate_label(
+        row["section"],
+        row["path"],
+        False,
+        False,
+    )
+    code = generate_radio_number_widget(
+        row["questionName"],
+        row["path"],
+        row["help_popup"],
+        row["conditional"],
+        row["validation"],
+        widget_label,
+        row,
+    )
+    assert "export const household_size: WidgetConfig.InputRadioNumberType = {" in code
+    assert "...defaultInputBase.inputRadioNumberBase," in code
+    assert "path: 'household.size'," in code
+    assert "valueRange: {" in code
+    assert "min: 0" in code
+    assert "max: 6" in code
+    assert "overMaxAllowed: true" not in code  # default is not present
+    assert "conditional: defaultConditional" in code
+    assert "validations: validations.requiredValidation" in code
+    assert code.strip().endswith("};")
+
+
+def test_generate_radio_number_widget_complex():
+    """Test generate_radio_number_widget with all fields set"""
+    row = {
+        "questionName": "household_size",
+        "inputType": "RadioNumber",
+        "section": "home",
+        "path": "household.size",
+        "help_popup": "householdSizeHelpPopup",
+        "conditional": "someConditional",
+        "validation": "householdSizeValidation",
+        "parameters": "min=1\nmax=17",
+        "appearance": "overMaxAllowed",
+    }
+    widget_label = generate_label(
+        row["section"],
+        row["path"],
+        False,
+        False,
+    )
+    code = generate_radio_number_widget(
+        row["questionName"],
+        row["path"],
+        row["help_popup"],
+        row["conditional"],
+        row["validation"],
+        widget_label,
+        row,
+    )
+    assert "export const household_size: WidgetConfig.InputRadioNumberType = {" in code
+    assert "...defaultInputBase.inputRadioNumberBase," in code
+    assert "path: 'household.size'," in code
+    assert "valueRange: {" in code
+    assert "min: 1" in code
+    assert "max: 17" in code
+    assert "overMaxAllowed: true" in code
+    assert "helpPopup: customHelpPopup.householdSizeHelpPopup" in code
+    assert "conditional: conditionals.someConditional" in code
+    assert "validations: validations.householdSizeValidation" in code
+    assert code.strip().endswith("};")
 
 
 # TODO: Test generate_select_widget
