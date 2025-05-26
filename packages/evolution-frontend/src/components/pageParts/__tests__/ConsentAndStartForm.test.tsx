@@ -12,7 +12,7 @@ import { Provider } from 'react-redux';
 
 import ConsentAndStartForm from '../ConsentAndStartForm';
 import { addConsent } from '../../../actions/Survey';
-import configureStore from '../../../store/configureStore';
+import { configureStore } from '../../../store/configureStore';
 
 // Mock the react-i18next's useTranslation function to control the translated string
 let translatedString = '';

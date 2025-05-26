@@ -13,7 +13,7 @@ import { BrowserRouter } from 'react-router';
 import config from 'evolution-common/lib/config/project.config';
 import i18n from '../../config/i18n.config';
 import SurveyRouter from '../../components/routers/ParticipantSurveyRouter';
-import configureStore from '../../store/configureStore';
+import { configureStore } from '../../store/configureStore';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { InterviewContext, interviewReducer, initialState } from '../../contexts/InterviewContext';
 // TODO When the project is the root of the application (instead of evolution directly importing project files), this should go in the project

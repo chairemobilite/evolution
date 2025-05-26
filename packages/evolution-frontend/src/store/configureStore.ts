@@ -4,10 +4,10 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { createStore, Store, combineReducers, applyMiddleware, compose } from 'redux';
+import { createStore, Store, combineReducers, applyMiddleware, compose, Reducer } from 'redux';
 import { thunk, ThunkMiddleware } from 'redux-thunk';
 
-import { AuthAction, AuthState, authReducer } from 'chaire-lib-frontend/lib/store/auth';
+import { AuthAction, AuthActionTypes, AuthState, authReducer } from 'chaire-lib-frontend/lib/store/auth';
 import { SurveyAction, SurveyState, surveyReducer } from '../store/survey';
 import { LoadingStateAction, LoadingStateState, loadingStateReducer } from '../store/loadingState';
 
@@ -32,14 +32,32 @@ const initialState: RootState = {
     loadingState: { loadingState: 0 }
 };
 
+// Create the combined reducer
+const appReducer = combineReducers({
+    auth: authReducer,
+    survey: surveyReducer,
+    loadingState: loadingStateReducer
+});
+
+// Root reducer wrapper that handles clearing state on logout
+const rootReducer: Reducer<RootState, AuthAction | SurveyAction | LoadingStateAction> = (
+    state,
+    action: AuthAction | SurveyAction | LoadingStateAction
+) => {
+    // When a logout action is detected, reset the state
+    if (action.type === AuthActionTypes.LOGOUT) {
+        // Pass undefined as state to each reducer to get their initial states
+        return appReducer(undefined, action);
+    }
+
+    // For all other actions, just use the combined reducer normally
+    return appReducer(state, action);
+};
+
 // FIXME Use @reduxjs/toolkit instead to configure the store
-export default (preloadedState = initialState): Store => {
+export const configureStore = (preloadedState = initialState): Store => {
     const store: Store<RootState> = createStore<RootState, AuthAction | SurveyAction | LoadingStateAction>(
-        combineReducers({
-            auth: authReducer,
-            survey: surveyReducer,
-            loadingState: loadingStateReducer
-        }) as any,
+        rootReducer,
         preloadedState,
         composeEnhancers(applyMiddleware(thunk as ThunkMiddleware<RootState>))
     );
