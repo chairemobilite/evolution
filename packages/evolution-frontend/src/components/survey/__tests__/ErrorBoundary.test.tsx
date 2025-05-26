@@ -11,7 +11,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { MemoryRouter } from 'react-router';
-import configureStore from '../../../store/configureStore';
+import { configureStore } from '../../../store/configureStore';
 import { logClientSideMessage } from '../../../services/errorManagement/errorHandling';
 
 import ErrorBoundary from '../ErrorBoundary';
