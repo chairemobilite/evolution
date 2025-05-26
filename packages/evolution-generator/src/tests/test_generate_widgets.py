@@ -6,6 +6,8 @@ from scripts.generate_widgets import (
     generate_join_with,
     generate_common_properties,
     generate_info_text_widget,
+    generate_radio_widget,
+    generate_label,
 )
 
 
@@ -112,7 +114,52 @@ def test_generate_common_properties_bad_join_with_pattern(capsys):
     )
 
 
-# TODO: Test generate_radio_widget
+def test_generate_radio_widget_basic():
+    """Test generate_radio_widget with minimal required fields"""
+    row = {
+        "questionName": "acceptToBeContactedForHelp",
+        "inputType": "Radio",
+        "section": "home",
+        "path": "acceptToBeContactedForHelp",
+        "conditional": "",
+        "validation": "",
+        "inputRange": "",
+        "help_popup": "",
+        "choices": "yesNo",
+    }
+    widget_label = generate_label(
+        row["section"],
+        row["path"],
+        False,
+        False,
+    )
+    code = generate_radio_widget(
+        row["questionName"],
+        row["path"],
+        row["choices"],
+        row["help_popup"],
+        row["conditional"],
+        row["validation"],
+        widget_label,
+        row,
+    )
+    # Check for all expected lines in the generated widget code
+    assert (
+        "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType = {"
+        in code
+    )
+    assert "...defaultInputBase.inputRadioBase," in code
+    assert "path: 'acceptToBeContactedForHelp'," in code
+    assert "twoColumns: false" in code
+    assert "containsHtml: false" in code  # default is false unless set
+    assert "label: (t: TFunction) => t('home:acceptToBeContactedForHelp')" in code
+    assert "choices: choices.yesNo" in code
+    assert "conditional: defaultConditional" in code
+    assert "validations: validations.requiredValidation" in code
+    assert code.strip().endswith("};")
+    print(code)
+
+
 # TODO: Test generate_select_widget
 # TODO: Test generate_string_widget
 # TODO: Test generate_number_widget
