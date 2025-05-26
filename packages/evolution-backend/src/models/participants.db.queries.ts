@@ -11,6 +11,7 @@ import TrError from 'chaire-lib-common/lib/utils/TrError';
 import { ParticipantAttributes } from '../services/participants/participant';
 
 const tableName = 'sv_participants';
+const participantLoginTbl = 'sv_participant_logins';
 
 const create = async (newObject: Partial<ParticipantAttributes>): Promise<ParticipantAttributes> => {
     try {
@@ -110,9 +111,27 @@ const update = async (id: number, attributes: Partial<ParticipantAttributes>): P
     }
 };
 
+/**
+ * Log the last login of a participant in the database
+ * @param participantId The ID of the participant to log
+ * @returns {Promise<void>} A promise that resolves when the login is logged
+ */
+const logLastLogin = async (participantId: number): Promise<void> => {
+    try {
+        await knex(participantLoginTbl).insert({ participant_id: participantId });
+    } catch (error) {
+        throw new TrError(
+            `Cannot log login of participant with id ${participantId} in table ${participantLoginTbl} (knex error: ${error})`,
+            'EVOPART0003',
+            'DatabaseCannotInsertBecauseDatabaseError'
+        );
+    }
+};
+
 export default {
     create,
     find,
     update,
-    getById
+    getById,
+    logLastLogin
 };

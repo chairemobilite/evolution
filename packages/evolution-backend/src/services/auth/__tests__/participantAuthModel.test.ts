@@ -18,13 +18,15 @@ jest.mock('../../../models/participants.db.queries', () => ({
     update: jest.fn(),
     find: jest.fn(),
     getById: jest.fn(),
-    create: jest.fn()
+    create: jest.fn(),
+    logLastLogin: jest.fn()
 }));
 
 const mockSave = participantsDbQueries.update as jest.MockedFunction<typeof participantsDbQueries.update>;
 const mockFind = participantsDbQueries.find as jest.MockedFunction<typeof participantsDbQueries.find>
 const mockGetById = participantsDbQueries.getById as jest.MockedFunction<typeof participantsDbQueries.getById>;
-const mockCreate = participantsDbQueries.create as jest.MockedFunction<typeof participantsDbQueries.create>
+const mockCreate = participantsDbQueries.create as jest.MockedFunction<typeof participantsDbQueries.create>;
+const mockLogLastLogin = participantsDbQueries.logLastLogin as jest.MockedFunction<typeof participantsDbQueries.logLastLogin>;
 
 const defaultUserId = 5;
 
@@ -623,4 +625,11 @@ test('ParticipantModel: properties', () => {
     expect(user.passwordResetExpireAt).toEqual(defaultParticipantAttributes.password_reset_expire_at);
     expect(user.confirmationToken).toEqual(defaultParticipantAttributes.confirmation_token);
     expect(user.isConfirmed).toEqual(defaultParticipantAttributes.is_confirmed);
+});
+
+test('ParticipantModel: record login', async () => {
+    const user = new ParticipantModel(defaultParticipantAttributes);
+    await user.recordLogin();
+    expect(mockLogLastLogin).toHaveBeenCalledTimes(1);
+    expect(mockLogLastLogin).toHaveBeenCalledWith(defaultParticipantAttributes.id);
 });

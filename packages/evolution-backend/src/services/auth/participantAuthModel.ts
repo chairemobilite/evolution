@@ -110,4 +110,9 @@ export class ParticipantModel extends UserModelBase {
     sanitize = (): BaseUser => {
         return sanitizeUserAttributes(this.attributes);
     };
+
+    recordLogin = async (): Promise<void> => {
+        // Record participant login in the database
+        return dbQueries.logLastLogin(this.attributes.id);
+    };
 }

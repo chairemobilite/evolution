@@ -42,6 +42,7 @@ const participantIds = {
 beforeAll(async () => {
     jest.setTimeout(10000);
     await truncate(knex, 'sv_participants');
+    await truncate(knex, 'sv_participant_logins');
     // Insert 2 participants and keep their IDs
     const part1Ret = await knex('sv_participants').insert(participant1).returning('id');
     participantIds.participantId1 = part1Ret[0].id;
@@ -51,6 +52,7 @@ beforeAll(async () => {
 
 afterAll(async() => {
     await truncate(knex, 'sv_participants');
+    await truncate(knex, 'sv_participant_logins');
     await knex.destroy();
 });
 
@@ -118,4 +120,57 @@ test('Update participant', async () => {
     expect(await dbQueries.update(participantIds.participantId1, { email: 'new@test.org', id: participantIds.participantId1 + 10 })).toEqual(false);
     const updatedUser2 = await dbQueries.getById(participantIds.participantId1) as ParticipantAttributes;
     expect(updatedUser2).toEqual(updatedUser);
+});
+
+describe('logLastLogin', () => {
+
+    test('Correctly log last login', async () => {
+        // Save current timestamp
+        const testStart = Date.now();
+    
+        // Validate there are no logins in the database
+        const currentLastLogin = await knex.table('sv_participant_logins').select('*');
+        expect(currentLastLogin.length).toEqual(0);
+    
+        // Log a first login
+        await dbQueries.logLastLogin(participantIds.participantId1);
+    
+        // Validate that the login was logged
+        const newLastLogin = await knex('sv_participant_logins').select(['*', knex.raw('EXTRACT(EPOCH FROM timestamp) as unix_timestamp')]).orderBy('timestamp');
+        const afterFirstInsert = Date.now() + 1; // Add 1ms to make sure we are not equal to now at the ms precision (timestamps are at us precision)
+        expect(newLastLogin.length).toEqual(1);
+        expect(newLastLogin[0].participant_id).toEqual(participantIds.participantId1);
+        expect(newLastLogin[0].timestamp).toBeDefined();
+        expect(newLastLogin[0].timestamp instanceof Date).toBeTruthy();
+        // Validate all timestamps are greater than previous or test start and less than now (at us precision, it should not be equal)
+        expect(newLastLogin[0].unix_timestamp * 1000).toBeGreaterThan(testStart);
+        expect(newLastLogin[0].unix_timestamp * 1000).toBeLessThan(afterFirstInsert);
+    
+    
+        // Add other logs, one for same participant, one for other again
+        await dbQueries.logLastLogin(participantIds.participantId1);
+        await dbQueries.logLastLogin(participantIds.participantId2);
+        const afterSecondInsert = Date.now() + 1; 
+
+        // Validate that the logins were logged
+        const newLastLogin2 = await knex('sv_participant_logins').select(['*', knex.raw('EXTRACT(EPOCH FROM timestamp) as unix_timestamp')]).orderBy('timestamp');
+        expect(newLastLogin2.length).toEqual(3);
+        // Validate the participant ID order
+        expect(newLastLogin2[0].participant_id).toEqual(participantIds.participantId1);
+        expect(newLastLogin2[1].participant_id).toEqual(participantIds.participantId1);
+        expect(newLastLogin2[2].participant_id).toEqual(participantIds.participantId2);
+        // Validate the timestamps of the logs
+        for (let i = 0; i < newLastLogin2.length; i++) {
+            expect(newLastLogin2[i].timestamp).toBeDefined();
+            expect(newLastLogin2[i].timestamp instanceof Date).toBeTruthy();
+            expect(newLastLogin2[i].unix_timestamp * 1000).toBeGreaterThan(testStart);
+            expect(newLastLogin2[i].unix_timestamp * 1000).toBeLessThan(afterSecondInsert);
+        }
+    });
+
+    test('Insert for an unexisting participant', async () => {
+        await expect(dbQueries.logLastLogin(participantIds.participantId1 + 1000))
+            .rejects
+            .toThrow(expect.anything());
+    });
 });
