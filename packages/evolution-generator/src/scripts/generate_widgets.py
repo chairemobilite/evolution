@@ -5,6 +5,7 @@
 # Note: This script includes functions that generate the widgets.tsx and widgetsNames.ts files.
 # These functions are intended to be invoked from the generate_survey.py script.
 from helpers.generator_helpers import INDENT, get_data_from_excel, add_generator_comment
+import re  # Regular expression module for pattern matching
 
 
 # Function to generate widgets.tsx for each section
@@ -172,7 +173,6 @@ def generate_widget_statement(row):
     elif input_type == "Radio":
         widget = generate_radio_widget(
             question_name,
-            section,
             path,
             choices,
             help_popup,
@@ -391,6 +391,16 @@ def generate_path(path):
     return f"{INDENT}path: '{path}'"
 
 
+def generate_join_with(join_with):
+    """Generate joinWith property"""
+    if join_with:
+        # Remove single quotes in join_with to prevent syntax errors
+        escaped_join_with = join_with.replace("'", "")
+        return f"{INDENT}joinWith: '{escaped_join_with}',\n"
+    else:
+        return ""
+
+
 def generate_label(
     section, path, has_persons_cnt_label=False, has_gendered_suffix_label=False
 ):
@@ -498,20 +508,39 @@ def generate_default_value(row):
 
 
 def generate_common_properties(
-    row, shouldAddTwoColumns=True, shouldAddContainsHtml=True
+    row, shouldAddTwoColumns=True, shouldAddContainsHtml=True, allow_join_with=True
 ):
+    """
+    - Handles twoColumns and containsHtml column properties.
+    - Extracts joinWith from the 'appearance' column if present, using the pattern join_with=${questionName}.
+    - Prints a warning if join_with is present but not in the expected pattern.
+    - If allow_join_with is False, disables joinWith extraction.
+    """
     twoColumns = row["twoColumns"] if "twoColumns" in row else False
     containsHtml = row["containsHtml"] if "containsHtml" in row else False
+
+    join_with = None
+    if allow_join_with:
+        appearance = row.get("appearance")
+        if appearance:
+            match = re.search(r"join_with=\$\{([^}]+)\}", appearance)
+            if match:
+                join_with = match.group(1)
+            elif "join_with=" in appearance:
+                print(
+                    f"Warning: appearance join_with pattern not recognized inside Widgets sheet: '{appearance}'"
+                )
+
     return (
         f"{generate_two_columns(twoColumns, shouldAddTwoColumns)}"
         f"{generate_contains_html(containsHtml, shouldAddContainsHtml)}"
+        f"{generate_join_with(join_with)}"
     )
 
 
 # Generate InputRadio widget
 def generate_radio_widget(
     question_name,
-    section,
     path,
     choices,
     help_popup,
@@ -594,7 +623,7 @@ def generate_info_text_widget(question_name, section, path, conditional, row):
         f"{generate_constExport(question_name, 'TextWidgetConfig')}\n"
         f"{generate_defaultInputBase('infoTextBase')},\n"
         f"{generate_path(path)},\n"
-        f"{generate_common_properties(row, shouldAddTwoColumns = False)}"
+        f"{generate_common_properties(row, shouldAddTwoColumns = False, allow_join_with=False)}"
         f"{generate_text(section, path)},\n"
         f"{generate_conditional(conditional)}\n"
         f"}};"

@@ -215,7 +215,7 @@ Widgets are the building blocks of your survey. They define the structure and in
 | active               | Widget activation status                                | boolean |
 | section              | Section to which the question belongs                   | string  |
 | group                | Group to which the question belongs (optional)          | string? |
-| path                 | Path of the response object for the question           | string  |
+| path                 | Path of the response object for the question            | string  |
 | fr                   | French label for the question                           | string  |
 | en                   | English label for the question                          | string  |
 | [conditional](#cond) | Conditional logic for displaying the widget (optional)  | string? |
@@ -224,6 +224,9 @@ Widgets are the building blocks of your survey. They define the structure and in
 | [help_popup](#help)  | Help popup name for the question (optional)             | string? |
 | [inputRange](#range) | Input range name for InputRange (optional)              | string? |
 | comments             | Additional comments for the question (optional)         | string? |
+| appearance           | Additional widget appearance options (optional)         | string? |
+
+<!-- TODO: Document the join_with option in the appearance column. Example: appearance: join_with=${questionName} -->
 
 > <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Custom, Radio, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text
 
@@ -351,14 +354,14 @@ In your survey logic, conditionals play a key role in determining if the widget 
 
 ### Conditionals Fields
 
-| Field                       | Description                                 | Type                    |
-| --------------------------- | ------------------------------------------- | ----------------------- |
-| conditionalName             | Name of the conditional                     | string                  |
-| logicalOperator             | Logical operator (optional)                 | && or \|\|              |
+| Field                       | Description                                | Type                    |
+| --------------------------- | ------------------------------------------ | ----------------------- |
+| conditionalName             | Name of the conditional                    | string                  |
+| logicalOperator             | Logical operator (optional)                | && or \|\|              |
 | path                        | Path to the response object for comparison | string                  |
-| [comparisonOperator](#comp) | Operator for comparison                     | ===, ==, >, <, >= or <= |
-| value                       | Value for the comparison                    | number or string        |
-| [parentheses](#par)         | Parentheses (optional)                      | ( or )                  |
+| [comparisonOperator](#comp) | Operator for comparison                    | ===, ==, >, <, >= or <= |
+| value                       | Value for the comparison                   | number or string        |
+| [parentheses](#par)         | Parentheses (optional)                     | ( or )                  |
 
 > <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent response with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path response is greater than or equal to the value.
 
@@ -515,7 +518,7 @@ export const confidentInputRange: InputRangeConfig = {
 
 ## Generate Labels
 
-<!-- TODO: Modify the generate_labels.py and documentation to support en_cati, en_one, en_cati_one, fr_cati, etc. -->
+<!-- TODO: Modify the generate_labels.py and documentation to support en_cati, en_one, fr_cati, etc. -->
 
 In the context of your survey logic, labels play a crucial role in presenting questions to respondents in different languages. This Excel table below outlines the fields in `Widgets` tab used to define labels, along with an example and the expected output in a `introduction.yml` file.
 
@@ -523,7 +526,7 @@ In the context of your survey logic, labels play a crucial role in presenting qu
 
 | Field   | Description                           | Type   |
 | ------- | ------------------------------------- | ------ |
-| path    | Path of the response                 | string |
+| path    | Path of the response                  | string |
 | section | Section to which the question belongs | string |
 | fr      | French label                          | string |
 | en      | English label                         | string |
