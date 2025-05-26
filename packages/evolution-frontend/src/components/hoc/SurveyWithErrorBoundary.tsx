@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import Survey from '../pages/Survey';
+import Survey from '../pages/SurveyParticipant';
 import ErrorBoundary from '../survey/ErrorBoundary';
 
 // FIXME Type the props

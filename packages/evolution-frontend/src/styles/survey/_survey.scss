@@ -31,6 +31,14 @@
         min-height: inherit;
     }
 
+    // Should display 2 background images, one of which will be defined dynamically
+    &.survey-with-logo {
+        background-image: var(--dynamic-logo-image), url(../../assets/images/ornaments/ornament_flower_points_pale.svg);
+        background-size: 15rem, 6rem;
+        background-position: left 1rem bottom 1rem, right 1rem top 100.5%;
+        background-repeat: no-repeat, no-repeat;
+    }
+
     .apptr__form {
         /*background: rgba(255,255,255,1);*/
         /*border: 1px solid rgba(0,0,0,0.1);*/
