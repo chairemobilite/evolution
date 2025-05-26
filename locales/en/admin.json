@@ -146,5 +146,6 @@
     "DownloadSurveyQuestionnaireListNotFound": "Survey questionnaire list file was not found",
     "DownloadSurveyQuestionnaireListUnauthorized": "You are not authorized to download the survey questionnaire list"
   },
-  "UnknownError": "An unknown error occurred. See console for logs or contact the administrators."
+  "UnknownError": "An unknown error occurred. See console for logs or contact the administrators.",
+  "MissingUuidSurvey": "The interview UUID is missing. Please check the URL or contact support."
 }
