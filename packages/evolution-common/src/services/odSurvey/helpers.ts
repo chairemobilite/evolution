@@ -31,27 +31,64 @@ import { loopActivities } from './types';
 // Person and household related functions
 
 /**
- * Get a person by its ID or the currently actively person if no ID is specified
+ * Get a person by its ID, path or the currently actively person if no ID or
+ * path are specified. The `personId` argument has precedence over path if both
+ * are provided.
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview - The interview object.
  * @param {string|null} [options.personId=null] - The ID of the person to
  * retrieve. If not specified, the currently active person will be returned.
- * @returns {Person | null} The person object with the specified ID or the active person, or `null` if not found.
+ * @param {string|null} [options.path=null] - Optional path string to extract
+ * the person ID from (typically for the householdMembers group). The path
+ * should have format `household.persons.{personId}.[...restOfPath]`.
+ * @returns {Person | null} The person object with the specified ID or the
+ * active person, or `null` if not found.
  */
 export const getPerson = ({
     interview,
-    personId = null
+    personId = null,
+    path
 }: {
     interview: UserInterviewAttributes;
     personId?: string | null;
+    path?: string;
 }): Person | null => {
-    const requestedPersonId = personId || getResponse(interview, '_activePersonId', null);
+    const requestedPersonId = personId || getCurrentPersonId({ interview, path });
+    // Return the person object if found, otherwise null
     if (requestedPersonId) {
         return getResponse(interview, `household.persons.${requestedPersonId}`, null) as Person;
     } else {
         return null;
     }
+};
+
+/**
+ * Get the current person ID from the interview response.
+ * If a path is provided and matches the pattern 'household.persons.{personId}.', extracts the personId from the path.
+ * Otherwise, returns the currently active person ID from the interview response.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Optional path string to extract the person ID from.
+ * @returns {string | null} The current person ID, or null if not found.
+ */
+export const getCurrentPersonId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | null => {
+    // 1. Try to extract personId from path if it matches household.persons.{personId}.
+    if (path) {
+        const match = path.match(/household\.persons\.([^.]+)\./);
+        if (match) {
+            return match[1];
+        }
+    }
+    // 2. Otherwise, use the active person id from the interview response
+    return interview.response._activePersonId ?? null;
 };
 
 /**
@@ -149,6 +186,28 @@ export const getInterviewablePersonsArray = ({ interview }: { interview: UserInt
 export const countPersons = ({ interview }: { interview: UserInterviewAttributes }): number => {
     const personIds = getResponse(interview, 'household.persons', {}) as { [personId: string]: Person };
     return Object.keys(personIds).length;
+};
+
+/**
+ * Counts the number of adults in the given interview.  An adult is defined as a
+ * person who is `adultAge` years or older and has a defined age.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns {number} The count of adults within the interview (only persons with
+ * a defined age >= adultAge).
+ */
+export const countAdults = ({ interview }: { interview: UserInterviewAttributes }): number => {
+    const persons = getPersonsArray({ interview });
+
+    // Count persons with age adultAge or more
+    let count: number = 0;
+    persons.forEach((person) => {
+        if (person?.age && person.age >= config.adultAge) {
+            count++;
+        }
+    });
+    return count;
 };
 
 /**
@@ -282,7 +341,7 @@ export const getJourneysArray = function ({ person }: { person: Person }): Journ
 
 /**
  * @typedef {Object.<string, Trip>} TripsObject
- * An object where the keys are trip IDs and the values are Trip objects.
+ * An object where the keys are trip ID's and the values are Trip objects.
  */
 
 /**

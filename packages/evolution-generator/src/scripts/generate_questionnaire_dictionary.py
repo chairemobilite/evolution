@@ -35,7 +35,7 @@ def generate_questionnaire_dictionary(
         )
 
         # Find the index
-        widgets_language_index = widgets_headers.index(language)
+        widgets_language_index = widgets_headers.index("label::" + language)
         widgets_section_index = widgets_headers.index("section")
         widgets_input_type_index = widgets_headers.index("inputType")
         widgets_active_index = widgets_headers.index("active")
@@ -215,7 +215,7 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
     """
     choices_name_index = choices_headers.index("choicesName")
     choices_value_index = choices_headers.index("value")
-    choices_language_index = choices_headers.index(language)
+    choices_language_index = choices_headers.index("label::" + language)
     choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
     choices_conditional_index = choices_headers.index("conditional")
 

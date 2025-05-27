@@ -23,6 +23,7 @@ CompleteInterview: Complete interview
 SaveAndContinue: Save and continue
 
 # Gendered strings
+# FIXME These may not be required anymore with the expanded labels gender from the generator. The generator's approach adds a context to the label, but it avoids having to explicitly list all possible gendered suffixes.
 suffixE: 
 suffixEurRice: 
 suffixErEre: 
@@ -50,6 +51,9 @@ hisHerTheir: their
 hisHerTheir_male: his
 hisHerTheir_female: her
 hisHerTheir_custom: their
+
+# generic label contents
+noNickname: this person
 
 # Relative days FIXME Current i18next version does not support _two, _few and _other suffixes, change when possible
 pastToday_zero: "today"

@@ -23,16 +23,16 @@ BAD_SHEET_NAME = "ChoicesBad"
 GOOD_HEADERS = [
     "choicesName",
     "value",
-    "fr",
-    "en",
+    "label::fr",
+    "label::en",
     "spreadChoicesName",
     "conditional",
 ]
 BAD_HEADERS = [
     "choicesNameBad",
     "value",
-    "fr",
-    "en",
+    "label::fr",
+    "label::en",
     "spreadChoicesName",
     "conditional",
 ]

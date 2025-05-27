@@ -39,6 +39,12 @@ export type EvolutionProjectConfiguration = {
      */
     interviewableAge: number;
     /**
+     * Age at which a person is considered an adult in the survey area. This is
+     * used to determine whether a person can be considered an adult for the
+     * purposes of the survey. Defaults to 18.
+     */
+    adultAge: number;
+    /**
      * Age at which a person could possibly own a driving license in the survey
      * area. Defaults to 16
      * */
@@ -115,6 +121,7 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             logDatabaseUpdates: false,
             selfResponseMinimumAge: 14,
             interviewableAge: 5,
+            adultAge: 18,
             drivingLicenseAge: 16,
             surveySupportForm: false,
             mapDefaultCenter: {
