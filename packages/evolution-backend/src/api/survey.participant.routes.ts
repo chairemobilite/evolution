@@ -14,7 +14,7 @@ import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import Interviews from '../services/interviews/interviews';
 
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
-import addCommonRoutes, { activateInterview } from './survey.common.routes';
+import addCommonRoutes from './survey.common.routes';
 
 export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMiddlewares): Router => {
     const router = express.Router();
@@ -23,32 +23,27 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
 
     addCommonRoutes(router, authorizationMiddleware, loggingMiddleware);
 
-    router.get('/survey/createInterview', authorizationMiddleware(['create']), async (req: Request, res: Response) => {
-        try {
-            if (!req.user) {
-                throw 'Request user is not defined, an interview cannot be created for the user';
-            }
-            const interview = await Interviews.createInterviewForUser(
-                (req.user as UserAttributes).id,
-                {},
-                loggingMiddleware.getUserIdForLogging(req),
-                ['id', 'uuid', 'is_valid', 'is_completed', 'response', 'participant_id']
-            );
-            return res.status(200).json({ status: 'success', interview });
-        } catch (error) {
-            console.error(`Error creating interviews: ${error}`);
-            return res
-                .status(200)
-                .json({ status: 'failed', interview: null, error: 'cannot create interview:' + error });
-        }
-    });
-
     router.get(
         '/survey/activeInterview',
         authorizationMiddleware(['update', 'read']),
         async (req: Request, res: Response) => {
             try {
-                activateInterview(req, res, (req) => Interviews.getUserInterview((req.user as UserAttributes).id));
+                if (!req.user) {
+                    console.log('activeSurvey: Request user is not defined!');
+                    res.status(400).json({ status: 'BadRequest' });
+                    return;
+                }
+                // Get the current interview for user
+                let interview = await Interviews.getUserInterview((req.user as UserAttributes).id);
+                if (interview === undefined) {
+                    interview = await Interviews.createInterviewForUser(
+                        (req.user as UserAttributes).id,
+                        {},
+                        loggingMiddleware.getUserIdForLogging(req),
+                        ['id', 'uuid', 'is_valid', 'is_completed', 'response', 'participant_id']
+                    );
+                }
+                res.status(200).json({ status: 'success', interview });
             } catch (error) {
                 console.error(`Error opening participant's interview: ${error}`);
                 return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });

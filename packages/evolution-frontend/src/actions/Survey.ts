@@ -448,21 +448,19 @@ export const startSetInterview = (
     navigate: GotoFunction | undefined = undefined,
     preFilledResponse: { [key: string]: unknown } | undefined = undefined
 ) => {
-    // FIXME There's a lot of code duplication with the startCreateInterview function, either merge them or make them more DRY
     return async (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
         _getState: () => RootState
     ) => {
         try {
             const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
-            // get the interview from the server for the current user, or with a specific survey uuid
+            // get the interview from the server for the current user (or create one), or with a specific survey uuid
             const response = await fetch(
                 `/api/survey/activeInterview${surveyUuid ? `/${encodeURI(surveyUuid)}` : ''}`,
                 {
                     credentials: 'include'
                 }
             );
-            // FIXME If there is no interview, it should be a 404 answer instead of a 200 with no interview
             if (response.status === 200) {
                 const body = await response.json();
                 // Get the interview from the response
@@ -505,73 +503,17 @@ export const startSetInterview = (
                     );
                 } else {
                     // No interview for this user, create one
-                    // FIXME Shouldn't the server do this? The createInterview and setInterview should be merged
-                    // FIXME 2 Does it make sense to create a new interview if there is a surveyUUID?
-                    dispatch(startCreateInterview(preFilledResponse));
+                    console.error(
+                        'Error: Get active interview: no interview was returned, it\'s not supposed to happen'
+                    );
                 }
             } else {
+                // FIXME Maybe handle specific response codes, like 404
                 console.log(`Get active interview: wrong response status: ${response.status}`);
                 handleHttpOtherResponseCode(response.status, dispatch, navigate);
             }
         } catch (err) {
             surveyHelper.devLog('Error fetching interview.', err);
-            handleClientError(err instanceof Error ? err : new Error(String(err)), {});
-        }
-    };
-};
-
-export const startCreateInterview = (preFilledResponse: { [key: string]: unknown } | undefined = undefined) => {
-    const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
-    return async (
-        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
-        _getState: () => RootState
-    ) => {
-        try {
-            // create a new interview on the server for the current user
-            const response = await fetch('/api/survey/createInterview', {
-                credentials: 'include'
-            });
-            if (response.status === 200) {
-                // Get the interview from the response
-                const body = await response.json();
-                if (body.interview) {
-                    // Set active section and initial response in the interview
-                    let activeSection: string | undefined = undefined;
-                    // Find the first section to activate (the one without a previous one)
-                    // FIXME This should be done in the backend, not here
-                    for (const sectionShortname in applicationConfiguration.sections) {
-                        if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
-                            activeSection = sectionShortname;
-                            break;
-                        }
-                    }
-                    const response = {
-                        'response._activeSection': activeSection,
-                        'response._browser': browserTechData
-                    };
-                    if (preFilledResponse) {
-                        Object.keys(preFilledResponse).forEach((key) => {
-                            response[`response.${key}`] = preFilledResponse[key];
-                        });
-                    }
-                    // Update the interview with the initial response
-                    dispatch(
-                        startUpdateInterview({
-                            sectionShortname: activeSection,
-                            valuesByPath: response,
-                            interview: body.interview
-                        })
-                    );
-                } else {
-                    // we need to do something if no interview is returned (error)
-                    handleClientError('createInterview returned success but no interview was returned', {});
-                }
-            } else {
-                console.log(`Creating interview: wrong response status: ${response.status}`);
-                handleHttpOtherResponseCode(response.status, dispatch);
-            }
-        } catch (err) {
-            surveyHelper.devLog('Error creating interview.', err);
             handleClientError(err instanceof Error ? err : new Error(String(err)), {});
         }
     };

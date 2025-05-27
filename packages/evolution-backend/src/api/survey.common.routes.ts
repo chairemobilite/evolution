@@ -11,34 +11,13 @@
 import { Request, Response, Router } from 'express';
 import _get from 'lodash/get';
 import moment from 'moment';
-import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import Interviews from '../services/interviews/interviews';
 
-import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import serverConfig from '../config/projectConfig';
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
 import { logClientSide } from '../services/logging/messageLogging';
-import { addRolesToInterview, updateInterview } from '../services/interviews/interview';
+import { updateInterview } from '../services/interviews/interview';
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
-
-export const activateInterview = async (
-    req: Request,
-    res: Response,
-    getInterview: (req: Request) => Promise<UserInterviewAttributes | undefined>
-): Promise<Response> => {
-    if (!req.user) {
-        // Sanity check, but callers should have already checked this
-        throw 'Request user is not defined, an interview cannot be activated by the user';
-    }
-    const user = req.user as UserAttributes;
-    const interview = await getInterview(req);
-    if (interview) {
-        addRolesToInterview(interview, user);
-        return res.status(200).json({ status: 'success', interview });
-    } else {
-        return res.status(200).json({ status: 'failed', interview: null });
-    }
-};
 
 /**
  * Add the common survey routes to the router
