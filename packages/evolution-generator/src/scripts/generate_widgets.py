@@ -6,6 +6,21 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 from helpers.generator_helpers import INDENT, get_data_from_excel, add_generator_comment
 import re  # Regular expression module for pattern matching
+from typing import TypedDict
+
+
+class ParametersResult(TypedDict):
+    """
+    TypedDict to hold the result of parsing parameters from the Widgets sheet.
+    It contains:
+    - min_value: int, the minimum value parsed from parameters.
+    - max_value: int, the maximum value parsed from parameters.
+    - over_max_allowed: bool, whether the 'overMaxAllowed' line was present in parameters.
+    """
+
+    min_value: int
+    max_value: int
+    over_max_allowed: bool
 
 
 # Function to generate widgets.tsx for each section
@@ -175,6 +190,16 @@ def generate_widget_statement(row):
             question_name,
             path,
             choices,
+            help_popup,
+            conditional,
+            validation,
+            widget_label,
+            row,
+        )
+    elif input_type == "RadioNumber":
+        widget = generate_radio_number_widget(
+            question_name,
+            path,
             help_popup,
             conditional,
             validation,
@@ -565,6 +590,48 @@ def generate_radio_widget(
     )
 
 
+# Generate InputRadioNumber widget
+def generate_radio_number_widget(
+    question_name,
+    path,
+    help_popup,
+    conditional,
+    validation,
+    widget_label,
+    row,
+):
+    """
+    - Parses min and max from the 'parameters' column (format: min=0\\nmax=17), defaults to min=0, max=6.
+    - Parses overMaxAllowed from the 'parameters' column (set to true if a line is 'overMaxAllowed').
+    - Generates the TypeScript widget code for InputRadioNumberType.
+    """
+    parameters: ParametersResult = get_parameters_values(row)
+    min_value = parameters["min_value"]
+    max_value = parameters["max_value"]
+    over_max_allowed = parameters["over_max_allowed"]
+
+    value_range = (
+        f"{INDENT}valueRange: {{\n"
+        f"{INDENT}{INDENT}min: {min_value},\n"
+        f"{INDENT}{INDENT}max: {max_value}\n"
+        f"{INDENT}}},\n"
+    )
+    over_max = f"{INDENT}overMaxAllowed: true,\n" if over_max_allowed else ""
+    return (
+        f"{generate_constExport(question_name, 'InputRadioNumberType')}\n"
+        f"{generate_defaultInputBase('inputRadioNumberBase')},\n"
+        f"{generate_path(path)},\n"
+        f"{generate_common_properties(row)}"
+        f"{widget_label},\n"
+        f"{value_range}"
+        f"{over_max}"
+        f"{generate_help_popup(help_popup)}"
+        f"{generate_conditional(conditional)},\n"
+        f"{generate_validation(validation)}\n"
+        f"}};"
+    )
+
+
 # Generate Select widget
 def generate_select_widget(
     question_name, path, choices, conditional, validation, widget_label, row
@@ -711,3 +778,64 @@ def generate_text_widget(
         f"{generate_validation(validation)}\n"
         f"}};"
     )
+
+
+def get_parameters_values(row) -> ParametersResult:
+    """
+    Parses the parameters string for min, max, and overMaxAllowed from the row.
+    Returns a dict with keys: min_value, max_value, over_max_allowed.
+    Prints warnings for invalid or unrecognized lines.
+    Splits parameters on newlines, semicolons, or spaces (so you can separate with Enter, ';', or ' ').
+    Example valid formats:
+      - "min=1\nmax=5\noverMaxAllowed"
+      - "min=1;max=5;overMaxAllowed"
+      - "min=1 max=5 overMaxAllowed"
+      - Any combination of these separators.
+    """
+    parameters = row.get("parameters", "")
+
+    # Initialize the result with default values
+    result: ParametersResult = {
+        "min_value": 0,
+        "max_value": 6,
+        "over_max_allowed": False,
+    }
+
+    # Split parameters on newlines, semicolons, or spaces
+    # This allows: min=1\nmax=5\noverMaxAllowed OR min=1;max=5;overMaxAllowed OR min=1 max=5 overMaxAllowed
+    param_lines = []
+    if parameters:
+        # Replace semicolons and spaces with newlines, then split lines
+        param_lines = parameters.replace(";", "\n").replace(" ", "\n").splitlines()
+
+    # Print some warnings depending on the parameters
+    # TODO:Put some warnings if the wrong parameters are used depending on the input type
+    for line in param_lines:
+        if line.startswith("min="):
+            try:
+                result["min_value"] = int(line.split("=", 1)[1])
+            except ValueError:
+                print(
+                    "ValueError: Invalid min value in parameters in Widgets sheet. Expected format: min=0"
+                )
+        elif line.startswith("max="):
+            try:
+                result["max_value"] = int(line.split("=", 1)[1])
+            except ValueError:
+                print(
+                    "ValueError: Invalid max value in parameters in Widgets sheet. Expected format: max=6"
+                )
+        elif line.strip() == "overMaxAllowed":
+            result["over_max_allowed"] = True
+        elif line.strip() != "":
+            print(
+                f"Warning: Unrecognized line in parameters in Widgets sheet: '{line}'. Expected format: min=0\\nmax=6\\noverMaxAllowed."
+            )
+
+    # Validate min < max
+    if result["min_value"] >= result["max_value"]:
+        print(
+            f"ValueError: min ({result['min_value']}) must be less than max ({result['max_value']}) in parameters in Widgets sheet."
+        )
+
+    return result
