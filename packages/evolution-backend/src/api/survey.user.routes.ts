@@ -14,7 +14,9 @@ import Interviews from '../services/interviews/interviews';
 
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
 import validateUuidMiddleware from './helpers/validateUuidMiddleware';
-import addCommonRoutes, { activateInterview } from './survey.common.routes';
+import addCommonRoutes from './survey.common.routes';
+import { addRolesToInterview } from '../services/interviews/interview';
+import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 
 export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMiddlewares): Router => {
     const router = express.Router();
@@ -30,7 +32,20 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
         loggingMiddleware.openingInterview(false),
         async (req: Request, res: Response) => {
             try {
-                activateInterview(req, res, (req) => Interviews.getInterviewByUuid(req.params.interviewId));
+                if (!req.user) {
+                    console.log('activeSurvey: Request user is not defined!');
+                    res.status(400).json({ status: 'BadRequest' });
+                    return;
+                }
+                // Get the current interview with uuid
+                const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
+                if (interview !== undefined) {
+                    addRolesToInterview(interview, req.user as UserAttributes);
+                    res.status(200).json({ status: 'success', interview });
+                } else {
+                    // If not found, return null
+                    res.status(404).json({ status: 'notFound', interview: null });
+                }
             } catch (error) {
                 console.error(`Error opening interview by id: ${error}`);
                 return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });

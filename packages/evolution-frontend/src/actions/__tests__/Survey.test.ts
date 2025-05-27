@@ -632,20 +632,16 @@ describe('startSetInterview', () => {
 
     const initialAppConfigSections = _cloneDeep(applicationConfiguration.sections);
     let startUpdateInterviewSpy;
-    let startCreateInterviewSpy;
     const startUpdateInterviewMock = jest.fn();
-    const startCreateInterviewMock = jest.fn();
 
     beforeAll(() => {
         startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue(startUpdateInterviewMock);
-        startCreateInterviewSpy = jest.spyOn(SurveyActions, 'startCreateInterview').mockReturnValue(startCreateInterviewMock);
-        applicationConfiguration.sections = applicationSections;
+        applicationConfiguration.sections = applicationSections as any;
         jest.spyOn(bowser, 'getParser').mockReturnValue(bowser.getParser('test'));
     });
 
     afterAll(() => {
         startUpdateInterviewSpy.mockRestore();
-        startCreateInterviewSpy.mockRestore();
         applicationConfiguration.sections = initialAppConfigSections;
     });
 
@@ -706,7 +702,8 @@ describe('startSetInterview', () => {
 
     });
 
-    test('No interview returned, should create one', async () => {
+    test('No interview returned, should give an error message', async () => {
+        const consoleErrorSpy = jest.spyOn(console, 'error')
 
         // Prepare mock and test data
         jsonFetchResolve.mockResolvedValue({ status: 'success' });
@@ -720,10 +717,9 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/activeInterview', expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith(startCreateInterviewMock);
-        expect(SurveyActions.startCreateInterview).toHaveBeenCalledWith(undefined);
-
+        expect(mockDispatch).not.toHaveBeenCalled();
+        expect(consoleErrorSpy).toHaveBeenCalledWith('Error: Get active interview: no interview was returned, it\'s not supposed to happen');
+        expect(SurveyActions.startUpdateInterview).not.toHaveBeenCalled();
     });
 
     test('with interview UUID', async () => {
@@ -783,162 +779,6 @@ describe('startSetInterview', () => {
 
         // Do the actual test
         const dispatchFct = SurveyActions.startSetInterview();
-        await dispatchFct(mockDispatch, mockGetState);
-
-        // Verifications
-        expect(handleClientError).toHaveBeenCalledTimes(1);
-        expect(handleClientError).toHaveBeenCalledWith(error, { history: undefined, interviewId: undefined });
-
-    });
-
-});
-
-describe('startCreateInterview', () => {
-
-    // Prepare minimal questionnaire section config
-    const applicationSections = {
-        sectionLast:  {
-            widgets: [],
-            previousSection: 'sectionFirst',
-            nextSection: null
-        }, sectionFirst:  {
-            widgets: [],
-            previousSection: null,
-            nextSection: 'sectionLast'
-        }
-    };
-
-    const initialAppConfigSections = _cloneDeep(applicationConfiguration.sections);
-    let startUpdateInterviewSpy;
-    const startUpdateInterviewMock = jest.fn();
-
-    beforeAll(() => {
-        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue(startUpdateInterviewMock);
-        applicationConfiguration.sections = applicationSections;
-        jest.spyOn(bowser, 'getParser').mockReturnValue(bowser.getParser('test'));
-    });
-
-    afterAll(() => {
-        startUpdateInterviewSpy.mockRestore();
-        applicationConfiguration.sections = initialAppConfigSections;
-    });
-
-    test('No prefilled response', async () => {
-
-        // Prepare mock and test data
-        const returnedInterview = {
-            id: 1,
-            uuid: 'arbitrary uuid',
-            participant_id: 1,
-            is_completed: false,
-            response: {},
-            validations: {},
-            is_valid: true
-        };
-        jsonFetchResolve.mockResolvedValue({ status: 'success', interview: returnedInterview });
-
-        // Do the actual test
-        const dispatchFct = SurveyActions.startCreateInterview();
-        await dispatchFct(mockDispatch, mockGetState);
-
-        // Verifications
-        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
-        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/createInterview', expect.objectContaining({
-            credentials: 'include'
-        }));
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
-            sectionShortname: 'sectionFirst',
-            valuesByPath: {
-                'response._activeSection': 'sectionFirst',
-                'response._browser': expect.anything()
-            }, interview: returnedInterview
-        });
-
-    });
-
-    test('With prefilled response', async () => {
-
-        // Prepare mock and test data
-        const prefilledResponse = { fieldA: 'valueA', fieldB: 'valueB' };
-        const returnedInterview = {
-            id: 1,
-            uuid: 'arbitrary uuid',
-            participant_id: 1,
-            is_completed: false,
-            response: {},
-            validations: {},
-            is_valid: true
-        };
-        jsonFetchResolve.mockResolvedValue({ status: 'success', interview: returnedInterview });
-
-        // Do the actual test
-        const dispatchFct = SurveyActions.startCreateInterview(prefilledResponse);
-        await dispatchFct(mockDispatch, mockGetState);
-
-        // Verifications
-        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
-        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/createInterview', expect.objectContaining({
-            credentials: 'include'
-        }));
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
-            sectionShortname: 'sectionFirst',
-            valuesByPath: {
-                'response._activeSection': 'sectionFirst',
-                'response._browser': expect.anything(),
-                'response.fieldA': 'valueA',
-                'response.fieldB': 'valueB'
-            }, interview: returnedInterview
-        });
-
-    });
-
-    test('No interview returned', async () => {
-
-        // Prepare mock and test data
-        jsonFetchResolve.mockResolvedValue({ status: 'success' });
-
-        // Do the actual test
-        const dispatchFct = SurveyActions.startCreateInterview();
-        await dispatchFct(mockDispatch, mockGetState);
-
-        // Verifications
-        expect(handleClientError).toHaveBeenCalledTimes(1);
-        expect(handleClientError).toHaveBeenCalledWith('createInterview returned success but no interview was returned', { history: undefined, interviewId: undefined });
-
-    });
-
-    test('Invalid response from server', async () => {
-
-        // Prepare mock and test data
-        fetchStatus.push(401);
-        jsonFetchResolve.mockResolvedValue({ status: 'unauthorized' });
-
-        // Do the actual test
-        const dispatchFct = SurveyActions.startCreateInterview();
-        await dispatchFct(mockDispatch, mockGetState);
-
-        // Verifications
-        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
-        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/createInterview', expect.objectContaining({
-            credentials: 'include'
-        }));
-        expect(mockDispatch).not.toHaveBeenCalled();
-        expect(SurveyActions.startUpdateInterview).not.toHaveBeenCalled();
-
-    });
-
-    test('Exception while fetching', async () => {
-
-        // Prepare mock and test data
-        const error = new Error('error fetching');
-        fetchRetryMock.mockRejectedValueOnce(error);
-
-        // Do the actual test
-        const dispatchFct = SurveyActions.startCreateInterview();
         await dispatchFct(mockDispatch, mockGetState);
 
         // Verifications

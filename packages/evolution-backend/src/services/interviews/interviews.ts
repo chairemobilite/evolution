@@ -102,7 +102,7 @@ export default class Interviews {
         initialResponse: { [key: string]: any },
         creatingUserId?: number | undefined,
         returning: string | string[] = 'uuid'
-    ): Promise<Partial<InterviewAttributes>> => {
+    ): Promise<InterviewAttributes> => {
         // TODO Make sure there is no active interview for this user already?
         // Create the interview for this user, make sure the start time is set
         const response = _cloneDeep(initialResponse);
