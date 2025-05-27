@@ -137,9 +137,11 @@ example/demo_generator/references/*
 !example/demo_generator/references/generatorConfigs.yaml
 example/demo_generator/src/survey/common/*
 !example/demo_generator/src/survey/common/custom*.tsx
+!example/demo_generator/src/survey/common/custom*.ts
 example/demo_generator/src/survey/sections/**/*
 !example/demo_generator/src/survey/sections/**/
 !example/demo_generator/src/survey/sections/**/custom*.tsx
+!example/demo_generator/src/survey/sections/**/custom*.ts
 example/demo_generator/src/survey/sections.ts
 example/demo_generator/src/survey/widgetsConfigs.tsx
 example/demo_generator/tests/template-tests-UI.ts

@@ -60,6 +60,9 @@ hisHerTheir_male: "son"
 hisHerTheir_female: "sa"
 hisHerTheir_custom: "ses"
 
+# generic label contents
+noNickname: cette personne
+
 
 # Relative days FIXME Current i18next version does not support _two, _few and _other suffixes, change when possible
 pastToday_zero: "aujourd'hui"

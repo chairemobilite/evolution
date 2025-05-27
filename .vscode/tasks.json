@@ -181,6 +181,44 @@
                 "kind": "build",
                 "isDefault": false
             }
+        },
+        {
+            "label": "Start Dev Generator",
+            "type": "shell",
+            "command": "",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": [
+                "Compile Dev Generator",
+                "Build Dev Generator",
+                "Start"
+            ]
+        },
+        {
+            "label": "Compile Dev Generator",
+            "type": "shell",
+            "command": "yarn",
+            "args": [
+                "compile:dev:generator"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
+        },
+        {
+            "label": "Build Dev Generator",
+            "type": "shell",
+            "command": "yarn",
+            "args": [
+                "build:dev:generator"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            }
         }
     ]
 }
