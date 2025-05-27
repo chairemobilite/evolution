@@ -4,7 +4,11 @@
 
 # Note: This script includes functions that generate the widgets.tsx and widgetsNames.ts files.
 # These functions are intended to be invoked from the generate_survey.py script.
-from helpers.generator_helpers import INDENT, get_data_from_excel, add_generator_comment
+from helpers.generator_helpers import (
+    INDENT,
+    get_data_from_excel,
+    add_generator_comment,
+)
 import re  # Regular expression module for pattern matching
 from typing import TypedDict
 
@@ -413,6 +417,20 @@ def generate_defaultInputBase(defaultInputBase):
 
 
 def generate_path(path):
+    """
+    Generates the TypeScript path property for a widget.
+    - If path is empty or None, prints an error and returns an empty string.
+    - If path contains invalid characters (anything except letters, numbers, '_', '.', '{', '}'), prints a warning.
+    - Returns the formatted path string for TypeScript.
+    """
+    if not path:
+        print("Error: path is missing in Widgets sheet.")
+        return ""
+    # Allow only a-z, A-Z, 0-9, _, ., {, }
+    if not re.match(r"^[a-zA-Z0-9_.{}]+$", path):
+        print(
+            f"Warning: path '{path}' contains invalid characters in Widgets sheet. Allowed: a-z, A-Z, 0-9, _, ., {{, }}"
+        )
     return f"{INDENT}path: '{path}'"
 
 

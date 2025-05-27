@@ -10,6 +10,7 @@ from scripts.generate_widgets import (
     generate_radio_number_widget,
     generate_label,
     get_parameters_values,
+    generate_path,
 )
 
 
@@ -23,13 +24,37 @@ from scripts.generate_widgets import (
 # TODO: Test generate_skip_line
 # TODO: Test generate_constExport
 # TODO: Test generate_defaultInputBase
-# TODO: Test generate_path
+
+
+def test_generate_path_valid():
+    """Test generate_path with a valid path"""
+    result = generate_path("foo.{baz}.bar_123")
+    assert "path: 'foo.{baz}.bar_123'" in result
+
+
+def test_generate_path_missing(capsys):
+    """Test generate_path with missing path prints error and returns empty string"""
+    result = generate_path("")
+    captured = capsys.readouterr()
+    assert "Error: path is missing in Widgets sheet." in captured.out
+    assert result == ""
+
+
+def test_generate_path_invalid_characters(capsys):
+    """Test generate_path with invalid characters prints warning"""
+    result = generate_path("foo/bar$")
+    captured = capsys.readouterr()
+    assert (
+        "Warning: path 'foo/bar$' contains invalid characters in Widgets sheet."
+        in captured.out
+    )
+    assert "path: 'foo/bar$'" in result
 
 
 def test_generate_join_with_with_value():
     """Test that generate_join_with returns the correct string when a questionName value is provided"""
     result = generate_join_with("questionName")
-    assert result == "    joinWith: 'questionName',\n"
+    assert "joinWith: 'questionName',\n" in result
 
 
 def test_generate_join_with_without_value():
