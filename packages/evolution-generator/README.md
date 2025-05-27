@@ -223,10 +223,12 @@ Widgets are the building blocks of your survey. They define the structure and in
 | [choices](#choices)  | Choices for the InputRadio and InputCheckbox (optional) | string? |
 | [help_popup](#help)  | Help popup name for the question (optional)             | string? |
 | [inputRange](#range) | Input range name for InputRange (optional)              | string? |
+| parameters           | Additional widget parameters (optional)                 | string? |
 | comments             | Additional comments for the question (optional)         | string? |
 | appearance           | Additional widget appearance options (optional)         | string? |
 
 <!-- TODO: Document the join_with option in the appearance column. Example: appearance: join_with=${questionName} -->
+<!-- TODO: Document the parameters column (e.g. min=0 max=6 overMaxAllowed, separated by newline, semicolon, or space) -->
 
 > <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Custom, Radio, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text
 
