@@ -1,14 +1,8 @@
 import { TFunction } from 'i18next';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-// import i18n from 'chaire-lib-frontend/lib/config/i18n.config';
-import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
 import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';
-import { defaultConditional } from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';
 import * as inputTypes from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import * as conditionals from '../../common/conditionals';
-import * as customHelpPopup from '../../common/customHelpPopup';
-// import * as choices from '../../common/choices';
 import * as customValidations from '../../common/customValidations';
 import { defaultInvalidGeocodingResultTypes } from '../../common/customGeoData';
 
