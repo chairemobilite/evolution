@@ -32,7 +32,7 @@ import {
 } from 'evolution-common/lib/services/questionnaire/types';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
-import { updateSection, updateInterview, updateInterviewData } from './Survey';
+import { validateAndPrepareSection, updateInterviewState, updateInterviewData } from './Survey';
 import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../store/configureStore';
 import { SurveyAction } from '../store/survey';
@@ -83,7 +83,7 @@ export const startUpdateSurveyCorrectedInterview = (
             //{
             //  affectedPaths['_all'] = true;
             //}
-            const [updatedInterview, updatedValuesByPath] = updateSection(
+            const [updatedInterview, updatedValuesByPath] = validateAndPrepareSection(
                 sectionShortname,
                 interview as UserRuntimeInterviewAttributes,
                 affectedPaths,
@@ -103,7 +103,7 @@ export const startUpdateSurveyCorrectedInterview = (
             }
 
             if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
-                dispatch(updateInterview(_cloneDeep(updatedInterview)));
+                dispatch(updateInterviewState(_cloneDeep(updatedInterview)));
                 dispatch(decrementLoadingState());
                 if (typeof callback === 'function') {
                     callback(updatedInterview);
@@ -132,7 +132,7 @@ export const startUpdateSurveyCorrectedInterview = (
                 if (body.status === 'success' && body.interviewId === updatedInterview.uuid) {
                     //surveyHelper.devLog('Interview saved to db');
                     //setTimeout(function() {
-                    dispatch(updateInterview(_cloneDeep(updatedInterview)));
+                    dispatch(updateInterviewState(_cloneDeep(updatedInterview)));
                     if (typeof callback === 'function') {
                         callback(updatedInterview);
                     }
