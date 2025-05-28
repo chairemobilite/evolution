@@ -152,6 +152,27 @@ export const countPersons = ({ interview }: { interview: UserInterviewAttributes
 };
 
 /**
+ * Counts the number of adults in the given interview.
+ * An adult is defined as a person who is 18 years or older and has a defined age.
+ *
+ * @param {Object} options - The options object.
+ * @param {Object} options.interview The interview object
+ * @returns {number} The count of adults within the interview (only persons with a defined age >= 18).
+ */
+export const countAdults = ({ interview }): number => {
+    const persons = getPersonsArray({ interview });
+
+    // Count persons with age 18 or more using
+    let count: number = 0;
+    persons.forEach((person) => {
+        if (person?.age && person.age >= 18) {
+            count++;
+        }
+    });
+    return count;
+};
+
+/**
  * Return whether the person is self-declared or not. A person is self-declared
  * if she is responding for herself and has an age greater than the
  * self-response age defined in the configuration
