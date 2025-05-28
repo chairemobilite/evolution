@@ -49,15 +49,31 @@ import { RootState } from '../store/configureStore';
 
 /**
  * Called whenever an update occurs in interview response or when section is
- * switched to. This function should only be called by redux actions, in this
- * file and the admin one.
+ * switched to. It will run the validations and side effects for the requested
+ * section and prepare the widgets for the next display cycle of the section. It
+ * returns the interview, with the widget statuses set for the next cycle, as
+ * well as the side effects that should be applied to the interview.
  *
- * FIXME Better document what this does and how it works wrt returned values by
- * path
+ * This function should only be called by redux actions, in this file and the
+ * admin one.
  *
  * TODO: unit test
+ *
+ * @param {string} sectionShortname The section shortname to prepare
+ * @param {UserRuntimeInterviewAttributes} _interview The interview to prepare.
+ * It will not be modified
+ * @param {{ [path: string]: boolean }} affectedPaths The paths that were
+ * affected by the update (usually the keys of the `valuesByPath` object)
+ * @param {{ [path: string]: unknown }} valuesByPath The values by path that
+ * were affected by the update
+ * @param {boolean} [updateKey] If `true`, the section key will be updated to
+ * the current section shortname, forcing a re-render of the widgets. Defaults
+ * to `false`
+ * @param {CliUser} [user] The user, if available, to use for the side effects
+ * @returns A tuple with the updated interview and the values by path that
+ * should be applied to the interview
  */
-export const updateSection = (
+export const validateAndPrepareSection = (
     sectionShortname: string,
     _interview: UserRuntimeInterviewAttributes,
     affectedPaths: { [path: string]: boolean },
@@ -136,7 +152,7 @@ export const updateInterviewData = (
     return affectedPaths;
 };
 
-const startUpdateInterviewCallback = async (
+const updateInterviewCallback = async (
     dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
     getState: () => RootState,
     {
@@ -178,7 +194,7 @@ const startUpdateInterviewCallback = async (
             requestedSectionShortname
         ) as string;
 
-        const [updatedInterview, updatedValuesByPath] = updateSection(
+        const [updatedInterview, updatedValuesByPath] = validateAndPrepareSection(
             sectionShortname,
             interview,
             affectedPaths,
@@ -202,7 +218,7 @@ const startUpdateInterviewCallback = async (
         // No changes to send to the server, just update the state and quit
         if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
             // '_all' means the "save" button was clicked and the form was submitted, so the form may not follow the normal form change workflow
-            dispatch(updateInterview(_cloneDeep(updatedInterview), {}, true));
+            dispatch(updateInterviewState(_cloneDeep(updatedInterview), {}, true));
             if (typeof callback === 'function') {
                 callback(updatedInterview);
             }
@@ -258,7 +274,7 @@ const startUpdateInterviewCallback = async (
                         requestedSectionShortname
                     ) as string;
                     // Need to update the widget status with server data, there should be no side-effect, so no loop update here
-                    serverUpdatedInterview = updateSection(
+                    serverUpdatedInterview = validateAndPrepareSection(
                         sectionShortname,
                         updatedInterview,
                         serverAffectedPath,
@@ -279,7 +295,7 @@ const startUpdateInterviewCallback = async (
                 }
 
                 dispatch(
-                    updateInterview(
+                    updateInterviewState(
                         _cloneDeep(serverUpdatedInterview),
                         Object.assign(currentServerErrors, newServerErrors),
                         updatedValuesByPath['_all'] === true
@@ -317,13 +333,17 @@ const startUpdateInterviewCallback = async (
 
 /**
  * Redux action to call with a dispatch to update the interview in the store.
+ *
+ * DO NOT CALL from any other part of the code! Only the redux action should
+ * call this function.
+ *
  * @param interview The interview to update
  * @param errors The current errors in the interview
  * @param submitted FIXME Need to document this. Is it when the form was
  * officially submitted with a next button?
  * @returns
  */
-export const updateInterview = (
+export const updateInterviewState = (
     interview: UserRuntimeInterviewAttributes,
     errors: {
         [path: string]: {
@@ -342,13 +362,13 @@ export const updateInterview = (
 /**
  * Redux action to call with a dispatch to send interview updates to the server.
  * This function is not to be called directly by the application, except through
- * redux's connect function.
+ * redux's dispatch.
  *
- * It will schedule the call to the interview update callback who update the
- * interview data on the server and refresh any fields and validations coming
- * from the server. It will update the app's loading state before and after the
- * update call. At the end of the call, the callback function will be called if
- * provided, with the updated interview.
+ * It will schedule the call to the interview update callback who runs
+ * validations and side effects, updates the interview data on the server and
+ * refresh any fields and validations coming from the server. It will update the
+ * app's loading state before and after the update call. At the end of the call,
+ * the callback function will be called if provided, with the updated interview.
  * @returns The dispatched action
  */
 export const startUpdateInterview =
@@ -357,7 +377,7 @@ export const startUpdateInterview =
             dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
             getState: () => RootState
         ) => {
-            await startUpdateInterviewCallback(dispatch, getState, data, callback);
+            await updateInterviewCallback(dispatch, getState, data, callback);
         };
 
 export const addConsent = (consented: boolean) => ({
