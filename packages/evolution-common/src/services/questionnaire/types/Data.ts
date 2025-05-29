@@ -14,6 +14,7 @@ import * as VPAttr from '../../baseObjects/attributeTypes/VisitedPlaceAttributes
 import { Optional } from '../../../types/Optional.type';
 import { SegmentAttributes } from '../../baseObjects/Segment';
 import { HouseholdAttributes } from '../../baseObjects/Household';
+import { NavigationSection } from './NavigationTypes';
 
 export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
 
@@ -304,6 +305,11 @@ export type UserAction =
           widgetType: string;
           path: string;
           value: unknown;
+      }
+    | {
+          type: 'sectionChange';
+          targetSection: NavigationSection;
+          previousSection?: NavigationSection;
       };
 
 /**

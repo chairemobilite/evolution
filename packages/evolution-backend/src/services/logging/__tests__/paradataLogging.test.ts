@@ -76,6 +76,27 @@ describe('Log for a participant', () => {
         
     });
 
+    it('Should correctly log a section change', async () => {
+        const userAction = {
+            type: 'sectionChange' as const,
+            targetSection: { sectionShortname: 'section1' }
+        };
+        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
+
+        expect(await logFunction!({ userAction, ...logData})).toBe(true);
+
+        expect(mockLog).toHaveBeenCalledWith({
+            eventType: 'section_change',
+            eventData: {
+                ...logData,
+                userAction
+            },
+            interviewId,
+            userId: undefined
+        });
+        
+    });
+
     it('Should correctly log a server event', async () => {
         const logData = { valuesByPath: {someData: 'test'}, server: true };
 
