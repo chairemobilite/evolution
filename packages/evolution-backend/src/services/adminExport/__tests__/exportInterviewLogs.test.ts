@@ -498,4 +498,55 @@ describe('exportInterviewLogTask', () => {
         expect(currentLog.widgetPath).toEqual(userAction.buttonId);
     });
 
+    test('Test with an event of type section_change with user action', async () => {
+        // Just add one log statement to test the widget_interaction event:
+        const userAction = { type: 'sectionChange', targetSection: { sectionShortname: 'someSection' } };
+        const log = {
+            ...commonInterviewData,
+            event_type: 'section_change',
+            timestamp_sec: 1,
+            event_date: new Date(1 * 1000),
+            values_by_path: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true, 'response.household.size': 3, 'response._activeTripId': null },
+            unset_paths: [ 'response.home.someField', 'validations.home.someField' ],
+            user_action: userAction
+        };
+        // Add the logs to the stream
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock([log]) as any);
+
+        const fileName = await exportInterviewLogTask({});
+
+        // Check the file content of the exported logs
+        expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+
+        const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+        expect(csvFileName).toBeDefined();
+
+        const csvStream = fileStreams[csvFileName as string];
+        // There should one data per log, one log has no response, so it should be skipped
+        expect(csvStream.data.length).toEqual(1);
+
+        // Get the actual rows in the file data
+        const logRows = await getCsvFileRows(csvStream.data);
+        // There should be only one log
+        expect(logRows.length).toEqual(1);
+
+        // Test the row values
+        const currentLog = logRows[0];
+
+        expect(currentLog).toEqual(expect.objectContaining({
+            ...commonInterviewDataInRows,
+            event_type: 'section_change'
+        }));
+        const modifiedKeys = Object.entries(log.values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
+        const initializedKeys = Object.entries(log.values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
+        expect(currentLog.timestampMs).toEqual(String((1) * 1000));
+        expect(currentLog.event_date).toEqual(new Date((1) * 1000).toISOString());
+        expect(currentLog.modifiedFields).toEqual(modifiedKeys);
+        expect(currentLog.initializedFields).toEqual(initializedKeys);
+        expect(currentLog.unsetFields).toEqual(log.unset_paths !== undefined ? log.unset_paths.join('|') : '');
+        expect(currentLog.widgetType).toEqual('');
+        expect(currentLog.widgetPath).toEqual(userAction.targetSection.sectionShortname);
+    });
+
 });

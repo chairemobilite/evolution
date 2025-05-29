@@ -190,7 +190,7 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With values by path, and user action not a "widgetInteraction"', async() => {
+    test('With values by path, and user action of type "buttonClick"', async() => {
         // Prepare test data
         const testAttributes = _cloneDeep(interviewAttributes);
         const userAction = { type: 'buttonClick' as const, buttonId: 'test' };
@@ -233,6 +233,86 @@ describe('Update Interview', () => {
         expectedUpdatedValues.response.bar = 100;
         delete expectedUpdatedValues.response.accessCode;
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
+    });
+
+    test('With values by path, and user action of type "sectionChange", without previous', async() => {
+        // Prepare test data, with prior sections data
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const initialSectionData = {
+            testSection: { _startedAt: moment().unix()-2000 }, // Simulate a section that was started 2 seconds ago
+            '_actions': [
+                { section: 'testSection', action: 'start', ts: moment().unix() }
+            ]
+        } as any
+        testAttributes.response._sections = _cloneDeep(initialSectionData);
+        const userAction = { type: 'sectionChange' as const, targetSection: { sectionShortname: 'newSection' } };
+        const interview = await updateInterview(testAttributes, { userAction, valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' } });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+
+        const expectedUpdatedValues = {
+            response: _cloneDeep(interviewAttributes.response) as any,
+            validations: _cloneDeep(interviewAttributes.validations)
+        };
+        expectedUpdatedValues.response.foo = 'abc';
+        expectedUpdatedValues.response.testFields.fieldA = 'new';
+        expectedUpdatedValues.response._sections = {
+            testSection: initialSectionData.testSection,
+            [userAction.targetSection.sectionShortname]: { _startedAt: expect.any(Number) }, // New section started now
+            '_actions': [
+                ...initialSectionData._actions,
+                { section: userAction.targetSection.sectionShortname, action: 'start', ts: expect.any(Number) }, // The section start action should be updated with the current timestamp
+            ]
+        };
+        // Check that the new section started at a valid time, between the one in the initial data and now
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        const actualUpdatedValues = (interviewsQueries.update as jest.Mock).mock.calls[0][1];
+        expect(actualUpdatedValues.response._sections.newSection._startedAt).toBeGreaterThanOrEqual(initialSectionData._actions[0].ts);
+        expect(actualUpdatedValues.response._sections.newSection._startedAt).toBeLessThanOrEqual(moment().unix());
+        expect(actualUpdatedValues.response._sections._actions[1].ts).toBeGreaterThanOrEqual(initialSectionData._actions[0].ts);
+        expect(actualUpdatedValues.response._sections._actions[1].ts).toBeLessThanOrEqual(moment().unix());
+        expect(mockLog).not.toHaveBeenCalled();
+    });
+
+    test('With values by path, and user action of type "sectionChange", with previous section', async() => {
+        // Prepare test data, with prior sections data
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const initialSectionData = {
+            testSection: { _startedAt: moment().unix()-2000 }, // Simulate a section that was started 2 seconds ago
+            '_actions': [
+                { section: 'testSection', action: 'start', ts: moment().unix() }
+            ]
+        } as any
+        testAttributes.response._sections = _cloneDeep(initialSectionData);
+        const userAction = { type: 'sectionChange' as const, targetSection: { sectionShortname: 'newSection' }, previousSection: { sectionShortname: 'testSection' } };
+        const interview = await updateInterview(testAttributes, { userAction, valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' } });
+        expect(interview.interviewId).toEqual(testAttributes.uuid);
+        expect(interview.serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+
+        const expectedUpdatedValues = {
+            response: _cloneDeep(interviewAttributes.response) as any,
+            validations: _cloneDeep(interviewAttributes.validations)
+        };
+        expectedUpdatedValues.response.foo = 'abc';
+        expectedUpdatedValues.response.testFields.fieldA = 'new';
+        expectedUpdatedValues.response._sections = {
+            testSection: { ...initialSectionData.testSection, _isCompleted: true },
+            [userAction.targetSection.sectionShortname]: { _startedAt: expect.any(Number) }, // New section started now
+            '_actions': [
+                ...initialSectionData._actions,
+                { section: userAction.targetSection.sectionShortname, action: 'start', ts: expect.any(Number) }, // The section start action should be updated with the current timestamp
+            ]
+        };
+        // Check that the new section started at a valid time, between the one in the initial data and now
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        const actualUpdatedValues = (interviewsQueries.update as jest.Mock).mock.calls[0][1];
+        expect(actualUpdatedValues.response._sections.newSection._startedAt).toBeGreaterThanOrEqual(initialSectionData._actions[0].ts);
+        expect(actualUpdatedValues.response._sections.newSection._startedAt).toBeLessThanOrEqual(moment().unix());
+        expect(actualUpdatedValues.response._sections._actions[1].ts).toBeGreaterThanOrEqual(initialSectionData._actions[0].ts);
+        expect(actualUpdatedValues.response._sections._actions[1].ts).toBeLessThanOrEqual(moment().unix());
         expect(mockLog).not.toHaveBeenCalled();
     });
 
