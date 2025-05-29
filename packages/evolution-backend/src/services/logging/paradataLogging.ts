@@ -45,6 +45,22 @@ const enqueueLog = (logData: Parameters<typeof paradataEventsDbQueries.log>[0]):
     );
 };
 
+const userActionTypeToDbType = (
+    userAction: UserAction
+): Parameters<typeof paradataEventsDbQueries.log>[0]['eventType'] => {
+    switch (userAction.type) {
+    case 'buttonClick':
+        return 'button_click';
+    case 'widgetInteraction':
+        return 'widget_interaction';
+    case 'sectionChange':
+        return 'section_change';
+    default:
+        console.warn(`Unknown user action type: ${(userAction as any).type}. Falling back to 'legacy'.`);
+        return 'legacy';
+    }
+};
+
 /**
  * Get the paradata logging functions for a given interview and user
  *
@@ -88,7 +104,7 @@ export const getParadataLoggingFunction = (
                 return enqueueLog({
                     interviewId,
                     userId,
-                    eventType: userAction.type === 'buttonClick' ? 'button_click' : 'widget_interaction',
+                    eventType: userActionTypeToDbType(userAction),
                     eventData: logData
                 });
             }
