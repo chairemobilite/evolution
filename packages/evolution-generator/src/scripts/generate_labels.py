@@ -123,14 +123,18 @@ def addTranslation(
         value = ValueReplacer.replace(value)
         yaml_value = stringToYaml(value)
 
+        # Ensure section exists in translations
+        if section not in translations:
+            translations[section] = {}
+
         # Check for duplicate keys
-        if path in translations:
+        if path in translations[section]:
             print(
                 f"Duplicate key found at row {rowNumber} with language={language}, section={section}, path={path}, value={value}. Skipping this entry."
             )
         else:
             # Add the translation directly to the dictionary
-            translations[path] = yaml_value
+            translations[section][path] = yaml_value
 
     except Exception as e:
         print(
@@ -147,11 +151,14 @@ def saveTranslations(language, section, labels_output_folder_path, translations)
         language (str): The language of the translation.
         section (str): The section name.
         labels_output_folder_path (str): The output folder path for the labels.
-        translations (dict): The dictionary of translations.
+        translations (dict): The dictionary of translations for the language (nested by section).
     """
     try:
         # Construct the file path
         file_path = os.path.join(labels_output_folder_path, language, f"{section}.yaml")
+
+        # Only save translations for the current section
+        section_translations = translations.get(section, {})
 
         # Save the updated translations back to the YAML file
         with open(file_path, "w", encoding="utf-8") as file:
@@ -163,7 +170,7 @@ def saveTranslations(language, section, labels_output_folder_path, translations)
                 "# The Evolution Generator is used to automate the creation of consistent, reliable code.\n"
             )
             file.write("# Any changes made to this file will be overwritten.\n\n")
-            yaml.dump(translations, file)
+            yaml.dump(section_translations, file)
         print(f"Generate {file_path.replace('\\', '/')} successfully")
 
     except Exception as e:
@@ -196,6 +203,7 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
 
         rowNumber = 2  # Start from the second row
         processed_sections = set()  # Track processed sections
+        # Nested dict: translations_dict[language][section][path] = value
         translations_dict = {"fr": {}, "en": {}}  # Store translations for each language
 
         # Parse the widget sheet to add the translations
