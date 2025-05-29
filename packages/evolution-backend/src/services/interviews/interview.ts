@@ -20,6 +20,7 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { ParadataLoggingFunction } from '../logging/paradataLogging';
+import { getResponse } from 'evolution-common/lib/utils/helpers';
 
 export const addRolesToInterview = (interview: UserInterviewAttributes, user: UserAttributes) => {
     // Add the userRoles in the interview object
@@ -45,6 +46,54 @@ export const setInterviewFields = (
             _unset(interview, options.unsetPaths[i]);
         }
     }
+};
+
+// Augment the valuesByPath with the user action data, to fit with the current
+// interview update architecture
+// FIXME This is just a workaround to avoid having to change the validation and server update code, as they will be revisited
+const updateValuesByPathWithUserAction = (
+    interview: InterviewAttributes,
+    valuesByPath: { [key: string]: unknown },
+    userAction: UserAction
+): { [key: string]: unknown } => {
+    if (userAction.type === 'widgetInteraction') {
+        return { [userAction.path]: userAction.value, ...valuesByPath };
+    }
+    if (userAction.type === 'sectionChange') {
+        // Set sections in the interview
+        // FIXME This will not save the navigation for the corrected survey, but the 'response' field won't be saved anyway, so it does not matter too much. Revisit when navigation API is refactored.
+        // TODO Should not be saved in the response, but somewhere else. See https://github.com/chairemobilite/evolution/issues/969 to implement the actual navigation
+        valuesByPath[`response._sections.${userAction.targetSection.sectionShortname}._startedAt`] = moment().unix();
+        // Complete the previous action
+        if (userAction.previousSection) {
+            valuesByPath[
+                `response._sections.${userAction.previousSection.sectionShortname}${userAction.previousSection.iterationContext ? '.' + userAction.previousSection.iterationContext.join('/') : ''}._isCompleted`
+            ] = true;
+        }
+        // FIXME With new navigation API, add iteration contexts
+        // FIXME Also we do not know if the previous section was completed or not. We need to get this information somehow.
+        const sectionActions = getResponse(interview, '_sections._actions', []) as {
+            section: string;
+            iterationContext?: string[];
+            action: string;
+            ts: number;
+        }[];
+        const sectionAction = {
+            section: userAction.targetSection.sectionShortname,
+            action: 'start',
+            ts: moment().unix()
+        } as any;
+        // Add iteration context to the action and subsection
+        if (userAction.targetSection.iterationContext !== undefined) {
+            valuesByPath[
+                `response._sections.${userAction.targetSection.sectionShortname}.${userAction.targetSection.iterationContext.join('/')}._startedAt`
+            ] = moment().unix();
+            sectionAction.iterationContext = userAction.targetSection.iterationContext;
+        }
+        sectionActions.push(sectionAction);
+        valuesByPath['response._sections._actions'] = sectionActions;
+    }
+    return valuesByPath;
 };
 
 /**
@@ -109,12 +158,10 @@ export const updateInterview = async (
     serverValuesByPath: { [key: string]: unknown };
     redirectUrl: string | undefined;
 }> => {
-    // FIXME This is just a workaround to avoid having to change the validation and server update code, as they will be revisited
-    // FIXME1: When validations and side effects are managed server-side, we won't have custom code for server validations and updates and we can send the user action to the `setInterviewFields` directly (issue #858)
-    const allValuesByPath =
-        options.userAction && options.userAction.type === 'widgetInteraction'
-            ? { [options.userAction.path]: options.userAction.value, ...options.valuesByPath }
-            : options.valuesByPath;
+    // FIXME: When validations and side effects are managed server-side, we won't have custom code for server validations and updates and we can send the user action to the `setInterviewFields` directly (issue #858)
+    const allValuesByPath = options.userAction
+        ? updateValuesByPathWithUserAction(interview, options.valuesByPath, options.userAction)
+        : options.valuesByPath;
 
     const fieldsToUpdate = options.fieldsToUpdate || ['response', 'validations'];
     const logData = options.logData || {};
@@ -186,7 +233,21 @@ export const updateInterview = async (
     if (Object.keys(serverValuesByPath).length > 0) {
         options.logUpdate?.({ valuesByPath: serverValuesByPath, server: true });
     }
-    return { interviewId: retInterview.uuid, serverValidations, serverValuesByPath, redirectUrl };
+
+    return {
+        interviewId: retInterview.uuid,
+        serverValidations,
+        // FIXME Server valuesByPath assignation is a tweak to send to the
+        // client the survey navigation history, as history is written on the
+        // server, but navigation is done client-side, because it needs to
+        // prepare the widgets.  Navigation should move server-side and this
+        // won't be required anymore.
+        serverValuesByPath:
+            allValuesByPath['response._sections._actions'] !== undefined
+                ? Object.assign({}, serverValuesByPath, { 'response._sections': interview.response._sections })
+                : serverValuesByPath,
+        redirectUrl
+    };
 };
 
 export const copyResponseToCorrectedResponse = async (interview: InterviewAttributes) => {
