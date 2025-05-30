@@ -46,7 +46,10 @@ describe('getSegmentsSectionConfig', () => {
         expect(widgetConfig).toEqual({
             previousSection: 'visitedPlaces',
             nextSection: 'travelBehavior',
-            parentSection: 'tripsIntro',
+            navMenu: {
+                type: 'hidden',
+                parentSection: 'tripsIntro'
+            },
             preload: expect.any(Function),
             template: 'tripsAndSegmentsWithMap',
             title: expect.any(Function),
