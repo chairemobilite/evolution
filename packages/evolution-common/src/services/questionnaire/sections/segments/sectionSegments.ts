@@ -25,10 +25,6 @@ export const getSegmentsSectionConfig = (
         // FIXME Navigation part, should be handled at a higher level
         previousSection: 'visitedPlaces',
         nextSection: 'travelBehavior',
-        navMenu: {
-            type: 'hidden',
-            parentSection: 'tripsIntro'
-        },
 
         // FIXME Preload part, which is more a side-effect than a configuration, part of it is navigation, part is side effects
         preload: function (interview, { startUpdateInterview, callback }) {

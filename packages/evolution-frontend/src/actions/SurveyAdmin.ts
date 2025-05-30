@@ -26,13 +26,19 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import {
     StartAddGroupedObjects,
+    StartNavigate,
     StartRemoveGroupedObjects,
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
-import { validateAndPrepareSection, updateInterviewState, updateInterviewData } from './Survey';
+import {
+    validateAndPrepareSection,
+    updateInterviewState,
+    updateInterviewData,
+    startNavigateWithUpdateCallback
+} from './Survey';
 import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../store/configureStore';
 import { SurveyAction } from '../store/survey';
@@ -60,9 +66,12 @@ const updateSurveyCorrectedInterview = async (
 ) => {
     //surveyHelper.devLog(`Update interview and section with values by path`, valuesByPath);
     try {
+        const { survey } = getState();
+        const navigation = survey?.navigation;
+
         const interview = initialInterview
             ? initialInterview
-            : (_cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes);
+            : (_cloneDeep(survey?.interview) as UserRuntimeInterviewAttributes);
 
         dispatch(incrementLoadingState());
 
@@ -76,14 +85,9 @@ const updateSurveyCorrectedInterview = async (
         const affectedPaths = updateInterviewData(interview, { valuesByPath, unsetPaths, userAction });
 
         // TODO: update this so it works well with validationOnePager (admin). Should we force this? Anyway this code should be replaced/updated completely in the next version.
-        const sectionShortname =
-            requestedSectionShortname === 'validationOnePager'
-                ? 'validationOnePager'
-                : (surveyHelper.getResponse(
-                      interview as UserRuntimeInterviewAttributes,
-                      '_activeSection',
-                      requestedSectionShortname
-                ) as string);
+        const sectionShortname = requestedSectionShortname
+            ? requestedSectionShortname
+            : navigation?.currentSection?.sectionShortname || '';
         //if (sectionShortname !== previousSection) // need to update all widgets if new section
         //{
         //  affectedPaths['_all'] = true;
@@ -178,6 +182,17 @@ export const startUpdateSurveyCorrectedInterview =
         };
 
 /**
+ * Redux action to call with a dispatch to navigate forward in the current
+ * interview for corrected interviews
+ *
+ * @returns The dispatched action
+ */
+export const startNavigateCorrectedInterview = (
+    options: Parameters<StartNavigate>[0] = {},
+    callback?: Parameters<StartNavigate>[1]
+) => startNavigateWithUpdateCallback(startUpdateSurveyCorrectedInterview, options, callback);
+
+/**
  * Fetch an interview from server and set it for edition in correction mode.
  *
  * @param {*} interviewUuid The uuid of the interview to open
@@ -200,9 +215,15 @@ export const startSetSurveyCorrectedInterview = (
                 credentials: 'include'
             });
             if (response.status === 200) {
-                const body = response.json();
+                const body = await response.json();
                 if (body.interview) {
                     const interview = body.interview;
+                    // Set the interview in the state first
+                    dispatch(updateInterviewState(interview));
+
+                    // Then, initialize navigation for the current interview
+                    await dispatch(startNavigateCorrectedInterview(undefined, callback));
+
                     dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                 }
             }

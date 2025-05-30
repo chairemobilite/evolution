@@ -22,6 +22,8 @@ import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-com
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
+import { validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
+
 
 const personsWidgets = [
     'personNickname',
@@ -1088,29 +1090,26 @@ export const buttonSaveNextSectionHouseholdMembers = {
     }
   },
   saveCallback: function(callbacks: InterviewUpdateCallbacks, interview: UserInterviewAttributes, path: string, user?: CliUser) {
-    
     const personsCount  = odSurveyHelper.countPersons({ interview });
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-    if (householdSize !== personsCount)
-    {
+    
+    // Update the household size if needed, then navigate to next section
+    if (householdSize !== personsCount) {
       callbacks.startUpdateInterview({
         sectionShortname: 'householdMembers',
         valuesByPath: {
-          [`response.household.size`]: personsCount,
-          [`response._activeSection`]: 'selectPerson'
+          [`response.household.size`]: personsCount
         }
+      }, () => {
+        // After the update is complete, use navigation service to go to the next section
+        callbacks.startNavigate();
       });
+    } else {
+      // Just navigate to the next section
+      callbacks.startNavigate();
     }
-    else
-    {
-      callbacks.startUpdateInterview({
-        sectionShortname: 'householdMembers',
-        valuesByPath: { [`response._activeSection`]: 'selectPerson' }
-      });
-    }
-    //return null;
   },
-  action: validateButtonAction
+  action: validateButtonActionWithCompleteSection
 };
 
 export const selectPerson = {

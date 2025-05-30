@@ -25,7 +25,6 @@ surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: f
 // Verify that the buttons have the expected class/colors and are disabled if we haven't been to the corresponding page yet.
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'active', isDisabled: false });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Your household', buttonStatus: 'inactive', isDisabled: true });
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Profile', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Trips', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'inactive', isDisabled: true });
 
@@ -34,7 +33,6 @@ onePersonTestHelpers.completeHomePage(context);
 
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'completed', isDisabled: false });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Your household', buttonStatus: 'active', isDisabled: false });
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Profile', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Trips', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'inactive', isDisabled: true });
 
@@ -45,7 +43,6 @@ testHelpers.changePageFromNavBar({ context, buttonText: 'Home', nextPageUrl: '/s
 
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'activeAndCompleted', isDisabled: false });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Your household', buttonStatus: 'inactive', isDisabled: false });
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Profile', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Trips', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'inactive', isDisabled: true });
 
@@ -59,7 +56,6 @@ onePersonTestHelpers.completeProfilePage(context);
 
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'completed', isDisabled: false });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Your household', buttonStatus: 'completed', isDisabled: false });
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Profile', buttonStatus: 'completed', isDisabled: false });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Trips', buttonStatus: 'completed', isDisabled: false });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'active', isDisabled: false });
 
@@ -67,8 +63,7 @@ testHelpers.changePageFromNavBar({ context, buttonText: 'Home', nextPageUrl: '/s
 testHelpers.changePageFromNavBar({ context, buttonText: 'Your household', nextPageUrl: '/survey/householdMembers' });
 // Since we are testing with no trips, the Trips button will redirect to the End page.
 // As such, we switch the order with Profile so that we will not stay on the same URL when testing Trips and End
-testHelpers.changePageFromNavBar({ context, buttonText: 'Trips', nextPageUrl: '/survey/end' });
-testHelpers.changePageFromNavBar({ context, buttonText: 'Profile', nextPageUrl: '/survey/profile' });
+testHelpers.changePageFromNavBar({ context, buttonText: 'Trips', nextPageUrl: '/survey/profile' });
 testHelpers.changePageFromNavBar({ context, buttonText: 'End', nextPageUrl: '/survey/end' });
 
 onePersonTestHelpers.completeEndPage(context);

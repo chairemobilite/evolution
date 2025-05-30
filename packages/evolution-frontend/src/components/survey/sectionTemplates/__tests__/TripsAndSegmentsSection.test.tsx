@@ -91,7 +91,8 @@ beforeEach(() => {
         loadingState: 0,
         startUpdateInterview: jest.fn(),
         startAddGroupedObjects: jest.fn(),
-        startRemoveGroupedObjects: jest.fn()
+        startRemoveGroupedObjects: jest.fn(),
+        startNavigate: jest.fn()
     };
 });
 

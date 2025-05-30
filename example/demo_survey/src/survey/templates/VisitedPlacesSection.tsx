@@ -216,6 +216,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
                 startUpdateInterview={props.startUpdateInterview}
                 startAddGroupedObjects={props.startAddGroupedObjects}
                 startRemoveGroupedObjects={props.startRemoveGroupedObjects}
+                startNavigate={props.startNavigate}
             />
         );
     }
@@ -310,6 +311,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
               startUpdateInterview        = {props.startUpdateInterview}
               startAddGroupedObjects      = {props.startAddGroupedObjects}
               startRemoveGroupedObjects   = {props.startRemoveGroupedObjects}
+              startNavigate = {props.startNavigate}
             />
           </li>
         );

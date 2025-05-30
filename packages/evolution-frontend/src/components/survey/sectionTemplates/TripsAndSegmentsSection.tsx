@@ -97,6 +97,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                 startUpdateInterview={props.startUpdateInterview}
                 startAddGroupedObjects={props.startAddGroupedObjects}
                 startRemoveGroupedObjects={props.startRemoveGroupedObjects}
+                startNavigate={props.startNavigate}
             />
         );
     }
@@ -301,6 +302,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                         startUpdateInterview={props.startUpdateInterview}
                         startAddGroupedObjects={props.startAddGroupedObjects}
                         startRemoveGroupedObjects={props.startRemoveGroupedObjects}
+                        startNavigate={props.startNavigate}
                     />
                 </li>
             );

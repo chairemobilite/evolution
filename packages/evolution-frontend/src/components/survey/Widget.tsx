@@ -146,7 +146,8 @@ const BaseSingleWidget: React.FC<
         user: props.user,
         startUpdateInterview: props.startUpdateInterview,
         startAddGroupedObjects: props.startAddGroupedObjects,
-        startRemoveGroupedObjects: props.startRemoveGroupedObjects
+        startRemoveGroupedObjects: props.startRemoveGroupedObjects,
+        startNavigate: props.startNavigate
     };
 
     switch (widgetConfig.type) {

@@ -69,6 +69,7 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
             startUpdateInterview={props.startUpdateInterview}
             startAddGroupedObjects={props.startAddGroupedObjects}
             startRemoveGroupedObjects={props.startRemoveGroupedObjects}
+            startNavigate={props.startNavigate}
         />
     ));
 
@@ -108,6 +109,7 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
                         startRemoveGroupedObjects={props.startRemoveGroupedObjects}
                         startUpdateInterview={props.startUpdateInterview}
                         startAddGroupedObjects={props.startAddGroupedObjects}
+                        startNavigate={props.startNavigate}
                     />
                     {widgetsComponents}
                 </div>
@@ -204,6 +206,7 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
                     startUpdateInterview={props.startUpdateInterview}
                     startAddGroupedObjects={props.startAddGroupedObjects}
                     startRemoveGroupedObjects={props.startRemoveGroupedObjects}
+                    startNavigate={props.startNavigate}
                 />
             );
         }

@@ -43,7 +43,7 @@ const basicInfoForPersonComplete = function(person, householdSize) {
 const householdMembersSectionComplete = function(interview) {
     if (!homeSectionComplete(interview)) { return false; }
     const household = surveyHelperNew.getResponse(interview, 'household') as any;
-    if (household.size !== odSurveyHelper.countPersons({ interview })) { return false; }
+    if (household.size > odSurveyHelper.countPersons({ interview })) { return false; }
     const persons = odSurveyHelper.getPersons({ interview });
     for (const personId in persons)
     {
@@ -84,10 +84,11 @@ const profileInfoForPersonComplete = function(person, interview) {
 
 const tripsIntroForPersonComplete = function(person, interview) {
     if (person && person.age < 5) { return true; }
+    const journeys = odSurveyHelper.getJourneysArray({ person });
     if (
          !profileInfoForPersonComplete(person, interview)
       || _isBlank(person.didTripsOnTripsDate)
-      || ((person.didTripsOnTripsDate === 'yes' || person.didTripsOnTripsDate === true) && _isBlank(person.departurePlaceType))
+      || ((person.didTripsOnTripsDate === 'yes' || person.didTripsOnTripsDate === true) && (_isBlank(journeys[0]) || _isBlank(journeys[0].departurePlaceType)))
     ) { return false; }
     return true;
 };
@@ -392,6 +393,7 @@ export default {
     travelBehaviorForPersonComplete,
     tripsIntroForPersonComplete,
     tripsForPersonComplete,
+    visitedPlacesForPersonComplete,
     allPersonsTripsAndTravelBehaviorComplete,
     selectNextVisitedPlaceId,
     deleteVisitedPlace,

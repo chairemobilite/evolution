@@ -141,10 +141,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             if (isValid && typeof (widgetConfig as any).saveCallback === 'function') {
                 saveCallback = (widgetConfig as any).saveCallback;
             }
-            this.props.startUpdateInterview(
-                { sectionShortname: this.props.section, valuesByPath, userAction },
-                saveCallback
-            );
+            this.props.startUpdateInterview({ valuesByPath, userAction }, saveCallback);
         }
 
         if (isWidgetModal(widgetConfig) && this.state.modalIsOpen && isValid) {
