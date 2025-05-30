@@ -178,7 +178,7 @@ export const startUpdateSurveyCorrectedInterview =
         };
 
 /**
- * Fetch an interview from server and set it for edition in validation mode.
+ * Fetch an interview from server and set it for edition in correction mode.
  *
  * @param {*} interviewUuid The uuid of the interview to open
  * @param {*} callback
@@ -195,22 +195,20 @@ export const startSetSurveyCorrectedInterview = (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
         _getState: () => RootState
     ) => {
-        return fetch(`/api/survey/correctInterview/${interviewUuid}`, {
-            credentials: 'include'
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    response.json().then((body) => {
-                        if (body.interview) {
-                            const interview = body.interview;
-                            dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
-                        }
-                    });
-                }
-            })
-            .catch((err) => {
-                surveyHelper.devLog('Error fetching interview to correct.', err);
+        try {
+            const response = await fetch(`/api/survey/correctInterview/${interviewUuid}`, {
+                credentials: 'include'
             });
+            if (response.status === 200) {
+                const body = response.json();
+                if (body.interview) {
+                    const interview = body.interview;
+                    dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
+                }
+            }
+        } catch (err) {
+            surveyHelper.devLog('Error fetching interview to correct.', err);
+        }
     };
 };
 
@@ -269,7 +267,7 @@ export const startSurveyCorrectedRemoveGroupedObjects = (
 
 /**
  * Fetch an interview from server and re-initialize the corrected_response to the
- * participant's response, but keeping the validation comments.
+ * participant's response, but keeping the review comments.
  *
  * @param {*} interviewUuid The uuid of the interview to open
  * @param {*} callback
@@ -282,25 +280,23 @@ export const startResetCorrectedInterview = (
         return;
     }
 ) => {
-    return (
+    return async (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
         _getState: () => RootState
     ) => {
-        return fetch(`/api/survey/correctInterview/${interviewUuid}?reset=true`, {
-            credentials: 'include'
-        })
-            .then((response) => {
-                if (response.status === 200) {
-                    response.json().then((body) => {
-                        if (body.interview) {
-                            const interview = body.interview;
-                            dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
-                        }
-                    });
-                }
-            })
-            .catch((err) => {
-                surveyHelper.devLog('Error fetching interview to reset.', err);
+        try {
+            const response = await fetch(`/api/survey/correctInterview/${interviewUuid}?reset=true`, {
+                credentials: 'include'
             });
+            if (response.status === 200) {
+                const body = await response.json();
+                if (body.interview) {
+                    const interview = body.interview;
+                    dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
+                }
+            }
+        } catch (err) {
+            surveyHelper.devLog('Error fetching interview to reset.', err);
+        }
     };
 };
