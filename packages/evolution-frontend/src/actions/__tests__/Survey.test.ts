@@ -13,6 +13,9 @@ import { prepareSectionWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
 import applicationConfiguration from '../../config/application.config';
 import bowser from 'bowser';
+import { SurveyActionTypes } from '../../store/survey';
+import { createNavigationService, NavigationService } from 'evolution-common/lib/services/questionnaire/sections/NavigationService';
+
 //import fetchRetry from '@zeit/fetch-retry'
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
 
@@ -51,6 +54,17 @@ jest.mock('../../services/errorManagement/errorHandling', () => ({
 }));
 const mockedHandleHttpOtherResponseCode = handleHttpOtherResponseCode as jest.MockedFunction<typeof handleHttpOtherResponseCode>;
 const mockedHandleClientError = handleClientError as jest.MockedFunction<typeof handleClientError>;
+
+// Mock the navigation service
+jest.mock('evolution-common/lib/services/questionnaire/sections/NavigationService', () => ({
+    createNavigationService: jest.fn().mockReturnValue(({
+        initNavigationState: jest.fn(),
+        navigate: jest.fn()
+    }))
+}));
+const navigationServiceMock = createNavigationService({});
+const mockNavigate = navigationServiceMock.navigate as jest.MockedFunction<typeof navigationServiceMock.navigate>;
+const mockInitNavigationState = navigationServiceMock.initNavigationState as jest.MockedFunction<typeof navigationServiceMock.initNavigationState>;
 
 // Default interview data
 const interviewAttributes: UserRuntimeInterviewAttributes = {
@@ -101,16 +115,17 @@ jest.mock('../utils', () => ({
 }));
 const mockDispatch = jest.fn();
 const mockPrepareSectionWidgets = prepareSectionWidgets as jest.MockedFunction<typeof prepareSectionWidgets>;
-const mockGetState = jest.fn().mockReturnValue({
+const mockGetState = jest.fn().mockImplementation(() => ({
     survey: {
-        interview: interviewAttributes,
+        interview: _cloneDeep(interviewAttributes),
         interviewLoaded: true,
-        errors: undefined
+        errors: undefined,
+        navigationService: navigationServiceMock
     },
     auth: {
         user: testUser
     }
-});
+}));
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -469,6 +484,358 @@ describe('Update interview', () => {
 
 });
 
+describe('startNavigate', () => {
+
+    let startUpdateInterviewSpy;
+    let validateAndPrepareSectionSpy: jest.SpiedFunction<typeof SurveyActions.validateAndPrepareSection>;
+    const startUpdateInterviewMock = jest.fn();
+
+    // State mock with prior navigation
+    const currentSection = { sectionShortname: 'currentSection' };
+    const mockStateWithNav = () => ({
+        survey: {
+            interview: _cloneDeep(interviewAttributes),
+            interviewLoaded: true,
+            errors: undefined,
+            navigationService: navigationServiceMock,
+            navigation: {
+                currentSection,
+                navigationHistory: [{ sectionShortname: 'previousSection' }]
+            }
+        },
+        auth: {
+            user: testUser
+        }
+    });
+
+    beforeAll(() => {
+        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue(startUpdateInterviewMock);
+        validateAndPrepareSectionSpy = jest.spyOn(SurveyActions, 'validateAndPrepareSection').mockImplementation((_s, interview, _a, valuesByPath, _U, _user) => [ interview, valuesByPath ]);
+        jest.spyOn(bowser, 'getParser').mockReturnValue(bowser.getParser('test'));
+    });
+
+    afterAll(() => {
+        startUpdateInterviewSpy.mockRestore();
+        validateAndPrepareSectionSpy.mockRestore();
+    });
+
+    const validateIncrementLoadingStateCalls = (dispatch: jest.Mock) => {
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: 'INCREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(4, {
+            type: 'DECREMENT_LOADING_STATE'
+        });
+    };
+
+    test('should initialize navigation if called without parameters and without prior navigation', async () => {
+        // Prepare mock and test data
+        const targetSection = { sectionShortname: 'nextSection' };
+        mockInitNavigationState.mockReturnValueOnce({ targetSection });
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate();
+        await callback(mockDispatch, mockGetState);
+
+        // validation function should not have been called
+        expect(validateAndPrepareSectionSpy).not.toHaveBeenCalled();
+
+        // Verify call to navigation service
+        expect(mockInitNavigationState).toHaveBeenCalledTimes(1);
+        expect(mockInitNavigationState).toHaveBeenCalledWith({ interview: interviewAttributes, requestedSection: undefined});
+
+        // Verify dispatch calls
+        expect(mockDispatch).toHaveBeenCalledTimes(4);
+        validateIncrementLoadingStateCalls(mockDispatch);
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: targetSection.sectionShortname,
+            userAction: { type: 'sectionChange', targetSection }
+        });
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: SurveyActionTypes.NAVIGATE,
+            targetSection
+        });
+
+    });
+    
+    test('should navigation to next section if called without parameters, but with prior navigation', async () => {
+        // Prepare mock and test data
+        const targetSection = { sectionShortname: 'nextSection' };
+        mockNavigate.mockReturnValueOnce({ targetSection });
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate();
+        await callback(mockDispatch, mockGetState);
+
+        // Verify validation function call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledTimes(1);
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledWith(currentSection.sectionShortname, interviewAttributes, { _all: true }, { _all: true }, false, testUser);
+
+        // Verify call to navigation service
+        expect(mockInitNavigationState).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith({ interview: interviewAttributes, currentSection });
+
+        // Verify dispatch calls
+        expect(mockDispatch).toHaveBeenCalledTimes(4);
+        validateIncrementLoadingStateCalls(mockDispatch);
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: targetSection.sectionShortname,
+            userAction: { type: 'sectionChange', targetSection, previousSection: currentSection }
+        });
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: SurveyActionTypes.NAVIGATE,
+            targetSection
+        });
+    });
+
+    test('should initialize navigation if called with requested section, no callback', async () => {
+        // Prepare mock and test data
+        const targetSection = { sectionShortname: 'nextSection' };
+        const requestedSection = { sectionShortname: 'requestedSection' };
+        mockInitNavigationState.mockReturnValueOnce({ targetSection });
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate({ requestedSection});
+        await callback(mockDispatch, mockGetState);
+
+        // validation function should not have been called
+        expect(validateAndPrepareSectionSpy).not.toHaveBeenCalled();
+
+        // Verify call to navigation service
+        expect(mockNavigate).not.toHaveBeenCalled();
+        expect(mockInitNavigationState).toHaveBeenCalledTimes(1);
+        expect(mockInitNavigationState).toHaveBeenCalledWith({ interview: interviewAttributes, requestedSection: requestedSection.sectionShortname });
+
+        // Verify dispatch calls
+        expect(mockDispatch).toHaveBeenCalledTimes(4);
+        validateIncrementLoadingStateCalls(mockDispatch);
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: targetSection.sectionShortname,
+            userAction: { type: 'sectionChange', targetSection }
+        });
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: SurveyActionTypes.NAVIGATE,
+            targetSection
+        });
+    });
+
+
+    test('should call callback at the end', async () => {
+        // Prepare mock and test data
+        const navCallback = jest.fn();
+        const targetSection = { sectionShortname: 'nextSection' };
+        mockNavigate.mockReturnValueOnce({ targetSection });
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate(undefined, navCallback);
+        await callback(mockDispatch, mockGetState);
+
+        // Verify validation function call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledTimes(1);
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledWith(currentSection.sectionShortname, interviewAttributes, { _all: true }, { _all: true }, false, testUser);
+
+        // Verify call to navigation service
+        expect(mockInitNavigationState).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith({ interview: interviewAttributes, currentSection });
+
+        // Verify dispatch calls
+        expect(mockDispatch).toHaveBeenCalledTimes(4);
+        validateIncrementLoadingStateCalls(mockDispatch);
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: targetSection.sectionShortname,
+            userAction: { type: 'sectionChange', targetSection, previousSection: currentSection }
+        });
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: SurveyActionTypes.NAVIGATE,
+            targetSection
+        });
+
+        // Verify call to callback
+        expect(navCallback).toHaveBeenCalledTimes(1);
+        expect(navCallback).toHaveBeenCalledWith(interviewAttributes, targetSection);
+    });
+
+    test('should update interview with new values if valuesByPath returned by navigation', async () => {
+        // Prepare mock and test data
+        const targetSection = { sectionShortname: 'nextSection' };
+        const navValuesByPath = { 'response.section1.q1': 'foo' };
+        mockNavigate.mockReturnValueOnce({ targetSection, valuesByPath: navValuesByPath });
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate();
+        await callback(mockDispatch, mockGetState);
+
+        // Verify validation function call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledTimes(1);
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledWith(currentSection.sectionShortname, interviewAttributes, { _all: true }, { _all: true }, false, testUser);
+
+        // Verify call to navigation service, interview should have been updated with values
+        expect(mockInitNavigationState).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith({ interview: interviewAttributes, currentSection });
+
+        // Verify dispatch calls
+        expect(mockDispatch).toHaveBeenCalledTimes(4);
+        validateIncrementLoadingStateCalls(mockDispatch);
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: targetSection.sectionShortname,
+            userAction: { type: 'sectionChange', targetSection, previousSection: currentSection },
+            valuesByPath: { ...navValuesByPath }
+        });
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: SurveyActionTypes.NAVIGATE,
+            targetSection
+        });
+    });
+
+    test('should update interview with combined values by path from call, side effect, validate and nav', async () => {
+        // Prepare mock and test data
+        const targetSection = { sectionShortname: 'nextSection' };
+        // Requested values come first
+        const requestValuesByPath = { 'response.section1.q1': 'bar', 'response.section1.q2': 'blabla' };
+        // Validation values by path next
+        const validationValuesByPath = { 'response.section1.q2': true, 'response.section1.q3': 4 };
+        // Nav values at the end
+        const navValuesByPath = { 'response.section1.q1': 'foo', 'response.navField': 3 };
+        
+        mockNavigate.mockReturnValueOnce({ targetSection, valuesByPath: navValuesByPath });
+        validateAndPrepareSectionSpy.mockImplementationOnce((_s, interview, _a, valuesByPath, _U, _user) => [ interview, validationValuesByPath ])
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate({ valuesByPath: requestValuesByPath});
+        await callback(mockDispatch, mockGetState);
+
+        // Verify validation function call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledTimes(1);
+        // Don't validate the interview in this call. It was tested in other tests and since it was modified in place later in the function, the value changes from the original call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledWith(currentSection.sectionShortname, expect.anything(), { _all: true }, { _all: true }, false, testUser);
+
+        // Verify call to navigation service
+        const expectedNavInterview = _cloneDeep(interviewAttributes);
+        expectedNavInterview.response.section1.q1 = 'bar';
+        expectedNavInterview.response.section1.q2 = true;
+        expectedNavInterview.response.section1.q3 = 4;
+        expect(mockInitNavigationState).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith({ interview: expectedNavInterview, currentSection });
+
+        // Verify dispatch calls
+        expect(mockDispatch).toHaveBeenCalledTimes(4);
+        validateIncrementLoadingStateCalls(mockDispatch);
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: targetSection.sectionShortname,
+            userAction: { type: 'sectionChange', targetSection, previousSection: currentSection },
+            valuesByPath: Object.assign({}, requestValuesByPath, validationValuesByPath, navValuesByPath)
+        });
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: SurveyActionTypes.NAVIGATE,
+            targetSection
+        });
+    });
+
+    test('should stay on current page if current widgets are invalid', async () => {
+        // Prepare mock and test data
+        const targetSection = { sectionShortname: 'nextSection' };
+        mockNavigate.mockReturnValueOnce({ targetSection });
+        validateAndPrepareSectionSpy.mockImplementationOnce((_s, interview, _a, valuesByPath, _U, _user) => [ {...interview, allWidgetsValid: false }, valuesByPath ])
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate();
+        await callback(mockDispatch, mockGetState);
+
+        // Verify validation function call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledTimes(1);
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledWith(currentSection.sectionShortname, interviewAttributes, { _all: true }, { _all: true }, false, testUser);
+
+        // Verify navigation service is not called
+        expect(mockInitNavigationState).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
+
+        // Verify dispatch calls to update
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+        expect(startUpdateInterviewMock).not.toHaveBeenCalled();
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, {
+            type: SurveyActionTypes.UPDATE_INTERVIEW,
+            interviewLoaded: true,
+            interview: { ...interviewAttributes, allWidgetsValid: false },
+            errors: {},
+            submitted: true
+        });
+    });
+
+    test('should properly handle exceptions', async () => {
+        // Prepare mock and test data, throw exception in navigation function
+        const targetSection = { sectionShortname: 'nextSection' };
+        mockNavigate.mockReturnValueOnce({ targetSection });
+        const error = new Error('Validation error');
+        validateAndPrepareSectionSpy.mockImplementationOnce(() => { throw error; });
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate();
+        await callback(mockDispatch, mockGetState);
+
+        // Verify validation function call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledTimes(1);
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledWith(currentSection.sectionShortname, interviewAttributes, { _all: true }, { _all: true }, false, testUser);
+
+        // Verify navigation service is not called
+        expect(mockInitNavigationState).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
+
+        // Verifications
+        expect(handleClientError).toHaveBeenCalledTimes(1);
+        expect(handleClientError).toHaveBeenCalledWith(error, { interviewId: interviewAttributes.id });
+    });
+
+});
+
 describe('startAddGroupedObjects', () => {
     const defaultAddGroupResponse = { 'response.data': { _uuid: 'someuuid' }, 'validations.data': true };
     mockedAddGroupedObject.mockReturnValue(defaultAddGroupResponse);
@@ -639,17 +1006,17 @@ describe('startSetInterview', () => {
     };
 
     const initialAppConfigSections = _cloneDeep(applicationConfiguration.sections);
-    let startUpdateInterviewSpy;
-    const startUpdateInterviewMock = jest.fn();
+    let startNavigateSpy;
+    const startNavigateMock = jest.fn();
 
     beforeAll(() => {
-        startUpdateInterviewSpy = jest.spyOn(SurveyActions, 'startUpdateInterview').mockReturnValue(startUpdateInterviewMock);
+        startNavigateSpy = jest.spyOn(SurveyActions, 'startNavigate').mockReturnValue(startNavigateMock);
         applicationConfiguration.sections = applicationSections as any;
         jest.spyOn(bowser, 'getParser').mockReturnValue(bowser.getParser('test'));
     });
 
     afterAll(() => {
-        startUpdateInterviewSpy.mockRestore();
+        startNavigateSpy.mockRestore();
         applicationConfiguration.sections = initialAppConfigSections;
     });
 
@@ -668,16 +1035,19 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/activeInterview', expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
-            sectionShortname: 'sectionFirst',
-            valuesByPath: {
-                'response._activeSection': 'sectionFirst',
-                'response._browser': expect.anything()
-            }, interview: returnedInterview
+        expect(mockDispatch).toHaveBeenCalledTimes(2);
+        expect(mockDispatch).toHaveBeenCalledWith({
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: returnedInterview,
+            interviewLoaded: true
         });
-
+        expect(mockDispatch).toHaveBeenCalledWith(startNavigateMock);
+        expect(SurveyActions.startNavigate).toHaveBeenCalledWith({
+            requestedSection: undefined,
+            valuesByPath: {
+                'response._browser': expect.anything()
+            }
+        });
     });
 
     test('With prefilled response and section', async () => {
@@ -696,16 +1066,20 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/activeInterview', expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
-            sectionShortname: 'sectionFirst',
+        expect(mockDispatch).toHaveBeenCalledTimes(2);
+        expect(mockDispatch).toHaveBeenCalledWith({
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: returnedInterview,
+            interviewLoaded: true
+        });
+        expect(mockDispatch).toHaveBeenCalledWith(startNavigateMock);
+        expect(SurveyActions.startNavigate).toHaveBeenCalledWith({
+            requestedSection: { sectionShortname: 'sectionFirst' },
             valuesByPath: {
-                'response._activeSection': 'sectionFirst',
                 'response._browser': expect.anything(),
                 'response.fieldA': 'valueA',
                 'response.fieldB': 'valueB'
-            }, interview: returnedInterview
+            }
         });
 
     });
@@ -727,7 +1101,7 @@ describe('startSetInterview', () => {
         }));
         expect(mockDispatch).not.toHaveBeenCalled();
         expect(consoleErrorSpy).toHaveBeenCalledWith('Error: Get active interview: no interview was returned, it\'s not supposed to happen');
-        expect(SurveyActions.startUpdateInterview).not.toHaveBeenCalled();
+        expect(SurveyActions.startNavigate).not.toHaveBeenCalled();
     });
 
     test('with interview UUID', async () => {
@@ -747,14 +1121,18 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith(`/api/survey/activeInterview/${uuid}`, expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).toHaveBeenCalledTimes(1);
-        expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
-        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
-            sectionShortname: 'sectionFirst',
+        expect(mockDispatch).toHaveBeenCalledTimes(2);
+        expect(mockDispatch).toHaveBeenCalledWith({
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: returnedInterview,
+            interviewLoaded: true
+        });
+        expect(mockDispatch).toHaveBeenCalledWith(startNavigateMock);
+        expect(SurveyActions.startNavigate).toHaveBeenCalledWith({
+            requestedSection: { sectionShortname: 'sectionFirst' },
             valuesByPath: {
-                'response._activeSection': 'sectionFirst',
                 'response._browser': expect.anything()
-            }, interview: returnedInterview
+            }
         });
 
     });
@@ -775,7 +1153,7 @@ describe('startSetInterview', () => {
             credentials: 'include'
         }));
         expect(mockDispatch).not.toHaveBeenCalled();
-        expect(SurveyActions.startUpdateInterview).not.toHaveBeenCalled();
+        expect(SurveyActions.startNavigate).not.toHaveBeenCalled();
 
     });
 

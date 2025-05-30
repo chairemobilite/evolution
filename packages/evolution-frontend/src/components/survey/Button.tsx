@@ -90,7 +90,8 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
                 // matter, but a solution would need to be found if not.
                 startUpdateInterview: startUpdateInterviewForButtonClick,
                 startAddGroupedObjects: props.startAddGroupedObjects,
-                startRemoveGroupedObjects: props.startRemoveGroupedObjects
+                startRemoveGroupedObjects: props.startRemoveGroupedObjects,
+                startNavigate: props.startNavigate
             },
             props.interview,
             props.path,

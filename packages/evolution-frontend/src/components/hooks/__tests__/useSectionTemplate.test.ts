@@ -30,6 +30,7 @@ describe('useSectionTemplate', () => {
             startUpdateInterview: jest.fn(),
             startAddGroupedObjects: jest.fn(),
             startRemoveGroupedObjects: jest.fn(),
+            startNavigate: jest.fn(),
             allWidgetsValid: true,
             submitted: false,
             loadingState: 0
@@ -43,6 +44,7 @@ describe('useSectionTemplate', () => {
                 startUpdateInterview: props.startUpdateInterview,
                 startAddGroupedObjects: props.startAddGroupedObjects,
                 startRemoveGroupedObjects: props.startRemoveGroupedObjects,
+                startNavigate: props.startNavigate,
                 callback: expect.any(Function),
                 user: props.user
             }

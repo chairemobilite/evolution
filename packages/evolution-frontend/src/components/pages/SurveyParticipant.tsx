@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 
@@ -13,14 +13,16 @@ import {
     startSetInterview,
     startUpdateInterview,
     startAddGroupedObjects,
-    startRemoveGroupedObjects
+    startRemoveGroupedObjects,
+    initNavigationService,
+    startNavigate
 } from '../../actions/Survey';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { withPreferencesHOC } from '../hoc/WithPreferencesHoc';
-import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { InterviewContext } from '../../contexts/InterviewContext';
 import {
     StartAddGroupedObjects,
+    StartNavigate,
     StartRemoveGroupedObjects,
     StartUpdateInterview
 } from 'evolution-common/lib/services/questionnaire/types';
@@ -28,6 +30,7 @@ import { RootState } from '../../store/configureStore';
 import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../store/survey';
 import Survey from '../pageParts/Survey';
+import { SurveyContext } from '../../contexts/SurveyContext';
 
 type StartSetInterview = (
     activeSection: string | undefined,
@@ -35,13 +38,14 @@ type StartSetInterview = (
     preFilledResponse: { [key: string]: unknown } | undefined
 ) => void;
 
-const SurveyParticipant: React.FC<WithSurveyContextProps> = (props: WithSurveyContextProps) => {
+const SurveyParticipant: React.FC = () => {
     // Get state selectors and other hooks
     const interview = useSelector((state: RootState) => state.survey.interview);
     const interviewLoaded = useSelector((state: RootState) => state.survey.interviewLoaded);
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const navigate = useNavigate();
     const { sectionShortname: pathSectionShortname, uuid: surveyUuid } = useParams();
+    const { sections } = useContext(SurveyContext);
 
     const { state: interviewContext } = React.useContext(InterviewContext);
 
@@ -58,24 +62,22 @@ const SurveyParticipant: React.FC<WithSurveyContextProps> = (props: WithSurveyCo
         (paths, callback, returnOnly) => dispatch(startRemoveGroupedObjects(paths, callback, returnOnly)),
         []
     );
+    const startNavigateAction: StartNavigate = React.useCallback(
+        (section: Parameters<StartNavigate>[0]) => dispatch(startNavigate(section)),
+        [dispatch]
+    );
+
+    // Initialize navigation service before setting the interview in the next useEffect
+    React.useEffect(() => {
+        dispatch(initNavigationService(sections));
+    }, [sections, dispatch]);
 
     React.useEffect(() => {
         const startSetInterviewAction: StartSetInterview = (sectionShortname, surveyUuid, preFilledResponse) =>
             dispatch(startSetInterview(sectionShortname, surveyUuid, navigate, preFilledResponse));
 
-        // Load the current interview
-        const existingActiveSection: string | null = interview
-            ? (surveyHelperNew.getResponse(interview, '_activeSection', null) as string | null)
-            : null;
-        // FIXME This will have to be updated when the new navigation is implemented, not sure it works correctly
-        const pathSectionParentSection: string | undefined =
-            pathSectionShortname &&
-            props.surveyContext.sections[pathSectionShortname] &&
-            props.surveyContext.sections[pathSectionShortname].navMenu.type === 'hidden'
-                ? props.surveyContext.sections[pathSectionShortname].navMenu.parentSection
-                : undefined;
         startSetInterviewAction(
-            existingActiveSection || pathSectionParentSection,
+            pathSectionShortname,
             surveyUuid,
             interviewContext &&
                 interviewContext.status === 'entering' &&
@@ -96,9 +98,10 @@ const SurveyParticipant: React.FC<WithSurveyContextProps> = (props: WithSurveyCo
             startUpdateInterview={startUpdateInterviewAction}
             startAddGroupedObjects={startAddGroupedObjectsAction}
             startRemoveGroupedObjects={startRemoveGroupedObjectsAction}
+            startNavigate={startNavigateAction}
             interview={interview}
         />
     );
 };
 
-export default withSurveyContext(withPreferencesHOC(SurveyParticipant));
+export default withPreferencesHOC(SurveyParticipant);

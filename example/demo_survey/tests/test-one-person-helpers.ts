@@ -19,7 +19,7 @@ export function completeHomePage(context) {
 };
 
 export function completeHouseholdPage(context) {
-    testHelpers.sectionProgressBarTest({context, sectionName: 'Household members', completionPercentage: 11 });
+    testHelpers.sectionProgressBarTest({context, sectionName: 'Household members', completionPercentage: 10 });
     testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '30' });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'male' });
     testHelpers.inputSelectTest({ context, path: 'household.persons.${personId[0]}.occupation', value: 'fullTimeWorker' });
@@ -33,14 +33,14 @@ export function completeHouseholdPage(context) {
 };
 
 export function completeProfilePage(context) {
-    testHelpers.sectionProgressBarTest({context, sectionName: 'Profile', completionPercentage: 33 });
+    testHelpers.sectionProgressBarTest({context, sectionName: 'Profile', completionPercentage: 40 });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.workOnTheRoad', value: false });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.usualWorkPlaceIsHome', value: true });
     testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/end' });
 };
 
 export function completeEndPage(context) {
-    testHelpers.sectionProgressBarTest({context, sectionName: 'End', completionPercentage: 89 });
+    testHelpers.sectionProgressBarTest({context, sectionName: 'End', completionPercentage: 90 });
     testHelpers.inputSelectTest({ context, path: 'household.residentialPhoneType', value: 'landLine' });
     testHelpers.inputRadioTest({ context, path: 'household.didAlsoRespondByPhone', value: false });
     testHelpers.inputRadioTest({ context, path: 'household.wouldLikeToParticipateInOtherSurveys', value: false });

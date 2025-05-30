@@ -114,7 +114,7 @@ describe('getButtonSaveTripSegmentsConfig button action', () => {
     test('test button action', () => {
         expect(mockButtonValidate).not.toHaveBeenCalled();
         const action = widgetConfig.action;
-        action({ startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn() }, interviewAttributesForTestCases, 'path', 'segments', {});
+        action({ startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() }, interviewAttributesForTestCases, 'path', 'segments', {});
         expect(mockButtonValidate).toHaveBeenCalled();
     });
 });
@@ -128,7 +128,7 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
     const buttonPath = 'path.to.trip.buttonAction';
     const saveCallback = widgetConfig.saveCallback;
     const updateCallbacks =
-        { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn() };
+        { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() };
 
     beforeEach(() => {
         jest.clearAllMocks();

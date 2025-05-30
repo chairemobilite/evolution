@@ -120,7 +120,7 @@ export const secondsSinceMidnightToTimeStrWithSuffix = function (
     }
 };
 
-export const validateButtonAction: ButtonAction = (callbacks, interview, path, section, sections, saveCallback) => {
+export const validateButtonAction: ButtonAction = (callbacks, interview, path, section, _sections, saveCallback) => {
     callbacks.startUpdateInterview(
         { sectionShortname: section, valuesByPath: { _all: true }, interview },
         (updatedInterview) => {
@@ -128,12 +128,9 @@ export const validateButtonAction: ButtonAction = (callbacks, interview, path, s
                 if (typeof saveCallback === 'function') {
                     saveCallback(callbacks, updatedInterview, path);
                 } else {
-                    // go to next section
+                    // scroll to top of the page
                     window.scrollTo(0, 0);
-                    callbacks.startUpdateInterview({
-                        sectionShortname: section,
-                        valuesByPath: { 'response._activeSection': sections[section].nextSection }
-                    });
+                    callbacks.startNavigate();
                 }
             }
         }
@@ -144,42 +141,36 @@ export const validateButtonAction: ButtonAction = (callbacks, interview, path, s
 // FIXME This is a temporary move to typescript, but section navigation should be handled server side
 export const validateButtonActionWithCompleteSection: ButtonAction = (
     callbacks,
-    interview,
+    _interview,
     path,
-    section,
+    _section,
     sections,
     saveCallback
 ) => {
-    callbacks.startUpdateInterview(
-        { sectionShortname: section, valuesByPath: { _all: true }, interview },
-        (updatedInterview) => {
-            if ((updatedInterview as any).allWidgetsValid) {
-                if (typeof saveCallback === 'function') {
-                    saveCallback(callbacks, updatedInterview, path);
-                } else {
-                    // Calculate the survey completion percentage based on the number of completed sections
-                    const completionPercentage = calculateSurveyCompletionPercentage({
-                        interview,
-                        sections,
-                        sectionName: section,
-                        sectionTarget: 'nextSection'
-                    });
+    callbacks.startNavigate(undefined, (updatedInterview, targetSection) => {
+        if ((updatedInterview as any).allWidgetsValid) {
+            if (typeof saveCallback === 'function') {
+                saveCallback(callbacks, updatedInterview, path);
+            } else {
+                // Calculate the survey completion percentage based on the number of completed sections
+                // FIXME Completion rate should be calculated by the navigation service itself
+                const completionPercentage = calculateSurveyCompletionPercentage({
+                    interview: updatedInterview,
+                    sections,
+                    sectionName: targetSection.sectionShortname,
+                    sectionTarget: 'nextSection'
+                });
 
-                    // Mark the section as completed and update the completion percentage
-                    // Go to next section
-                    window.scrollTo(0, 0);
-                    callbacks.startUpdateInterview({
-                        sectionShortname: section,
-                        valuesByPath: {
-                            'response._activeSection': sections[section].nextSection,
-                            [`response._sections.${section}._isCompleted`]: true,
-                            'response._completionPercentage': completionPercentage
-                        }
-                    });
-                }
+                // Update the completion percentage and scroll to top of page
+                window.scrollTo(0, 0);
+                callbacks.startUpdateInterview({
+                    valuesByPath: {
+                        'response._completionPercentage': completionPercentage
+                    }
+                });
             }
         }
-    );
+    });
 };
 
 /**

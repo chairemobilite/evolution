@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { useParams } from 'react-router';
@@ -15,11 +15,13 @@ import {
     startSetSurveyCorrectedInterview,
     startUpdateSurveyCorrectedInterview,
     startSurveyCorrectedAddGroupedObjects,
-    startSurveyCorrectedRemoveGroupedObjects
+    startSurveyCorrectedRemoveGroupedObjects,
+    startNavigateCorrectedInterview
 } from '../../../actions/SurveyAdmin';
 import { withPreferencesHOC } from '../../hoc/WithPreferencesHoc';
 import {
     StartAddGroupedObjects,
+    StartNavigate,
     StartRemoveGroupedObjects,
     StartUpdateInterview
 } from 'evolution-common/lib/services/questionnaire/types';
@@ -27,6 +29,8 @@ import { RootState } from '../../../store/configureStore';
 import { SurveyAction } from '../../../store/survey';
 import Survey from '../../pageParts/Survey';
 import { useTranslation } from 'react-i18next';
+import { SurveyContext } from '../../../contexts/SurveyContext';
+import { initNavigationService } from '../../../actions/Survey';
 
 const SurveyCorrection: React.FC = () => {
     const { t } = useTranslation(['admin', 'survey', 'main']);
@@ -34,6 +38,7 @@ const SurveyCorrection: React.FC = () => {
     const interviewLoaded = useSelector((state: RootState) => state.survey.interviewLoaded);
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const { interviewUuid } = useParams();
+    const { sections } = useContext(SurveyContext);
 
     // Use the redux actions for the corrected interview
     const startUpdateInterviewAction: StartUpdateInterview = React.useCallback(
@@ -59,6 +64,10 @@ const SurveyCorrection: React.FC = () => {
             dispatch(startSurveyCorrectedRemoveGroupedObjects(paths, callback, returnOnly)),
         []
     );
+    const startNavigateAction: StartNavigate = React.useCallback(
+        (section: Parameters<StartNavigate>[0]) => dispatch(startNavigateCorrectedInterview(section)),
+        [dispatch]
+    );
 
     if (interviewUuid === undefined) {
         return (
@@ -68,6 +77,11 @@ const SurveyCorrection: React.FC = () => {
             </div>
         );
     }
+    // Initialize navigation service before setting the interview in the next useEffect
+    React.useEffect(() => {
+        dispatch(initNavigationService(sections));
+    }, [sections, dispatch]);
+
     React.useEffect(() => {
         // Load the interview when first mounting the component
         dispatch(startSetSurveyCorrectedInterview(interviewUuid));
@@ -84,6 +98,7 @@ const SurveyCorrection: React.FC = () => {
             startUpdateInterview={startUpdateInterviewAction}
             startAddGroupedObjects={startAddGroupedObjectsAction}
             startRemoveGroupedObjects={startRemoveGroupedObjectsAction}
+            startNavigate={startNavigateAction}
             interview={interview}
         />
     );
