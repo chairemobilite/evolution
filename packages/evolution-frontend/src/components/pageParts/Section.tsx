@@ -91,6 +91,7 @@ export const Section: React.FC<SectionProps & WithSurveyContextProps> = (
                 startUpdateInterview={props.startUpdateInterview}
                 startAddGroupedObjects={props.startAddGroupedObjects}
                 startRemoveGroupedObjects={props.startRemoveGroupedObjects}
+                startNavigate={props.startNavigate}
             />
         );
     }

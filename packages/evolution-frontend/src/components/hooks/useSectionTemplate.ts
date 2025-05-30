@@ -34,6 +34,7 @@ export function useSectionTemplate(props: SectionProps) {
                 startUpdateInterview: props.startUpdateInterview,
                 startAddGroupedObjects: props.startAddGroupedObjects,
                 startRemoveGroupedObjects: props.startRemoveGroupedObjects,
+                startNavigate: props.startNavigate,
                 callback: () => setPreloaded(true),
                 user: props.user
             });

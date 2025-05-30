@@ -15,6 +15,9 @@ import { getSegmentsSectionConfig } from 'evolution-common/lib/services/question
 import helper from './helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { getAndValidateSurveySections, SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
+import { personNoWorkTripReason, personNoSchoolTripReason, personWhoAnsweredForThisPerson } from './widgets/travelBehavior';
+import { checkConditional } from 'evolution-frontend/lib/actions/utils/Conditional';
+
 
 
 const homeWidgets = [
@@ -101,12 +104,13 @@ const sections: { [sectionName: string]: SectionConfig } = {
     enableConditional: true,
     completionConditional: function(interview) {
       return helper.homeSectionComplete(interview);
-    }
+    },
+    isSectionCompleted: (interview) => helper.homeSectionComplete(interview)
   },
 
   householdMembers: {
     previousSection: 'home',
-    nextSection: 'selectPerson',
+    nextSection: 'personsTrips',
     title: {
       fr: "Membres du ménage",
       en: "Household members"
@@ -158,53 +162,13 @@ const sections: { [sectionName: string]: SectionConfig } = {
     },
     completionConditional: function(interview) {
       return helper.householdMembersSectionComplete(interview);
-    }
+    },
+    isSectionCompleted: (interview) => helper.householdMembersSectionComplete(interview)
   },
 
-/*  partTwoIntro: {
-    isPartTwoFirstSection: true,
+  personsTrips: {
     previousSection: 'householdMembers',
-    nextSection: "selectPerson",
-    parentSection: "selectPerson",
-    title: {
-      fr: "Intro deuxième partie",
-      en: "Intro second part"
-    },
-    menuName: {
-      fr: "Profil",
-      en: "Profile"
-    },
-    widgets: [
-      'partTwoIntroText',
-      'partOneConfirmed'
-    ],
-    preload: function (interview, {startUpdateInterview, callback}) {
-      const updateValuesByPath = {};
-      if (_isBlank(getResponse(interview, 'tripsDate', null)))
-      {
-        updateValuesByPath['response.tripsDate'] = moment().prevBusinessDay().format('YYYY-MM-DD');
-      }
-      if (_isBlank(getResponse(interview, '_partTwoStartedAt', null)))
-      {
-        updateValuesByPath['response._partTwoStartedAt'] = moment().unix();
-      }
-      if (!helper.householdMembersSectionPartOneComplete(interview))
-      {
-        updateValuesByPath['response._activeSection'] = 'home';
-      }
-      if (Object.keys(updateValuesByPath).length > 0)
-      {
-        startUpdateInterview('partTwoIntro', updateValuesByPath, null, null, callback);
-        return null;
-      }
-      callback(interview);
-      return null;
-    }
-  },*/
-
-  selectPerson: {
-    previousSection: 'householdMembers',
-    nextSection: "profile",
+    nextSection: "end",
     title: {
       fr: "Sélection du membre du ménage",
       en: "Household member selection"
@@ -212,86 +176,79 @@ const sections: { [sectionName: string]: SectionConfig } = {
     navMenu: {
       type: 'inNav',
       menuName: {
-        fr: "Profil",
-        en: "Profile"
+        fr: "Déplacements",
+        en: "Trips"
       }
     },
     widgets: [
       'selectPerson',
       'buttonSelectPersonConfirm'
     ],
-    preload: function(interview, { startUpdateInterview, callback }) {
-      const personsCount = odSurveyHelper.countPersons({ interview });
-      if (personsCount === 1)
-      {
-        const personIds = odSurveyHelper.getPersons({ interview });
-        startUpdateInterview({
-          sectionShortname: 'selectPerson', 
-          valuesByPath: {
-            'response._activePersonId': Object.keys(personIds)[0],
-            'response._activeSection': 'profile'
-          }
-        }, callback);
-        return null;
-      }
-      callback(interview);
-      return null;
-    },
     enableConditional: function(interview) {
       return helper.householdMembersSectionComplete(interview);
     },
     completionConditional: function(interview) {
-      const person = odSurveyHelper.getPerson({ interview });
-      return helper.householdMembersSectionComplete(interview) && helper.profileInfoForPersonComplete(person, interview);
+      const persons = odSurveyHelper.getInterviewablePersonsArray({ interview });
+      return helper.householdMembersSectionComplete(interview) && !persons.some(person => !helper.profileInfoForPersonComplete(person, interview));
+    },
+    repeatedBlock: {
+      iterationRule: {
+        type: 'builtin',
+        path: 'interviewablePersons'
+      },
+      order: 'sequential',
+      selectionSectionId: 'selectPerson',
+      skipSelectionInNaturalFlow: true,
+      activeSurveyObjectPath: '_activePersonId',
+      pathPrefix: 'person',
+      sections: ['selectPerson', 'profile', 'tripsIntro', 'visitedPlaces', 'segments', 'travelBehavior']
+    }
+  },
+
+  selectPerson: {
+    previousSection: 'personsTrips',
+    nextSection: "profile",
+    title: {
+      fr: "Sélection du membre du ménage",
+      en: "Household member selection"
+    },
+    widgets: [
+      'selectPerson',
+      'buttonSelectPersonConfirm'
+    ],
+    enableConditional: function(interview) {
+      return helper.householdMembersSectionComplete(interview);
+    },
+    isSectionCompleted: (interview, iterationContext) => {
+        // Completed if there is an active person ID set
+        const activePersonId = _get(interview, 'response._activePersonId', null);
+        return !_isBlank(activePersonId);
     }
   },
 
   profile: {
     previousSection: 'selectPerson',
     nextSection: "tripsIntro",
-    navMenu: {
-      type: 'hidden',
-      parentSection: 'selectPerson'
-    },
     title: {
       fr: "Profil",
       en: "Profile"
     },
     widgets: profileWidgets,
-    preload: function (interview, { startUpdateInterview, callback }) {
-      if (config.isPartTwo === true)
-      {
-        callback(interview);
-        return null;
-      }
-      const person = odSurveyHelper.getPerson({ interview }) as any;
-      if (!helper.isWorker(person.occupation) && !helper.isStudent(person.occupation))
-      {
-        if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
-        {
-          startUpdateInterview({
-            sectionShortname: 'profile',
-            valuesByPath: {'response._activeSection': 'travelBehavior'}
-          }, callback);
-        }
-        else
-        {
-          startUpdateInterview({
-            sectionShortname: 'profile', 
-            valuesByPath: { 'response._activeSection': 'tripsIntro' }
-          }, callback);
-        }
-        return null;
-      }
-      callback(interview);
-      return null;
-    },
     enableConditional: function(interview) {
       return helper.householdMembersSectionComplete(interview);
     },
     completionConditional: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.profileInfoForPersonComplete(person, interview);
+    },
+    isSectionCompleted: (interview, iterationContext) => {
+      const person = odSurveyHelper.getPerson({ interview, personId: iterationContext[iterationContext.length - 1] });
+      return helper.profileInfoForPersonComplete(person, interview);
+    },
+    isSectionVisible: (interview, iterationContext) => {
+      // Show this section for workers and students
+      const person = odSurveyHelper.getPerson({ interview, personId: iterationContext[iterationContext.length - 1] });
+      return helper.isWorker(person.occupation) || helper.isStudent(person.occupation);
     }
   },
 
@@ -301,13 +258,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
     title: {
       fr: "Introduction aux déplacements",
       en: "Trips introduction"
-    },
-    navMenu: {
-      type: 'inNav',
-      menuName: {
-        fr: "Déplacements",
-        en: "Trips"
-      },
     },
     widgets: [
       'activePersonTitle',
@@ -326,8 +276,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
           valuesByPath: {
             [`response.household.persons.${person._uuid}.journeys`]: undefined,
             [`response.household.persons.${person._uuid}.lastVisitedPlaceNotHome`]: undefined,
-            [`response.household.persons.${person._uuid}.departurePlaceType`]: undefined,
-            'response._activeSection': 'travelBehavior'
+            [`response.household.persons.${person._uuid}.departurePlaceType`]: undefined
           }
         }, callback);
         return null;
@@ -346,7 +295,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
                 sectionShortname: 'tripsIntro', 
                 valuesByPath: {
                   [`response.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.departurePlaceType`]: (firstVisitedPlaceActivity === 'home' ? 'home' : 'other'),
-                  'response._activeSection': 'visitedPlaces',
                   'response._activeJourneyId': currentJourney._uuid
                 }
               }, callback);
@@ -376,19 +324,19 @@ const sections: { [sectionName: string]: SectionConfig } = {
       const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.profileInfoForPersonComplete(person, interview);
     },
-    completionConditional: function(interview) {
+    isSectionCompleted: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
-      return helper.householdMembersSectionComplete(interview) && helper.travelBehaviorForPersonComplete(person, interview);
+      return helper.householdMembersSectionComplete(interview) && helper.tripsIntroForPersonComplete(person, interview);
+    },
+    isSectionVisible: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      return person && person.didTripsOnTripsDate === 'yes';
     }
   },
 
   visitedPlaces: {
     previousSection: 'tripsIntro',
     nextSection: "segments",
-    navMenu: {
-      type: 'hidden',
-      parentSection: 'tripsIntro'
-    },
     template: 'visitedPlaces',
     title: {
       fr: "Déplacements",
@@ -471,24 +419,34 @@ const sections: { [sectionName: string]: SectionConfig } = {
       const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.tripsIntroForPersonComplete(person, interview);
     },
-    completionConditional: function(interview) {
-      const person = odSurveyHelper.getPerson({ interview });
-      return helper.householdMembersSectionComplete(interview) && helper.travelBehaviorForPersonComplete(person, interview);
+    isSectionCompleted: (interview) => {
+        const person = odSurveyHelper.getPerson({ interview });
+        return helper.visitedPlacesForPersonComplete(person, interview);
+    },
+    isSectionVisible: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      return person && person.didTripsOnTripsDate === 'yes';
     }
   },
 
-  segments: getSegmentsSectionConfig({}),
+  segments: {
+    ...getSegmentsSectionConfig({}),
+    isSectionVisible: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      return person && person.didTripsOnTripsDate === 'yes';
+    },
+    isSectionCompleted: (interview) => {
+        const person = odSurveyHelper.getPerson({ interview });
+        return helper.tripsForPersonComplete(person, interview);
+    }
+  },
 
   travelBehavior: {
     previousSection: 'segments',
-    nextSection: "end",
+    nextSection: "personsTrips",
     title: {
       fr: "Mobilité",
       en: "Travel behavior"
-    },
-    navMenu: {
-      type: 'hidden',
-      parentSection: 'tripsIntro'
     },
     widgets: [
       'activePersonTitle',
@@ -498,16 +456,13 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'personWhoAnsweredForThisPerson',
       'buttonContinueNextSection'
     ],
-    preload: function (interview, { startUpdateInterview,callback }) {
+    preload: function (interview, { startUpdateInterview, startNavigate, callback }) {
       const person = odSurveyHelper.getPerson({ interview });
       if ((interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noSchoolTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noWorkTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.whoAnsweredForThisPerson`) <= -1)
       {
-        const person = odSurveyHelper.getPerson({ interview });
-        startUpdateInterview({
-          sectionShortname: 'travelBehavior', 
+        startNavigate({
           valuesByPath: {
-            [`response.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid,
-            'response._activeSection': 'end'
+            [`response.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid
           }
         }, callback);
         return null;
@@ -519,14 +474,22 @@ const sections: { [sectionName: string]: SectionConfig } = {
       const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.tripsForPersonComplete(person, interview);
     },
-    completionConditional: function(interview) {
+    isSectionCompleted: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.travelBehaviorForPersonComplete(person, interview);
+    },
+    isSectionVisible: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      // Check the conditional of the personNoWorkTripReason, personNoSchoolTripReason and personWhoAnsweredForThisPerson widgets
+      const [personNoWorkTripConditional] = checkConditional(personNoWorkTripReason.conditional as any, interview, `household.persons.${person._uuid}.noWorkTripReason`);
+      const [personNoSchoolTripConditional] = checkConditional(personNoSchoolTripReason.conditional as any, interview, `household.persons.${person._uuid}.noSchoolTripReason`);
+      const [personWhoAnsweredConditional] = checkConditional(personWhoAnsweredForThisPerson.conditional as any, interview, `household.persons.${person._uuid}.whoAnsweredForThisPerson`);
+      return person && (personNoWorkTripConditional === true || personNoSchoolTripConditional === true || personWhoAnsweredConditional === true);
     }
   },
 
   end: {
-    previousSection: 'travelBehavior',
+    previousSection: 'personsTrips',
     nextSection: "completed",
     title: {
       fr: "Fin",
@@ -543,41 +506,20 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'householdCommentsOnSurvey',
       'buttonCompleteInterview'
     ],
-    preload: function (interview, { startUpdateInterview, callback }) {
-      
-      const persons = odSurveyHelper.getPersons({ interview });
-      for (let personId in persons)
-      {
-        const person = persons[personId] as any;
-        if (person.age >= 5 && _isBlank(person.whoAnsweredForThisPerson))
-        {
-          startUpdateInterview({
-            sectionShortname: 'end', 
-            valuesByPath: {
-              'response._activePersonId'    : person._uuid,
-              'response._activeSection'     : 'profile',
-              'response._showNewPersonPopup': true
-            }
-          }, callback);
-          return null;
-        }
-      }
-      if (getResponse(interview, '_showNewPersonPopup', null) !== false)
-      {
-        startUpdateInterview({
-          sectionShortname: 'end', 
-          valuesByPath: { 'response._showNewPersonPopup': false }
-        }, callback);
-        return null;
-      }
-      callback(interview);
-      return null;
-    },
     enableConditional: function(interview) {
       if (!helper.householdMembersSectionComplete(interview) || !helper.allPersonsTripsAndTravelBehaviorComplete(interview)) { return false; }
       return true;
     },
     completionConditional: function(interview) {
+      if (!helper.householdMembersSectionComplete(interview) || !helper.allPersonsTripsAndTravelBehaviorComplete(interview)) { return false; }
+      const household: any = getResponse(interview, 'household');
+      if (
+           _isBlank(household.residentialPhoneType)
+        || _isBlank(household.didAlsoRespondByPhone)
+      ) { return false; }
+      return true;
+    },
+    isSectionCompleted: function(interview) {
       if (!helper.householdMembersSectionComplete(interview) || !helper.allPersonsTripsAndTravelBehaviorComplete(interview)) { return false; }
       const household: any = getResponse(interview, 'household');
       if (
@@ -603,36 +545,19 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'completedText'
     ],
     preload: function (interview, { startUpdateInterview, callback, user }) {
-      if (config.isPartTwo === true)
-      {
-        if (!user || (user && user.is_admin !== true))
-        {
-          startUpdateInterview({
-            sectionShortname: 'end', 
-            valuesByPath: {
-              'response._partTwoCompletedAt': moment().unix(),
-              'response._partTwoIsCompleted': true,
-              'response._completedAt': moment().unix(),
-              'response._isCompleted': true
-            }
-          }, callback);
-        }
+      if (!user || (user && user.is_admin !== true)) {
+        startUpdateInterview({
+          valuesByPath: {
+            'response._completedAt': moment().unix(),
+            'response._isCompleted': true
+          }
+        }, callback);
       }
-      else
-      {
-        if (!user || (user && user.is_admin !== true))
-        {
-          startUpdateInterview({
-            sectionShortname: 'end', 
-            valuesByPath: {
-              'response._completedAt': moment().unix(),
-              'response._isCompleted': true
-            }
-          }, callback);
-        }
-      }
-      startUpdateInterview({ sectionShortname: 'end', valuesByPath: {} }, callback);
       return null;
+    },
+    enableConditional: function(interview) {
+      if (!helper.householdMembersSectionComplete(interview) || !helper.allPersonsTripsAndTravelBehaviorComplete(interview)) { return false; }
+      return true;
     }
     
   },

@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import moment from 'moment';
@@ -21,34 +21,29 @@ import { validateAllWidgets } from '../../actions/utils';
 import { withPreferencesHOC } from '../hoc/WithPreferencesHoc';
 import { overrideConsoleLogs } from '../../services/errorManagement/errorHandling';
 import { restoreConsoleLogs } from '../../services/errorManagement/errorHandling';
-import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { SectionProps } from '../hooks/useSectionTemplate';
 import {
-    StartAddGroupedObjects,
-    StartRemoveGroupedObjects,
-    StartUpdateInterview,
+    InterviewUpdateCallbacks,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { RootState } from '../../store/configureStore';
+import { SurveyContext } from '../../contexts/SurveyContext';
 
-type SurveyProps = {
-    startUpdateInterview: StartUpdateInterview;
-    startAddGroupedObjects: StartAddGroupedObjects;
-    startRemoveGroupedObjects: StartRemoveGroupedObjects;
+type SurveyProps = InterviewUpdateCallbacks & {
     interview: UserRuntimeInterviewAttributes;
 };
 
-const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyProps & WithSurveyContextProps) => {
+const Survey: React.FC<SurveyProps> = (props: SurveyProps) => {
     // Prepare survey state
     const [confirmCompleteBeforeSwitchingOpened, setConfirmCompleteBeforeSwitchingOpened] =
         React.useState<boolean>(false);
 
     // Get state selectors and other hooks
     const { t, i18n } = useTranslation(['survey', 'main']);
-    const errors = useSelector((state: RootState) => state.survey.errors);
-    const submitted = useSelector((state: RootState) => state.survey.submitted);
+    const { errors, submitted, navigation } = useSelector((state: RootState) => state.survey);
     const user = useSelector((state: RootState) => state.auth.user)!;
     const loadingState = useSelector((state: RootState) => state.loadingState.loadingState);
+    const { sections } = useContext(SurveyContext);
 
     React.useEffect(() => {
         // set language if empty or unavailable and change locale:
@@ -77,7 +72,7 @@ const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyPro
     }, [i18n.language]);
 
     const onChangeSection = (
-        parentSection: string,
+        targetSection: string,
         activeSection: string,
         allWidgetsValid: boolean,
         e?: React.FormEvent<HTMLFormElement>
@@ -85,14 +80,12 @@ const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyPro
         if (e) {
             e.preventDefault();
         }
-        if (activeSection === parentSection) {
+        if (activeSection === targetSection) {
             return null;
         }
         if (allWidgetsValid) {
-            props.startUpdateInterview({
-                sectionShortname: activeSection,
-                valuesByPath: { 'response._activeSection': parentSection }
-            });
+            // Navigate to the requested section
+            props.startNavigate({ requestedSection: { sectionShortname: targetSection } });
         } else {
             setConfirmCompleteBeforeSwitchingOpened(true);
             setTimeout(() => {
@@ -114,9 +107,10 @@ const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyPro
 
     const allWidgetsValid = validateAllWidgets(props.interview);
 
-    const activeSection = surveyHelper.getResponse(props.interview, '_activeSection', null) as string | null;
+    const activeSection = navigation && navigation.currentSection ? navigation.currentSection.sectionShortname : null;
     // FIXME If the sectionLoaded is not the same as the active one, is something somewhere loading it right now? Or should we do something?
     // FIXME Consider using react Suspense instead of this logic for the loading page
+    // FIXME Consider putting the LoadingPage on the section only, and displaying the SectionNav, in case there's a bug and one can navigate to a section with the menu
     if (!activeSection || props.interview.sectionLoaded !== activeSection) {
         surveyHelper.devLog('%c rendering empty survey', 'background: rgba(0,0,0,0.1);');
         return <LoadingPage />;
@@ -125,7 +119,7 @@ const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyPro
     surveyHelper.devLog(`%c rendering survey with activeSection ${activeSection}`, 'background: rgba(0,0,0,0.2);');
 
     const sectionShortname = activeSection;
-    const sectionConfig = props.surveyContext.sections[sectionShortname];
+    const sectionConfig = sections[sectionShortname];
 
     // Determine the section component to use based on the section configuration
     let SectionComponent: React.ComponentType<SectionProps> = Section;
@@ -139,12 +133,8 @@ const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyPro
 
     let customStyle: React.CSSProperties = {};
 
-    if (
-        activeSection &&
-        props.surveyContext.sections[activeSection] &&
-        props.surveyContext.sections[activeSection].customStyle
-    ) {
-        customStyle = props.surveyContext.sections[activeSection].customStyle as React.CSSProperties;
+    if (activeSection && sections[activeSection] && sections[activeSection].customStyle) {
+        customStyle = sections[activeSection].customStyle as React.CSSProperties;
     }
 
     const surveyContainerClassNames = `survey${config.logoPaths ? ' survey-with-logo' : ''}`;
@@ -154,7 +144,7 @@ const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyPro
             {/* FIXME This style does not appear to have any effect. Either remove or extract to a css class */}
             <div style={{ width: '100%', margin: '0 auto' }}>
                 <SectionNav
-                    sections={props.surveyContext.sections}
+                    sections={sections}
                     onChangeSection={onChangeSection}
                     activeSection={activeSection}
                     interview={props.interview}
@@ -184,17 +174,14 @@ const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyPro
                     autoComplete="off"
                 >
                     <SectionComponent
+                        {...props}
                         key={sectionShortname}
                         loadingState={loadingState}
                         shortname={sectionShortname}
                         sectionConfig={sectionConfig}
-                        interview={props.interview}
                         // FIXME See the type of errors, there's a lang extra object in the state, but not in the component
                         errors={errors as any}
                         user={user}
-                        startUpdateInterview={props.startUpdateInterview}
-                        startAddGroupedObjects={props.startAddGroupedObjects}
-                        startRemoveGroupedObjects={props.startRemoveGroupedObjects}
                         submitted={submitted}
                     />
                 </form>
@@ -204,4 +191,4 @@ const Survey: React.FC<SurveyProps & WithSurveyContextProps> = (props: SurveyPro
     );
 };
 
-export default withSurveyContext(withPreferencesHOC(Survey));
+export default withPreferencesHOC(Survey);
