@@ -19,7 +19,7 @@ export function completeHomePage(context) {
 };
 
 export function completeHouseholdPage(context) {
-    testHelpers.sectionProgressBarTest({context, sectionName: 'Household members', completionPercentage: 11 });
+    testHelpers.sectionProgressBarTest({context, sectionName: 'Household members', completionPercentage: 10 });
     testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '30' });
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'male' });
     testHelpers.inputSelectTest({ context, path: 'household.persons.${personId[0]}.occupation', value: 'fullTimeWorker' });

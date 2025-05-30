@@ -7,6 +7,7 @@
 
 import fs from 'fs';
 import { unparse } from 'papaparse';
+import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
 
 import { execJob } from '../../tasks/serverWorkerPool';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
@@ -45,6 +46,37 @@ const filterLogData = (
     };
 };
 
+const userActionToWidgetData = (userAction: UserAction | undefined): { widgetType: string; widgetPath: string } => {
+    if (userAction === undefined || _isBlank(userAction)) {
+        return { widgetType: '', widgetPath: '' };
+    }
+    switch (userAction.type) {
+    case 'buttonClick':
+        return {
+            widgetType: '',
+            widgetPath: userAction.buttonId
+        };
+    case 'widgetInteraction':
+        return {
+            widgetType: userAction.widgetType,
+            widgetPath: userAction.path
+        };
+    case 'sectionChange':
+        return {
+            widgetType: '',
+            widgetPath: [
+                userAction.targetSection.sectionShortname,
+                ...(userAction.targetSection.iterationContext || [])
+            ].join('/')
+        };
+    default:
+        return {
+            widgetType: '',
+            widgetPath: ''
+        };
+    }
+};
+
 const exportLogToRows = (
     logData: { values_by_path: { [key: string]: any }; unset_paths: string[]; [key: string]: any },
     withValues: boolean
@@ -66,14 +98,7 @@ const exportLogToRows = (
         return [
             {
                 ...rest,
-                widgetType:
-                    !_isBlank(user_action) && user_action.type === 'widgetInteraction' ? user_action.widgetType : '',
-                widgetPath:
-                    !_isBlank(user_action) && user_action.type === 'widgetInteraction'
-                        ? user_action.path
-                        : !_isBlank(user_action) && user_action.type === 'buttonClick'
-                            ? user_action.buttonId
-                            : '',
+                ...userActionToWidgetData(user_action),
                 modifiedFields: !_isBlank(valuesByPath) ? valuesByPath.join('|') : '',
                 initializedFields: !_isBlank(valuesByPathInit) ? valuesByPathInit.join('|') : '',
                 unsetFields: (unset_paths || []).join('|')

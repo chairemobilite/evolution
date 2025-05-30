@@ -13,11 +13,13 @@ const reducer: Reducer<SurveyState, SurveyAction> = (state = initialState, actio
     switch (action.type) {
     case SurveyActionTypes.SET_INTERVIEW:
         return {
+            ...state,
             interview: action.interview,
             interviewLoaded: action.interviewLoaded
         };
     case SurveyActionTypes.UPDATE_INTERVIEW:
         return {
+            ...state,
             interview: action.interview,
             interviewLoaded: action.interviewLoaded,
             errors: action.errors,
@@ -28,6 +30,25 @@ const reducer: Reducer<SurveyState, SurveyAction> = (state = initialState, actio
             ...state,
             hasConsent: action.consented
         };
+    case SurveyActionTypes.NAVIGATE: {
+        const { targetSection } = action;
+        return {
+            ...state,
+            navigation: {
+                currentSection: targetSection,
+                navigationHistory: state.navigation
+                    ? [...state.navigation.navigationHistory, state.navigation.currentSection]
+                    : []
+            }
+        };
+    }
+    case SurveyActionTypes.INIT_NAVIGATE: {
+        const { navigationService } = action;
+        return {
+            ...state,
+            navigationService: navigationService
+        };
+    }
     default:
         return state;
     }

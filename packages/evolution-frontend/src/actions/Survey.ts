@@ -34,35 +34,54 @@ import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import i18n from '../config/i18n.config';
 import { handleClientError, handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
-import applicationConfiguration from '../config/application.config';
 import {
     GotoFunction,
+    NavigationSection,
     StartAddGroupedObjects,
+    StartNavigate,
     StartRemoveGroupedObjects,
     StartUpdateInterview,
+    SurveySections,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyAction, SurveyActionTypes } from '../store/survey';
 import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 import { LoadingStateAction } from '../store/loadingState';
 import { RootState } from '../store/configureStore';
+import { createNavigationService } from 'evolution-common/lib/services/questionnaire/sections/NavigationService';
 
 /**
  * Called whenever an update occurs in interview response or when section is
- * switched to. This function should only be called by redux actions, in this
- * file and the admin one.
+ * switched to. It will run the validations and side effects for the requested
+ * section and prepare the widgets for the next display cycle of the section. It
+ * returns the interview, with the widget statuses set for the next cycle, as
+ * well as the side effects that should be applied to the interview.
  *
- * FIXME Better document what this does and how it works wrt returned values by
- * path
+ * This function should only be called by redux actions, in this file and the
+ * admin one.
  *
  * TODO: unit test
+ *
+ * @param {string} sectionShortname The section shortname to prepare
+ * @param {UserRuntimeInterviewAttributes} _interview The interview to prepare.
+ * It will not be modified
+ * @param {{ [path: string]: boolean }} affectedPaths The paths that were
+ * affected by the update (usually the keys of the `valuesByPath` object)
+ * @param {{ [path: string]: unknown }} valuesByPath The values by path that
+ * were affected by the update
+ * @param {boolean} [updateKey] If `true`, the section key will be updated to
+ * the current section shortname, forcing a re-render of the widgets. Defaults
+ * to `false`
+ * @param {CliUser} [user] The user, if available, to use for the side effects
+ * @returns A tuple with the updated interview and the values by path that
+ * should be applied to the interview
  */
-export const updateSection = (
+export const validateAndPrepareSection = (
     sectionShortname: string,
     _interview: UserRuntimeInterviewAttributes,
     affectedPaths: { [path: string]: boolean },
     valuesByPath: { [path: string]: unknown },
-    updateKey = false,
+    updateKey: boolean = false,
     user?: CliUser
 ): [UserRuntimeInterviewAttributes, { [path: string]: unknown }] => {
     let interview = _cloneDeep(_interview);
@@ -136,7 +155,7 @@ export const updateInterviewData = (
     return affectedPaths;
 };
 
-const startUpdateInterviewCallback = async (
+const updateInterviewCallback = async (
     dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
     getState: () => RootState,
     {
@@ -150,10 +169,14 @@ const startUpdateInterviewCallback = async (
     callback?: Parameters<StartUpdateInterview>[1]
 ) => {
     try {
+        const { auth, survey } = getState();
+        const user = auth?.user || undefined;
+        const navigation = survey?.navigation;
+
         const interview = initialInterview
             ? initialInterview
-            : (_cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes);
-        const user = getState().auth?.user || undefined;
+            : (_cloneDeep(survey?.interview) as UserRuntimeInterviewAttributes);
+
         dispatch(incrementLoadingState());
         if (valuesByPath && Object.keys(valuesByPath).length > 0) {
             surveyHelper.devLog(
@@ -172,13 +195,12 @@ const startUpdateInterviewCallback = async (
         const affectedPaths = updateInterviewData(interview, { valuesByPath, unsetPaths, userAction });
 
         // TODO An Interview object could have a getActiveSection function to get this value
-        const sectionShortname = surveyHelper.getResponse(
-            interview,
-            '_activeSection',
-            requestedSectionShortname
-        ) as string;
+        const sectionShortname = requestedSectionShortname
+            ? requestedSectionShortname
+            : navigation?.currentSection?.sectionShortname || '';
+        surveyHelper.devLog('Update section', sectionShortname);
 
-        const [updatedInterview, updatedValuesByPath] = updateSection(
+        const [updatedInterview, updatedValuesByPath] = validateAndPrepareSection(
             sectionShortname,
             interview,
             affectedPaths,
@@ -202,7 +224,7 @@ const startUpdateInterviewCallback = async (
         // No changes to send to the server, just update the state and quit
         if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
             // '_all' means the "save" button was clicked and the form was submitted, so the form may not follow the normal form change workflow
-            dispatch(updateInterview(_cloneDeep(updatedInterview), {}, true));
+            dispatch(updateInterviewState(_cloneDeep(updatedInterview), {}, true));
             if (typeof callback === 'function') {
                 callback(updatedInterview);
             }
@@ -251,14 +273,19 @@ const startUpdateInterviewCallback = async (
                         serverAffectedPath[path] = true;
                         _set(updatedInterview, path, body.updatedValuesByPath[path]);
                     }
-                    // Get the section shortname again, it could have been changed by the server
-                    const sectionShortname = surveyHelper.getResponse(
-                        updatedInterview,
-                        '_activeSection',
-                        requestedSectionShortname
-                    ) as string;
+
+                    // FIXME Here, it used to re-read the _activeSection from
+                    // interview it case it was modified by the server, but
+                    // since we don't support _activeSection anymore, we need a
+                    // way to let the server change the active section in case
+                    // of dire necessity, but all logic should rather aim to be
+                    // described in the section configuration. But we may want a
+                    // way to let the server allow to trigger a navigation
+                    // again, or maybe the entire navigation will be done
+                    // server-side eventually.
+
                     // Need to update the widget status with server data, there should be no side-effect, so no loop update here
-                    serverUpdatedInterview = updateSection(
+                    serverUpdatedInterview = validateAndPrepareSection(
                         sectionShortname,
                         updatedInterview,
                         serverAffectedPath,
@@ -279,7 +306,7 @@ const startUpdateInterviewCallback = async (
                 }
 
                 dispatch(
-                    updateInterview(
+                    updateInterviewState(
                         _cloneDeep(serverUpdatedInterview),
                         Object.assign(currentServerErrors, newServerErrors),
                         updatedValuesByPath['_all'] === true
@@ -317,13 +344,17 @@ const startUpdateInterviewCallback = async (
 
 /**
  * Redux action to call with a dispatch to update the interview in the store.
+ *
+ * DO NOT CALL from any other part of the code! Only the redux action should
+ * call this function.
+ *
  * @param interview The interview to update
  * @param errors The current errors in the interview
  * @param submitted FIXME Need to document this. Is it when the form was
  * officially submitted with a next button?
  * @returns
  */
-export const updateInterview = (
+export const updateInterviewState = (
     interview: UserRuntimeInterviewAttributes,
     errors: {
         [path: string]: {
@@ -340,15 +371,30 @@ export const updateInterview = (
 });
 
 /**
+ * Redux action to call with a dispatch to set the interview in the store.
+ *
+ * DO NOT CALL from any other part of the code! Only the redux action should
+ * call this function.
+ *
+ * @param interview The interview to update
+ * @returns
+ */
+export const setInterviewState = (interview: UserRuntimeInterviewAttributes): SurveyAction => ({
+    type: SurveyActionTypes.SET_INTERVIEW,
+    interview,
+    interviewLoaded: true
+});
+
+/**
  * Redux action to call with a dispatch to send interview updates to the server.
  * This function is not to be called directly by the application, except through
- * redux's connect function.
+ * redux's dispatch.
  *
- * It will schedule the call to the interview update callback who update the
- * interview data on the server and refresh any fields and validations coming
- * from the server. It will update the app's loading state before and after the
- * update call. At the end of the call, the callback function will be called if
- * provided, with the updated interview.
+ * It will schedule the call to the interview update callback who runs
+ * validations and side effects, updates the interview data on the server and
+ * refresh any fields and validations coming from the server. It will update the
+ * app's loading state before and after the update call. At the end of the call,
+ * the callback function will be called if provided, with the updated interview.
  * @returns The dispatched action
  */
 export const startUpdateInterview =
@@ -357,8 +403,169 @@ export const startUpdateInterview =
             dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
             getState: () => RootState
         ) => {
-            await startUpdateInterviewCallback(dispatch, getState, data, callback);
+        // If there's a _activeSection explicitly set in valuesByPath, this is a legacy navigation request
+        // Convert it to use the navigation service instead
+            if (data?.valuesByPath && data.valuesByPath['response._activeSection']) {
+                console.error(
+                    'Warning (startUpdateInterview): _activeSection is deprecated and will no longer be supported in the next release. Define proper navigation in section configuration instead, or use the `startNavigate` callback.'
+                );
+
+                const targetSection = data.valuesByPath['response._activeSection'] as string;
+                // Remove the _activeSection from valuesByPath
+                const newValuesByPath = { ...data.valuesByPath };
+                delete newValuesByPath['response._activeSection'];
+
+                // If there are no other values to update, just navigate
+                if (Object.keys(newValuesByPath).length === 0) {
+                    return dispatch(startNavigate({ requestedSection: { sectionShortname: targetSection } }));
+                }
+
+                // Otherwise, update the interview then navigate in the callback
+                const updatedData = { ...data, valuesByPath: newValuesByPath };
+                return await updateInterviewCallback(dispatch, getState, updatedData, (updatedInterview) => {
+                    dispatch(startNavigate({ requestedSection: { sectionShortname: targetSection } }));
+                    if (callback) callback(updatedInterview);
+                });
+            }
+
+            // Standard interview update without navigation
+            await updateInterviewCallback(dispatch, getState, data, callback);
         };
+
+const navigate = (targetSection: NavigationSection): SurveyAction => ({
+    type: SurveyActionTypes.NAVIGATE,
+    targetSection
+});
+
+/**
+ * Redux action to call with a dispatch to navigate forward in the current
+ * interview
+ *
+ * DO NOT CALL from any other part of the code! Only the redux action should
+ * call this function with proper callback for participant or review interviews.
+ *
+ * @param {function} [fctUpdateInterview] The update function to call after
+ * navigation. For example, a different function can be used for participant or
+ * correction survey updates.
+ * @returns The dispatched action
+ */
+export const startNavigateWithUpdateCallback =
+    (
+        fctUpdateInterview: typeof startUpdateInterview,
+        { requestedSection, valuesByPath = {} }: Parameters<StartNavigate>[0] = {},
+        callback?: Parameters<StartNavigate>[1]
+    ) =>
+        async (
+            dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+            getState: () => RootState
+        ) => {
+            try {
+                dispatch(incrementLoadingState());
+
+                const { survey: surveyState, auth: authState } = getState();
+                const { navigation, navigationService, interview } = surveyState;
+
+                // Validate that navigation service and interview are initialized
+                if (interview === undefined || navigationService === undefined) {
+                    return;
+                }
+
+                // Validate current section (prepare widgets for current section and see if they are all valid)
+                const validateCurrentSection = (): [
+                boolean,
+                UserRuntimeInterviewAttributes,
+                { [path: string]: unknown }
+            ] => {
+                    if (requestedSection || navigation === undefined) {
+                        return [true, interview, {}];
+                    }
+                    const [updatedInterview, updatedValuesByPath] = validateAndPrepareSection(
+                        navigation?.currentSection?.sectionShortname || '',
+                        interview,
+                        { _all: true },
+                        { _all: true },
+                        false,
+                        authState?.user || undefined
+                    );
+                    return [updatedInterview.allWidgetsValid, updatedInterview, updatedValuesByPath];
+                };
+                const [shouldNavigate, updatedInterview, validationValuesByPath] = validateCurrentSection();
+
+                // If the current section is not valid, do not navigate and update interview
+                if (!shouldNavigate) {
+                    dispatch(updateInterviewState(updatedInterview, {}, true));
+                    return;
+                }
+
+                const allValuesByPath = Object.assign({}, valuesByPath, validationValuesByPath || {});
+                // Delete the _all value by path so that next section does not get validated now
+                delete allValuesByPath['_all'];
+                // If current section is valid, set interview data and call the navigation service
+                updateInterviewData(interview, { valuesByPath: allValuesByPath });
+                const getTargetSectionResult = () => {
+                // If there is a requested section or there is no navigation yet, initialize navigation for interview
+                    if (requestedSection || navigation === undefined) {
+                        return navigationService.initNavigationState(interview, requestedSection?.sectionShortname);
+                    }
+                    // Otherwise, navigate forward
+                    return navigationService.navigate(interview, navigation.currentSection);
+                };
+                const targetSectionResult = getTargetSectionResult();
+
+                // Prepare the values by path for next section
+                if (targetSectionResult.valuesByPath) {
+                // If the target section has values by path, prepare them
+                    Object.assign(allValuesByPath, targetSectionResult.valuesByPath || {});
+                }
+
+                // Call the update interview to update to the new section
+                await dispatch(
+                    fctUpdateInterview({
+                        sectionShortname: targetSectionResult.targetSection.sectionShortname,
+                        valuesByPath: Object.keys(allValuesByPath).length === 0 ? undefined : allValuesByPath,
+                        userAction: {
+                            type: 'sectionChange',
+                            targetSection: targetSectionResult.targetSection,
+                            // Previous section is considered completed in
+                            // direct navigation, ie without a requested
+                            // section, otherwise it does not follow the survey
+                            // flow
+                            previousSection: requestedSection === undefined ? navigation?.currentSection : undefined
+                        }
+                    })
+                );
+                // Update the navigation state
+                dispatch(navigate(targetSectionResult.targetSection));
+                // Call the callback function
+                if (typeof callback === 'function') {
+                    callback(getState().survey!.interview!, targetSectionResult.targetSection);
+                }
+            } catch (error) {
+                console.error('Error navigating to section', error);
+                handleClientError(error instanceof Error ? error : new Error(String(error)), {
+                    interviewId: getState().survey.interview?.id
+                });
+            } finally {
+                dispatch(decrementLoadingState());
+            }
+        };
+
+/**
+ * Redux action to call with a dispatch to navigate forward in the current
+ * interview for participant interviews. This action includes a call to the
+ * interview update callback action, as navigation implies a call to the server
+ * and may change data in the interview. Any additional change to the interview
+ * can be passed through the `valuesByPath` parameter.
+ *
+ * @returns The dispatched action
+ */
+export const startNavigate = (options: Parameters<StartNavigate>[0] = {}, callback?: Parameters<StartNavigate>[1]) =>
+    startNavigateWithUpdateCallback(startUpdateInterview, options, callback);
+
+export const initNavigationService = (sections: SurveySections) => ({
+    type: SurveyActionTypes.INIT_NAVIGATE as const,
+    navigationService: createNavigationService(sections)
+});
 
 export const addConsent = (consented: boolean) => ({
     type: 'ADD_CONSENT',
@@ -443,7 +650,7 @@ export const startRemoveGroupedObjects = function (
 };
 
 export const startSetInterview = (
-    activeSection: string | undefined = undefined,
+    requestedSection: string | undefined = undefined,
     surveyUuid: string | undefined = undefined,
     navigate: GotoFunction | undefined = undefined,
     preFilledResponse: { [key: string]: unknown } | undefined = undefined
@@ -466,21 +673,8 @@ export const startSetInterview = (
                 // Get the interview from the response
                 if (body.interview) {
                     const interview = body.interview;
-                    // Set active section and initial response in the interview
-                    // Find the first section to activate, if none requested (the one without a previous one)
-                    // FIXME This should be done in the backend, not here
-                    // FIXME 2 If there was a previous active section in the interview, why not just use that instead of setting it anew
-                    if (!activeSection) {
-                        for (const sectionShortname in applicationConfiguration.sections) {
-                            if (applicationConfiguration.sections[sectionShortname].previousSection === null) {
-                                activeSection = sectionShortname;
-                                break;
-                            }
-                        }
-                    }
-                    const valuesByPath = {
-                        'response._activeSection': activeSection
-                    };
+
+                    const valuesByPath = {};
                     if (preFilledResponse) {
                         Object.keys(preFilledResponse).forEach((key) => {
                             valuesByPath[`response.${key}`] = preFilledResponse[key];
@@ -493,12 +687,14 @@ export const startSetInterview = (
                     if (existingBrowserUa !== newBrowserUa) {
                         valuesByPath['response._browser'] = browserTechData;
                     }
-                    dispatch(
-                        startUpdateInterview({
-                            sectionShortname: activeSection,
-                            valuesByPath,
-                            interview,
-                            gotoFunction: navigate
+                    // Set the interview in the state first
+                    dispatch(setInterviewState(interview));
+
+                    // Then, initialize navigation for the current interview
+                    await dispatch(
+                        startNavigate({
+                            requestedSection: requestedSection ? { sectionShortname: requestedSection } : undefined,
+                            valuesByPath
                         })
                     );
                 } else {
