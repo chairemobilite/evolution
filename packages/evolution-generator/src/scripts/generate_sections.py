@@ -28,7 +28,7 @@ def generate_sections(excel_file_path: str, sections_output_file_path: str):
         ts_code += add_generator_comment()
 
         # Generate the import statements
-        ts_code += f"import {{ SurveySections }} from 'evolution-common/lib/services/questionnaire/types';\n"
+        ts_code += f"import {{ getAndValidateSurveySections, SurveySectionsConfig }} from 'evolution-common/lib/services/questionnaire/types';\n"
         # Loop through each section and generate an import statement
         for section in sections_names:
             ts_code += (
@@ -37,12 +37,12 @@ def generate_sections(excel_file_path: str, sections_output_file_path: str):
 
         # Generate the export statement
         ts_code += "\n// Export all the sections configs\n"
-        ts_code += "const sectionsConfigs: SurveySections = {\n"
+        ts_code += "const sectionsConfigs: SurveySectionsConfig = {\n"
         # Loop through each section and generate an export statement
         for section in sections_names:
             ts_code += f"{INDENT}{section}: {section}Configs,\n"
         ts_code += "};\n"
-        ts_code += "export default sectionsConfigs;\n"
+        ts_code += "export default getAndValidateSurveySections(sectionsConfigs);\n"
 
         # Write TypeScript code to a file
         with open(
