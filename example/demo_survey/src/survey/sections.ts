@@ -106,7 +106,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
 
   householdMembers: {
     previousSection: 'home',
-    nextSection: 'selectPerson',
+    nextSection: 'personsTrips',
     title: {
       fr: "Membres du ménage",
       en: "Household members"
@@ -161,50 +161,9 @@ const sections: { [sectionName: string]: SectionConfig } = {
     }
   },
 
-/*  partTwoIntro: {
-    isPartTwoFirstSection: true,
+  personsTrips: {
     previousSection: 'householdMembers',
-    nextSection: "selectPerson",
-    parentSection: "selectPerson",
-    title: {
-      fr: "Intro deuxième partie",
-      en: "Intro second part"
-    },
-    menuName: {
-      fr: "Profil",
-      en: "Profile"
-    },
-    widgets: [
-      'partTwoIntroText',
-      'partOneConfirmed'
-    ],
-    preload: function (interview, {startUpdateInterview, callback}) {
-      const updateValuesByPath = {};
-      if (_isBlank(getResponse(interview, 'tripsDate', null)))
-      {
-        updateValuesByPath['response.tripsDate'] = moment().prevBusinessDay().format('YYYY-MM-DD');
-      }
-      if (_isBlank(getResponse(interview, '_partTwoStartedAt', null)))
-      {
-        updateValuesByPath['response._partTwoStartedAt'] = moment().unix();
-      }
-      if (!helper.householdMembersSectionPartOneComplete(interview))
-      {
-        updateValuesByPath['response._activeSection'] = 'home';
-      }
-      if (Object.keys(updateValuesByPath).length > 0)
-      {
-        startUpdateInterview('partTwoIntro', updateValuesByPath, null, null, callback);
-        return null;
-      }
-      callback(interview);
-      return null;
-    }
-  },*/
-
-  selectPerson: {
-    previousSection: 'householdMembers',
-    nextSection: "profile",
+    nextSection: "end",
     title: {
       fr: "Sélection du membre du ménage",
       en: "Household member selection"
@@ -228,8 +187,55 @@ const sections: { [sectionName: string]: SectionConfig } = {
         startUpdateInterview({
           sectionShortname: 'selectPerson', 
           valuesByPath: {
-            'response._activePersonId': Object.keys(personIds)[0],
-            'response._activeSection': 'profile'
+            'response._activePersonId': Object.keys(personIds)[0]
+          }
+        }, callback);
+        return null;
+      }
+      callback(interview);
+      return null;
+    },
+    enableConditional: function(interview) {
+      return helper.householdMembersSectionComplete(interview);
+    },
+    completionConditional: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview });
+      return helper.householdMembersSectionComplete(interview) && helper.profileInfoForPersonComplete(person, interview);
+    },
+    repeatedBlock: {
+      iterationRule: {
+        type: 'builtin',
+        path: 'interviewablePersons'
+      },
+      order: 'sequential',
+      selectionSectionId: 'selectPerson',
+      skipSelectionInNaturalFlow: true,
+      activeSurveyObjectPath: '_activePersonId',
+      pathPrefix: 'person',
+      sections: ['selectPerson', 'profile', 'tripsIntro', 'visitedPlaces', 'segments', 'travelBehavior']
+    }
+  },
+
+  selectPerson: {
+    previousSection: 'personsTrips',
+    nextSection: "profile",
+    title: {
+      fr: "Sélection du membre du ménage",
+      en: "Household member selection"
+    },
+    widgets: [
+      'selectPerson',
+      'buttonSelectPersonConfirm'
+    ],
+    preload: function(interview, { startUpdateInterview, callback }) {
+      const personsCount = odSurveyHelper.countPersons({ interview });
+      if (personsCount === 1)
+      {
+        const personIds = odSurveyHelper.getPersons({ interview });
+        startUpdateInterview({
+          sectionShortname: 'selectPerson', 
+          valuesByPath: {
+            'response._activePersonId': Object.keys(personIds)[0]
           }
         }, callback);
         return null;
@@ -249,10 +255,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
   profile: {
     previousSection: 'selectPerson',
     nextSection: "tripsIntro",
-    navMenu: {
-      type: 'hidden',
-      parentSection: 'selectPerson'
-    },
     title: {
       fr: "Profil",
       en: "Profile"
@@ -269,19 +271,9 @@ const sections: { [sectionName: string]: SectionConfig } = {
       {
         if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
         {
-          startUpdateInterview({
-            sectionShortname: 'profile',
-            valuesByPath: {'response._activeSection': 'travelBehavior'}
-          }, callback);
+          callback(interview);
+          return null;
         }
-        else
-        {
-          startUpdateInterview({
-            sectionShortname: 'profile', 
-            valuesByPath: { 'response._activeSection': 'tripsIntro' }
-          }, callback);
-        }
-        return null;
       }
       callback(interview);
       return null;
@@ -292,6 +284,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
     completionConditional: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.profileInfoForPersonComplete(person, interview);
+    },
+    isSectionCompleted: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview });
+      return helper.profileInfoForPersonComplete(person, interview);
     }
   },
 
@@ -326,8 +322,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
           valuesByPath: {
             [`response.household.persons.${person._uuid}.journeys`]: undefined,
             [`response.household.persons.${person._uuid}.lastVisitedPlaceNotHome`]: undefined,
-            [`response.household.persons.${person._uuid}.departurePlaceType`]: undefined,
-            'response._activeSection': 'travelBehavior'
+            [`response.household.persons.${person._uuid}.departurePlaceType`]: undefined
           }
         }, callback);
         return null;
@@ -346,7 +341,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
                 sectionShortname: 'tripsIntro', 
                 valuesByPath: {
                   [`response.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.departurePlaceType`]: (firstVisitedPlaceActivity === 'home' ? 'home' : 'other'),
-                  'response._activeSection': 'visitedPlaces',
                   'response._activeJourneyId': currentJourney._uuid
                 }
               }, callback);
@@ -379,6 +373,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
     completionConditional: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.travelBehaviorForPersonComplete(person, interview);
+    },
+    isSectionVisible: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      return person && person.didTripsOnTripsDate === 'yes';
     }
   },
 
@@ -474,14 +472,24 @@ const sections: { [sectionName: string]: SectionConfig } = {
     completionConditional: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
       return helper.householdMembersSectionComplete(interview) && helper.travelBehaviorForPersonComplete(person, interview);
+    },
+    isSectionVisible: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      return person && person.didTripsOnTripsDate === 'yes';
     }
   },
 
-  segments: getSegmentsSectionConfig({}),
+  segments: {
+    ...getSegmentsSectionConfig({}),
+    isSectionVisible: function(interview) {
+      const person = odSurveyHelper.getPerson({ interview }) as any;
+      return person && person.didTripsOnTripsDate === 'yes';
+    }
+  },
 
   travelBehavior: {
     previousSection: 'segments',
-    nextSection: "end",
+    nextSection: "personsTrips",
     title: {
       fr: "Mobilité",
       en: "Travel behavior"
@@ -498,16 +506,13 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'personWhoAnsweredForThisPerson',
       'buttonContinueNextSection'
     ],
-    preload: function (interview, { startUpdateInterview,callback }) {
+    preload: function (interview, { startUpdateInterview, startNavigate, callback }) {
       const person = odSurveyHelper.getPerson({ interview });
       if ((interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noSchoolTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noWorkTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.whoAnsweredForThisPerson`) <= -1)
       {
-        const person = odSurveyHelper.getPerson({ interview });
-        startUpdateInterview({
-          sectionShortname: 'travelBehavior', 
+        startNavigate({
           valuesByPath: {
-            [`response.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid,
-            'response._activeSection': 'end'
+            [`response.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid
           }
         }, callback);
         return null;
@@ -526,7 +531,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
   },
 
   end: {
-    previousSection: 'travelBehavior',
+    previousSection: 'personsTrips',
     nextSection: "completed",
     title: {
       fr: "Fin",
@@ -555,7 +560,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
             sectionShortname: 'end', 
             valuesByPath: {
               'response._activePersonId'    : person._uuid,
-              'response._activeSection'     : 'profile',
               'response._showNewPersonPopup': true
             }
           }, callback);

@@ -162,6 +162,10 @@ export type InterviewResponse = {
     _activeTripId?: string;
     _activeJourneyId?: string;
     _activeVisitedPlaceId?: string;
+    /**
+     * @deprecated Navigation service now handles the current section and other
+     * navigation
+     * */
     _activeSection?: string;
 
     // Participant/web interview data
@@ -361,10 +365,32 @@ export type StartRemoveGroupedObjects = (
     returnOnly?: boolean
 ) => any;
 
+/**
+ * Type of the callback to trigger navigation in the current interview
+ *
+ * @param {Object} options
+ * @param {NavigationSection} [options.requestedSection] The section to navigate
+ * to, if any. If not provided, the next section will be determined by the
+ * navigation service.
+ * @param {{ [path: string]: unknown }} [options.valuesByPath] The values to
+ * update in the interview.  The key is the path to update and the value is the
+ * new value. A dot-separated path will be exploded to the corresponding nested
+ * object path.
+ * @param {(interview: UserRuntimeInterviewAttributes) => void} [callback] An
+ * optional function to call after the interview has been updated and navigation
+ * is complete
+ * @returns The dispatched action
+ */
+export type StartNavigate = (
+    options?: { requestedSection?: NavigationSection; valuesByPath?: { [path: string]: unknown } },
+    callback?: (interview: UserRuntimeInterviewAttributes, targetSection: NavigationSection) => void
+) => any;
+
 export type InterviewUpdateCallbacks = {
     startUpdateInterview: StartUpdateInterview;
     startAddGroupedObjects: StartAddGroupedObjects;
     startRemoveGroupedObjects: StartRemoveGroupedObjects;
+    startNavigate: StartNavigate;
 };
 
 export type ParsingFunctionWithCallbacks<T> = (

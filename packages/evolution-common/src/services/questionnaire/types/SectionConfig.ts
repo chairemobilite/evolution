@@ -11,6 +11,7 @@ import {
     I18nData,
     ParsingFunction,
     StartAddGroupedObjects,
+    StartNavigate,
     StartRemoveGroupedObjects,
     StartUpdateInterview,
     UserInterviewAttributes,
@@ -24,6 +25,7 @@ export type SectionPreload = (
         startUpdateInterview: StartUpdateInterview;
         startAddGroupedObjects: StartAddGroupedObjects;
         startRemoveGroupedObjects: StartRemoveGroupedObjects;
+        startNavigate: StartNavigate;
         callback: (interview: UserInterviewAttributes) => void;
         user: CliUser;
     }

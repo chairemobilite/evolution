@@ -30,6 +30,7 @@ describe('useSectionTemplate', () => {
             startUpdateInterview: jest.fn(),
             startAddGroupedObjects: jest.fn(),
             startRemoveGroupedObjects: jest.fn(),
+            startNavigate: jest.fn(),
             allWidgetsValid: true,
             submitted: false,
             loadingState: 0

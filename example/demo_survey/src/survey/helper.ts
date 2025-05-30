@@ -84,10 +84,11 @@ const profileInfoForPersonComplete = function(person, interview) {
 
 const tripsIntroForPersonComplete = function(person, interview) {
     if (person && person.age < 5) { return true; }
+    const journeys = odSurveyHelper.getJourneysArray({ person });
     if (
          !profileInfoForPersonComplete(person, interview)
       || _isBlank(person.didTripsOnTripsDate)
-      || ((person.didTripsOnTripsDate === 'yes' || person.didTripsOnTripsDate === true) && _isBlank(person.departurePlaceType))
+      || ((person.didTripsOnTripsDate === 'yes' || person.didTripsOnTripsDate === true) && (_isBlank(journeys[0]) || _isBlank(journeys[0].departurePlaceType)))
     ) { return false; }
     return true;
 };
