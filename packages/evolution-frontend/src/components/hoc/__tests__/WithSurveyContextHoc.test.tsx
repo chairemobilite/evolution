@@ -14,10 +14,31 @@ interface TestProps {
     foo: string;
 }
 
+const testSections = {
+    key1: {
+        type: 'section' as const,
+        previousSection: null,
+        nextSection: null,
+        widgets: ['a'],
+        enableConditional: true,
+        completionConditional: true,
+        navMenu: { type: 'inNav' as const, menuName: 'key1' }
+    },
+    key2: {
+        type: 'section' as const,
+        previousSection: null,
+        nextSection: null,
+        widgets: [],
+        enableConditional: true,
+        completionConditional: true,
+        navMenu: { type: 'inNav' as const, menuName: 'key2' }
+    }
+};
+
 export const BaseTestComponent: React.FunctionComponent<{}> = (props: {}) => {
     const [devMode, dispatchSurvey] = React.useReducer(surveyReducer, { devMode: false });
     return (
-        <SurveyContext.Provider value={{ sections: { key1: { previousSection: null, nextSection: null, widgets: ['a'] }, key2: { previousSection: null, nextSection: null, widgets: [] }}, widgets: {}, ...devMode, dispatch: dispatchSurvey }}>
+        <SurveyContext.Provider value={{ sections: testSections, widgets: {}, ...devMode, dispatch: dispatchSurvey }}>
             <TestComponentWithContext foo='This is a test component'/>
         </SurveyContext.Provider>
     );

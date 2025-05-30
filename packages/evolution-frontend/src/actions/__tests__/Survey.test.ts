@@ -620,13 +620,21 @@ describe('startSetInterview', () => {
     // Prepare minimal questionnaire section config
     const applicationSections = {
         sectionLast:  {
+            type: 'section' as const,
             widgets: [],
             previousSection: 'sectionFirst',
-            nextSection: null
+            nextSection: null,
+            enableConditional: true,
+            completionConditional: true,
+            navMenu: { type: 'inNav' as const, menuName: 'sectionLast' }
         }, sectionFirst:  {
+            type: 'section' as const,
             widgets: [],
             previousSection: null,
-            nextSection: 'sectionLast'
+            nextSection: 'sectionLast',
+            enableConditional: true,
+            completionConditional: true,
+            navMenu: { type: 'inNav' as const, menuName: 'sectionFirst' }
         }
     };
 

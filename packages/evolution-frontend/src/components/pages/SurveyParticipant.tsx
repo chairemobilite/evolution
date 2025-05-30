@@ -67,9 +67,12 @@ const SurveyParticipant: React.FC<WithSurveyContextProps> = (props: WithSurveyCo
         const existingActiveSection: string | null = interview
             ? (surveyHelperNew.getResponse(interview, '_activeSection', null) as string | null)
             : null;
+        // FIXME This will have to be updated when the new navigation is implemented, not sure it works correctly
         const pathSectionParentSection: string | undefined =
-            pathSectionShortname && props.surveyContext.sections[pathSectionShortname]
-                ? (props.surveyContext.sections[pathSectionShortname].parentSection as string | undefined)
+            pathSectionShortname &&
+            props.surveyContext.sections[pathSectionShortname] &&
+            props.surveyContext.sections[pathSectionShortname].navMenu.type === 'hidden'
+                ? props.surveyContext.sections[pathSectionShortname].navMenu.parentSection
                 : undefined;
         startSetInterviewAction(
             existingActiveSection || pathSectionParentSection,

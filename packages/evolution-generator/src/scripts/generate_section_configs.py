@@ -140,26 +140,37 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                         "const nextSectionName: SectionConfig['nextSection'] = null;\n"
                     )
 
-                # Generate parentSectionName
-                if parent_section is not None:
-                    ts_section_code += f"const parentSectionName: SectionConfig['parentSection'] = '{parent_section}';\n"
+                # FIXME Add an official warning if both in_nav and parent_section are set
+                if in_nav and parent_section is not None:
+                    print(
+                        f"Warning: both in_nav and parent_section are set for section '{section}'. in_nav will have precedence."
+                    )
 
                 # Generate config for the section
                 ts_section_code += f"\n// Config for the section\n"
                 ts_section_code += f"export const sectionConfig: SectionConfig = {{\n"
                 ts_section_code += f"{INDENT}previousSection: previousSectionName,\n"
                 ts_section_code += f"{INDENT}nextSection: nextSectionName,\n"
-                if parent_section is not None:
-                    ts_section_code += f"{INDENT}parentSection: parentSectionName,\n"
                 if title_en and title_fr is not None:
                     ts_section_code += f"{INDENT}title: {{\n"
                     ts_section_code += f"{INDENT}{INDENT}fr: '{title_fr}',\n"
                     ts_section_code += f"{INDENT}{INDENT}en: '{title_en}'\n"
                     ts_section_code += f"{INDENT}}},\n"
+                # Generate the navigation menu item, either in nav with title or hidden with parent
                 if title_en and title_fr is not None and in_nav == True:
-                    ts_section_code += f"{INDENT}menuName: {{\n"
-                    ts_section_code += f"{INDENT}{INDENT}fr: '{title_fr}',\n"
-                    ts_section_code += f"{INDENT}{INDENT}en: '{title_en}'\n"
+                    ts_section_code += f"{INDENT}navMenu: {{\n"
+                    ts_section_code += f"{INDENT}{INDENT}type: 'inNav',\n"
+                    ts_section_code += f"{INDENT}{INDENT}menuName: {{\n"
+                    ts_section_code += f"{INDENT}{INDENT}{INDENT}fr: '{title_fr}',\n"
+                    ts_section_code += f"{INDENT}{INDENT}{INDENT}en: '{title_en}'\n"
+                    ts_section_code += f"{INDENT}{INDENT}}}\n"
+                    ts_section_code += f"{INDENT}}},\n"
+                elif parent_section is not None:
+                    ts_section_code += f"{INDENT}navMenu: {{\n"
+                    ts_section_code += f"{INDENT}{INDENT}type: 'hidden',\n"
+                    ts_section_code += (
+                        f"{INDENT}{INDENT}parentSection: '{parent_section}'\n"
+                    )
                     ts_section_code += f"{INDENT}}},\n"
                 if has_custom_template:
                     ts_section_code += f"{INDENT}// The template to fill is in the 'template.tsx' file of this section\n"

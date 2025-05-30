@@ -11,5 +11,6 @@ import { WidgetConfig } from './WidgetConfig';
 export * from './Data';
 export * from './WidgetConfig';
 export * from './SectionConfig';
+export * from './NavigationTypes';
 
 export const isWidgetModal = (widgetConfig: WidgetConfig): boolean => (widgetConfig as any).isModal === true;
