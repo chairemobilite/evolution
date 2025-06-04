@@ -28,14 +28,14 @@ def generate_questionnaire_list(
         )
 
         # Find the index
-        widgets_language_index = widgets_headers.index(language)
+        widgets_language_index = widgets_headers.index("label::" + language)
         widgets_section_index = widgets_headers.index("section")
         widgets_active_index = widgets_headers.index("active")
         widgets_choices_index = widgets_headers.index("choices")
         section_name_index = sections_headers.index("section")
         section_title_language_index = sections_headers.index(f"title_{language}")
         choices_name_index = choices_headers.index("choicesName")
-        choices_language_index = choices_headers.index(language)
+        choices_language_index = choices_headers.index("label::" + language)
         choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
 
         # Map section names to their titles

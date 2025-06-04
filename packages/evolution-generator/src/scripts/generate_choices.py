@@ -43,8 +43,8 @@ def generate_choices(input_file: str, output_file: str):
             expected_headers=[
                 "choicesName",
                 "value",
-                "fr",
-                "en",
+                "label::fr",
+                "label::en",
                 "spreadChoicesName",
                 "conditional",
             ],
@@ -63,8 +63,8 @@ def generate_choices(input_file: str, output_file: str):
             # Get values from the row dictionary
             choice_name = row_dict["choicesName"]
             value = row_dict["value"]
-            label_fr = replaces_quotes_and_stringify(row_dict["fr"])
-            label_en = replaces_quotes_and_stringify(row_dict["en"])
+            label_fr = replaces_quotes_and_stringify(row_dict["label::fr"])
+            label_en = replaces_quotes_and_stringify(row_dict["label::en"])
             spread_choices_name = row_dict["spreadChoicesName"]
             conditional = row_dict["conditional"]
 

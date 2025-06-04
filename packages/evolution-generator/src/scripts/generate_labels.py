@@ -198,8 +198,8 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
         # question_name_index = widgets_headers.index("questionName")
         section_index = widgets_headers.index("section")
         path_index = widgets_headers.index("path")
-        fr_index = widgets_headers.index("fr")
-        en_index = widgets_headers.index("en")
+        fr_index = widgets_headers.index("label::fr")
+        en_index = widgets_headers.index("label::en")
 
         rowNumber = 2  # Start from the second row
         processed_sections = set()  # Track processed sections
