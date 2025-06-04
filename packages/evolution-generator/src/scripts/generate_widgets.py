@@ -66,7 +66,8 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
             has_custom_validations_import = False
             has_custom_conditionals_import = False
             has_help_popup_import = False
-            has_persons_cnt_label = False
+            has_nickname_label = False
+            has_persons_count_label = False
             has_gendered_suffix_label = False
             for row in section_rows:
                 if row["choices"]:
@@ -90,12 +91,19 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                     has_custom_widgets_import = True
                 if row["help_popup"] or row["confirm_popup"]:
                     has_help_popup_import = True
-                if "hasPersonsCntLabel" in row and row["hasPersonsCntLabel"] == True:
-                    has_persons_cnt_label = True
-                if (
-                    "hasGenderedSuffixLabel" in row
-                    and row["hasGenderedSuffixLabel"] == True
-                ):
+
+            # Check all rows for label context
+            for row in section_rows:
+                label_fr = row.get("label::fr", "")
+                label_en = row.get("label::en", "")
+                if "{{nickname}}" in label_fr or "{{nickname}}" in label_en:
+                    # Check if the label contains '{{nickname}}'
+                    has_nickname_label = True
+                if "{{count}}" in label_fr or "{{count}}" in label_en:
+                    # Check if the label contains '{{count}}'
+                    has_persons_count_label = True
+                if "{{genderedSuffix" in label_fr or "{{genderedSuffix:" in label_en:
+                    # Check if the label contains '{{genderedSuffix:...}}'
                     has_gendered_suffix_label = True
 
             # Generate import statements
@@ -105,10 +113,11 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                 has_input_range_import,
                 has_custom_widgets_import,
                 has_custom_validations_import,
-                has_help_popup_import,
-                has_persons_cnt_label,
-                has_gendered_suffix_label,
                 has_custom_conditionals_import,
+                has_help_popup_import,
+                has_nickname_label,
+                has_persons_count_label,
+                has_gendered_suffix_label,
             )
 
             # Generate widgets statements
@@ -176,15 +185,7 @@ def generate_widget_statement(row):
     help_popup = row["help_popup"]
     choices = row["choices"]
     confirm_popup = row["confirm_popup"] if "confirm_popup" in row else None
-    has_persons_cnt_label = (
-        row["hasPersonsCntLabel"] if "hasPersonsCntLabel" in row else False
-    )
-    has_gendered_suffix_label = (
-        row["hasGenderedSuffixLabel"] if "hasGenderedSuffixLabel" in row else False
-    )
-    widget_label = generate_label(
-        section, path, has_persons_cnt_label, has_gendered_suffix_label
-    )
+    widget_label = generate_label(section, path, row)
 
     widget: str = ""
     if input_type == "Custom":
@@ -339,11 +340,21 @@ def generate_import_statements(
     has_input_range_import,
     has_custom_widgets_import,
     has_custom_validations_import,
-    has_help_popup_import,
-    has_persons_cnt_label,
-    has_gendered_suffix_label,
     has_custom_conditionals_import,
+    has_help_popup_import,
+    has_nickname_label,
+    has_persons_count_label,
+    has_gendered_suffix_label,
 ):
+    person_import = ""
+    if has_nickname_label or has_gendered_suffix_label:
+        person_import = "import { getPerson } from 'evolution-common/lib/services/odSurvey/helpers';\n"
+    if has_persons_count_label:
+        # If count context is needed, import countPersons (and getPerson if not already)
+        if person_import:
+            person_import = "import { countPersons, getPerson } from 'evolution-common/lib/services/odSurvey/helpers';\n"
+        else:
+            person_import = "import { countPersons } from 'evolution-common/lib/services/odSurvey/helpers';\n"
     choices_import = (
         "// " if not has_choices_import else ""
     ) + "import * as choices from '../../common/choices';\n"
@@ -365,11 +376,6 @@ def generate_import_statements(
     input_range_import = (
         "// " if not has_input_range_import else ""
     ) + "import * as inputRange from '../../common/inputRange';\n"
-    cnt_person_import = (
-        "import { countPersons, getPerson } from '../../helperFunctions/helper';\n"
-        if has_persons_cnt_label == True or has_gendered_suffix_label == True
-        else ""
-    )
     gendered_suffix_import = (
         "import { getGenderedSuffixes } from '../../helperFunctions/frontendHelper';\n"
         if has_gendered_suffix_label == True
@@ -384,7 +390,7 @@ def generate_import_statements(
         f"{choices_import}"
         f"{conditionals_import}"
         f"{input_range_import}"
-        f"{cnt_person_import}"
+        f"{person_import}"
         f"{gendered_suffix_import}"
         f"{custom_conditionals_import}"
         f"{custom_widgets_import}"
@@ -444,18 +450,41 @@ def generate_join_with(join_with):
         return ""
 
 
-def generate_label(
-    section, path, has_persons_cnt_label=False, has_gendered_suffix_label=False
-):
-    if not (has_persons_cnt_label == True or has_gendered_suffix_label == True):
+def generate_label(section, path, row):
+    """
+    Generates the TypeScript label property for a widget.
+    Inspects the 'label::fr' and 'label::en' columns in the row to determine if nickname, count, or genderedSuffix context is needed.
+    - If no special flags are detected, returns a simple label function.
+    - If {{nickname}} is present, adds nickname context.
+    - If {{count}} is present, adds countPersons context.
+    - If {{genderedSuffix...}} is present, adds getGenderedSuffixes context.
+    """
+    fr = row.get("label::fr", "")  # French label
+    en = row.get("label::en", "")  # English label
+    label_text = fr + en  # Search both
+
+    has_nickname_label = "{{nickname}}" in label_text
+    has_persons_count_label = "{{count}}" in label_text
+    has_gendered_suffix_label = (
+        "{{genderedSuffix" in label_text
+    )  # Format: {{genderedSuffix:he/she}}
+
+    if not (has_persons_count_label or has_gendered_suffix_label or has_nickname_label):
         return f"{INDENT}label: (t: TFunction) => t('{section}:{path}')"
-    additional_t_context = f"{INDENT}{INDENT}{INDENT}nickname: person.nickname,\n"
-    initial_assignations = f"{INDENT}{INDENT}const person = getPerson(interview)\n"
-    if has_persons_cnt_label == True:
-        additional_t_context += (
-            f"{INDENT}{INDENT}{INDENT}count: countPersons(interview),\n"
+    additional_t_context = ""
+    initial_assignations = ""
+    if has_nickname_label or has_gendered_suffix_label:
+        # Write 'person' variable to get the nickname and genderedSuffixes
+        initial_assignations += (
+            f"{INDENT}{INDENT}const person = getPerson({{interview}})\n"
         )
-    if has_gendered_suffix_label == True:
+    if has_nickname_label:
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}nickname: person?.nickname,\n"
+    if has_persons_count_label:
+        additional_t_context += (
+            f"{INDENT}{INDENT}{INDENT}count: countPersons({{interview}}),\n"
+        )
+    if has_gendered_suffix_label:
         additional_t_context += (
             f"{INDENT}{INDENT}{INDENT}...getGenderedSuffixes(person, t)\n"
         )
