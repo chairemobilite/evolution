@@ -346,15 +346,9 @@ def generate_import_statements(
     has_persons_count_label,
     has_gendered_suffix_label,
 ):
-    person_import = ""
-    if has_nickname_label or has_gendered_suffix_label:
-        person_import = "import { getPerson } from 'evolution-common/lib/services/odSurvey/helpers';\n"
-    if has_persons_count_label:
-        # If count context is needed, import countPersons (and getPerson if not already)
-        if person_import:
-            person_import = "import { countPersons, getPerson } from 'evolution-common/lib/services/odSurvey/helpers';\n"
-        else:
-            person_import = "import { countPersons } from 'evolution-common/lib/services/odSurvey/helpers';\n"
+    od_survey_helpers_import = ""
+    if has_nickname_label or has_gendered_suffix_label or has_persons_count_label:
+        od_survey_helpers_import = "import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';\n"
     choices_import = (
         "// " if not has_choices_import else ""
     ) + "import * as choices from '../../common/choices';\n"
@@ -387,10 +381,10 @@ def generate_import_statements(
         f"import {{ defaultConditional }} from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';\n"
         f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
         f"import * as validations from 'evolution-common/lib/services/widgets/validations/validations';\n"
+        f"{od_survey_helpers_import}"
         f"{choices_import}"
         f"{conditionals_import}"
         f"{input_range_import}"
-        f"{person_import}"
         f"{gendered_suffix_import}"
         f"{custom_conditionals_import}"
         f"{custom_widgets_import}"
@@ -474,15 +468,17 @@ def generate_label(section, path, row):
     additional_t_context = ""
     initial_assignations = ""
     if has_nickname_label or has_gendered_suffix_label:
-        # Write 'person' variable to get the nickname and genderedSuffixes
+        # Write 'personId' variable from path and 'person' variable to get the nickname and genderedSuffixes
         initial_assignations += (
-            f"{INDENT}{INDENT}const person = getPerson({{interview}})\n"
+            f"{INDENT}{INDENT}const personId = odSurveyHelpers.getActivePersonId({{ interview, path }});\n"
+            f"{INDENT}{INDENT}const person = odSurveyHelpers.getPerson({{ interview, personId }});\n"
+            f"{INDENT}{INDENT}const nickname = person?.nickname || t('customLabel:noNickname');\n"
         )
     if has_nickname_label:
-        additional_t_context += f"{INDENT}{INDENT}{INDENT}nickname: person?.nickname,\n"
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}nickname,\n"
     if has_persons_count_label:
         additional_t_context += (
-            f"{INDENT}{INDENT}{INDENT}count: countPersons({{interview}}),\n"
+            f"{INDENT}{INDENT}{INDENT}count: countPersons({{ interview }}),\n"
         )
     if has_gendered_suffix_label:
         additional_t_context += (

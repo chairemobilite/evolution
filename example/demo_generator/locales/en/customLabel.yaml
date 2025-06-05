@@ -6,3 +6,4 @@ HomeHouseholdSizeHelpContent: >-
     <ul><li><strong>Include:</strong></li><ul><li>Yourself</li><li>Children in joint
     custody if they were present at your home on {{assignedDate}}</li><li>Roomers
     and roommates, as well as all those living in a domestic community</li></ul></ul>
+noNickname: this person

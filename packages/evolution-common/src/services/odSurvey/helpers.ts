@@ -67,6 +67,36 @@ export const getHousehold = ({ interview }: { interview: UserInterviewAttributes
 };
 
 /**
+ * Get the currently active person ID, prioritizing the path if provided.
+ * - If the `path` argument is provided and contains a person ID in the format `household.persons.{personId}.`,
+ *   this person ID (from the householdMembers group) will be returned.
+ * - Otherwise, returns the interview's `_activePersonId` if set.
+ * - If neither is found, returns `undefined`.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object.
+ * @param {string} [options.path] Optional path string to extract the person ID from (typically from the householdMembers group).
+ * @returns {string | undefined} The active person ID from the path or interview, or `undefined` if not found.
+ */
+export const getActivePersonId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | undefined => {
+    if (path) {
+        // Match the pattern household.persons.{personId}.
+        const match = path.match(/household\.persons\.([^.]+)\./);
+        if (match) {
+            return match[1]; // Return the person ID captured in the regex for path inside householdMembers group
+        }
+    }
+    const currentPersonId = interview.response._activePersonId; // Otherwise, get the active person ID from the response
+    return currentPersonId !== undefined ? currentPersonId : undefined; // If not set, return undefined
+};
+
+/**
  * Get the currently active person, as defined in the interview response. If
  * the active person is not set but there are persons defined, the first one
  * will be returned. If the person is not found, `null` will be returned
@@ -303,7 +333,7 @@ export const getJourneysArray = function ({ person }: { person: Person }): Journ
 
 /**
  * @typedef {Object.<string, Trip>} TripsObject
- * An object where the keys are trip IDs and the values are Trip objects.
+ * An object where the keys are trip ID's and the values are Trip objects.
  */
 
 /**
