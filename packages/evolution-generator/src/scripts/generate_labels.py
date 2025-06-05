@@ -190,17 +190,12 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
         )
 
         # Find the index
-        # question_name_index = widgets_headers.index("questionName")
         section_index = widgets_headers.index("section")
         path_index = widgets_headers.index("path")
         label_fr_index = widgets_headers.index("label::fr")
         label_en_index = widgets_headers.index("label::en")
-        label_fr_one_index = widgets_headers.index(
-            "label_one::fr"
-        )  # For one person questions
-        label_en_one_index = widgets_headers.index(
-            "label_one::en"
-        )  # For one person questions
+        label_fr_one_index = widgets_headers.index("label_one::fr")
+        label_en_one_index = widgets_headers.index("label_one::en")
 
         rowNumber = 2  # Start from the second row
         processed_sections = set()  # Track processed sections
@@ -226,6 +221,12 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 else None
             )
 
+            # Expand gender context for fr_label and fr_label_one
+            gender_fr = expand_gender(fr_label)
+            gender_fr_one = expand_gender(fr_label_one)
+            gender_en = expand_gender(en_label)
+            gender_en_one = expand_gender(en_label_one)
+
             # Delete the YAML file for the section before adding translations
             if section not in processed_sections:
                 if fr_label is not None:
@@ -243,7 +244,24 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 processed_sections.add(section)  # Mark section as processed
 
             # Add French translations
-            if fr_label is not None:
+            if gender_fr:
+                addTranslation(
+                    language="fr",
+                    section=section,
+                    path=path + "_man",
+                    value=gender_fr["man"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+                addTranslation(
+                    language="fr",
+                    section=section,
+                    path=path + "_woman",
+                    value=gender_fr["woman"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+            elif fr_label is not None:
                 addTranslation(
                     language="fr",
                     section=section,
@@ -254,7 +272,24 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 )
 
             # Add French one person translation for count context if it exists
-            if fr_label_one:
+            if gender_fr_one:
+                addTranslation(
+                    language="fr",
+                    section=section,
+                    path=path + "_one_man",
+                    value=gender_fr_one["man"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+                addTranslation(
+                    language="fr",
+                    section=section,
+                    path=path + "_one_woman",
+                    value=gender_fr_one["woman"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+            elif fr_label_one:
                 addTranslation(
                     language="fr",
                     section=section,
@@ -265,7 +300,24 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 )
 
             # Add English translations
-            if en_label is not None:
+            if gender_en:
+                addTranslation(
+                    language="en",
+                    section=section,
+                    path=path + "_man",
+                    value=gender_en["man"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+                addTranslation(
+                    language="en",
+                    section=section,
+                    path=path + "_woman",
+                    value=gender_en["woman"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+            elif en_label is not None:
                 addTranslation(
                     language="en",
                     section=section,
@@ -276,7 +328,24 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 )
 
             # Add English one person translation for count context if it exists
-            if en_label_one:
+            if gender_en_one:
+                addTranslation(
+                    language="en",
+                    section=section,
+                    path=path + "_one_man",
+                    value=gender_en_one["man"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+                addTranslation(
+                    language="en",
+                    section=section,
+                    path=path + "_one_woman",
+                    value=gender_en_one["woman"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+            elif en_label_one:
                 addTranslation(
                     language="en",
                     section=section,
@@ -297,6 +366,38 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
     except Exception as e:
         print(f"Exception occurred in addTranslationsFromExcel: {e}")
         raise e
+
+
+def expand_gender(label):
+    """
+    Replace all occurrences of {{gender:...}} with the man and woman forms.
+    Example: "Étudian{{gender:t/te}}" -> {"man": "Étudiant", "woman": "Étudiante"}
+    """
+    import re
+
+    if not label or "{{gender:" not in label:
+        return None
+    # Find all occurrences of {{gender:...}}
+    pattern = r"\{\{gender:([^}]+)\}\}"
+    matches = re.findall(pattern, label)
+    if not matches:
+        return None
+    # For each match, split on '/' to get man/woman suffixes
+    # If only one part, use '' for man and the part for woman
+    # If two parts, use first for man, second for woman
+    man_label = label
+    woman_label = label
+    for match in matches:
+        parts = match.split("/")
+        if len(parts) == 2:
+            man, woman = parts[0], parts[1]
+        elif len(parts) == 1:
+            man, woman = "", parts[0]
+        else:
+            man, woman = "", ""
+        man_label = man_label.replace(f"{{{{gender:{match}}}}}", man)
+        woman_label = woman_label.replace(f"{{{{gender:{match}}}}}", woman)
+    return {"man": man_label, "woman": woman_label}
 
 
 def stringToYaml(str):
