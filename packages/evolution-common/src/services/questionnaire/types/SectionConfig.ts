@@ -121,6 +121,14 @@ export type RepeatedBlockSectionConfig = {
      * Sections that are part of this repeated block
      */
     sections: string[];
+
+    /**
+     * Determine whether a given iteration of the block is valid or not. This
+     * function will be used to automatically select an incomplete iteration.
+     * The participant may have a non-linear navigation through the iteration. A
+     * previous one may be incomplete even if the last one is.
+     */
+    isIterationValid?: SectionConditionalFunction;
 };
 
 type SectionConditionalFunction = (

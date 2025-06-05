@@ -201,7 +201,12 @@ const sections: { [sectionName: string]: SectionConfig } = {
       skipSelectionInNaturalFlow: true,
       activeSurveyObjectPath: '_activePersonId',
       pathPrefix: 'person',
-      sections: ['selectPerson', 'profile', 'tripsIntro', 'visitedPlaces', 'segments', 'travelBehavior']
+      sections: ['selectPerson', 'profile', 'tripsIntro', 'visitedPlaces', 'segments', 'travelBehavior'],
+      isIterationValid: (interview, iterationContext) => {
+          const personId = iterationContext[iterationContext.length - 1];
+          const person = odSurveyHelper.getPerson({ interview, personId });
+          return helper.travelBehaviorForPersonComplete(person, interview)
+      },
     }
   },
 
