@@ -504,6 +504,31 @@ export class NavigationService {
         }
     }
 
+    private _navigate(
+        interview: UserRuntimeInterviewAttributes,
+        currentSection: NavigationSection,
+        direction: 'forward' | 'backward' = 'forward'
+    ): TargetSectionResult {
+        const correctedCurrentSection = this.correctCurrentSectionIteration({ interview, currentSection });
+
+        // Find the first non-skipped section in the requested direction
+        const [targetSection, valuesByPath] = this.findFirstNonSkippedSection({
+            interview,
+            currentSection: correctedCurrentSection,
+            direction
+        });
+
+        // return current state if next section is the same as the current, otherwise, return the new state
+        const valuesToUpdate = this.getValuesToUpdate({ interview, targetSection });
+        return _isEqual(targetSection, currentSection)
+            ? { targetSection: currentSection }
+            : {
+                targetSection,
+                valuesByPath:
+                      valuesByPath === undefined ? valuesToUpdate : Object.assign(valuesByPath, valuesToUpdate)
+            };
+    }
+
     /**
      * Main navigation function to determine the target section in the
      * appropriate direction. If the navigation is not possible in the requested
@@ -542,24 +567,11 @@ export class NavigationService {
             }
         }
 
-        const correctedCurrentSection = this.correctCurrentSectionIteration({ interview, currentSection });
-
-        // Find the first non-skipped section in the requested direction
-        const [targetSection, valuesByPath] = this.findFirstNonSkippedSection({
+        return this.handleSectionEntryExit({
             interview,
-            currentSection: correctedCurrentSection,
-            direction
+            targetSection: this._navigate(interview, currentSection, direction),
+            previousSection: currentSection
         });
-
-        // return current state if next section is the same as the current, otherwise, return the new state
-        const valuesToUpdate = this.getValuesToUpdate({ interview, targetSection });
-        return _isEqual(targetSection, currentSection)
-            ? { targetSection: currentSection }
-            : {
-                targetSection,
-                valuesByPath:
-                      valuesByPath === undefined ? valuesToUpdate : Object.assign(valuesByPath, valuesToUpdate)
-            };
     }
 
     // If the current section is the survey object selection section, update the current iteration to match the
@@ -625,6 +637,37 @@ export class NavigationService {
         return targetSection;
     }
 
+    // Add the section entry and exit functions side effect to the target result
+    private handleSectionEntryExit({
+        interview,
+        targetSection,
+        previousSection
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        targetSection: TargetSectionResult;
+        previousSection?: NavigationSection;
+    }): TargetSectionResult {
+        // Execute the `onSectionExit` of the previous section
+        const previousSectionConfig = previousSection ? this.sections[previousSection.sectionShortname] : undefined;
+        const sectionExitValues =
+            previousSectionConfig && previousSectionConfig.onSectionExit
+                ? previousSectionConfig.onSectionExit(interview, previousSection?.iterationContext)
+                : undefined;
+
+        // Execute the `onSectionEntry` of the target section
+        const sectionConfig = this.sections[targetSection.targetSection.sectionShortname];
+        const sectionEntryValues = sectionConfig.onSectionEntry
+            ? sectionConfig.onSectionEntry(interview, targetSection.targetSection.iterationContext)
+            : undefined;
+
+        // Merge the values from both section entry and exit functions with the valuesByPath of targetSection
+        const updatedValues = Object.assign({}, targetSection.valuesByPath, sectionExitValues, sectionEntryValues);
+        return {
+            targetSection: targetSection.targetSection,
+            valuesByPath: Object.keys(updatedValues).length > 0 ? updatedValues : undefined
+        };
+    }
+
     private getValuesToUpdate({
         interview,
         targetSection
@@ -658,21 +701,7 @@ export class NavigationService {
         return undefined;
     }
 
-    /**
-     * Go to a specific section or initialize a new navigation state. This can
-     * either happen when the page is first loaded to go to the last section, or
-     * when the user requests a specific section, for example through the URL or
-     * by clicking the navigation menu. In any case, it will not navigate to a
-     * section that is not enabled or accessible yet.
-     *
-     * @param {Object} params The parameters for the navigation state
-     * @param {UserRuntimeInterviewAttributes} params.interview The interview for which
-     * to create the navigation state
-     * @param {string} [params.requestedSection] The section to navigate to. If left
-     * blank, it will either navigate to the last visited (or allowed) section
-     * or the first one.
-     */
-    public initNavigationState({
+    private _initNavigationState({
         interview,
         requestedSection
     }: {
@@ -735,6 +764,37 @@ export class NavigationService {
             targetSection: targetSectionNonSkipped,
             valuesByPath: valuesByPath === undefined ? valuestoUpdate : Object.assign(valuesByPath, valuestoUpdate)
         };
+    }
+
+    /**
+     * Go to a specific section or initialize a new navigation state. This can
+     * either happen when the page is first loaded to go to the last section, or
+     * when the user requests a specific section, for example through the URL or
+     * by clicking the navigation menu. In any case, it will not navigate to a
+     * section that is not enabled or accessible yet.
+     *
+     * @param {Object} params The parameters for the navigation state
+     * @param {UserRuntimeInterviewAttributes} params.interview The interview for which
+     * to create the navigation state
+     * @param {string} [params.requestedSection] The section to navigate to. If left
+     * blank, it will either navigate to the last visited (or allowed) section
+     * or the first one.
+     * @param {NavigationSection} [params.currentSection] The current section, if any.
+     */
+    public initNavigationState({
+        interview,
+        requestedSection,
+        currentSection
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        requestedSection?: string;
+        currentSection?: NavigationSection;
+    }): TargetSectionResult {
+        return this.handleSectionEntryExit({
+            interview,
+            targetSection: this._initNavigationState({ interview, requestedSection }),
+            previousSection: currentSection
+        });
     }
 }
 

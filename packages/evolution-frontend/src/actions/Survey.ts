@@ -507,7 +507,8 @@ export const startNavigateWithUpdateCallback =
                     if (requestedSection || navigation === undefined) {
                         return navigationService.initNavigationState({
                             interview,
-                            requestedSection: requestedSection?.sectionShortname
+                            requestedSection: requestedSection?.sectionShortname,
+                            currentSection: navigation?.currentSection
                         });
                     }
                     // Otherwise, navigate forward
@@ -518,7 +519,7 @@ export const startNavigateWithUpdateCallback =
                 // Prepare the values by path for next section
                 if (targetSectionResult.valuesByPath) {
                 // If the target section has values by path, prepare them
-                    Object.assign(allValuesByPath, targetSectionResult.valuesByPath || {});
+                    Object.assign(allValuesByPath, targetSectionResult.valuesByPath);
                 }
 
                 // Call the update interview to update to the new section
