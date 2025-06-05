@@ -104,9 +104,7 @@ def deleteYamlFile(language, section, labels_output_folder_path):
         raise e
 
 
-def addTranslation(
-    language, section, path, value, labels_output_folder_path, rowNumber, translations
-):
+def addTranslation(language, section, path, value, rowNumber, translations):
     """
     Adds a translation to the locales dictionary.
 
@@ -115,7 +113,6 @@ def addTranslation(
         section (str): The section name.
         path (str): The path for the translation.
         value (str): The translation value.
-        labels_output_folder_path (str): The output folder path for the labels.
         rowNumber (int): The row number in the Excel file.
         translations (dict): The dictionary of translations.
     """
@@ -178,8 +175,6 @@ def saveTranslations(language, section, labels_output_folder_path, translations)
         raise e
 
 
-# TODO: Add more languages translations. Also, add more context (e.g. phone interview, solo interview, etc.)
-# TODO: For example, fr_solo, en_phone.
 def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
     """
     Reads translations from an Excel file and adds them to the appropriate YAML files.
@@ -198,8 +193,14 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
         # question_name_index = widgets_headers.index("questionName")
         section_index = widgets_headers.index("section")
         path_index = widgets_headers.index("path")
-        fr_index = widgets_headers.index("label::fr")
-        en_index = widgets_headers.index("label::en")
+        label_fr_index = widgets_headers.index("label::fr")
+        label_en_index = widgets_headers.index("label::en")
+        label_fr_one_index = widgets_headers.index(
+            "label_one::fr"
+        )  # For one person questions
+        label_en_one_index = widgets_headers.index(
+            "label_one::en"
+        )  # For one person questions
 
         rowNumber = 2  # Start from the second row
         processed_sections = set()  # Track processed sections
@@ -212,18 +213,28 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
             # question_name = row[question_name_index].value
             section = row[section_index].value
             path = row[path_index].value
-            fr = row[fr_index].value
-            en = row[en_index].value
+            fr_label = row[label_fr_index].value
+            en_label = row[label_en_index].value
+            fr_label_one = (
+                row[label_fr_one_index].value
+                if label_fr_one_index is not None
+                else None
+            )
+            en_label_one = (
+                row[label_en_one_index].value
+                if label_en_one_index is not None
+                else None
+            )
 
             # Delete the YAML file for the section before adding translations
             if section not in processed_sections:
-                if fr is not None:
+                if fr_label is not None:
                     deleteYamlFile(
                         language="fr",
                         section=section,
                         labels_output_folder_path=labels_output_folder_path,
                     )
-                if en is not None:
+                if en_label is not None:
                     deleteYamlFile(
                         language="en",
                         section=section,
@@ -231,23 +242,46 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                     )
                 processed_sections.add(section)  # Mark section as processed
 
-            if fr is not None:
+            # Add French translations
+            if fr_label is not None:
                 addTranslation(
                     language="fr",
                     section=section,
                     path=path,
-                    value=fr,
-                    labels_output_folder_path=labels_output_folder_path,
+                    value=fr_label,
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
-            if en is not None:
+
+            # Add French one person translation for count context if it exists
+            if fr_label_one:
+                addTranslation(
+                    language="fr",
+                    section=section,
+                    path=path + "_one",
+                    value=fr_label_one,
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+
+            # Add English translations
+            if en_label is not None:
                 addTranslation(
                     language="en",
                     section=section,
                     path=path,
-                    value=en,
-                    labels_output_folder_path=labels_output_folder_path,
+                    value=en_label,
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+
+            # Add English one person translation for count context if it exists
+            if en_label_one:
+                addTranslation(
+                    language="en",
+                    section=section,
+                    path=path + "_one",
+                    value=en_label_one,
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
                 )
