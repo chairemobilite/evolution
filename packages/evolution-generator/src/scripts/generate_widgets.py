@@ -447,14 +447,17 @@ def generate_join_with(join_with):
 def generate_label(section, path, row):
     """
     Generates the TypeScript label property for a widget.
-    Inspects the 'label::fr' and 'label::en' columns in the row to determine if nickname, count, or genderedSuffix context is needed.
+    Inspects the 'label::fr', 'label::en', 'label_one::fr', and 'label_one::en' columns in the row to determine if nickname, count, or genderedSuffix context is needed.
     - If no special flags are detected, returns a simple label function.
     - If {{nickname}} is present, adds nickname context.
     - If {{count}} is present, adds countPersons context.
     - If {{genderedSuffix...}} is present, adds getGenderedSuffixes context.
+    - If label_one is present, adds countPersons assignment and count: countPersons to the translation context.
     """
     fr = row.get("label::fr", "")  # French label
     en = row.get("label::en", "")  # English label
+    label_one_fr = row.get("label_one::fr", "")  # French label for one person
+    label_one_en = row.get("label_one::en", "")  # English label for one person
     label_text = fr + en  # Search both
 
     has_nickname_label = "{{nickname}}" in label_text
@@ -462,8 +465,14 @@ def generate_label(section, path, row):
     has_gendered_suffix_label = (
         "{{genderedSuffix" in label_text
     )  # Format: {{genderedSuffix:he/she}}
+    has_label_one = bool(label_one_fr or label_one_en)
 
-    if not (has_persons_count_label or has_gendered_suffix_label or has_nickname_label):
+    if not (
+        has_persons_count_label
+        or has_gendered_suffix_label
+        or has_nickname_label
+        or has_label_one
+    ):
         return f"{INDENT}label: (t: TFunction) => t('{section}:{path}')"
     additional_t_context = ""
     initial_assignations = ""
@@ -474,12 +483,17 @@ def generate_label(section, path, row):
             f"{INDENT}{INDENT}const person = odSurveyHelpers.getPerson({{ interview, personId }});\n"
             f"{INDENT}{INDENT}const nickname = person?.nickname || t('customLabel:noNickname');\n"
         )
+    if has_label_one:
+        # Assign countPersons for count context if label_one exists
+        initial_assignations += f"{INDENT}{INDENT}const countPersons = odSurveyHelpers.countPersons({{ interview }});\n"
     if has_nickname_label:
         additional_t_context += f"{INDENT}{INDENT}{INDENT}nickname,\n"
     if has_persons_count_label:
         additional_t_context += (
             f"{INDENT}{INDENT}{INDENT}count: countPersons({{ interview }}),\n"
         )
+    if has_label_one:
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}count: countPersons,\n"
     if has_gendered_suffix_label:
         additional_t_context += (
             f"{INDENT}{INDENT}{INDENT}...getGenderedSuffixes(person, t)\n"
