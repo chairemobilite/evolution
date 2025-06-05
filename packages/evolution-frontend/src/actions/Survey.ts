@@ -505,7 +505,11 @@ export const startNavigateWithUpdateCallback =
                 const getTargetSectionResult = () => {
                 // If there is a requested section or there is no navigation yet, initialize navigation for interview
                     if (requestedSection || navigation === undefined) {
-                        return navigationService.initNavigationState(interview, requestedSection?.sectionShortname);
+                        return navigationService.initNavigationState(
+                            interview,
+                            requestedSection?.sectionShortname,
+                            navigation?.currentSection
+                        );
                     }
                     // Otherwise, navigate forward
                     return navigationService.navigate(interview, navigation.currentSection);
@@ -515,7 +519,7 @@ export const startNavigateWithUpdateCallback =
                 // Prepare the values by path for next section
                 if (targetSectionResult.valuesByPath) {
                 // If the target section has values by path, prepare them
-                    Object.assign(allValuesByPath, targetSectionResult.valuesByPath || {});
+                    Object.assign(allValuesByPath, targetSectionResult.valuesByPath);
                 }
 
                 // Call the update interview to update to the new section

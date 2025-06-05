@@ -136,6 +136,11 @@ type SectionConditionalFunction = (
     iterationContext: string[] | undefined
 ) => boolean;
 
+type SectionEventFunction = (
+    interview: UserRuntimeInterviewAttributes,
+    iterationContext: string[] | undefined
+) => Record<string, unknown> | undefined;
+
 export type SectionConfig = {
     /**
      * The title of the section. This will be displayed as the header on the
@@ -189,9 +194,13 @@ export type SectionConfig = {
     /**
      * If set, this function will be executed whenever the section is entered.
      *
-     * FIXME: As we are moving towards a config-only section definition, this
-     * preload function should be replaced with something that can be defined in
-     * config
+     * @deprecated The preloading catch-all mechanism that can do everything and
+     * anything should now be moved to the more appropriate functions in the
+     * section config. To initialize stuff at the beginning of a section the
+     * `onSectionEntry` and `onSectionExit` functions should be used. For
+     * skipping sections or direction navigating to sections according to
+     * various conditions, use the `isSectionVisible`, `isSectionCompleted` or,
+     * if in a repeated block, the repeated block's `isIterationValid` function.
      */
     preload?: SectionPreload;
     /**
@@ -278,6 +287,34 @@ export type SectionConfig = {
      * repeated block
      */
     repeatedBlock?: RepeatedBlockSectionConfig;
+
+    /**
+     * This function will be executed once each time the section is being
+     * navigated to, before the widgets are displayed. This is the place to
+     * define all side effects of entering the section, such as initializing
+     * group objects, pre-setting some answers. It returns the values to update
+     * in the interview response.
+     *
+     * This function, and the `onSectionExit` function are meant to replace the
+     * `preload` function of the section. It should not call the update
+     * callbacks or anything else, just return the side effects of the section
+     * for the current iteration.
+     */
+    onSectionEntry?: SectionEventFunction;
+
+    /**
+     * This function will be executed once each time the section is being
+     * navigated away from, before navigating to the next section. This is the
+     * place to define all side effects of exiting the section, such as making
+     * sure related values in other sections match the ones from the current
+     * section (for example household size)
+     *
+     * This function, and the `onSectionEntry` function are meant to replace the
+     * `preload` function of the section. It should not call the update
+     * callbacks or anything else, just return the side effects of the section
+     * for the current iteration.
+     */
+    onSectionExit?: SectionEventFunction;
 };
 
 /**
