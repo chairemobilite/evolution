@@ -118,6 +118,28 @@ export const getActivePerson = ({ interview }: { interview: UserInterviewAttribu
 };
 
 /**
+ * Get the gender of the currently active person.
+ * Uses getActivePersonId to determine the active person, then returns their gender if available.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object.
+ * @param {string} [options.path] Optional path string to extract the person ID from.
+ * @returns {string | undefined} The gender of the active person, or undefined if not found.
+ */
+export const getActivePersonGender = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | undefined => {
+    const personId = getActivePersonId({ interview, path });
+    if (!personId) return undefined;
+    const person = getPerson({ interview, personId });
+    return person?.gender;
+};
+
+/**
  * @typedef {Object.<string, Person>} PersonsObject
  * An object where the keys are person IDs and the values are Person objects.
  */

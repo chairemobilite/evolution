@@ -72,12 +72,11 @@ def test_generate_label_basic():
     result = generate_label(section="sectionA", path="foo.bar", row=row)
     assert "label: (t: TFunction) => t('sectionA:foo.bar')" in result
     assert "return t('sectionA:foo.bar', {" not in result
-    assert "const personId" not in result
-    assert "const person" not in result
-    assert "const nickname" not in result
-    assert "countPersons" not in result
-    assert "getGenderedSuffixes" not in result
-    assert "nickname," not in result
+    assert "const personId =" not in result
+    assert "const person =" not in result
+    assert "const nickname =" not in result
+    assert "const countPersons =" not in result
+    assert "const personGender =" not in result
 
 
 def test_generate_label_with_nickname_label():
@@ -89,12 +88,12 @@ def test_generate_label_with_nickname_label():
     result = generate_label(section="sectionA", path="foo.bar", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionA:foo.bar', {" in result
-    assert "const personId" in result
-    assert "const person" in result
-    assert "const nickname" in result
+    assert "const personId =" in result
+    assert "const person =" in result
+    assert "const nickname =" in result
+    assert "const countPersons =" not in result
+    assert "const personGender =" not in result
     assert "nickname," in result
-    assert "countPersons" not in result
-    assert "getGenderedSuffixes" not in result
 
 
 def test_generate_label_with_persons_count_label():
@@ -106,27 +105,29 @@ def test_generate_label_with_persons_count_label():
     result = generate_label(section="sectionB", path="baz", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionB:baz', {" in result
-    assert "const personId" not in result
-    assert "const person" not in result
-    assert "const nickname" not in result
-    assert "count: countPersons({ interview })," in result
-    assert "getGenderedSuffixes" not in result
+    assert "const personId =" not in result
+    assert "const person =" not in result
+    assert "const nickname =" not in result
+    assert "const countPersons =" in result
+    assert "const personGender =" not in result
+    assert "count: countPersons" in result
 
 
-def test_generate_label_with_gendered_suffix_label():
-    """Test generate_label includes getGenderedSuffixes context when {{genderedSuffix...}} is present"""
+def test_generate_label_with_gender_label():
+    """Test generate_label includes gender context when {{gender:...}} is present"""
     row = {
-        "label::fr": "{{genderedSuffix:Il/Elle}} a un permis de conduire?",
-        "label::en": "{{genderedSuffix:He/She}} has a driver's license?",
+        "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
+        "label::en": "{{gender:He/She}} has a driver's license?",
     }
     result = generate_label(section="sectionC", path="qux", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionC:qux', {" in result
-    assert "const personId" in result
-    assert "const person" in result
-    assert "const nickname" in result
-    assert "...getGenderedSuffixes(person, t)" in result
-    assert "countPersons" not in result
+    assert "const personId =" not in result
+    assert "const person =" not in result
+    assert "const nickname =" not in result
+    assert "const countPersons =" not in result
+    assert "const personGender =" in result
+    assert "context: personGender =" in result
 
 
 def test_generate_label_with_one_person():
@@ -140,28 +141,34 @@ def test_generate_label_with_one_person():
     result = generate_label(section="sectionE", path="foo.age", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionE:foo.age', {" in result
-    assert "const countPersons = odSurveyHelpers.countPersons({ interview });" in result
+    assert "const personId =" not in result
+    assert "const person =" not in result
+    assert "const nickname =" not in result
+    assert "const countPersons =" in result
+    assert "const personGender =" not in result
     assert "count: countPersons" in result
 
 
 def test_generate_label_with_all_contexts():
     """Test generate_label includes all contexts when all contexts and label_one are present"""
     row = {
-        "label::fr": "{{genderedSuffix:Il/Elle}} s'appelle {{nickname}} et il y a {{count}} personnes.",
-        "label::en": "{{genderedSuffix:He/She}} is named {{nickname}} and there are {{count}} persons.",
+        "label::fr": "{{gender:Il/Elle}} s'appelle {{nickname}} et il y a {{count}} personnes.",
+        "label::en": "{{gender:He/She}} is named {{nickname}} and there are {{count}} persons.",
         "label_one::fr": "Tu t'appelles {{nickname}}.",
         "label_one::en": "Your name is {{nickname}}.",
     }
     result = generate_label(section="sectionD", path="bar.baz", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionD:bar.baz', {" in result
-    assert "const personId" in result
-    assert "const person" in result
-    assert "const nickname" in result
-    assert "const countPersons" in result
+    assert "const personId =" in result
+    assert "const person =" in result
+    assert "const nickname =" in result
+    assert "const countPersons =" in result
+    assert "const personGender =" in result
+    assert "nickname," in result
     assert "nickname," in result
     assert "count: countPersons" in result
-    assert "...getGenderedSuffixes(person, t)" in result
+    assert "context: personGender =" in result
 
 
 # TODO: Test generate_help_popup
