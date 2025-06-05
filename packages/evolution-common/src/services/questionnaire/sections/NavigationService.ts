@@ -387,15 +387,13 @@ export class NavigationService {
         // and the direction is fioward, or if the iteration is the first and
         // direction is backward.
         if (currentIterationIndex === iterationContexts.length - 1 && direction === 'forward') {
-            // FIXME The navigation in the repeated block section may not have
-            // been linear and some iterations might be invalid. We should add a
-            // iteration validator function to the repeated block to
-            // automatically select the invalid iteration if necessary instead
-            // of going to the next section directly.
-            return [
-                { sectionShortname: repeatedBlockSection.nextSection },
-                this.deactivateActiveSurveyObject({ repeatedBlockSection, valuesByPath: updatedValues })
-            ];
+            // If the last iteration is completed, go to the next section, or first invalid iteration
+            return this.findEndOfBlockNextSection({
+                interview,
+                repeatedBlockSection,
+                iterationContexts,
+                updatedValues
+            });
         } else if (currentIterationIndex === 0 && direction === 'backward' && repeatedBlockSection.previousSection) {
             return [
                 { sectionShortname: repeatedBlockSection.previousSection },
@@ -423,6 +421,50 @@ export class NavigationService {
         });
 
         return [{ sectionShortname: targetSectionName, iterationContext: nextIterationContext }, updatedValues];
+    }
+
+    private findEndOfBlockNextSection({
+        interview,
+        repeatedBlockSection,
+        iterationContexts,
+        updatedValues
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        repeatedBlockSection: SectionConfigWithDefaultsBlock;
+        updatedValues: Record<string, unknown> | undefined;
+        iterationContexts: string[][];
+    }): [NavigationSection, Record<string, unknown> | undefined] {
+        // The navigation in the repeated block section may not have been linear
+        // and some iterations might be invalid. We find the first invalid
+        // iteration and navigate to the first visible section of this block.
+        if (repeatedBlockSection.repeatedBlock.isIterationValid !== undefined) {
+            const firstInvalidIteration = iterationContexts.find(
+                (context) => !repeatedBlockSection.repeatedBlock.isIterationValid!(interview, context)
+            );
+            if (firstInvalidIteration) {
+                // If there is an invalid iteration, find first visible section
+                // in the block for this person, skipping the selection section
+                // if required
+                return [
+                    {
+                        sectionShortname: this.findFirstVisibleSectionInRepeatedBlock({
+                            interview,
+                            repeatedBlockSection,
+                            iterationContext: firstInvalidIteration,
+                            startFrom: repeatedBlockSection.repeatedBlock.selectionSectionId
+                                ? repeatedBlockSection.repeatedBlock.sections[1]
+                                : repeatedBlockSection.repeatedBlock.sections[0]
+                        }),
+                        iterationContext: firstInvalidIteration
+                    },
+                    updatedValues
+                ];
+            }
+        }
+        return [
+            { sectionShortname: repeatedBlockSection.nextSection },
+            this.deactivateActiveSurveyObject({ repeatedBlockSection, valuesByPath: updatedValues })
+        ];
     }
 
     // Add the iteration context to the target section or remove any previous
