@@ -2310,5 +2310,166 @@ describe('navigate function, further use cases', () => {
             expect(mockIsIterationValid).not.toHaveBeenCalled();
         });
     });
+
+    describe('onSectionEntry/Exit', () => {
+        // Set the `onSectionEntry` and `onSectionExit` to the household and home sections respectively
+        const sectionConfig = _cloneDeep(simpleSectionsConfig);
+        const mockOnEnterHh = jest.fn();
+        const mockOnExitHome = jest.fn();
+        sectionConfig.householdMembers.onSectionEntry = mockOnEnterHh;
+        sectionConfig.home.onSectionExit = mockOnExitHome;
+
+        const navigationService = createNavigationService(sectionConfig);
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+        })
+
+        test('Entering household section through navigation from nowhere', () => {
+            // Prepare expected sections and on enter values by path
+            const expectedSection = 'householdMembers';
+            const onEnterValues = { 'response.onEnterHh': 'Section was entered' };
+            mockOnEnterHh.mockReturnValueOnce(onEnterValues);
+
+            // Prepare the interview with section navigation history
+            const testInterview = _cloneDeep(interview);
+            // FIXME The type of the _sections is not quite right, this should be valid but it is not
+            testInterview.response._sections = {
+                home: { _startedAt: 1, _isCompleted: true },
+                householdMembers: { _startedAt: 2 },
+                _actions: [
+                    { section: 'home', action: 'start' as const, ts: 1 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
+                ]
+            } as any;
+
+            // Navigate to last visited section
+            const nextSectionResult = navigationService.initNavigationState({ interview: testInterview });
+            expect(nextSectionResult).toEqual({
+                targetSection: {
+                    sectionShortname: expectedSection,
+                    iterationContext: undefined
+                },
+                valuesByPath: onEnterValues
+            });
+            expect(mockOnEnterHh).toHaveBeenCalledWith(testInterview, undefined);
+            expect(mockOnExitHome).not.toHaveBeenCalled();
+        });
+
+        test('Navigating from home to household', () => {
+            // Prepare expected sections and on enter values by path
+            const currentSection = 'home';
+            const expectedSection = 'householdMembers';
+            const onEnterValues = { 'response.onEnterHh': 'Section was entered' };
+            const onExitValues = { 'response.onExitHome': 'Section was exited' };
+            mockOnEnterHh.mockReturnValueOnce(onEnterValues);
+            mockOnExitHome.mockReturnValueOnce(onExitValues);
+
+            // Prepare the interview with section navigation history
+            const testInterview = _cloneDeep(interview);
+            // FIXME The type of the _sections is not quite right, this should be valid but it is not
+            testInterview.response._sections = {
+                home: { _startedAt: 1, _isCompleted: true },
+                householdMembers: { _startedAt: 2 },
+                _actions: [
+                    { section: 'home', action: 'start' as const, ts: 1 }
+                ]
+            } as any;
+
+            // Prepare the previous navigation state
+            const currentSectionData = {
+                sectionShortname: currentSection,
+                iterationContext: undefined
+            }
+
+            // Navigate to next section
+            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: currentSectionData });
+            expect(nextSectionResult).toEqual({
+                targetSection: {
+                    sectionShortname: expectedSection,
+                    iterationContext: undefined
+                },
+                valuesByPath: Object.assign({}, onEnterValues, onExitValues)
+            });
+            expect(mockOnEnterHh).toHaveBeenCalledWith(testInterview, undefined);
+            expect(mockOnExitHome).toHaveBeenCalledWith(testInterview, undefined);
+        });
+
+        test('Entering end section with home as previous', () => {
+            // Prepare expected sections and on enter values by path
+            const currentSection = 'home';
+            const expectedSection = 'end';
+            const onExitValues = { 'response.onExitHome': 'Section was exited' };
+            mockOnExitHome.mockReturnValueOnce(onExitValues);
+
+            // Prepare the interview with section navigation history
+            const testInterview = _cloneDeep(interview);
+            // FIXME The type of the _sections is not quite right, this should be valid but it is not
+            testInterview.response._sections = {
+                home: { _startedAt: 1, _isCompleted: true },
+                householdMembers: { _startedAt: 2, _isCompleted: true },
+                _actions: [
+                    { section: 'home', action: 'start' as const, ts: 1 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
+                ]
+            } as any;
+
+            // Prepare the previous navigation state
+            const currentSectionData = {
+                sectionShortname: currentSection,
+                iterationContext: undefined
+            }
+
+            // Navigate to next section
+            const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection: 'end', currentSection: currentSectionData });
+            expect(nextSectionResult).toEqual({
+                targetSection: {
+                    sectionShortname: expectedSection,
+                    iterationContext: undefined
+                },
+                valuesByPath: Object.assign({}, onExitValues)
+            });
+            expect(mockOnEnterHh).not.toHaveBeenCalled();
+            expect(mockOnExitHome).toHaveBeenCalledWith(testInterview, undefined);
+        });
+
+        test('Navigating from household to end, should not call any function', () => {
+            // Prepare expected sections and on enter values by path
+            const currentSection = 'householdMembers';
+            const expectedSection = 'end';
+            const onExitValues = { 'response.onExitHome': 'Section was exited' };
+            mockOnExitHome.mockReturnValueOnce(onExitValues);
+
+            // Prepare the interview with section navigation history
+            const testInterview = _cloneDeep(interview);
+            // FIXME The type of the _sections is not quite right, this should be valid but it is not
+            testInterview.response._sections = {
+                home: { _startedAt: 1, _isCompleted: true },
+                householdMembers: { _startedAt: 2, _isCompleted: true },
+                _actions: [
+                    { section: 'home', action: 'start' as const, ts: 1 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
+                ]
+            } as any;
+
+            // Prepare the previous navigation state
+            const currentSectionData = {
+                sectionShortname: currentSection,
+                iterationContext: undefined
+            }
+
+            // Navigate to next section
+            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: currentSectionData });
+            expect(nextSectionResult).toEqual({
+                targetSection: {
+                    sectionShortname: expectedSection,
+                    iterationContext: undefined
+                },
+                valuesByPath: undefined
+            });
+            expect(mockOnEnterHh).not.toHaveBeenCalled();
+            expect(mockOnExitHome).not.toHaveBeenCalled();
+        });
+    });
     
 });

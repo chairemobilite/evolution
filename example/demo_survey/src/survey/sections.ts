@@ -6,10 +6,9 @@
  */
 import moment from 'moment-business-days';
 import isEmpty from 'lodash/isEmpty';
-import _get from 'lodash/get';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { getResponse, getValidation, addGroupedObjects } from 'evolution-common/lib/utils/helpers';
+import { getResponse, getValidation, addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { getSegmentsSectionConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/sectionSegments';
 import helper from './helper';
@@ -87,25 +86,20 @@ const sections: { [sectionName: string]: SectionConfig } = {
       ...homeWidgets,
       'buttonSaveNextSection'
     ],
-    preload: function (interview, { startUpdateInterview, callback }) {
-      if (!getResponse(interview, 'tripsDate')) {
-        startUpdateInterview({
-          sectionShortname: 'home',
-          valuesByPath: {
-            'response.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),
-            'response._startedAt': moment().unix()
-          }
-        }, callback);
-        return null;
-      }
-      callback(interview);
-      return null;
-    },
     enableConditional: true,
     completionConditional: function(interview) {
       return helper.homeSectionComplete(interview);
     },
-    isSectionCompleted: (interview) => helper.homeSectionComplete(interview)
+    isSectionCompleted: (interview) => helper.homeSectionComplete(interview),
+    onSectionEntry: (interview) => {
+        if (!getResponse(interview, 'tripsDate')) {
+            return {
+                'response.tripsDate': moment().prevBusinessDay().format('YYYY-MM-DD'),
+                'response._startedAt': moment().unix()
+            }
+        }
+        return undefined;
+    }
   },
 
   householdMembers: {
@@ -126,44 +120,61 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'householdMembers',
       'buttonSaveNextSectionHouseholdMembers'
     ],
-    preload: function(interview, { startAddGroupedObjects, startRemoveGroupedObjects, callback }) {
-      const groupedObjects       = getResponse(interview, 'household.persons');
-      const groupedObjectIds     = groupedObjects ? Object.keys(groupedObjects) : [];
-      const countGroupedObjects  = groupedObjectIds.length;
-      const householdSize: any   = getResponse(interview, 'household.size');
-      const householdSizeIsValid = getValidation(interview, 'household.size');
-      const emptyGroupedObjects  = groupedObjectIds.filter((groupedObjectId) => isEmpty(groupedObjects[groupedObjectId]));
-      if (householdSizeIsValid && householdSize) {
-        if (countGroupedObjects < householdSize) {
-          // auto create objects according to household size:
-          startAddGroupedObjects(householdSize - countGroupedObjects, -1, 'household.persons', null, callback);
-          return null;
-        }
-        else if (countGroupedObjects > householdSize) {
-          const pathsToDelete = [];
-          // auto remove empty objects according to household size:
-          for (let i = 0; i < countGroupedObjects; i++) {
-            if (emptyGroupedObjects[i]) {
-              pathsToDelete.push(`household.persons.${emptyGroupedObjects[i]}`);            
-            }
-          }
-          if (pathsToDelete.length > 0)
-          {
-            startRemoveGroupedObjects(pathsToDelete, callback);
-            return null;
-          }
-        }
-      }
-      callback(interview);
-      return null;
-    },
     enableConditional: function(interview) {
       return helper.homeSectionComplete(interview);
     },
     completionConditional: function(interview) {
       return helper.householdMembersSectionComplete(interview);
     },
-    isSectionCompleted: (interview) => helper.householdMembersSectionComplete(interview)
+    isSectionCompleted: (interview) => helper.householdMembersSectionComplete(interview),
+    onSectionEntry: (interview) => {
+        const groupedObjects       = getResponse(interview, 'household.persons');
+        const groupedObjectIds     = groupedObjects ? Object.keys(groupedObjects) : [];
+        const countGroupedObjects  = groupedObjectIds.length;
+        const householdSize: any   = getResponse(interview, 'household.size');
+        const householdSizeIsValid = getValidation(interview, 'household.size');
+        const emptyGroupedObjects  = groupedObjectIds.filter((groupedObjectId) => isEmpty(groupedObjects[groupedObjectId]));
+        if (householdSizeIsValid && householdSize) {
+          if (countGroupedObjects < householdSize) {
+            // auto create objects according to household size:
+            return addGroupedObjects(
+                interview,
+                householdSize - countGroupedObjects,
+                -1,
+                'household.persons'
+            );
+          }
+          else if (countGroupedObjects > householdSize) {
+            const pathsToDelete = [];
+            // auto remove empty objects according to household size:
+            for (let i = 0; i < countGroupedObjects; i++) {
+              if (emptyGroupedObjects[i]) {
+                pathsToDelete.push(`household.persons.${emptyGroupedObjects[i]}`);            
+              }
+            }
+            if (pathsToDelete.length > 0)
+            {
+              const [valuesByPath, unsetPaths] = removeGroupedObjects(interview, pathsToDelete);
+              for (const unsetPath of unsetPaths) {
+                valuesByPath[unsetPath] = undefined;
+              }
+            }
+          }
+        }
+        return undefined;
+    },
+    onSectionExit: (interview) => {
+        const personsCount  = odSurveyHelper.countPersons({ interview });
+        const householdSize = getResponse(interview, 'household.size', null);
+            
+        // Update the household size if needed
+        if (householdSize !== personsCount) {
+            return {
+                [`response.household.size`]: personsCount
+            }
+        }
+        return undefined;
+    }
   },
 
   personsTrips: {
@@ -226,7 +237,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
     },
     isSectionCompleted: (interview, iterationContext) => {
         // Completed if there is an active person ID set
-        const activePersonId = _get(interview, 'response._activePersonId', null);
+        const activePersonId = getResponse(interview, '_activePersonId');
         return !_isBlank(activePersonId);
     }
   },
@@ -272,58 +283,43 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'buttonContinueNextSection',
       'visitedPlacesOutro'
     ],
-    preload: function (interview, { startUpdateInterview, callback }) {
-      const person = odSurveyHelper.getPerson({ interview }) as any;
+    onSectionEntry: function (interview, iterationContext) {
+      const person = odSurveyHelper.getPerson({ interview, personId: iterationContext[iterationContext.length - 1] }) as any;
       if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
       {
-        startUpdateInterview({
-          sectionShortname: 'tripsIntro', 
-          valuesByPath: {
+        // Reset the journey if the person did not do trips on the trips date
+        return {
             [`response.household.persons.${person._uuid}.journeys`]: undefined,
             [`response.household.persons.${person._uuid}.lastVisitedPlaceNotHome`]: undefined,
             [`response.household.persons.${person._uuid}.departurePlaceType`]: undefined
-          }
-        }, callback);
-        return null;
-      }
-      else if (person.didTripsOnTripsDate === 'yes' || person.didTripsOnTripsDate === true)
-      {
+        };
+      } else if (person.didTripsOnTripsDate === 'yes' || person.didTripsOnTripsDate === true) {
         const journeys = odSurveyHelper.getJourneysArray({ person });
         if (journeys.length >= 1) {
+            // Initialize the active journey for the person and make sure the departure type matches the places if any
             const currentJourney = journeys[0];
             const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
-            if (visitedPlaces.length >= 1)
-            {
+            if (visitedPlaces.length >= 1) {
               const firstVisitedPlace         = visitedPlaces[0];
               const firstVisitedPlaceActivity = firstVisitedPlace ? firstVisitedPlace.activity : null;
-              startUpdateInterview({
-                sectionShortname: 'tripsIntro', 
-                valuesByPath: {
+              return {
                   [`response.household.persons.${person._uuid}.journeys.${currentJourney._uuid}.departurePlaceType`]: (firstVisitedPlaceActivity === 'home' ? 'home' : 'other'),
                   'response._activeJourneyId': currentJourney._uuid
-                }
-              }, callback);
+              }
+            } else {
+                return { 'response._activeJourneyId': currentJourney._uuid };
             }
         } else {
             // Make sure to set initialize a journey for this person if it does not exist
-            startUpdateInterview({
-                sectionShortname: 'tripsIntro', 
-                valuesByPath: {
-                  ...(addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys`, [{ startDate: getResponse(interview, 'tripsDate') }])),
-                }
-            }, (updatedInterview) => {
-                const _person = odSurveyHelper.getPerson({ interview: updatedInterview});
-                const journeys = odSurveyHelper.getJourneysArray({ person: _person });
-                const currentJourney = journeys[0];
-                startUpdateInterview({
-                    sectionShortname: 'visitedPlaces', 
-                    valuesByPath: { [`response._activeJourneyId`]: currentJourney._uuid }
-                }, callback);
-            });
+           const newJourneysValuesByPath = addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys`, [{ startDate: getResponse(interview, 'tripsDate') }]);
+           const newJourneyKey = Object.keys(newJourneysValuesByPath).find((key) => key.startsWith(`response.household.persons.${person._uuid}.journeys.`));
+           // From the newJourneyKey, get the journey UUID as the rest of the string after the last dot
+           const journeyUuid = newJourneyKey.split('.').pop();
+           newJourneysValuesByPath[`response._activeJourneyId`] = journeyUuid;
+           return newJourneysValuesByPath
         }
       }
-      callback(interview);
-      return null;
+      return undefined;
     },
     enableConditional: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
@@ -359,19 +355,11 @@ const sections: { [sectionName: string]: SectionConfig } = {
       //'personLastVisitedPlaceNotHome',
       'buttonVisitedPlacesConfirmNextSection'
     ],
-    preload: function (interview, { startUpdateInterview, callback }) {
+    onSectionEntry: function (interview, iterationContext) {
       
-      const person = odSurveyHelper.getPerson({ interview }) as any;
-      if ((person.didTripsOnTripsDate !== 'yes' && person.didTripsOnTripsDate !== true) || person.didTripsOnTripsDateKnowTrips === 'no') // if no trip, go to next no trip section
-      {
-        startUpdateInterview({
-          sectionShortname: 'tripsIntro', 
-          valuesByPath: { 'response._activeSection': 'travelBehavior' }
-        }, callback);
-        return null;
-      }
+      const person = odSurveyHelper.getPerson({ interview, personId: iterationContext[iterationContext.length - 1] }) as any;
 
-      let   tripsUpdatesValueByPath  = {};
+      const tripsUpdatesValueByPath  = {};
       const showNewPersonPopup       = getResponse(interview, '_showNewPersonPopup', false);
       
       if (showNewPersonPopup !== false)
@@ -382,43 +370,27 @@ const sections: { [sectionName: string]: SectionConfig } = {
       // Journeys should not be empty
       const journeys = odSurveyHelper.getJourneysArray({ person });
       const currentJourney = journeys[0];
-      const visitedPlaces             = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
-      const activeVisitedPlaceId      = getResponse(interview, '_activeVisitedPlaceId', null);
-      let   foundSelectedVisitedPlace = false;
-      let   addValuesByPath           = {};
+      const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
 
-      if (visitedPlaces.length === 0)
-      {
-        addValuesByPath = addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, currentJourney.departurePlaceType === 'home' ? [{ activity: 'home' }] : []);
-        tripsUpdatesValueByPath = Object.assign(tripsUpdatesValueByPath, addValuesByPath);
-      }
-      if (!_isBlank(tripsUpdatesValueByPath))
-      {
-        startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: tripsUpdatesValueByPath}, function(_interview) {
-          const _person = odSurveyHelper.getPerson({ interview: _interview });
-          const journey = odSurveyHelper.getJourneysArray({ person: _person })[0];
-          const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(odSurveyHelper.getVisitedPlacesArray({ journey }));
-          startUpdateInterview({
-            sectionShortname: 'visitedPlaces', 
-            valuesByPath: {
-              [`response._activeVisitedPlaceId`]: selectedVisitedPlaceId,
-              [`response._activeJourneyId`]: currentJourney._uuid
-            }
-          }, callback);
-        });
-      }
-      else
-      {
-        const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney }));
-        startUpdateInterview({
-          sectionShortname: 'visitedPlaces', 
-          valuesByPath: {
+      if (visitedPlaces.length === 0) {
+        // Add the first visited place
+        const visitedPlacesValuesByPath = addGroupedObjects(interview, 1, 1, `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`, currentJourney.departurePlaceType === 'home' ? [{ activity: 'home' }] : []);
+        const newVisitedPlaceKey = Object.keys(visitedPlacesValuesByPath).find((key) => key.startsWith(`response.household.persons.${person._uuid}.journeys.`));
+        // From the newVisitedPlaceKey, get the journey UUID as the rest of the string after the last dot
+        const visitedPlaceUuid = newVisitedPlaceKey.split('.').pop();
+        // Select the new place as the active visited place, as well as the journey ID
+        return Object.assign(tripsUpdatesValueByPath, visitedPlacesValuesByPath, {
+            [`response._activeVisitedPlaceId`]: visitedPlaceUuid,
+            [`response._activeJourneyId`]: currentJourney._uuid
+        })
+      } else {
+        // Select the next visited place to edit
+        const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(visitedPlaces);
+        return {
             [`response._activeVisitedPlaceId`]: selectedVisitedPlaceId,
             [`response._activeJourneyId`]: currentJourney._uuid
-          }
-        }, callback);
+        };
       }
-      return null;
     },
     enableConditional: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
@@ -461,19 +433,16 @@ const sections: { [sectionName: string]: SectionConfig } = {
       'personWhoAnsweredForThisPerson',
       'buttonContinueNextSection'
     ],
-    preload: function (interview, { startUpdateInterview, startNavigate, callback }) {
-      const person = odSurveyHelper.getPerson({ interview });
-      if ((interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noSchoolTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.noWorkTripReason`) <= -1 && (interview as any).visibleWidgets.indexOf(`household.persons.${person._uuid}.whoAnsweredForThisPerson`) <= -1)
-      {
-        startNavigate({
-          valuesByPath: {
+    onSectionEntry: function (interview, iterationContext) {
+      const person = odSurveyHelper.getPerson({ interview, personId: iterationContext[iterationContext.length - 1] });
+      const interviewablePersons = odSurveyHelper.getInterviewablePersonsArray({ interview });
+      // If there is only 1 interviewable person, it is the one who answered the current person's section
+      if (interviewablePersons.length === 1 && interviewablePersons[0]._uuid === person._uuid) {
+        return {
             [`response.household.persons.${person._uuid}.whoAnsweredForThisPerson`]: person._uuid
-          }
-        }, callback);
-        return null;
+        };
       }
-      callback(interview);
-      return null;
+      return undefined;
     },
     enableConditional: function(interview) {
       const person = odSurveyHelper.getPerson({ interview });
@@ -549,16 +518,17 @@ const sections: { [sectionName: string]: SectionConfig } = {
     widgets: [
       'completedText'
     ],
-    preload: function (interview, { startUpdateInterview, callback, user }) {
-      if (!user || (user && user.is_admin !== true)) {
-        startUpdateInterview({
-          valuesByPath: {
-            'response._completedAt': moment().unix(),
-            'response._isCompleted': true
-          }
-        }, callback);
-      }
-      return null;
+    onSectionEntry: (interview) => {
+        // Set completion
+        // TODO - This should be done in the backend, not here
+        const hasCompleted = getResponse(interview, '_completedAt');
+        if (_isBlank(hasCompleted)) {
+            return {
+              'response._completedAt': moment().unix(),
+              'response._isCompleted': true
+            }
+        }
+        return undefined;
     },
     enableConditional: function(interview) {
       if (!helper.householdMembersSectionComplete(interview) || !helper.allPersonsTripsAndTravelBehaviorComplete(interview)) { return false; }

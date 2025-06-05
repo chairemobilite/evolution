@@ -542,7 +542,7 @@ describe('startNavigate', () => {
 
         // Verify call to navigation service
         expect(mockInitNavigationState).toHaveBeenCalledTimes(1);
-        expect(mockInitNavigationState).toHaveBeenCalledWith({ interview: interviewAttributes, requestedSection: undefined});
+        expect(mockInitNavigationState).toHaveBeenCalledWith({ interview: interviewAttributes, requestedSection: undefined, currentSection: undefined });
 
         // Verify dispatch calls
         expect(mockDispatch).toHaveBeenCalledTimes(4);
@@ -610,7 +610,7 @@ describe('startNavigate', () => {
         mockGetState.mockImplementationOnce(mockStateWithNav);
 
         // Do the actual test
-        const callback = SurveyActions.startNavigate({ requestedSection});
+        const callback = SurveyActions.startNavigate({ requestedSection });
         await callback(mockDispatch, mockGetState);
 
         // validation function should not have been called
@@ -619,7 +619,7 @@ describe('startNavigate', () => {
         // Verify call to navigation service
         expect(mockNavigate).not.toHaveBeenCalled();
         expect(mockInitNavigationState).toHaveBeenCalledTimes(1);
-        expect(mockInitNavigationState).toHaveBeenCalledWith({ interview: interviewAttributes, requestedSection: requestedSection.sectionShortname });
+        expect(mockInitNavigationState).toHaveBeenCalledWith({ interview: interviewAttributes, requestedSection: requestedSection.sectionShortname, currentSection });
 
         // Verify dispatch calls
         expect(mockDispatch).toHaveBeenCalledTimes(4);
