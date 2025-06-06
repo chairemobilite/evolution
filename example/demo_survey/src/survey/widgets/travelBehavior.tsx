@@ -308,7 +308,7 @@ export const personNoSchoolTripReason = {
     }
     // add student condition + not applicable for non-student:
     const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-    const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
+    const visitedPlaces = journey === undefined ? [] : odSurveyHelper.getVisitedPlacesArray({ journey });
     if (helper.isStudent(person.occupation))
     {
       const schoolRelatedVisitedPlaces = visitedPlaces.filter((visitedPlace) => {
