@@ -82,3 +82,48 @@ export const startRegister = (data: any, navigate: NavigateFunction) => {
 export const startRegisterWithPassword = AuthBase.startRegisterWithPassword;
 
 export const startForgotPasswordRequest = AuthBase.startForgotPasswordRequest;
+
+export type ByFieldLoginData = { accessCode: string; postalCode: string; confirmCredentials: boolean | undefined };
+export const startByFieldLogin = (
+    data: ByFieldLoginData,
+    location: Location,
+    navigate: NavigateFunction,
+    callback?: () => void
+) => {
+    return async (dispatch: Dispatch) => {
+        try {
+            const requestBody: ByFieldLoginData & { referrer?: string } = { ...data };
+            if (location && location.state && (location.state as any).referrer) {
+                requestBody.referrer = (location.state as any).referrer;
+            }
+            const response = await fetch('/auth-by-field', {
+                method: 'POST',
+                body: JSON.stringify(requestBody),
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.status === 200) {
+                const json = await response.json();
+                const { user }: { user?: BaseUser } = json;
+                if (user) {
+                    dispatch(login(user, true, false, true));
+                    if (typeof callback === 'function') {
+                        dispatch((callback as any)());
+                    }
+                    return redirectAfterLogin(user, location, navigate);
+                } else {
+                    dispatch(login(null, false, false, true));
+                }
+            } else {
+                // Any other response status should not authenticate but still give feedback to the user
+                dispatch(login(null, false, false, true));
+                console.error('Error trying to log in: ', response);
+            }
+        } catch (err) {
+            console.log('Error logging in.', err);
+            dispatch(login(null, false, false, true));
+        }
+    };
+};

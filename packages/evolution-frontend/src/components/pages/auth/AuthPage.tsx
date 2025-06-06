@@ -9,6 +9,7 @@ import DirectTokenLogin from './DirectTokenLogin';
 import { connect, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { RootState } from '../../../store/configureStore';
+import ByFieldLoginForm from './ByFieldLoginForm';
 
 // These authentication methods are managed differently and not in the wrapped component
 const unmanagedAuthMethods = ['facebook', 'google', 'anonymous', 'directToken'];
@@ -22,6 +23,23 @@ const PasswordLess = (props: { authMethods: string[] }) => {
             <div className="apptr__auth-box">
                 <PwdLessLoginForm
                     headerText={t(['survey:auth:PasswordlessHeader', 'auth:PasswordlessHeader'])}
+                    buttonText={t(['survey:auth:Login', 'auth:Login'])}
+                />
+                <div className="apptr__separator"></div>
+            </div>
+        );
+    }
+};
+
+const AuthByField = (props: { authMethods: string[] }) => {
+    const { t } = useTranslation(['survey', 'auth']);
+    if (!props.authMethods.includes('byField')) {
+        return null;
+    } else {
+        return (
+            <div className="apptr__auth-box">
+                <ByFieldLoginForm
+                    headerText={t(['survey:auth:ByFieldLoginHeader', 'auth:ByFieldLoginHeader'])}
                     buttonText={t(['survey:auth:Login', 'auth:Login'])}
                 />
                 <div className="apptr__separator"></div>
@@ -116,6 +134,7 @@ const AuthPage: React.FunctionComponent = () => {
                     }}
                 >
                     <PasswordLess authMethods={authMethods} />
+                    <AuthByField authMethods={authMethods} />
                     {hasNoAuthMethodsExeptDirectToken && (
                         <div className="apptr__auth-box">
                             {/* Show a message only if there are no login methods available */}
