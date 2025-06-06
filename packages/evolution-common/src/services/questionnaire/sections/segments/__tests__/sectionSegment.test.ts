@@ -46,7 +46,9 @@ describe('getSegmentsSectionConfig', () => {
         expect(widgetConfig).toEqual({
             previousSection: 'visitedPlaces',
             nextSection: 'travelBehavior',
-            preload: expect.any(Function),
+            isSectionVisible: expect.any(Function),
+            isSectionCompleted: expect.any(Function),
+            onSectionEntry: expect.any(Function),
             template: 'tripsAndSegmentsWithMap',
             title: expect.any(Function),
             customStyle: {
@@ -59,8 +61,7 @@ describe('getSegmentsSectionConfig', () => {
                 'personTrips',
                 'personVisitedPlacesMap',
                 'buttonConfirmNextSection'
-            ],
-            completionConditional: expect.any(Function)
+            ]
         });
     });
 
@@ -79,54 +80,107 @@ describe('getSegmentsSectionConfig labels', () => {
 
 });
 
-describe('getSegmentsSectionConfig completion conditional', () => {
+describe('getSegmentsSectionConfig isSectionVisible', () => {
     const widgetConfig = getSegmentsSectionConfig({});
-
-    const activeJourney = interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1;
-
+    const iterationContext = ['testPerson1'];
+    
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    test('should return `true` if no active journey', () => {
+    test('should return false if no iteration context', () => {
+        const result = widgetConfig.isSectionVisible!(interviewAttributesForTestCases, undefined);
+        
+        expect(result).toBe(false);
+        expect(mockedGetPerson).not.toHaveBeenCalled();
+    });
+
+    test('should return false if no active journey', () => {
+        const testPerson = { _uuid: 'testPerson1', _sequence: 1 };
+        mockedGetPerson.mockReturnValue(testPerson);
         mockedGetActiveJourney.mockReturnValue(null);
-        const conditional = widgetConfig.completionConditional;
-        expect(conditional).toBeDefined();
-        expect((conditional as any)(interviewAttributesForTestCases, 'path')).toEqual(true);
-        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
-        expect(mockedSelectNextIncompleteTrip).not.toHaveBeenCalled();
+        
+        const result = widgetConfig.isSectionVisible!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toBe(false);
+        expect(mockedGetPerson).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, personId: testPerson._uuid });
+        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, person:testPerson });
     });
 
-    test('shoud return `true` if active journey, but no incomplete trip', () => {
+    test('should return true if there is an active journey', () => {
+        const activePerson = { _uuid: 'testPerson1', _sequence: 1 };
+        const activeJourney = { _uuid: 'journeyId1', _sequence: 1 };
+        mockedGetPerson.mockReturnValue(activePerson);
         mockedGetActiveJourney.mockReturnValue(activeJourney);
-        mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
-        const conditional = widgetConfig.completionConditional;
-        expect(conditional).toBeDefined();
-        expect((conditional as any)(interviewAttributesForTestCases, 'path')).toEqual(true);
-        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
+        
+        const result = widgetConfig.isSectionVisible!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toBe(true);
+        expect(mockedGetPerson).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, personId: 'testPerson1' });
+        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, person: activePerson });
     });
-
-    test('shoud return `false` if active journey, with incomplete trip', () => {
-        mockedGetActiveJourney.mockReturnValue(activeJourney);
-        mockedSelectNextIncompleteTrip.mockReturnValueOnce(activeJourney.trips!.tripId1P1);
-        const conditional = widgetConfig.completionConditional;
-        expect(conditional).toBeDefined();
-        expect((conditional as any)(interviewAttributesForTestCases, 'path')).toEqual(false);
-        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
-    });
-
 });
 
-describe('getSegmentsSectionConfig preload function', () => {
+describe('getSegmentsSectionConfig isSectionCompleted', () => {
     const widgetConfig = getSegmentsSectionConfig({});
-
-    const mockCallback = jest.fn();
-    const mockStartUpdateInterview = jest.fn().mockImplementation((data, callback) => {
-        callback(data.interview);
+    const iterationContext = ['testPerson1'];
+    
+    beforeEach(() => {
+        jest.clearAllMocks();
     });
 
+    test('should return false if no active person', () => {
+        mockedGetPerson.mockReturnValue(null);
+        
+        const result = widgetConfig.isSectionCompleted!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toBe(false);
+        expect(mockedGetPerson).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, personId: 'testPerson1' });
+    });
+
+    test('should return false if no iteration context', () => {
+        const result = widgetConfig.isSectionCompleted!(interviewAttributesForTestCases, undefined);
+        
+        expect(result).toBe(false);
+        expect(mockedGetPerson).not.toHaveBeenCalled();
+    });
+
+    test('should return true if no next incomplete trip', () => {
+        const activePerson = { _uuid: 'testPerson1', _sequence: 1 };
+        const activeJourney = { _uuid: 'journeyId1', _sequence: 1 };
+        mockedGetPerson.mockReturnValue(activePerson);
+        mockedGetActiveJourney.mockReturnValue(activeJourney);
+        mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
+        
+        const result = widgetConfig.isSectionCompleted!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toBe(true);
+        expect(mockedGetPerson).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, personId: 'testPerson1' });
+        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, person: activePerson });
+        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
+    });
+
+    test('should return false if there is a next incomplete trip', () => {
+        const activePerson = { _uuid: 'testPerson1', _sequence: 1 };
+        const activeJourney = { _uuid: 'journeyId1', _sequence: 1 };
+        const incompleteTrip = { _uuid: 'tripId1', _sequence: 1 };
+        mockedGetPerson.mockReturnValue(activePerson);
+        mockedGetActiveJourney.mockReturnValue(activeJourney);
+        mockedSelectNextIncompleteTrip.mockReturnValueOnce(incompleteTrip);
+        
+        const result = widgetConfig.isSectionCompleted!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toBe(false);
+        expect(mockedGetPerson).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, personId: 'testPerson1' });
+        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, person: activePerson });
+        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
+    });
+});
+
+describe('getSegmentsSectionConfig onSectionEntry', () => {
+    const widgetConfig = getSegmentsSectionConfig({});
+    const iterationContext = ['testPerson1'];
+    
     // Mock journey and person for all tests. Individual tests may override if needed
     const activeJourney = { _uuid: 'testJourney1', _sequence: 1 };
     const activePerson = { _uuid: 'testPerson1', _sequence: 1 };
@@ -137,34 +191,43 @@ describe('getSegmentsSectionConfig preload function', () => {
         mockedGetActiveJourney.mockReturnValue(activeJourney);
     });
 
+    test('should return undefined if no active person', () => {
+        mockedGetPerson.mockReturnValue(null);
+        
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toBeUndefined();
+        expect(mockedGetPerson).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases, personId: 'testPerson1' });
+    });
+
+    test('should return undefined if no iteration context', () => {        
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, undefined);
+        
+        expect(result).toBeUndefined();
+        expect(mockedGetPerson).not.toHaveBeenCalled();
+    });
+
     test('should add trips when there are no trips', () => {
         // 2 places
-        mockedGetVisitedPlacesArray.mockReturnValue([
+        const places = [
             { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
             { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' }
-        ]);
+        ];
+        mockedGetVisitedPlacesArray.mockReturnValue(places);
         // no trips
         mockedGetTripsArray.mockReturnValue([]);
         // Should add a new trip
         const newTrip = { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' };
         mockedAddGroupedObjects.mockReturnValue({ 'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1': newTrip });
+        mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
 
-        // Call the preload function
-        widgetConfig.preload!(interviewAttributesForTestCases, { startUpdateInterview: mockStartUpdateInterview, startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), callback: mockCallback } as any);
-
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, iterationContext);
+        
         expect(mockedAddGroupedObjects).toHaveBeenCalledWith(interviewAttributesForTestCases, 1, 1, 'household.persons.testPerson1.journeys.testJourney1.trips', [{ _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' }]);
-        expect(mockedRemoveGroupedObjects).not.toHaveBeenCalled();
-        expect(mockStartUpdateInterview).toHaveBeenCalledTimes(2);
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, {
-            sectionShortname: 'segments',
-            valuesByPath: { 'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1': newTrip },
-            unsetPaths: []
-        }, expect.any(Function));
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, {
-            sectionShortname: 'segments',
-            valuesByPath: { 'response._activeTripId': null }
-        }, mockCallback);
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
+        expect(result).toEqual({
+            'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1': newTrip,
+            'response._activeTripId': 'tripId1'
+        });
     });
 
     test('should delete trips when the number of trips is greater than the number of visited places', () => {
@@ -182,22 +245,55 @@ describe('getSegmentsSectionConfig preload function', () => {
         // Should remove the last 2 trips
         mockedRemoveGroupedObjects.mockImplementation((_interview, paths) => [{}, (typeof paths === 'string' ? [paths] : paths).flatMap((path) => [ `response.${path}`, `validations.${path}` ]) ]);
 
-        // Call the preload function
-        widgetConfig.preload!(interviewAttributesForTestCases, { startUpdateInterview: mockStartUpdateInterview, startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), callback: mockCallback } as any);
-
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, iterationContext);
+        
         const pathsToDelete = [
             `household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId2`,
             `household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`
         ];
         expect(mockedRemoveGroupedObjects).toHaveBeenCalledWith(interviewAttributesForTestCases, pathsToDelete);
-        expect(mockedAddGroupedObjects).not.toHaveBeenCalled();
-        expect(mockStartUpdateInterview).toHaveBeenCalledTimes(2);
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, { sectionShortname: 'segments', valuesByPath: {}, unsetPaths: pathsToDelete.flatMap((path) => [ `response.${path}`, `validations.${path}` ]) }, expect.any(Function));
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, {
-            sectionShortname: 'segments',
-            valuesByPath: { 'response._activeTripId': null }
-        }, mockCallback);
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
+        expect(result).toEqual({
+            'response._activeTripId': null,
+            [`response.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId2`]: undefined,
+            [`response.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`]: undefined,
+            [`validations.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId2`]: undefined,
+            [`validations.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`]: undefined,
+
+        });
+    });
+
+    test('should not set an active trip is incomplete trip is to be deleted', () => {
+        // 2 places
+        mockedGetVisitedPlacesArray.mockReturnValue([
+            { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
+            { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' }
+        ]);
+        // 3 trips
+        const trips = [
+            { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' },
+            { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: 'testPlace2', _destinationVisitedPlaceUuid: 'testPlace3' },
+            { _uuid: 'tripId3', _sequence: 3, _originVisitedPlaceUuid: 'testPlace3', _destinationVisitedPlaceUuid: 'testPlace4' }
+        ]
+        mockedGetTripsArray.mockReturnValue(trips);
+        // Should remove the last 2 trips
+        mockedRemoveGroupedObjects.mockImplementation((_interview, paths) => [{}, (typeof paths === 'string' ? [paths] : paths).flatMap((path) => [ `response.${path}`, `validations.${path}` ]) ]);
+        mockedSelectNextIncompleteTrip.mockReturnValueOnce(trips[2]);
+
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, iterationContext);
+        
+        const pathsToDelete = [
+            `household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId2`,
+            `household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`
+        ];
+        expect(mockedRemoveGroupedObjects).toHaveBeenCalledWith(interviewAttributesForTestCases, pathsToDelete);
+        expect(result).toEqual({
+            'response._activeTripId': null,
+            [`response.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId2`]: undefined,
+            [`response.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`]: undefined,
+            [`validations.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId2`]: undefined,
+            [`validations.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`]: undefined,
+
+        });
     });
 
     test('should update trips and initialize segments when origins and destinations have changed', () => {
@@ -210,81 +306,99 @@ describe('getSegmentsSectionConfig preload function', () => {
         mockedGetVisitedPlacesArray.mockReturnValue(places);
         // 2 trips, with different origins and destination
         mockedGetTripsArray.mockReturnValue([
-            { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'oldPlace1', _destinationVisitedPlaceUuid: 'oldPlace2' },
+            { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'oldPlace2' },
             { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: 'oldPlace2', _destinationVisitedPlaceUuid: 'oldPlace3' }
         ]);
 
-        // Call the preload function
-        widgetConfig.preload!(interviewAttributesForTestCases, { startUpdateInterview: mockStartUpdateInterview, startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), callback: mockCallback } as any);
-
-        expect(mockedRemoveGroupedObjects).not.toHaveBeenCalled();
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toEqual({
+            'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._originVisitedPlaceUuid': places[0]._uuid,
+            'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._destinationVisitedPlaceUuid': places[1]._uuid,
+            'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1.segments': undefined,
+            'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2._originVisitedPlaceUuid': places[1]._uuid,
+            'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2._destinationVisitedPlaceUuid': places[2]._uuid,
+            'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2.segments': undefined,
+            'response._activeTripId': 'tripId1'
+        });
         expect(mockedAddGroupedObjects).not.toHaveBeenCalled();
-        expect(mockStartUpdateInterview).toHaveBeenCalledTimes(2);
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(1, {
-            sectionShortname: 'segments',
-            valuesByPath: {
-                'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._originVisitedPlaceUuid': places[0]._uuid,
-                'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._destinationVisitedPlaceUuid': places[1]._uuid,
-                'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1.segments': undefined,
-                'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2._originVisitedPlaceUuid': places[1]._uuid,
-                'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2._destinationVisitedPlaceUuid': places[2]._uuid,
-                'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2.segments': undefined,
-            },
-            unsetPaths: []
-        }, expect.any(Function));
-        expect(mockStartUpdateInterview).toHaveBeenNthCalledWith(2, {
-            sectionShortname: 'segments',
-            valuesByPath: { 'response._activeTripId': null }
-        }, mockCallback);
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
+        expect(mockedRemoveGroupedObjects).not.toHaveBeenCalled();
     });
 
-    test('should select next incomplete trip and no change', () => {
+    test('should set the active trip ID to the next incomplete trip', () => {
         // 3 places
         mockedGetVisitedPlacesArray.mockReturnValue([
             { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
             { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' },
             { _uuid: 'testPlace3', _sequence: 3, activity: 'home' }
         ]);
-        // 2 trips, with different origins and destination
+        // 2 trips with different origin/destination
         const trips = [
             { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' },
             { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: 'testPlace2', _destinationVisitedPlaceUuid: 'testPlace3' }
         ];
         mockedGetTripsArray.mockReturnValue(trips);
         // Trip2 is incomplete
-        mockedSelectNextIncompleteTrip.mockReturnValueOnce(trips[1]);
+        const incompleteTrip = trips[1];
+        mockedSelectNextIncompleteTrip.mockReturnValueOnce(incompleteTrip);
 
-        // Call the preload function
-        widgetConfig.preload!(interviewAttributesForTestCases, { startUpdateInterview: mockStartUpdateInterview, startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), callback: mockCallback } as any);
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toEqual({
+            'response._activeTripId': incompleteTrip._uuid
+        });
+        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
+    });
 
+    test('should set the active trip ID to null if no incomplete trip', () => {
+        // 3 places
+        mockedGetVisitedPlacesArray.mockReturnValue([
+            { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
+            { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' },
+            { _uuid: 'testPlace3', _sequence: 3, activity: 'home' }
+        ]);
+        // 2 trips with different origin/destination
+        const trips = [
+            { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' },
+            { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: 'testPlace2', _destinationVisitedPlaceUuid: 'testPlace3' }
+        ];
+        mockedGetTripsArray.mockReturnValue(trips);
+        mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
+
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toEqual({
+            'response._activeTripId': null
+        });
+        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
+    });
+
+    test('should add a new trip and select it if new trips have been added since last complete trip', () => {
+        // 3 places
+        const places = [
+            { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
+            { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' },
+            { _uuid: 'testPlace3', _sequence: 3, activity: 'home' }
+        ];
+        mockedGetVisitedPlacesArray.mockReturnValue(places);
+        // only 1 trip, with different origins and destination, the second trip is missing
+        mockedGetTripsArray.mockReturnValue([
+            { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' }
+        ]);
+        mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
+
+        // Should add a new trip
+        const newTrip = { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: places[1]._uuid, _destinationVisitedPlaceUuid: places[2]._uuid };
+        mockedAddGroupedObjects.mockReturnValue({ 'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2': newTrip });
+
+        const result = widgetConfig.onSectionEntry!(interviewAttributesForTestCases, iterationContext);
+        
+        expect(result).toEqual({
+            'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2': newTrip,
+            'response._activeTripId': 'tripId2'
+        });
+        expect(mockedAddGroupedObjects).toHaveBeenCalledWith(interviewAttributesForTestCases, 1, 2, 'household.persons.testPerson1.journeys.testJourney1.trips', [{ _originVisitedPlaceUuid: places[1]._uuid, _destinationVisitedPlaceUuid: places[2]._uuid }]);
         expect(mockedRemoveGroupedObjects).not.toHaveBeenCalled();
-        expect(mockedAddGroupedObjects).not.toHaveBeenCalled();
-        expect(mockStartUpdateInterview).toHaveBeenCalledTimes(1);
-        expect(mockStartUpdateInterview).toHaveBeenCalledWith({
-            sectionShortname: 'segments',
-            valuesByPath: { 'response._activeTripId': trips[1]._uuid }
-        }, mockCallback);
+        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
     });
-
-    test('should go to next section if no active person', () => {
-        mockedGetPerson.mockReturnValueOnce(null);
-
-        // Call the preload function
-        widgetConfig.preload!(interviewAttributesForTestCases, { startUpdateInterview: mockStartUpdateInterview, startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), callback: mockCallback } as any);
-
-        expect(mockStartUpdateInterview).toHaveBeenCalledTimes(1);
-        expect(mockStartUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'tripsIntro', valuesByPath: { 'response._activeSection': 'tripsIntro' } }, mockCallback);
-    });
-
-    test('should go to next section if no active journey', () => {
-        mockedGetActiveJourney.mockReturnValue(null);
-
-        // Call the preload function
-        widgetConfig.preload!(interviewAttributesForTestCases, { startUpdateInterview: mockStartUpdateInterview, startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), callback: mockCallback } as any);
-
-        expect(mockStartUpdateInterview).toHaveBeenCalledTimes(1);
-        expect(mockStartUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'tripsIntro', valuesByPath: { 'response._activeSection': 'tripsIntro' } }, mockCallback);
-    });
-
 });
