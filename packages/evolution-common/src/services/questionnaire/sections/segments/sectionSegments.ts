@@ -10,7 +10,7 @@ import { TFunction } from 'i18next';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { removeGroupedObjects, addGroupedObjects } from '../../../../utils/helpers';
 import * as odHelpers from '../../../odSurvey/helpers';
-import { SectionConfig } from '../../types';
+import { SectionConfig, Trip } from '../../types';
 
 export const getSegmentsSectionConfig = (
     // FIXME: There should be an entire configuration object for the segments
@@ -20,29 +20,64 @@ export const getSegmentsSectionConfig = (
     // handler
     _options: { context?: (context?: string) => string }
 ): SectionConfig => {
-    const sectionShortname = 'segments';
     return {
-        // FIXME Navigation part, should be handled at a higher level
         previousSection: 'visitedPlaces',
         nextSection: 'travelBehavior',
-
-        // FIXME Preload part, which is more a side-effect than a configuration, part of it is navigation, part is side effects
-        preload: function (interview, { startUpdateInterview, callback }) {
-            const responseContent = {};
-
-            const person = odHelpers.getPerson({ interview });
+        isSectionVisible: (interview, iterationContext) => {
+            const personId = iterationContext ? iterationContext[iterationContext.length - 1] : undefined;
+            const person = personId === undefined ? null : odHelpers.getPerson({ interview, personId });
+            if (person === null) {
+                // Log error, that is unexpected
+                console.error(
+                    `segments section.isSectionVisible: No person found for iteration context: ${JSON.stringify(iterationContext)}`
+                );
+                return false;
+            }
             const currentJourney = odHelpers.getActiveJourney({ interview, person });
-            if (person === null || currentJourney === null) {
-                responseContent['response._activeSection'] = 'tripsIntro';
-                startUpdateInterview({ sectionShortname: 'tripsIntro', valuesByPath: responseContent }, callback);
-                return null;
+            if (currentJourney === null) {
+                // Do not display if there is no active journey
+                return false;
+            }
+            return true;
+        },
+        isSectionCompleted: (interview, iterationContext) => {
+            const personId = iterationContext ? iterationContext[iterationContext.length - 1] : undefined;
+            const person = personId === undefined ? null : odHelpers.getPerson({ interview, personId });
+
+            if (person === null) {
+                // Log error, that is unexpected
+                console.error(
+                    `segments section.isSectionComplete: No person found for iteration context: ${JSON.stringify(iterationContext)}`
+                );
+                return false;
             }
 
-            let tripsUpdatesValueByPath = {};
-            let tripsUpdatesUnsetPaths: string[] = [];
-            const tripsPath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`;
-            const visitedPlaces = odHelpers.getVisitedPlacesArray({ journey: currentJourney });
-            const trips = odHelpers.getTripsArray({ journey: currentJourney });
+            const currentJourney = odHelpers.getActiveJourney({ interview, person });
+
+            // Section is complete if there is no next trip to complete
+            const nextTrip: Trip | null = odHelpers.selectNextIncompleteTrip({ journey: currentJourney! });
+            return nextTrip === null;
+        },
+        onSectionEntry: function (interview, iterationContext) {
+            const personId = iterationContext ? iterationContext[iterationContext.length - 1] : undefined;
+            const person = personId === undefined ? null : odHelpers.getPerson({ interview, personId });
+            if (person === null) {
+                // Log error, that is unexpected
+                console.error(
+                    `segments section.onSectionEntry: No person found for iteration context: ${JSON.stringify(iterationContext)}`
+                );
+                return undefined;
+            }
+            const responseContent = {};
+
+            const currentJourney = odHelpers.getActiveJourney({ interview, person });
+
+            const tripsPath = `household.persons.${person._uuid}.journeys.${currentJourney!._uuid}.trips`;
+            const visitedPlaces = odHelpers.getVisitedPlacesArray({ journey: currentJourney! });
+            const trips = odHelpers.getTripsArray({ journey: currentJourney! });
+            const nextTrip: Trip | null = odHelpers.selectNextIncompleteTrip({ journey: currentJourney! });
+            let firstInvalidTripId: string | null | undefined = nextTrip ? nextTrip._uuid : null;
+            let foundFirstInvalidTrip = false;
 
             // Create the missing trips objects and initialize those that may have changed
             for (let tripSequence = 1, count = visitedPlaces.length - 1; tripSequence <= count; tripSequence++) {
@@ -57,19 +92,39 @@ export const getSegmentsSectionConfig = (
                             _destinationVisitedPlaceUuid: destination._uuid
                         }
                     ]);
-                    tripsUpdatesValueByPath = Object.assign(tripsUpdatesValueByPath, addValuesByPath);
+                    // Set the first invalid trip to this one if not already set
+                    if (firstInvalidTripId === null) {
+                        const newTripKey = Object.keys(addValuesByPath).find((key) =>
+                            key.startsWith(`response.${tripsPath}`)
+                        );
+                        // From the newJourneyKey, get the journey UUID as the rest of the string after the last dot
+                        const tripUuid = newTripKey!.split('.').pop();
+                        firstInvalidTripId = tripUuid;
+                    }
+                    Object.assign(responseContent, addValuesByPath);
                 } else if (
                     trip._originVisitedPlaceUuid !== origin._uuid ||
                     trip._destinationVisitedPlaceUuid !== destination._uuid
                 ) {
                     // update origin and destination if wrong for this sequence:
-                    tripsUpdatesValueByPath[`response.${tripsPath}.${trip._uuid}._originVisitedPlaceUuid`] =
-                        origin._uuid;
-                    tripsUpdatesValueByPath[`response.${tripsPath}.${trip._uuid}._destinationVisitedPlaceUuid`] =
+                    responseContent[`response.${tripsPath}.${trip._uuid}._originVisitedPlaceUuid`] = origin._uuid;
+                    responseContent[`response.${tripsPath}.${trip._uuid}._destinationVisitedPlaceUuid`] =
                         destination._uuid;
                     // also delete existing segments:
-                    tripsUpdatesValueByPath[`response.${tripsPath}.${trip._uuid}.segments`] = undefined;
+                    responseContent[`response.${tripsPath}.${trip._uuid}.segments`] = undefined;
+                    if (firstInvalidTripId === null || !foundFirstInvalidTrip) {
+                        // If the first invalid trip is not set, set it to this trip
+                        firstInvalidTripId = trip._uuid;
+                        foundFirstInvalidTrip = true;
+                    }
+                } else if (!foundFirstInvalidTrip && trip._uuid === firstInvalidTripId) {
+                    // If this is the first invalid trip, we found it
+                    foundFirstInvalidTrip = true;
                 }
+            }
+            // If the invalid trip was not found, it is not in the trips array anymore, so we set it to null
+            if (!foundFirstInvalidTrip && nextTrip !== null) {
+                firstInvalidTripId = null;
             }
 
             // remove superfluous trips, there should be one less than visited places
@@ -86,42 +141,22 @@ export const getSegmentsSectionConfig = (
                 }
                 if (tripsPathsToRemove.length > 0) {
                     const [updateValuePaths, unsetValuePaths] = removeGroupedObjects(interview, tripsPathsToRemove);
-                    tripsUpdatesUnsetPaths = tripsUpdatesUnsetPaths.concat(unsetValuePaths);
-                    tripsUpdatesValueByPath = Object.assign(tripsUpdatesValueByPath, updateValuePaths);
+                    Object.assign(responseContent, updateValuePaths);
+                    for (const path of unsetValuePaths) {
+                        responseContent[path] = undefined;
+                    }
                 }
             }
 
-            if (!_isEmpty(tripsUpdatesValueByPath) || !_isEmpty(tripsUpdatesUnsetPaths)) {
-                startUpdateInterview(
-                    {
-                        sectionShortname,
-                        valuesByPath: tripsUpdatesValueByPath,
-                        unsetPaths: tripsUpdatesUnsetPaths
-                    },
-                    (_interview) => {
-                        const _currentJourney = odHelpers.getActiveJourney({ interview: _interview });
-                        if (_currentJourney === null) {
-                            // That would be problematic
-                            console.error(
-                                'No active journey after updating trips in segments section, but there was an active journey earlier. What happened?'
-                            );
-                            responseContent['response._activeTripId'] = null;
-                            startUpdateInterview({ sectionShortname, valuesByPath: responseContent }, callback);
-                            return;
-                        }
-                        const selectedTrip = odHelpers.selectNextIncompleteTrip({ journey: _currentJourney });
-                        responseContent['response._activeTripId'] = selectedTrip !== null ? selectedTrip._uuid : null;
-                        // FIXME There was an action generation for the segment section of this person, but the navigator should handle that
-                        startUpdateInterview({ sectionShortname, valuesByPath: responseContent }, callback);
-                    }
-                );
+            if (!_isEmpty(responseContent)) {
+                return {
+                    ...responseContent,
+                    'response._activeTripId': firstInvalidTripId
+                };
             } else {
-                const selectedTrip = odHelpers.selectNextIncompleteTrip({ journey: currentJourney });
-                responseContent['response._activeTripId'] = selectedTrip !== null ? selectedTrip._uuid : null;
-                // FIXME There was an action generation for the segment section of this person, but the navigator should handle that
-                startUpdateInterview({ sectionShortname, valuesByPath: responseContent }, callback);
+                responseContent['response._activeTripId'] = nextTrip !== null ? nextTrip._uuid : null;
+                return responseContent;
             }
-            return null;
         },
 
         // Section specific configuration
@@ -139,12 +174,6 @@ export const getSegmentsSectionConfig = (
             'personTrips',
             'personVisitedPlacesMap',
             'buttonConfirmNextSection'
-        ],
-        completionConditional: function (interview) {
-            // Complete the section if there is no next trip to complete
-            const journey = odHelpers.getActiveJourney({ interview });
-            const nextTrip = journey !== null ? odHelpers.selectNextIncompleteTrip({ journey }) : null;
-            return nextTrip === null;
-        }
+        ]
     };
 };
