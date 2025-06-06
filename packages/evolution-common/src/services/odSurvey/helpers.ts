@@ -67,6 +67,36 @@ export const getHousehold = ({ interview }: { interview: UserInterviewAttributes
 };
 
 /**
+ * Get the currently active person ID, prioritizing the path if provided.
+ * - If the `path` argument is provided and contains a person ID in the format `household.persons.{personId}.`,
+ *   this person ID (from the householdMembers group) will be returned.
+ * - Otherwise, returns the interview's `_activePersonId` if set.
+ * - If neither is found, returns `undefined`.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object.
+ * @param {string} [options.path] Optional path string to extract the person ID from (typically from the householdMembers group).
+ * @returns {string | undefined} The active person ID from the path or interview, or `undefined` if not found.
+ */
+export const getActivePersonId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | undefined => {
+    if (path) {
+        // Match the pattern household.persons.{personId}.
+        const match = path.match(/household\.persons\.([^.]+)\./);
+        if (match) {
+            return match[1]; // Return the person ID captured in the regex for path inside householdMembers group
+        }
+    }
+    const currentPersonId = interview.response._activePersonId; // Otherwise, get the active person ID from the response
+    return currentPersonId !== undefined ? currentPersonId : undefined; // If not set, return undefined
+};
+
+/**
  * Get the currently active person, as defined in the interview response. If
  * the active person is not set but there are persons defined, the first one
  * will be returned. If the person is not found, `null` will be returned
@@ -85,6 +115,28 @@ export const getActivePerson = ({ interview }: { interview: UserInterviewAttribu
         const persons = getPersonsArray({ interview });
         return persons.length !== 0 ? persons[0] : null;
     }
+};
+
+/**
+ * Get the gender of the currently active person.
+ * Uses getActivePersonId to determine the active person, then returns their gender if available.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object.
+ * @param {string} [options.path] Optional path string to extract the person ID from.
+ * @returns {string | undefined} The gender of the active person, or undefined if not found.
+ */
+export const getActivePersonGender = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | undefined => {
+    const personId = getActivePersonId({ interview, path });
+    if (!personId) return undefined;
+    const person = getPerson({ interview, personId });
+    return person?.gender;
 };
 
 /**
@@ -149,6 +201,27 @@ export const getInterviewablePersonsArray = ({ interview }: { interview: UserInt
 export const countPersons = ({ interview }: { interview: UserInterviewAttributes }): number => {
     const personIds = getResponse(interview, 'household.persons', {}) as { [personId: string]: Person };
     return Object.keys(personIds).length;
+};
+
+/**
+ * Counts the number of adults in the given interview.
+ * An adult is defined as a person who is 18 years or older and has a defined age.
+ *
+ * @param {Object} options - The options object.
+ * @param {Object} options.interview The interview object
+ * @returns {number} The count of adults within the interview (only persons with a defined age >= 18).
+ */
+export const countAdults = ({ interview }): number => {
+    const persons = getPersonsArray({ interview });
+
+    // Count persons with age 18 or more using
+    let count: number = 0;
+    persons.forEach((person) => {
+        if (person?.age && person.age >= 18) {
+            count++;
+        }
+    });
+    return count;
 };
 
 /**
@@ -282,7 +355,7 @@ export const getJourneysArray = function ({ person }: { person: Person }): Journ
 
 /**
  * @typedef {Object.<string, Trip>} TripsObject
- * An object where the keys are trip IDs and the values are Trip objects.
+ * An object where the keys are trip ID's and the values are Trip objects.
  */
 
 /**

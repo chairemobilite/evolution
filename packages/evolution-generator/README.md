@@ -216,8 +216,8 @@ Widgets are the building blocks of your survey. They define the structure and in
 | section              | Section to which the question belongs                   | string  |
 | group                | Group to which the question belongs (optional)          | string? |
 | path                 | Path of the response object for the question            | string  |
-| fr                   | French label for the question                           | string  |
-| en                   | English label for the question                          | string  |
+| label::fr            | French label for the question                           | string  |
+| label::en            | English label for the question                          | string  |
 | [conditional](#cond) | Conditional logic for displaying the widget (optional)  | string? |
 | [validation](#val)   | Validation logic for the widget (optional)              | string? |
 | [choices](#choices)  | Choices for the InputRadio and InputCheckbox (optional) | string? |
@@ -415,8 +415,8 @@ Choices in your survey define the available options in ­­`InputRadio` or `Inpu
 | ---------------------------- | ----------------------------------------------------- | ---------------- |
 | choicesName                  | Name for the choices group                            | string           |
 | value                        | Unique value for the choice                           | string or number |
-| fr                           | French label for the choice                           | string or number |
-| en                           | English label for the choice                          | string or number |
+| label::fr                    | French label for the choice                           | string or number |
+| label::en                    | English label for the choice                          | string or number |
 | [spreadChoicesName](#spread) | Spreading another choicesName (optional)              | string?          |
 | conditional                  | Conditional name for displaying the choice (optional) | string?          |
 
@@ -426,7 +426,7 @@ Choices in your survey define the available options in ­­`InputRadio` or `Inpu
 
 In this example, we define two sets of choices: `yesNoChoices` and `yesNoDontKnowChoices`. The `yesNoChoices` set includes two options: "yes" and "no". The `yesNoDontKnowChoices` set extends the `yesNoChoices` set by adding an additional option: "don't know". This demonstrates how you can reuse and extend choice sets to create more complex selections. The corresponding TypeScript code and a visual representation of these choices are shown below:
 
-| choicesName          | value    | fr             | en           | spreadChoicesName | conditional |
+| choicesName          | value    | label::fr      | label::en    | spreadChoicesName | conditional |
 | -------------------- | -------- | -------------- | ------------ | ----------------- | ----------- |
 | yesNoChoices         | yes      | Oui            | Yes          |                   |             |
 | yesNoChoices         | no       | Non            | No           |                   |             |
@@ -520,28 +520,37 @@ export const confidentInputRange: InputRangeConfig = {
 
 ## Generate Labels
 
-<!-- TODO: Modify the generate_labels.py and documentation to support en_cati, en_one, fr_cati, etc. -->
+<!-- TODO: Modify the generate_labels.py and documentation to support en_cati, fr_cati, etc. -->
 
 In the context of your survey logic, labels play a crucial role in presenting questions to respondents in different languages. This Excel table below outlines the fields in `Widgets` tab used to define labels, along with an example and the expected output in a `introduction.yml` file.
 
 ### Labels Fields
 
-| Field   | Description                           | Type   |
-| ------- | ------------------------------------- | ------ |
-| path    | Path of the response                  | string |
-| section | Section to which the question belongs | string |
-| fr      | French label                          | string |
-| en      | English label                         | string |
+| Field         | Description                           | Type   |
+| ------------- | ------------------------------------- | ------ |
+| path          | Path of the response                  | string |
+| section       | Section to which the question belongs | string |
+| label::fr     | French label                          | string |
+| label::en     | English label                         | string |
+| label_one::fr | French label for one person           | string |
+| label_one::en | English label for one person          | string |
 
 ### Labels Example
 
-In this example, we define a label for the question `introduction.whichOrganization`. Labels are used to present questions to respondents in different languages. In this case, we provide translations for both French and English. The text within the double asterisks `**` will be displayed in bold. The corresponding YAML output for the English translation is also shown.
+In this example, we define a label for the question `introduction.whichOrganization`. Labels are used to present questions to respondents in different languages. In this case, we provide translations for both French and English, as well as special labels for the one-person case. The text within the double asterisks `**` will be displayed in bold. The corresponding YAML output for the English translation is also shown.
 
-| path                           | section      | fr                                                                 | en                                                                |
-| ------------------------------ | ------------ | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| introduction.whichOrganization | introduction | À quelle [\*\*organisation\*\*](#asterisks) êtes-vous affilié(e) ? | Which [\*\*organization\*\*](#asterisks) are you affiliated with? |
+| path                           | section      | label::fr                                                          | label::en                                                         | label_one::fr                                 | label_one::en                               |
+| ------------------------------ | ------------ | ------------------------------------------------------------------ | ----------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------- |
+| introduction.whichOrganization | introduction | À quelle [\*\*organisation\*\*](#asterisks) êtes-vous affilié(e) ? | Which [\*\*organization\*\*](#asterisks) are you affiliated with? | À quelle organisation es-tu affilié(e) ?      | Which organization are you affiliated with? |
+| household.transitFares         | household    | {{nickname}} possède-t-il/elle un titre de transport en commun ?   | Does {{nickname}} have a transit fare?                            | Possèdes-tu un titre de transport en commun ? | Do you have a transit fare?                 |
 
-<!-- TODO: Add {{nickname}} and other replacements in the labels -->
+> <span id="asterisks">**Note:**</span> You can use `{{nickname}}` in your labels to dynamically insert the person's nickname or a default value if not set.
+
+> <span id="asterisks">**Note:**</span> You can use `{{count}}` in your labels to dynamically insert the number of persons in the household.
+
+> <span id="asterisks">**Note:**</span> You can use `{{gender:man/woman}}` or `{{gender:woman}}` in your labels to automatically insert the appropriate gendered ending or word, depending on the respondent's gender. For example, `Conduc{{gender:teur/trice}}` will render as "Conducteur" or "Conductrice", and `Ami{{gender:e}}` will render as "Ami" or "Amie".
+
+> <span id="asterisks">**Note:**</span> You can use `label_one::fr` and `label_one::en` to provide a special label for one-person interviews (when `count` is 1).
 
 > <span id="asterisks">**Note:**</span> Label between double asterisks `**` will be displayed in bold font.
 
@@ -554,6 +563,9 @@ In this example, we define a label for the question `introduction.whichOrganizat
 ```yaml
 # en/introduction.yml
 introduction.whatOrganization: Which <strong>organization</strong> are you affiliated with?
+introduction.whatOrganization_one: Which organization are you affiliated with?
+household.transitFares: Does {{nickname}} have a transit fare?
+household.transitFares_one: Do you have a transit fare?
 ```
 
 ## Document History
