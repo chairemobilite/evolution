@@ -97,6 +97,73 @@ each([
 
 each([
     [
+        'Path with personId',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1 },
+                    personId2: { _uuid: 'personId2', _sequence: 2 }
+                }
+            }
+        },
+        'household.persons.personId2.someField',
+        'personId2'
+    ],
+    [
+        'Path without personId, uses _activePersonId',
+        {
+            ...interviewAttributesWithHh.response,
+            _activePersonId: 'personId1',
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1 },
+                    personId2: { _uuid: 'personId2', _sequence: 2 }
+                }
+            }
+        },
+        undefined,
+        'personId1'
+    ],
+    [
+        'No path, no _activePersonId',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1 }
+                }
+            }
+        },
+        undefined,
+        undefined
+    ],
+    [
+        'Path does not match pattern, uses _activePersonId',
+        {
+            ...interviewAttributesWithHh.response,
+            _activePersonId: 'personId1',
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1 }
+                }
+            }
+        },
+        'some.other.path',
+        'personId1'
+    ]
+]).test('getActivePersonId: %s', (_title, response, path, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.response = response;
+    expect(Helpers.getActivePersonId({ interview, path })).toEqual(expected);
+});
+
+each([
+    [
         'Person 1',
         interviewAttributesWithHh.response,
         'personId1',
@@ -127,6 +194,119 @@ each([
     interview.response = response;
     interview.response._activePersonId = currentPersonId;
     expect(Helpers.getActivePerson({ interview })).toEqual(expected);
+});
+
+each([
+    [
+        'gender is "man"',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1, gender: 'man' },
+                    personId2: { _uuid: 'personId2', _sequence: 2 }
+                }
+            },
+            _activePersonId: 'personId1'
+        },
+        undefined,
+        'man'
+    ],
+    [
+        'gender is "woman"',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1 },
+                    personId2: { _uuid: 'personId2', _sequence: 2, gender: 'woman' }
+                }
+            },
+            _activePersonId: 'personId2'
+        },
+        undefined,
+        'woman'
+    ],
+    [
+        'gender is "other"',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1, gender: 'other' },
+                    personId2: { _uuid: 'personId2', _sequence: 2 }
+                }
+            },
+            _activePersonId: 'personId1'
+        },
+        undefined,
+        'other'
+    ],
+    [
+        'no gender',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1 },
+                    personId2: { _uuid: 'personId2', _sequence: 2 }
+                }
+            },
+            _activePersonId: 'personId1'
+        },
+        undefined,
+        undefined
+    ],
+    [
+        'no active person',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1, gender: 'man' }
+                }
+            }
+        },
+        undefined,
+        undefined
+    ],
+    [
+        'gender using path',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId2: { _uuid: 'personId2', _sequence: 2, gender: 'woman' }
+                }
+            }
+        },
+        'household.persons.personId2.someField',
+        'woman'
+    ],
+    [
+        'path does not match',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1, gender: 'man' }
+                }
+            }
+        },
+        'some.other.path',
+        undefined
+    ]
+]).test('getActivePersonGender: %s', (_title, response, path, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.response = response;
+    expect(Helpers.getActivePersonGender({ interview, path })).toEqual(expected);
 });
 
 describe('getPersons', () => {
