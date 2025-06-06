@@ -15,10 +15,10 @@ import connectSessionKnex from 'connect-session-knex';
 import morgan from 'morgan'; // http logger
 import trRoutingRouter from 'chaire-lib-backend/lib/api/trRouting.routes';
 import { participantAuthModel } from '../../services/auth/participantAuthModel';
-import configurePassport from 'chaire-lib-backend/lib/config/auth';
+import configurePassport from '../../services/auth/auth.config';
 import requestIp from 'request-ip';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
-import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
+import authRoutes from '../../api/auth.routes';
 import participantRoutes from '../../apps/participant/routes';
 
 const KnexSessionStore = connectSessionKnex(expressSession);
