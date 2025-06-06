@@ -52,7 +52,8 @@ module.exports = {
     },
     anonymous: true,
     google: false,
-    facebook: false
+    facebook: false,
+    byField: false
   },
   logDatabaseUpdates: true,
   askForAccessCode: true,
