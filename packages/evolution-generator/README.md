@@ -520,7 +520,7 @@ export const confidentInputRange: InputRangeConfig = {
 
 ## Generate Labels
 
-<!-- TODO: Modify the generate_labels.py and documentation to support en_cati, en_one, fr_cati, etc. -->
+<!-- TODO: Modify the generate_labels.py and documentation to support en_cati, fr_cati, etc. -->
 
 In the context of your survey logic, labels play a crucial role in presenting questions to respondents in different languages. This Excel table below outlines the fields in `Widgets` tab used to define labels, along with an example and the expected output in a `introduction.yml` file.
 
@@ -548,9 +548,9 @@ In this example, we define a label for the question `introduction.whichOrganizat
 
 > <span id="asterisks">**Note:**</span> You can use `{{count}}` in your labels to dynamically insert the number of persons in the household.
 
-> <span id="asterisks">**Note:**</span> You can use `label_one::fr` and `label_one::en` to provide a special label for one-person interviews (when `count` is 1).
+> <span id="asterisks">**Note:**</span> You can use `{{gender:man/woman}}` or `{{gender:woman}}` in your labels to automatically insert the appropriate gendered ending or word, depending on the respondent's gender. For example, `Conduc{{gender:teur/trice}}` will render as "Conducteur" or "Conductrice", and `Ami{{gender:e}}` will render as "Ami" or "Amie".
 
-<!-- TODO: Add support for {{gender}} replacements in labels for gendered contexts -->
+> <span id="asterisks">**Note:**</span> You can use `label_one::fr` and `label_one::en` to provide a special label for one-person interviews (when `count` is 1).
 
 > <span id="asterisks">**Note:**</span> Label between double asterisks `**` will be displayed in bold font.
 
