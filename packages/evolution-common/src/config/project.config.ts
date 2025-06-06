@@ -81,6 +81,17 @@ export type EvolutionProjectConfiguration = {
         [key: string]: string;
     };
 
+    // Add additional properties to the config
+    auth: ProjectConfiguration<any>['auth'] & {
+        /**
+         * If true, the auth model will use the combination of access code and
+         * postal code as login credentials.
+         *
+         * TODO Support options to specify which fields are to be used
+         */
+        byField?: boolean;
+    };
+
     // TODO Add more project configuration types
 };
 
