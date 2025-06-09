@@ -72,8 +72,7 @@ def test_generate_label_basic():
     result = generate_label(section="sectionA", path="foo.bar", row=row)
     assert "label: (t: TFunction) => t('sectionA:foo.bar')" in result
     assert "return t('sectionA:foo.bar', {" not in result
-    assert "const personId =" not in result
-    assert "const person =" not in result
+    assert "const activePerson =" not in result
     assert "const nickname =" not in result
     assert "const countPersons =" not in result
     assert "const personGender =" not in result
@@ -88,8 +87,7 @@ def test_generate_label_with_nickname_label():
     result = generate_label(section="sectionA", path="foo.bar", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionA:foo.bar', {" in result
-    assert "const personId =" in result
-    assert "const person =" in result
+    assert "const activePerson =" in result
     assert "const nickname =" in result
     assert "const countPersons =" not in result
     assert "const personGender =" not in result
@@ -105,8 +103,7 @@ def test_generate_label_with_persons_count_label():
     result = generate_label(section="sectionB", path="baz", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionB:baz', {" in result
-    assert "const personId =" not in result
-    assert "const person =" not in result
+    assert "const activePerson =" not in result
     assert "const nickname =" not in result
     assert "const countPersons =" in result
     assert "const personGender =" not in result
@@ -122,8 +119,7 @@ def test_generate_label_with_gender_label():
     result = generate_label(section="sectionC", path="qux", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionC:qux', {" in result
-    assert "const personId =" not in result
-    assert "const person =" not in result
+    assert "const activePerson =" in result
     assert "const nickname =" not in result
     assert "const countPersons =" not in result
     assert "const personGender =" in result
@@ -141,8 +137,7 @@ def test_generate_label_with_one_person():
     result = generate_label(section="sectionE", path="foo.age", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionE:foo.age', {" in result
-    assert "const personId =" not in result
-    assert "const person =" not in result
+    assert "const activePerson =" not in result
     assert "const nickname =" not in result
     assert "const countPersons =" in result
     assert "const personGender =" not in result
@@ -160,8 +155,7 @@ def test_generate_label_with_all_contexts():
     result = generate_label(section="sectionD", path="bar.baz", row=row)
     assert "label: (t: TFunction, interview, path) =>" in result
     assert "return t('sectionD:bar.baz', {" in result
-    assert "const personId =" in result
-    assert "const person =" in result
+    assert "const activePerson =" in result
     assert "const nickname =" in result
     assert "const countPersons =" in result
     assert "const personGender =" in result

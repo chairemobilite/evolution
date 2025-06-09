@@ -37,16 +37,34 @@ import { loopActivities } from './types';
  * @param {UserInterviewAttributes} options.interview - The interview object.
  * @param {string|null} [options.personId=null] - The ID of the person to
  * retrieve. If not specified, the currently active person will be returned.
+ * @param {string|null} [options.path=null] - Optional path string to extract the person ID from (typically from the householdMembers group).
  * @returns {Person | null} The person object with the specified ID or the active person, or `null` if not found.
  */
 export const getPerson = ({
     interview,
-    personId = null
+    personId = null,
+    path
 }: {
     interview: UserInterviewAttributes;
     personId?: string | null;
+    path?: string;
 }): Person | null => {
-    const requestedPersonId = personId || getResponse(interview, '_activePersonId', null);
+    let requestedPersonId: string | null | undefined = null;
+    // 1. Use personId if provided
+    if (personId) {
+        requestedPersonId = personId;
+        // 2. Otherwise, try to extract personId from path if it matches household.persons.{personId}.
+    } else if (path) {
+        const match = path.match(/household\.persons\.([^.]+)\./);
+        if (match) {
+            requestedPersonId = match[1];
+        }
+    }
+    // 3. Otherwise, use the active person id from the interview response
+    if (!requestedPersonId) {
+        requestedPersonId = interview.response._activePersonId ?? null;
+    }
+    // Return the person object if found, otherwise null
     if (requestedPersonId) {
         return getResponse(interview, `household.persons.${requestedPersonId}`, null) as Person;
     } else {
@@ -64,36 +82,6 @@ export const getPerson = ({
  */
 export const getHousehold = ({ interview }: { interview: UserInterviewAttributes }): Partial<Household> => {
     return interview.response.household || {};
-};
-
-/**
- * Get the currently active person ID, prioritizing the path if provided.
- * - If the `path` argument is provided and contains a person ID in the format `household.persons.{personId}.`,
- *   this person ID (from the householdMembers group) will be returned.
- * - Otherwise, returns the interview's `_activePersonId` if set.
- * - If neither is found, returns `undefined`.
- *
- * @param {Object} options - The options object.
- * @param {UserInterviewAttributes} options.interview The interview object.
- * @param {string} [options.path] Optional path string to extract the person ID from (typically from the householdMembers group).
- * @returns {string | undefined} The active person ID from the path or interview, or `undefined` if not found.
- */
-export const getActivePersonId = ({
-    interview,
-    path
-}: {
-    interview: UserInterviewAttributes;
-    path?: string;
-}): string | undefined => {
-    if (path) {
-        // Match the pattern household.persons.{personId}.
-        const match = path.match(/household\.persons\.([^.]+)\./);
-        if (match) {
-            return match[1]; // Return the person ID captured in the regex for path inside householdMembers group
-        }
-    }
-    const currentPersonId = interview.response._activePersonId; // Otherwise, get the active person ID from the response
-    return currentPersonId !== undefined ? currentPersonId : undefined; // If not set, return undefined
 };
 
 /**
@@ -115,28 +103,6 @@ export const getActivePerson = ({ interview }: { interview: UserInterviewAttribu
         const persons = getPersonsArray({ interview });
         return persons.length !== 0 ? persons[0] : null;
     }
-};
-
-/**
- * Get the gender of the currently active person.
- * Uses getActivePersonId to determine the active person, then returns their gender if available.
- *
- * @param {Object} options - The options object.
- * @param {UserInterviewAttributes} options.interview The interview object.
- * @param {string} [options.path] Optional path string to extract the person ID from.
- * @returns {string | undefined} The gender of the active person, or undefined if not found.
- */
-export const getActivePersonGender = ({
-    interview,
-    path
-}: {
-    interview: UserInterviewAttributes;
-    path?: string;
-}): string | undefined => {
-    const personId = getActivePersonId({ interview, path });
-    if (!personId) return undefined;
-    const person = getPerson({ interview, personId });
-    return person?.gender;
 };
 
 /**
@@ -205,19 +171,21 @@ export const countPersons = ({ interview }: { interview: UserInterviewAttributes
 
 /**
  * Counts the number of adults in the given interview.
- * An adult is defined as a person who is 18 years or older and has a defined age.
+ * An adult is defined as a person who is `adultAge` years or older and has a defined age.
  *
  * @param {Object} options - The options object.
- * @param {Object} options.interview The interview object
- * @returns {number} The count of adults within the interview (only persons with a defined age >= 18).
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns {number} The count of adults within the interview (only persons with a defined age >= adultAge).
  */
-export const countAdults = ({ interview }): number => {
+export const countAdults = ({ interview }: { interview: UserInterviewAttributes }): number => {
     const persons = getPersonsArray({ interview });
+    // Use config.adultAge if set, otherwise default to 18
+    const adultAge = typeof config?.adultAge === 'number' ? config.adultAge : 18;
 
-    // Count persons with age 18 or more using
+    // Count persons with age adultAge or more
     let count: number = 0;
     persons.forEach((person) => {
-        if (person?.age && person.age >= 18) {
+        if (person?.age && person.age >= adultAge) {
             count++;
         }
     });

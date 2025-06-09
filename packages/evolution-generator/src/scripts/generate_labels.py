@@ -261,6 +261,14 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
+                addTranslation(
+                    language="fr",
+                    section=section,
+                    path=path + "_other",
+                    value=gender_fr["other"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
             elif fr_label is not None:
                 addTranslation(
                     language="fr",
@@ -276,7 +284,7 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 addTranslation(
                     language="fr",
                     section=section,
-                    path=path + "_one_man",
+                    path=path + "_man_one",
                     value=gender_fr_one["man"],
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
@@ -284,8 +292,16 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 addTranslation(
                     language="fr",
                     section=section,
-                    path=path + "_one_woman",
+                    path=path + "_woman_one",
                     value=gender_fr_one["woman"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+                addTranslation(
+                    language="fr",
+                    section=section,
+                    path=path + "_other_one",
+                    value=gender_fr_one["other"],
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
@@ -317,6 +333,14 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
                 )
+                addTranslation(
+                    language="en",
+                    section=section,
+                    path=path + "_other",
+                    value=gender_en["other"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
             elif en_label is not None:
                 addTranslation(
                     language="en",
@@ -332,7 +356,7 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 addTranslation(
                     language="en",
                     section=section,
-                    path=path + "_one_man",
+                    path=path + "_man_one",
                     value=gender_en_one["man"],
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
@@ -340,8 +364,16 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                 addTranslation(
                     language="en",
                     section=section,
-                    path=path + "_one_woman",
+                    path=path + "woman_one",
                     value=gender_en_one["woman"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+                addTranslation(
+                    language="en",
+                    section=section,
+                    path=path + "_other_one",
+                    value=gender_en_one["other"],
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
                 )
@@ -370,8 +402,11 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
 
 def expand_gender(label):
     """
-    Replace all occurrences of {{gender:...}} with the man and woman forms.
-    Example: "Étudian{{gender:t/te}}" -> {"man": "Étudiant", "woman": "Étudiante"}
+    Replace all occurrences of {{gender:...}} with the man, woman, and other forms.
+    Example: "Étudian{{gender:t/te/t·e}}" -> {"man": "Étudiant", "woman": "Étudiante", "other": "Étudiant·e"}
+    If only one part, 'woman' is the part, 'man' and 'other' are ''.
+    If only two parts, 'man' is first part, 'woman' is second part, 'other' is ''.
+    If three or more parts, only the first three are used: man, woman, other.
     """
     import re
 
@@ -382,22 +417,23 @@ def expand_gender(label):
     matches = re.findall(pattern, label)
     if not matches:
         return None
-    # For each match, split on '/' to get man/woman suffixes
-    # If only one part, use '' for man and the part for woman
-    # If two parts, use first for man, second for woman
     man_label = label
     woman_label = label
+    other_label = label
     for match in matches:
         parts = match.split("/")
-        if len(parts) == 2:
-            man, woman = parts[0], parts[1]
+        if len(parts) >= 3:
+            man, woman, other = parts[0], parts[1], parts[2]
+        elif len(parts) == 2:
+            man, woman, other = parts[0], parts[1], ""
         elif len(parts) == 1:
-            man, woman = "", parts[0]
+            man, woman, other = "", parts[0], ""
         else:
-            man, woman = "", ""
+            man, woman, other = "", "", ""
         man_label = man_label.replace(f"{{{{gender:{match}}}}}", man)
         woman_label = woman_label.replace(f"{{{{gender:{match}}}}}", woman)
-    return {"man": man_label, "woman": woman_label}
+        other_label = other_label.replace(f"{{{{gender:{match}}}}}", other)
+    return {"man": man_label, "woman": woman_label, "other": other_label}
 
 
 def stringToYaml(str):

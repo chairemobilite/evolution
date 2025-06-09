@@ -145,7 +145,7 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
     testHelpers.sectionProgressBarTest({ context, sectionName: 'Household', completionPercentage: 50 });
 
     if (householdSize === 1) {
-        testHelpers.waitTextVisible({ context, text: 'Please enter the following informations:' });
+        testHelpers.waitTextVisible({ context, text: 'Please enter the following information:' });
     }
 
     if (householdSize === 1) {
@@ -156,7 +156,7 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
 
     testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '33' });
 
-    testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'male' });
+    testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'man' });
 
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.workerType', value: 'yesFullTime' });
 
@@ -244,7 +244,7 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
 
         testHelpers.inputStringTest({ context, path: 'household.persons.${personId[1]}.age', value: '29' });
 
-        testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.gender', value: 'female' });
+        testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.gender', value: 'woman' });
 
         testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.workerType', value: 'no' });
 

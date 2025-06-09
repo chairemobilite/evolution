@@ -252,18 +252,18 @@ const deleteVisitedPlace = (visitedPlacePath, interview, startRemoveGroupedObjec
     });
 };
 
-const getGenderString = (person, femaleStr, maleStr, customStr, defaultStr) => {
+const getGenderString = (person, womanStr, manStr, customStr, defaultStr) => {
     if (_isBlank(person) || _isBlank(person.gender))
     {
       return defaultStr;
     }
-    else if (person.gender === 'female')
+    else if (person.gender === 'woman')
     {
-      return femaleStr;
+      return womanStr;
     }
-    else if (person.gender === 'male')
+    else if (person.gender === 'man')
     {
-      return maleStr;
+      return manStr;
     }
     else if (person.gender === 'custom')
     {

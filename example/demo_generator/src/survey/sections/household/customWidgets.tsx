@@ -32,7 +32,7 @@ export const householdMembers: GroupConfig = {
         en: function (groupedObject: any, sequence, interview) {
             const householdSize = surveyHelperNew.getResponse(interview, 'household.size', 1);
             if (householdSize === 1) {
-                return 'Please enter the following informations:';
+                return 'Please enter the following information:';
             }
             return `Person ${sequence || groupedObject['_sequence']} ${
                 groupedObject.nickname ? `• **${groupedObject.nickname}**` : ''
@@ -56,7 +56,6 @@ export const householdMembers: GroupConfig = {
     widgets: householdMembersWidgetsNames
 };
 
-// TODO: Update this widget by following the logic of OD_MJ_2023
 export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
     type: 'question',
     inputType: 'mapFindPlace',
@@ -145,7 +144,6 @@ export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
     }
 };
 
-// TODO: Update this widget by following the logic of OD_MJ_2023
 export const personUsualSchoolPlaceGeography: InputMapFindPlaceType = {
     type: 'question',
     inputType: 'mapFindPlace',

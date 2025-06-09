@@ -25,7 +25,7 @@ describe('BasePerson', () => {
         _uuid: validUuid,
         age: 30, // Valid age
         ageGroup: '30-34' as PAttr.AgeGroup, // Valid age group
-        gender: 'male' as PAttr.Gender, // Valid gender
+        gender: 'man' as PAttr.Gender, // Valid gender
         drivingLicenseOwnership: 'yes' as PAttr.DrivingLicenseOwnership, // Valid driving license ownership
         transitPassOwnership: 'no' as PAttr.TransitPassOwnership, // Valid transit pass ownership
         carsharingMember: 'yes' as PAttr.CarsharingMember, // Valid carsharing membership
@@ -53,7 +53,7 @@ describe('BasePerson', () => {
         expect(person._uuid).toBe(validUuid);
         expect(person.age).toBe(30);
         expect(person.ageGroup).toBe('30-34');
-        expect(person.gender).toBe('male');
+        expect(person.gender).toBe('man');
         expect(person.drivingLicenseOwnership).toBe('yes');
         expect(person.transitPassOwnership).toBe('no');
         expect(person.carsharingMember).toBe('yes');
@@ -104,7 +104,7 @@ describe('BasePerson', () => {
             _uuid: uuidV4(),
             age: 23,
             ageGroup: '20-24',
-            gender: 'male',
+            gender: 'man',
             drivingLicenseOwnership: 'yes',
             transitPassOwnership: 'no',
             carsharingMember: 'yes',
@@ -219,7 +219,7 @@ describe('BasePerson', () => {
         const params = {
             _uuid: uuidV4(),
             age: 25,
-            gender: 'female',
+            gender: 'woman',
             drivingLicenseOwnership: 'no',
             transitPassOwnership: 'no',
             carsharingMember: 'yes',

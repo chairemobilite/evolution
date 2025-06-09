@@ -27,28 +27,28 @@ suffixE:
 suffixEurRice: 
 suffixErEre: 
 isHeShe: is he/she
-isHeShe_male: is he
-isHeShe_female: is she
+isHeShe_man: is he
+isHeShe_woman: is she
 isHeShe_custom: are they
 doesHeShe: does he/she
-doesHeShe_male: does he
-doesHeShe_female: does she
+doesHeShe_man: does he
+doesHeShe_woman: does she
 doesHeShe_custom: do they
 heShe: he/she
-heShe_male: he
-heShe_female: she
+heShe_man: he
+heShe_woman: she
 heShe_custom: they
 ifHeShe: if he/she
-ifHeShe_male: if he
-ifHeShe_female: if she
+ifHeShe_man: if he
+ifHeShe_woman: if she
 ifHeShe_custom: if they
 himHerThem: him/her
-himHerThem_male: him
-himHerThem_female: her
+himHerThem_man: him
+himHerThem_woman: her
 himHerThem_custom: them
 hisHerTheir: their
-hisHerTheir_male: his
-hisHerTheir_female: her
+hisHerTheir_man: his
+hisHerTheir_woman: her
 hisHerTheir_custom: their
 
 # Relative days FIXME Current i18next version does not support _two, _few and _other suffixes, change when possible

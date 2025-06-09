@@ -87,7 +87,7 @@
     "validation": {
         "AgeRequired": "Age is required."
     },
-    "Female": "Female",
+    "Woman": "Woman",
     "gender": {
         "Custom": "{{nickname}} identifies themselves as",
         "Custom_one": "I identify myself as"

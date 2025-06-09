@@ -38,7 +38,7 @@ testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUr
 // Data for the first person
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.nickname', value: 'bob' });
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '30' });
-testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'male' });
+testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.gender', value: 'man' });
 testHelpers.inputSelectTest({ context, path: 'household.persons.${personId[0]}.occupation', value: 'fullTimeWorker' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.drivingLicenseOwnership', value: 'no' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.transitPassOwner', value: 'no' });
@@ -50,7 +50,7 @@ testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.di
 // Data for the second person
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[1]}.nickname', value: 'alice' });
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[1]}.age', value: '60' });
-testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.gender', value: 'female' });
+testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.gender', value: 'woman' });
 testHelpers.inputSelectTest({ context, path: 'household.persons.${personId[1]}.occupation', value: 'fullTimeWorker' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.drivingLicenseOwnership', value: 'yes' });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.carsharingMember', value: 'yes' });

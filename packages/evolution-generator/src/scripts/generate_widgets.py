@@ -458,13 +458,13 @@ def generate_label(section, path, row):
     label_en = row.get("label::en", "")  # English label
     label_one_fr = row.get("label_one::fr", "")  # French label for one person
     label_one_en = row.get("label_one::en", "")  # English label for one person
-    label_text = label_fr + label_en  # Search both
+    label_text = label_fr + label_en + label_one_fr + label_one_en  # Combine all labels
 
     has_nickname_label = "{{nickname}}" in label_text
     has_persons_count_label = "{{count}}" in label_text
     has_gender_context_label = (
         "{{gender:" in label_text
-    )  # Format: {{gender:man/woman}} or {{gender:woman}}
+    )  # Format: {{gender:woman}} or {{gender:man/woman}} or {{gender:man/woman/other}}
     has_label_one = bool(label_one_fr or label_one_en)
 
     if not (
@@ -476,18 +476,18 @@ def generate_label(section, path, row):
         return f"{INDENT}label: (t: TFunction) => t('{section}:{path}')"
     additional_t_context = ""
     initial_assignations = ""
+    if has_nickname_label or has_gender_context_label:
+        initial_assignations += f"{INDENT}{INDENT}const activePerson = odSurveyHelpers.getPerson({{ interview, path }});\n"
     if has_nickname_label:
-        initial_assignations += (
-            f"{INDENT}{INDENT}const personId = odSurveyHelpers.getActivePersonId({{ interview, path }});\n"
-            f"{INDENT}{INDENT}const person = odSurveyHelpers.getPerson({{ interview, personId }});\n"
-            f"{INDENT}{INDENT}const nickname = person?.nickname || t('customLabel:noNickname');\n"
-        )
+        initial_assignations += f"{INDENT}{INDENT}const nickname = activePerson?.nickname || t('customLabel:noNickname');\n"
         additional_t_context += f"{INDENT}{INDENT}{INDENT}nickname,\n"
     if has_label_one or has_persons_count_label:
         initial_assignations += f"{INDENT}{INDENT}const countPersons = odSurveyHelpers.countPersons({{ interview }});\n"
     if has_gender_context_label:
-        initial_assignations += f"{INDENT}{INDENT}const personGender = odSurveyHelpers.getActivePersonGender({{ interview, path }});\n"
-        additional_t_context += f"{INDENT}{INDENT}{INDENT}context: personGender === 'man' || personGender === 'woman' ? personGender : 'man',\n"
+        initial_assignations += (
+            f"{INDENT}{INDENT}const personGender = activePerson?.gender\n"
+        )
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}context: personGender === 'man' || personGender === 'woman' ? personGender : 'other',\n"
     if has_persons_count_label or has_label_one:
         additional_t_context += f"{INDENT}{INDENT}{INDENT}count: countPersons,\n"
     widget_label = (

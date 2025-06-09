@@ -16,26 +16,57 @@ def test_expand_gender_basic():
     assert result["woman"] == "Étudiante"
 
 
-def test_expand_gender_only_woman():
+def test_expand_gender_only_one_part():
     """
     Test expand_gender with a label containing only one part (woman).
-    Should replace {{gender:/e}} with '' for man and 'e' for woman.
-    """
-    label = "Ami{{gender:/e}}"
-    result = expand_gender(label)
-    assert result["man"] == "Ami"
-    assert result["woman"] == "Amie"
-
-
-def test_expand_gender_only_suffix():
-    """
-    Test expand_gender with a label containing only one part (woman).
-    Should replace {{gender:e}} with '' for man and 'e' for woman.
+    Should replace {{gender:e}} with '' for man, 'e' for woman and '' for other.
     """
     label = "Ami{{gender:e}}"
     result = expand_gender(label)
     assert result["man"] == "Ami"
     assert result["woman"] == "Amie"
+    assert result["other"] == "Ami"
+
+
+def test_expand_gender_two_parts():
+    """
+    Test expand_gender with a label containing two parts (man/woman).
+    Should replace {{gender:eur/rice}} with 'eur' for man, 'rice' for woman, and '' for other.
+    """
+    label = "act{{gender:eur/rice}}"
+    result = expand_gender(label)
+    assert result["man"] == "acteur"
+    assert result["woman"] == "actrice"
+    assert result["other"] == "act"
+
+
+def test_expand_gender_three_parts():
+    """
+    Test expand_gender with a label containing three parts (man/woman/other).
+    Should replace {{gender:/e/t·e}} with '' for man, 'e' for woman, '·e' for other.
+    """
+    label = "Étudiant{{gender:/e/·e}}"
+    result = expand_gender(label)
+    assert result["man"] == "Étudiant"
+    assert result["woman"] == "Étudiante"
+    assert result["other"] == "Étudiant·e"
+
+
+def test_expand_gender_more_than_three_parts():
+    """
+    Test expand_gender with a label containing more than three parts.
+    Only the first three should be used: man, woman, other.
+    """
+    label = "mot{{gender:a/b/c/d/e}}"
+    result = expand_gender(label)
+    assert result["man"] == "mota"
+    assert result["woman"] == "motb"
+    assert result["other"] == "motc"
+    assert set(result.keys()) == {
+        "man",
+        "woman",
+        "other",
+    }  # Ensure no extra keys are present
 
 
 def test_expand_gender_multiple_occurrences():
@@ -43,10 +74,11 @@ def test_expand_gender_multiple_occurrences():
     Test expand_gender with a label containing multiple gender replacements.
     Should replace all occurrences accordingly.
     """
-    label = "Étudian{{gender:t/te}} ou act{{gender:eur/rice}}"
+    label = "Étudian{{gender:t/te/t·e}} ou act{{gender:eur/rice/eur·rice}}"
     result = expand_gender(label)
     assert result["man"] == "Étudiant ou acteur"
     assert result["woman"] == "Étudiante ou actrice"
+    assert result["other"] == "Étudiant·e ou acteur·rice"
 
 
 def test_expand_gender_no_gender():
