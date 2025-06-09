@@ -6,11 +6,15 @@
  */
 import { Application } from 'express';
 
-import getSurveyRouter from '../../api/survey.participant.routes';
+import getSurveyRouter, { getPublicParticipantRoutes } from '../../api/survey.participant.routes';
 import participantIsAuthorized from '../../services/auth/participantAuthorization';
 import { defaultMiddlewares } from '../../services/logging/queryLoggingMiddleware';
 
 export default (app: Application) => {
     const userSurveyRouter = getSurveyRouter(participantIsAuthorized, defaultMiddlewares);
     app.use('/api', userSurveyRouter);
+
+    // Add public routes for the participant
+    const participantPublicRouter = getPublicParticipantRoutes();
+    app.use('/public', participantPublicRouter);
 };
