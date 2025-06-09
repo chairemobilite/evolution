@@ -73,3 +73,22 @@ ResponseIsRequired: "Cette réponse est requise."
 
 # Section Progress Bar
 completed: 'complété'
+
+# Support form
+support:
+  title: "Demande de support"
+  emailLabel: "Adresse e-mail"
+  emailPlaceholder: "votre.email@example.com"
+  emailHelper: "Optionnel. Nous l'utiliserons pour vous recontacter si nécessaire."
+  invalidEmail: "Veuillez entrer une adresse e-mail valide"
+  messageLabel: "Message"
+  messagePlaceholder: "Comment pouvons-nous vous aider ?"
+  messageHelper: "Veuillez décrire votre problème en détail"
+  messageRequired: "Veuillez entrer un message"
+  submitButton: "Envoyer le message"
+  submitting: "Envoi en cours..."
+  submitSuccess: "Votre message a été envoyé. Nous vous répondrons dès que possible."
+  submitError: "Une erreur est survenue lors de l'envoi de votre message. Veuillez réessayer plus tard."
+  helpButton: "Besoin d'aide?"
+  helpButtonLabel: "Ouvrir le formulaire d'aide"
+  close: "Fermer"

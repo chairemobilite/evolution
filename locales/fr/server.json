@@ -8,5 +8,9 @@
     "magicLinkEmailText": "Bienvenue!\n\nPour vous connecter à l'enquête, cliquer sur le lien suivant: {{magicLinkUrl}}.\n\nMerci",
     "magicLinkEmailSubject": "Connexion à l'enquête mobilité [ne pas répondre]",
     "welcomeEmailText": "Bonjour,\n\nVous avez demandé l'accès à cette enquête.\n\nMerci pour votre participation.",
-    "welcomeEmailSubject": "Bienvenue à l'enquête [ne pas répondre]"
+    "welcomeEmailSubject": "Bienvenue à l'enquête [ne pas répondre]",
+    "supportRequestSubject": "Demande d'assistance sur {{surveyName}}",
+    "supportRequestMessage": "Bonjour,\n\nVous avez reçu une demande d'assistance de la part de ({{userEmail}}) pour l'enquête {{surveyName}}.{{supportInterviewID}}{{currentPageUrl}}\n\nMessage:\n{{message}}\n\nMerci",
+    "supportInterviewID": "\n\nID de l'entrevue: {{interviewId}}",
+    "currentPageUrl": "\n\nURL de la page actuelle: {{currentUrl}}"
 }

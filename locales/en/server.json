@@ -8,5 +8,9 @@
     "magicLinkEmailText": "Welcome!\n\nTo connect to your questionnaire, click on the following link: {{magicLinkUrl}}.\n\nThank you",
     "magicLinkEmailSubject": "Connection to survey [do not respond]",
     "welcomeEmailText": "Hello,\n\nYou have requested access to this survey.\n\nThank you for your participation.",
-    "welcomeEmailSubject": "Welcome to the survey [do not respond]"
+    "welcomeEmailSubject": "Welcome to the survey [do not respond]",
+    "supportRequestSubject": "Support request for {{surveyName}}",
+    "supportRequestMessage": "Hello,\n\nYou have received a support request from ({{userEmail}}) for the survey {{surveyName}}.{{supportInterviewID}}{{currentPageUrl}}\n\nMessage:\n{{message}}\n\nThank you",
+    "supportInterviewID": "\n\nInterview ID: {{interviewId}}",
+    "currentPageUrl": "\n\nURL of the page: {{currentUrl}}"
 }

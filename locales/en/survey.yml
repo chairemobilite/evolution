@@ -63,3 +63,21 @@ ResponseIsRequired: "This response is required."
 
 # Section Progress Bar
 completed: 'completed'
+
+support:
+  title: "Contact Support"
+  emailLabel: "Email Address"
+  emailPlaceholder: "your.email@example.com"
+  emailHelper: "Optional. We'll use this to follow up with you if needed."
+  invalidEmail: "Please enter a valid email address"
+  messageLabel: "Message"
+  messagePlaceholder: "How can we help you?"
+  messageHelper: "Please describe your issue in detail"
+  messageRequired: "Please enter a message"
+  submitButton: "Send Message"
+  submitting: "Sending..."
+  submitSuccess: "Your message has been sent. We'll get back to you as soon as possible."
+  submitError: "There was an error sending your message. Please try again later."
+  helpButton: "Need Help?"
+  helpButtonLabel: "Open support form"
+  close: "Close"
