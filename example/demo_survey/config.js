@@ -56,6 +56,7 @@ module.exports = {
   },
   logDatabaseUpdates: true,
   askForAccessCode: true,
+  surveySupportForm: true,
   interviewableAge: 5,
   isPartTwo: false,
   mapDefaultCenter: {

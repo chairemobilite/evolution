@@ -6,6 +6,7 @@
  */
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import projectConfig from 'evolution-common/lib/config/project.config';
 import SupportForm from './SupportForm';
 
 const FloatingSupportForm: React.FC = () => {
@@ -71,4 +72,6 @@ const FloatingSupportForm: React.FC = () => {
     );
 };
 
-export default FloatingSupportForm;
+const FloatingSection: React.FC = () => (projectConfig.surveySupportForm !== true ? null : <FloatingSupportForm />); // Ensure the support form is enabled
+
+export default FloatingSection;

@@ -9,6 +9,7 @@
  * user's own survey
  * */
 import express, { Request, Response, Router } from 'express';
+import projectConfig from 'evolution-common/lib/config/project.config';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import Interviews from '../services/interviews/interviews';
@@ -20,33 +21,36 @@ import addCommonRoutes from './survey.common.routes';
 // Get a router for the routes that do not need the participant to be logged in
 export const getPublicParticipantRoutes = () => {
     const publicRouter = express.Router();
-    publicRouter.post('/supportRequest/', async (req: Request, res: Response) => {
-        try {
-            const content = req.body;
 
-            // Get interview ID if user is logged in
-            let interviewId: number | undefined = undefined;
-            if (req.user) {
-                const interview = await Interviews.getUserInterview((req.user as UserAttributes).id);
-                if (interview) {
-                    interviewId = interview.id;
+    if (projectConfig.surveySupportForm === true) {
+        publicRouter.post('/supportRequest/', async (req: Request, res: Response) => {
+            try {
+                const content = req.body;
+
+                // Get interview ID if user is logged in
+                let interviewId: number | undefined = undefined;
+                if (req.user) {
+                    const interview = await Interviews.getUserInterview((req.user as UserAttributes).id);
+                    if (interview) {
+                        interviewId = interview.id;
+                    }
                 }
+
+                // Send support request email
+                await sendSupportRequestEmail({
+                    message: content.message || 'No message provided',
+                    userEmail: content.email,
+                    interviewId,
+                    currentUrl: content.currentUrl
+                });
+
+                return res.status(200).json({ status: 'success' });
+            } catch (error) {
+                console.error(`Error processing support request: ${error}`);
+                return res.status(500).json({ status: 'failed' });
             }
-
-            // Send support request email
-            await sendSupportRequestEmail({
-                message: content.message || 'No message provided',
-                userEmail: content.email,
-                interviewId,
-                currentUrl: content.currentUrl
-            });
-
-            return res.status(200).json({ status: 'success' });
-        } catch (error) {
-            console.error(`Error processing support request: ${error}`);
-            return res.status(500).json({ status: 'failed' });
-        }
-    });
+        });
+    }
 
     return publicRouter;
 };
