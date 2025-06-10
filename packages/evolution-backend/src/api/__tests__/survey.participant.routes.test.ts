@@ -6,13 +6,19 @@
  */
 import request from 'supertest';
 import express, { Router } from 'express';
-import surveyParticipantRoutes from '../survey.participant.routes';
+import surveyParticipantRoutes, { getPublicParticipantRoutes } from '../survey.participant.routes';
 import Interviews from '../../services/interviews/interviews';
 import { InterviewLoggingMiddlewares } from '../../services/logging/queryLoggingMiddleware';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
+import { sendSupportRequestEmail } from '../../services/logging/supportRequest';
+import projectConfig from 'evolution-common/lib/config/project.config';
 
 jest.mock('../../services/interviews/interviews');
 jest.mock('../../services/logging/queryLoggingMiddleware');
+jest.mock('../../services/logging/supportRequest');
+jest.mock('evolution-common/lib/config/project.config', () => ({
+    surveySupportForm: true
+}));
 
 const mockUserId = 3;
 const mockAuthorizationMiddleware = jest.fn(() => (req, res, next) => next());
@@ -110,5 +116,137 @@ describe('GET /survey/activeInterview', () => {
             error: 'cannot fetch interview',
         });
         expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
+    });
+});
+
+describe('POST /supportRequest', () => {
+
+    // Setup public routes app
+    const publicApp = express();
+    publicApp.use(express.json());
+    publicApp.use(getPublicParticipantRoutes());
+
+    beforeEach(() => {
+        (sendSupportRequestEmail as jest.Mock).mockClear();
+        (Interviews.getUserInterview as jest.Mock).mockClear();
+    });
+
+    test('should handle support request successfully when user is not logged in', async () => {
+        const requestData = {
+            email: 'test@example.com',
+            message: 'Help me please',
+            currentUrl: 'http://test.com/page'
+        };
+
+        (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
+
+        const response = await request(publicApp)
+            .post('/supportRequest/')
+            .send(requestData);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(sendSupportRequestEmail).toHaveBeenCalledWith({
+            message: requestData.message,
+            userEmail: requestData.email,
+            interviewId: undefined,
+            currentUrl: requestData.currentUrl
+        });
+        expect(Interviews.getUserInterview).not.toHaveBeenCalled();
+    });
+
+    test('should handle support request successfully when user is logged in', async () => {
+        // Set up a mock app that simulates logged-in user
+        const loggedInApp = express();
+        loggedInApp.use(express.json());
+        loggedInApp.use((req, res, next) => {
+            req.user = { id: mockUserId };
+            next();
+        });
+        loggedInApp.use(getPublicParticipantRoutes());
+
+        const mockInterview = { id: 42 };
+        (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
+        (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
+
+        const requestData = {
+            email: 'test@example.com',
+            message: 'Help me please',
+            currentUrl: 'http://test.com/page'
+        };
+
+        const response = await request(loggedInApp)
+            .post('/supportRequest/')
+            .send(requestData);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
+        expect(sendSupportRequestEmail).toHaveBeenCalledWith({
+            message: requestData.message,
+            userEmail: requestData.email,
+            interviewId: mockInterview.id,
+            currentUrl: requestData.currentUrl
+        });
+    });
+
+    test('should handle missing message in request', async () => {
+        const requestData = {
+            email: 'test@example.com',
+            currentUrl: 'http://test.com/page'
+        };
+
+        (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
+
+        const response = await request(publicApp)
+            .post('/supportRequest/')
+            .send(requestData);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(sendSupportRequestEmail).toHaveBeenCalledWith({
+            message: 'No message provided',
+            userEmail: 'test@example.com',
+            interviewId: undefined,
+            currentUrl: 'http://test.com/page'
+        });
+    });
+
+    test('should handle errors in support request processing', async () => {
+        (sendSupportRequestEmail as jest.Mock).mockRejectedValue(new Error('Email sending failed'));
+
+        const requestData = {
+            email: 'test@example.com',
+            message: 'Help me please'
+        };
+
+        const response = await request(publicApp)
+            .post('/supportRequest/')
+            .send(requestData);
+
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ status: 'failed' });
+    });
+
+    test('should not register route when supportForm is disabled', async () => {
+        // Override the project config mock to disable support form
+        jest.resetModules();
+        jest.mock('evolution-common/lib/config/project.config', () => ({
+            surveySupportForm: false
+        }));
+        
+        // Re-import to get updated config, otherwise it still uses the previous config mock and the result is a 500 error
+        const { getPublicParticipantRoutes: getUpdatedRoutes } = require('../survey.participant.routes');
+        
+        const disabledApp = express();
+        disabledApp.use(express.json());
+        disabledApp.use(getUpdatedRoutes());
+
+        const response = await request(disabledApp)
+            .post('/supportRequest/')
+            .send({ message: 'test' });
+
+        // When route doesn't exist, Express returns 404 Not Found
+        expect(response.status).toBe(404);
     });
 });

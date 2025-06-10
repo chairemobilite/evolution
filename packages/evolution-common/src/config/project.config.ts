@@ -43,6 +43,18 @@ export type EvolutionProjectConfiguration = {
      * area. Defaults to 16
      * */
     drivingLicenseAge: number;
+    /**
+     * Whether to show the support form on all pages of the participant app. If
+     * set to `true`, a button will be displayed in the bottom right corner of
+     * the page, which opens a form to send a support request.  Defaults to
+     * `false`, which means the support form will not be shown.
+     *
+     * If set to `true`, the SUPPORT_REQUEST_EMAILS environment variable should
+     * be set to the emails to which to send the support request emails. This
+     * has the format "lang:comma-separated emails;[lang2:comma-separated
+     * emails]" where `lang` specifies the language in which to send the emails.
+     */
+    surveySupportForm: boolean;
     mapDefaultCenter: {
         lat: number;
         lon: number;
@@ -93,6 +105,7 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             selfResponseMinimumAge: 14,
             interviewableAge: 5,
             drivingLicenseAge: 16,
+            surveySupportForm: false,
             mapDefaultCenter: {
                 lat: 45.5,
                 lon: -73.6
