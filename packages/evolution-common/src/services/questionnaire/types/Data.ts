@@ -304,6 +304,10 @@ export type UserAction =
     | {
           type: 'buttonClick';
           buttonId: string;
+          /**
+           * Widgets that were hidden in the section when the button was clicked
+           */
+          hiddenWidgets?: string[];
       }
     | {
           type: 'widgetInteraction';
@@ -315,6 +319,10 @@ export type UserAction =
           type: 'sectionChange';
           targetSection: NavigationSection;
           previousSection?: NavigationSection;
+          /**
+           * Widgets that were hidden in the previous section before navigating away
+           */
+          hiddenWidgets?: string[];
       };
 
 /**

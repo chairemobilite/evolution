@@ -42,6 +42,7 @@ import {
     StartRemoveGroupedObjects,
     StartUpdateInterview,
     SurveySections,
+    UserAction,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyAction, SurveyActionTypes } from '../store/survey';
@@ -105,6 +106,41 @@ export const validateAndPrepareSection = (
     }
 
     return [interview, currentValuesByPath];
+};
+
+// Get the widget paths that are not visible in the interview.
+const getHiddenWidgets = (interview: UserRuntimeInterviewAttributes): string[] | undefined => {
+    const hiddenWidgets: string[] = [];
+    // For each widget status, if the widget is not visible add to an array of hidden widgets
+    const widgets = interview.widgets || {};
+    for (const widget of Object.values(widgets)) {
+        if (!widget.isVisible) {
+            hiddenWidgets.push(widget.path);
+        }
+    }
+    const groups = interview.groups || {};
+    for (const groupName in groups) {
+        const group = groups[groupName];
+        for (const objectId in group) {
+            const objectWidgets = group[objectId];
+            for (const widget of Object.values(objectWidgets)) {
+                if (!widget.isVisible) {
+                    hiddenWidgets.push(widget.path);
+                }
+            }
+        }
+    }
+    return hiddenWidgets.length === 0 ? undefined : hiddenWidgets;
+};
+
+const enhanceUserActionOnUpdate = (interview: UserRuntimeInterviewAttributes, userAction: UserAction | undefined) => {
+    if (userAction && userAction.type === 'buttonClick') {
+        // Save the hidden widgets when a button is clicked, not on section
+        // change as this function is run with the next section, but the hidden
+        // widgets should be for the previous one. The navigate action will set
+        // the hidden widgets for the previous section.
+        userAction.hiddenWidgets = getHiddenWidgets(interview);
+    }
 };
 
 /**
@@ -230,6 +266,9 @@ const updateInterviewCallback = async (
             }
             return null;
         }
+
+        // The interview has been validated and prepared, see if we need to add anything to the user action
+        enhanceUserActionOnUpdate(updatedInterview, userAction);
 
         // Send update response to the server
         const response = await fetch('/api/survey/updateInterview', {
@@ -489,11 +528,11 @@ export const startNavigateWithUpdateCallback =
                     );
                     return [updatedInterview.allWidgetsValid, updatedInterview, updatedValuesByPath];
                 };
-                const [shouldNavigate, updatedInterview, validationValuesByPath] = validateCurrentSection();
+                const [shouldNavigate, prevSectionInterview, validationValuesByPath] = validateCurrentSection();
 
                 // If the current section is not valid, do not navigate and update interview
                 if (!shouldNavigate) {
-                    dispatch(updateInterviewState(updatedInterview, {}, true));
+                    dispatch(updateInterviewState(prevSectionInterview, {}, true));
                     return;
                 }
 
@@ -534,7 +573,8 @@ export const startNavigateWithUpdateCallback =
                             // direct navigation, ie without a requested
                             // section, otherwise it does not follow the survey
                             // flow
-                            previousSection: requestedSection === undefined ? navigation?.currentSection : undefined
+                            previousSection: requestedSection === undefined ? navigation?.currentSection : undefined,
+                            hiddenWidgets: getHiddenWidgets(prevSectionInterview)
                         }
                     })
                 );

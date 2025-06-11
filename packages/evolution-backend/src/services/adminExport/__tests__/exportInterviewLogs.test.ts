@@ -448,9 +448,10 @@ describe('exportInterviewLogTask', () => {
     });
 
     test('Test with an event of type button_click with user action', async () => {
-        // Just add one log statement to test the widget_interaction event:
+        // Add one log statement, with/without hidden paths to test the button_click event:
         const userAction = { type: 'buttonClick', buttonId: 'response.someField' };
-        const log = {
+        const userActionWithHidden = { type: 'buttonClick', buttonId: 'response.otherField', hiddenWidgets: [ 'hiddenWidget1', 'hiddenWidget2' ] };
+        const buttonLogs: { [key: string]: any }[] = [{
             ...commonInterviewData,
             event_type: 'button_click',
             timestamp_sec: 1,
@@ -458,9 +459,16 @@ describe('exportInterviewLogTask', () => {
             values_by_path: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true, 'response.household.size': 3, 'response._activeTripId': null },
             unset_paths: [ 'response.home.someField', 'validations.home.someField' ],
             user_action: userAction
-        };
+        }, {
+            ...commonInterviewData,
+            event_type: 'button_click',
+            timestamp_sec: 2,
+            event_date: new Date(2 * 1000),
+            values_by_path: { },
+            user_action: userActionWithHidden
+        }];
         // Add the logs to the stream
-        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock([log]) as any);
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(buttonLogs) as any);
 
         const fileName = await exportInterviewLogTask({});
 
@@ -472,36 +480,51 @@ describe('exportInterviewLogTask', () => {
         expect(csvFileName).toBeDefined();
 
         const csvStream = fileStreams[csvFileName as string];
-        // There should one data per log, one log has no response, so it should be skipped
-        expect(csvStream.data.length).toEqual(1);
+        // There should be one row per log
+        expect(csvStream.data.length).toEqual(buttonLogs.length);
 
         // Get the actual rows in the file data
         const logRows = await getCsvFileRows(csvStream.data);
-        // There should be only one log
-        expect(logRows.length).toEqual(1);
+        // There should be one row per log
+        expect(logRows.length).toEqual(buttonLogs.length);
 
         // Test the row values
-        const currentLog = logRows[0];
-
-        expect(currentLog).toEqual(expect.objectContaining({
+        const modifiedKeysLog1 = Object.entries(buttonLogs[0].values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
+        const initializedKeysLog1 = Object.entries(buttonLogs[0].values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
+        expect(logRows[0]).toEqual({
             ...commonInterviewDataInRows,
-            event_type: 'button_click'
-        }));
-        const modifiedKeys = Object.entries(log.values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
-        const initializedKeys = Object.entries(log.values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
-        expect(currentLog.timestampMs).toEqual(String((1) * 1000));
-        expect(currentLog.event_date).toEqual(new Date((1) * 1000).toISOString());
-        expect(currentLog.modifiedFields).toEqual(modifiedKeys);
-        expect(currentLog.initializedFields).toEqual(initializedKeys);
-        expect(currentLog.unsetFields).toEqual(log.unset_paths !== undefined ? log.unset_paths.join('|') : '');
-        expect(currentLog.widgetType).toEqual('');
-        expect(currentLog.widgetPath).toEqual(userAction.buttonId);
+            event_type: 'button_click',
+            timestampMs : String((1) * 1000),
+            event_date: new Date((1) * 1000).toISOString(),
+            modifiedFields: modifiedKeysLog1,
+            initializedFields: initializedKeysLog1,
+            unsetFields: buttonLogs[0].unset_paths !== undefined ? buttonLogs[0].unset_paths.join('|') : '',
+            widgetType: '',
+            widgetPath: userAction.buttonId,
+            hiddenWidgets: '',
+        });
+
+        const modifiedKeys = Object.entries(buttonLogs[1].values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
+        const initializedKeys = Object.entries(buttonLogs[1].values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
+        expect(logRows[1]).toEqual({
+            ...commonInterviewDataInRows,
+            event_type: 'button_click',
+            timestampMs : String((2) * 1000),
+            event_date: new Date((2) * 1000).toISOString(),
+            modifiedFields: modifiedKeys,
+            initializedFields: initializedKeys,
+            unsetFields: buttonLogs[1].unset_paths !== undefined ? buttonLogs[1].unset_paths.join('|') : '',
+            widgetType: '',
+            widgetPath: userActionWithHidden.buttonId,
+            hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|'),
+        });
     });
 
     test('Test with an event of type section_change with user action', async () => {
         // Just add one log statement to test the widget_interaction event:
         const userAction = { type: 'sectionChange', targetSection: { sectionShortname: 'someSection' } };
-        const log = {
+        const userActionWithHidden = { type: 'sectionChange', targetSection: { sectionShortname: 'someSection', iterationContext: ['person', 'personId'] }, previousSection: { sectionShortname: 'prevSection' }, hiddenWidgets: [ 'hiddenWidget1', 'hiddenWidget2' ] };
+        const sectionChangeLogs: { [key: string]: any }[] = [{
             ...commonInterviewData,
             event_type: 'section_change',
             timestamp_sec: 1,
@@ -509,9 +532,16 @@ describe('exportInterviewLogTask', () => {
             values_by_path: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true, 'response.household.size': 3, 'response._activeTripId': null },
             unset_paths: [ 'response.home.someField', 'validations.home.someField' ],
             user_action: userAction
-        };
+        }, {
+            ...commonInterviewData,
+            event_type: 'section_change',
+            timestamp_sec: 2,
+            event_date: new Date(2 * 1000),
+            values_by_path: { },
+            user_action: userActionWithHidden
+        }];
         // Add the logs to the stream
-        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock([log]) as any);
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(sectionChangeLogs) as any);
 
         const fileName = await exportInterviewLogTask({});
 
@@ -523,30 +553,45 @@ describe('exportInterviewLogTask', () => {
         expect(csvFileName).toBeDefined();
 
         const csvStream = fileStreams[csvFileName as string];
-        // There should one data per log, one log has no response, so it should be skipped
-        expect(csvStream.data.length).toEqual(1);
+        // There should be one row per log
+        expect(csvStream.data.length).toEqual(sectionChangeLogs.length);
 
         // Get the actual rows in the file data
         const logRows = await getCsvFileRows(csvStream.data);
-        // There should be only one log
-        expect(logRows.length).toEqual(1);
+        // There should be one row per log
+        expect(logRows.length).toEqual(sectionChangeLogs.length);
 
         // Test the row values
-        const currentLog = logRows[0];
-
-        expect(currentLog).toEqual(expect.objectContaining({
+        const modifiedKeys = Object.entries(sectionChangeLogs[0].values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
+        const initializedKeys = Object.entries(sectionChangeLogs[0].values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
+        expect(logRows[0]).toEqual({
             ...commonInterviewDataInRows,
-            event_type: 'section_change'
-        }));
-        const modifiedKeys = Object.entries(log.values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
-        const initializedKeys = Object.entries(log.values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
-        expect(currentLog.timestampMs).toEqual(String((1) * 1000));
-        expect(currentLog.event_date).toEqual(new Date((1) * 1000).toISOString());
-        expect(currentLog.modifiedFields).toEqual(modifiedKeys);
-        expect(currentLog.initializedFields).toEqual(initializedKeys);
-        expect(currentLog.unsetFields).toEqual(log.unset_paths !== undefined ? log.unset_paths.join('|') : '');
-        expect(currentLog.widgetType).toEqual('');
-        expect(currentLog.widgetPath).toEqual(userAction.targetSection.sectionShortname);
+            event_type: 'section_change',
+            timestampMs : String((1) * 1000),
+            event_date: new Date((1) * 1000).toISOString(),
+            modifiedFields: modifiedKeys,
+            initializedFields: initializedKeys,
+            unsetFields: sectionChangeLogs[0].unset_paths !== undefined ? sectionChangeLogs[0].unset_paths.join('|') : '',
+            widgetType: '',
+            widgetPath: userAction.targetSection.sectionShortname,
+            hiddenWidgets: '',
+        });
+
+        const modifiedKeys2 = Object.entries(sectionChangeLogs[1].values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
+        const initializedKeys2 = Object.entries(sectionChangeLogs[1].values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
+        expect(logRows[1]).toEqual({
+            ...commonInterviewDataInRows,
+            event_type: 'section_change',
+            timestampMs : String((2) * 1000),
+            event_date: new Date((2) * 1000).toISOString(),
+            modifiedFields: modifiedKeys2,
+            initializedFields: initializedKeys2,
+            unsetFields: sectionChangeLogs[1].unset_paths !== undefined ? sectionChangeLogs[1].unset_paths.join('|') : '',
+            widgetType: '',
+            widgetPath: userAction.targetSection.sectionShortname + '/' + (userActionWithHidden.targetSection.iterationContext || []).join('/'),
+            hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|'),
+        });
+        
     });
 
 });

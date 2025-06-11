@@ -292,6 +292,82 @@ describe('Update interview', () => {
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
     });
 
+    test('Call with an interview, with "buttonClick" action and invisible widgets', async () => {
+        // Prepare mock and test data
+        const updateCallback = jest.fn();
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
+        const valuesByPath = { 'response.section1.q1': 'foo' };
+        const buttonClickUserAction = {
+            type: 'buttonClick' as const,
+            buttonId: 'test'
+        };
+        const unsetPaths = ['response.section2.q1'];
+        const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
+        (expectedInterviewToPrepare.response as any).section1.q1 = 'foo';
+        delete (expectedInterviewToPrepare.response as any).section2.q1;
+
+        // Mock the prepareSectionWidgets to return some invisible widgets
+        const nextWidgetStatuses = {
+            visibleWidget: { path: 'visibleWidgetPath', isVisible: true },
+            invisibleWidget: { path: 'invisibleWidgetPath', isVisible: false }
+        } as any;
+        const nextGroupStatuses = {
+            testGroup: {
+                groupIdWithOnlyVisible: {
+                    visibleWidget1: { path: 'group.groupIdWithOnlyVisible.visibleWidget1', isVisible: true },
+                    visibleWidget2: { path: 'group.groupIdWithOnlyVisible.visibleWidget2', isVisible: true }
+                },
+                groupIdWithSomeInvisible: {
+                    visibleWidget: { path: 'group.groupIdWithSomeInvisible.visibleWidget', isVisible: true },
+                    invisibleWidget: { path: 'group.groupIdWithSomeInvisible.invisibleWidget', isVisible: false }
+                }
+            }
+        } as any;
+        const validatedInterview = _cloneDeep(expectedInterviewToPrepare);
+        validatedInterview.widgets = nextWidgetStatuses;
+        validatedInterview.groups = nextGroupStatuses;
+        mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => {
+            return { updatedInterview: validatedInterview, updatedValuesByPath: { ... valuesByPath, 'validations.section1.q2': true }, needUpdate: false };
+        });
+        const expectedInterviewAsState = _cloneDeep(validatedInterview);
+        expectedInterviewAsState.sectionLoaded = 'section';
+
+        // Do the actual test
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), unsetPaths, interview: _cloneDeep(interviewAttributes), userAction: buttonClickUserAction }, updateCallback);
+        await callback(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true, 'response.section2.q1': true }, { ...valuesByPath }, false, testUser);
+        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
+        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({
+                id: interviewAttributes.id,
+                interviewId: interviewAttributes.uuid,
+                participant_id: interviewAttributes.participant_id,
+                valuesByPath: { ...valuesByPath, 'validations.section1.q2': true, sectionLoaded: 'section' },
+                unsetPaths: ['response.section2.q1'],
+                userAction: { ...buttonClickUserAction, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ] }
+            })
+        }));
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: 'INCREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, {
+            type: 'UPDATE_INTERVIEW',
+            interviewLoaded: true,
+            interview: expectedInterviewAsState,
+            errors: {},
+            submitted: false
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: 'DECREMENT_LOADING_STATE'
+        });
+        expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
+    });
+
     test('Test with previous and new server errors', async () => {
         // Prepare mock and test data
         const previousServerErrors = { 'section1.q1': { en: 'previous server error' }, 'section2.q1': { en: 'error that should not change' } };
@@ -807,6 +883,70 @@ describe('startNavigate', () => {
             errors: {},
             submitted: true
         });
+    });
+
+    test('Should add hidden widgets if previous section had invisible widgets', async () => {
+        // Prepare mock and test data
+        const targetSection = { sectionShortname: 'nextSection' };
+        
+        mockNavigate.mockReturnValueOnce({ targetSection });
+        // Mock the prepareSectionWidgets to return some invisible widgets
+        const nextWidgetStatuses = {
+            visibleWidget: { path: 'visibleWidgetPath', isVisible: true },
+            invisibleWidget: { path: 'invisibleWidgetPath', isVisible: false }
+        } as any;
+        const nextGroupStatuses = {
+            testGroup: {
+                groupIdWithOnlyVisible: {
+                    visibleWidget1: { path: 'group.groupIdWithOnlyVisible.visibleWidget1', isVisible: true },
+                    visibleWidget2: { path: 'group.groupIdWithOnlyVisible.visibleWidget2', isVisible: true }
+                },
+                groupIdWithSomeInvisible: {
+                    visibleWidget: { path: 'group.groupIdWithSomeInvisible.visibleWidget', isVisible: true },
+                    invisibleWidget: { path: 'group.groupIdWithSomeInvisible.invisibleWidget', isVisible: false }
+                }
+            }
+        } as any;
+        const validatedInterview = _cloneDeep(interviewAttributes);
+        validatedInterview.widgets = nextWidgetStatuses;
+        validatedInterview.groups = nextGroupStatuses;
+        validateAndPrepareSectionSpy.mockImplementationOnce((_sectionShortname, _interview, _a, valuesByPath, _U, _user) => {
+            return [ validatedInterview, valuesByPath ];
+        });
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate();
+        await callback(mockDispatch, mockGetState);
+
+        // Verify validation function call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledTimes(1);
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledWith(currentSection.sectionShortname, interviewAttributes, { _all: true }, { _all: true }, false, testUser);
+
+        // Verify call to navigation service
+        const expectedNavInterview = _cloneDeep(interviewAttributes);
+        expect(mockInitNavigationState).not.toHaveBeenCalled();
+        expect(mockNavigate).toHaveBeenCalledTimes(1);
+        expect(mockNavigate).toHaveBeenCalledWith({ interview: expectedNavInterview, currentSection });
+
+        // Verify dispatch calls
+        expect(mockDispatch).toHaveBeenCalledTimes(4);
+        validateIncrementLoadingStateCalls(mockDispatch);
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: targetSection.sectionShortname,
+            userAction: { type: 'sectionChange', targetSection, previousSection: currentSection, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ] }
+        });
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: SurveyActionTypes.NAVIGATE,
+            targetSection
+        });
+
     });
 
     test('should properly handle exceptions', async () => {
