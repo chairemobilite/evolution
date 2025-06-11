@@ -46,20 +46,24 @@ const filterLogData = (
     };
 };
 
-const userActionToWidgetData = (userAction: UserAction | undefined): { widgetType: string; widgetPath: string } => {
+const userActionToWidgetData = (
+    userAction: UserAction | undefined
+): { widgetType: string; widgetPath: string; hiddenWidgets: string } => {
     if (userAction === undefined || _isBlank(userAction)) {
-        return { widgetType: '', widgetPath: '' };
+        return { widgetType: '', widgetPath: '', hiddenWidgets: '' };
     }
     switch (userAction.type) {
     case 'buttonClick':
         return {
             widgetType: '',
-            widgetPath: userAction.buttonId
+            widgetPath: userAction.buttonId,
+            hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : ''
         };
     case 'widgetInteraction':
         return {
             widgetType: userAction.widgetType,
-            widgetPath: userAction.path
+            widgetPath: userAction.path,
+            hiddenWidgets: ''
         };
     case 'sectionChange':
         return {
@@ -67,12 +71,14 @@ const userActionToWidgetData = (userAction: UserAction | undefined): { widgetTyp
             widgetPath: [
                 userAction.targetSection.sectionShortname,
                 ...(userAction.targetSection.iterationContext || [])
-            ].join('/')
+            ].join('/'),
+            hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : ''
         };
     default:
         return {
             widgetType: '',
-            widgetPath: ''
+            widgetPath: '',
+            hiddenWidgets: ''
         };
     }
 };
@@ -178,7 +184,7 @@ export const exportInterviewLogTask = async function ({
                     { values_by_path, unset_paths },
                     participantResponseOnly
                 );
-                if (_isBlank(filteredValuesByPath) && _isBlank(filteredUnsetPaths)) {
+                if (_isBlank(filteredValuesByPath) && _isBlank(filteredUnsetPaths) && _isBlank(logData.user_action)) {
                     // no data to export for this log
                     return;
                 }
