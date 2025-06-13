@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { withTranslation, WithTranslation } from 'react-i18next';
 import React from 'react';
 import _get from 'lodash/get';
 
@@ -14,11 +13,11 @@ import InfoMap from '../survey/InfoMap';
 import Button from '../survey/Button';
 import Question from '../survey/Question';
 import { Group } from '../survey/GroupWidgets';
-import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { UserRuntimeInterviewAttributes, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
+import { SurveyContext } from '../../contexts/SurveyContext';
 
 export type WidgetProps = {
     currentWidgetShortname: string;
@@ -50,10 +49,12 @@ type SingleWidgetProps = WidgetProps & {
 // BaseWidget is a wrapper around the SingleWidget component that is responsible
 // for setting the default values of some fields when the widget is not part of
 // a group
-const BaseWidget: React.FC<WidgetProps & WithTranslation & InterviewUpdateCallbacks & WithSurveyContextProps> = (
-    props: WidgetProps & WithTranslation & InterviewUpdateCallbacks & WithSurveyContextProps
+export const Widget: React.FC<WidgetProps & InterviewUpdateCallbacks> = (
+    props: WidgetProps & InterviewUpdateCallbacks
 ) => {
-    const widgetConfig = props.surveyContext.widgets[props.currentWidgetShortname] as WidgetConfig;
+    const surveyContext = React.useContext(SurveyContext);
+
+    const widgetConfig = surveyContext.widgets[props.currentWidgetShortname] as WidgetConfig;
     const widgetStatus = _get(props.interview, `widgets.${props.currentWidgetShortname}`, {}) as WidgetStatus;
     return (
         <SingleWidget
@@ -70,10 +71,12 @@ const BaseWidget: React.FC<WidgetProps & WithTranslation & InterviewUpdateCallba
 // BaseInGroupWidget is a wrapper around the SingleWidget component that is
 // responsible for setting the default values of some fields when the widget is
 // part of a group
-const BaseInGroupWidget: React.FC<
-    InGroupWidgetProps & WithTranslation & InterviewUpdateCallbacks & WithSurveyContextProps
-> = (props: InGroupWidgetProps & WithTranslation & InterviewUpdateCallbacks & WithSurveyContextProps) => {
-    const widgetConfig = props.surveyContext.widgets[props.currentWidgetShortname] as WidgetConfig;
+export const InGroupWidget: React.FC<InGroupWidgetProps & InterviewUpdateCallbacks> = (
+    props: InGroupWidgetProps & InterviewUpdateCallbacks
+) => {
+    const surveyContext = React.useContext(SurveyContext);
+
+    const widgetConfig = surveyContext.widgets[props.currentWidgetShortname] as WidgetConfig;
     const widgetStatus = _get(
         props.interview,
         `${props.widgetStatusPath}.${props.currentWidgetShortname}`,
@@ -100,15 +103,17 @@ const BaseInGroupWidget: React.FC<
 /**
  * This is a single widget with all necessary properties to render it.
  */
-const BaseSingleWidget: React.FC<
-    SingleWidgetProps & WithTranslation & InterviewUpdateCallbacks & WithSurveyContextProps
-> = (props: SingleWidgetProps & WithTranslation & InterviewUpdateCallbacks & WithSurveyContextProps) => {
+const SingleWidget: React.FC<SingleWidgetProps & InterviewUpdateCallbacks> = (
+    props: SingleWidgetProps & InterviewUpdateCallbacks
+) => {
+    const surveyContext = React.useContext(SurveyContext);
+
     const widgetShortname = props.currentWidgetShortname;
     surveyHelper.devLog('%c rendering widget ' + widgetShortname, 'background: rgba(0,255,0,0.1);');
-    const widgetConfig = props.surveyContext.widgets[widgetShortname] as WidgetConfig;
+    const widgetConfig = surveyContext.widgets[widgetShortname] as WidgetConfig;
     if (widgetConfig === undefined) {
         console.error(`Widget is undefined: ${widgetShortname}`);
-        if (props.surveyContext.devMode) {
+        if (surveyContext.devMode) {
             return (
                 <div className="apptr__form-container two-columns question-invalid">{`Widget is undefined: ${widgetShortname}`}</div>
             );
@@ -160,7 +165,7 @@ const BaseSingleWidget: React.FC<
     case 'question': {
         // check for joined widgets:
         const nextWidgetConfig = props.nextWidgetShortname
-            ? props.surveyContext.widgets[props.nextWidgetShortname]
+            ? surveyContext.widgets[props.nextWidgetShortname]
             : undefined;
         const nextWidgetStatus = nextWidgetConfig
             ? (_get(props.interview, `widgets.${props.nextWidgetShortname}`, {}) as any)
@@ -183,9 +188,3 @@ const BaseSingleWidget: React.FC<
         );
     }
 };
-
-export const Widget = withTranslation()(withSurveyContext(BaseWidget));
-
-export const InGroupWidget = withTranslation()(withSurveyContext(BaseInGroupWidget));
-
-const SingleWidget = withTranslation()(withSurveyContext(BaseSingleWidget));
