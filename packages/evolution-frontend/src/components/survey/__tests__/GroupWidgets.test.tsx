@@ -14,6 +14,7 @@ import { Group, GroupedObject } from '../GroupWidgets';
 import each from 'jest-each';
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { SurveyContext } from '../../../contexts/SurveyContext';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
@@ -59,7 +60,8 @@ const nestedGroupWidget = {
         name: jest.fn().mockImplementation((_t, _obj, seq) => `Nested object at index ${seq}`),
     }
 }
-const surveyContext = { widgets: { ...widgets, ...nestedGroupWidget } };
+const mockedContext = { sections: {}, widgets: { ...widgets, ...nestedGroupWidget }, devMode: false, dispatch: jest.fn()};
+
 const path = 'myGroups';
 const commonWidgetConfig = {
     type: 'group' as const,
@@ -67,10 +69,12 @@ const commonWidgetConfig = {
     widgets: Object.keys(widgets)
 };
 
-// Mock the HOC
-jest.mock('../../hoc/WithSurveyContextHoc', () => ({
-    withSurveyContext: (Component: React.ComponentType) => (props: any) => <Component {...props} surveyContext={surveyContext} />
-}));
+// Create a wrapper component to provide context
+const TestContextProvider = ({ children }: { children: React.ReactNode }) => (
+    <SurveyContext.Provider value={mockedContext}>
+        {children}
+    </SurveyContext.Provider>
+);
 
 // Mock data and functions
 const userAttributes = {
@@ -86,6 +90,7 @@ const userAttributes = {
 const startUpdateInterviewMock = jest.fn();
 const startAddGroupedObjectsMock = jest.fn();
 const startRemoveGroupedObjectsMock = jest.fn();
+const startNavigateMock = jest.fn();
 
 // Add some grouped object data in the interview
 const interview = _cloneDeep(interviewAttributes) as UserRuntimeInterviewAttributes;
@@ -190,38 +195,44 @@ describe('Group', () => {
         test('Render widget', () => {
     
             const { container } = render(
-                <Group
-                    path={'myGroups'}
-                    widgetConfig={widgetConfig}
-                    interview={interview}
-                    user={userAttributes}
-                    shortname={'myGroup'}
-                    section={''}
-                    startUpdateInterview={startUpdateInterviewMock}
-                    startAddGroupedObjects={startAddGroupedObjectsMock}
-                    startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-                    loadingState={0}
-                    parentObjectIds={{}}
-                />
+                <TestContextProvider>
+                    <Group
+                        path={'myGroups'}
+                        widgetConfig={widgetConfig}
+                        interview={interview}
+                        user={userAttributes}
+                        shortname={'myGroup'}
+                        section={''}
+                        startUpdateInterview={startUpdateInterviewMock}
+                        startAddGroupedObjects={startAddGroupedObjectsMock}
+                        startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                        startNavigate={startNavigateMock}
+                        loadingState={0}
+                        parentObjectIds={{}}
+                    />
+                </TestContextProvider>
             );
             expect(container).toMatchSnapshot();
         });
     
         test('Widget accessibility', async () => {
             const { container } = render(
-                <Group
-                    path={'myGroups'}
-                    widgetConfig={widgetConfig}
-                    interview={interview}
-                    user={userAttributes}
-                    shortname={'myGroup'}
-                    section={''}
-                    startUpdateInterview={startUpdateInterviewMock}
-                    startAddGroupedObjects={startAddGroupedObjectsMock}
-                    startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-                    loadingState={0}
-                    parentObjectIds={{}}
-                />
+                <TestContextProvider>
+                    <Group
+                        path={'myGroups'}
+                        widgetConfig={widgetConfig}
+                        interview={interview}
+                        user={userAttributes}
+                        shortname={'myGroup'}
+                        section={''}
+                        startUpdateInterview={startUpdateInterviewMock}
+                        startAddGroupedObjects={startAddGroupedObjectsMock}
+                        startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                        startNavigate={startNavigateMock}
+                        loadingState={0}
+                        parentObjectIds={{}}
+                    />
+                </TestContextProvider>
             );
             const results = await axe(container);
             expect(results).toHaveNoViolations();
@@ -294,19 +305,22 @@ describe('Group', () => {
         };
 
         const { container } = render(
-            <Group
-                path={'myGroups'}
-                widgetConfig={widgetConfig}
-                interview={interviewWithNested}
-                user={userAttributes}
-                shortname={'myGroup'}
-                section={''}
-                startUpdateInterview={startUpdateInterviewMock}
-                startAddGroupedObjects={startAddGroupedObjectsMock}
-                startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-                loadingState={0}
-                parentObjectIds={{}}
-            />
+            <TestContextProvider>
+                <Group
+                    path={'myGroups'}
+                    widgetConfig={widgetConfig}
+                    interview={interviewWithNested}
+                    user={userAttributes}
+                    shortname={'myGroup'}
+                    section={''}
+                    startUpdateInterview={startUpdateInterviewMock}
+                    startAddGroupedObjects={startAddGroupedObjectsMock}
+                    startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                    startNavigate={startNavigateMock}
+                    loadingState={0}
+                    parentObjectIds={{}}
+                />
+            </TestContextProvider>
         );
         expect(container).toMatchSnapshot();
     })
@@ -354,42 +368,48 @@ describe('Grouped Object', () => {
         test('Render widget', () => {
     
             const { container } = render(
-                <GroupedObject
-                    path={groupedObjectPath}
-                    widgetConfig={widgetConfig}
-                    interview={interview}
-                    user={userAttributes}
-                    shortname={'myGroup'}
-                    section={''}
-                    startUpdateInterview={startUpdateInterviewMock}
-                    startAddGroupedObjects={startAddGroupedObjectsMock}
-                    startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-                    loadingState={0}
-                    parentObjectIds={{}}
-                    objectId={groupedObjectIds[0]}
-                    sequence={0}
-                />
+                <TestContextProvider>
+                    <GroupedObject
+                        path={groupedObjectPath}
+                        widgetConfig={widgetConfig}
+                        interview={interview}
+                        user={userAttributes}
+                        shortname={'myGroup'}
+                        section={''}
+                        startUpdateInterview={startUpdateInterviewMock}
+                        startAddGroupedObjects={startAddGroupedObjectsMock}
+                        startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                        startNavigate={startNavigateMock}
+                        loadingState={0}
+                        parentObjectIds={{}}
+                        objectId={groupedObjectIds[0]}
+                        sequence={0}
+                    />
+                </TestContextProvider>
             );
             expect(container).toMatchSnapshot();
         });
     
         test('Widget accessibility', async () => {
             const { container } = render(
-                <GroupedObject
-                    path={groupedObjectPath}
-                    widgetConfig={widgetConfig}
-                    interview={interview}
-                    user={userAttributes}
-                    shortname={'myGroup'}
-                    section={''}
-                    startUpdateInterview={startUpdateInterviewMock}
-                    startAddGroupedObjects={startAddGroupedObjectsMock}
-                    startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-                    loadingState={0}
-                    parentObjectIds={{}}
-                    objectId={groupedObjectIds[0]}
-                    sequence={0}
-                />
+                <TestContextProvider>
+                    <GroupedObject
+                        path={groupedObjectPath}
+                        widgetConfig={widgetConfig}
+                        interview={interview}
+                        user={userAttributes}
+                        shortname={'myGroup'}
+                        section={''}
+                        startUpdateInterview={startUpdateInterviewMock}
+                        startAddGroupedObjects={startAddGroupedObjectsMock}
+                        startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                        startNavigate={startNavigateMock}
+                        loadingState={0}
+                        parentObjectIds={{}}
+                        objectId={groupedObjectIds[0]}
+                        sequence={0}
+                    />
+                </TestContextProvider>
             );
             const results = await axe(container);
             expect(results).toHaveNoViolations();
