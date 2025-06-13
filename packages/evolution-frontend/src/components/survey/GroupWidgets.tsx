@@ -58,7 +58,7 @@ export const GroupedObject: React.FC<GroupedObjectProps> = (props) => {
             key={widgetShortname}
             currentWidgetShortname={widgetShortname}
             nextWidgetShortname={props.widgetConfig.widgets[idx + 1]}
-            sectionName={groupedObjectShortname}
+            sectionName={props.section}
             interview={props.interview}
             errors={props.errors}
             user={props.user}
