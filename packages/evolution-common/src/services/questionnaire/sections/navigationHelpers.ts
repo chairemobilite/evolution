@@ -9,20 +9,20 @@
 // updated when we update how navigation is stored.
 
 import { getResponse } from '../../../utils/helpers';
-import { InterviewResponse, UserRuntimeInterviewAttributes } from '../types';
+import { InterviewResponse, UserInterviewAttributes } from '../types';
 import { NavigationSection } from '../types/NavigationTypes';
 
 /**
  * Get the last visited section from the interview object
  *
  * @param {Object} options - The options object
- * @param {UserRuntimeInterviewAttributes} options.interview The interview object
+ * @param {UserInterviewAttributes} options.interview The interview object
  * @returns The last visited section
  */
 export const getLastVisitedSection = ({
     interview
 }: {
-    interview: UserRuntimeInterviewAttributes;
+    interview: UserInterviewAttributes;
 }): NavigationSection | undefined => {
     const sectionActions = getResponse(interview, '_sections._actions', []) as Array<
         InterviewResponse['_sections.actions']
@@ -39,7 +39,7 @@ export const getLastVisitedSection = ({
  * Get whether a section is marked as completed or not
  *
  * @param {Object} options - The options object
- * @param {UserRuntimeInterviewAttributes} options.interview The interview
+ * @param {UserInterviewAttributes} options.interview The interview
  * object
  * @param {string} options.section The name of the section to check
  * @param {string[]} [options.iterationContext] The specific iteration context
@@ -51,7 +51,7 @@ export const isSectionCompleted = ({
     sectionName,
     iterationContext
 }: {
-    interview: UserRuntimeInterviewAttributes;
+    interview: UserInterviewAttributes;
     sectionName: string;
     iterationContext?: string[];
 }): boolean => {
@@ -65,7 +65,7 @@ export const isSectionCompleted = ({
  * return true if any section for that iteration context has started.
  *
  * @param {Object} options - The options object
- * @param {UserRuntimeInterviewAttributes} options.interview The interview object
+ * @param {UserInterviewAttributes} options.interview The interview object
  * @param {string[]} options.iterationContext The iteration context to check
  * @returns Whether the iteration context has started
  */
@@ -73,7 +73,7 @@ export const isIterationContextStarted = ({
     interview,
     iterationContext
 }: {
-    interview: UserRuntimeInterviewAttributes;
+    interview: UserInterviewAttributes;
     iterationContext: string[];
 }): boolean => {
     if (iterationContext.length === 0) {
