@@ -186,4 +186,25 @@ describe('handleUserActionSideEffect', () => {
             ]
         });
     });
+
+    test('languageChange action', () => {
+        const interview = {
+            id: 'interview-1',
+            response: {}
+        } as any;
+
+        const valuesByPath = { 'response.someField': 'someValue' };
+
+        const userAction = {
+            type: 'languageChange' as const,
+            language: 'fr'
+        };
+
+        const result = handleUserActionSideEffect(interview, _cloneDeep(valuesByPath), userAction);
+
+        expect(result).toEqual({
+            ...valuesByPath,
+            'response._language': 'fr'
+        });
+    });
 });

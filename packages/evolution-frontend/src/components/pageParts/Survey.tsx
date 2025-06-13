@@ -71,6 +71,16 @@ const Survey: React.FC<SurveyProps> = (props: SurveyProps) => {
         }
     }, [i18n.language]);
 
+    React.useEffect(() => {
+        const languageChange = (language) => {
+            props.startUpdateInterview({ userAction: { type: 'languageChange', language } });
+        };
+        i18n.on('languageChanged', languageChange);
+        return () => {
+            i18n.off('languageChanged', languageChange);
+        };
+    }, [props.startUpdateInterview]);
+
     const onChangeSection = (
         targetSection: string,
         activeSection: string,

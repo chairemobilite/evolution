@@ -32,7 +32,6 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { prepareSectionWidgets } from './utils';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import i18n from '../config/i18n.config';
 import { handleClientError, handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import {
     GotoFunction,
@@ -219,13 +218,6 @@ const updateInterviewCallback = async (
                 'Update interview and section with values by path',
                 JSON.parse(JSON.stringify(valuesByPath))
             );
-        }
-
-        // update language if needed:
-        const oldLanguage = surveyHelper.getResponse(interview, '_language', null);
-        const actualLanguage = i18n.language;
-        if (oldLanguage !== actualLanguage) {
-            valuesByPath['response._language'] = actualLanguage;
         }
 
         const affectedPaths = updateInterviewData(interview, { valuesByPath, unsetPaths, userAction });
