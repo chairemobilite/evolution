@@ -52,7 +52,7 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
         ts_code += add_generator_comment()
 
         # Add imports
-        ts_code += f"import {{ isSectionComplete }} from 'evolution-common/lib/utils/helpers';\n"
+        ts_code += f"import {{ isSectionCompleted }} from 'evolution-common/lib/services/questionnaire/sections/navigationHelpers';\n"
         ts_code += f"import {{ SectionConfig }} from 'evolution-common/lib/services/questionnaire/types';\n"
         ts_code += f"import {{ widgetsNames }} from './widgetsNames';\n"
 
@@ -190,13 +190,13 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                     ts_section_code += (
                         f"{INDENT}enableConditional: function (interview) {{\n"
                     )
-                    ts_section_code += f"{INDENT}{INDENT}return isSectionComplete({{ interview, sectionName: previousSectionName }});\n"
+                    ts_section_code += f"{INDENT}{INDENT}return isSectionCompleted({{ interview, sectionName: previousSectionName }});\n"
                     ts_section_code += f"{INDENT}}},\n"
                 ts_section_code += f"{INDENT}// Allow to click on the section menu\n"
                 ts_section_code += (
                     f"{INDENT}completionConditional: function (interview) {{\n"
                 )
-                ts_section_code += f"{INDENT}{INDENT}return isSectionComplete({{ interview, sectionName: currentSectionName }});\n"
+                ts_section_code += f"{INDENT}{INDENT}return isSectionCompleted({{ interview, sectionName: currentSectionName }});\n"
                 ts_section_code += f"{INDENT}}}"
                 ts_section_code += f"\n}};\n\n"
                 ts_section_code += f"export default sectionConfig;\n"

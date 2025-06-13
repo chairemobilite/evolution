@@ -6,6 +6,7 @@
  */
 import _isEqual from 'lodash/isEqual';
 import _shuffle from 'lodash/shuffle';
+import _set from 'lodash/set';
 import { UserRuntimeInterviewAttributes } from '../types/Data';
 import { SurveySections, SectionConfigWithDefaultsBlock } from '../types/SectionConfig';
 import { NavigationSection, sectionToUrlPath, TargetSectionResult } from '../types/NavigationTypes';
@@ -504,6 +505,31 @@ export class NavigationService {
         }
     }
 
+    // Set the section as completed
+    private setSectionCompleted({
+        interview,
+        section
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        section: NavigationSection;
+    }): void {
+        // FIXME Not sure this is the place to set this, but since some enable
+        // conditional may depend on preceding section's completion status, we
+        // need to know that a section is completed. Using _set directly is not
+        // the best way, see if we should add a helper for this is we need to
+        // set completion of a section more generally. The backend also has
+        // similar code. Eventually, when implementing
+        // https://github.com/chairemobilite/evolution/issues/969, the section
+        // navigation history and completion won't be stored in the responses
+        // anymore and we'll have a better way to set it, so we can go for the
+        // easy fix for now.
+        _set(
+            interview,
+            `response._sections.${section.sectionShortname}${section.iterationContext ? '.' + section.iterationContext.join('/') : ''}._isCompleted`,
+            true
+        );
+    }
+
     private _navigate(
         interview: UserRuntimeInterviewAttributes,
         currentSection: NavigationSection,
@@ -564,6 +590,8 @@ export class NavigationService {
                 return {
                     targetSection: currentSection
                 };
+            } else {
+                this.setSectionCompleted({ interview, section: currentSection });
             }
         }
 
