@@ -388,6 +388,9 @@ export const prepareSectionWidgets = function (
     interview.visibleWidgets = [];
     interview.allWidgetsValid = true;
 
+    if (applicationConfiguration.sections[sectionShortname] === undefined) {
+        console.error('prepareSectionWidgets: Section not found:', sectionShortname);
+    }
     const sectionConfig = applicationConfiguration.sections[sectionShortname] || {};
     const sectionWidgets = sectionConfig.widgets;
 
