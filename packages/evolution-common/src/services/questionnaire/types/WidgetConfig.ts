@@ -241,6 +241,7 @@ type InputMapType = {
     geocodingQueryString?: ParsingFunction<string | { queryString: string; zoom: number }[] | undefined>;
     refreshGeocodingLabel?: I18nData;
     afterRefreshButtonText?: I18nData;
+    datatype?: 'geojson';
     icon?: IconData;
     containsHtml?: ContainsHtml;
     maxZoom?: number;

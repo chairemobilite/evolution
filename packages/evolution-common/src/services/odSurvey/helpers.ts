@@ -37,16 +37,34 @@ import { loopActivities } from './types';
  * @param {UserInterviewAttributes} options.interview - The interview object.
  * @param {string|null} [options.personId=null] - The ID of the person to
  * retrieve. If not specified, the currently active person will be returned.
+ * @param {string|null} [options.path=null] - Optional path string to extract the person ID from (typically from the householdMembers group).
  * @returns {Person | null} The person object with the specified ID or the active person, or `null` if not found.
  */
 export const getPerson = ({
     interview,
-    personId = null
+    personId = null,
+    path
 }: {
     interview: UserInterviewAttributes;
     personId?: string | null;
+    path?: string;
 }): Person | null => {
-    const requestedPersonId = personId || getResponse(interview, '_activePersonId', null);
+    let requestedPersonId: string | null | undefined = null;
+    // 1. Use personId if provided
+    if (personId) {
+        requestedPersonId = personId;
+        // 2. Otherwise, try to extract personId from path if it matches household.persons.{personId}.
+    } else if (path) {
+        const match = path.match(/household\.persons\.([^.]+)\./);
+        if (match) {
+            requestedPersonId = match[1];
+        }
+    }
+    // 3. Otherwise, use the active person id from the interview response
+    if (!requestedPersonId) {
+        requestedPersonId = interview.response._activePersonId ?? null;
+    }
+    // Return the person object if found, otherwise null
     if (requestedPersonId) {
         return getResponse(interview, `household.persons.${requestedPersonId}`, null) as Person;
     } else {
@@ -149,6 +167,29 @@ export const getInterviewablePersonsArray = ({ interview }: { interview: UserInt
 export const countPersons = ({ interview }: { interview: UserInterviewAttributes }): number => {
     const personIds = getResponse(interview, 'household.persons', {}) as { [personId: string]: Person };
     return Object.keys(personIds).length;
+};
+
+/**
+ * Counts the number of adults in the given interview.
+ * An adult is defined as a person who is `adultAge` years or older and has a defined age.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns {number} The count of adults within the interview (only persons with a defined age >= adultAge).
+ */
+export const countAdults = ({ interview }: { interview: UserInterviewAttributes }): number => {
+    const persons = getPersonsArray({ interview });
+    // Use config.adultAge if set, otherwise default to 18
+    const adultAge = typeof config?.adultAge === 'number' ? config.adultAge : 18;
+
+    // Count persons with age adultAge or more
+    let count: number = 0;
+    persons.forEach((person) => {
+        if (person?.age && person.age >= adultAge) {
+            count++;
+        }
+    });
+    return count;
 };
 
 /**
@@ -282,7 +323,7 @@ export const getJourneysArray = function ({ person }: { person: Person }): Journ
 
 /**
  * @typedef {Object.<string, Trip>} TripsObject
- * An object where the keys are trip IDs and the values are Trip objects.
+ * An object where the keys are trip ID's and the values are Trip objects.
  */
 
 /**

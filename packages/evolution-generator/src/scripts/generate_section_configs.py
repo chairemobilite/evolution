@@ -75,7 +75,9 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                 # Add the custom preload import if the section has a preload function
                 # FIXME Should the generator provide a default preload function? Currently there are none
                 if has_preload:
-                    ts_section_code += f"import {{ preload }} from './preload';\n"
+                    ts_section_code += (
+                        f"import {{ customPreload }} from './customPreload';\n"
+                    )
 
                 section_output_file = (
                     f"{section_config_output_folder}/{section}/sectionConfigs.ts"
@@ -182,7 +184,7 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                     f"{INDENT}// Do some actions before the section is loaded\n"
                 )
                 if has_preload:
-                    ts_section_code += f"{INDENT}preload: preload,\n"
+                    ts_section_code += f"{INDENT}preload: customPreload,\n"
                 ts_section_code += f"{INDENT}// Allow to click on the section menu\n"
                 if previousSection is None:
                     ts_section_code += f"{INDENT}enableConditional:true,\n"

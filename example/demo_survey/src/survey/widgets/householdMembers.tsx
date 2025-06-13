@@ -183,7 +183,7 @@ export const personGender = {
       internalId: 1,
       label: {
         fr: "Homme",
-        en: "Male"
+        en: "Man"
       }
     },
     {
