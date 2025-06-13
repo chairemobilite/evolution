@@ -98,6 +98,8 @@ export const handleUserActionSideEffect = (
         }
         sectionActions.push(sectionAction);
         valuesByPath['response._sections._actions'] = sectionActions;
+    } else if (userAction.type === 'languageChange') {
+        valuesByPath['response._language'] = userAction.language;
     }
     // widgetInteraction user actions do not have side effects on the response,
     // so we do not need to handle them here. The event is self contained and
