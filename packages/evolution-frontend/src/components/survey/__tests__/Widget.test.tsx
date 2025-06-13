@@ -12,6 +12,7 @@ import each from 'jest-each';
 import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
 import { Widget, InGroupWidget } from '../Widget';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
+import { SurveyContext } from '../../../contexts/SurveyContext';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
@@ -46,10 +47,14 @@ const commonWidgetConfig = {
         en: 'English text'
     }
 };
-const mockedContext = { sections: {}, widgets: { [testWidgetShortname]: {}, [testNextWidgetShortname]: commonWidgetConfig }, devMode: false, dispath: jest.fn()};
-jest.mock('../../hoc/WithSurveyContextHoc', () => ({
-    withSurveyContext: (Component) => (props) => <Component {...props} surveyContext={mockedContext}/> 
-}));
+const mockedContext = { sections: {}, widgets: { [testWidgetShortname]: {}, [testNextWidgetShortname]: commonWidgetConfig }, devMode: false, dispatch: jest.fn()};
+
+// Create a wrapper component to provide context
+const TestContextProvider = ({ children }) => (
+    <SurveyContext.Provider value={mockedContext}>
+        {children}
+    </SurveyContext.Provider>
+);
 
 const mockComponent = (props, name) => (
     <div>
@@ -162,18 +167,21 @@ each([
         // For groups, the additional parameters should be present but empty
 
         const { container } = render(
-            <Widget
-                currentWidgetShortname={testWidgetShortname}
-                nextWidgetShortname={testNextWidgetShortname}
-                sectionName='Test'
-                interview={frontendInterviewAttributes}
-                loadingState={0}
-                errors={{}}
-                user={userAttributes}
-                startUpdateInterview={jest.fn()}
-                startAddGroupedObjects={jest.fn()}
-                startRemoveGroupedObjects={jest.fn()}
-            />
+            <TestContextProvider>
+                <Widget
+                    currentWidgetShortname={testWidgetShortname}
+                    nextWidgetShortname={testNextWidgetShortname}
+                    sectionName='Test'
+                    interview={frontendInterviewAttributes}
+                    loadingState={0}
+                    errors={{}}
+                    user={userAttributes}
+                    startUpdateInterview={jest.fn()}
+                    startAddGroupedObjects={jest.fn()}
+                    startRemoveGroupedObjects={jest.fn()}
+                    startNavigate={jest.fn()}
+                />
+            </TestContextProvider>
         );
         expect(container).toMatchSnapshot();
     });
@@ -184,29 +192,26 @@ each([
         mockedContext.widgets[testWidgetShortname] = widgetConfig;
         const groupedShortname = 'myGroupName';
 
-        // What to check in snapshots
-        // Expected path: should be prefixed with groupPath.uuid.groupName for widgets with a path specified, otherwise prefixed with "myGroupName."
-        // Expected section: myGroupName
-        // Expected widget status: should be the one with path as "myGroupPath"
-        // For groups, the additional parameters should match what is sent here
-
         const { container } = render(
-            <InGroupWidget
-                currentWidgetShortname={testWidgetShortname}
-                nextWidgetShortname={testNextWidgetShortname}
-                sectionName={groupedShortname}
-                interview={frontendInterviewAttributes}
-                loadingState={0}
-                errors={{}}
-                user={userAttributes}
-                startUpdateInterview={jest.fn()}
-                startAddGroupedObjects={jest.fn()}
-                startRemoveGroupedObjects={jest.fn()}
-                widgetStatusPath='groups.myGroup.myGroupId'
-                pathPrefix='groupPath.uuid.groupName'
-                groupedObjectId='myGroupId'
-                parentObjectIds={{[groupedShortname]: 'myGroupId'}}
-            />
+            <TestContextProvider>
+                <InGroupWidget
+                    currentWidgetShortname={testWidgetShortname}
+                    nextWidgetShortname={testNextWidgetShortname}
+                    sectionName={groupedShortname}
+                    interview={frontendInterviewAttributes}
+                    loadingState={0}
+                    errors={{}}
+                    user={userAttributes}
+                    startUpdateInterview={jest.fn()}
+                    startAddGroupedObjects={jest.fn()}
+                    startRemoveGroupedObjects={jest.fn()}
+                    startNavigate={jest.fn()}
+                    widgetStatusPath='groups.myGroup.myGroupId'
+                    pathPrefix='groupPath.uuid.groupName'
+                    groupedObjectId='myGroupId'
+                    parentObjectIds={{[groupedShortname]: 'myGroupId'}}
+                />
+            </TestContextProvider>
         );
         expect(container).toMatchSnapshot();
     });
@@ -226,20 +231,23 @@ describe('With server errors', () => {
         mockedContext.widgets[testWidgetShortname] = questionWidgetConfig;
 
         const { container } = render(
-            <Widget
-                currentWidgetShortname={testWidgetShortname}
-                nextWidgetShortname={testNextWidgetShortname}
-                sectionName='Test'
-                interview={frontendInterviewAttributes}
-                loadingState={0}
-                errors={{
-                    [testWidgetShortname]: 'Server error message'
-                }}
-                user={userAttributes}
-                startUpdateInterview={jest.fn()}
-                startAddGroupedObjects={jest.fn()}
-                startRemoveGroupedObjects={jest.fn()}
-            />
+            <TestContextProvider>
+                <Widget
+                    currentWidgetShortname={testWidgetShortname}
+                    nextWidgetShortname={testNextWidgetShortname}
+                    sectionName='Test'
+                    interview={frontendInterviewAttributes}
+                    loadingState={0}
+                    errors={{
+                        [testWidgetShortname]: 'Server error message'
+                    }}
+                    user={userAttributes}
+                    startUpdateInterview={jest.fn()}
+                    startAddGroupedObjects={jest.fn()}
+                    startRemoveGroupedObjects={jest.fn()}
+                    startNavigate={jest.fn()}
+                />
+            </TestContextProvider>
         );
         expect(container).toMatchSnapshot();
     });
@@ -252,23 +260,24 @@ describe('With server errors', () => {
         mockedContext.widgets[testWidgetShortname] = questionWidgetConfig;
 
         const { container } = render(
-            <Widget
-                currentWidgetShortname={testWidgetShortname}
-                nextWidgetShortname={testNextWidgetShortname}
-                sectionName='Test'
-                interview={frontendInterviewAttributes}
-                loadingState={0}
-                errors={{
-                    [testWidgetShortname]: 'Server error message'
-                }}
-                user={userAttributes}
-                startUpdateInterview={jest.fn()}
-                startAddGroupedObjects={jest.fn()}
-                startRemoveGroupedObjects={jest.fn()}
-            />
+            <TestContextProvider>
+                <Widget
+                    currentWidgetShortname={testWidgetShortname}
+                    nextWidgetShortname={testNextWidgetShortname}
+                    sectionName='Test'
+                    interview={frontendInterviewAttributes}
+                    loadingState={0}
+                    errors={{
+                        [testWidgetShortname]: 'Server error message'
+                    }}
+                    user={userAttributes}
+                    startUpdateInterview={jest.fn()}
+                    startAddGroupedObjects={jest.fn()}
+                    startRemoveGroupedObjects={jest.fn()}
+                    startNavigate={jest.fn()}
+                />
+            </TestContextProvider>
         );
         expect(container).toMatchSnapshot();
-
-    })
-
+    });
 });

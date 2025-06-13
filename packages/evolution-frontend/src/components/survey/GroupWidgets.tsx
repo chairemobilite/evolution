@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React, { FunctionComponent, JSX } from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons/faPlusCircle';
 import _get from 'lodash/get';
@@ -15,7 +15,6 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import { devLog, parseBoolean, translateString } from 'evolution-common/lib/utils/helpers';
-import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
 import { checkConditional } from '../../actions/utils/Conditional';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
@@ -42,7 +41,9 @@ type GroupedObjectProps = InterviewUpdateCallbacks & {
     errors?: { [path: string]: string };
 };
 
-export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & WithSurveyContextProps> = (props) => {
+export const GroupedObject: React.FC<GroupedObjectProps> = (props) => {
+    const { t, i18n } = useTranslation(['survey', 'main']);
+
     const groupedObjectShortname = props.shortname;
     devLog(
         '%c rendering ' + groupedObjectShortname + ' ' + props.objectId,
@@ -76,12 +77,12 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
     let title = '';
     const localizedName = props.widgetConfig.name;
     if (typeof localizedName === 'function') {
-        title = localizedName(props.t, _get(props.interview.response, path), props.sequence, props.interview, path);
+        title = localizedName(t, _get(props.interview.response, path), props.sequence, props.interview, path);
     } else if (typeof localizedName === 'object') {
         title =
-            typeof localizedName[props.i18n.language] === 'string'
-                ? localizedName[props.i18n.language]
-                : (localizedName[props.i18n.language] as any)(
+            typeof localizedName[i18n.language] === 'string'
+                ? localizedName[i18n.language]
+                : (localizedName[i18n.language] as any)(
                     _get(props.interview.response, path),
                     props.sequence,
                     props.interview,
@@ -117,7 +118,6 @@ export const BaseGroupedObject: React.FC<GroupedObjectProps & WithTranslation & 
         </div>
     );
 };
-export const GroupedObject = withTranslation()(withSurveyContext(BaseGroupedObject));
 
 type GroupProps = InterviewUpdateCallbacks & {
     path: string;
@@ -135,7 +135,9 @@ type GroupProps = InterviewUpdateCallbacks & {
     errors?: { [path: string]: string };
 };
 
-const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyContextProps> = (props) => {
+export const Group: FunctionComponent<GroupProps> = (props) => {
+    const { t, i18n } = useTranslation(['survey']);
+
     const widgetConfig = props.widgetConfig;
 
     const onAddGroupedObject = (sequence: number) => (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -217,8 +219,8 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
         props.loadingState === 0 &&
         parseBoolean(props.widgetConfig.showGroupedObjectAddButton, props.interview, props.path, props.user);
     const addButtonLabel =
-        translateString(props.widgetConfig.groupedObjectAddButtonLabel, props.i18n, props.interview, props.path) ||
-        props.t(`survey:${props.shortname}:addGroupedObject`);
+        translateString(props.widgetConfig.groupedObjectAddButtonLabel, i18n, props.interview, props.path) ||
+        t(`survey:${props.shortname}:addGroupedObject`);
     const addButtonLocation = props.widgetConfig.addButtonLocation || 'bottom';
     const addButtonSize = props.widgetConfig.addButtonSize || 'large';
 
@@ -228,8 +230,8 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
                 <div className="survey-group__content">
                     {showTitle && (
                         <h2 className="survey-group__title">
-                            {translateString(widgetConfig.title, props.i18n, props.interview, props.path) ||
-                                props.t(`survey:${props.shortname}:title`)}
+                            {translateString(widgetConfig.title, i18n, props.interview, props.path) ||
+                                t(`survey:${props.shortname}:title`)}
                         </h2>
                     )}
                     {showAddButton && (addButtonLocation === 'top' || addButtonLocation === 'both') && (
@@ -268,5 +270,3 @@ const BaseGroup: FunctionComponent<GroupProps & WithTranslation & WithSurveyCont
         </section>
     );
 };
-
-export const Group = withTranslation()(withSurveyContext(BaseGroup));
