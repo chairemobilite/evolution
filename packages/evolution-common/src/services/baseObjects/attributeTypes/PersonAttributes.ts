@@ -43,7 +43,7 @@ export const ageGroupValues = [
 // not having exact age implies a lot of conditional and validation ambiguities
 export type AgeGroup = (typeof ageGroupValues)[number];
 
-export const genderValues = ['woman', 'man', 'custom'] as const;
+export const genderValues = ['female', 'male', 'custom'] as const;
 export type Gender = (typeof genderValues)[number];
 
 export type DrivingLicenseOwnership = YesNoDontKnowNonApplicable;

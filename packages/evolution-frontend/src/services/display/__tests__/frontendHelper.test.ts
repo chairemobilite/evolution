@@ -59,18 +59,18 @@ describe('getGenderedSuffixes', () => {
     });
 
     it('should return suffixes based on person gender', () => {
-        const person = { gender: 'man' as const, _sequence: 1, _uuid: 'uuid' };
+        const person = { gender: 'male' as const, _sequence: 1, _uuid: 'uuid' };
         const result = getGenderedStrings(person, mockedT);
         expect(result).toEqual({
-            suffixE: 'survey:suffixE_man',
-            suffixEurRice: 'survey:suffixEurRice_man',
-            suffixErEre: 'survey:suffixErEre_man',
-            isHeShe: 'survey:isHeShe_man',
-            doesHeShe: 'survey:doesHeShe_man',
-            heShe: 'survey:heShe_man',
-            ifHeShe: 'survey:ifHeShe_man',
-            himHerThem: 'survey:himHerThem_man',
-            hisHerTheir: 'survey:hisHerTheir_man'
+            suffixE: 'survey:suffixE_male',
+            suffixEurRice: 'survey:suffixEurRice_male',
+            suffixErEre: 'survey:suffixErEre_male',
+            isHeShe: 'survey:isHeShe_male',
+            doesHeShe: 'survey:doesHeShe_male',
+            heShe: 'survey:heShe_male',
+            ifHeShe: 'survey:ifHeShe_male',
+            himHerThem: 'survey:himHerThem_male',
+            hisHerTheir: 'survey:hisHerTheir_male'
         });
     });
 });

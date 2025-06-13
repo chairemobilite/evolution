@@ -28,7 +28,7 @@ describe('Person', () => {
         _uuid: uuidV4(),
         age: 30,
         ageGroup: 'adult',
-        gender: 'man',
+        gender: 'male',
         drivingLicenseOwnership: 'yes',
         transitPassOwnership: 'yes',
         transitPasses: ['pass1', 'pass2'],
@@ -391,7 +391,7 @@ describe('Person', () => {
         test.each([
             ['age', 35],
             ['ageGroup', 'senior'],
-            ['gender', 'woman'],
+            ['gender', 'female'],
             ['drivingLicenseOwnership', 'no'],
             ['transitPassOwnership', 'no'],
             ['transitPasses', ['pass3', 'pass4']],

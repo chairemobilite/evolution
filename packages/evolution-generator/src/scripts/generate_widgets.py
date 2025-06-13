@@ -464,7 +464,7 @@ def generate_label(section, path, row):
     has_persons_count_label = "{{count}}" in label_text
     has_gender_context_label = (
         "{{gender:" in label_text
-    )  # Format: {{gender:woman}} or {{gender:man/woman}} or {{gender:man/woman/other}}
+    )  # Format: {{gender:female}} or {{gender:male/female}} or {{gender:male/female/other}}
     has_label_one = bool(label_one_fr or label_one_en)
 
     if not (
@@ -487,7 +487,7 @@ def generate_label(section, path, row):
         initial_assignations += (
             f"{INDENT}{INDENT}const personGender = activePerson?.gender\n"
         )
-        additional_t_context += f"{INDENT}{INDENT}{INDENT}context: personGender === 'man' || personGender === 'woman' ? personGender : 'other',\n"
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}context: personGender === 'male' || personGender === 'female' ? personGender : 'other',\n"
     if has_persons_count_label or has_label_one:
         additional_t_context += f"{INDENT}{INDENT}{INDENT}count: countPersons,\n"
     widget_label = (

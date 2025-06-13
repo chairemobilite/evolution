@@ -174,12 +174,12 @@ export const personGender = {
   },
   choices: [
     {
-      value: 'woman',
+      value: 'female',
       internalId: 2,
-      label: (t: TFunction) => t('survey:Woman')
+      label: (t: TFunction) => t('survey:Female')
     },
     {
-      value: 'man',
+      value: 'male',
       internalId: 1,
       label: {
         fr: "Homme",
@@ -1134,11 +1134,11 @@ export const selectPerson = {
       {
         icon = faChild;
       }
-      else if (persons[personId].gender == 'man')
+      else if (persons[personId].gender == 'male')
       {
         icon = faMale;
       }
-      else if (persons[personId].gender == 'woman')
+      else if (persons[personId].gender == 'female')
       {
         icon = faFemale;
       }

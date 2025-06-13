@@ -145,7 +145,7 @@ export const personDeparturePlaceType = {
       const nickname           = person.nickname;
       const householdSize      = surveyHelperNew.getResponse(interview, 'household.size', null);
       const isAlone            = householdSize === 1;
-      return `What was ${isAlone ? 'your' : nickname + "'s" } departure location on this day?  \n*(At what place ${isAlone ? 'were you' : 'was ' + nickname } before making ${isAlone ? 'your' : (person.gender === 'woman' ? 'her' : (person.gender === 'man' ? 'his' : 'their'))} first trip of the day?)*`;
+      return `What was ${isAlone ? 'your' : nickname + "'s" } departure location on this day?  \n*(At what place ${isAlone ? 'were you' : 'was ' + nickname } before making ${isAlone ? 'your' : (person.gender === 'female' ? 'her' : (person.gender === 'male' ? 'his' : 'their'))} first trip of the day?)*`;
     }
   },
   conditional: function(interview, path) {

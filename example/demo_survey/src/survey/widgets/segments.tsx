@@ -2071,7 +2071,7 @@ export const tripJunctionGeography = {
           const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
           const isAlone       = householdSize === 1;
           const nickname      = isAlone ? 'you'  : person.nickname;
-          const pronoun       = isAlone ? 'your' : (person.gender === 'woman' ? 'her' : (person.gender === 'man' ? 'his' : 'their'));
+          const pronoun       = isAlone ? 'your' : (person.gender === 'female' ? 'her' : (person.gender === 'male' ? 'his' : 'their'));
           if (tripTransferCategory.category === 'private_public')
           {
             const previousMode    = tripTransferCategory.previousMode;

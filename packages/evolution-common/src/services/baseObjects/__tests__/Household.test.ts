@@ -47,14 +47,14 @@ describe('Household', () => {
                 _uuid: uuidV4(),
                 age: 30,
                 ageGroup: 'adult',
-                gender: 'man',
+                gender: 'male',
                 _isValid: true,
             },
             {
                 _uuid: uuidV4(),
                 age: 28,
                 ageGroup: 'adult',
-                gender: 'woman',
+                gender: 'female',
                 _isValid: true,
             },
         ],
@@ -225,14 +225,14 @@ describe('Household', () => {
                 _uuid: uuidV4(),
                 age: 30,
                 ageGroup: 'adult',
-                gender: 'man',
+                gender: 'male',
                 _isValid: true,
             },
             {
                 _uuid: uuidV4(),
                 age: 28,
                 ageGroup: 'adult',
-                gender: 'woman',
+                gender: 'female',
                 _isValid: true,
             },
         ];
@@ -284,14 +284,14 @@ describe('Household', () => {
                 _uuid: uuidV4(),
                 age: 'invalid', // Invalid type, should be number
                 ageGroup: 'adult',
-                gender: 'man',
+                gender: 'male',
                 _isValid: true,
             },
             {
                 _uuid: uuidV4(),
                 age: 28,
                 ageGroup: 123, // Invalid type, should be string
-                gender: 'woman',
+                gender: 'female',
                 _isValid: true,
             },
         ];
