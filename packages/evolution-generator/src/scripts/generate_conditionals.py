@@ -81,17 +81,28 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
         # Add imports
         ts_code += f"import {{ checkConditionals }} from 'evolution-common/lib/services/widgets/conditionals/checkConditionals';{NEWLINE}"
         ts_code += f"import {{ type WidgetConditional }} from 'evolution-common/lib/services/questionnaire/types';{NEWLINE}"
+        ts_code += f"import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';{NEWLINE}"
 
         # Create a TypeScript function for each conditional_name
         for conditional_name, conditionals in conditional_by_name.items():
             # Check if any conditional has a path that contains "${relativePath}"
-            conditionals_has_path = any(
+            conditionals_has_relative_path = any(
                 "${relativePath}" in conditional["path"] for conditional in conditionals
             )
             declare_relative_path = f"{INDENT}const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path{NEWLINE}"
 
-            ts_code += f"\nexport const {conditional_name}: WidgetConditional = (interview{', path' if conditionals_has_path else ''}) => {{{NEWLINE}"
-            ts_code += declare_relative_path if conditionals_has_path else ""
+            #  Check if any conditional has a path that contains "${currentPerson}"
+            conditionals_has_current_person = any(
+                "${currentPerson}" in conditional["path"]
+                for conditional in conditionals
+            )
+            declare_current_person_id = f"{INDENT}const currentPersonId = odSurveyHelpers.getCurrentPersonId({{ interview, path }}); // Get the current person id{NEWLINE}"
+
+            ts_code += f"\nexport const {conditional_name}: WidgetConditional = (interview{', path' if (conditionals_has_relative_path or conditionals_has_current_person) else ''}) => {{{NEWLINE}"
+            ts_code += declare_relative_path if conditionals_has_relative_path else ""
+            ts_code += (
+                declare_current_person_id if conditionals_has_current_person else ""
+            )
             ts_code += INDENT + "return checkConditionals({" + NEWLINE
             ts_code += INDENT + INDENT + "interview," + NEWLINE
             ts_code += INDENT + INDENT + "conditionals: [" + NEWLINE
@@ -111,13 +122,21 @@ def generate_typescript_code(conditional_by_name: defaultdict) -> str:
                         )
                     )
                 )
-                conditional_has_path = "${relativePath}" in conditional["path"]
+                conditional_has_path = (
+                    "${relativePath}" in conditional["path"]
+                    or "${currentPerson}" in conditional["path"]
+                )
                 quote = "`" if conditional_has_path else "'"
+                # If the path contains ${currentPerson}, replace it with household.persons.${currentPersonId}.followingPath
+                if "${currentPerson}" in conditional["path"]:
+                    path = f"`household.persons.${{currentPersonId}}.{conditional['path'].replace('${currentPerson}.', '')}`"
+                else:
+                    path = f"{quote}{conditional['path']}{quote}"
 
                 ts_code += f"{INDENT}{INDENT}{INDENT}{{{NEWLINE}"
                 if conditional["logical_operator"]:
                     ts_code += f"{INDENT}{INDENT}{INDENT}{INDENT}logicalOperator: '{conditional['logical_operator']}',{NEWLINE}"
-                ts_code += f"{INDENT}{INDENT}{INDENT}{INDENT}path: {quote}{conditional['path']}{quote},{NEWLINE}"
+                ts_code += f"{INDENT}{INDENT}{INDENT}{INDENT}path: {path},{NEWLINE}"
                 ts_code += f"{INDENT}{INDENT}{INDENT}{INDENT}comparisonOperator: '{conditional['comparison_operator']}',{NEWLINE}"
                 ts_code += (
                     f"{INDENT}{INDENT}{INDENT}{INDENT}value: {new_value},{NEWLINE}"
