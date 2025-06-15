@@ -73,6 +73,43 @@ export const getPerson = ({
 };
 
 /**
+ * Get the current person ID from the interview response.
+ * If a path is provided and matches the pattern 'household.persons.{personId}.', extracts the personId from the path.
+ * Otherwise, returns the currently active person ID from the interview response.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Optional path string to extract the person ID from.
+ * @returns {string | null} The current person ID, or null if not found.
+ */
+export const getCurrentPersonId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | null => {
+    let requestedPersonId: string | null | undefined = null;
+    // 1. Try to extract personId from path if it matches household.persons.{personId}.
+    if (path) {
+        const match = path.match(/household\.persons\.([^.]+)\./);
+        if (match) {
+            requestedPersonId = match[1];
+        }
+    }
+    // 2. Otherwise, use the active person id from the interview response
+    if (!requestedPersonId) {
+        requestedPersonId = interview.response._activePersonId ?? null;
+    }
+    // Return the person object if found, otherwise null
+    if (requestedPersonId) {
+        return requestedPersonId;
+    } else {
+        return null;
+    }
+};
+
+/**
  * Get the household object in the interview response, or an empty object if
  * the household has not been initialized
  *

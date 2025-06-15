@@ -4,9 +4,8 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank, _booleish } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { GroupConfig, InputMapFindPlaceType } from 'evolution-common/lib/services/questionnaire/types';
-import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import { type Person } from 'evolution-common/lib/services/questionnaire/types/Data';
-import { getI18nContext } from 'evolution-interviewer/lib/client/config/i18nextExtra.config';
+import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';
+import * as conditionals from '../../common/conditionals';
 import { householdMembersWidgetsNames } from './widgetsNames';
 import inaccessibleZones from '../../geojson/inaccessibleZones.json';
 import * as customHelper from '../../common/customHelpers';
@@ -40,7 +39,7 @@ export const householdMembers: GroupConfig = {
         }
     },
     showGroupedObjectDeleteButton: function (interview, path) {
-        const countPersons = odSurveyHelper.countPersons({ interview });
+        const countPersons = odSurveyHelpers.countPersons({ interview });
         const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
         const householdSizeNum = householdSize ? Number(householdSize) : undefined;
         return householdSizeNum ? countPersons > householdSizeNum : false;
@@ -63,25 +62,21 @@ export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
     datatype: 'geojson',
     containsHtml: true,
     height: '32rem',
-    refreshGeocodingLabel: {
-        fr: 'Chercher le lieu à partir du nom',
-        en: 'Search location using the place name'
-    },
+    refreshGeocodingLabel: (t: TFunction) => t('customLabel:RefreshGeocodingLabel'),
     geocodingQueryString: function (interview, path) {
         return surveyHelperNew.formatGeocodingQueryStringFromMultipleFields([
             surveyHelperNew.getResponse(interview, path, null, '../name')
         ]);
     },
     label: (t: TFunction, interview, path) => {
-        const nickname = surveyHelperNew.getResponse(interview, path, t('survey:noNickname'), '../../nickname');
-        const person = surveyHelperNew.getResponse(interview, path, null, '../../') as Person;
-        return t('travelBehavior:LieuHabituelTravailGeographie', {
-            context: getI18nContext(),
+        const activePerson = odSurveyHelpers.getPerson({ interview, path });
+        const countPersons = odSurveyHelpers.countPersons({ interview });
+        const nickname = activePerson?.nickname || t('customLabel:noNickname');
+        return t('household:usualWorkPlace.geography', {
             nickname,
-            count: odSurveyHelper.getCountOrSelfDeclared({ interview, person })
+            count: countPersons
         });
     },
-
     icon: {
         url: '/dist/images/activities_icons/workUsual_marker.svg',
         size: [70, 70]
@@ -107,7 +102,7 @@ export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
         return undefined;
     },
     updateDefaultValueWhenResponded: true,
-    validations: function (value, customValue, interview, path, customPath) {
+    validations: function (value, _customValue, interview, path, _customPath) {
         const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
         return [
             {
@@ -137,11 +132,7 @@ export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
             }
         ];
     },
-    conditional: function (interview, path) {
-        const person: any = surveyHelperNew.getResponse(interview, path, null, '../../');
-        const workLocationType = person.workLocationType;
-        return [['onLocation', 'hybrid', 'onTheRoadWithUsualPlace'].includes(workLocationType), null];
-    }
+    conditional: conditionals.hasWorkingLocationConditional
 };
 
 export const personUsualSchoolPlaceGeography: InputMapFindPlaceType = {
@@ -151,25 +142,21 @@ export const personUsualSchoolPlaceGeography: InputMapFindPlaceType = {
     datatype: 'geojson',
     containsHtml: true,
     height: '32rem',
-    refreshGeocodingLabel: {
-        fr: 'Chercher le lieu à partir du nom',
-        en: 'Search location using the place name'
-    },
+    refreshGeocodingLabel: (t: TFunction) => t('customLabel:RefreshGeocodingLabel'),
     geocodingQueryString: function (interview, path) {
         return surveyHelperNew.formatGeocodingQueryStringFromMultipleFields([
             surveyHelperNew.getResponse(interview, path, null, '../name')
         ]);
     },
     label: (t: TFunction, interview, path) => {
-        const nickname = surveyHelperNew.getResponse(interview, path, t('survey:noNickname'), '../nickname');
-        const person = surveyHelperNew.getResponse(interview, path, null, '../../') as Person;
-        return t('travelBehavior:LieuHabituelEtudeGeographie', {
-            context: getI18nContext(),
+        const activePerson = odSurveyHelpers.getPerson({ interview, path });
+        const countPersons = odSurveyHelpers.countPersons({ interview });
+        const nickname = activePerson?.nickname || t('customLabel:noNickname');
+        return t('household:usualSchoolPlace.geography', {
             nickname,
-            count: odSurveyHelper.getCountOrSelfDeclared({ interview, person })
+            count: countPersons
         });
     },
-
     icon: {
         url: '/dist/images/activities_icons/schoolUsual_marker.svg',
         size: [70, 70]
@@ -195,7 +182,7 @@ export const personUsualSchoolPlaceGeography: InputMapFindPlaceType = {
         return undefined;
     },
     updateDefaultValueWhenResponded: true,
-    validations: function (value, customValue, interview, path, customPath) {
+    validations: function (value, _customValue, interview, path, _customPath) {
         const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
         return [
             {

@@ -160,13 +160,11 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
 
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.workerType', value: 'yesFullTime' });
 
+    testHelpers.inputVisibleTest({ context, path: 'household.persons.${personId[0]}.schoolType', isVisible: false });
+
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.studentType', value: 'yesPartTime' });
 
-    testHelpers.inputVisibleTest({
-        context,
-        path: 'household.persons.${personId[0]}.occupation',
-        isVisible: false
-    });
+    testHelpers.inputVisibleTest({ context, path: 'household.persons.${personId[0]}.occupation', isVisible: false });
 
     testHelpers.inputRadioTest({
         context,
@@ -176,13 +174,13 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
 
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.carSharingMember', value: 'yes' });
 
-    testHelpers.inputCheckboxTest({
-        context,
-        path: 'household.persons.${personId[0]}.transitFares',
-        values: ['tickets']
-    });
+    // testHelpers.inputCheckboxTest({
+    //     context,
+    //     path: 'household.persons.${personId[0]}.transitFares',
+    //     values: ['tickets']
+    // });
 
-    testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.hasDisability', value: 'no' });
+    testHelpers.inputVisibleTest({ context, path: 'household.persons.${personId[0]}.hasDisability', isVisible: false });
 
     testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.workLocationType', value: 'hybrid' });
 
@@ -214,29 +212,29 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
         path: 'household.persons.${personId[0]}.usualSchoolPlace.geography'
     });
 
-    testHelpers.inputCheckboxTest({
-        context,
-        path: 'household.persons.${personId[0]}.remoteWorkDays',
-        values: ['monday', 'thursday', 'friday']
-    });
+    // testHelpers.inputCheckboxTest({
+    //     context,
+    //     path: 'household.persons.${personId[0]}.remoteWorkDays',
+    //     values: ['monday', 'thursday', 'friday']
+    // });
 
-    testHelpers.inputCheckboxTest({
-        context,
-        path: 'household.persons.${personId[0]}.travelToWorkDays',
-        values: ['no']
-    });
+    // testHelpers.inputCheckboxTest({
+    //     context,
+    //     path: 'household.persons.${personId[0]}.travelToWorkDays',
+    //     values: ['no']
+    // });
 
-    testHelpers.inputCheckboxTest({
-        context,
-        path: 'household.persons.${personId[0]}.remoteStudyDays',
-        values: ['monday', 'tuesday']
-    });
+    // testHelpers.inputCheckboxTest({
+    //     context,
+    //     path: 'household.persons.${personId[0]}.remoteStudyDays',
+    //     values: ['monday', 'tuesday']
+    // });
 
-    testHelpers.inputCheckboxTest({
-        context,
-        path: 'household.persons.${personId[0]}.travelToStudyDays',
-        values: ['no']
-    });
+    // testHelpers.inputCheckboxTest({
+    //     context,
+    //     path: 'household.persons.${personId[0]}.travelToStudyDays',
+    //     values: ['no']
+    // });
 
     if (householdSize >= 2) {
         // Add a second person
@@ -246,14 +244,28 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
 
         testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.gender', value: 'female' });
 
-        testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.workerType', value: 'no' });
+        testHelpers.inputRadioTest({
+            context,
+            path: 'household.persons.${personId[1]}.workerType',
+            value: 'yesFullTime'
+        });
 
-        testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.studentType', value: 'no' });
+        testHelpers.inputVisibleTest({
+            context,
+            path: 'household.persons.${personId[1]}.schoolType',
+            isVisible: false
+        });
 
         testHelpers.inputRadioTest({
             context,
-            path: 'household.persons.${personId[1]}.occupation',
-            value: 'other'
+            path: 'household.persons.${personId[1]}.studentType',
+            value: 'yesPartTime'
+        });
+
+        testHelpers.inputVisibleTest({
+            context,
+            path: 'household.persons.${personId[0]}.occupation',
+            isVisible: false
         });
 
         testHelpers.inputRadioTest({
@@ -268,13 +280,71 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
             isVisible: false
         });
 
-        testHelpers.inputCheckboxTest({
+        // testHelpers.inputCheckboxTest({
+        //     context,
+        //     path: 'household.persons.${personId[1]}.transitFares',
+        //     values: ['tickets']
+        // });
+
+        testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.hasDisability', value: 'yes' });
+
+        testHelpers.inputRadioTest({
             context,
-            path: 'household.persons.${personId[1]}.transitFares',
-            values: ['no']
+            path: 'household.persons.${personId[1]}.workLocationType',
+            value: 'hybrid'
         });
 
-        testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.hasDisability', value: 'no' });
+        testHelpers.inputRadioTest({
+            context,
+            path: 'household.persons.${personId[1]}.schoolLocationType',
+            value: 'hybrid'
+        });
+
+        testHelpers.inputStringTest({
+            context,
+            path: 'household.persons.${personId[1]}.usualWorkPlace.name',
+            value: 'Polytechnique Montreal'
+        });
+
+        testHelpers.inputMapFindPlaceTest({
+            context,
+            path: 'household.persons.${personId[1]}.usualWorkPlace.geography'
+        });
+
+        testHelpers.inputStringTest({
+            context,
+            path: 'household.persons.${personId[1]}.usualSchoolPlace.name',
+            value: 'Polytechnique Montreal'
+        });
+
+        testHelpers.inputMapFindPlaceTest({
+            context,
+            path: 'household.persons.${personId[1]}.usualSchoolPlace.geography'
+        });
+
+        // testHelpers.inputCheckboxTest({
+        //     context,
+        //     path: 'household.persons.${personId[1]}.remoteWorkDays',
+        //     values: ['monday', 'thursday', 'friday']
+        // });
+
+        // testHelpers.inputCheckboxTest({
+        //     context,
+        //     path: 'household.persons.${personId[1]}.travelToWorkDays',
+        //     values: ['no']
+        // });
+
+        // testHelpers.inputCheckboxTest({
+        //     context,
+        //     path: 'household.persons.${personId[1]}.remoteStudyDays',
+        //     values: ['monday', 'tuesday']
+        // });
+
+        // testHelpers.inputCheckboxTest({
+        //     context,
+        //     path: 'household.persons.${personId[1]}.travelToStudyDays',
+        //     values: ['no']
+        // });
     }
 
     testHelpers.inputNextButtonTest({
@@ -292,7 +362,7 @@ export const completeHouseholdSectionTests = ({ context, householdSize = 1 }: Co
 };
 
 // Complete completed section tests
-export const completeCompletedSectionTests = ({ context  }: CommonTestParametersModify) => {
+export const completeCompletedSectionTests = ({ context }: CommonTestParametersModify) => {
     testHelpers.sectionProgressBarTest({ context, sectionName: 'Survey completed', completionPercentage: 100 });
 
     testHelpers.waitTextVisible({

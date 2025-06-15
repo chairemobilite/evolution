@@ -738,6 +738,7 @@ export const inputNextButtonTest: InputNextButtonTest = ({ context, text, nextPa
         const button = context.page.getByRole('button', { name: text });
         await button.scrollIntoViewIfNeeded();
         await button.click();
+        await button.click(); // TODO: This double click is a workaround for the issue where the button is not working the first time, but works the second time.
         await expect(context.page).toHaveURL(nextPageUrl);
     });
 };

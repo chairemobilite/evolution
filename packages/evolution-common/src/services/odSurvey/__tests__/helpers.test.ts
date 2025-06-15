@@ -234,6 +234,34 @@ each([
     expect(Helpers.getPerson({ interview, ...params })).toEqual(expected);
 });
 
+describe('getCurrentPersonId', () => {
+    test('returns personId from path if present', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        interview.response._activePersonId = 'personId2';
+        const path = 'household.persons.personId1.something';
+        expect(Helpers.getCurrentPersonId({ interview, path })).toBe('personId1');
+    });
+
+    test('returns _activePersonId if path does not match', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        interview.response._activePersonId = 'personId2';
+        const path = 'household.something.personId2';
+        expect(Helpers.getCurrentPersonId({ interview, path })).toBe('personId2');
+    });
+
+    test('returns _activePersonId if path is not provided', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        interview.response._activePersonId = 'personId2';
+        expect(Helpers.getCurrentPersonId({ interview })).toBe('personId2');
+    });
+
+    test('returns null if neither path nor _activePersonId is present', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        delete interview.response._activePersonId;
+        expect(Helpers.getCurrentPersonId({ interview })).toBeNull();
+    });
+});
+
 each([
     [
         'One person',
