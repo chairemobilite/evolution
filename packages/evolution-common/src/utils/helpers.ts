@@ -217,6 +217,44 @@ export const getPath = function (path: string | null | undefined, relativePath?:
     return path;
 };
 
+// inner function to parse a single value based on its datatype
+// This is used by the parseValue function to handle both single values and arrays
+const _parseSingleValue = (
+    value: unknown,
+    datatype: 'integer' | 'float' | 'boolean' | 'string' | 'geojson' | undefined
+) => {
+    // If datatype is undefined, just return the value
+    if (datatype === undefined) {
+        return value;
+    }
+    if (datatype === 'integer') {
+        return !(typeof value === 'string' || typeof value === 'number' || value === null)
+            ? undefined
+            : LE._toInteger(value);
+    }
+    if (datatype === 'float') {
+        return !(typeof value === 'string' || typeof value === 'number' || value === null)
+            ? undefined
+            : LE._toFloat(value);
+    }
+    if (datatype === 'boolean') {
+        return value === undefined ? undefined : LE._booleish(value);
+    }
+    if (datatype === 'geojson') {
+        // Add the properties to the value if it is an object and it does not have properties
+        if (value !== null && typeof value === 'object' && value['properties'] === undefined) {
+            (value as any).properties = {};
+        }
+        // For geojson, we only accept valid geojson objects
+        return value && isFeature(value) ? value : null;
+    }
+    if (value === '') {
+        return null;
+    }
+    // Return a string by default
+    return value === undefined || value === null ? value : String(value);
+};
+
 /**
  * Convert a value to a specified data type
  *
@@ -231,42 +269,37 @@ export const getPath = function (path: string | null | undefined, relativePath?:
  *
  * @param value The value to parse
  * @param datatype The type of data
+ * @param asArray whether this datatype is expected to be an array (for example,
+ * it would be true for checkboxes or multiselect)
  * @returns The parsed value converted to the specified data type, or the original value if no conversion is applied.
  */
 export const parseValue = function (
     value: any,
-    datatype: 'integer' | 'float' | 'boolean' | 'string' | 'geojson' | undefined
+    datatype: 'integer' | 'float' | 'boolean' | 'string' | 'geojson' | undefined,
+    asArray: boolean = false
 ) {
-    // If datatype is undefined, just return the value
-    if (datatype === undefined) {
-        return value;
-    }
-    if (datatype === 'integer') {
-        return value === undefined || (value !== null && typeof value === 'object') || Array.isArray(value)
-            ? undefined
-            : LE._toInteger(value);
-    }
-    if (datatype === 'float') {
-        return value === undefined || (value !== null && typeof value === 'object') || Array.isArray(value)
-            ? undefined
-            : LE._toFloat(value);
-    }
-    if (datatype === 'boolean') {
-        return value === undefined ? undefined : LE._booleish(value);
-    }
-    if (datatype === 'geojson') {
-        // Add the properties to the value if it is an object and it does not have properties
-        if (value !== null && typeof value === 'object' && value['properties'] === undefined) {
-            value.properties = {};
+    if (!asArray && !Array.isArray(value)) {
+        // If the value is not an array, and the value is not expected as array, return the parsed value
+        return _parseSingleValue(value, datatype);
+    } else if (!asArray && Array.isArray(value)) {
+        // If the value is an array, but not expected as array, return the first value parsed
+        if (value.length > 0) {
+            return _parseSingleValue(value[0], datatype);
+        } else {
+            return null;
         }
-        // For geojson, we only accept valid geojson objects
-        return value && isFeature(value) ? value : null;
+    } else if (asArray && Array.isArray(value)) {
+        // If the value is an array, and expected as array, we will parse each value in the array
+        const parsedValues = value
+            .map((v) => _parseSingleValue(v, datatype))
+            .filter((v) => v !== undefined && v !== null);
+        // If the parsed values are empty, return null
+        return parsedValues.length === 0 ? null : parsedValues;
+    } else {
+        // If the value is not an array, but expected as array, we will return an array with the parsed value
+        const parsedValue = _parseSingleValue(value, datatype);
+        return parsedValue === undefined || parsedValue === null ? parsedValue : [parsedValue];
     }
-    if (value === '') {
-        return null;
-    }
-    // Return a string by default
-    return value === undefined || value === null ? value : String(value);
 };
 
 /**

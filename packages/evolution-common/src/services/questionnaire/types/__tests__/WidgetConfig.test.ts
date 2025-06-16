@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { WidgetConfig } from '../WidgetConfig';
+import { WidgetConfig, isInputTypeWithArrayValue } from '../WidgetConfig';
 
 // Simply make sure various objects are recognize as WidgetConfig object. Any fault should result in compilation error.
 test('Test text assignation', () => {
@@ -79,4 +79,25 @@ test('Test input text assignation', () => {
     };
 
     expect(widgetConfig).toBeDefined();
+});
+
+describe('isQuestionAnswerAnArray', () => {
+    test('should return true for array input types', () => {
+        expect(isInputTypeWithArrayValue('checkbox')).toBe(true);
+        expect(isInputTypeWithArrayValue('multiselect')).toBe(true);
+    });
+
+    test('should return false for non-array input types', () => {
+        expect(isInputTypeWithArrayValue('string')).toBe(false);
+        expect(isInputTypeWithArrayValue('text')).toBe(false);
+        expect(isInputTypeWithArrayValue('radio')).toBe(false);
+        expect(isInputTypeWithArrayValue('radioNumber')).toBe(false);
+        expect(isInputTypeWithArrayValue('select')).toBe(false);
+        expect(isInputTypeWithArrayValue('button')).toBe(false);
+        expect(isInputTypeWithArrayValue('time')).toBe(false);
+        expect(isInputTypeWithArrayValue('slider')).toBe(false);
+        expect(isInputTypeWithArrayValue('datePicker')).toBe(false);
+        expect(isInputTypeWithArrayValue('mapPoint')).toBe(false);
+        expect(isInputTypeWithArrayValue('mapFindPlace')).toBe(false);
+    });
 });

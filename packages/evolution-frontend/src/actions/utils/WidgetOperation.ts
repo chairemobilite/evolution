@@ -15,7 +15,10 @@ import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import applicationConfiguration from '../../config/application.config';
 import { checkConditional, checkChoicesConditional } from './Conditional';
 import { checkValidations } from './Validation';
-import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    isInputTypeWithArrayValue,
+    UserRuntimeInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 
@@ -143,7 +146,7 @@ const prepareSimpleWidget = (
     let customValue = customPath ? surveyHelper.getResponse(data.interview, customPath, undefined) : undefined;
 
     // convert values to number or boolean if needed:
-    value = surveyHelper.parseValue(value, widgetConfig.datatype);
+    value = surveyHelper.parseValue(value, widgetConfig.datatype, isInputTypeWithArrayValue(widgetConfig.inputType));
     let visibleValueUpdated = false;
     customValue = surveyHelper.parseValue(customValue, widgetConfig.customDatatype);
 
