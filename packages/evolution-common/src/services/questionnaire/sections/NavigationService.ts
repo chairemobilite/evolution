@@ -8,7 +8,7 @@ import _isEqual from 'lodash/isEqual';
 import _shuffle from 'lodash/shuffle';
 import _set from 'lodash/set';
 import { UserRuntimeInterviewAttributes } from '../types/Data';
-import { SurveySections, SectionConfigWithDefaultsBlock } from '../types/SectionConfig';
+import { SurveySections, SectionConfigWithDefaultsBlock, SectionConfigWithDefaultsSet } from '../types/SectionConfig';
 import { NavigationSection, sectionToUrlPath, TargetSectionResult } from '../types/NavigationTypes';
 import { getLastVisitedSection, isIterationContextStarted } from './navigationHelpers';
 import { getResponse, parseBoolean } from '../../../utils/helpers';
@@ -36,6 +36,20 @@ export class NavigationService {
         return firstSection;
     }
 
+    private logAndThrowErrorInSectionFunction({
+        section,
+        functionName,
+        error
+    }: {
+        section: NavigationSection;
+        functionName: string;
+        error: unknown;
+    }): void {
+        const message = `NavigationService: Error evaluating ${functionName} for section ${section.sectionShortname}${section.iterationContext ? ` with iteration ${section.iterationContext.join('/')}` : ''}: ${error}`;
+        console.error(message);
+        throw new Error(message);
+    }
+
     // Determine if a section is enabled
     private isSectionEnabled({
         interview,
@@ -46,7 +60,11 @@ export class NavigationService {
     }): boolean {
         const sectionConfig = this.sections[section.sectionShortname];
         if (sectionConfig.enableConditional) {
-            return parseBoolean(sectionConfig.enableConditional, interview, section.sectionShortname);
+            try {
+                return parseBoolean(sectionConfig.enableConditional, interview, section.sectionShortname);
+            } catch (error) {
+                this.logAndThrowErrorInSectionFunction({ section, functionName: 'enableConditional', error });
+            }
         }
         // By default, the section is enabled if the previous section is completed
         return sectionConfig.previousSection === null
@@ -76,7 +94,11 @@ export class NavigationService {
         const sectionConfig = this.sections[section.sectionShortname];
         // Run the section's `isSectionCompleted` function if it exists
         if (sectionConfig.isSectionCompleted) {
-            return sectionConfig.isSectionCompleted(interview, section.iterationContext);
+            try {
+                return sectionConfig.isSectionCompleted(interview, section.iterationContext);
+            } catch (error) {
+                this.logAndThrowErrorInSectionFunction({ section, functionName: 'isSectionCompleted', error });
+            }
         }
         // If there is no `isSectionCompleted` function, it is considered
         // completed for navigation. Any validation should be done in the
@@ -108,7 +130,11 @@ export class NavigationService {
         }
         // Run the section's `isSectionVisible` function if it exists
         if (sectionConfig.isSectionVisible) {
-            return sectionConfig.isSectionVisible(interview, section.iterationContext);
+            try {
+                return sectionConfig.isSectionVisible(interview, section.iterationContext);
+            } catch (error) {
+                this.logAndThrowErrorInSectionFunction({ section, functionName: 'isSectionVisible', error });
+            }
         }
         // By default the section is visible
         return true;
@@ -439,9 +465,17 @@ export class NavigationService {
         // and some iterations might be invalid. We find the first invalid
         // iteration and navigate to the first visible section of this block.
         if (repeatedBlockSection.repeatedBlock.isIterationValid !== undefined) {
-            const firstInvalidIteration = iterationContexts.find(
-                (context) => !repeatedBlockSection.repeatedBlock.isIterationValid!(interview, context)
-            );
+            const firstInvalidIteration = iterationContexts.find((context) => {
+                try {
+                    return !repeatedBlockSection.repeatedBlock.isIterationValid!(interview, context);
+                } catch (error) {
+                    this.logAndThrowErrorInSectionFunction({
+                        section: { sectionShortname: repeatedBlockSection.sectionName, iterationContext: context },
+                        functionName: 'isIterationValid',
+                        error
+                    });
+                }
+            });
             if (firstInvalidIteration) {
                 // If there is an invalid iteration, find first visible section
                 // in the block for this person, skipping the selection section
@@ -677,16 +711,36 @@ export class NavigationService {
     }): TargetSectionResult {
         // Execute the `onSectionExit` of the previous section
         const previousSectionConfig = previousSection ? this.sections[previousSection.sectionShortname] : undefined;
+        const wrapSectionExit = (previousSectionConfig: SectionConfigWithDefaultsSet) => {
+            try {
+                return previousSectionConfig.onSectionExit!(interview, previousSection?.iterationContext);
+            } catch (error) {
+                this.logAndThrowErrorInSectionFunction({
+                    section: previousSection!,
+                    functionName: 'onSectionExit',
+                    error
+                });
+            }
+        };
         const sectionExitValues =
             previousSectionConfig && previousSectionConfig.onSectionExit
-                ? previousSectionConfig.onSectionExit(interview, previousSection?.iterationContext)
+                ? wrapSectionExit(previousSectionConfig)
                 : undefined;
 
         // Execute the `onSectionEntry` of the target section
         const sectionConfig = this.sections[targetSection.targetSection.sectionShortname];
-        const sectionEntryValues = sectionConfig.onSectionEntry
-            ? sectionConfig.onSectionEntry(interview, targetSection.targetSection.iterationContext)
-            : undefined;
+        const wrapSectionEntry = (sectionConfig: SectionConfigWithDefaultsSet) => {
+            try {
+                return sectionConfig.onSectionEntry!(interview, targetSection.targetSection.iterationContext);
+            } catch (error) {
+                this.logAndThrowErrorInSectionFunction({
+                    section: targetSection.targetSection,
+                    functionName: 'onSectionEntry',
+                    error
+                });
+            }
+        };
+        const sectionEntryValues = sectionConfig.onSectionEntry ? wrapSectionEntry(sectionConfig) : undefined;
 
         // Merge the values from both section entry and exit functions with the valuesByPath of targetSection
         const updatedValues = Object.assign({}, targetSection.valuesByPath, sectionExitValues, sectionEntryValues);
