@@ -16,6 +16,7 @@ interface TestProps {
 
 const testSections = {
     key1: {
+        sectionName: 'key1',
         type: 'section' as const,
         previousSection: null,
         nextSection: null,
@@ -25,6 +26,7 @@ const testSections = {
         navMenu: { type: 'inNav' as const, menuName: 'key1' }
     },
     key2: {
+        sectionName: 'key2',
         type: 'section' as const,
         previousSection: null,
         nextSection: null,

@@ -324,6 +324,7 @@ export type SectionConfig = {
 export type SurveySectionsConfig = { [sectionName: string]: SectionConfig };
 
 export type SectionConfigWithDefaults = Omit<SectionConfig, 'navMenu' | 'repeatedBlock'> & {
+    sectionName: string;
     type: 'section';
     navMenu: Exclude<SectionConfig['navMenu'], undefined>;
     /**
@@ -334,6 +335,7 @@ export type SectionConfigWithDefaults = Omit<SectionConfig, 'navMenu' | 'repeate
 };
 
 export type SectionConfigWithDefaultsBlock = Omit<SectionConfig, 'navMenu' | 'repeatedBlock' | 'nextSection'> & {
+    sectionName: string;
     type: 'repeatedBlock';
     navMenu: Exclude<SectionConfig['navMenu'], undefined>;
     repeatedBlock: Exclude<SectionConfig['repeatedBlock'], undefined>;
@@ -376,6 +378,7 @@ export const getAndValidateSurveySections = (sections: SurveySectionsConfig): Su
                 );
             }
             sectionsWithDefaults[sectionName] = {
+                sectionName,
                 ...sectionConfig,
                 type: 'repeatedBlock',
                 nextSection: sectionConfig.nextSection!,
@@ -384,6 +387,7 @@ export const getAndValidateSurveySections = (sections: SurveySectionsConfig): Su
             };
         } else if (sectionsInRepeatedBlock[sectionName]) {
             sectionsWithDefaults[sectionName] = {
+                sectionName,
                 ...sectionConfig,
                 type: 'section',
                 navMenu: sectionConfig.navMenu ?? {
@@ -394,6 +398,7 @@ export const getAndValidateSurveySections = (sections: SurveySectionsConfig): Su
             };
         } else {
             sectionsWithDefaults[sectionName] = {
+                sectionName,
                 ...sectionConfig,
                 type: 'section',
                 navMenu: sectionConfig.navMenu ?? { type: 'inNav', menuName: sectionConfig.title ?? '' }

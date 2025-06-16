@@ -25,6 +25,7 @@ describe('getAndValidateSurveySections', () => {
         const result = getAndValidateSurveySections(minimalSection);
         
         expect(result.section1).toEqual({
+            sectionName: 'section1',
             type: 'section',
             previousSection: null,
             nextSection: null,
@@ -46,6 +47,7 @@ describe('getAndValidateSurveySections', () => {
         const result = getAndValidateSurveySections(sectionWithTitle);
         
         expect(result.section1).toEqual({
+            sectionName: 'section1',
             type: 'section',
             title: { en: 'Test Section', fr: 'Section de test' },
             previousSection: null,
@@ -157,6 +159,7 @@ describe('getAndValidateSurveySections', () => {
         const result = getAndValidateSurveySections(completeSection);
         
         expect(result.section1).toEqual({
+            sectionName: 'section1',
             ...completeSection.section1,
             type: 'section'
         });
@@ -193,6 +196,7 @@ describe('getAndValidateSurveySections', () => {
 
         expect(result).toEqual(expect.objectContaining({
             section3: expect.objectContaining({
+                sectionName: 'section3',
                 type: 'section',
                 navMenu: { 
                     type: 'hidden', 
@@ -201,6 +205,7 @@ describe('getAndValidateSurveySections', () => {
                 repeatedBlockSection: 'section1'
             }),
             section1: expect.objectContaining({
+                sectionName: 'section1',
                 type: 'repeatedBlock',
                 navMenu: {
                     type: 'inNav',
