@@ -7,7 +7,7 @@
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { useParams } from 'react-router';
+import { useNavigate, useParams } from 'react-router';
 
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
@@ -37,12 +37,14 @@ const SurveyCorrection: React.FC = () => {
     const interview = useSelector((state: RootState) => state.survey.interview);
     const interviewLoaded = useSelector((state: RootState) => state.survey.interviewLoaded);
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
+    const navigate = useNavigate();
     const { interviewUuid } = useParams();
     const { sections } = useContext(SurveyContext);
 
     // Use the redux actions for the corrected interview
     const startUpdateInterviewAction: StartUpdateInterview = React.useCallback(
-        (data, callback) => dispatch(startUpdateSurveyCorrectedInterview(data, callback)),
+        (data, callback) =>
+            dispatch(startUpdateSurveyCorrectedInterview({ ...data, gotoFunction: navigate }, callback)),
         []
     );
     const startAddGroupedObjectsAction: StartAddGroupedObjects = React.useCallback(
@@ -65,7 +67,8 @@ const SurveyCorrection: React.FC = () => {
         []
     );
     const startNavigateAction: StartNavigate = React.useCallback(
-        (section: Parameters<StartNavigate>[0]) => dispatch(startNavigateCorrectedInterview(section)),
+        (options: Parameters<StartNavigate>[0]) =>
+            dispatch(startNavigateCorrectedInterview({ ...options, gotoFunction: navigate })),
         [dispatch]
     );
 

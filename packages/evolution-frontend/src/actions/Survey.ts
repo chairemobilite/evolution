@@ -491,7 +491,7 @@ const navigate = (targetSection: NavigationSection): SurveyAction => ({
 export const startNavigateWithUpdateCallback =
     (
         fctUpdateInterview: typeof startUpdateInterview,
-        { requestedSection, valuesByPath = {} }: Parameters<StartNavigate>[0] = {},
+        { requestedSection, valuesByPath = {}, gotoFunction }: Parameters<StartNavigate>[0] = {},
         callback?: Parameters<StartNavigate>[1]
     ) =>
         async (
@@ -587,6 +587,7 @@ export const startNavigateWithUpdateCallback =
             } catch (error) {
                 console.error('Error navigating to section', error);
                 handleClientError(error instanceof Error ? error : new Error(String(error)), {
+                    navigate: gotoFunction,
                     interviewId: getState().survey.interview?.id
                 });
             } finally {
