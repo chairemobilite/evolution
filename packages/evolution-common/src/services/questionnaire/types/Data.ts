@@ -384,13 +384,19 @@ export type StartRemoveGroupedObjects = (
  * update in the interview.  The key is the path to update and the value is the
  * new value. A dot-separated path will be exploded to the corresponding nested
  * object path.
+ * @param {GotoFunction} [options.gotoFunction] A function used to redirect the
+ * page to a specific URL
  * @param {(interview: UserRuntimeInterviewAttributes) => void} [callback] An
  * optional function to call after the interview has been updated and navigation
  * is complete
  * @returns The dispatched action
  */
 export type StartNavigate = (
-    options?: { requestedSection?: NavigationSection; valuesByPath?: { [path: string]: unknown } },
+    options?: {
+        requestedSection?: NavigationSection;
+        valuesByPath?: { [path: string]: unknown };
+        gotoFunction?: GotoFunction;
+    },
     callback?: (interview: UserRuntimeInterviewAttributes, targetSection: NavigationSection) => void
 ) => any;
 

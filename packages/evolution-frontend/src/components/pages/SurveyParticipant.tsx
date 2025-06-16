@@ -63,7 +63,7 @@ const SurveyParticipant: React.FC = () => {
         []
     );
     const startNavigateAction: StartNavigate = React.useCallback(
-        (section: Parameters<StartNavigate>[0]) => dispatch(startNavigate(section)),
+        (options: Parameters<StartNavigate>[0]) => dispatch(startNavigate({ ...options, gotoFunction: navigate })),
         [dispatch]
     );
 
