@@ -122,8 +122,9 @@ each([
     [3.4, 'integer', 3],
     [null, 'integer', null],
     [undefined, 'integer', undefined],
-    [[3], 'integer', undefined],
+    [[3], 'integer', 3],
     [{ test: 3 }, 'integer', undefined],
+    [['a', 'b'], 'integer', null, null],
     ['', 'integer', null],
     ['3', 'float', 3],
     ['3.4', 'float', 3.4],
@@ -131,9 +132,10 @@ each([
     [3.4, 'float', 3.4],
     [null, 'float', null],
     [undefined, 'float', undefined],
-    [[3], 'float', undefined],
+    [[3], 'float', 3],
     [{ test: 3 }, 'float', undefined],
     ['', 'float', null],
+    [['a', 'b'], 'float', null, null],
     ['true', 'boolean', true],
     [true, 'boolean', true],
     ['f', 'boolean', false],
@@ -147,6 +149,7 @@ each([
     [3, 'string', '3'],
     [null, 'string', null],
     [undefined, 'string', undefined],
+    [['str1', 'str2'], 'string', 'str1', ['str1', 'str2']],
     [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0,0] }, properties: {} }, 'geojson', { type: 'Feature', geometry: { type: 'Point', coordinates: [0,0] }, properties: {} }],
     // Should add the properties to the feature
     [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0,0] } }, 'geojson', { type: 'Feature', geometry: { type: 'Point', coordinates: [0,0] }, properties: {} }],
@@ -154,13 +157,25 @@ each([
     [3, 'geojson', null],
     ['not a feature', 'geojson', null],
     [null, 'geojson', null],
-    [[3, 4], undefined, [3, 4]],
+    [[3, 4], undefined, 3, [3, 4]],
     [{ test: 3 }, undefined, { test: 3 }],
     // TODO What about other data types? They are simply converted to string, should something else be done?
-    [[3, 4], 'string', String([3, 4])],
+    [[3, 4], 'string', '3', ['3', '4']],
     [{ test: 3 }, 'string', String({ test: 3 })]
-]).test('parseValue: %s %s', (value, type, expected) => {
-    expect(Helpers.parseValue(value, type)).toEqual(expected);
+]).describe('parseValue: %s %s', (value, type, expected, expectedAsArray) => {
+    test('asArray false', () => {
+        expect(Helpers.parseValue(value, type, false)).toEqual(expected);
+    });
+
+    test('asArray true', () => {
+        let expectedArray = expectedAsArray;
+        if (expectedAsArray === undefined && expected !== null && expected !== undefined) {
+            expectedArray = [expected];
+        } else if (expectedAsArray === undefined && expected === null) {
+            expectedArray = null;
+        }
+        expect(Helpers.parseValue(value, type, true)).toEqual(expectedArray);
+    });
 });
 
 each([

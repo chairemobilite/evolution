@@ -36,7 +36,7 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { QuestionWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
+import { QuestionWidgetConfig, isInputTypeWithArrayValue } from 'evolution-common/lib/services/questionnaire/types';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import InputWidgetWrapper from './widgets/InputWidgetWrapper';
 
@@ -90,7 +90,11 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
         const previousValue = widgetStatus.value;
         const previousCustomValue = widgetStatus.customValue;
         const value = e.target ? e.target.value : e; //InputDatePicker call onValueChange with e=value
-        const parsedValue = surveyHelper.parseValue(value, (widgetConfig as any).datatype);
+        const parsedValue = surveyHelper.parseValue(
+            value,
+            (widgetConfig as any).datatype,
+            isInputTypeWithArrayValue(widgetConfig.inputType)
+        );
         const parsedCustomValue = surveyHelper.parseValue(customValue, (widgetConfig as any).customDatatype);
         const [isValid] = checkValidations(
             widgetConfig.validations,

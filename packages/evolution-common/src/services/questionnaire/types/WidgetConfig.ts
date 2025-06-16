@@ -317,6 +317,10 @@ export type QuestionWidgetConfig =
     | InputSelectType
     | InputRadioNumberType;
 
+const inputTypesWithArrayValue: QuestionWidgetConfig['inputType'][] = ['checkbox', 'multiselect'];
+export const isInputTypeWithArrayValue = (inputType: QuestionWidgetConfig['inputType']): boolean =>
+    inputTypesWithArrayValue.includes(inputType);
+
 export type TextWidgetConfig = {
     type: 'text';
     align?: WidgetDirectionAlign;
