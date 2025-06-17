@@ -323,6 +323,15 @@ export type UserAction =
            * Widgets that were hidden in the previous section before navigating away
            */
           hiddenWidgets?: string[];
+      }
+    | {
+          type: 'languageChange';
+          language: string;
+      }
+    | {
+          type: 'interviewOpen';
+          browser: { [key: string]: unknown };
+          language: string;
       };
 
 /**

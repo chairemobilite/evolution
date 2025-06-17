@@ -17,7 +17,9 @@ type ParadataEventType =
     | 'button_click'
     | 'side_effect'
     | 'server_event'
-    | 'section_change';
+    | 'section_change'
+    | 'language_change'
+    | 'interview_open';
 
 const log = async ({
     interviewId,

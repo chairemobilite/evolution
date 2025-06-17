@@ -8,6 +8,7 @@ import { getParadataLoggingFunction } from '../paradataLogging';
 import config from 'chaire-lib-backend/lib/config/server.config';
 
 import paradataEventsDbQueries from '../../../models/paradataEvents.db.queries';
+import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
 
 jest.mock('../../../models/paradataEvents.db.queries', () => ({
     log: jest.fn().mockResolvedValue(true),
@@ -87,6 +88,49 @@ describe('Log for a participant', () => {
 
         expect(mockLog).toHaveBeenCalledWith({
             eventType: 'section_change',
+            eventData: {
+                ...logData,
+                userAction
+            },
+            interviewId,
+            userId: undefined
+        });
+        
+    });
+
+    it('Should correctly log a language change', async () => {
+        const userAction: UserAction = {
+            type: 'languageChange' as const,
+            language: 'fr'
+        };
+        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
+
+        expect(await logFunction!({ userAction, ...logData})).toBe(true);
+
+        expect(mockLog).toHaveBeenCalledWith({
+            eventType: 'language_change',
+            eventData: {
+                ...logData,
+                userAction
+            },
+            interviewId,
+            userId: undefined
+        });
+        
+    });
+
+    it('Should correctly log a interview open', async () => {
+        const userAction: UserAction = {
+            type: 'interviewOpen' as const,
+            browser: { name: 'Firefox'},
+            language: 'fr'
+        };
+        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
+
+        expect(await logFunction!({ userAction, ...logData})).toBe(true);
+
+        expect(mockLog).toHaveBeenCalledWith({
+            eventType: 'interview_open',
             eventData: {
                 ...logData,
                 userAction
@@ -218,6 +262,70 @@ describe('Log for a user', () => {
 
         expect(mockLog).toHaveBeenCalledWith({
             eventType: 'button_click',
+            eventData: {
+                ...logData,
+                userAction
+            },
+            interviewId,
+            userId
+        });
+        
+    });
+
+    it('Should correctly log a section change', async () => {
+        const userAction = {
+            type: 'sectionChange' as const,
+            targetSection: { sectionShortname: 'section1' }
+        };
+        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
+
+        expect(await logFunction!({ userAction, ...logData})).toBe(true);
+
+        expect(mockLog).toHaveBeenCalledWith({
+            eventType: 'section_change',
+            eventData: {
+                ...logData,
+                userAction
+            },
+            interviewId,
+            userId
+        });
+        
+    });
+
+    it('Should correctly log a language change', async () => {
+        const userAction: UserAction = {
+            type: 'languageChange' as const,
+            language: 'fr'
+        };
+        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
+
+        expect(await logFunction!({ userAction, ...logData})).toBe(true);
+
+        expect(mockLog).toHaveBeenCalledWith({
+            eventType: 'language_change',
+            eventData: {
+                ...logData,
+                userAction
+            },
+            interviewId,
+            userId
+        });
+        
+    });
+
+    it('Should correctly log a interview open', async () => {
+        const userAction: UserAction = {
+            type: 'interviewOpen' as const,
+            browser: { name: 'Firefox'},
+            language: 'fr'
+        };
+        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
+
+        expect(await logFunction!({ userAction, ...logData})).toBe(true);
+
+        expect(mockLog).toHaveBeenCalledWith({
+            eventType: 'interview_open',
             eventData: {
                 ...logData,
                 userAction
