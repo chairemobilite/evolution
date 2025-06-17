@@ -14,7 +14,7 @@ import Interviews, { FilterType } from '../services/interviews/interviews';
 import { updateInterview, copyResponseToCorrectedResponse } from '../services/interviews/interview';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import projectConfig from '../config/projectConfig';
-import { mapResponseToCorrectedResponse } from '../services/interviews/interviewUtils';
+import { handleUserActionSideEffect, mapResponseToCorrectedResponse } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
 import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -96,14 +96,17 @@ router.post(
                 return res.status(200).json({ status: 'success', interviewId: req.params.interviewUuid });
             }
 
-            const {
-                valuesByPath: mappedValuesByPath,
-                unsetPaths,
-                userAction
-            } = mapResponseToCorrectedResponse(valuesByPath, origUnsetPaths, content.userAction);
-
             const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
             if (interview) {
+                if (content.userAction) {
+                    handleUserActionSideEffect(interview, valuesByPath, content.userAction);
+                }
+                const {
+                    valuesByPath: mappedValuesByPath,
+                    unsetPaths,
+                    userAction
+                } = mapResponseToCorrectedResponse(valuesByPath, origUnsetPaths, content.userAction);
+
                 const canConfirm = isUserAllowed(req.user as UserAttributes, interview, ['confirm']);
                 const fieldsToUpdate: (keyof InterviewAttributes)[] = [
                     'corrected_response',
