@@ -18,6 +18,7 @@ import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMid
 import { logClientSide } from '../services/logging/messageLogging';
 import { updateInterview } from '../services/interviews/interview';
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
+import { handleUserActionSideEffect } from '../services/interviews/interviewUtils';
 
 /**
  * Add the common survey routes to the router
@@ -70,6 +71,10 @@ export default (router: Router, authorizationMiddleware, loggingMiddleware: Inte
                 if (interview) {
                     interview.response._ip = ip;
                     interview.response._updatedAt = timestamp;
+                    // Handle user action side effects to add some values to the valuesByPath
+                    if (userAction) {
+                        handleUserActionSideEffect(interview, valuesByPath, userAction);
+                    }
                     const retInterview = await updateInterview(interview, {
                         logUpdate: getParadataLoggingFunction(interview.id, loggingMiddleware.getUserIdForLogging(req)),
                         valuesByPath,
