@@ -55,6 +55,10 @@ const userActionTypeToDbType = (
         return 'widget_interaction';
     case 'sectionChange':
         return 'section_change';
+    case 'languageChange':
+        return 'language_change';
+    case 'interviewOpen':
+        return 'interview_open';
     default:
         console.warn(`Unknown user action type: ${(userAction as any).type}. Falling back to 'legacy'.`);
         return 'legacy';

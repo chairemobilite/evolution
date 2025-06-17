@@ -9,6 +9,7 @@ import { ObjectReadableMock, ObjectWritableMock } from 'stream-mock';
 import paradataDbQueries from '../../../models/paradataEvents.db.queries';
 
 import { exportInterviewLogTask } from '../exportInterviewLogs';
+import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
 
 // Mock the database log stream
 jest.mock('../../../models/paradataEvents.db.queries', () => ({
@@ -592,6 +593,106 @@ describe('exportInterviewLogTask', () => {
             hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|'),
         });
         
+    });
+
+    test('Test with an event of type language_change with user action', async () => {
+        // Add one log statement, with/without hidden paths to test the button_click event:
+        const languageChange: UserAction = { type: 'languageChange', language: 'fr' };
+        const languageLogs: { [key: string]: any }[] = [{
+            ...commonInterviewData,
+            event_type: 'language_change',
+            timestamp_sec: 1,
+            event_date: new Date(1 * 1000),
+            values_by_path: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true, 'response.household.size': 3, 'response._activeTripId': null },
+            unset_paths: [ 'response.home.someField', 'validations.home.someField' ],
+            user_action: languageChange
+        }];
+        // Add the logs to the stream
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(languageLogs) as any);
+
+        const fileName = await exportInterviewLogTask({});
+
+        // Check the file content of the exported logs
+        expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+
+        const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+        expect(csvFileName).toBeDefined();
+
+        const csvStream = fileStreams[csvFileName as string];
+        // There should be one row per log
+        expect(csvStream.data.length).toEqual(languageLogs.length);
+
+        // Get the actual rows in the file data
+        const logRows = await getCsvFileRows(csvStream.data);
+        // There should be one row per log
+        expect(logRows.length).toEqual(languageLogs.length);
+
+        // Test the row values
+        const modifiedKeysLog1 = Object.entries(languageLogs[0].values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
+        const initializedKeysLog1 = Object.entries(languageLogs[0].values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
+        expect(logRows[0]).toEqual({
+            ...commonInterviewDataInRows,
+            event_type: 'language_change',
+            timestampMs : String((1) * 1000),
+            event_date: new Date((1) * 1000).toISOString(),
+            modifiedFields: modifiedKeysLog1,
+            initializedFields: initializedKeysLog1,
+            unsetFields: languageLogs[0].unset_paths !== undefined ? languageLogs[0].unset_paths.join('|') : '',
+            widgetType: '',
+            widgetPath: '',
+            hiddenWidgets: '',
+        });
+    });
+
+    test('Test with an event of type interview_open with user action', async () => {
+        // Add one log statement, with/without hidden paths to test the button_click event:
+        const userAction: UserAction = { type: 'interviewOpen', language: 'en', browser: { name: 'firefox' } };
+        const interviewOpenLogs: { [key: string]: any }[] = [{
+            ...commonInterviewData,
+            event_type: 'interview_open',
+            timestamp_sec: 1,
+            event_date: new Date(1 * 1000),
+            values_by_path: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true, 'response.household.size': 3, 'response._activeTripId': null },
+            unset_paths: [ 'response.home.someField', 'validations.home.someField' ],
+            user_action: userAction
+        }];
+        // Add the logs to the stream
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(interviewOpenLogs) as any);
+
+        const fileName = await exportInterviewLogTask({});
+
+        // Check the file content of the exported logs
+        expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+
+        const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+        expect(csvFileName).toBeDefined();
+
+        const csvStream = fileStreams[csvFileName as string];
+        // There should be one row per log
+        expect(csvStream.data.length).toEqual(interviewOpenLogs.length);
+
+        // Get the actual rows in the file data
+        const logRows = await getCsvFileRows(csvStream.data);
+        // There should be one row per log
+        expect(logRows.length).toEqual(interviewOpenLogs.length);
+
+        // Test the row values
+        const modifiedKeysLog1 = Object.entries(interviewOpenLogs[0].values_by_path).filter(([key, value]) => value !== null).map(([key, value]) => key).join('|');
+        const initializedKeysLog1 = Object.entries(interviewOpenLogs[0].values_by_path).filter(([key, value]) => value === null).map(([key, value]) => key).join('|');
+        expect(logRows[0]).toEqual({
+            ...commonInterviewDataInRows,
+            event_type: 'interview_open',
+            timestampMs : String((1) * 1000),
+            event_date: new Date((1) * 1000).toISOString(),
+            modifiedFields: modifiedKeysLog1,
+            initializedFields: initializedKeysLog1,
+            unsetFields: interviewOpenLogs[0].unset_paths !== undefined ? interviewOpenLogs[0].unset_paths.join('|') : '',
+            widgetType: '',
+            widgetPath: '',
+            hiddenWidgets: '',
+        });
     });
 
 });
