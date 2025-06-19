@@ -26,7 +26,7 @@ requests = "2.32.4"
 ruamel-yaml = "0.18.5"
 ruamel-yaml-clib = "0.2.8"
 typing-extensions = "4.8.0"
-urllib3 = "2.3.0"
+urllib3 = "2.5.0"
 
 [tool.poetry.scripts]
 generateSurvey = "scripts.generate_survey:main"
