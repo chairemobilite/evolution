@@ -17,6 +17,7 @@ import Button from 'chaire-lib-frontend/lib/components/input/Button';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { RootState } from 'chaire-lib-frontend/lib/store/configureStore';
 import { InterviewContext } from '../../../contexts/InterviewContext';
+import CaptchaComponent from 'chaire-lib-frontend/lib/components/captcha/CaptchaComponent';
 
 type ByFieldLoginFormProps = {
     headerText?: string;
@@ -30,6 +31,10 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({ headerText, buttonT
     const location = useLocation();
     const navigate = useNavigate();
     const { dispatch: interviewDispatch } = React.useContext(InterviewContext);
+    const [{ isCaptchaValid, captchaToken }, setCaptchaResult] = React.useState<{
+        isCaptchaValid: boolean;
+        captchaToken: unknown;
+    }>({ isCaptchaValid: false, captchaToken: null });
 
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
     const login = useSelector((state: RootState) => state.auth.login);
@@ -107,6 +112,11 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({ headerText, buttonT
             return;
         }
 
+        if (hasInvalidCredentials && !isCaptchaValid) {
+            setFormState((prev) => ({ ...prev, error: 'auth:captchaRequired' }));
+            return;
+        }
+
         // Pass the access code to the interview context
         interviewDispatch({ type: 'enter', queryData: new URLSearchParams(`?accessCode=${formState.accessCode}`) });
 
@@ -117,7 +127,8 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({ headerText, buttonT
                 {
                     accessCode: formState.accessCode,
                     postalCode: formState.postalCode,
-                    confirmCredentials: formState.confirmCredentials
+                    confirmCredentials: formState.confirmCredentials,
+                    captchaToken: captchaToken
                 },
                 location,
                 navigate
@@ -193,6 +204,11 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({ headerText, buttonT
                             />
                             {t('auth:ConfirmCredentials')}
                         </label>
+                        <CaptchaComponent
+                            onCaptchaValid={(isValid, captchaToken) => {
+                                setCaptchaResult({ isCaptchaValid: isValid, captchaToken });
+                            }}
+                        />
                     </div>
                 )}
             </div>
