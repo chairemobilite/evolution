@@ -14,6 +14,7 @@ import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import Interviews from '../services/interviews/interviews';
 import { sendSupportRequestEmail } from '../services/logging/supportRequest';
+import { validateCaptchaToken } from 'chaire-lib-backend/lib/api/captcha.routes';
 
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
 import addCommonRoutes from './survey.common.routes';
@@ -23,7 +24,7 @@ export const getPublicParticipantRoutes = () => {
     const publicRouter = express.Router();
 
     if (projectConfig.surveySupportForm === true) {
-        publicRouter.post('/supportRequest/', async (req: Request, res: Response) => {
+        publicRouter.post('/supportRequest/', validateCaptchaToken(), async (req: Request, res: Response) => {
             try {
                 const content = req.body;
 

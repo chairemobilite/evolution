@@ -83,7 +83,12 @@ export const startRegisterWithPassword = AuthBase.startRegisterWithPassword;
 
 export const startForgotPasswordRequest = AuthBase.startForgotPasswordRequest;
 
-export type ByFieldLoginData = { accessCode: string; postalCode: string; confirmCredentials: boolean | undefined };
+export type ByFieldLoginData = {
+    accessCode: string;
+    postalCode: string;
+    confirmCredentials: boolean | undefined;
+    captchaToken?: unknown;
+};
 export const startByFieldLogin = (
     data: ByFieldLoginData,
     location: Location,

@@ -95,3 +95,4 @@ support:
   helpButton: "Besoin d'aide?"
   helpButtonLabel: "Ouvrir le formulaire d'aide"
   close: "Fermer"
+  captchaRequired: "Veuillez confirmer que vous n'êtes pas un robot en cochant la case ci-dessous."
