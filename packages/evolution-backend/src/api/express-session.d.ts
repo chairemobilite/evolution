@@ -17,5 +17,6 @@ declare module 'express-session' {
             interviewId: string;
             updatedPaths: string[];
         };
+        failedAuthByFieldAttempts?: number; // Number of failed attempts for auth-by-field
     }
 }

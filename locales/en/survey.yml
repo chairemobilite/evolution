@@ -85,3 +85,4 @@ support:
   helpButton: "Need Help?"
   helpButtonLabel: "Open support form"
   close: "Close"
+  captchaRequired: "Please complete the CAPTCHA to submit your message."

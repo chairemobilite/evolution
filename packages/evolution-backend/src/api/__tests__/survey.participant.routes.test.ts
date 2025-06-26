@@ -11,7 +11,6 @@ import Interviews from '../../services/interviews/interviews';
 import { InterviewLoggingMiddlewares } from '../../services/logging/queryLoggingMiddleware';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
 import { sendSupportRequestEmail } from '../../services/logging/supportRequest';
-import projectConfig from 'evolution-common/lib/config/project.config';
 
 jest.mock('../../services/interviews/interviews');
 jest.mock('../../services/logging/queryLoggingMiddleware');
@@ -35,6 +34,14 @@ jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
     }),
 }));
 const mockIsLoggedIn = isLoggedIn as jest.MockedFunction<typeof isLoggedIn>;
+
+// Mock the captcha validation, return next() to simulate successful validation
+jest.mock('chaire-lib-backend/lib/api/captcha.routes', () => ({
+    validateCaptchaToken: jest.fn().mockImplementation(() => mockedValidateCaptchaToken)
+}));
+const mockedValidateCaptchaToken = jest.fn().mockImplementation((req, res, next) => {
+    next();
+});
 
 const app = express();
 app.use(express.json());
@@ -127,8 +134,7 @@ describe('POST /supportRequest', () => {
     publicApp.use(getPublicParticipantRoutes());
 
     beforeEach(() => {
-        (sendSupportRequestEmail as jest.Mock).mockClear();
-        (Interviews.getUserInterview as jest.Mock).mockClear();
+        jest.clearAllMocks();
     });
 
     test('should handle support request successfully when user is not logged in', async () => {
@@ -153,6 +159,7 @@ describe('POST /supportRequest', () => {
             currentUrl: requestData.currentUrl
         });
         expect(Interviews.getUserInterview).not.toHaveBeenCalled();
+        expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
     });
 
     test('should handle support request successfully when user is logged in', async () => {
@@ -188,6 +195,7 @@ describe('POST /supportRequest', () => {
             interviewId: mockInterview.id,
             currentUrl: requestData.currentUrl
         });
+        expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
     });
 
     test('should handle missing message in request', async () => {
@@ -210,6 +218,7 @@ describe('POST /supportRequest', () => {
             interviewId: undefined,
             currentUrl: 'http://test.com/page'
         });
+        expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
     });
 
     test('should handle errors in support request processing', async () => {
@@ -226,6 +235,31 @@ describe('POST /supportRequest', () => {
 
         expect(response.status).toBe(500);
         expect(response.body).toEqual({ status: 'failed' });
+        expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
+    });
+
+    test('not be called if the captcha does not validate', async () => {
+        // Make the captcha fail
+        mockedValidateCaptchaToken.mockImplementationOnce((req, res, next) => {
+            return res.status(403).json({ status: 'InvalidCaptcha' });
+        })
+
+        const requestData = {
+            email: 'test@example.com',
+            message: 'Help me please',
+            currentUrl: 'http://test.com/page'
+        };
+
+        (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
+
+        const response = await request(publicApp)
+            .post('/supportRequest/')
+            .send(requestData);
+
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({ status: 'InvalidCaptcha' });
+        expect(sendSupportRequestEmail).not.toHaveBeenCalled();
+        expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
     });
 
     test('should not register route when supportForm is disabled', async () => {
@@ -248,5 +282,7 @@ describe('POST /supportRequest', () => {
 
         // When route doesn't exist, Express returns 404 Not Found
         expect(response.status).toBe(404);
+        expect(mockedValidateCaptchaToken).not.toHaveBeenCalled();
     });
+
 });
