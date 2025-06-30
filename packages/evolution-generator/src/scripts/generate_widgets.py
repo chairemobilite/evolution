@@ -27,6 +27,18 @@ class ParametersResult(TypedDict):
     over_max_allowed: bool
 
 
+class WidgetResult(TypedDict):
+    """
+    TypedDict to hold the result of widget statement generation.
+    It contains:
+    - statement: str, the TypeScript code for the widget
+    - needsHelperImport: bool, whether the widget needs survey helper imports
+    """
+
+    statement: str
+    needsHelperImport: bool
+
+
 # Function to generate widgets.tsx for each section
 def generate_widgets(excel_file_path: str, widgets_output_folder: str):
     try:
@@ -106,6 +118,12 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                     # Check if the label contains '{{genderedSuffix:...}}'
                     has_gendered_suffix_label = True
 
+            # Generate widgets statements
+            widget_results = [generate_widget_statement(row) for row in section_rows]
+            needs_helper_import = any(
+                result["needsHelperImport"] for result in widget_results
+            )
+
             # Generate import statements
             import_statements = generate_import_statements(
                 has_choices_import,
@@ -118,12 +136,10 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                 has_nickname_label,
                 has_persons_count_label,
                 has_gendered_suffix_label,
+                needs_helper_import,
             )
 
-            # Generate widgets statements
-            widgets_statements = [
-                generate_widget_statement(row) for row in section_rows
-            ]
+            widgets_statements = [result["statement"] for result in widget_results]
             widgets_statements = (
                 f"{import_statements}\n{'\n\n'.join(widgets_statements)}\n"
             )
@@ -174,7 +190,7 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
 
 
 # Generate widget statement for a row
-def generate_widget_statement(row):
+def generate_widget_statement(row) -> WidgetResult:
     question_name = row["questionName"]
     input_type = row["inputType"]
     section = row["section"]
@@ -187,11 +203,13 @@ def generate_widget_statement(row):
     confirm_popup = row["confirm_popup"] if "confirm_popup" in row else None
     widget_label = generate_label(section, path, row)
 
-    widget: str = ""
+    # Initialize result with default values
+    result: WidgetResult = {"statement": "", "needsHelperImport": False}
+
     if input_type == "Custom":
-        widget = generate_custom_widget(question_name)
+        result["statement"] = generate_custom_widget(question_name)
     elif input_type == "Radio":
-        widget = generate_radio_widget(
+        result["statement"] = generate_radio_widget(
             question_name,
             path,
             choices,
@@ -202,7 +220,7 @@ def generate_widget_statement(row):
             row,
         )
     elif input_type == "RadioNumber":
-        widget = generate_radio_number_widget(
+        result = generate_radio_number_widget(
             question_name,
             path,
             help_popup,
@@ -212,7 +230,7 @@ def generate_widget_statement(row):
             row,
         )
     elif input_type == "Select":
-        widget = generate_select_widget(
+        result["statement"] = generate_select_widget(
             question_name,
             path,
             choices,
@@ -222,7 +240,7 @@ def generate_widget_statement(row):
             row,
         )
     elif input_type == "String":
-        widget = generate_string_widget(
+        result["statement"] = generate_string_widget(
             question_name,
             path,
             help_popup,
@@ -232,7 +250,7 @@ def generate_widget_statement(row):
             row,
         )
     elif input_type == "Number":
-        widget = generate_number_widget(
+        result["statement"] = generate_number_widget(
             question_name,
             path,
             help_popup,
@@ -242,11 +260,11 @@ def generate_widget_statement(row):
             row,
         )
     elif input_type == "InfoText":
-        widget = generate_info_text_widget(
+        result["statement"] = generate_info_text_widget(
             question_name, section, path, conditional, row
         )
     elif input_type == "Range":
-        widget = generate_range_widget(
+        result["statement"] = generate_range_widget(
             question_name,
             path,
             input_range,
@@ -256,7 +274,7 @@ def generate_widget_statement(row):
             row,
         )
     elif input_type == "Checkbox":
-        widget = generate_checkbox_widget(
+        result["statement"] = generate_checkbox_widget(
             question_name,
             path,
             choices,
@@ -267,17 +285,17 @@ def generate_widget_statement(row):
             row,
         )
     elif input_type == "NextButton":
-        widget = generate_next_button_widget(
+        result["statement"] = generate_next_button_widget(
             question_name, path, confirm_popup, widget_label, row
         )
     elif input_type == "Text":
-        widget = generate_text_widget(
+        result["statement"] = generate_text_widget(
             question_name, path, conditional, validation, widget_label, row
         )
     else:
-        widget = f"// {question_name}"
+        result["statement"] = f"// {question_name}"
 
-    return widget
+    return result
 
 
 # Define a function to generate the widget name for a given row and group
@@ -345,10 +363,12 @@ def generate_import_statements(
     has_nickname_label,
     has_persons_count_label,
     has_gendered_suffix_label,
+    needs_helper_import=False,
 ):
     od_survey_helpers_import = ""
     if has_nickname_label or has_gendered_suffix_label or has_persons_count_label:
         od_survey_helpers_import = "import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';\n"
+
     choices_import = (
         "// " if not has_choices_import else ""
     ) + "import * as choices from '../../common/choices';\n"
@@ -375,6 +395,11 @@ def generate_import_statements(
         if has_gendered_suffix_label == True
         else ""
     )
+    survey_helper_import = (
+        "import * as surveyHelper from 'evolution-common/lib/utils/helpers';\n"
+        if needs_helper_import == True
+        else ""
+    )
     return (
         f"import {{ TFunction }} from 'i18next';\n"
         f"import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';\n"
@@ -382,6 +407,7 @@ def generate_import_statements(
         f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
         f"import * as validations from 'evolution-common/lib/services/widgets/validations/validations';\n"
         f"{od_survey_helpers_import}"
+        f"{survey_helper_import}"
         f"{choices_import}"
         f"{conditionals_import}"
         f"{input_range_import}"
@@ -648,16 +674,30 @@ def generate_radio_number_widget(
     validation,
     widget_label,
     row,
-):
+) -> WidgetResult:
     """
     - Parses min and max from the 'parameters' column (format: min=0\\nmax=17), defaults to min=0, max=6.
     - Parses overMaxAllowed from the 'parameters' column (set to true if a line is 'overMaxAllowed').
     - Generates the TypeScript widget code for InputRadioNumberType.
     """
     parameters: ParametersResult = get_parameters_values(row)
-    min_value = parameters["min_value"]
-    max_value = parameters["max_value"]
     over_max_allowed = parameters["over_max_allowed"]
+
+    result: WidgetResult = {"statement": "", "needsHelperImport": False}
+
+    # Determine the value of min_value and max_value based on their types
+    if isinstance(parameters["min_value"], str):
+        min_value = f"(interview) => surveyHelper.getResponse(interview, '{parameters["min_value"]}', 0) as any"
+        result["needsHelperImport"] = True
+    else:
+        min_value = parameters["min_value"]
+
+    # Determine the value of max_value based on its type
+    if isinstance(parameters["max_value"], str):
+        max_value = f"(interview) => surveyHelper.getResponse(interview, '{parameters["max_value"]}', 0) as any"
+        result["needsHelperImport"] = True
+    else:
+        max_value = parameters["max_value"]
 
     value_range = (
         f"{INDENT}valueRange: {{\n"
@@ -666,7 +706,7 @@ def generate_radio_number_widget(
         f"{INDENT}}},\n"
     )
     over_max = f"{INDENT}overMaxAllowed: true,\n" if over_max_allowed else ""
-    return (
+    result["statement"] = (
         f"{generate_constExport(question_name, 'InputRadioNumberType')}\n"
         f"{generate_defaultInputBase('inputRadioNumberBase')},\n"
         f"{generate_path(path)},\n"
@@ -679,6 +719,7 @@ def generate_radio_number_widget(
         f"{generate_validation(validation)}\n"
         f"}};"
     )
+    return result
 
 
 # Generate Select widget
@@ -861,19 +902,19 @@ def get_parameters_values(row) -> ParametersResult:
     # TODO:Put some warnings if the wrong parameters are used depending on the input type
     for line in param_lines:
         if line.startswith("min="):
+            min_value = line.split("=", 1)[1]
             try:
-                result["min_value"] = int(line.split("=", 1)[1])
+                result["min_value"] = int(min_value)
             except ValueError:
-                print(
-                    "ValueError: Invalid min value in parameters in Widgets sheet. Expected format: min=0"
-                )
+                # keep the string, it is a response path
+                result["min_value"] = min_value
         elif line.startswith("max="):
+            max_value = line.split("=", 1)[1]
             try:
-                result["max_value"] = int(line.split("=", 1)[1])
+                result["max_value"] = int(max_value)
             except ValueError:
-                print(
-                    "ValueError: Invalid max value in parameters in Widgets sheet. Expected format: max=6"
-                )
+                # keep the string, it is a response path
+                result["max_value"] = max_value
         elif line.strip() == "overMaxAllowed":
             result["over_max_allowed"] = True
         elif line.strip() != "":
@@ -881,8 +922,13 @@ def get_parameters_values(row) -> ParametersResult:
                 f"Warning: Unrecognized line in parameters in Widgets sheet: '{line}'. Expected format: min=0\\nmax=6\\noverMaxAllowed."
             )
 
-    # Validate min < max
-    if result["min_value"] >= result["max_value"]:
+    # Validate min < max if they are numbers
+    if isinstance(result["min_value"], str) or isinstance(result["max_value"], str):
+        # If either min or max is a string, we cannot compare them as numbers
+        print(
+            f"Warning: Cannot compare min ({result['min_value']}) and max ({result['max_value']}) as they are not both numbers."
+        )
+    elif result["min_value"] >= result["max_value"]:
         print(
             f"ValueError: min ({result['min_value']}) must be less than max ({result['max_value']}) in parameters in Widgets sheet."
         )

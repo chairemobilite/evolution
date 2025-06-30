@@ -20,7 +20,8 @@
     "format": "prettier-eslint ./src/**/*.{ts,tsx} --write",
     "format:python": "poetry run black .",
     "format:all": "yarn format && yarn format:python",
-    "generateSurvey": "poetry run generateSurvey"
+    "generateSurvey": "poetry run generateSurvey",
+    "test:python": "poetry run pytest -v --disable-warnings --tb=short"
   },
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
