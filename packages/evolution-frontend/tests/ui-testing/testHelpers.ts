@@ -179,14 +179,14 @@ const focusOut = async (page) => {
 
 // Test if the page has a title
 export const hasTitleTest: HasTitleTest = ({ context, title }) => {
-    test(`Has title ${title}`, async () => {
+    test(`Has title ${title} - ${getTestCounter(context, 'hasTitle')}`, async () => {
         await expect(context.page).toHaveTitle(title);
     });
 };
 
 // Test if the page has a french language
 export const hasFrenchTest: HasFrenchTest = ({ context }) => {
-    test('Has French language', async () => {
+    test(`Has French language - ${getTestCounter(context, 'hasFrenchLanguage')}`, async () => {
         const englishButton = context.page.getByRole('button', { name: 'English' });
         await expect(englishButton).toHaveText('English');
     });
@@ -199,7 +199,7 @@ export const hasFrenchTest: HasFrenchTest = ({ context }) => {
  * @param {Object} context.page - The page object from the test context.
  */
 export const switchToEnglishTest: SwitchToLanguageTest = ({ context }) => {
-    test('Switch to English language', async () => {
+    test(`Switch to English language - ${getTestCounter(context, 'switchToEnglish')}`, async () => {
         const englishButton = context.page.getByRole('button', { name: 'English' });
         await englishButton.click();
         const frenchButton = context.page.getByRole('button', { name: 'Français' });
@@ -214,7 +214,7 @@ export const switchToEnglishTest: SwitchToLanguageTest = ({ context }) => {
  * @param {Object} context.page - The page object from the test context.
  */
 export const switchToFrenchTest: SwitchToLanguageTest = ({ context }) => {
-    test('Switch to French language', async () => {
+    test(`Switch to French language - ${getTestCounter(context, 'switchToFrench')}`, async () => {
         const frenchButton = context.page.getByRole('button', { name: 'Français' });
         await frenchButton.click();
         const englishButton = context.page.getByRole('button', { name: 'English' });
@@ -224,7 +224,7 @@ export const switchToFrenchTest: SwitchToLanguageTest = ({ context }) => {
 
 // Test if the page has consent
 export const hasConsentTest: HasConsentTest = ({ context }) => {
-    test('Has consent', async () => {
+    test(`Has consent - ${getTestCounter(context, 'hasConsent')}`, async () => {
         const consentCheckbox = context.page.locator('id=surveyConsent');
         await consentCheckbox.click();
         await expect(consentCheckbox).toBeChecked();
@@ -239,7 +239,7 @@ export const hasConsentTest: HasConsentTest = ({ context }) => {
  * @param {string} [nextUrl] - The URL to navigate to after clicking the start survey button. Defaults to '/login'.
  */
 export const startSurveyTest: StartSurveyTest = ({ context, nextUrl }) => {
-    test('Start survey', async () => {
+    test(`Start survey - ${getTestCounter(context, 'startSurvey')}`, async () => {
         const startPage = nextUrl || '/login';
         const startSurvey = context.page.getByRole('button', {
             name: i18n.t(['survey:homepage:start', 'homepage:start']) as string
@@ -304,7 +304,7 @@ export const registerWithEmailTest: RegisterWithEmailTest = ({ context, email, n
  * after registration, defaults to '/survey/home'.
  */
 export const registerWithAccessPostalCodeTest: RegisterWithAccessPostalCodeTest = ({ context, accessCode, postalCode, expectedToExist = true, nextPageUrl = '/survey/home' }) => {
-    test('Register with access and postal codes', async () => {
+    test(`Register with access and postal codes - ${getTestCounter(context, 'registerWithAccessPostalCodeTest')}`, async () => {
         const accessCodeInput = context.page.locator('id=accessCode');
         const postalCodeInput = context.page.locator('id=postalCode');
         const confirmButton = context.page.getByRole('button', {
@@ -328,7 +328,7 @@ export const registerWithAccessPostalCodeTest: RegisterWithAccessPostalCodeTest 
 
 // Test if the page has a logout button
 export const logoutTest: SimpleAction = ({ context }) => {
-    test('Logout from survey', async () => {
+    test(`Logout from survey - ${getTestCounter(context, 'loginSurvey')}`, async () => {
         const logoutButton = context.page.getByRole('button', {
             name: i18n.t(['survey:auth:Logout', 'auth:Logout']) as string
         });
