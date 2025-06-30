@@ -348,7 +348,7 @@ def test_generate_radio_number_widget_basic():
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(section=row["section"], path=row["path"], row=row)
-    code = generate_radio_number_widget(
+    result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
         row["help_popup"],
@@ -357,6 +357,7 @@ def test_generate_radio_number_widget_basic():
         widget_label,
         row,
     )
+    code = result["statement"]
     assert "export const household_size: WidgetConfig.InputRadioNumberType = {" in code
     assert "...defaultInputBase.inputRadioNumberBase," in code
     assert "path: 'household.size'," in code
@@ -367,6 +368,7 @@ def test_generate_radio_number_widget_basic():
     assert "conditional: defaultConditional" in code
     assert "validations: validations.requiredValidation" in code
     assert code.strip().endswith("};")
+    assert result["needsHelperImport"] is False
 
 
 def test_generate_radio_number_widget_complex():
@@ -385,7 +387,7 @@ def test_generate_radio_number_widget_complex():
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(section=row["section"], path=row["path"], row=row)
-    code = generate_radio_number_widget(
+    result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
         row["help_popup"],
@@ -394,6 +396,7 @@ def test_generate_radio_number_widget_complex():
         widget_label,
         row,
     )
+    code = result["statement"]
     assert "export const household_size: WidgetConfig.InputRadioNumberType = {" in code
     assert "...defaultInputBase.inputRadioNumberBase," in code
     assert "path: 'household.size'," in code
@@ -405,9 +408,10 @@ def test_generate_radio_number_widget_complex():
     assert "conditional: conditionals.someConditional" in code
     assert "validations: validations.householdSizeValidation" in code
     assert code.strip().endswith("};")
+    assert result["needsHelperImport"] is False
 
 
-def test_generate_radio_number_widget_invalid_min_max(capsys):
+def test_generate_radio_number_widget_min_max_field_values(capsys):
     """Test generate_radio_number_widget prints error when min/max are not integers"""
     row = {
         "questionName": "household_size",
@@ -423,7 +427,7 @@ def test_generate_radio_number_widget_invalid_min_max(capsys):
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(section=row["section"], path=row["path"], row=row)
-    code = generate_radio_number_widget(
+    result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
         row["help_popup"],
@@ -433,16 +437,20 @@ def test_generate_radio_number_widget_invalid_min_max(capsys):
         row,
     )
     captured = capsys.readouterr()
+    code = result["statement"]
     assert (
-        "ValueError: Invalid min value in parameters in Widgets sheet. Expected format: min=0"
+        "Warning: Cannot compare min (abc) and max (xyz) as they are not both numbers."
         in captured.out
     )
     assert (
-        "ValueError: Invalid max value in parameters in Widgets sheet. Expected format: max=6"
-        in captured.out
-    )
-    assert "min: 0" in code  # default min is 0
-    assert "max: 6" in code  # default max is 6
+        "min: (interview) => surveyHelper.getResponse(interview, 'abc', 0) as any"
+        in code
+    )  # default min is 0
+    assert (
+        "max: (interview) => surveyHelper.getResponse(interview, 'xyz', 0) as any"
+        in code
+    )  # default max is 6
+    assert result["needsHelperImport"] is True
 
 
 def test_generate_radio_number_widget_min_gte_max(capsys):
@@ -461,7 +469,7 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(section=row["section"], path=row["path"], row=row)
-    code = generate_radio_number_widget(
+    result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
         row["help_popup"],
@@ -471,12 +479,14 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
         row,
     )
     captured = capsys.readouterr()
+    code = result["statement"]
     assert (
         "ValueError: min (5) must be less than max (5) in parameters in Widgets sheet."
         in captured.out
     )
     assert "min: 5" in code
     assert "max: 5" in code
+    assert result["needsHelperImport"] is False
 
 
 def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
@@ -495,7 +505,7 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(section=row["section"], path=row["path"], row=row)
-    code = generate_radio_number_widget(
+    result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
         row["help_popup"],
@@ -505,12 +515,14 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
         row,
     )
     captured = capsys.readouterr()
+    code = result["statement"]
     assert (
         "Warning: Unrecognized line in parameters in Widgets sheet: 'foo=bar'. Expected format: min=0\\nmax=6\\noverMaxAllowed."
         in captured.out
     )
     assert "min: 2" in code
     assert "max: 5" in code
+    assert result["needsHelperImport"] is False
 
 
 # TODO: Test generate_select_widget
@@ -556,15 +568,11 @@ def test_get_parameters_values_invalid_min_max(capsys):
     params = get_parameters_values(row)
     captured = capsys.readouterr()
     assert (
-        "ValueError: Invalid min value in parameters in Widgets sheet. Expected format: min=0"
+        "Warning: Cannot compare min (abc) and max (xyz) as they are not both numbers."
         in captured.out
     )
-    assert (
-        "ValueError: Invalid max value in parameters in Widgets sheet. Expected format: max=6"
-        in captured.out
-    )
-    assert params["min_value"] == 0
-    assert params["max_value"] == 6
+    assert params["min_value"] == "abc"
+    assert params["max_value"] == "xyz"
 
 
 def test_get_parameters_values_unrecognized_line(capsys):

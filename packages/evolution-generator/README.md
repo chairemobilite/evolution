@@ -228,9 +228,9 @@ Widgets are the building blocks of your survey. They define the structure and in
 | appearance           | Additional widget appearance options (optional)         | string? |
 
 <!-- TODO: Document the join_with option in the appearance column. Example: appearance: join_with=${questionName} -->
-<!-- TODO: Document the parameters column (e.g. min=0 max=6 overMaxAllowed, separated by newline, semicolon, or space) -->
+<!-- TODO: Document the parameters column (e.g. min=0 max=6 overMaxAllowed, separated by newline, semicolon, or space, with the possibility to either support a number or a response field) -->
 
-> <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Custom, Radio, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text
+> <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Custom, Radio, RadioNumber, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text
 
 > <span id="cond">**Note:**</span> The `conditional` field allows you to define conditional logic for displaying the widget based on other response. For example, you can specify a condition like `nbPersonsSevenOrMoreConditional` to show the widget only if the number of people is 7 or more.
 
