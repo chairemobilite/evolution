@@ -50,6 +50,7 @@ type HasConsentTest = (params: CommonTestParameters) => void;
 type StartSurveyTest = (params: CommonTestParameters & { nextUrl?: string }) => void;
 type RegisterWithoutEmailTest = (params: CommonTestParameters) => void;
 type RegisterWithEmailTest = (params: { email: Email; nextPageUrl?: Url } & CommonTestParameters) => void;
+type RegisterWithAccessPostalCodeTest = (params: { accessCode: string; postalCode: string; expectedToExist?: boolean; nextPageUrl?: Url } & CommonTestParameters) => void;
 type HasUserTest = (params: CommonTestParameters) => void;
 type SimpleAction = (params: CommonTestParameters) => void;
 type ContinueWithInvalidEntriesTest = (
@@ -279,6 +280,48 @@ export const registerWithEmailTest: RegisterWithEmailTest = ({ context, email, n
 
         await emailInput.fill(email);
         await confirmButton.click();
+        await expect(context.page).toHaveURL(nextPageUrl, { timeout: 30000 }); // Wait for the page to load
+    });
+};
+
+/**
+ * Executes a test to register a user from an access code and postal code. The
+ * combination may or may not exist in the database. If it does not, it
+ * validates that the checkbox appears to confirm the combination.
+ *
+ * It then waits for navigation to the specified nextPageUrl, verifying the
+ * registration process completes successfully.
+ *
+ * @param {Object} params - The parameters for the registration test.
+ * @param {testHelpers.CommonTestParameters} params.context - The test context
+ * including the page object.
+ * @param {string} params.accessCode - The access code to use for registration.
+ * @param {string} params.postalCode - The postal code to use for registration.
+ * @param {boolean} [params.expectedToExist] - Whether the access code and postal
+ * code are expected to exist in the database and thus login directly in the
+ * interview. Defaults to true.
+ * @param {string} [params.nextPageUrl='/survey/home'] - The URL to navigate to
+ * after registration, defaults to '/survey/home'.
+ */
+export const registerWithAccessPostalCodeTest: RegisterWithAccessPostalCodeTest = ({ context, accessCode, postalCode, expectedToExist = true, nextPageUrl = '/survey/home' }) => {
+    test('Register with access and postal codes', async () => {
+        const accessCodeInput = context.page.locator('id=accessCode');
+        const postalCodeInput = context.page.locator('id=postalCode');
+        const confirmButton = context.page.getByRole('button', {
+            name: i18n.t(['survey:auth:Login', 'auth:Login']) as string
+        });
+
+        await accessCodeInput.fill(accessCode);
+        await postalCodeInput.fill(postalCode);
+        await confirmButton.click();
+
+        // If the access code and postal code combination does not exist, it should remain on the page, with a warning message and checkbox
+        if (!expectedToExist) {
+            const warningMessage = context.page.locator('id=confirmCredentials');
+            await warningMessage.click();
+            await confirmButton.click();
+        }
+
         await expect(context.page).toHaveURL(nextPageUrl, { timeout: 30000 }); // Wait for the page to load
     });
 };

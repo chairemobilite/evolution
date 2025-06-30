@@ -16,12 +16,7 @@ export const startAndLoginAnonymously = ({
     title,
     hasUser = true
 }: { title: string; hasUser: boolean } & testHelpers.CommonTestParameters) => {
-    // Test the survey landing page
-    testHelpers.hasTitleTest({ title, context });
-    testHelpers.hasFrenchTest({ context });
-    testHelpers.switchToEnglishTest({ context });
-    testHelpers.hasConsentTest({ context });
-    testHelpers.startSurveyTest({ context });
+    startSurvey({ context, title });
 
     // Test the login page
     testHelpers.registerWithoutEmailTest({ context });
@@ -30,6 +25,55 @@ export const startAndLoginAnonymously = ({
     if (hasUser) {
         testHelpers.hasUserTest({ context });
     }
+};
+
+/**
+ * Test the survey's landing page and start the survey.
+ *
+ * @param {Object} params - The parameters for starting and logging in.
+ * @param {testHelpers.CommonTestParameters} params.context - The test context.
+ * @param {string} params.title - The expected title of the survey landing page.
+ */
+export const startSurvey = ({
+    context,
+    title,
+}: { title: string; } & testHelpers.CommonTestParameters) => {
+    // Test the survey landing page
+    testHelpers.hasTitleTest({ title, context });
+    testHelpers.hasFrenchTest({ context });
+    testHelpers.switchToEnglishTest({ context });
+    testHelpers.hasConsentTest({ context });
+    testHelpers.startSurveyTest({ context });
+};
+
+/**
+ * Test the survey's home page, login page with access and postal codes, until
+ * the first section's page is opened
+ *
+ * @param {Object} params - The parameters for starting and logging in.
+ * @param {testHelpers.CommonTestParameters} params.context - The test context.
+ * @param {string} params.title - The expected title of the survey landing page.
+ * @param {string} params.accessCode - The access code to use for registration.
+ * @param {string} params.accessCode - The access code to use for registration.
+ * @param {boolean} [params.expectedToExist] - Whether the access code and postal
+ * code are expected to exist in the database and thus login directly in the
+ * interview. Defaults to true.
+ * @param {string} params.nextPageUrl - The URL of the page to navigate to after
+ * login.
+ */
+export const startAndLoginWithAccessAndPostalCodes = ({
+    context,
+    title,
+    accessCode,
+    postalCode,
+    expectedToExist,
+    nextPageUrl
+}: { title: string; accessCode: string; postalCode: string; expectedToExist?: boolean; nextPageUrl?: string } & testHelpers.CommonTestParameters) => {
+    startSurvey({ context, title });
+
+    // Test the login page
+    testHelpers.registerWithAccessPostalCodeTest({ context, postalCode, accessCode, expectedToExist, nextPageUrl });
+
 };
 
 /**
@@ -51,12 +95,7 @@ export const startAndLoginWithEmail = ({
     email,
     nextPageUrl
 }: { title: string; email: string; nextPageUrl: string } & testHelpers.CommonTestParameters) => {
-    // Test the survey landing page
-    testHelpers.hasTitleTest({ title, context });
-    testHelpers.hasFrenchTest({ context });
-    testHelpers.switchToEnglishTest({ context });
-    testHelpers.hasConsentTest({ context });
-    testHelpers.startSurveyTest({ context });
+    startSurvey({ context, title });
 
     // Test the login page
     testHelpers.registerWithEmailTest({ context, email, nextPageUrl });
