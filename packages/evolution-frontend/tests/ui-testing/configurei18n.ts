@@ -24,6 +24,8 @@ const getTranslationPath = (lng: string, namespace: string) => {
             return `${translationPath}/{{lng}}/{{ns}}.yml`;
         } else if (fs.existsSync(`${translationPath}/${lng}/${namespace}.json`)) {
             return `${translationPath}/{{lng}}/{{ns}}.json`;
+        } else if (fs.existsSync(`${translationPath}/${lng}/${namespace}.yaml`)) {
+            return `${translationPath}/{{lng}}/{{ns}}.yaml`;
         }
     }
     // Default is evolution's main locales files
