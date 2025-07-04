@@ -6,6 +6,7 @@
  */
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import CaptchaComponent from 'chaire-lib-frontend/lib/components/captcha/CaptchaComponent';
 
 interface SupportFormData {
     email: string;
@@ -19,16 +20,20 @@ const SupportForm: React.FC = () => {
         email: '',
         message: ''
     });
-    const [errors, setErrors] = useState<Partial<SupportFormData>>({});
+    const [errors, setErrors] = useState<Partial<SupportFormData> & { captcha?: string }>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<{
         success: boolean;
         message: string;
     } | null>(null);
+    const [{ isCaptchaValid, captchaToken }, setCaptchaResult] = useState<{
+        isCaptchaValid: boolean;
+        captchaToken: unknown;
+    }>({ isCaptchaValid: false, captchaToken: null });
 
     // Function to send the email and message to the server and receive the response
     const sendSupportRequest = React.useCallback(
-        async (email: string, message: string) => {
+        async (email: string, message: string, captchaToken: unknown) => {
             try {
                 setIsSubmitting(true);
                 setSubmitStatus(null);
@@ -44,6 +49,7 @@ const SupportForm: React.FC = () => {
                     body: JSON.stringify({
                         email,
                         message,
+                        captchaToken,
                         currentUrl
                     })
                 });
@@ -84,7 +90,7 @@ const SupportForm: React.FC = () => {
     );
 
     const validateForm = (): boolean => {
-        const newErrors: Partial<SupportFormData> = {};
+        const newErrors: Partial<SupportFormData> & { captcha?: string } = {};
 
         // Message is required
         if (!formData.message.trim()) {
@@ -94,6 +100,10 @@ const SupportForm: React.FC = () => {
         // Email is optional but must be valid if provided
         if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = t('survey:support.invalidEmail');
+        }
+
+        if (!isCaptchaValid) {
+            newErrors.captcha = t('survey:support.captchaRequired');
         }
 
         setErrors(newErrors);
@@ -115,7 +125,7 @@ const SupportForm: React.FC = () => {
             return;
         }
 
-        sendSupportRequest(formData.email, formData.message);
+        sendSupportRequest(formData.email, formData.message, captchaToken);
     };
 
     return (
@@ -168,6 +178,15 @@ const SupportForm: React.FC = () => {
                             />
                             {errors.message && <div className="question-invalid">{errors.message}</div>}
                         </div>
+                    </div>
+
+                    <div className="apptr__form-row">
+                        <CaptchaComponent
+                            onCaptchaValid={(isValid, captchaToken) => {
+                                setCaptchaResult({ isCaptchaValid: isValid, captchaToken });
+                            }}
+                        />
+                        {errors.captcha && <div className="question-invalid">{errors.captcha}</div>}
                     </div>
 
                     <div className="apptr__form-row form-buttons-container">
