@@ -23,13 +23,14 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.1",
+    "@turf/turf": "^7.1.0",
     "chaire-lib-common": "^0.2.2",
+    "cleave-zen": "^0.0.17",
     "geojson-validation": "^1.0.2",
     "i18next": "^24.0.5",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
-    "uuid": "^11.1.0",
-    "@turf/turf": "^7.1.0"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.16",
