@@ -13,6 +13,7 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { getHousehold } from 'evolution-common/lib/services/odSurvey/helpers';
 import waterBoundaries  from '../waterBoundaries.json';
+import { canadianPostalCodeFormatter, eightDigitsAccessCodeFormatter } from 'evolution-common/lib/utils/formatters';
 
 export const homeIntro = {
   type: "text",
@@ -60,17 +61,7 @@ export const accessCode = {
   containsHtml: true,
   keyboardInputMode: 'numeric',
   placeholder: "ex. 1234-5678",
-  inputFilter: (input: string) => {
-    input = input.replace("_", "-"); // change _ to -
-    input = input.replace(/[^-\d]/g, ''); // Remove everything but numbers and -
-    // Get only the digits. If we have 8, we can automatically format the access code.
-    const digits = input.replace(/\D+/g, '');
-    if (digits.length === 8) {
-        return digits.slice(0, 4) + "-" + digits.slice(4);
-    }
-    // Prevent entering more than 9 characters (8 digit access code and a dash)
-    return input.slice(0, 9);
-  },
+  inputFilter: eightDigitsAccessCodeFormatter,
   label: (t: TFunction) => t('survey:AccessCode')
 }
 
@@ -464,7 +455,7 @@ export const homePostalCode = {
   inputType: "string",
   path: "home.postalCode",
   datatype: "string",
-  textTransform: "uppercase",
+  inputFilter: canadianPostalCodeFormatter,
   twoColumns: true,
   label: {
     fr: "Code postal",

@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router';
@@ -18,14 +18,46 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { RootState } from 'chaire-lib-frontend/lib/store/configureStore';
 import { InterviewContext } from '../../../contexts/InterviewContext';
 import CaptchaComponent from 'chaire-lib-frontend/lib/components/captcha/CaptchaComponent';
+import { SurveyContext } from '../../../contexts/SurveyContext';
+import { ValidationFunction } from 'evolution-common/lib/services/questionnaire/types';
+import { translateString } from 'evolution-common/lib/utils/helpers';
 
 type ByFieldLoginFormProps = {
     headerText?: string;
     buttonText?: string;
+    accessCodeField?: string;
+    postalCodeField?: string;
 };
 
-const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({ headerText, buttonText }) => {
-    const { t } = useTranslation(['auth', 'survey']);
+// This function validates a value using the provided validation function. The
+// function comes from the survey widget and, as such, depends on an interview
+// value, which we don't have now. But the fields used for login should be
+// simple fields whose validations do not depend on other answers. If that is
+// not the case, then the field should not be used for login, but we have no way
+// of knowing except catching the error.
+const validateValueFromInterview = (validations: ValidationFunction, value: string, i18n) => {
+    try {
+        const validationResult = validations(value, undefined, {} as any, '');
+        const resultWithError = validationResult.find((result) => result.validation === true);
+        if (resultWithError) {
+            return translateString(resultWithError.errorMessage, i18n, {} as any, '');
+        }
+        return undefined;
+    } catch (error) {
+        console.error('Error validating value from interview:', error);
+        // Return `undefined` in this case, as there is an exception in the
+        // validation function and we don't want to block login.
+        return undefined;
+    }
+};
+
+const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({
+    headerText,
+    buttonText,
+    accessCodeField = 'accessCode',
+    postalCodeField = 'postalCode'
+}) => {
+    const { t, i18n } = useTranslation(['auth', 'survey']);
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, Action>>();
     const submitButtonRef = React.useRef<HTMLButtonElement>(null);
     const location = useLocation();
@@ -38,6 +70,19 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({ headerText, buttonT
 
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
     const login = useSelector((state: RootState) => state.auth.login);
+    const { widgets } = useContext(SurveyContext);
+
+    // Get the access code and postal code formatters from the widgets configuration
+    const formatAccessCode = React.useMemo(() => widgets[accessCodeField]?.inputFilter, [widgets]);
+    const formatPostalCode = React.useMemo(() => widgets[postalCodeField]?.inputFilter, [widgets]);
+    const accessCodeValidations: ValidationFunction | undefined = React.useMemo(
+        () => widgets[accessCodeField]?.validations,
+        [widgets]
+    );
+    const postalCodeValidations: ValidationFunction | undefined = React.useMemo(
+        () => widgets[postalCodeField]?.validations,
+        [widgets]
+    );
 
     const [formState, setFormState] = React.useState({
         accessCode: '',
@@ -51,15 +96,7 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({ headerText, buttonT
         if (!accessCode) {
             return 'auth:MissingAccessCode';
         }
-        // FIXME The format is also checked in the backend, ideally the backend
-        // should be the only place that checks and the frontend receives the
-        // error message, but we currently have no way to pass message between
-        // backend and frontend during authentication.
-        const accessCodeRegex = /^\d{4}-\d{4}$/;
-        if (!accessCodeRegex.test(accessCode)) {
-            return 'auth:InvalidAccessCodeFormat';
-        }
-        return undefined;
+        return accessCodeValidations ? validateValueFromInterview(accessCodeValidations, accessCode, i18n) : undefined;
     };
 
     // Validate postal code and return error message if invalid
@@ -67,34 +104,19 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({ headerText, buttonT
         if (!postalCode) {
             return 'auth:MissingPostalCode';
         }
-        // FIXME The format is also checked in the backend, ideally the backend
-        // should be the only place that checks and the frontend receives the
-        // error message, but we currently have no way to pass message between
-        // backend and frontend during authentication.
-        if (!/^[ghjk][0-9][abceghj-nprstv-z]( )?[0-9][abceghj-nprstv-z][0-9]\s*$/i.test(postalCode)) {
-            return 'auth:InvalidPostalCodeFormat';
-        }
-
-        return undefined;
+        return postalCodeValidations ? validateValueFromInterview(postalCodeValidations, postalCode, i18n) : undefined;
     };
 
     const handleAccessCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let accessCode = e.target.value;
-        accessCode = accessCode.replace('_', '-'); // change _ to -
-        accessCode = accessCode.replace(/[^-\d]/g, ''); // Remove everything but numbers and -
-        // Get only the digits. If we have 8, we can automatically format the access code.
-        const digits = accessCode.replace(/\D+/g, '');
-        if (digits.length === 8) {
-            accessCode = digits.slice(0, 4) + '-' + digits.slice(4);
-        }
-        // Prevent entering more than 9 characters (8 digit access code and a dash)
-        accessCode = accessCode.slice(0, 9);
-        setFormState((prev) => ({ ...prev, accessCode }));
+        const accessCode = e.target.value;
+        const formattedAccessCode = formatAccessCode ? formatAccessCode(accessCode) : accessCode;
+        setFormState((prev) => ({ ...prev, accessCode: formattedAccessCode }));
     };
 
     const handlePostalCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const postalCode = e.target.value.toUpperCase(); // Postal codes are typically uppercase
-        setFormState((prev) => ({ ...prev, postalCode }));
+        const postalCode = e.target.value;
+        const formattedPostalCode = formatPostalCode ? formatPostalCode(postalCode) : postalCode;
+        setFormState((prev) => ({ ...prev, postalCode: formattedPostalCode }));
     };
 
     const handleSubmit = () => {
