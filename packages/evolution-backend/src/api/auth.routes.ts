@@ -10,6 +10,7 @@ import { IAuthModel, IUserModel } from 'chaire-lib-backend/lib/services/auth/aut
 import { PassportStatic } from 'passport';
 import projectConfig from 'evolution-common/lib/config/project.config';
 import { validateCaptchaToken } from 'chaire-lib-backend/lib/api/captcha.routes';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 // Setup authentication routes for evolution, in a separate express router. It
 // also adds the auth-by-field route if configured
@@ -19,7 +20,7 @@ export default <U extends IUserModel>(app: Router, authModel: IAuthModel<U>, pas
     // Add other auth routes
     authRoutes(router, authModel, passport);
 
-    if (projectConfig.auth.byField === true) {
+    if (!_isBlank(projectConfig.auth.byField) && projectConfig.auth.byField !== false) {
         // For subsequent attempts, validate captcha token
         const captchaMiddleware = validateCaptchaToken({
             // This is not an error message for the user, no need to translate it

@@ -36,11 +36,14 @@ const AuthByField = (props: { authMethods: string[] }) => {
     if (!props.authMethods.includes('byField')) {
         return null;
     } else {
+        const byFieldConfig = config.auth?.byField || {};
         return (
             <div className="apptr__auth-box">
                 <ByFieldLoginForm
                     headerText={t(['survey:auth:ByFieldLoginHeader', 'auth:ByFieldLoginHeader'])}
                     buttonText={t(['survey:auth:Login', 'auth:Login'])}
+                    accessCodeField={typeof byFieldConfig === 'boolean' ? undefined : byFieldConfig.accessCodeField}
+                    postalCodeField={typeof byFieldConfig === 'boolean' ? undefined : byFieldConfig.postalCodeField}
                 />
                 <div className="apptr__separator"></div>
             </div>
