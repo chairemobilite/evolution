@@ -40,14 +40,20 @@ def get_data_from_excel(excel_file_path: str, sheet_name: str) -> tuple:
     try:
         # Load Excel file
         workbook: Workbook = openpyxl.load_workbook(excel_file_path, data_only=True)
-        sheet = workbook[sheet_name]  # Get InputRange sheet
+        sheet = workbook[sheet_name]  # Get sheet
         rows: List = list(sheet.rows)  # Get all rows in the sheet
-        headers: List = [
-            cell.value for cell in rows[0]
-        ]  # Get headers from the first row
+
+        # Filter out None values from headers
+        headers = []
+        for cell in rows[0]:
+            if cell.value is not None:
+                headers.append(cell.value)
+            else:
+                # If we find an empty header, stop reading columns here
+                break
 
         # Error when header has spaces
-        if any(" " in header for header in headers):
+        if any(" " in str(header) for header in headers):
             raise Exception("Header has spaces")
 
         # Error when header is None
