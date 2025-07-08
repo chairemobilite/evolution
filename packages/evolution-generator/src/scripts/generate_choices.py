@@ -14,12 +14,15 @@ from helpers.generator_helpers import (
     sheet_exists,
     get_headers,
 )
+from scripts.generate_labels import LabelFormatter
 
 
-# Function to replace single quotes and stringify text
-def replaces_quotes_and_stringify(text):
+def process_label(text):
+    """
+    Replace single quotes and apply LabelFormatter.replace to the text.
+    """
     if text is not None:
-        return str(text).replace("'", "\\'")  # Replace single quotes
+        return LabelFormatter.replace(str(text).replace("'", "\\'"))
     return None
 
 
@@ -63,8 +66,8 @@ def generate_choices(input_file: str, output_file: str):
             # Get values from the row dictionary
             choice_name = row_dict["choicesName"]
             value = row_dict["value"]
-            label_fr = replaces_quotes_and_stringify(row_dict["label::fr"])
-            label_en = replaces_quotes_and_stringify(row_dict["label::en"])
+            label_fr = process_label(row_dict["label::fr"])
+            label_en = process_label(row_dict["label::en"])
             spread_choices_name = row_dict["spreadChoicesName"]
             conditional = row_dict["conditional"]
 

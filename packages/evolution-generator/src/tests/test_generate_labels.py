@@ -2,7 +2,95 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-from scripts.generate_labels import expand_gender
+from scripts.generate_labels import expand_gender, LabelFormatter
+
+
+def test_label_formatter_bold():
+    """
+    Test LabelFormatter.replace with bold notation.
+    """
+    assert (
+        LabelFormatter.replace("This is **important**.")
+        == "This is <strong>important</strong>."
+    )
+    assert (
+        LabelFormatter.replace("**Bold** and **again**")
+        == "<strong>Bold</strong> and <strong>again</strong>"
+    )
+
+
+def test_label_formatter_oblique():
+    """
+    Test LabelFormatter.replace with oblique notation.
+    """
+    assert (
+        LabelFormatter.replace("This is __oblique__.")
+        == 'This is <span class="_pale _oblique">oblique</span>.'
+    )
+    assert (
+        LabelFormatter.replace("__Oblique__ and __again__")
+        == '<span class="_pale _oblique">Oblique</span> and <span class="_pale _oblique">again</span>'
+    )
+
+
+def test_label_formatter_green():
+    """
+    Test LabelFormatter.replace with green notation.
+    """
+    assert (
+        LabelFormatter.replace("This is _green_green_green_.")
+        == 'This is <span style="color: green;">green</span>.'
+    )
+    assert (
+        LabelFormatter.replace("_green_yes_green_ and _green_no_green_")
+        == '<span style="color: green;">yes</span> and <span style="color: green;">no</span>'
+    )
+
+
+def test_label_formatter_red():
+    """
+    Test LabelFormatter.replace with red notation.
+    """
+    assert (
+        LabelFormatter.replace("This is _red_red_red_.")
+        == 'This is <span style="color: red;">red</span>.'
+    )
+    assert (
+        LabelFormatter.replace("_red_stop_red_ and _red_go_red_")
+        == '<span style="color: red;">stop</span> and <span style="color: red;">go</span>'
+    )
+
+
+def test_label_formatter_newline():
+    """
+    Test LabelFormatter.replace with newlines.
+    """
+    assert LabelFormatter.replace("Line 1\nLine 2") == "Line 1<br />Line 2"
+
+
+def test_label_formatter_combined():
+    """
+    Test LabelFormatter.replace with a string containing all supported notations.
+    Should correctly replace bold, oblique, green, red, and preserve order.
+    """
+    label = "**Bold** and __oblique__ and _green_green_green_ and _red_red_red_."
+    expected = (
+        '<strong>Bold</strong> and <span class="_pale _oblique">oblique</span> and '
+        '<span style="color: green;">green</span> and <span style="color: red;">red</span>.'
+    )
+    result = LabelFormatter.replace(label)
+    assert result == expected
+
+
+def test_label_formatter_unmatched_notation():
+    """
+    Test LabelFormatter.replace with unmatched notations (odd count).
+    Should not replace.
+    """
+    assert LabelFormatter.replace("**unmatched") == "**unmatched"
+    assert LabelFormatter.replace("__unmatched") == "__unmatched"
+    assert LabelFormatter.replace("_green_unmatched") == "_green_unmatched"
+    assert LabelFormatter.replace("_red_unmatched") == "_red_unmatched"
 
 
 def test_expand_gender_basic():
