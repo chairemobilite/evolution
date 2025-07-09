@@ -16,7 +16,21 @@ yaml.width = 80
 
 
 # Class for handling various text formatting notations
-class ValueReplacer:
+class LabelFormatter:
+    """
+    Utility class for formatting label strings with custom notations.
+
+    Supported notations:
+    - Bold: **text** → <strong>text</strong>
+    - Oblique: __text__ → <span class="_pale _oblique">text</span>
+    - Green: _green_text_green_ → <span style="color: green;">text</span>
+    - Red: _red_text_red_ → <span style="color: red;">text</span>
+    - Newlines: \n → <br />
+
+    Methods:
+        replace(string): Applies all supported formatting to the input string.
+    """
+
     # Various HTML and markdown notations
     startBoldHtml = "<strong>"
     endBoldHtml = "</strong>"
@@ -53,29 +67,29 @@ class ValueReplacer:
         # Replaces newlines with <br> tags and applies other notations
         replacedStr = string.replace("\n", "<br />")
         # replaced each bold, oblique, green and red notations by proper tags
-        replacedStr = ValueReplacer.replaceStartEnd(
+        replacedStr = LabelFormatter.replaceStartEnd(
             replacedStr,
-            ValueReplacer.boldNotation,
-            ValueReplacer.startBoldHtml,
-            ValueReplacer.endBoldHtml,
+            LabelFormatter.boldNotation,
+            LabelFormatter.startBoldHtml,
+            LabelFormatter.endBoldHtml,
         )
-        replacedStr = ValueReplacer.replaceStartEnd(
+        replacedStr = LabelFormatter.replaceStartEnd(
             replacedStr,
-            ValueReplacer.obliqueNotation,
-            ValueReplacer.startOblique,
-            ValueReplacer.endOblique,
+            LabelFormatter.obliqueNotation,
+            LabelFormatter.startOblique,
+            LabelFormatter.endOblique,
         )
-        replacedStr = ValueReplacer.replaceStartEnd(
+        replacedStr = LabelFormatter.replaceStartEnd(
             replacedStr,
-            ValueReplacer.greenNotation,
-            ValueReplacer.startGreen,
-            ValueReplacer.endGreen,
+            LabelFormatter.greenNotation,
+            LabelFormatter.startGreen,
+            LabelFormatter.endGreen,
         )
-        replacedStr = ValueReplacer.replaceStartEnd(
+        replacedStr = LabelFormatter.replaceStartEnd(
             replacedStr,
-            ValueReplacer.redNotation,
-            ValueReplacer.startRed,
-            ValueReplacer.endRed,
+            LabelFormatter.redNotation,
+            LabelFormatter.startRed,
+            LabelFormatter.endRed,
         )
         return replacedStr
 
@@ -117,7 +131,7 @@ def addTranslation(language, section, path, value, rowNumber, translations):
         translations (dict): The dictionary of translations.
     """
     try:
-        value = ValueReplacer.replace(value)
+        value = LabelFormatter.replace(value)
         yaml_value = stringToYaml(value)
 
         # Ensure section exists in translations
