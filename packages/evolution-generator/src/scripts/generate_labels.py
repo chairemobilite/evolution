@@ -465,18 +465,20 @@ def addTranslationsFromExcel(
 
 def expand_gender(label):
     """
-    Replace all occurrences of {{gender:...}} with the male, female, and other forms.
+    Replace all occurrences of {{gender:...}} or {{gender :...}} with the male, female, and other forms.
     Example: "Étudian{{gender:t/te/t·e}}" -> {"male": "Étudiant", "female": "Étudiante", "other": "Étudiant·e"}
     If only one part, 'female' is the part, 'male' and 'other' are ''.
     If only two parts, 'male' is first part, 'female' is second part, 'other' is ''.
     If three or more parts, only the first three are used: male, female, other.
+
+    Note: We accept both {{gender:...}} and {{gender :...}} (with a space after 'gender')
+    because LibreOffice (in French) automatically inserts a space after the colon.
     """
     import re
 
-    if not label or "{{gender:" not in label:
+    if not label or "{{gender" not in label:
         return None
-    # Find all occurrences of {{gender:...}}
-    pattern = r"\{\{gender:([^}]+)\}\}"
+    pattern = r"\{\{gender\s*:\s*([^}]+)\}\}"
     matches = re.findall(pattern, label)
     if not matches:
         return None
@@ -493,9 +495,23 @@ def expand_gender(label):
             male, female, other = "", parts[0], ""
         else:
             male, female, other = "", "", ""
-        male_label = male_label.replace(f"{{{{gender:{match}}}}}", male)
-        female_label = female_label.replace(f"{{{{gender:{match}}}}}", female)
-        other_label = other_label.replace(f"{{{{gender:{match}}}}}", other)
+        # re.sub replaces the first occurrence of the pattern with the correct gendered string
+        # re.escape is used to escape any special characters in the match
+        male_label = re.sub(
+            r"\{\{gender\s*:\s*" + re.escape(match) + r"\}\}", male, male_label, count=1
+        )
+        female_label = re.sub(
+            r"\{\{gender\s*:\s*" + re.escape(match) + r"\}\}",
+            female,
+            female_label,
+            count=1,
+        )
+        other_label = re.sub(
+            r"\{\{gender\s*:\s*" + re.escape(match) + r"\}\}",
+            other,
+            other_label,
+            count=1,
+        )
     return {"male": male_label, "female": female_label, "other": other_label}
 
 

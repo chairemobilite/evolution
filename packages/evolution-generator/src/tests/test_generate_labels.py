@@ -212,5 +212,17 @@ def test_expand_gender_no_gender():
     assert result is None
 
 
+def test_expand_gender_with_space_after_gender():
+    """
+    Test expand_gender with a label containing a space after 'gender' ({{gender :...}}).
+    Should replace correctly for all forms.
+    """
+    label = "Étudian{{gender :t/te/t·e}}"
+    result = expand_gender(label)
+    assert result["male"] == "Étudiant"
+    assert result["female"] == "Étudiante"
+    assert result["other"] == "Étudiant·e"
+
+
 # TODO: test_stringToYaml
 # TODO: test_generate_labels
