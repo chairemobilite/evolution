@@ -201,7 +201,7 @@ def generate_widget_statement(row) -> WidgetResult:
     help_popup = row["help_popup"]
     choices = row["choices"]
     confirm_popup = row["confirm_popup"] if "confirm_popup" in row else None
-    widget_label = generate_label(section, path, row)
+    widget_label = generate_label(section, path, row, key_name="label")
 
     # Initialize result with default values
     result: WidgetResult = {"statement": "", "needsHelperImport": False}
@@ -260,8 +260,10 @@ def generate_widget_statement(row) -> WidgetResult:
             row,
         )
     elif input_type == "InfoText":
+        # Widget label have a different key for InfoText
+        widget_label = generate_label(section, path, row, key_name="text")
         result["statement"] = generate_info_text_widget(
-            question_name, section, path, conditional, row
+            question_name, path, conditional, widget_label, row
         )
     elif input_type == "Range":
         result["statement"] = generate_range_widget(
@@ -470,9 +472,10 @@ def generate_join_with(join_with):
         return ""
 
 
-def generate_label(section, path, row):
+def generate_label(section, path, row, key_name="label"):
     """
-    Generates the TypeScript label property for a widget.
+    Generates the TypeScript label or text property for a widget.
+    The property name is controlled by key_name ('label' or 'text').
     Inspects the labels columns in the row to determine if nickname, count, or gender context is needed.
     - If no special flags are detected, returns a simple label function.
     - If {{nickname}} is present, adds nickname context.
@@ -499,7 +502,7 @@ def generate_label(section, path, row):
         or has_nickname_label
         or has_label_one
     ):
-        return f"{INDENT}label: (t: TFunction) => t('{section}:{path}')"
+        return f"{INDENT}{key_name}: (t: TFunction) => t('{section}:{path}')"
     additional_t_context = ""
     initial_assignations = ""
     if has_nickname_label or has_gender_context_label:
@@ -517,7 +520,7 @@ def generate_label(section, path, row):
     if has_persons_count_label or has_label_one:
         additional_t_context += f"{INDENT}{INDENT}{INDENT}count: countPersons,\n"
     widget_label = (
-        f"{INDENT}label: (t: TFunction, interview, path) => {{\n"
+        f"{INDENT}{key_name}: (t: TFunction, interview, path) => {{\n"
         f"{initial_assignations}"
         f"{INDENT}{INDENT}return t('{section}:{path}', {{\n"
         f"{additional_t_context}"
@@ -539,10 +542,6 @@ def generate_confirm_popup(confirm_popup, comma=True, skip_line=True):
         return f"{INDENT}confirmPopup: customHelpPopup.{confirm_popup}{generate_comma(comma)}{generate_skip_line(skip_line)}"
     else:
         return ""
-
-
-def generate_text(section, path):
-    return f"{INDENT}text: (t: TFunction) => `<p class=\"input-text\">${{t('{section}:{path}')}}</p>`"
 
 
 def generate_choices(choices):
@@ -775,13 +774,13 @@ def generate_number_widget(
 
 
 # Generate InfoText widget
-def generate_info_text_widget(question_name, section, path, conditional, row):
+def generate_info_text_widget(question_name, path, conditional, widget_label, row):
     return (
         f"{generate_constExport(question_name, 'TextWidgetConfig')}\n"
         f"{generate_defaultInputBase('infoTextBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row, shouldAddTwoColumns = False, allow_join_with=False)}"
-        f"{generate_text(section, path)},\n"
+        f"{widget_label},\n"
         f"{generate_conditional(conditional)}\n"
         f"}};"
     )
