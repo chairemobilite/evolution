@@ -127,7 +127,14 @@ def generate_survey(config_path):
     # Call the generate_labels function to generate the labels locales folder if script enabled
     if enabled_generate_labels:
         labels_output_folder_path = os.path.join(survey_folder_path, "locales")
-        generate_labels(excel_file_path, labels_output_folder_path)
+        # Generate the labels for the Widgets sheet
+        generate_labels(
+            excel_file_path, labels_output_folder_path, labels_sheet_name="Widgets"
+        )
+        # Generate the labels for the Labels sheet
+        generate_labels(
+            excel_file_path, labels_output_folder_path, labels_sheet_name="Labels"
+        )
 
     # Call the generate_UI_tests function to generate the template-tests-UI.ts if script enabled
     if enabled_generate_UI_tests:

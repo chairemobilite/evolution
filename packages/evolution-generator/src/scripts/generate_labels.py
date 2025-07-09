@@ -94,7 +94,34 @@ class LabelFormatter:
         return replacedStr
 
 
-def deleteYamlFile(language, section, labels_output_folder_path):
+def get_labels_file_path(
+    labels_output_folder_path, language, section, labels_sheet_name="Widgets"
+):
+    """
+    Returns the file path for the labels YAML file for a given section, language, and sheet name.
+
+    Args:
+        labels_output_folder_path (str): The output folder path for the labels.
+        language (str): The language of the translation.
+        section (str): The section name.
+        labels_sheet_name (str): The name of the sheet in the Excel file containing labels.
+
+    Returns:
+        str: The file path for the labels YAML file.
+    """
+    if labels_sheet_name == "Widgets":
+        return os.path.join(labels_output_folder_path, language, f"{section}.yaml")
+    else:
+        return os.path.join(
+            labels_output_folder_path,
+            language,
+            f"{section}{labels_sheet_name}.yaml",
+        )
+
+
+def deleteYamlFile(
+    language, section, labels_output_folder_path, labels_sheet_name="Widgets"
+):
     """
     Deletes the YAML file for the specified section and language.
 
@@ -102,6 +129,7 @@ def deleteYamlFile(language, section, labels_output_folder_path):
         language (str): The language of the translation.
         section (str): The section name.
         labels_output_folder_path (str): The output folder path for the labels.
+        labels_sheet_name (str): The name of the sheet in the Excel file containing labels.
 
     Note:
         This function is used to delete the YAML file before adding translations
@@ -109,7 +137,10 @@ def deleteYamlFile(language, section, labels_output_folder_path):
         and with the order of the questions (there was no order if the file changed).
     """
     try:
-        file_path = os.path.join(labels_output_folder_path, language, f"{section}.yaml")
+        # Construct the file path depending on the section, language, and labels_sheet_name
+        file_path = get_labels_file_path(
+            labels_output_folder_path, language, section, labels_sheet_name
+        )
         if os.path.exists(file_path):
             os.remove(file_path)
             print(f"Remove: {file_path} successfully")
@@ -154,7 +185,13 @@ def addTranslation(language, section, path, value, rowNumber, translations):
         raise e
 
 
-def saveTranslations(language, section, labels_output_folder_path, translations):
+def saveTranslations(
+    language,
+    section,
+    labels_output_folder_path,
+    translations,
+    labels_sheet_name="Widgets",
+):
     """
     Saves the translations to the appropriate YAML file with a header.
 
@@ -163,10 +200,13 @@ def saveTranslations(language, section, labels_output_folder_path, translations)
         section (str): The section name.
         labels_output_folder_path (str): The output folder path for the labels.
         translations (dict): The dictionary of translations for the language (nested by section).
+        labels_sheet_name (str): The name of the sheet in the Excel file containing labels.
     """
     try:
-        # Construct the file path
-        file_path = os.path.join(labels_output_folder_path, language, f"{section}.yaml")
+        # Construct the file path depending on the section, language, and labels_sheet_name
+        file_path = get_labels_file_path(
+            labels_output_folder_path, language, section, labels_sheet_name
+        )
 
         # Only save translations for the current section
         section_translations = translations.get(section, {})
@@ -189,18 +229,21 @@ def saveTranslations(language, section, labels_output_folder_path, translations)
         raise e
 
 
-def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
+def addTranslationsFromExcel(
+    excel_file_path, labels_output_folder_path, labels_sheet_name="Widgets"
+):
     """
     Reads translations from an Excel file and adds them to the appropriate YAML files.
 
     Args:
         excel_file_path (str): The path to the Excel file containing translations.
         labels_output_folder_path (str): The output folder path for the labels.
+        labels_sheet_name (str): The name of the sheet in the Excel file containing labels.
     """
     try:
         # Read data from Excel and return rows and headers
         widgets_rows, widgets_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Widgets"
+            excel_file_path, sheet_name=labels_sheet_name
         )
 
         # Find the index
@@ -248,12 +291,14 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
                         language="fr",
                         section=section,
                         labels_output_folder_path=labels_output_folder_path,
+                        labels_sheet_name=labels_sheet_name,
                     )
                 if en_label is not None:
                     deleteYamlFile(
                         language="en",
                         section=section,
                         labels_output_folder_path=labels_output_folder_path,
+                        labels_sheet_name=labels_sheet_name,
                     )
                 processed_sections.add(section)  # Mark section as processed
 
@@ -406,7 +451,11 @@ def addTranslationsFromExcel(excel_file_path, labels_output_folder_path):
         for language, translations in translations_dict.items():
             for section in processed_sections:
                 saveTranslations(
-                    language, section, labels_output_folder_path, translations
+                    language,
+                    section,
+                    labels_output_folder_path,
+                    translations,
+                    labels_sheet_name=labels_sheet_name,
                 )
 
     except Exception as e:
@@ -472,18 +521,22 @@ def stringToYaml(str):
 
 
 # Function to generate the labels locales files
-def generate_labels(excel_file_path, labels_output_folder_path):
+def generate_labels(
+    excel_file_path, labels_output_folder_path, labels_sheet_name="Widgets"
+):
     """
     Generates the labels locales files from an Excel file.
 
     Args:
         excel_file_path (str): The path to the Excel file containing translations.
         labels_output_folder_path (str): The output folder path for the labels.
+        labels_sheet_name (str): The name of the sheet in the Excel file containing labels.
     """
     try:
         addTranslationsFromExcel(
             excel_file_path=excel_file_path,
             labels_output_folder_path=labels_output_folder_path,
+            labels_sheet_name=labels_sheet_name,
         )
     except Exception as e:
         print(f"An error occurred: {e}")

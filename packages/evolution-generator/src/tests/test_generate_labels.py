@@ -2,7 +2,7 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-from scripts.generate_labels import expand_gender, LabelFormatter
+from scripts.generate_labels import expand_gender, LabelFormatter, get_labels_file_path
 
 
 def test_label_formatter_bold():
@@ -93,6 +93,39 @@ def test_label_formatter_unmatched_notation():
     assert LabelFormatter.replace("_red_unmatched") == "_red_unmatched"
 
 
+def test_get_labels_file_path_widgets():
+    """
+    Test get_labels_file_path with default sheet name 'Widgets'.
+    Should return path ending with {section}.yaml.
+    """
+    path = get_labels_file_path(
+        labels_output_folder_path="../../example/demo_generator",
+        language="fr",
+        section="section1",
+    )
+    assert path == "../../example/demo_generator/fr/section1.yaml"
+
+
+def test_get_labels_file_path_custom_sheet():
+    """
+    Test get_labels_file_path with a custom sheet name.
+    Should return path ending with {section}{labels_sheet_name}.yaml.
+    """
+    path = get_labels_file_path(
+        labels_output_folder_path="../../example/demo_generator",
+        language="en",
+        section="section2",
+        labels_sheet_name="Labels",
+    )
+    assert path == "../../example/demo_generator/en/section2Labels.yaml"
+
+
+# TODO: test_deleteYamlFile
+# TODO: test_addTranslation
+# TODO: test_saveTranslations
+# TODO: test_addTranslationsFromExcel
+
+
 def test_expand_gender_basic():
     """
     Test expand_gender with a label containing both male and female suffixes.
@@ -179,9 +212,5 @@ def test_expand_gender_no_gender():
     assert result is None
 
 
-# TODO: test_addTranslation
-# TODO: test_deleteYamlFile
-# TODO: test_saveTranslations
-# TODO: test_addTranslationsFromExcel
 # TODO: test_stringToYaml
 # TODO: test_generate_labels
