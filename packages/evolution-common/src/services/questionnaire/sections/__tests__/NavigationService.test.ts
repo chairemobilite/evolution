@@ -1847,6 +1847,7 @@ describe('navigate function, further use cases', () => {
             mockShuffle.mockReturnValueOnce(['personId2', 'personId1']);
 
             const testInterviewWithRandomSequence = _cloneDeep(testInterview);
+            // Current random sequence has a not interviewable person (personId3)
             testInterviewWithRandomSequence.response._RandomSequence = ['personId2', 'personId3'];
 
             // Prepare the previous navigation state
@@ -1930,6 +1931,39 @@ describe('navigate function, further use cases', () => {
                     iterationContext: expectedIterationContext
                 },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[1] }
+            });
+        });
+
+        test('random, last section of last iteration', () => {
+            const currentSection = 'travelBehavior';
+            const currentIterationContext = ['personId1'];
+            const expectedSection = 'end';
+            const expectedIterationContext = undefined;
+
+            // Set the order of the iteration contexts to randomize and mock the result
+            const sectionConfig = _cloneDeep(complexSectionsConfig);
+            (sectionConfig['personsTrips'] as SectionConfigWithDefaultsBlock).repeatedBlock.order = 'random';
+            const navigationService = createNavigationService(sectionConfig);
+
+            // Set random order
+            const testInterviewWithRandomSequence = _cloneDeep(testInterview);
+            testInterviewWithRandomSequence.response._RandomSequence = ['personId2', 'personId1'];
+
+            // Prepare the previous navigation state
+            const currentSectionData = {
+                sectionShortname: currentSection,
+                iterationContext: currentIterationContext
+            };
+
+            // Navigate to specific section
+            const nextSectionResult = navigationService.navigate({ interview: testInterviewWithRandomSequence, currentSection: _cloneDeep(currentSectionData), direction: 'forward'});
+            expect(mockShuffle).not.toHaveBeenCalled();
+            expect(nextSectionResult).toEqual({
+                targetSection: {
+                    sectionShortname: expectedSection,
+                    iterationContext: expectedIterationContext
+                },
+                valuesByPath: { 'response._activePersonId': undefined }
             });
         });
 
