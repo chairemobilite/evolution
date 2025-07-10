@@ -465,19 +465,19 @@ def addTranslationsFromExcel(
 
 def expand_gender(label):
     """
-    Replace all occurrences of {{gender:...}} or {{gender :...}} with the male, female, and other forms.
+    Replace all occurrences of {{gender:...}} or {{gender : ...}} (spaces before or after the colon) with the male, female, and other forms.
     Example: "Étudian{{gender:t/te/t·e}}" -> {"male": "Étudiant", "female": "Étudiante", "other": "Étudiant·e"}
     If only one part, 'female' is the part, 'male' and 'other' are ''.
     If only two parts, 'male' is first part, 'female' is second part, 'other' is ''.
     If three or more parts, only the first three are used: male, female, other.
 
-    Note: We accept both {{gender:...}} and {{gender :...}} (with a space after 'gender')
-    because LibreOffice (in French) automatically inserts a space after the colon.
+    Note: We accept both {{gender:...}}, {{gender :...}}, {{gender: ...}}, and {{gender : ...}}
+    (with spaces before and/or after the colon) because LibreOffice (in French) automatically inserts a space after the colon.
     """
     import re
 
-    if not label or "{{gender" not in label:
-        return None
+    # Find all gender patterns in the label (with or without spaces before and after the colon).
+    # E.g. "{{gender:t/te}}", "{{gender :t/te}}", "{{gender: t/te}}", "{{gender : t/te}}"
     pattern = r"\{\{gender\s*:\s*([^}]+)\}\}"
     matches = re.findall(pattern, label)
     if not matches:
@@ -495,23 +495,13 @@ def expand_gender(label):
             male, female, other = "", parts[0], ""
         else:
             male, female, other = "", "", ""
-        # re.sub replaces the first occurrence of the pattern with the correct gendered string
-        # re.escape is used to escape any special characters in the match
-        male_label = re.sub(
-            r"\{\{gender\s*:\s*" + re.escape(match) + r"\}\}", male, male_label, count=1
-        )
-        female_label = re.sub(
-            r"\{\{gender\s*:\s*" + re.escape(match) + r"\}\}",
-            female,
-            female_label,
-            count=1,
-        )
-        other_label = re.sub(
-            r"\{\{gender\s*:\s*" + re.escape(match) + r"\}\}",
-            other,
-            other_label,
-            count=1,
-        )
+        # Replace all variants of the gender pattern (with or without spaces before and after colon) with the correct gendered string
+        # Note: We use re.escape to escape any special characters in the match.
+        # This ensures that the pattern is treated as a literal string.
+        pattern_exact = r"\{\{gender\s*:\s*" + re.escape(match) + r"\}\}"
+        male_label = re.sub(pattern_exact, male, male_label)
+        female_label = re.sub(pattern_exact, female, female_label)
+        other_label = re.sub(pattern_exact, other, other_label)
     return {"male": male_label, "female": female_label, "other": other_label}
 
 
