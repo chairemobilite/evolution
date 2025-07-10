@@ -282,8 +282,8 @@ export class NavigationService {
                 objectIds = _shuffle(objectIds);
                 interviewFieldsToUpdate[`response.${randomOrderPath}`] = objectIds;
             } else {
-                // Otherwise, use the random order
-                objectIds.splice(0, objectIds.length - 1, ...randomOrder);
+                // Otherwise, use the random order, don't use the array from the response directly, copy it instead
+                objectIds = [...randomOrder];
             }
         }
 
