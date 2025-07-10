@@ -131,10 +131,9 @@ def generate_survey(config_path):
         # TODO: We might consider extracting the sheet names from the Excel file or config file instead of hardcoding them.
         # Generate the labels for the specified sheets
         sheet_names = ["Widgets", "Labels"]
-        for sheet_name in sheet_names:
-            generate_labels(
-                excel_file_path, labels_output_folder_path, labels_sheet_name=sheet_name
-            )
+        generate_labels(
+            excel_file_path, labels_output_folder_path, labels_sheet_names=sheet_names
+        )
 
     # Call the generate_UI_tests function to generate the template-tests-UI.ts if script enabled
     if enabled_generate_UI_tests:

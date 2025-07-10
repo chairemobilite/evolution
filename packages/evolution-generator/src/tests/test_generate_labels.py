@@ -3,6 +3,7 @@
 # License text available at https://opensource.org/licenses/MIT
 
 from scripts.generate_labels import expand_gender, LabelFormatter, get_labels_file_path
+import importlib
 
 
 def test_label_formatter_bold():
@@ -95,8 +96,7 @@ def test_label_formatter_unmatched_notation():
 
 def test_get_labels_file_path_widgets():
     """
-    Test get_labels_file_path with default sheet name 'Widgets'.
-    Should return path ending with {section}.yaml.
+    Test get_labels_file_path returns path ending with {section}.yaml.
     """
     path = get_labels_file_path(
         labels_output_folder_path="../../example/demo_generator",
@@ -106,18 +106,47 @@ def test_get_labels_file_path_widgets():
     assert path == "../../example/demo_generator/fr/section1.yaml"
 
 
-def test_get_labels_file_path_custom_sheet():
+def test_removed_files_global_resets():
     """
-    Test get_labels_file_path with a custom sheet name.
-    Should return path ending with {section}{labels_sheet_name}.yaml.
+    Test that removed_files_global is used and can be reset between runs.
     """
-    path = get_labels_file_path(
-        labels_output_folder_path="../../example/demo_generator",
-        language="en",
-        section="section2",
-        labels_sheet_name="Labels",
-    )
-    assert path == "../../example/demo_generator/en/section2Labels.yaml"
+    # Import the module fresh to reset the global
+    generate_labels_mod = importlib.import_module("scripts.generate_labels")
+
+    # Ensure the set is empty at the start
+    generate_labels_mod.removed_files_global.clear()
+    assert generate_labels_mod.removed_files_global == set()
+
+    # Simulate deleting a file
+    generate_labels_mod.removed_files_global.add(("fr", "section1"))
+    assert ("fr", "section1") in generate_labels_mod.removed_files_global
+
+    # Clear and check again
+    generate_labels_mod.removed_files_global.clear()
+    assert generate_labels_mod.removed_files_global == set()
+
+
+def test_removed_files_global_multiple_entries():
+    """
+    Test that removed_files_global can track multiple (language, section) entries.
+    """
+
+    # Import the module fresh to reset the global
+    generate_labels_mod = importlib.import_module("scripts.generate_labels")
+    generate_labels_mod.removed_files_global.clear()
+
+    # Add multiple entries
+    generate_labels_mod.removed_files_global.add(("fr", "section1"))
+    generate_labels_mod.removed_files_global.add(("en", "section2"))
+    generate_labels_mod.removed_files_global.add(("fr", "section3"))
+    assert ("fr", "section1") in generate_labels_mod.removed_files_global
+    assert ("en", "section2") in generate_labels_mod.removed_files_global
+    assert ("fr", "section3") in generate_labels_mod.removed_files_global
+    assert len(generate_labels_mod.removed_files_global) == 3
+
+    # Clear and check
+    generate_labels_mod.removed_files_global.clear()
+    assert generate_labels_mod.removed_files_global == set()
 
 
 # TODO: test_deleteYamlFile
