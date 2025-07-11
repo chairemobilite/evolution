@@ -317,6 +317,9 @@ export const registerWithAccessPostalCodeTest: RegisterWithAccessPostalCodeTest 
 
         // If the access code and postal code combination does not exist, it should remain on the page, with a warning message and checkbox
         if (!expectedToExist) {
+            // Click on the captcha
+            await solveCaptcha({ context });
+
             const warningMessage = context.page.locator('id=confirmCredentials');
             await warningMessage.click();
             await confirmButton.click();
@@ -1145,4 +1148,150 @@ export const sectionProgressBarTest: SectionProgressBarTest = ({ context, sectio
         const completionPercentageText = progressBarSection.getByText(`${completionPercentage}%`);
         await expect(completionPercentageText).toBeVisible();
     });
+};
+
+/**
+ * Solves a @cap.js captcha by clicking on it and waiting for verification to complete.
+ * This function handles captchas that may be inside Shadow DOM.
+ *
+ * @param {CommonTestParameters} params - The test context parameters.
+ * @returns {Promise<void>}
+ */
+export const solveCaptcha = async ({ context }: CommonTestParameters): Promise<void> => {
+    try {
+        // Use JavaScript evaluation to directly interact with the captcha in Shadow DOM
+        const clicked = await context.page.evaluate(() => {
+            // Try to find the captcha element anywhere in the DOM, including shadow DOM
+            const findInShadowDOM = (element, selector) => {
+                // If the element has shadow root, search inside it
+                if (element.shadowRoot) {
+                    const found = element.shadowRoot.querySelector(selector);
+                    if (found) return found;
+
+                    // Search through shadow root's children
+                    for (const child of element.shadowRoot.children) {
+                        const foundInChild = findInShadowDOM(child, selector);
+                        if (foundInChild) return foundInChild;
+                    }
+                }
+
+                // Search through element's children
+                for (const child of element.children) {
+                    const foundInChild = findInShadowDOM(child, selector);
+                    if (foundInChild) return foundInChild;
+                }
+
+                return null;
+            };
+
+            // Find all potential captcha elements in the main document
+            const captchaElement = document.querySelector('div.captcha[role="button"]') ||
+                                  findInShadowDOM(document.documentElement, 'div.captcha[role="button"]');
+
+            if (captchaElement) {
+                captchaElement.click();
+                return true;
+            }
+
+            // Alternative approach: try to find by role and aria-label
+            const captchaByLabel = document.querySelector('[aria-label="Click to verify you\'re a human"]') ||
+                                  findInShadowDOM(document.documentElement, '[aria-label="Click to verify you\'re a human"]');
+
+            if (captchaByLabel) {
+                captchaByLabel.click();
+                return true;
+            }
+
+            return false;
+        });
+
+        if (!clicked) {
+            throw new Error("Couldn't find captcha element to click");
+        }
+
+        // Wait for the captcha to be verified using JavaScript evaluation
+        await context.page.waitForFunction(() => {
+            // Similar function to find in shadow DOM
+            const findInShadowDOM = (element, predicate) => {
+                // If element matches predicate, return it
+                if (predicate(element)) return element;
+
+                // If the element has shadow root, search inside it
+                if (element.shadowRoot) {
+                    for (const child of element.shadowRoot.children) {
+                        const foundInChild = findInShadowDOM(child, predicate);
+                        if (foundInChild) return foundInChild;
+                    }
+                }
+
+                // Search through element's children
+                for (const child of element.children) {
+                    const foundInChild = findInShadowDOM(child, predicate);
+                    if (foundInChild) return foundInChild;
+                }
+
+                return null;
+            };
+
+            // Check for solved captcha in the main document or shadow DOM
+            const solvedCaptcha =
+                document.querySelector('div.captcha[data-state="solved"]') ||
+                document.querySelector('div.captcha[aria-label*="verified"]') ||
+                findInShadowDOM(document.documentElement,
+                    el => (el.tagName === 'DIV' &&
+                           el.classList.contains('captcha') &&
+                           (el.getAttribute('data-state') === 'solved' ||
+                            (el.getAttribute('aria-label') &&
+                             el.getAttribute('aria-label').includes('verified')))));
+
+            return !!solvedCaptcha;
+        }, { timeout: 10000 });
+
+    } catch (error) {
+        console.log('Error solving captcha using JavaScript method, trying click approach');
+
+        try {
+            // Try a more direct approach - search for the parent container that might contain the captcha
+            const captchaContainer = await context.page.locator('form div').filter({
+                has: context.page.locator('div').filter({
+                    hasText: /Je suis humain|I am human/
+                })
+            }).first();
+
+            // Get its bounding box
+            const boundingBox = await captchaContainer.boundingBox();
+
+            if (boundingBox) {
+                // Click in the middle of the container
+                await context.page.mouse.click(
+                    boundingBox.x + boundingBox.width / 3,  // Try to click where the checkbox would be (left third)
+                    boundingBox.y + boundingBox.height / 2
+                );
+
+                // Wait a moment to see if the captcha registers
+                await context.page.waitForTimeout(3000);
+
+                console.log('Tried alternative clicking approach');
+
+                // Check if we need to click again
+                const isVerified = await context.page.evaluate(() => {
+                    // Look for confirmation elements or state changes that indicate verification
+                    return document.querySelector('[aria-label*="verified"]') !== null ||
+                           document.querySelector('[data-state="solved"]') !== null;
+                });
+
+                if (!isVerified) {
+                    console.log('First click didn\'t work, trying different position');
+                    await context.page.mouse.click(
+                        boundingBox.x + boundingBox.width / 2,
+                        boundingBox.y + boundingBox.height / 2
+                    );
+                    await context.page.waitForTimeout(2000);
+                }
+            }
+        } catch (fallbackError) {
+            console.error('Failed all captcha solving methods:', fallbackError);
+            throw new Error(`Failed to solve captcha: ${error}`);
+        }
+    }
 };

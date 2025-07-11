@@ -58,6 +58,7 @@ module.exports = {
   logDatabaseUpdates: true,
   askForAccessCode: true,
   surveySupportForm: true,
+  captchaComponentType: 'capjs',
   interviewableAge: 5,
   isPartTwo: false,
   mapDefaultCenter: {
