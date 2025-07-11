@@ -392,7 +392,13 @@ def transform_path(path: str, sections: dict) -> str:
 
     # If the path contains '.', we change it to 'abreviation_fieldName'
     if "." in path:
-        section_name, field_name = path.split(".")
+        if path.count(".") > 1:
+            print(
+                f"Warning: The path '{path}' contains multiple dots, which may lead to incorrect section attribution. See issue #1058 in Evolution for details."
+            )
+        # limit the split to 1 to avoid too many values to unpack
+        # FIXME This does not handle correctly cases of complex paths with multiple dots. See https://github.com/chairemobilite/evolution/issues/1058 for more details
+        section_name, field_name = path.split(".", 1)
         abbreviation = sections.get(section_name, {}).get("abbreviation", "")
         return f"{abbreviation}{field_name}"
     else:
