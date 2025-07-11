@@ -113,7 +113,7 @@ def get_labels_file_path(labels_output_folder_path, language, section):
 removed_files_global = set()
 
 
-def deleteYamlFile(language, section, labels_output_folder_path):
+def delete_yaml_file(language, section, labels_output_folder_path):
     """
     Deletes the YAML file for the specified section and language.
 
@@ -156,7 +156,7 @@ def delete_all_labels_yaml_files(labels_output_folder_path, languages, sections)
                     raise e
 
 
-def addTranslation(language, section, path, value, rowNumber, translations):
+def add_translation(language, section, path, value, rowNumber, translations):
     """
     Adds a translation to the locales dictionary.
 
@@ -172,7 +172,7 @@ def addTranslation(language, section, path, value, rowNumber, translations):
     """
     try:
         value = LabelFormatter.replace(value)
-        yaml_value = stringToYaml(value)
+        yaml_value = string_to_yaml(value)
 
         # Ensure section exists in translations
         if section not in translations:
@@ -189,29 +189,16 @@ def addTranslation(language, section, path, value, rowNumber, translations):
 
     except Exception as e:
         print(
-            f"An error occurred in addTranslation at row {rowNumber} with language={language}, section={section}, path={path}, value={value}: {e}"
+            f"An error occurred in add_translation at row {rowNumber} with language={language}, section={section}, path={path}, value={value}: {e}"
         )
         raise e
 
 
-def merge_dicts(a, b):
-    """
-    Recursively merges dict b into dict a and returns the result.
-    """
-    for k, v in b.items():
-        if k in a and isinstance(a[k], dict) and isinstance(v, dict):
-            merge_dicts(a[k], v)
-        else:
-            a[k] = v
-    return a
-
-
-def saveTranslations(
+def save_translations(
     language,
     section,
     labels_output_folder_path,
     translations,
-    labels_sheet_name="Widgets",
 ):
     """
     Saves the translations to the appropriate YAML file with a header.
@@ -231,7 +218,7 @@ def saveTranslations(
                     existing = yaml.load(f) or {}
                 except Exception:
                     existing = {}
-            merged = merge_dicts(existing, section_translations)
+            merged = merged_section_translations(existing, section_translations)
         else:
             merged = section_translations
 
@@ -252,7 +239,7 @@ def saveTranslations(
         raise e
 
 
-def addTranslationsFromExcel(
+def add_translations_from_excel(
     excel_file_path,
     labels_output_folder_path,
     labels_sheet_name="Widgets",
@@ -322,7 +309,7 @@ def addTranslationsFromExcel(
                 if fr_label is not None:
                     key = ("fr", section)
                     if key not in removed_files_global:
-                        deleteYamlFile(
+                        delete_yaml_file(
                             language="fr",
                             section=section,
                             labels_output_folder_path=labels_output_folder_path,
@@ -331,7 +318,7 @@ def addTranslationsFromExcel(
                 if en_label is not None:
                     key = ("en", section)
                     if key not in removed_files_global:
-                        deleteYamlFile(
+                        delete_yaml_file(
                             language="en",
                             section=section,
                             labels_output_folder_path=labels_output_folder_path,
@@ -341,7 +328,7 @@ def addTranslationsFromExcel(
 
             # Add French translations
             if gender_fr:
-                addTranslation(
+                add_translation(
                     language="fr",
                     section=section,
                     path=path + "_male",
@@ -349,7 +336,7 @@ def addTranslationsFromExcel(
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
-                addTranslation(
+                add_translation(
                     language="fr",
                     section=section,
                     path=path + "_female",
@@ -357,7 +344,7 @@ def addTranslationsFromExcel(
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
-                addTranslation(
+                add_translation(
                     language="fr",
                     section=section,
                     path=path + "_other",
@@ -366,7 +353,7 @@ def addTranslationsFromExcel(
                     translations=translations_dict["fr"],
                 )
             elif fr_label is not None:
-                addTranslation(
+                add_translation(
                     language="fr",
                     section=section,
                     path=path,
@@ -377,7 +364,7 @@ def addTranslationsFromExcel(
 
             # Add French one person translation for count context if it exists
             if gender_fr_one:
-                addTranslation(
+                add_translation(
                     language="fr",
                     section=section,
                     path=path + "_male_one",
@@ -385,7 +372,7 @@ def addTranslationsFromExcel(
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
-                addTranslation(
+                add_translation(
                     language="fr",
                     section=section,
                     path=path + "_female_one",
@@ -393,7 +380,7 @@ def addTranslationsFromExcel(
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
-                addTranslation(
+                add_translation(
                     language="fr",
                     section=section,
                     path=path + "_other_one",
@@ -402,7 +389,7 @@ def addTranslationsFromExcel(
                     translations=translations_dict["fr"],
                 )
             elif fr_label_one:
-                addTranslation(
+                add_translation(
                     language="fr",
                     section=section,
                     path=path + "_one",
@@ -413,7 +400,7 @@ def addTranslationsFromExcel(
 
             # Add English translations
             if gender_en:
-                addTranslation(
+                add_translation(
                     language="en",
                     section=section,
                     path=path + "_male",
@@ -421,7 +408,7 @@ def addTranslationsFromExcel(
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
                 )
-                addTranslation(
+                add_translation(
                     language="en",
                     section=section,
                     path=path + "_female",
@@ -429,7 +416,7 @@ def addTranslationsFromExcel(
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
                 )
-                addTranslation(
+                add_translation(
                     language="en",
                     section=section,
                     path=path + "_other",
@@ -438,7 +425,7 @@ def addTranslationsFromExcel(
                     translations=translations_dict["en"],
                 )
             elif en_label is not None:
-                addTranslation(
+                add_translation(
                     language="en",
                     section=section,
                     path=path,
@@ -449,7 +436,7 @@ def addTranslationsFromExcel(
 
             # Add English one person translation for count context if it exists
             if gender_en_one:
-                addTranslation(
+                add_translation(
                     language="en",
                     section=section,
                     path=path + "_male_one",
@@ -457,7 +444,7 @@ def addTranslationsFromExcel(
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
                 )
-                addTranslation(
+                add_translation(
                     language="en",
                     section=section,
                     path=path + "_female_one",
@@ -465,7 +452,7 @@ def addTranslationsFromExcel(
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
                 )
-                addTranslation(
+                add_translation(
                     language="en",
                     section=section,
                     path=path + "_other_one",
@@ -474,7 +461,7 @@ def addTranslationsFromExcel(
                     translations=translations_dict["en"],
                 )
             elif en_label_one:
-                addTranslation(
+                add_translation(
                     language="en",
                     section=section,
                     path=path + "_one",
@@ -487,16 +474,15 @@ def addTranslationsFromExcel(
         # Save all translations
         for language, translations in translations_dict.items():
             for section in processed_sections:
-                saveTranslations(
+                save_translations(
                     language,
                     section,
                     labels_output_folder_path,
                     translations,
-                    labels_sheet_name=labels_sheet_name,
                 )
 
     except Exception as e:
-        print(f"Exception occurred in addTranslationsFromExcel: {e}")
+        print(f"Exception occurred in add_translations_from_excel: {e}")
         raise e
 
 
@@ -544,7 +530,7 @@ def expand_gender(label):
     return {"male": male_label, "female": female_label, "other": other_label}
 
 
-def stringToYaml(str):
+def string_to_yaml(str):
     """
     Converts a string to a YAML format.
 
@@ -561,8 +547,27 @@ def stringToYaml(str):
             return ruamel.yaml.scalarstring.FoldedScalarString(str)
         return str
     except Exception as e:
-        print(f"An error occurred in stringToYaml: {e}")
+        print(f"An error occurred in string_to_yaml: {e}")
         raise e
+
+
+def merged_section_translations(a, b):
+    """
+    Recursively merges dict b into dict a and returns the result.
+    If a key exists in both, prints a warning with the key and both values.
+    The previous value is kept (no overwrite).
+    """
+    for k, v in b.items():
+        if k in a and isinstance(a[k], dict) and isinstance(v, dict):
+            merged_section_translations(a[k], v)
+        elif k in a:
+            print(
+                f"WARNING: Duplicate key during merge of generate labels: key='{k}'. First value: {a[k]}, Second value: {v}. Keeping first value."
+            )
+            # Do NOT overwrite: keep a[k] as is
+        else:
+            a[k] = v
+    return a
 
 
 # Function to generate the labels locales files
@@ -608,7 +613,7 @@ def generate_labels(
 
         # Step 3: Process each sheet and merge translations into the same files
         for sheet in labels_sheet_names:
-            addTranslationsFromExcel(
+            add_translations_from_excel(
                 excel_file_path=excel_file_path,
                 labels_output_folder_path=labels_output_folder_path,
                 labels_sheet_name=sheet,
