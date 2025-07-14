@@ -77,7 +77,7 @@ export const setupServer = (serverSetupFct?: (app: Express) => void) => {
     }
 
     // Register server translations
-    registerTranslationDir(join(__dirname, '../../../../../../locales/'));
+    registerTranslationDir(join(__dirname, '../../../../../locales/'));
 };
 
 export default setupServer;
