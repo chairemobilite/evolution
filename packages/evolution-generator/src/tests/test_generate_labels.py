@@ -106,7 +106,6 @@ def test_get_labels_file_path_widgets():
     assert path == "../../example/demo_generator/fr/section1.yaml"
 
 
-# TODO: test_delete_yaml_file
 # TODO: test delete_all_labels_yaml_files (check that generate_labels() call this function only once)
 # TODO: test add_translation
 # TODO: test merged_section_translations
