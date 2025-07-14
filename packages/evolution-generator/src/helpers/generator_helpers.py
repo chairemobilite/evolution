@@ -110,7 +110,7 @@ def generate_output_file(ts_code: str, output_file: str):
         with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:
             ts_file.write(ts_code)
 
-        print(f"Generate {output_file} successfully")
+        print(f"Generated {output_file} successfully")
 
     except Exception as e:
         print(f"Error generating {output_file}: {e}")

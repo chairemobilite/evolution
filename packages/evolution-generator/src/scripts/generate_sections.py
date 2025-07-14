@@ -50,7 +50,7 @@ def generate_sections(excel_file_path: str, sections_output_file_path: str):
         ) as ts_file:
             ts_file.write(ts_code)
 
-        print(f"Generate {sections_output_file_path} successfully")
+        print(f"Generated {sections_output_file_path} successfully")
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution

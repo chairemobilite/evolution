@@ -39,7 +39,7 @@ def generate_excel(
             with open(excel_output_file_path, "wb") as local_file:
                 local_file.write(response.content)
 
-            print("Generate Excel file successfully")
+            print("Generated Excel file successfully")
         else:
             print(auth_ctx.get_last_error())
     except Exception as e:

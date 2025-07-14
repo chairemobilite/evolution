@@ -171,7 +171,7 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
             ) as f:
                 f.write(ts_code)
                 f.write(transformed_content["widgetsStatements"])
-                print(f"Generate {widgets_output_path}/widgets.tsx successfully")
+                print(f"Generated {widgets_output_path}/widgets.tsx successfully")
 
             # Write the transformed content to the widgetsNames output file
             with open(
@@ -182,7 +182,7 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
             ) as f:
                 f.write(ts_code)
                 f.write(transformed_content["widgetsNamesStatements"])
-                print(f"Generate {widgets_output_path}/widgetsNames.ts successfully")
+                print(f"Generated {widgets_output_path}/widgetsNames.ts successfully")
 
     except Exception as e:
         print(f"Error with widgets: {e}")
