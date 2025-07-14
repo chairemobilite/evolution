@@ -224,7 +224,8 @@ def save_translations(
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
                 try:
-                    existing = yaml.safe_load(content) or {}
+                    # Note: Use yaml.load instead of .safe_load because .safe_load is deprecated in ruamel.yaml.
+                    existing = yaml.load(content) or {}
                 except Exception:
                     existing = {}
             merged = merged_section_translations(existing, section_translations)
