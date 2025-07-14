@@ -218,5 +218,26 @@ To view the generated HTML documentation, you can use an extension like **Live S
 
 Alternatively, you can use any HTTP server to serve the `docs/internalApi` folder and view the documentation in your browser.
 
+## Import data to pre-fill surveys
+
+It is possible to import data that will be used to pre-fill the response of an interview, for example, the address, to match with an access code.
+
+The data to pre-fill can be imported from a csv file and use the script from Evolution: `importPreFilledResponses.task.ts`.
+
+The import script supports the following fields: `AccessCode`, `PostalCode`, `Address`, `AptNumber`, `City`, `Province`, `AddrLat`, `AddrLon`, `PhoneNumber`, which are all optional. The `AccessCode` field is used as the reference value, ie the one that uniquely identifies the corresponding response row. The other fields will be used to prefill the home address and geography if available. They are mapped respectively to `home.postalCode`, `home.address`, `home.apartmentNumber`, `home.city`, `home.region` and the lat/lon values go to the `home.geography` field. Any additional field, as well as all the entered fields, in the csv file will be put in a `home.preData` field, available in the interview's `response` object, but not editable.
+
+Here's an example csv file for import:
+
+```
+AccessCode,PostalCode,Address,AptNumber,City,Province,AddrLat,AddrLon,PhoneNumber,Strate,Lot
+1234-1111,H3T 0A3,2500 chemin Polytechnique,,Montréal,Québec,45.50451,-73.614911,,1,1
+1234-1112,H3T 0A3,2501 chemin Polytechnique,,Montréal,Québec,45.50452,-73.614912,,2,1
+1234-1113,H3T 0A3,2502 chemin Polytechnique,,Montréal,Québec,45.50453,-73.614913,,3,1
+```
+
+This file can be imported by running the following command: `yarn node packages/evolution-backend/lib/tasks/importPreFilledResponses.task.js --file /absolute/path/to/file.csv`.
+
+For a custom import or to support additional fields, the import task of Evolution can be copied and modified.
+
 ## Nomenclature
 For naming consistency, see [Nomenclature](docs/nomenclature.md)
