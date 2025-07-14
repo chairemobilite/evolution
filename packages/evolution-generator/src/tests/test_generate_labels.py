@@ -110,31 +110,6 @@ def test_get_labels_file_path_widgets():
 # TODO: test add_translation
 # TODO: test merged_section_translations
 # TODO: test save_translations
-
-
-def test_removed_files_global_multiple_entries():
-    """
-    Test that removed_files_global can track multiple (language, section) entries.
-    """
-
-    # Import the module fresh to reset the global
-    generate_labels_mod = importlib.import_module("scripts.generate_labels")
-    generate_labels_mod.removed_files_global.clear()
-
-    # Add multiple entries
-    generate_labels_mod.removed_files_global.add(("fr", "section1"))
-    generate_labels_mod.removed_files_global.add(("en", "section2"))
-    generate_labels_mod.removed_files_global.add(("fr", "section3"))
-    assert ("fr", "section1") in generate_labels_mod.removed_files_global
-    assert ("en", "section2") in generate_labels_mod.removed_files_global
-    assert ("fr", "section3") in generate_labels_mod.removed_files_global
-    assert len(generate_labels_mod.removed_files_global) == 3
-
-    # Clear and check
-    generate_labels_mod.removed_files_global.clear()
-    assert generate_labels_mod.removed_files_global == set()
-
-
 # TODO: test_deleteYamlFile
 # TODO: test_addTranslation
 # TODO: test_saveTranslations

@@ -107,7 +107,7 @@ def generate_questionnaire_list(
             questionnaire_list_path, mode="w", encoding="utf-8", newline="\n"
         ) as f:
             f.write(questionnaire_text)
-            print(f"Generate {questionnaire_list_path} successfully")
+            print(f"Generated {questionnaire_list_path} successfully")
 
     except Exception as e:
         print(f"Error with questionnaire list: {e}")

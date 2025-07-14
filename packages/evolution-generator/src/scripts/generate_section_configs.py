@@ -212,7 +212,7 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                 ) as ts_file:
                     ts_file.write(ts_code + ts_section_code)
 
-                print(f"Generate {section_output_file} successfully")
+                print(f"Generated {section_output_file} successfully")
 
             # Generate section code
             generate_section_code(previousSection, nextSection)

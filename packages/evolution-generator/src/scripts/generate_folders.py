@@ -29,7 +29,7 @@ def generate_folders(
 
         def generate_folder(folder_path: str):
             if not os.path.exists(folder_path):
-                print(f"Generate {folder_path} folder successfully")
+                print(f"Generated {folder_path} folder successfully")
                 os.makedirs(folder_path)
 
         # Create the common folder

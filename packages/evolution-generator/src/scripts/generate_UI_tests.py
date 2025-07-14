@@ -166,7 +166,7 @@ def generate_UI_tests(input_file: str, output_file: str):
         with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:
             ts_file.write(ts_code)
 
-        print(f"Generate {output_file} successfully")
+        print(f"Generated {output_file} successfully")
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution

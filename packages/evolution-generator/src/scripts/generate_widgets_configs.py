@@ -73,7 +73,7 @@ def generate_widgets_configs(
         ) as ts_file:
             ts_file.write(ts_code)
 
-        print(f"Generate {widgets_configs_output_file_path} successfully")
+        print(f"Generated {widgets_configs_output_file_path} successfully")
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution

@@ -192,7 +192,7 @@ def generate_questionnaire_dictionary(
         ) as f:
             writer = csv.writer(f)
             writer.writerows(questionnaire_data)
-            print(f"Generate {questionnaire_dictionary_path} successfully")
+            print(f"Generated {questionnaire_dictionary_path} successfully")
 
     except Exception as e:
         print(f"Error with questionnaire dictionary: {e}")
