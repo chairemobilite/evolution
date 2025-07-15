@@ -11,6 +11,36 @@ from helpers.generator_helpers import (
 )
 import re  # Regular expression module for pattern matching
 from typing import TypedDict
+from dataclasses import dataclass
+
+
+@dataclass
+class ImportFlags:
+    """
+    Dataclass to hold the import flags for widget generation.
+    This will make the code more maintainable and less error-prone when adding new flags.
+    """
+
+    # Flags for imports
+    has_choices_import: bool = False
+    has_custom_choices_import: bool = False
+    has_conditionals_import: bool = False
+    has_input_range_import: bool = False
+    has_custom_widgets_import: bool = False
+    has_validations_import: bool = (
+        True  # Default to True for validations.requiredValidation
+    )
+    has_custom_validations_import: bool = False
+    has_custom_conditionals_import: bool = False
+    has_help_popup_import: bool = False
+    has_helper_import: bool = False
+    has_formatter_import: bool = False
+    has_custom_formatter_import: bool = False
+
+    # Flags for specific labels
+    has_nickname_label: bool = False
+    has_persons_count_label: bool = False
+    has_gendered_suffix_label: bool = False
 
 
 class RadioNumberParametersResult(TypedDict):
@@ -49,8 +79,8 @@ class WidgetResult(TypedDict):
 
     statement: str
     has_helper_import: bool
-    has_formatter_import: bool | None
-    has_custom_formatter_import: bool | None
+    has_formatter_import: bool
+    has_custom_formatter_import: bool
 
 
 # Function to generate widgets.tsx for each section
@@ -84,83 +114,27 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
             # Filter rows based on section
             section_rows = [row for row in section_rows if row["section"] == section]
 
-            # Loop the section rows to check if we need to import choices, custom conditionals, input_range, or custom widgets
-            has_choices_import = False
-            has_conditionals_import = False
-            has_input_range_import = False
-            has_custom_widgets_import = False
-            has_custom_validations_import = False
-            has_custom_conditionals_import = False
-            has_help_popup_import = False
-            has_nickname_label = False
-            has_persons_count_label = False
-            has_gendered_suffix_label = False
-            for row in section_rows:
-                if row["choices"]:
-                    has_choices_import = True
-                if row["validation"].endswith("CustomValidation"):
-                    # Check to see if the validation finish with 'CustomValidation'
-                    has_custom_validations_import = True
-                if row["conditional"] and row["conditional"].endswith(
-                    "CustomConditional"
-                ):
-                    # Check to see if the conditional finish with 'CustomConditional'
-                    has_custom_conditionals_import = True
-                elif row["conditional"] and not row["conditional"].endswith(
-                    "CustomConditional"
-                ):
-                    # Check to see if the conditional is not empty and does not finish with 'CustomConditional'
-                    has_conditionals_import = True
-                if row["inputRange"]:
-                    has_input_range_import = True
-                if row["inputType"] == "Custom":
-                    has_custom_widgets_import = True
-                if row["help_popup"] or row["confirm_popup"]:
-                    has_help_popup_import = True
-
-            # Check all rows for label context
-            for row in section_rows:
-                label_fr = row.get("label::fr", "")
-                label_en = row.get("label::en", "")
-                if "{{nickname}}" in label_fr or "{{nickname}}" in label_en:
-                    # Check if the label contains '{{nickname}}'
-                    has_nickname_label = True
-                if "{{count}}" in label_fr or "{{count}}" in label_en:
-                    # Check if the label contains '{{count}}'
-                    has_persons_count_label = True
-                if "{{genderedSuffix" in label_fr or "{{genderedSuffix:" in label_en:
-                    # Check if the label contains '{{genderedSuffix:...}}'
-                    has_gendered_suffix_label = True
+            # Get the widgets file import flags
+            import_flags = get_widgets_file_import_flags(section_rows)
 
             # Generate widgets statements
             widget_results = [generate_widget_statement(row) for row in section_rows]
-            has_helper_import = any(
+
+            # Check if any widget has specific import flags and update import_flags accordingly
+            import_flags.has_helper_import = any(
                 result["has_helper_import"] for result in widget_results
             )
-            has_formatter_import = any(
+            import_flags.has_formatter_import = any(
                 result.get("has_formatter_import") for result in widget_results
             )
-            has_custom_formatter_import = any(
+            import_flags.has_custom_formatter_import = any(
                 result.get("has_custom_formatter_import") for result in widget_results
             )
 
             # Generate import statements
-            import_statements = generate_import_statements(
-                has_choices_import,
-                has_conditionals_import,
-                has_input_range_import,
-                has_custom_widgets_import,
-                has_custom_validations_import,
-                has_custom_conditionals_import,
-                has_help_popup_import,
-                has_nickname_label,
-                has_persons_count_label,
-                has_gendered_suffix_label,
-                has_helper_import,
-                has_formatter_import,
-                has_custom_formatter_import,
-            )
+            import_statements = generate_import_statements(import_flags=import_flags)
 
+            # Generate the widgets statements
             widgets_statements = [result["statement"] for result in widget_results]
             widgets_statements = (
                 f"{import_statements}\n{'\n\n'.join(widgets_statements)}\n"
@@ -376,64 +350,79 @@ def generate_widgets_names_statements(section_rows):
 
 
 # Generate import statement if needed
-def generate_import_statements(
-    has_choices_import,
-    has_conditionals_import,
-    has_input_range_import,
-    has_custom_widgets_import,
-    has_custom_validations_import,
-    has_custom_conditionals_import,
-    has_help_popup_import,
-    has_nickname_label,
-    has_persons_count_label,
-    has_gendered_suffix_label,
-    has_helper_import=False,
-    has_formatter_import=False,
-    has_custom_formatter_import=False,
-):
-    od_survey_helpers_import = ""
-    if has_nickname_label or has_gendered_suffix_label or has_persons_count_label:
-        od_survey_helpers_import = "import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';\n"
-
+def generate_import_statements(import_flags: ImportFlags) -> str:
+    od_survey_helpers_import = (
+        "import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';\n"
+        if (
+            import_flags.has_nickname_label
+            or import_flags.has_gendered_suffix_label
+            or import_flags.has_persons_count_label
+        )
+        else ""
+    )
     choices_import = (
-        "// " if not has_choices_import else ""
-    ) + "import * as choices from '../../common/choices';\n"
+        "import * as choices from '../../common/choices';\n"
+        if import_flags.has_choices_import
+        else ""
+    )
+    custom_choices_import = (
+        "import * as customChoices from './customChoices';\n"
+        if import_flags.has_custom_choices_import
+        else ""
+    )
     conditionals_import = (
-        "// " if not has_conditionals_import else ""
-    ) + "import * as conditionals from '../../common/conditionals';\n"
+        "import * as conditionals from '../../common/conditionals';\n"
+        if import_flags.has_conditionals_import
+        else ""
+    )
     custom_widgets_import = (
-        "// " if not has_custom_widgets_import else ""
-    ) + "import * as customWidgets from './customWidgets';\n"
+        "import * as customWidgets from './customWidgets';\n"
+        if import_flags.has_custom_widgets_import
+        else ""
+    )
+    validations_import = (
+        "import * as validations from 'evolution-common/lib/services/widgets/validations/validations';\n"
+        if import_flags.has_validations_import
+        else ""
+    )
     custom_validations_import = (
-        "// " if not has_custom_validations_import else ""
-    ) + "import * as customValidations from '../../common/customValidations';\n"
+        "import * as customValidations from '../../common/customValidations';\n"
+        if import_flags.has_custom_validations_import
+        else ""
+    )
     custom_conditionals_import = (
-        "// " if not has_custom_conditionals_import else ""
-    ) + "import * as customConditionals from '../../common/customConditionals';\n"
+        "import * as customConditionals from '../../common/customConditionals';\n"
+        if import_flags.has_custom_conditionals_import
+        else ""
+    )
     custom_help_popup_import = (
-        "// " if not has_help_popup_import else ""
-    ) + "import * as customHelpPopup from '../../common/customHelpPopup';\n"
+        "import * as customHelpPopup from '../../common/customHelpPopup';\n"
+        if import_flags.has_help_popup_import
+        else ""
+    )
     input_range_import = (
-        "// " if not has_input_range_import else ""
-    ) + "import * as inputRange from '../../common/inputRange';\n"
+        "import * as inputRange from '../../common/inputRange';\n"
+        if import_flags.has_input_range_import
+        else ""
+    )
     gendered_suffix_import = (
         "import { getGenderedSuffixes } from '../../helperFunctions/frontendHelper';\n"
-        if has_gendered_suffix_label == True
+        if import_flags.has_gendered_suffix_label
         else ""
     )
     survey_helper_import = (
         "import * as surveyHelper from 'evolution-common/lib/utils/helpers';\n"
-        if has_helper_import == True
+        if import_flags.has_helper_import
         else ""
     )
     formatter_import = (
         "import * as formatters from 'evolution-common/lib/utils/formatters';\n"
-        if has_formatter_import == True
+        if import_flags.has_formatter_import
         else ""
     )
     custom_formatter_import = (
         "import * as customFormatters from '../../common/customFormatters';\n"
-        if has_custom_formatter_import == True
+        if import_flags.has_custom_formatter_import
         else ""
     )
     return (
@@ -441,7 +430,7 @@ def generate_import_statements(
         f"import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';\n"
         f"import {{ defaultConditional }} from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';\n"
         f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
-        f"import * as validations from 'evolution-common/lib/services/widgets/validations/validations';\n"
+        f"{validations_import}"
         f"{od_survey_helpers_import}"
         f"{survey_helper_import}"
         f"{choices_import}"
@@ -451,6 +440,7 @@ def generate_import_statements(
         f"{gendered_suffix_import}"
         f"{custom_conditionals_import}"
         f"{custom_widgets_import}"
+        f"{custom_choices_import}"
         f"{custom_help_popup_import}"
         f"{custom_validations_import}"
         f"{custom_formatter_import}"
@@ -581,6 +571,20 @@ def generate_confirm_popup(confirm_popup, comma=True, skip_line=True):
 
 
 def generate_choices(choices):
+    """
+    Generates the TypeScript 'choices' property for a widget.
+
+    If the choices string ends with 'CustomChoices' (case-insensitive), returns 'choices: customChoices.{choices}'.
+    Otherwise, returns 'choices: choices.{choices}'.
+
+    Args:
+        choices (str): The choices identifier from the Excel row.
+
+    Returns:
+        str: The TypeScript code for the choices property.
+    """
+    if choices.lower().endswith("customchoices"):
+        return f"{INDENT}choices: customChoices.{choices}"
     return f"{INDENT}choices: choices.{choices}"
 
 
@@ -1014,8 +1018,8 @@ def get_string_parameters(row) -> StringParametersResult:
     Returns a dict with keys: formatter.
     Prints warnings for invalid or unrecognized parameters.
     Example valid formats:
-      - "formatter=eightDigitsAccessCodeFormatter"
-      - "formatter=someFieldCustomFormatter"
+        - "formatter=eightDigitsAccessCodeFormatter"
+        - "formatter=someFieldCustomFormatter"
     """
     parameters = row.get("parameters", "")
 
@@ -1033,3 +1037,56 @@ def get_string_parameters(row) -> StringParametersResult:
             )
 
     return result
+
+
+def get_widgets_file_import_flags(section_rows) -> ImportFlags:
+    """
+    Analyze the section_rows and determine which import flags should be set to True.
+
+    Returns an ImportFlags dataclass with all the import flag booleans.
+    """
+    import_flags = ImportFlags()
+
+    # Check all rows for import flags
+    for row in section_rows:
+        if row["choices"]:
+            # Check to see if the choices finish with 'CustomChoices'
+            if row["choices"].lower().endswith("customchoices"):
+                import_flags.has_custom_choices_import = True
+            else:
+                import_flags.has_choices_import = True
+        if row["validation"]:
+            # Check to see if the validation finish with 'CustomValidation'
+            if row["validation"].lower().endswith("customvalidation"):
+                import_flags.has_custom_validations_import = True
+            else:
+                import_flags.has_validations_import = True
+        if row["conditional"] and row["conditional"].lower().endswith(
+            "customconditional"
+        ):
+            # Check to see if the conditional finish with 'CustomConditional'
+            import_flags.has_custom_conditionals_import = True
+        elif row["conditional"] and not row["conditional"].lower().endswith(
+            "customconditional"
+        ):
+            # Check to see if the conditional is not empty and does not finish with 'CustomConditional'
+            import_flags.has_conditionals_import = True
+        if row["inputRange"]:
+            import_flags.has_input_range_import = True
+        if row["inputType"] == "Custom":
+            import_flags.has_custom_widgets_import = True
+        if row["help_popup"] or row["confirm_popup"]:
+            import_flags.has_help_popup_import = True
+
+        # Check all rows for label context
+        label_fr = row.get("label::fr", "")
+        label_en = row.get("label::en", "")
+        # Check for {{nickname}}, {{count}}, and {{genderedSuffix:...}} in labels
+        if "{{nickname}}" in label_fr or "{{nickname}}" in label_en:
+            import_flags.has_nickname_label = True
+        if "{{count}}" in label_fr or "{{count}}" in label_en:
+            import_flags.has_persons_count_label = True
+        if "{{genderedSuffix" in label_fr or "{{genderedSuffix" in label_en:
+            import_flags.has_gendered_suffix_label = True
+
+    return import_flags

@@ -3,6 +3,8 @@
 # License text available at https://opensource.org/licenses/MIT
 
 from scripts.generate_widgets import (
+    ImportFlags,
+    generate_choices,
     generate_join_with,
     generate_common_properties,
     generate_info_text_widget,
@@ -14,6 +16,7 @@ from scripts.generate_widgets import (
     get_radio_number_parameters,
     get_string_parameters,
     generate_path,
+    generate_import_statements,
 )
 
 
@@ -21,7 +24,105 @@ from scripts.generate_widgets import (
 # TODO: Test generate_widget_statement
 # TODO: Test generate_widget_name
 # TODO: Test generate_widgets_names_statements
-# TODO: Test generate_import_statements
+
+
+class TestGenerateImportStatements:
+    """Tests for generate_import_statements function"""
+
+    def test_generate_import_statements_basic(self):
+        """Test generate_import_statements with all flags False (basic case)"""
+        import_flags = ImportFlags(
+            has_choices_import=False,
+            has_custom_choices_import=False,
+            has_conditionals_import=False,
+            has_input_range_import=False,
+            has_custom_widgets_import=False,
+            has_validations_import=False,
+            has_custom_validations_import=False,
+            has_custom_conditionals_import=False,
+            has_help_popup_import=False,
+            has_helper_import=False,
+            has_formatter_import=False,
+            has_custom_formatter_import=False,
+            has_nickname_label=False,
+            has_persons_count_label=False,
+            has_gendered_suffix_label=False,
+        )
+        result = generate_import_statements(import_flags)
+
+        # Should always import TFunction, defaultInputBase, defaultConditional, WidgetConfig
+        assert "import { TFunction } from 'i18next';" in result
+        assert "import * as defaultInputBase" in result
+        assert "import { defaultConditional }" in result
+        assert "import * as WidgetConfig" in result
+
+        # Should not import optional imports
+        assert "import * as choices" not in result
+        assert "import * as customChoices" not in result
+        assert "import * as conditionals" not in result
+        assert "import * as customWidgets" not in result
+        assert "import * as customValidations" not in result
+        assert "import * as customConditionals" not in result
+        assert "import * as customHelpPopup" not in result
+        assert "import * as inputRange" not in result
+        assert "import * as validations" not in result
+        assert "import * as formatters" not in result
+        assert "import * as customFormatters" not in result
+
+        # Should not import odSurveyHelpers, surveyHelper, or genderedSuffixes
+        assert "odSurveyHelpers" not in result
+        assert "surveyHelper" not in result
+        assert "getGenderedSuffixes" not in result
+
+    def test_generate_import_statements_complex(self):
+        """Test generate_import_statements with all flags True (complex case)"""
+        import_flags = ImportFlags(
+            has_choices_import=True,
+            has_custom_choices_import=True,
+            has_conditionals_import=True,
+            has_input_range_import=True,
+            has_custom_widgets_import=True,
+            has_validations_import=True,
+            has_custom_validations_import=True,
+            has_custom_conditionals_import=True,
+            has_help_popup_import=True,
+            has_helper_import=True,
+            has_formatter_import=True,
+            has_custom_formatter_import=True,
+            has_nickname_label=True,
+            has_persons_count_label=True,
+            has_gendered_suffix_label=True,
+        )
+
+        result = generate_import_statements(import_flags)
+
+        # Should always import TFunction, defaultInputBase, defaultConditional, WidgetConfig
+        assert "import { TFunction } from 'i18next';" in result
+        assert "import * as defaultInputBase" in result
+        assert "import { defaultConditional }" in result
+        assert "import * as WidgetConfig" in result
+
+        # Should import all required imports
+        assert "import * as choices" in result
+        assert "import * as customChoices" in result
+        assert "import * as conditionals" in result
+        assert "import * as customWidgets" in result
+        assert "import * as customValidations" in result
+        assert "import * as customConditionals" in result
+        assert "import * as customHelpPopup" in result
+        assert "import * as inputRange" in result
+        assert "import * as validations" in result
+        assert "import * as formatters" in result
+        assert "import * as customFormatters" in result
+        assert "import * as odSurveyHelpers" in result
+        assert "import * as surveyHelper" in result
+        assert (
+            "import { getGenderedSuffixes" in result
+            or "import { getGenderedSuffixes }" in result
+        )
+        assert "import * as validations" in result
+
+
 # TODO: Test generate_custom_widget
 # TODO: Test generate_comma
 # TODO: Test generate_skip_line
@@ -171,7 +272,30 @@ def test_generate_label_with_all_contexts():
 # TODO: Test generate_help_popup
 # TODO: Test generate_confirm_popup
 # TODO: Test generate_text
-# TODO: Test generate_choices
+
+
+class TestGenerateChoices:
+    """Tests for generate_choices function"""
+
+    def test_generate_choices_standard(self):
+        """Test generate_choices returns correct string for standard choices"""
+
+        result = generate_choices("yesNo")
+        assert "choices: choices.yesNo" in result
+
+    def test_generate_choices_custom_lowercase(self):
+        """Test generate_choices returns correct string for customChoices with lowercase"""
+
+        result = generate_choices("myCustomChoicescustomchoices")
+        assert "choices: customChoices.myCustomChoicescustomchoices" in result
+
+    def test_generate_choices_custom_uppercase(self):
+        """Test generate_choices returns correct string for customChoices (uppercase)"""
+
+        result = generate_choices("MyCustomChoices")
+        assert "choices: customChoices.MyCustomChoices" in result
+
+
 # TODO: Test generate_conditional
 # TODO: Test generate_validation
 # TODO: Test generate_two_columns
@@ -680,6 +804,7 @@ class TestGenerateStringWidget:
 # TODO: Test generate_checkbox_widget
 # TODO: Test generate_next_button_widget
 # TODO: Test generate_text_widget
+# TODO: Test get_widgets_file_import_flags
 
 
 class TestRadioNumberParameters:
