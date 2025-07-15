@@ -13,9 +13,9 @@ import re  # Regular expression module for pattern matching
 from typing import TypedDict
 
 
-class ParametersResult(TypedDict):
+class RadioNumberParametersResult(TypedDict):
     """
-    TypedDict to hold the result of parsing parameters from the Widgets sheet.
+    TypedDict to hold the result of parsing parameters for a radio_number widget from the Widgets sheet.
     It contains:
     - min_value: int, the minimum value parsed from parameters.
     - max_value: int, the maximum value parsed from parameters.
@@ -679,7 +679,7 @@ def generate_radio_number_widget(
     - Parses overMaxAllowed from the 'parameters' column (set to true if a line is 'overMaxAllowed').
     - Generates the TypeScript widget code for InputRadioNumberType.
     """
-    parameters: ParametersResult = get_parameters_values(row)
+    parameters: RadioNumberParametersResult = get_radio_number_parameters(row)
     over_max_allowed = parameters["over_max_allowed"]
 
     result: WidgetResult = {"statement": "", "needsHelperImport": False}
@@ -869,65 +869,76 @@ def generate_text_widget(
     )
 
 
-def get_parameters_values(row) -> ParametersResult:
+def parse_parameters(parameters: str) -> dict[str, str | None]:
     """
-    Parses the parameters string for min, max, and overMaxAllowed from the row.
-    Returns a dict with keys: min_value, max_value, over_max_allowed.
-    Prints warnings for invalid or unrecognized lines.
-    Splits parameters on newlines, semicolons, or spaces (so you can separate with Enter, ';', or ' ').
+    Parses a parameters string into a dictionary of key-value pairs.
+    - Converts keys to lowercase.
+    - Returns True for values if a parameter does not contain '='.
     Example valid formats:
       - "min=1\nmax=5\noverMaxAllowed"
       - "min=1;max=5;overMaxAllowed"
       - "min=1 max=5 overMaxAllowed"
-      - Any combination of these separators.
+    """
+    param_dict = {}
+    param_lines = parameters.replace(";", "\n").replace(" ", "\n").splitlines()
+
+    for line in param_lines:
+        if not line.strip():
+            continue
+        param_parts = line.split("=", 1)
+        key = param_parts[0].strip().lower()
+        value = param_parts[1].strip() if len(param_parts) > 1 else True
+        param_dict[key] = value
+
+    return param_dict
+
+
+def get_radio_number_parameters(row) -> RadioNumberParametersResult:
+    """
+    Parses the parameters string for min, max, and overMaxAllowed from the row.
+    Returns a dict with keys: min_value, max_value, over_max_allowed.
+    Prints warnings for invalid or unrecognized parameters.
+    Example valid formats:
+      - "min=1\nmax=5\noverMaxAllowed"
+      - "min=1;max=5;overMaxAllowed"
+      - "min=1 max=5 overMaxAllowed"
     """
     parameters = row.get("parameters", "")
 
     # Initialize the result with default values
-    result: ParametersResult = {
+    result: RadioNumberParametersResult = {
         "min_value": 0,
         "max_value": 6,
         "over_max_allowed": False,
     }
 
-    # Split parameters on newlines, semicolons, or spaces
-    # This allows: min=1\nmax=5\noverMaxAllowed OR min=1;max=5;overMaxAllowed OR min=1 max=5 overMaxAllowed
-    param_lines = []
-    if parameters:
-        # Replace semicolons and spaces with newlines, then split lines
-        param_lines = parameters.replace(";", "\n").replace(" ", "\n").splitlines()
+    param_dict = parse_parameters(parameters)
 
-    # Print some warnings depending on the parameters
-    # TODO:Put some warnings if the wrong parameters are used depending on the input type
-    for line in param_lines:
-        if line.startswith("min="):
-            min_value = line.split("=", 1)[1]
+    for key, value in param_dict.items():
+        if key == "min":
             try:
-                result["min_value"] = int(min_value)
+                result["min_value"] = int(value) if value is not None else 0
             except ValueError:
-                # keep the string, it is a response path
-                result["min_value"] = min_value
-        elif line.startswith("max="):
-            max_value = line.split("=", 1)[1]
+                result["min_value"] = value  # Keep as string if not an integer
+        elif key == "max":
             try:
-                result["max_value"] = int(max_value)
+                result["max_value"] = int(value) if value is not None else 6
             except ValueError:
-                # keep the string, it is a response path
-                result["max_value"] = max_value
-        elif line.strip() == "overMaxAllowed":
+                result["max_value"] = value  # Keep as string if not an integer
+        elif key == "overmaxallowed":
             result["over_max_allowed"] = True
-        elif line.strip() != "":
+        elif key != "":
             print(
-                f"Warning: Unrecognized line in parameters in Widgets sheet: '{line}'. Expected format: min=0\\nmax=6\\noverMaxAllowed."
+                f"Warning: Unrecognized parameter '{key}' for radio_number in Widgets sheet. Expected 'min', 'max' or 'overMaxAllowed'."
             )
 
     # Validate min < max if they are numbers
-    if isinstance(result["min_value"], str) or isinstance(result["max_value"], str):
-        # If either min or max is a string, we cannot compare them as numbers
-        print(
-            f"Warning: Cannot compare min ({result['min_value']}) and max ({result['max_value']}) as they are not both numbers."
-        )
-    elif result["min_value"] >= result["max_value"]:
+    # Only validate min < max if both are numbers
+    if (
+        isinstance(result["min_value"], int)
+        and isinstance(result["max_value"], int)
+        and result["min_value"] >= result["max_value"]
+    ):
         print(
             f"ValueError: min ({result['min_value']}) must be less than max ({result['max_value']}) in parameters in Widgets sheet."
         )

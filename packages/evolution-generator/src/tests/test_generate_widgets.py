@@ -9,7 +9,8 @@ from scripts.generate_widgets import (
     generate_radio_widget,
     generate_radio_number_widget,
     generate_label,
-    get_parameters_values,
+    parse_parameters,
+    get_radio_number_parameters,
     generate_path,
 )
 
@@ -411,8 +412,8 @@ def test_generate_radio_number_widget_complex():
     assert result["needsHelperImport"] is False
 
 
-def test_generate_radio_number_widget_min_max_field_values(capsys):
-    """Test generate_radio_number_widget prints error when min/max are not integers"""
+def test_generate_radio_number_widget_min_max_field_values():
+    """Test generate_radio_number_widget when min/max are not integers"""
     row = {
         "questionName": "household_size",
         "inputType": "RadioNumber",
@@ -436,12 +437,7 @@ def test_generate_radio_number_widget_min_max_field_values(capsys):
         widget_label,
         row,
     )
-    captured = capsys.readouterr()
     code = result["statement"]
-    assert (
-        "Warning: Cannot compare min (abc) and max (xyz) as they are not both numbers."
-        in captured.out
-    )
     assert (
         "min: (interview) => surveyHelper.getResponse(interview, 'abc', 0) as any"
         in code
@@ -517,7 +513,7 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
     captured = capsys.readouterr()
     code = result["statement"]
     assert (
-        "Warning: Unrecognized line in parameters in Widgets sheet: 'foo=bar'. Expected format: min=0\\nmax=6\\noverMaxAllowed."
+        "Warning: Unrecognized parameter 'foo' for radio_number in Widgets sheet. Expected 'min', 'max' or 'overMaxAllowed'."
         in captured.out
     )
     assert "min: 2" in code
@@ -535,95 +531,106 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
 # TODO: Test generate_text_widget
 
 
-def test_get_parameters_values_defaults():
-    """Test get_parameters_values returns defaults when parameters is empty"""
-    row = {}
-    params = get_parameters_values(row)
-    assert params["min_value"] == 0
-    assert params["max_value"] == 6
-    assert params["over_max_allowed"] is False
+class TestRadioNumberParameters:
+    """Tests for get_radio_number_parameters function"""
+
+    def test_get_radio_number_parameters_defaults(self):
+        """Test get_radio_number_parameters returns defaults when parameters is empty"""
+        row = {}
+        params = get_radio_number_parameters(row)
+        assert params["min_value"] == 0
+        assert params["max_value"] == 6
+        assert params["over_max_allowed"] is False
+
+    def test_get_radio_number_parameters_valid_min_max(self):
+        """Test get_radio_number_parameters parses valid min and max"""
+        row = {"parameters": "min=2\nmax=10"}
+        params = get_radio_number_parameters(row)
+        assert params["min_value"] == 2
+        assert params["max_value"] == 10
+        assert params["over_max_allowed"] is False
+
+    def test_get_radio_number_parameters_over_max_allowed(self):
+        """Test get_radio_number_parameters parses overMaxAllowed"""
+        row = {"parameters": "min=1\nmax=5\noverMaxAllowed"}
+        params = get_radio_number_parameters(row)
+        assert params["min_value"] == 1
+        assert params["max_value"] == 5
+        assert params["over_max_allowed"] is True
+
+    def test_get_radio_number_parameters_non_numeric_min_max(self):
+        """Test get_radio_number_parameters with non-numeric min/max"""
+        row = {"parameters": "min=abc\nmax=xyz"}
+        params = get_radio_number_parameters(row)
+        assert params["min_value"] == "abc"
+        assert params["max_value"] == "xyz"
+
+    def test_get_radio_number_parameters_unrecognized_line(self, capsys):
+        """Test get_radio_number_parameters prints warning for unrecognized line"""
+        row = {"parameters": "min=1\nmax=2\nfoo=bar"}
+        params = get_radio_number_parameters(row)
+        captured = capsys.readouterr()
+        assert (
+            "Warning: Unrecognized parameter 'foo' for radio_number in Widgets sheet. Expected 'min', 'max' or 'overMaxAllowed'."
+            in captured.out
+        )
+        assert params["min_value"] == 1
+        assert params["max_value"] == 2
+
+    def test_get_radio_number_parameters_min_gte_max(self, capsys):
+        """Test get_radio_number_parameters prints error when min >= max"""
+        row = {"parameters": "min=5\nmax=5"}
+        params = get_radio_number_parameters(row)
+        captured = capsys.readouterr()
+        assert (
+            "ValueError: min (5) must be less than max (5) in parameters in Widgets sheet."
+            in captured.out
+        )
+        assert params["min_value"] == 5
+        assert params["max_value"] == 5
 
 
-def test_get_parameters_values_valid_min_max():
-    """Test get_parameters_values parses valid min and max"""
-    row = {"parameters": "min=2\nmax=10"}
-    params = get_parameters_values(row)
-    assert params["min_value"] == 2
-    assert params["max_value"] == 10
-    assert params["over_max_allowed"] is False
+class TestParseParameters:
+    """Tests for parse_parameters function"""
 
+    def test_parse_parameters_case_insensitivity(self):
+        """Test parse_parameters parses overMaxAllowed"""
+        row = "Min=1\nMax=5\nOverMaxAllowed"
+        params = parse_parameters(row)
+        assert params["min"] == "1"
+        assert params["max"] == "5"
+        assert params["overmaxallowed"] is True
 
-def test_get_parameters_values_over_max_allowed():
-    """Test get_parameters_values parses overMaxAllowed"""
-    row = {"parameters": "min=1\nmax=5\noverMaxAllowed"}
-    params = get_parameters_values(row)
-    assert params["min_value"] == 1
-    assert params["max_value"] == 5
-    assert params["over_max_allowed"] is True
+    def test_parse_parameters_semicolon_split(self):
+        """Test parse_parameters splits parameters on semicolon as well as newline"""
+        row = "min=3;max=8;overMaxAllowed"
+        params = parse_parameters(row)
+        assert params["min"] == "3"
+        assert params["max"] == "8"
+        assert params["overmaxallowed"] is True
 
+    def test_parse_parameters_space_split(self):
+        """Test parse_parameters splits parameters on space as well as newline and semicolon"""
+        row = "min=4 max=9 overMaxAllowed"
+        params = parse_parameters(row)
+        assert params["min"] == "4"
+        assert params["max"] == "9"
+        assert params["overmaxallowed"] is True
 
-def test_get_parameters_values_invalid_min_max(capsys):
-    """Test get_parameters_values prints error for invalid min/max"""
-    row = {"parameters": "min=abc\nmax=xyz"}
-    params = get_parameters_values(row)
-    captured = capsys.readouterr()
-    assert (
-        "Warning: Cannot compare min (abc) and max (xyz) as they are not both numbers."
-        in captured.out
-    )
-    assert params["min_value"] == "abc"
-    assert params["max_value"] == "xyz"
+    def test_parse_parameters_mixed_all_split(self):
+        """Test parse_parameters splits parameters on newline, semicolon, and space"""
+        row = "min=2\nmax=7;overMaxAllowed min=3"
+        params = parse_parameters(row)
+        # The last min=3 should override min=2
+        assert params["min"] == "3"
+        assert params["max"] == "7"
+        assert params["overmaxallowed"] is True
 
-
-def test_get_parameters_values_unrecognized_line(capsys):
-    """Test get_parameters_values prints warning for unrecognized line"""
-    row = {"parameters": "min=1\nmax=2\nfoo=bar"}
-    params = get_parameters_values(row)
-    captured = capsys.readouterr()
-    assert (
-        "Warning: Unrecognized line in parameters in Widgets sheet: 'foo=bar'. Expected format: min=0\\nmax=6\\noverMaxAllowed."
-        in captured.out
-    )
-    assert params["min_value"] == 1
-    assert params["max_value"] == 2
-
-
-def test_get_parameters_values_min_gte_max(capsys):
-    """Test get_parameters_values prints error when min >= max"""
-    row = {"parameters": "min=5\nmax=5"}
-    params = get_parameters_values(row)
-    captured = capsys.readouterr()
-    assert (
-        "ValueError: min (5) must be less than max (5) in parameters in Widgets sheet."
-        in captured.out
-    )
-    assert params["min_value"] == 5
-    assert params["max_value"] == 5
-
-
-def test_get_parameters_values_semicolon_split():
-    """Test get_parameters_values splits parameters on semicolon as well as newline"""
-    row = {"parameters": "min=3;max=8;overMaxAllowed"}
-    params = get_parameters_values(row)
-    assert params["min_value"] == 3
-    assert params["max_value"] == 8
-    assert params["over_max_allowed"] is True
-
-
-def test_get_parameters_values_space_split():
-    """Test get_parameters_values splits parameters on space as well as newline and semicolon"""
-    row = {"parameters": "min=4 max=9 overMaxAllowed"}
-    params = get_parameters_values(row)
-    assert params["min_value"] == 4
-    assert params["max_value"] == 9
-    assert params["over_max_allowed"] is True
-
-
-def test_get_parameters_values_mixed_all_split():
-    """Test get_parameters_values splits parameters on newline, semicolon, and space"""
-    row = {"parameters": "min=2\nmax=7;overMaxAllowed min=3"}
-    params = get_parameters_values(row)
-    # The last min=3 should override min=2
-    assert params["min_value"] == 3
-    assert params["max_value"] == 7
-    assert params["over_max_allowed"] is True
+    def test_parse_parameters_multiple_line_breaks(self):
+        """Test parse_parameters splits parameters on newline, semicolon, and space"""
+        row = "min=2\n\nmax=7\n  \noverMaxAllowed\n  \n\n"
+        params = parse_parameters(row)
+        assert params["min"] == "2"
+        assert params["max"] == "7"
+        assert params["overmaxallowed"] is True
+        assert len(params) == 3  # make sure no empty or extra keys are created
