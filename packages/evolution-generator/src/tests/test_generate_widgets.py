@@ -8,9 +8,11 @@ from scripts.generate_widgets import (
     generate_info_text_widget,
     generate_radio_widget,
     generate_radio_number_widget,
+    generate_string_widget,
     generate_label,
     parse_parameters,
     get_radio_number_parameters,
+    get_string_parameters,
     generate_path,
 )
 
@@ -369,7 +371,7 @@ def test_generate_radio_number_widget_basic():
     assert "conditional: defaultConditional" in code
     assert "validations: validations.requiredValidation" in code
     assert code.strip().endswith("};")
-    assert result["needsHelperImport"] is False
+    assert result["has_helper_import"] is False
 
 
 def test_generate_radio_number_widget_complex():
@@ -409,7 +411,7 @@ def test_generate_radio_number_widget_complex():
     assert "conditional: conditionals.someConditional" in code
     assert "validations: validations.householdSizeValidation" in code
     assert code.strip().endswith("};")
-    assert result["needsHelperImport"] is False
+    assert result["has_helper_import"] is False
 
 
 def test_generate_radio_number_widget_min_max_field_values():
@@ -446,7 +448,7 @@ def test_generate_radio_number_widget_min_max_field_values():
         "max: (interview) => surveyHelper.getResponse(interview, 'xyz', 0) as any"
         in code
     )  # default max is 6
-    assert result["needsHelperImport"] is True
+    assert result["has_helper_import"] is True
 
 
 def test_generate_radio_number_widget_min_gte_max(capsys):
@@ -482,7 +484,7 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
     )
     assert "min: 5" in code
     assert "max: 5" in code
-    assert result["needsHelperImport"] is False
+    assert result["has_helper_import"] is False
 
 
 def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
@@ -518,11 +520,160 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
     )
     assert "min: 2" in code
     assert "max: 5" in code
-    assert result["needsHelperImport"] is False
+    assert result["has_helper_import"] is False
+
+
+class TestGenerateStringWidget:
+    """Tests for generate_string_widget function"""
+
+    def test_generate_string_widget_basic(self):
+        """Test generate_string_widget with minimal required fields"""
+        row = {
+            "questionName": "accessCode",
+            "inputType": "String",
+            "section": "home",
+            "path": "accessCode",
+            "help_popup": "",
+            "conditional": "",
+            "validation": "",
+            "parameters": "",
+            "appearance": "",
+            "label::fr": "Code d'accès",
+            "label::en": "Access code",
+        }
+        widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+        result = generate_string_widget(
+            row["questionName"],
+            row["path"],
+            row["help_popup"],
+            row["conditional"],
+            row["validation"],
+            widget_label,
+            row,
+        )
+        code = result["statement"]
+        assert "export const accessCode: WidgetConfig.InputStringType = {" in code
+        assert "...defaultInputBase.inputStringBase," in code
+        assert "path: 'accessCode'," in code
+        assert "conditional: defaultConditional" in code
+        assert "validations: validations.requiredValidation" in code
+        assert "inputFilter" not in code
+        assert code.strip().endswith("};")
+        assert result["has_helper_import"] is False
+        assert result["has_formatter_import"] is False
+        assert result["has_custom_formatter_import"] is False
+
+    def test_generate_string_widget_complex(self):
+        """Test generate_string_widget with all parameters set"""
+        row = {
+            "questionName": "accessCode",
+            "inputType": "String",
+            "section": "home",
+            "path": "accessCode",
+            "help_popup": "accessCodeHelpPopup",
+            "conditional": "accessCodeVisibleConditional",
+            "validation": "accessCodeValidation",
+            "parameters": "",
+            "appearance": "join_with=${phoneNumber}",
+            "twoColumns": True,
+            "containsHtml": True,
+            "defaultValue": "12345678",
+            "label::fr": "Code d'accès",
+            "label::en": "Access code",
+        }
+        widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+        result = generate_string_widget(
+            row["questionName"],
+            row["path"],
+            row["help_popup"],
+            row["conditional"],
+            row["validation"],
+            widget_label,
+            row,
+        )
+        code = result["statement"]
+        assert "export const accessCode: WidgetConfig.InputStringType = {" in code
+        assert "...defaultInputBase.inputStringBase," in code
+        assert "path: 'accessCode'," in code
+        assert "conditional: conditionals.accessCodeVisibleConditional" in code
+        assert "validations: validations.accessCodeValidation" in code
+        assert "defaultValue: '12345678'" in code
+        assert "containsHtml: true" in code
+        assert "twoColumns: true" in code
+        assert "helpPopup: customHelpPopup.accessCodeHelpPopup" in code
+        assert "label: (t: TFunction) => t('home:accessCode')" in code
+        assert "joinWith: 'phoneNumber'" in code
+        assert "inputFilter" not in code
+        assert code.strip().endswith("};")
+        assert result["has_helper_import"] is False
+        assert result["has_formatter_import"] is False
+        assert result["has_custom_formatter_import"] is False
+
+    def test_generate_string_widget_with_formatter(self):
+        """Test generate_string_widget with formatter"""
+        row = {
+            "questionName": "accessCode",
+            "inputType": "String",
+            "section": "home",
+            "path": "accessCode",
+            "help_popup": "",
+            "conditional": "",
+            "validation": "",
+            "parameters": "formatter=eightDigitsAccessCodeFormatter",
+            "appearance": "",
+            "label::fr": "Code d'accès",
+            "label::en": "Access code",
+        }
+        widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+        result = generate_string_widget(
+            row["questionName"],
+            row["path"],
+            row["help_popup"],
+            row["conditional"],
+            row["validation"],
+            widget_label,
+            row,
+        )
+        code = result["statement"]
+        assert "export const accessCode: WidgetConfig.InputStringType = {" in code
+        assert "inputFilter: formatters.eightDigitsAccessCodeFormatter" in code
+        assert result["has_helper_import"] is False
+        assert result["has_formatter_import"] is True
+        assert result["has_custom_formatter_import"] is False
+
+    def test_generate_string_widget_with_custom_formatter(self):
+        """Test generate_string_widget with custom formatter"""
+        row = {
+            "questionName": "accessCode",
+            "inputType": "String",
+            "section": "home",
+            "path": "accessCode",
+            "help_popup": "",
+            "conditional": "",
+            "validation": "",
+            "parameters": "formatter=myBrandNewCustomFormatter",
+            "appearance": "",
+            "label::fr": "Code d'accès",
+            "label::en": "Access code",
+        }
+        widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+        result = generate_string_widget(
+            row["questionName"],
+            row["path"],
+            row["help_popup"],
+            row["conditional"],
+            row["validation"],
+            widget_label,
+            row,
+        )
+        code = result["statement"]
+        assert "inputFilter: customFormatters.myBrandNewCustomFormatter" in code
+        assert result["has_helper_import"] is False
+        assert result["has_formatter_import"] is False
+        assert result["has_custom_formatter_import"] is True
 
 
 # TODO: Test generate_select_widget
-# TODO: Test generate_string_widget
 # TODO: Test generate_number_widget
 # TODO: Test generate_info_text_widget
 # TODO: Test generate_range_widget
@@ -588,6 +739,33 @@ class TestRadioNumberParameters:
         )
         assert params["min_value"] == 5
         assert params["max_value"] == 5
+
+
+class TestGetStringParameters:
+    """Tests for get_string_parameters function"""
+
+    def test_get_string_parameters_defaults(self):
+        """Test get_string_parameters returns defaults when parameters is empty"""
+        row = {}
+        params = get_string_parameters(row)
+        assert params["formatter"] == None
+
+    def test_get_string_parameters_valid_parameters(self):
+        """Test get_string_parameters parses valid min and max"""
+        row = {"parameters": "formatter=somethingCustomFormatter"}
+        params = get_string_parameters(row)
+        assert params["formatter"] == "somethingCustomFormatter"
+
+    def test_get_string_parameters_unrecognized_parameter(self, capsys):
+        """Test get_string_parameters prints warning for unrecognized parameter"""
+        row = {"parameters": "formatter=somethingCustomFormatter\nfoo=bar"}
+        params = get_string_parameters(row)
+        captured = capsys.readouterr()
+        assert (
+            "Warning: Unrecognized parameter 'foo' for string in Widgets sheet. Expected 'formatter'."
+            in captured.out
+        )
+        assert params["formatter"] == "somethingCustomFormatter"
 
 
 class TestParseParameters:

@@ -27,16 +27,30 @@ class RadioNumberParametersResult(TypedDict):
     over_max_allowed: bool
 
 
+class StringParametersResult(TypedDict):
+    """
+    TypedDict to hold the result of parsing parameters for a string widget from the Widgets sheet.
+    It contains:
+    - formatter: str | None, the name of the formatter to use. It can end with `customFormatter` to use a custom formatter.
+    """
+
+    formatter: str | None
+
+
 class WidgetResult(TypedDict):
     """
     TypedDict to hold the result of widget statement generation.
     It contains:
     - statement: str, the TypeScript code for the widget
-    - needsHelperImport: bool, whether the widget needs survey helper imports
+    - has_helper_import: bool, whether the widget needs survey helper imports
+    - has_formatter_import: bool, whether the widget needs formatter imports
+    - has_custom_formatter_import: bool, whether the widget needs custom formatter imports
     """
 
     statement: str
-    needsHelperImport: bool
+    has_helper_import: bool
+    has_formatter_import: bool | None
+    has_custom_formatter_import: bool | None
 
 
 # Function to generate widgets.tsx for each section
@@ -120,8 +134,14 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
 
             # Generate widgets statements
             widget_results = [generate_widget_statement(row) for row in section_rows]
-            needs_helper_import = any(
-                result["needsHelperImport"] for result in widget_results
+            has_helper_import = any(
+                result["has_helper_import"] for result in widget_results
+            )
+            has_formatter_import = any(
+                result.get("has_formatter_import") for result in widget_results
+            )
+            has_custom_formatter_import = any(
+                result.get("has_custom_formatter_import") for result in widget_results
             )
 
             # Generate import statements
@@ -136,7 +156,9 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
                 has_nickname_label,
                 has_persons_count_label,
                 has_gendered_suffix_label,
-                needs_helper_import,
+                has_helper_import,
+                has_formatter_import,
+                has_custom_formatter_import,
             )
 
             widgets_statements = [result["statement"] for result in widget_results]
@@ -204,7 +226,7 @@ def generate_widget_statement(row) -> WidgetResult:
     widget_label = generate_label(section, path, row, key_name="label")
 
     # Initialize result with default values
-    result: WidgetResult = {"statement": "", "needsHelperImport": False}
+    result: WidgetResult = {"statement": "", "has_helper_import": False}
 
     if input_type == "Custom":
         result["statement"] = generate_custom_widget(question_name)
@@ -240,7 +262,7 @@ def generate_widget_statement(row) -> WidgetResult:
             row,
         )
     elif input_type == "String":
-        result["statement"] = generate_string_widget(
+        result = generate_string_widget(
             question_name,
             path,
             help_popup,
@@ -365,7 +387,9 @@ def generate_import_statements(
     has_nickname_label,
     has_persons_count_label,
     has_gendered_suffix_label,
-    needs_helper_import=False,
+    has_helper_import=False,
+    has_formatter_import=False,
+    has_custom_formatter_import=False,
 ):
     od_survey_helpers_import = ""
     if has_nickname_label or has_gendered_suffix_label or has_persons_count_label:
@@ -399,7 +423,17 @@ def generate_import_statements(
     )
     survey_helper_import = (
         "import * as surveyHelper from 'evolution-common/lib/utils/helpers';\n"
-        if needs_helper_import == True
+        if has_helper_import == True
+        else ""
+    )
+    formatter_import = (
+        "import * as formatters from 'evolution-common/lib/utils/formatters';\n"
+        if has_formatter_import == True
+        else ""
+    )
+    custom_formatter_import = (
+        "import * as customFormatters from '../../common/customFormatters';\n"
+        if has_custom_formatter_import == True
         else ""
     )
     return (
@@ -412,12 +446,14 @@ def generate_import_statements(
         f"{survey_helper_import}"
         f"{choices_import}"
         f"{conditionals_import}"
+        f"{formatter_import}"
         f"{input_range_import}"
         f"{gendered_suffix_import}"
         f"{custom_conditionals_import}"
         f"{custom_widgets_import}"
         f"{custom_help_popup_import}"
         f"{custom_validations_import}"
+        f"{custom_formatter_import}"
     )
 
 
@@ -682,19 +718,19 @@ def generate_radio_number_widget(
     parameters: RadioNumberParametersResult = get_radio_number_parameters(row)
     over_max_allowed = parameters["over_max_allowed"]
 
-    result: WidgetResult = {"statement": "", "needsHelperImport": False}
+    result: WidgetResult = {"statement": "", "has_helper_import": False}
 
     # Determine the value of min_value and max_value based on their types
     if isinstance(parameters["min_value"], str):
         min_value = f"(interview) => surveyHelper.getResponse(interview, '{parameters["min_value"]}', 0) as any"
-        result["needsHelperImport"] = True
+        result["has_helper_import"] = True
     else:
         min_value = parameters["min_value"]
 
     # Determine the value of max_value based on its type
     if isinstance(parameters["max_value"], str):
         max_value = f"(interview) => surveyHelper.getResponse(interview, '{parameters["max_value"]}', 0) as any"
-        result["needsHelperImport"] = True
+        result["has_helper_import"] = True
     else:
         max_value = parameters["max_value"]
 
@@ -742,18 +778,44 @@ def generate_select_widget(
 def generate_string_widget(
     question_name, path, help_popup, conditional, validation, widget_label, row
 ):
-    return (
+    """
+    - Parses formatter from the 'parameters' column (format: formatter=somethingCustomFormatter).
+    - Generates the TypeScript widget code for InputStringType.
+    """
+    parameters: StringParametersResult = get_string_parameters(row)
+    formatter = parameters["formatter"]
+
+    result: WidgetResult = {
+        "statement": "",
+        "has_helper_import": False,
+        "has_formatter_import": False,
+        "has_custom_formatter_import": False,
+    }
+
+    # Add formatter input filter if specified
+    formatter_code = ""
+    if isinstance(formatter, str):
+        if formatter.endswith("CustomFormatter"):
+            formatter_code = f"{INDENT}inputFilter: customFormatters.{formatter},\n"
+            result["has_custom_formatter_import"] = True
+        else:
+            formatter_code = f"{INDENT}inputFilter: formatters.{formatter},\n"
+            result["has_formatter_import"] = True
+
+    result["statement"] = (
         f"{generate_constExport(question_name, 'InputStringType')}\n"
         f"{generate_defaultInputBase('inputStringBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
         f"{generate_default_value(row)}"
+        f"{formatter_code}"
         f"{widget_label},\n"
         f"{generate_help_popup(help_popup)}"
         f"{generate_conditional(conditional)},\n"
         f"{generate_validation(validation)}\n"
         f"}};"
     )
+    return result
 
 
 # Generate InputNumber widget
@@ -942,5 +1004,32 @@ def get_radio_number_parameters(row) -> RadioNumberParametersResult:
         print(
             f"ValueError: min ({result['min_value']}) must be less than max ({result['max_value']}) in parameters in Widgets sheet."
         )
+
+    return result
+
+
+def get_string_parameters(row) -> StringParametersResult:
+    """
+    Parses the parameters string for formatter from the row.
+    Returns a dict with keys: formatter.
+    Prints warnings for invalid or unrecognized parameters.
+    Example valid formats:
+      - "formatter=eightDigitsAccessCodeFormatter"
+      - "formatter=someFieldCustomFormatter"
+    """
+    parameters = row.get("parameters", "")
+
+    # Initialize the result with default values
+    result: StringParametersResult = {"formatter": None}
+
+    param_dict = parse_parameters(parameters)
+
+    for key, value in param_dict.items():
+        if key == "formatter":
+            result["formatter"] = value
+        elif key != "":
+            print(
+                f"Warning: Unrecognized parameter '{key}' for string in Widgets sheet. Expected 'formatter'."
+            )
 
     return result
