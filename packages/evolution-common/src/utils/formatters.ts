@@ -19,6 +19,8 @@ export const eightDigitsAccessCodeFormatter = (input: string): string =>
     formatGeneral(input, {
         blocks: [4, 4],
         delimiter: '-',
+        // Use delimiterLazyShow, otherwise the delimiter cannot be erased by the user
+        delimiterLazyShow: true,
         numericOnly: true
     });
 
@@ -35,6 +37,7 @@ export const canadianPostalCodeFormatter = (input: string): string => {
     return formatGeneral(strippedInput, {
         blocks: [3, 3],
         delimiter: ' ',
+        delimiterLazyShow: true,
         numericOnly: false,
         uppercase: true
     });
