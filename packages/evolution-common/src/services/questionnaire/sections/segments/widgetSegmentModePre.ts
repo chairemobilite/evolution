@@ -13,6 +13,7 @@ import * as odHelpers from '../../../odSurvey/helpers';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
 import { Person, Segment } from '../../types';
+import { getModeIcon } from './modeIconMapping';
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
 const getModePreChoices = () => [
@@ -35,12 +36,12 @@ const getModePreChoices = () => [
             }
             return drivingLicenseOwnership === 'yes';
         },
-        iconPath: '/dist/images/modes_icons/carDriver.png'
+        iconPath: getModeIcon('carDriver')
     },
     {
         value: 'carPassenger',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:CarPassenger', 'segments:modePre:CarPassenger']),
-        iconPath: '/dist/images/modes_icons/carPassenger.png'
+        iconPath: getModeIcon('carPassenger')
     },
     {
         value: 'walk',
@@ -51,38 +52,38 @@ const getModePreChoices = () => [
                 ? t(['customSurvey:segments:modePre:WalkOrMobilityHelp', 'segments:modePre:WalkOrMobilityHelp'])
                 : t(['customSurvey:segments:modePre:Walk', 'segments:modePre:Walk']);
         },
-        iconPath: '/dist/images/modes_icons/walk.png'
+        iconPath: getModeIcon('walk')
     },
     {
         value: 'bicycle',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:Bicycle', 'segments:modePre:Bicycle']),
-        iconPath: '/dist/images/modes_icons/bicycle.png'
+        iconPath: getModeIcon('bicycle')
     },
     {
         value: 'transit',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:Transit', 'segments:modePre:Transit']),
-        iconPath: '/dist/images/modes_icons/bus.png'
+        iconPath: getModeIcon('transitBus')
     },
     {
         value: 'taxi',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:Taxi', 'segments:modePre:Taxi']),
-        iconPath: '/dist/images/modes_icons/taxi.png'
+        iconPath: getModeIcon('taxi')
     },
     {
         value: 'other',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:Other', 'segments:modePre:Other']),
-        iconPath: '/dist/images/modes_icons/other.png'
+        iconPath: getModeIcon('other')
     },
     {
         value: 'dontKnow',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:DontKnow', 'segments:modePre:DontKnow']),
-        iconPath: '/dist/images/modes_icons/dontKnow.png'
+        iconPath: getModeIcon('dontKnow')
     },
     {
         value: 'preferNotToAnswer',
         label: (t: TFunction) =>
             t(['customSurvey:segments:modePre:PreferNotToAnswer', 'segments:modePre:PreferNotToAnswer']),
-        iconPath: '/dist/images/modes_icons/preferNotToAnswer.png'
+        iconPath: getModeIcon('preferNotToAnswer')
     }
 ];
 

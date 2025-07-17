@@ -14,6 +14,7 @@ import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } fro
 import { Mode, modeValues } from '../../../baseObjects/attributeTypes/SegmentAttributes';
 import { modePreToModeMap } from '../../../odSurvey/types';
 import { ParsingFunction, Person, Segment } from '../../types';
+import { getModeIcon } from './modeIconMapping';
 
 // FIXME Move in helpers if required
 const conditionalPersonMayHaveDisability = (interview) => {
@@ -47,7 +48,7 @@ const getModeChoices = () =>
             const conditional = perModeConditionals[mode];
             return conditional ? conditional(interview, path) : true;
         },
-        iconPath: `/dist/images/modes_icons/${mode}.png`
+        iconPath: getModeIcon(mode)
     }));
 
 export const getModeWidgetConfig = (
