@@ -70,6 +70,7 @@ def generate_choices(input_file: str, output_file: str):
             label_en = process_label(row_dict["label::en"])
             spread_choices_name = row_dict["spreadChoicesName"]
             conditional = row_dict["conditional"]
+            hidden = row_dict.get("hidden", False)
 
             # Check if the row is valid
             if choice_name is None or (value is None and spread_choices_name is None):
@@ -80,6 +81,7 @@ def generate_choices(input_file: str, output_file: str):
                 "value": value,
                 "label": {"fr": label_fr, "en": label_en},
                 "spread_choices_name": spread_choices_name,
+                "hidden": hidden,
             }
 
             # Add conditional field to choice object if it exists
@@ -123,7 +125,8 @@ def generate_choices(input_file: str, output_file: str):
                         f"{INDENT}{INDENT}label: {{\n"
                         f"{INDENT}{INDENT}{INDENT}fr: '{choice['label']['fr']}',\n"
                         f"{INDENT}{INDENT}{INDENT}en: '{choice['label']['en']}'\n"
-                        f"{INDENT}{INDENT}}}{',' if choice.get("conditional", None) is not None else ''}\n"
+                        f"{INDENT}{INDENT}}}{f",\n{INDENT}{INDENT}hidden: true" if choice["hidden"] else ''}"
+                        f"{INDENT}{INDENT}{',' if choice.get("conditional", None) is not None else ''}\n"
                     )
                     # Add the 'conditional' field only if it exists
                     if choice.get("conditional", None) is not None:
