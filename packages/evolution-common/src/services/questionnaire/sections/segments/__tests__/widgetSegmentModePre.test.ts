@@ -43,42 +43,42 @@ describe('getModePreWidgetConfig', () => {
                     value: 'carDriver',
                     label: expect.any(Function),
                     conditional: expect.any(Function),
-                    iconPath: '/dist/images/modes_icons/carDriver.png'
+                    iconPath: '/dist/icons/modes/car/car_driver_without_passenger.svg'
                 }),
                 expect.objectContaining({
                     value: 'carPassenger',
                     label: expect.any(Function),
-                    iconPath: '/dist/images/modes_icons/carPassenger.png'
+                    iconPath: '/dist/icons/modes/car/car_passenger.svg'
                 }),
                 expect.objectContaining({
                     value: 'walk',
                     label: expect.any(Function),
-                    iconPath: '/dist/images/modes_icons/walk.png'
+                    iconPath: '/dist/icons/modes/foot/foot.svg'
                 }),
                 expect.objectContaining({
                     value: 'bicycle',
                     label: expect.any(Function),
-                    iconPath: '/dist/images/modes_icons/bicycle.png'
+                    iconPath: '/dist/icons/modes/bicycle/bicycle_with_rider.svg'
                 }),
                 expect.objectContaining({
                     value: 'transit',
                     label: expect.any(Function),
-                    iconPath: '/dist/images/modes_icons/bus.png'
+                    iconPath: '/dist/icons/modes/bus/bus_city.svg'
                 }),
                 expect.objectContaining({
                     value: 'taxi',
                     label: expect.any(Function),
-                    iconPath: '/dist/images/modes_icons/taxi.png'
+                    iconPath: '/dist/icons/modes/taxi/taxi_no_steering_wheel.svg'
                 }),
                 expect.objectContaining({
                     value: 'other',
                     label: expect.any(Function),
-                    iconPath: '/dist/images/modes_icons/other.png'
+                    iconPath: '/dist/icons/modes/other/air_balloon.svg'
                 }),
                 expect.objectContaining({
                     value: 'dontKnow',
                     label: expect.any(Function),
-                    iconPath: '/dist/images/modes_icons/dontKnow.png'
+                    iconPath: '/dist/icons/modes/other/question_mark.svg'
                 })
             ]),
             validations: expect.any(Function),

@@ -15,6 +15,7 @@ import * as surveyHelper from '../../../../odSurvey/helpers';
 import { modeValues } from '../../../../baseObjects/attributeTypes/SegmentAttributes';
 import { modePreToModeMap, modeToModePreMap } from '../../../../odSurvey/types';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
+import { modeToIconMapping } from '../modeIconMapping';
 
 jest.mock('../helpers', () => ({
     shouldShowSameAsReverseTripQuestion: jest.fn().mockReturnValue(false),
@@ -45,7 +46,7 @@ describe('getModeWidgetConfig', () => {
                 value: mode,
                 label: expect.any(Function),
                 conditional: expect.any(Function),
-                iconPath: `/dist/images/modes_icons/${mode}.png`
+                iconPath: modeToIconMapping[mode]
             })),
             validations: expect.any(Function),
             conditional: expect.any(Function)
