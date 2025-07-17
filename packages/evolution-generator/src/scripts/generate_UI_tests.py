@@ -131,7 +131,7 @@ def generate_UI_tests(input_file: str, output_file: str):
             if conditional:
                 conditional_message = f" with conditional {conditional}"
             if choices:
-                choices_message = f" witch choices {choices}"
+                choices_message = f" with choices {choices}"
             ts_code += f"/* Test {input_type.lower() if input_type is not None else 'unknown'} widget {question_name}{conditional_message}{choices_message} */\n"
 
             # Generate input visible test
