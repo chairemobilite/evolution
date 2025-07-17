@@ -110,6 +110,20 @@ GOOD_ROWS_DATA = [
         None,
     ],
 ]
+# FIXME We do not actually test that the hidden choices are correctly generated, just that it works
+GOOD_HEADERS_WITH_HIDDEN = [
+    "choicesName",
+    "value",
+    "label::fr",
+    "label::en",
+    "spreadChoicesName",
+    "conditional",
+    "hidden",
+]
+GOOD_ROWS_DATA_WITH_HIDDEN = [
+    ["yesNoChoices", "yes", "Oui", "Yes", None, None, True],
+    ["yesNoChoices", "no", "Non", "No", None, None, False],
+]
 BAD_ROWS_DATA = [["badRowData"]]
 
 
@@ -130,6 +144,15 @@ BAD_ROWS_DATA = [["badRowData"]]
             GOOD_SHEET_NAME,
             GOOD_HEADERS,
             GOOD_ROWS_DATA,
+            GOOD_INPUT_FILE,
+            GOOD_OUPUT_FILE,
+            None,  # No error expected
+        ),
+        # Test that the function works correctly with 'hidden' headers
+        (
+            GOOD_SHEET_NAME,
+            GOOD_HEADERS_WITH_HIDDEN,
+            GOOD_ROWS_DATA_WITH_HIDDEN,
             GOOD_INPUT_FILE,
             GOOD_OUPUT_FILE,
             None,  # No error expected
