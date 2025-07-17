@@ -47,6 +47,9 @@ const getModeChoices = () =>
             const conditional = perModeConditionals[mode];
             return conditional ? conditional(interview, path) : true;
         },
+        // FIXME The name of the icon will not match when they are in
+        // chaire-lib, we will need a mode to icon mapping here. Also, the path
+        // will be `dist/icons/modes/*/**.svn`
         iconPath: `/dist/images/modes_icons/${mode}.png`
     }));
 

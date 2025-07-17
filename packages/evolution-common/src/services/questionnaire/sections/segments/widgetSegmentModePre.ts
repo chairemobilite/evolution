@@ -56,12 +56,12 @@ const getModePreChoices = () => [
     {
         value: 'bicycle',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:Bicycle', 'segments:modePre:Bicycle']),
-        iconPath: '/dist/images/modes_icons/bicycle.png'
+        iconPath: '/dist/icons/modes/bicycle/bicycle_with_rider.svg'
     },
     {
         value: 'transit',
         label: (t: TFunction) => t(['customSurvey:segments:modePre:Transit', 'segments:modePre:Transit']),
-        iconPath: '/dist/images/modes_icons/bus.png'
+        iconPath: '/dist/icons/modes/bus/bus_city.svg'
     },
     {
         value: 'taxi',
