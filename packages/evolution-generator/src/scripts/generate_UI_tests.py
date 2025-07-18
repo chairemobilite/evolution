@@ -15,7 +15,7 @@ from helpers.generator_helpers import (
 )
 
 
-# Function to generate template-tests-UI.ts
+# Function to generate common-UI-tests-helpers-template.ts.ts
 def generate_UI_tests(input_file: str, output_file: str):
     try:
         is_excel_file(input_file)  # Check if the input file is an Excel file
@@ -63,6 +63,13 @@ def generate_UI_tests(input_file: str, output_file: str):
         ts_code += f"{INDENT}widgetTestCounters: {{}}\n"
         ts_code += f"}};\n\n"
 
+        # Add CommonTestParameters type
+        # TODO: Should we add more parameters to the CommonTestParametersModify type (hasTrips) ?
+        ts_code += f"// Modify the CommonTestParameters type with survey parameters\n"
+        ts_code += f"export type CommonTestParametersModify = testHelpers.CommonTestParameters & {{\n"
+        ts_code += f"{INDENT}householdSize: number;\n"
+        ts_code += f"}};\n\n"
+
         # Configure the tests
         ts_code += (
             f"// Configure the tests to run in serial mode (one after the other)\n"
@@ -105,14 +112,29 @@ def generate_UI_tests(input_file: str, output_file: str):
 
             # Check if we've moved to a new section
             if section != current_section:
+                # If we are not in the first section, close the previous section tests
+                if current_section is not None:
+                    # Remove the last newline before closing the section
+                    if ts_code.endswith("\n"):
+                        ts_code = ts_code[:-1]
+                    ts_code += f"}};\n\n"
+
                 current_section = section  # Update the current section tracker
-                ts_code += (
-                    f"/********** Tests {current_section} section **********/\n\n"
+                ts_code += f"/********** Tests {current_section} section **********/\n"
+
+                # Add an export for the section tests
+                ts_code += f"export const fill{current_section.capitalize()}SectionTests = ({{ context, householdSize }}: CommonTestParametersModify) => {{\n"
+
+                # Add verifyNavBarButtonStatus at the start of the section
+                ts_code += generate_verifyNavBarButtonStatus_test(
+                    current_section=current_section, buttonStatus="active"
                 )
 
                 # Add a section progress bar test for the section
-                ts_code += f"// Progress bar test for {section} section\n"
-                ts_code += f"testHelpers.sectionProgressBarTest({{ context, sectionName: '{section}', completionPercentage: 0 }});\n\n"
+                ts_code += (
+                    f"{INDENT}// Progress bar test for {current_section} section\n"
+                )
+                ts_code += f"{INDENT}testHelpers.sectionProgressBarTest({{ context, sectionName: '{current_section}', completionPercentage: 0 }});\n\n"
 
             # Adjust path for widgets in groups using mappings or '?' for unknown groups
             if group:
@@ -127,40 +149,56 @@ def generate_UI_tests(input_file: str, output_file: str):
 
             # Generate widget message
             conditional_message = f""
+            conditional_link_message = f""
             choices_message = f""
+            choices_link_message = f""
             if conditional:
+                # Add link to conditional if conditional exists
+                conditional_link_message = f"\n{INDENT}/* @link file://./../src/survey/common/conditionals.tsx */"
                 conditional_message = f" with conditional {conditional}"
             if choices:
+                # Add link to choices file if choices exist
+                choices_link_message = (
+                    f"\n{INDENT}/* @link file://./../src/survey/common/choices.tsx */"
+                )
                 choices_message = f" with choices {choices}"
-            ts_code += f"/* Test {input_type.lower() if input_type is not None else 'unknown'} widget {question_name}{conditional_message}{choices_message} */\n"
-
+            ts_code += f"{INDENT}// Test {input_type.lower() if input_type is not None else 'unknown'} widget {question_name}{conditional_message}{choices_message}{conditional_link_message}{choices_link_message}\n"
             # Generate input visible test
             if conditional and active:
-                ts_code += f"testHelpers.inputVisibleTest({{ context, path: '{path}', isVisible: true }});\n"
-
+                ts_code += f"{INDENT}testHelpers.inputVisibleTest({{ context, path: '{path}', isVisible: true }});\n"
             # Generate input tests
             if not active:
-                ts_code += f"// Widget not active\n\n"
+                ts_code += f"{INDENT}// Widget not active\n\n"
             elif input_type == "Radio":
                 # TODO: Add choices values options and not the choices name
-                ts_code += f"testHelpers.inputRadioTest({{ context, path: '{path}', value: '?' }});\n\n"
+                ts_code += f"{INDENT}testHelpers.inputRadioTest({{ context, path: '{path}', value: '?' }});\n\n"
             elif input_type == "Checkbox":
                 # TODO: Add choices values options and not the choices name
-                ts_code += f"testHelpers.inputCheckboxTest({{ context, path: '{path}', values: ['?'] }});\n\n"
+                ts_code += f"{INDENT}testHelpers.inputCheckboxTest({{ context, path: '{path}', values: ['?'] }});\n\n"
             elif (
                 input_type == "String" or input_type == "Text" or input_type == "Number"
             ):
-                ts_code += f"testHelpers.inputStringTest({{ context, path: '{path}', value: '?' }});\n\n"
+                ts_code += f"{INDENT}testHelpers.inputStringTest({{ context, path: '{path}', value: '?' }});\n\n"
             elif input_type == "Range":
-                ts_code += f"testHelpers.inputRangeTest({{ context, path: '{path}', value: 0, sliderColor: '?' }});\n\n"
+                ts_code += f"{INDENT}testHelpers.inputRangeTest({{ context, path: '{path}', value: 0, sliderColor: '?' }});\n\n"
             elif input_type == "InfoText":
-                ts_code += f"testHelpers.waitTextVisible({{ context, text: '?' }});\n\n"
+                ts_code += f"{INDENT}testHelpers.waitTextVisible({{ context, text: '?' }});\n\n"
             elif input_type == "NextButton":
-                ts_code += f"testHelpers.inputNextButtonTest({{ context, text: '?', nextPageUrl: '?' }});\n\n"
+                ts_code += f"{INDENT}testHelpers.inputNextButtonTest({{ context, text: '?', nextPageUrl: '?' }});\n\n"
+                ts_code += generate_verifyNavBarButtonStatus_test(
+                    current_section=current_section, buttonStatus="completed"
+                )
             elif input_type == "Custom":
-                ts_code += f"// Implement custom test\n\n"
+                ts_code += f"{INDENT}// Implement custom test\n\n"
             else:
                 ts_code += f"\n"
+
+        # Close the last section if any rows were processed
+        if current_section is not None:
+            # Remove the last newline before closing the section
+            if ts_code.endswith("\n"):
+                ts_code = ts_code[:-1]
+            ts_code += f"}};\n"
 
         # Write TypeScript code to a file
         with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:
@@ -170,5 +208,15 @@ def generate_UI_tests(input_file: str, output_file: str):
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution
-        print(f"Error with template-tests-UI.ts: {e}")
+        print(f"Error with common-UI-tests-helpers-template.ts: {e}")
         raise e
+
+
+def generate_verifyNavBarButtonStatus_test(
+    current_section: str, buttonStatus: str
+) -> str:
+    # TODO: Verify if the section menu is disabled or not with Sections sheet
+    return (
+        f"{INDENT}// Verify the {current_section} navigation is {buttonStatus}\n"
+        f"{INDENT}testHelpers.verifyNavBarButtonStatus({{ context, buttonText: '{current_section}', buttonStatus: '{buttonStatus}', isDisabled: false }});\n\n"
+    )

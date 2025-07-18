@@ -135,10 +135,10 @@ def generate_survey(config_path):
             excel_file_path, labels_output_folder_path, labels_sheet_names=sheet_names
         )
 
-    # Call the generate_UI_tests function to generate the template-tests-UI.ts if script enabled
+    # Call the generate_UI_tests function to generate the common-UI-tests-helpers-template.ts.ts if script enabled
     if enabled_generate_UI_tests:
         UI_tests_output_file_path = os.path.join(
-            survey_folder_path, "tests", "template-tests-UI.ts"
+            survey_folder_path, "tests", "common-UI-tests-helpers-template.ts"
         )
         generate_UI_tests(excel_file_path, UI_tests_output_file_path)
 
