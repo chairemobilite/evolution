@@ -144,7 +144,7 @@ example/demo_generator/src/survey/sections/**/*
 !example/demo_generator/src/survey/sections/**/custom*.ts
 example/demo_generator/src/survey/sections.ts
 example/demo_generator/src/survey/widgetsConfigs.tsx
-example/demo_generator/tests/template-tests-UI.ts
+example/demo_generator/tests/common-UI-tests-helpers-template.ts
 
 ## JSDoc Internal API Documentations
 /docs/internalApi/
