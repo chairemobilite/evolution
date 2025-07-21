@@ -303,13 +303,13 @@ def add_translations_from_excel(
                 else None
             )
 
-            # Expand gender context for fr_label and fr_label_one
+            # Expand gender context for labels, by language
             gender_fr = expand_gender(fr_label)
             gender_fr_one = expand_gender(fr_label_one)
             gender_en = expand_gender(en_label)
             gender_en_one = expand_gender(en_label_one)
 
-            # Delete the YAML file for the section before adding translations, but only once per (language, section) for the whole script
+            # Add section to processed section set if not already processed
             if section not in processed_sections:
                 processed_sections.add(section)  # Mark section as processed
 
@@ -331,10 +331,11 @@ def add_translations_from_excel(
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
+                # The "other" translation will be the default one
                 add_translation(
                     language="fr",
                     section=section,
-                    path=path + "_other",
+                    path=path,
                     value=gender_fr["other"],
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
@@ -370,7 +371,7 @@ def add_translations_from_excel(
                 add_translation(
                     language="fr",
                     section=section,
-                    path=path + "_other_one",
+                    path=path + "_one",
                     value=gender_fr_one["other"],
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
@@ -406,7 +407,7 @@ def add_translations_from_excel(
                 add_translation(
                     language="en",
                     section=section,
-                    path=path + "_other",
+                    path=path,
                     value=gender_en["other"],
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
@@ -442,7 +443,7 @@ def add_translations_from_excel(
                 add_translation(
                     language="en",
                     section=section,
-                    path=path + "_other_one",
+                    path=path + "_one",
                     value=gender_en_one["other"],
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],

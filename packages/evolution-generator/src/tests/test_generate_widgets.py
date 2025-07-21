@@ -226,8 +226,7 @@ def test_generate_label_with_gender_label():
     assert "const activePerson =" in result
     assert "const nickname =" not in result
     assert "const countPersons =" not in result
-    assert "const personGender =" in result
-    assert "context: personGender =" in result
+    assert "context: activePerson?.gender" in result
 
 
 def test_generate_label_with_one_person():
@@ -262,11 +261,10 @@ def test_generate_label_with_all_contexts():
     assert "const activePerson =" in result
     assert "const nickname =" in result
     assert "const countPersons =" in result
-    assert "const personGender =" in result
     assert "nickname," in result
     assert "nickname," in result
     assert "count: countPersons" in result
-    assert "context: personGender =" in result
+    assert "context: activePerson?.gender" in result
 
 
 # TODO: Test generate_help_popup

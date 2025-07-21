@@ -539,10 +539,9 @@ def generate_label(section, path, row, key_name="label"):
     if has_label_one or has_persons_count_label:
         initial_assignations += f"{INDENT}{INDENT}const countPersons = odSurveyHelpers.countPersons({{ interview }});\n"
     if has_gender_context_label:
-        initial_assignations += (
-            f"{INDENT}{INDENT}const personGender = activePerson?.gender\n"
+        additional_t_context += (
+            f"{INDENT}{INDENT}{INDENT}context: activePerson?.gender,\n"
         )
-        additional_t_context += f"{INDENT}{INDENT}{INDENT}context: personGender === 'male' || personGender === 'female' ? personGender : 'other',\n"
     if has_persons_count_label or has_label_one:
         additional_t_context += f"{INDENT}{INDENT}{INDENT}count: countPersons,\n"
     widget_label = (
