@@ -86,3 +86,60 @@ support:
   helpButtonLabel: "Open support form"
   close: "Close"
   captchaRequired: "Please complete the CAPTCHA to submit your message."
+person:
+  dayScheduleFor: Day schedule for <strong>{{nickname}}</strong>
+  dayScheduleFor_one: Your day schedule
+visitedPlace:
+  addVisitedPlace: Add the next location
+  deleteVisitedPlace: Delete
+  addGroupedObject: Add the next location
+  deleteThisGroupedObject: Delete this location
+  cancelEditVisitedPlaces: Cancel
+  editVisitedPlace: Edit
+  insertVisitedPlace: Insert a location here
+  activities:
+    accompanySomeone: Accompany someone
+    carElectricChargingStation: Car charging station
+    carsharingStation: 'Car sharing station (ex: Communauto)'
+    dropSomeone: Drop someone off
+    fetchSomeone: Pick someone up
+    home: Home
+    leisureArtsMusicCulture: Arts, music or culture
+    leisureSports: Park, sports, training (fixed destination)
+    leisureStroll: >-
+        Stroll with no fixed destination (ex: go running/jogging, walk with
+        pet, etc.)
+    leisureTourism: Vacation, tourism
+    medical: Medical (clinic, hospital, physiotherapy, etc.)
+    other: Other
+    otherParentHome: Home of the other parent or guardian
+    pickClassifiedPurchase: Pick up a purchase from a private seller (classified ads)
+    restaurant: Restaurant, coffee shop, bar
+    schoolNotStudent: Studies
+    schoolNotUsual: Studies at a different location
+    schoolUsual: School/Studies at fixed/usual location
+    secondaryHome: Secondary home
+    service: Service (hairdresser, repairs, lawyer, bank, etc.)
+    shopping: Shopping (store, gas station, grocery, etc.)
+    veterinarian: Veterinarian (Vet)
+    visiting: Visiting friends, partner or family
+    volunteering: Volunteering
+    workNotUsual: Work not from a usual location (business meeting, conference, etc.)
+    workOnTheRoad: Work on the road
+    workUsual: Work from usual location (non-home)
+    worship: Place of worship
+  activityCategories:
+    childcare: Childcare centre
+    dropFetchSomeone: Drop someone off or pick someone up
+    home: Home
+    kindergarten: Kindergarten/Preschool
+    leisure: Leisure (stroll, sports, arts, outdoors, tourism, etc.)
+    other: Other
+    otherParentHome: Home of the other parent or guardian
+    school: School
+    schoolStudies: School / studies
+    shoppingServiceRestaurant: Shopping, service or restaurant
+    work: Work
+trip:
+  tripSeq: Trip {{seq}}
+  editTrip: Edit

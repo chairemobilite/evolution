@@ -17,10 +17,6 @@
         "deleteThisGroupedObject": "Delete this person",
         "addGroupedObject": "Add a person"
     },
-    "person": {
-        "dayScheduleFor": "Day schedule for",
-        "yourDaySchedule": "Your day schedule"
-    },
     "auth": {
         "UsernameOrEmail": "Email address",
         "missingUsernameOrEmail": "Please provide your email address",
@@ -33,42 +29,11 @@
         "UseAnonymousLogin": "Continue without connecting"
     },
     "visitedPlace": {
-        "deleteThisGroupedObject": "Delete this location",
-        "addGroupedObject": "Add the next location",
-        "activities": {
-            "home": "Home",
-            "workUsual": "Work at usual location",
-            "workNotUsual": "Work",
-            "schoolUsual": "School, studies at usual location",
-            "schoolNotUsual": "School, studies",
-            "schoolNotStudent": "School, studies",
-            "service": "Service",
-            "medical": "Health",
-            "workOnTheRoad": "On the road",
-            "workOnTheRoadFromHome": "On the road",
-            "workOnTheRoadFromUsualWork": "On the road",
-            "worship": "Place of worship",
-            "leisure": "Leisure",
-            "shopping": "Shopping",
-            "restaurant": "Restaurant, bar, coffee shop",
-            "dropSomeone": "Drop or accompany someone",
-            "fetchSomeone": "Pick someone up",
-            "visiting": "Visiting friends or family",
-            "secondaryHome": "Secondary home or cottage",
-            "other": "Other"
-        },
-        "editVisitedPlace": "Edit",
-        "deleteVisitedPlace": "Delete",
         "saveVisitedPlace": "Save this location",
-        "insertVisitedPlace": "Insert a location here",
         "editVisitedPlaces": "Edit, insert or delete location a location",
-        "addVisitedPlace": "Add the next location",
-        "cancelEditVisitedPlaces": "Cancel",
         "resetVisitedPlaces": "Reset visited places and trips for this person"
     },
     "trip": {
-        "trip": "Trip",
-        "editTrip": "Edit",
         "saveTrip": "Save this trip",
         "editTrips": "Edit trips",
         "cancelEditTrips": "Cancel",
@@ -76,10 +41,6 @@
             "carDriver": "Car driver",
             "carPassenger": "Car passenger"
         }
-    },
-    "segments": {
-        "deleteThisGroupedObject": "Delete this mode of transport",
-        "addGroupedObject": "Add a mode of transport"
     },
     "AccessCode": "Please enter the access code written in the letter or the email you received<br /><span class=\"_pale _oblique\">Leave blank if no access code was received</span>",
     "Age": "Age<span class=\\\"_pale _oblique\\\">Enter 0 for babies less than 1 years old</span>",

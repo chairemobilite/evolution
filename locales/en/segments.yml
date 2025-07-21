@@ -125,3 +125,5 @@ CurrentTripSegmentsIntro_leisureStroll: >-
     Please indicate all modes of transport used to complete the stroll, in chronological
     order:
 SaveTripLabel: Confirm this trip
+deleteThisGroupedObject: Delete this mode of transport
+addGroupedObject": Add a mode of transport

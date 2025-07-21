@@ -126,3 +126,5 @@ CurrentTripSegmentsIntro_leisureStroll: >-
     Veuillez indiquer tous les modes de transport utilisés pour effectuer la promenade,
     dans l'ordre chronologique:
 SaveTripLabel: Confirmer ce déplacement
+deleteThisGroupedObject: Supprimer ce mode de transport
+addGroupedObject": Ajouter un mode de transport

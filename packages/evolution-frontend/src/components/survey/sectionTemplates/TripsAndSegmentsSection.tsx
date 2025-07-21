@@ -147,7 +147,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                             <img
                                 src={iconPathsByMode[segment.mode]}
                                 style={{ height: '1.5em', marginLeft: '0.3em' }}
-                                alt={props.t(`survey:trip:modes:${segment.mode}`)}
+                                alt={props.t(`segments:mode:short:${segment.mode}`)}
                             />
                         </React.Fragment>
                     );
@@ -164,9 +164,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                 key={`survey-trip-item__${i}`}
             >
                 <span className="survey-trip-item-element survey-trip-item-sequence-and-icon">
-                    <em>
-                        {props.t('survey:trip:trip')} {tripSequence}
-                    </em>
+                    <em>{props.t('survey:trip:tripSeq', { seq: tripSequence })}</em>
                 </span>
                 <span className="survey-trip-item-element survey-trip-item-buttons">
                     <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem' }} />
