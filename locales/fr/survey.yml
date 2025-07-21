@@ -96,3 +96,60 @@ support:
   helpButtonLabel: "Ouvrir le formulaire d'aide"
   close: "Fermer"
   captchaRequired: "Veuillez confirmer que vous n'êtes pas un robot en cochant la case ci-dessous."
+person:
+  dayScheduleFor: Horaire de la journée de <strong>{{nickname}}</strong>
+  dayScheduleFor_one: Votre horaire de la journée
+visitedPlace:
+  addVisitedPlace: Ajouter le prochain lieu
+  deleteVisitedPlace: Supprimer
+  addGroupedObject: Ajouter le prochain lieu
+  deleteThisGroupedObject: Supprimer ce lieu
+  cancelEditVisitedPlaces: Annuler
+  editVisitedPlace: Modifier
+  insertVisitedPlace: Insérer un lieu ici
+  activities:
+    accompanySomeone: Accompagner quelqu'un
+    carElectricChargingStation: Borne de recharge de véhicule électrique
+    carsharingStation: 'Station d''autopartage (ex: Communauto)'
+    dropSomeone: Reconduire quelqu'un
+    fetchSomeone: Aller chercher quelqu'un
+    home: Domicile
+    leisureArtsMusicCulture: Arts, musique ou culture
+    leisureSports: Parc, sports, entraînement (destination fixe)
+    leisureStroll: >-
+        Promenade sans destination fixe (ex: aller courir/jogging, aller
+        promener le chien, etc.)
+    leisureTourism: Vacances, tourisme
+    medical: Santé (clinique, hôpital, physiothérapie, etc.)
+    other: Autre
+    otherParentHome: Domicile de l'autre parent ou tuteur
+    pickClassifiedPurchase: Récupérer un achat fait chez un particulier (petites annonces)
+    restaurant: Restaurant, café, bar
+    schoolNotStudent: Études
+    schoolNotUsual: Études dans un autre lieu
+    schoolUsual: École/Études au lieu principal
+    secondaryHome: Résidence secondaire
+    service: Service (coiffeur, réparations, avocat, banque, etc.)
+    shopping: Magasinage (achats, station-service, épicerie, etc.)
+    veterinarian: Vétérinaire
+    visiting: Visite d'ami(s), conjoint ou famille
+    volunteering: Bénévolat
+    workNotUsual: Travail dans un autre lieu
+    workOnTheRoad: Travail sur la route
+    workUsual: Travail au lieu habituel
+    worship: Lieu de culte
+  activityCategories:
+    childcare: Garderie ou CPE
+    dropFetchSomeone: Reconduire ou aller chercher quelqu'un
+    home: Domicile
+    kindergarten: Maternelle
+    leisure: Loisirs (promenade, sports, arts, plein air, tourisme, etc.)
+    other: Autre
+    otherParentHome: Domicile de l'autre parent ou tuteur
+    school: École
+    schoolStudies: École / Études
+    shoppingServiceRestaurant: Magasinage, service ou restauration
+    work: Travail
+trip:
+  tripSeq: Déplacement {{seq}}
+  editTrip: Modifier

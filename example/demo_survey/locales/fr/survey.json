@@ -17,10 +17,6 @@
         "deleteThisGroupedObject": "Supprimer cette personne",
         "addGroupedObject": "Ajouter une personne"
     },
-    "person": {
-        "dayScheduleFor": "Horaire de la journée de",
-        "yourDaySchedule": "Votre horaire de la journée"
-    },
     "auth": {
         "UsernameOrEmail": "Courriel",
         "missingUsernameOrEmail": "Veuillez indiquer votre courriel",
@@ -33,42 +29,11 @@
         "UseAnonymousLogin": "Continuer sans se connecter"
     },
     "visitedPlace": {
-        "deleteThisGroupedObject": "Supprimer ce lieu",
-        "addGroupedObject": "Ajouter le prochain lieu",
-        "activities": {
-            "home": "Domicile",
-            "workUsual": "Travail au lieu habituel",
-            "workNotUsual": "Travail",
-            "schoolUsual": "École, études au lieu habituel",
-            "schoolNotUsual": "École, études",
-            "schoolNotStudent": "École, études",
-            "service": "Service",
-            "medical": "Santé",
-            "shopping": "Magasinage",
-            "workOnTheRoad": "Sur la route",
-            "workOnTheRoadFromHome": "Sur la route",
-            "workOnTheRoadFromUsualWork": "Sur la route",
-            "worship": "Lieu de culte",
-            "leisure": "Loisirs",
-            "restaurant": "Restaurant, bar, café",
-            "dropSomeone": "Reconduire ou accompagner quelqu'un",
-            "fetchSomeone": "Aller chercher quelqu'un",
-            "visiting": "Visite d'amis ou famille",
-            "secondaryHome": "Résidence secondaire ou chalet",
-            "other": "Autre"
-        },
-        "editVisitedPlace": "Modifier",
-        "deleteVisitedPlace": "Supprimer",
-        "saveVisitedPlace": "Sauvegarder ce lieu",
-        "insertVisitedPlace": "Insérer un lieu ici",
         "editVisitedPlaces": "Modifier, insérer ou supprimer un lieu",
-        "addVisitedPlace": "Ajouter le prochain lieu",
         "cancelEditVisitedPlaces": "Annuler",
         "resetVisitedPlaces": "Réinitialiser les lieux visités et les déplacements de cette personne"
     },
     "trip": {
-        "trip": "Déplacement",
-        "editTrip": "Modifier",
         "saveTrip": "Sauvegarder ce déplacement",
         "editTrips": "Modifier un déplacement",
         "cancelEditTrips": "Annuler",
@@ -76,10 +41,6 @@
             "carDriver": "Auto conducteur",
             "carPassenger": "Auto passager"
         }
-    },
-    "segments": {
-        "deleteThisGroupedObject": "Supprimer ce mode de transport",
-        "addGroupedObject": "Ajouter un mode de transport"
     },
     "AccessCode": "Veuillez indiquer le code d'accès inscrit dans la lettre ou le courriel que vous avez reçu<br /><span class=\"_pale _oblique\">Laissez vide si aucun code d'accès reçu</span>",
     "Age": "Âge<br /><span class=\"_pale _oblique\">Inscrire 0 pour les bébés de moins de 1 an</span>",

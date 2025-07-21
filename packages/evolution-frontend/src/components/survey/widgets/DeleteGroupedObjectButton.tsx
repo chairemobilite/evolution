@@ -61,7 +61,7 @@ const DeleteGroupedObjectButton: React.FC<DeleteGroupedObjectButton & WithTransl
     );
     const deleteButtonLabel =
         translateString(props.widgetConfig.groupedObjectDeleteButtonLabel, props.i18n, props.interview, props.path) ||
-        props.t(`survey:${props.shortname}:deleteThisGroupedObject`);
+        props.t([`${props.shortname}:deleteThisGroupedObject`, `survey:${props.shortname}:deleteThisGroupedObject`]);
 
     return showDeleteButton ? (
         <div className="center">

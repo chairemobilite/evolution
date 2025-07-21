@@ -175,8 +175,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (
       {
         const personSchedule = (
           <div className="survey-visited-places-schedule-person-container" key={_personId}>
-            {!isAlone && <p className={_personId === person._uuid ? ' _orange' : ''}>{t('survey:person:dayScheduleFor')} <span className="_strong">{_person.nickname}</span></p>}
-            {isAlone  && <p className='_orange'>{t('survey:person:yourDaySchedule')}</p>}
+            {<p className={_personId === person._uuid ? ' _orange' : ''} >{t('survey:person:dayScheduleFor', { nickname: _person.nickname, count: householdSize as number})}</p>}
             <div className="survey-visited-places-schedule-person">
               {personVisitedPlacesSchedules}
             </div>
