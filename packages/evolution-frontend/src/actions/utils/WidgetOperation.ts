@@ -17,7 +17,8 @@ import { checkConditional, checkChoicesConditional } from './Conditional';
 import { checkValidations } from './Validation';
 import {
     isInputTypeWithArrayValue,
-    UserRuntimeInterviewAttributes
+    UserRuntimeInterviewAttributes,
+    WidgetStatus
 } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
@@ -72,6 +73,22 @@ const prepareGroupWidgets = (
     }
 };
 
+// Get the previous status for a widget
+const getPreviousWidgetStatus = (
+    interview: UserRuntimeInterviewAttributes,
+    widgetShortname: string,
+    path: string,
+    groupShortname?: string,
+    parentGroupedObjectId?: string
+): WidgetStatus | undefined => {
+    const previousStatusForWidget = groupShortname
+        ? parentGroupedObjectId
+            ? interview.previousGroups?.[groupShortname]?.[parentGroupedObjectId]?.[widgetShortname]
+            : undefined
+        : interview.previousWidgets?.[widgetShortname];
+    return previousStatusForWidget && previousStatusForWidget.path === path ? previousStatusForWidget : undefined;
+};
+
 const prepareSimpleWidget = (
     data: CurrentPreparationData,
     widgetData: WidgetPreparationData,
@@ -86,15 +103,13 @@ const prepareSimpleWidget = (
         : undefined;
     // get previous status:
     const parentGroupedObjectId = widgetData.parentGroupedObject ? widgetData.parentGroupedObject._uuid : undefined;
-    const previousStatus = widgetData.groupShortname
-        ? data.interview.previousGroups &&
-          data.interview.previousGroups[widgetData.groupShortname] &&
-          data.interview.previousGroups[widgetData.groupShortname][parentGroupedObjectId]
-            ? data.interview.previousGroups[widgetData.groupShortname][parentGroupedObjectId][widgetShortname]
-            : undefined
-        : data.interview.previousWidgets
-            ? data.interview.previousWidgets[widgetShortname]
-            : undefined;
+    const previousStatus = getPreviousWidgetStatus(
+        data.interview,
+        widgetShortname,
+        path,
+        widgetData.groupShortname,
+        parentGroupedObjectId
+    );
 
     // verify conditional visibility:
     const [isVisible, invisibleValue, customInvisibleValue] = checkConditional(
