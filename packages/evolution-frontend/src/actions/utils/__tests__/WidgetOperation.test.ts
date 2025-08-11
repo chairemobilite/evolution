@@ -382,6 +382,43 @@ describe('Test with previous status', () => {
 
     });
 
+    test('Should set widget status if previous path does not match current one', () => {
+        // Prepare test data: override previous status for widget1 with a different path
+        const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
+        const previousStatuses = _cloneDeep(previousWidgetStatuses);
+        previousStatuses.widget1.path = 'not.the.same.path';
+        previousStatuses.widget1.value = 'previous value of other path';
+        testInterviewAttributes.widgets = previousStatuses;
+
+        // Test, the 2 widgets should still be valid and visible
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q2': true }, {});
+
+        // Interview data should correspond to expected
+        expect(updatedInterview).toEqual(expect.objectContaining(interviewAttributes));
+        expect(updatedValuesByPath).toEqual({});
+        expect(needUpdate).toEqual(false);
+
+        // Check calls of the validation function, should have been called for both widget: widget 2 because it is affected and widget 1 because it does not have a proper previous status.
+        expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, interviewAttributes.response.section1.q1, undefined, testInterviewAttributes, 'section1.q1', undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, interviewAttributes.response.section1.q2, undefined, testInterviewAttributes, 'section1.q2', undefined);
+
+        // Check calls to the conditional function, called twice, once for each widget
+        expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
+        expect(mockedCheckConditional).toHaveBeenCalledWith(undefined, testInterviewAttributes, 'section1.q1', undefined);
+        expect(mockedCheckConditional).toHaveBeenCalledWith(undefined, testInterviewAttributes, 'section1.q2', undefined);
+
+        // Widget statuses should have been updated and match the one specified in the test, not the previous ones from the interview
+        expect(updatedInterview.widgets).toEqual({
+            widget1: previousWidgetStatuses.widget1,
+            widget2: previousWidgetStatuses.widget2
+        });
+
+        // Check the visible widgets and the allWidgetsValid flag
+        expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
+        expect(updatedInterview.allWidgetsValid).toEqual(true);
+    });
+
 });
 
 describe('Test with conditional', () => {
