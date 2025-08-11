@@ -436,7 +436,7 @@ export const inputSelectTest: InputSelectTest = ({ context, path, value }) => {
         const newPath = context.objectDetector.replaceWithIds(path);
         const option = context.page.locator(`id=survey-question__${newPath}`);
         await option.scrollIntoViewIfNeeded();
-        option.selectOption(value);
+        await option.selectOption(value);
         await expect(option).toHaveValue(value);
         await focusOut(context.page);
     });
@@ -1099,12 +1099,12 @@ export const verifyNavBarButtonStatus: NavBarButtonStatusTest = ({ context, butt
                 break;
         }
 
-        expect(button).toHaveClass(expectedStatusClass);
+        await expect(button).toHaveClass(expectedStatusClass);
 
         if (isDisabled) {
-            await expect(button).toHaveAttribute('disabled');
+            await expect(button).toBeDisabled();
         } else {
-            await expect(button).not.toHaveAttribute('disabled');
+            await expect(button).toBeEnabled();
         }
     });
 };
