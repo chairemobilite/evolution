@@ -253,6 +253,73 @@ def save_translations(
         raise e
 
 
+def add_gender_or_base_translations(
+    language,
+    section,
+    path,
+    gender_dict,
+    label,
+    extraSuffix,
+    rowNumber,
+    translations_dict,
+):
+    """
+    Adds gender-specific translations to the translations dictionary or simply the label if no gender specific strings.
+
+    Args:
+        language (str): The language code (e.g., 'fr', 'en')
+        section (str): The section name
+        path (str): The base path for the translation key
+        gender_dict (dict or None): Dictionary with gender-specific values or None
+        label (str): The default label value to use if gender_dict is None
+        rowNumber (int): The row number for error reporting
+        translations_dict (dict): The translations dictionary to update
+    """
+    if gender_dict is not None:
+        add_translation(
+            language=language,
+            section=section,
+            path=path + "_male" + extraSuffix,
+            value=gender_dict["male"],
+            rowNumber=rowNumber,
+            translations=translations_dict[language],
+        )
+        add_translation(
+            language=language,
+            section=section,
+            path=path + "_female" + extraSuffix,
+            value=gender_dict["female"],
+            rowNumber=rowNumber,
+            translations=translations_dict[language],
+        )
+        add_translation(
+            language=language,
+            section=section,
+            path=path + "_custom" + extraSuffix,
+            value=gender_dict["custom"],
+            rowNumber=rowNumber,
+            translations=translations_dict[language],
+        )
+        # The "other" translation will be the default one
+        add_translation(
+            language=language,
+            section=section,
+            path=path + extraSuffix,
+            value=gender_dict["other"],
+            rowNumber=rowNumber,
+            translations=translations_dict[language],
+        )
+    elif label is not None:
+        add_translation(
+            language=language,
+            section=section,
+            path=path + extraSuffix,
+            value=label,
+            rowNumber=rowNumber,
+            translations=translations_dict[language],
+        )
+
+
 def add_translations_from_excel(
     excel_file_path,
     labels_output_folder_path,
@@ -314,149 +381,48 @@ def add_translations_from_excel(
                 processed_sections.add(section)  # Mark section as processed
 
             # Add French translations
-            if gender_fr:
-                add_translation(
-                    language="fr",
-                    section=section,
-                    path=path + "_male",
-                    value=gender_fr["male"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["fr"],
-                )
-                add_translation(
-                    language="fr",
-                    section=section,
-                    path=path + "_female",
-                    value=gender_fr["female"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["fr"],
-                )
-                # The "other" translation will be the default one
-                add_translation(
-                    language="fr",
-                    section=section,
-                    path=path,
-                    value=gender_fr["other"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["fr"],
-                )
-            elif fr_label is not None:
-                add_translation(
-                    language="fr",
-                    section=section,
-                    path=path,
-                    value=fr_label,
-                    rowNumber=rowNumber,
-                    translations=translations_dict["fr"],
-                )
-
-            # Add French one person translation for count context if it exists
-            if gender_fr_one:
-                add_translation(
-                    language="fr",
-                    section=section,
-                    path=path + "_male_one",
-                    value=gender_fr_one["male"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["fr"],
-                )
-                add_translation(
-                    language="fr",
-                    section=section,
-                    path=path + "_female_one",
-                    value=gender_fr_one["female"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["fr"],
-                )
-                add_translation(
-                    language="fr",
-                    section=section,
-                    path=path + "_one",
-                    value=gender_fr_one["other"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["fr"],
-                )
-            elif fr_label_one:
-                add_translation(
-                    language="fr",
-                    section=section,
-                    path=path + "_one",
-                    value=fr_label_one,
-                    rowNumber=rowNumber,
-                    translations=translations_dict["fr"],
-                )
-
+            add_gender_or_base_translations(
+                "fr",
+                section,
+                path,
+                gender_fr,
+                fr_label,
+                "",
+                rowNumber,
+                translations_dict,
+            )
+            add_gender_or_base_translations(
+                "fr",
+                section,
+                path,
+                gender_fr_one,
+                fr_label_one,
+                "_one",
+                rowNumber,
+                translations_dict,
+            )
             # Add English translations
-            if gender_en:
-                add_translation(
-                    language="en",
-                    section=section,
-                    path=path + "_male",
-                    value=gender_en["male"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["en"],
-                )
-                add_translation(
-                    language="en",
-                    section=section,
-                    path=path + "_female",
-                    value=gender_en["female"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["en"],
-                )
-                add_translation(
-                    language="en",
-                    section=section,
-                    path=path,
-                    value=gender_en["other"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["en"],
-                )
-            elif en_label is not None:
-                add_translation(
-                    language="en",
-                    section=section,
-                    path=path,
-                    value=en_label,
-                    rowNumber=rowNumber,
-                    translations=translations_dict["en"],
-                )
+            add_gender_or_base_translations(
+                "en",
+                section,
+                path,
+                gender_en,
+                en_label,
+                "",
+                rowNumber,
+                translations_dict,
+            )
+            add_gender_or_base_translations(
+                "en",
+                section,
+                path,
+                gender_en_one,
+                en_label_one,
+                "_one",
+                rowNumber,
+                translations_dict,
+            )
 
-            # Add English one person translation for count context if it exists
-            if gender_en_one:
-                add_translation(
-                    language="en",
-                    section=section,
-                    path=path + "_male_one",
-                    value=gender_en_one["male"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["en"],
-                )
-                add_translation(
-                    language="en",
-                    section=section,
-                    path=path + "_female_one",
-                    value=gender_en_one["female"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["en"],
-                )
-                add_translation(
-                    language="en",
-                    section=section,
-                    path=path + "_one",
-                    value=gender_en_one["other"],
-                    rowNumber=rowNumber,
-                    translations=translations_dict["en"],
-                )
-            elif en_label_one:
-                add_translation(
-                    language="en",
-                    section=section,
-                    path=path + "_one",
-                    value=en_label_one,
-                    rowNumber=rowNumber,
-                    translations=translations_dict["en"],
-                )
             rowNumber += 1  # Increment row number
 
         # Save all translations
@@ -474,16 +440,81 @@ def add_translations_from_excel(
         raise e
 
 
+def split_respecting_quotes(text, delimiter="/"):
+    """
+    Split a string by a delimiter character, but ignore delimiters inside quoted sections.
+    After splitting, quotes are removed from the parts.
+
+    Args:
+        text (str): The text to split
+        delimiter (str): The delimiter character
+
+    Returns:
+        list: List of split parts with quotes removed
+    """
+    parts = []
+    current_part = ""
+    quote_char = None  # Tracks the current quote character (' or ")
+    escape = False  # Tracks if the previous character was a backslash
+
+    for char in text:
+        if escape:  # character is escaped, just append
+            current_part += char
+            escape = False
+        elif char == "\\":  # Handle escape character
+            escape = True
+        elif quote_char:  # We are inside quotes
+            if char == quote_char:  # Check if we reached the end of the quoted section
+                quote_char = None
+            current_part += char
+        elif (
+            char == '"' or char == "'"
+        ):  # Starting a quote with either single or double quote
+            quote_char = char
+            current_part += char
+        elif char == delimiter and not quote_char:  # Split only if not inside quotes
+            # Remove surrounding quotes from the part if they exist
+            if (current_part.startswith('"') and current_part.endswith('"')) or (
+                current_part.startswith("'") and current_part.endswith("'")
+            ):
+                current_part = current_part[1:-1]
+            parts.append(current_part)
+            current_part = ""
+        else:
+            current_part += char
+
+    # Add the last part and remove quotes if necessary
+    if (current_part.startswith('"') and current_part.endswith('"')) or (
+        current_part.startswith("'") and current_part.endswith("'")
+    ):
+        current_part = current_part[1:-1]
+    parts.append(current_part)
+
+    return parts
+
+
 def expand_gender(label):
     """
-    Replace all occurrences of {{gender:...}} or {{gender : ...}} (spaces before or after the colon) with the male, female, and other forms.
-    Example: "Étudian{{gender:t/te/t·e}}" -> {"male": "Étudiant", "female": "Étudiante", "other": "Étudiant·e"}
-    If only one part, 'female' is the part, 'male' and 'other' are ''.
-    If only two parts, 'male' is first part, 'female' is second part, 'other' is ''.
-    If three or more parts, only the first three are used: male, female, other.
+    Replace all occurrences of {{gender:...}} or {{gender : ...}} (spaces before
+    or after the colon) with the male, female, custom and other forms. It
+    returns `None` if there are no gender strings in the label.
 
-    Note: We accept both {{gender:...}}, {{gender :...}}, {{gender: ...}}, and {{gender : ...}}
-    (with spaces before and/or after the colon) because LibreOffice (in French) automatically inserts a space after the colon.
+    Example: "Étudian{{gender:t/te/t·e}}" -> {"male": "Étudiant", "female":
+    "Étudiante", "custom": "Étudiant·e", "other": "Étudiant·e"}
+
+    If only one part, 'female' is the part, 'male' and 'other' are ''.
+    If only two parts, 'male' is first part, 'female' is second part, 'custom' and
+    'other' use the first part.
+    If three parts, 'male' is first part, 'female' is second part, 'custom' and 'other' are the third part.
+    If four or more parts, only the first four are used: male, female, custom, other.
+
+    Note: We accept both {{gender:...}}, {{gender :...}}, {{gender: ...}}, and
+    {{gender : ...}} (with spaces before and/or after the colon) because
+    LibreOffice (in French) automatically inserts a space after the colon.
+
+    Handles quoted strings in gender expressions to not split on slashes within quotes.
+    Example: {{gender:il/elle/iel/"il/elle"}} -> "il" for male, "elle" for female,
+             "iel" for custom, and "il/elle" for other.
     """
     if label is None:
         return None
@@ -497,25 +528,36 @@ def expand_gender(label):
         return None
     male_label = label
     female_label = label
+    custom_label = label
     other_label = label
     for match in matches:
-        parts = match.split("/")
-        if len(parts) >= 3:
-            male, female, other = parts[0], parts[1], parts[2]
+        # Use the split_respecting_quotes function to correctly handle quoted strings
+        parts = split_respecting_quotes(match)
+
+        if len(parts) >= 4:
+            male, female, custom, other = parts[0], parts[1], parts[2], parts[3]
+        elif len(parts) == 3:
+            male, female, custom, other = parts[0], parts[1], parts[2], parts[2]
         elif len(parts) == 2:
-            male, female, other = parts[0], parts[1], ""
+            male, female, custom, other = parts[0], parts[1], parts[0], parts[0]
         elif len(parts) == 1:
-            male, female, other = "", parts[0], ""
+            male, female, custom, other = "", parts[0], "", ""
         else:
-            male, female, other = "", "", ""
+            male, female, custom, other = "", "", "", ""
         # Replace all variants of the gender pattern (with or without spaces before and after colon) with the correct gendered string
         # Note: We use re.escape to escape any special characters in the match.
         # This ensures that the pattern is treated as a literal string.
         pattern_exact = r"\{\{gender\s*:\s*" + re.escape(match) + r"\}\}"
         male_label = re.sub(pattern_exact, male, male_label)
         female_label = re.sub(pattern_exact, female, female_label)
+        custom_label = re.sub(pattern_exact, custom, custom_label)
         other_label = re.sub(pattern_exact, other, other_label)
-    return {"male": male_label, "female": female_label, "other": other_label}
+    return {
+        "male": male_label,
+        "female": female_label,
+        "custom": custom_label,
+        "other": other_label,
+    }
 
 
 def string_to_yaml(str):

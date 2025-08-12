@@ -117,102 +117,141 @@ def test_get_labels_file_path_widgets():
 # TODO: test add_translations_from_excel
 
 
-def test_expand_gender_basic():
-    """
-    Test expand_gender with a label containing both male and female suffixes.
-    Should replace {{gender:t/te}} with 't' for male and 'te' for female.
-    """
-    label = "Étudian{{gender:t/te}}"
-    result = expand_gender(label)
-    assert result["male"] == "Étudiant"
-    assert result["female"] == "Étudiante"
+class TestExpandGender:
+    """Tests for expand_gender function"""
 
+    def test_expand_gender_basic(self):
+        """
+        Test expand_gender with a label containing both male and female suffixes.
+        Should replace {{gender:t/te}} with 't' for male, custom and other and 'te' for female.
+        """
+        label = "Étudian{{gender:t/te}}"
+        result = expand_gender(label)
+        assert result["male"] == "Étudiant"
+        assert result["female"] == "Étudiante"
+        assert result["custom"] == "Étudiant"
+        assert result["other"] == "Étudiant"
 
-def test_expand_gender_only_one_part():
-    """
-    Test expand_gender with a label containing only one part (female).
-    Should replace {{gender:e}} with '' for male, 'e' for female and '' for other.
-    """
-    label = "Ami{{gender:e}}"
-    result = expand_gender(label)
-    assert result["male"] == "Ami"
-    assert result["female"] == "Amie"
-    assert result["other"] == "Ami"
+    def test_expand_gender_only_one_part(self):
+        """
+        Test expand_gender with a label containing only one part (female).
+        Should replace {{gender:e}} with '' for male, custom and other and 'e' for female.
+        """
+        label = "Ami{{gender:e}}"
+        result = expand_gender(label)
+        assert result["male"] == "Ami"
+        assert result["female"] == "Amie"
+        assert result["custom"] == "Ami"
+        assert result["other"] == "Ami"
 
+    def test_expand_gender_two_parts(self):
+        """
+        Test expand_gender with a label containing two parts (male/female).
+        Should replace {{gender:eur/rice}} with 'eur' for male, 'rice' for female, and 'eur' for custom and other.
+        """
+        label = "act{{gender:eur/rice}}"
+        result = expand_gender(label)
+        assert result["male"] == "acteur"
+        assert result["female"] == "actrice"
+        assert result["custom"] == "acteur"
+        assert result["other"] == "acteur"
 
-def test_expand_gender_two_parts():
-    """
-    Test expand_gender with a label containing two parts (male/female).
-    Should replace {{gender:eur/rice}} with 'eur' for male, 'rice' for female, and '' for other.
-    """
-    label = "act{{gender:eur/rice}}"
-    result = expand_gender(label)
-    assert result["male"] == "acteur"
-    assert result["female"] == "actrice"
-    assert result["other"] == "act"
+    def test_expand_gender_three_parts(self):
+        """
+        Test expand_gender with a label containing three parts (male/female/other).
+        Should replace {{gender:/e/·e}} with '' for male, 'e' for female, '·e' for other and custom.
+        """
+        label = "Étudiant{{gender:/e/·e}}"
+        result = expand_gender(label)
+        assert result["male"] == "Étudiant"
+        assert result["female"] == "Étudiante"
+        assert result["custom"] == "Étudiant·e"
+        assert result["other"] == "Étudiant·e"
 
+    def test_expand_gender_four_parts(self):
+        """
+        Test expand_gender with a label containing four parts (male/female/custom/other).
+        Should replace {{gender:a/b//d}} with 'a' for male, 'b' for female, '' for custom and 'd' for other.
+        """
+        label = "mot{{gender:a/b//d}}"
+        result = expand_gender(label)
+        assert result["male"] == "mota"
+        assert result["female"] == "motb"
+        assert result["custom"] == "mot"
+        assert result["other"] == "motd"
 
-def test_expand_gender_three_parts():
-    """
-    Test expand_gender with a label containing three parts (male/female/other).
-    Should replace {{gender:/e/t·e}} with '' for male, 'e' for female, '·e' for other.
-    """
-    label = "Étudiant{{gender:/e/·e}}"
-    result = expand_gender(label)
-    assert result["male"] == "Étudiant"
-    assert result["female"] == "Étudiante"
-    assert result["other"] == "Étudiant·e"
+    def test_expand_gender_four_parts_with_quotes(self):
+        """
+        Test expand_gender with a label containing four parts (male/female/custom/other), one of which has quotes.
+        Should replace {{gender:il/elle/iel/"il/elle"}} with 'il' for male, 'elle' for female, 'iel' for custom and 'il/elle' for other.
+        """
+        label = '{{gender:il/elle/iel/"il/elle"}}'
+        result = expand_gender(label)
+        assert result["male"] == "il"
+        assert result["female"] == "elle"
+        assert result["custom"] == "iel"
+        assert result["other"] == "il/elle"
 
+    def test_expand_gender_with_quotes(self):
+        """
+        Test expand_gender with a label containing four parts (male/female/custom/other), with various quotes in it.
+        """
+        label = 'Test{{gender:\'single\'//"dou/ble with slash and escaped \\""/quote"in}}end'
+        result = expand_gender(label)
+        assert result["male"] == "Testsingleend"
+        assert result["female"] == "Testend"
+        assert result["custom"] == 'Testdou/ble with slash and escaped "end'
+        assert result["other"] == 'Testquote"inend'
 
-def test_expand_gender_more_than_three_parts():
-    """
-    Test expand_gender with a label containing more than three parts.
-    Only the first three should be used: male, female, other.
-    """
-    label = "mot{{gender:a/b/c/d/e}}"
-    result = expand_gender(label)
-    assert result["male"] == "mota"
-    assert result["female"] == "motb"
-    assert result["other"] == "motc"
-    assert set(result.keys()) == {
-        "male",
-        "female",
-        "other",
-    }  # Ensure no extra keys are present
+    def test_expand_gender_more_than_four_parts(self):
+        """
+        Test expand_gender with a label containing more than four parts.
+        Only the first four should be used: male, female, custom, other.
+        """
+        label = "mot{{gender:a/b/c/d/e}}"
+        result = expand_gender(label)
+        assert result["male"] == "mota"
+        assert result["female"] == "motb"
+        assert result["custom"] == "motc"
+        assert result["other"] == "motd"
+        assert set(result.keys()) == {
+            "male",
+            "female",
+            "custom",
+            "other",
+        }  # Ensure no extra keys are present
 
+    def test_expand_gender_multiple_occurrences(self):
+        """
+        Test expand_gender with a label containing multiple gender replacements with multiple patterns.
+        Should replace all occurrences accordingly.
+        """
+        label = "Étudiant{{gender:/e/·e}} ou act{{gender:eur/rice}}"
+        result = expand_gender(label)
+        assert result["male"] == "Étudiant ou acteur"
+        assert result["female"] == "Étudiante ou actrice"
+        assert result["custom"] == "Étudiant·e ou acteur"
+        assert result["other"] == "Étudiant·e ou acteur"
 
-def test_expand_gender_multiple_occurrences():
-    """
-    Test expand_gender with a label containing multiple gender replacements.
-    Should replace all occurrences accordingly.
-    """
-    label = "Étudian{{gender:t/te/t·e}} ou act{{gender:eur/rice/eur·rice}}"
-    result = expand_gender(label)
-    assert result["male"] == "Étudiant ou acteur"
-    assert result["female"] == "Étudiante ou actrice"
-    assert result["other"] == "Étudiant·e ou acteur·rice"
+    def test_expand_gender_no_gender(self):
+        """
+        Test expand_gender with a label that does not contain any gender context.
+        Should return None.
+        """
+        label = "Bonjour"
+        result = expand_gender(label)
+        assert result is None
 
-
-def test_expand_gender_no_gender():
-    """
-    Test expand_gender with a label that does not contain any gender context.
-    Should return None.
-    """
-    label = "Bonjour"
-    result = expand_gender(label)
-    assert result is None
-
-
-def test_expand_gender_with_space_after_gender():
-    """
-    Test expand_gender with a label containing a space after 'gender' ({{gender :...}}).
-    Should replace correctly for all forms.
-    """
-    label = "Étudian{{gender :t/te/t·e}}"
-    result = expand_gender(label)
-    assert result["male"] == "Étudiant"
-    assert result["female"] == "Étudiante"
-    assert result["other"] == "Étudiant·e"
+    def test_expand_gender_with_space_after_gender(self):
+        """
+        Test expand_gender with a label containing a space after 'gender' ({{gender :...}}).
+        Should replace correctly for all forms.
+        """
+        label = "Étudian{{gender :t/te/t·e}}"
+        result = expand_gender(label)
+        assert result["male"] == "Étudiant"
+        assert result["female"] == "Étudiante"
+        assert result["other"] == "Étudiant·e"
 
 
 # TODO: test string_to_yaml
