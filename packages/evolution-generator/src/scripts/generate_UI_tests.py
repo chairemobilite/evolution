@@ -120,7 +120,7 @@ def generate_UI_tests(input_file: str, output_file: str):
                     ts_code += f"}};\n\n"
 
                 current_section = section  # Update the current section tracker
-                ts_code += f"/********** Tests {current_section} section **********/\n"
+                ts_code += f"/********** Tests {current_section.capitalize()} section **********/\n"
 
                 # Add an export for the section tests
                 ts_code += f"export const fill{current_section.capitalize()}SectionTests = ({{ context, householdSize }}: CommonTestParametersModify) => {{\n"
