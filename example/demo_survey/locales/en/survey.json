@@ -49,8 +49,13 @@
         "AgeRequired": "Age is required."
     },
     "Female": "Woman",
+    "Male": "Man",
+    "Custom": "Other",
+    "PreferNotToAnswer": "Prefer not to answer",
     "gender": {
         "Custom": "{{nickname}} identifies themselves as",
-        "Custom_one": "I identify myself as"
+        "Custom_one": "I identify myself as",
+        "PreferNotToAnswer": "{{nickname}} prefers not to specify",
+        "PreferNotToAnswer_one": "I prefer not to specify"
     }
 }

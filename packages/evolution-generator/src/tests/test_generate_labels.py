@@ -126,58 +126,65 @@ def test_expand_gender_basic():
     result = expand_gender(label)
     assert result["male"] == "Étudiant"
     assert result["female"] == "Étudiante"
+    assert result["other"] == ""
+    assert result["preferNotToAnswer"] == ""
 
 
 def test_expand_gender_only_one_part():
     """
     Test expand_gender with a label containing only one part (female).
-    Should replace {{gender:e}} with '' for male, 'e' for female and '' for other.
+    Should replace {{gender:e}} with '' for male, 'e' for female and '' for other and preferNotToAnswer.
     """
     label = "Ami{{gender:e}}"
     result = expand_gender(label)
     assert result["male"] == "Ami"
     assert result["female"] == "Amie"
     assert result["other"] == "Ami"
+    assert result["preferNotToAnswer"] == "Ami"
 
 
 def test_expand_gender_two_parts():
     """
     Test expand_gender with a label containing two parts (male/female).
-    Should replace {{gender:eur/rice}} with 'eur' for male, 'rice' for female, and '' for other.
+    Should replace {{gender:eur/rice}} with 'eur' for male, 'rice' for female, and '' for other and preferNotToAnswer.
     """
     label = "act{{gender:eur/rice}}"
     result = expand_gender(label)
     assert result["male"] == "acteur"
     assert result["female"] == "actrice"
     assert result["other"] == "act"
+    assert result["preferNotToAnswer"] == "act"
 
 
 def test_expand_gender_three_parts():
     """
     Test expand_gender with a label containing three parts (male/female/other).
-    Should replace {{gender:/e/t·e}} with '' for male, 'e' for female, '·e' for other.
+    Should replace {{gender:/e/·e}} with '' for male, 'e' for female, '·e' for other, and '' for preferNotToAnswer.
     """
     label = "Étudiant{{gender:/e/·e}}"
     result = expand_gender(label)
     assert result["male"] == "Étudiant"
     assert result["female"] == "Étudiante"
     assert result["other"] == "Étudiant·e"
+    assert result["preferNotToAnswer"] == "Étudiant"
 
 
 def test_expand_gender_more_than_three_parts():
     """
-    Test expand_gender with a label containing more than three parts.
-    Only the first three should be used: male, female, other.
+    Test expand_gender with a label containing more than four parts.
+    Only the first four should be used: male, female, other, preferNotToAnswer.
     """
     label = "mot{{gender:a/b/c/d/e}}"
     result = expand_gender(label)
     assert result["male"] == "mota"
     assert result["female"] == "motb"
     assert result["other"] == "motc"
+    assert result["preferNotToAnswer"] == "motd"
     assert set(result.keys()) == {
         "male",
         "female",
         "other",
+        "preferNotToAnswer",
     }  # Ensure no extra keys are present
 
 
@@ -186,11 +193,12 @@ def test_expand_gender_multiple_occurrences():
     Test expand_gender with a label containing multiple gender replacements.
     Should replace all occurrences accordingly.
     """
-    label = "Étudian{{gender:t/te/t·e}} ou act{{gender:eur/rice/eur·rice}}"
+    label = "Étudian{{gender:t/te/t·e/t·e}} ou act{{gender:eur/rice/eur·rice/eur·rice}}"
     result = expand_gender(label)
     assert result["male"] == "Étudiant ou acteur"
     assert result["female"] == "Étudiante ou actrice"
     assert result["other"] == "Étudiant·e ou acteur·rice"
+    assert result["preferNotToAnswer"] == "Étudiant·e ou acteur·rice"
 
 
 def test_expand_gender_no_gender():
@@ -208,11 +216,39 @@ def test_expand_gender_with_space_after_gender():
     Test expand_gender with a label containing a space after 'gender' ({{gender :...}}).
     Should replace correctly for all forms.
     """
-    label = "Étudian{{gender :t/te/t·e}}"
+    label = "Étudian{{gender :t/te/t·e/t·e}}"
     result = expand_gender(label)
     assert result["male"] == "Étudiant"
     assert result["female"] == "Étudiante"
     assert result["other"] == "Étudiant·e"
+    assert result["preferNotToAnswer"] == "Étudiant·e"
+
+
+def test_expand_gender_four_parts():
+    """
+    Test expand_gender with a label containing four parts (male/female/other/preferNotToAnswer).
+    Should replace {{gender:t/te/t·e/t·e}} with all four forms correctly.
+    """
+    label = "Étudian{{gender:t/te/t·e/t·e}}"
+    result = expand_gender(label)
+    assert result["male"] == "Étudiant"
+    assert result["female"] == "Étudiante"
+    assert result["other"] == "Étudiant·e"
+    assert result["preferNotToAnswer"] == "Étudiant·e"
+
+
+def test_expand_gender_four_parts_with_mixed_pronouns():
+    """
+    Test expand_gender with four parts designed for mixed pronouns in preferNotToAnswer.
+    This reflects the use case mentioned in the issue.
+    """
+    # French example with mixed pronouns for preferNotToAnswer
+    label = "{{gender:Il/Elle/Iel/Il·elle}} est parti{{gender:///·e}}"
+    result = expand_gender(label)
+    assert result["male"] == "Il est parti"
+    assert result["female"] == "Elle est partie"
+    assert result["other"] == "Iel est parti"
+    assert result["preferNotToAnswer"] == "Il·elle est parti·e"
 
 
 # TODO: test string_to_yaml

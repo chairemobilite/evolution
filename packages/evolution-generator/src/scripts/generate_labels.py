@@ -331,6 +331,22 @@ def add_translations_from_excel(
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
+                add_translation(
+                    language="fr",
+                    section=section,
+                    path=path + "_custom",
+                    value=gender_fr["other"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+                add_translation(
+                    language="fr",
+                    section=section,
+                    path=path + "_preferNotToAnswer",
+                    value=gender_fr["preferNotToAnswer"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
                 # The "other" translation will be the default one
                 add_translation(
                     language="fr",
@@ -365,6 +381,22 @@ def add_translations_from_excel(
                     section=section,
                     path=path + "_female_one",
                     value=gender_fr_one["female"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+                add_translation(
+                    language="fr",
+                    section=section,
+                    path=path + "_custom_one",
+                    value=gender_fr_one["other"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["fr"],
+                )
+                add_translation(
+                    language="fr",
+                    section=section,
+                    path=path + "_preferNotToAnswer_one",
+                    value=gender_fr_one["preferNotToAnswer"],
                     rowNumber=rowNumber,
                     translations=translations_dict["fr"],
                 )
@@ -407,6 +439,22 @@ def add_translations_from_excel(
                 add_translation(
                     language="en",
                     section=section,
+                    path=path + "_custom",
+                    value=gender_en["other"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+                add_translation(
+                    language="en",
+                    section=section,
+                    path=path + "_preferNotToAnswer",
+                    value=gender_en["preferNotToAnswer"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+                add_translation(
+                    language="en",
+                    section=section,
                     path=path,
                     value=gender_en["other"],
                     rowNumber=rowNumber,
@@ -437,6 +485,22 @@ def add_translations_from_excel(
                     section=section,
                     path=path + "_female_one",
                     value=gender_en_one["female"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+                add_translation(
+                    language="en",
+                    section=section,
+                    path=path + "_custom_one",
+                    value=gender_en_one["other"],
+                    rowNumber=rowNumber,
+                    translations=translations_dict["en"],
+                )
+                add_translation(
+                    language="en",
+                    section=section,
+                    path=path + "_preferNotToAnswer_one",
+                    value=gender_en_one["preferNotToAnswer"],
                     rowNumber=rowNumber,
                     translations=translations_dict["en"],
                 )
@@ -476,11 +540,12 @@ def add_translations_from_excel(
 
 def expand_gender(label):
     """
-    Replace all occurrences of {{gender:...}} or {{gender : ...}} (spaces before or after the colon) with the male, female, and other forms.
-    Example: "Étudian{{gender:t/te/t·e}}" -> {"male": "Étudiant", "female": "Étudiante", "other": "Étudiant·e"}
-    If only one part, 'female' is the part, 'male' and 'other' are ''.
-    If only two parts, 'male' is first part, 'female' is second part, 'other' is ''.
-    If three or more parts, only the first three are used: male, female, other.
+    Replace all occurrences of {{gender:...}} or {{gender : ...}} (spaces before or after the colon) with the male, female, other, and preferNotToAnswer forms.
+    Example: "Étudian{{gender:t/te/t·e/t·e}}" -> {"male": "Étudiant", "female": "Étudiante", "other": "Étudiant·e", "preferNotToAnswer": "Étudiant·e"}
+    If only one part, 'female' is the part, others are ''.
+    If only two parts, 'male' is first part, 'female' is second part, others are ''.
+    If three parts, 'male' is first part, 'female' is second part, 'other' is third part, 'preferNotToAnswer' is ''.
+    If four or more parts, only the first four are used: male, female, other, preferNotToAnswer.
 
     Note: We accept both {{gender:...}}, {{gender :...}}, {{gender: ...}}, and {{gender : ...}}
     (with spaces before and/or after the colon) because LibreOffice (in French) automatically inserts a space after the colon.
@@ -498,16 +563,19 @@ def expand_gender(label):
     male_label = label
     female_label = label
     other_label = label
+    prefer_not_to_answer_label = label
     for match in matches:
         parts = match.split("/")
-        if len(parts) >= 3:
-            male, female, other = parts[0], parts[1], parts[2]
+        if len(parts) >= 4:
+            male, female, other, prefer_not_to_answer = parts[0], parts[1], parts[2], parts[3]
+        elif len(parts) == 3:
+            male, female, other, prefer_not_to_answer = parts[0], parts[1], parts[2], ""
         elif len(parts) == 2:
-            male, female, other = parts[0], parts[1], ""
+            male, female, other, prefer_not_to_answer = parts[0], parts[1], "", ""
         elif len(parts) == 1:
-            male, female, other = "", parts[0], ""
+            male, female, other, prefer_not_to_answer = "", parts[0], "", ""
         else:
-            male, female, other = "", "", ""
+            male, female, other, prefer_not_to_answer = "", "", "", ""
         # Replace all variants of the gender pattern (with or without spaces before and after colon) with the correct gendered string
         # Note: We use re.escape to escape any special characters in the match.
         # This ensures that the pattern is treated as a literal string.
@@ -515,7 +583,8 @@ def expand_gender(label):
         male_label = re.sub(pattern_exact, male, male_label)
         female_label = re.sub(pattern_exact, female, female_label)
         other_label = re.sub(pattern_exact, other, other_label)
-    return {"male": male_label, "female": female_label, "other": other_label}
+        prefer_not_to_answer_label = re.sub(pattern_exact, prefer_not_to_answer, prefer_not_to_answer_label)
+    return {"male": male_label, "female": female_label, "other": other_label, "preferNotToAnswer": prefer_not_to_answer_label}
 
 
 def string_to_yaml(str):

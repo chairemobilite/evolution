@@ -219,7 +219,7 @@ describe('BasePerson', () => {
         const params = {
             _uuid: uuidV4(),
             age: 25,
-            gender: 'female',
+            gender: 'preferNotToAnswer',
             drivingLicenseOwnership: 'no',
             transitPassOwnership: 'no',
             carsharingMember: 'yes',
@@ -246,6 +246,27 @@ describe('BasePerson', () => {
         const instance = BasePerson.unserialize(personAttributes);
         expect(instance).toBeInstanceOf(BasePerson);
         expect(instance.age).toEqual(personAttributes.age);
+    });
+
+    it('should create a BasePerson with preferNotToAnswer gender', () => {
+        const personWithPreferNotToAnswer: ExtendedPersonAttributes = {
+            _uuid: uuidV4(),
+            gender: 'preferNotToAnswer' as PAttr.Gender,
+        };
+
+        const person = new BasePerson(personWithPreferNotToAnswer);
+        expect(person).toBeInstanceOf(BasePerson);
+        expect(person.gender).toBe('preferNotToAnswer');
+    });
+
+    it('should validate preferNotToAnswer gender', () => {
+        const params = {
+            _uuid: uuidV4(),
+            gender: 'preferNotToAnswer',
+        };
+
+        const errors = BasePerson.validateParams(params);
+        expect(errors.length).toBe(0);
     });
 
 });
