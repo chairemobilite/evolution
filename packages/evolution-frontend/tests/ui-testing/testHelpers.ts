@@ -50,7 +50,14 @@ type HasConsentTest = (params: CommonTestParameters) => void;
 type StartSurveyTest = (params: CommonTestParameters & { nextUrl?: string }) => void;
 type RegisterWithoutEmailTest = (params: CommonTestParameters) => void;
 type RegisterWithEmailTest = (params: { email: Email; nextPageUrl?: Url } & CommonTestParameters) => void;
-type RegisterWithAccessPostalCodeTest = (params: { accessCode: string; postalCode: string; expectedToExist?: boolean; nextPageUrl?: Url } & CommonTestParameters) => void;
+type RegisterWithAccessPostalCodeTest = (
+    params: {
+        accessCode: string;
+        postalCode: string;
+        expectedToExist?: boolean;
+        nextPageUrl?: Url;
+    } & CommonTestParameters
+) => void;
 type HasUserTest = (params: CommonTestParameters) => void;
 type SimpleAction = (params: CommonTestParameters) => void;
 type ContinueWithInvalidEntriesTest = (
@@ -303,7 +310,13 @@ export const registerWithEmailTest: RegisterWithEmailTest = ({ context, email, n
  * @param {string} [params.nextPageUrl='/survey/home'] - The URL to navigate to
  * after registration, defaults to '/survey/home'.
  */
-export const registerWithAccessPostalCodeTest: RegisterWithAccessPostalCodeTest = ({ context, accessCode, postalCode, expectedToExist = true, nextPageUrl = '/survey/home' }) => {
+export const registerWithAccessPostalCodeTest: RegisterWithAccessPostalCodeTest = ({
+    context,
+    accessCode,
+    postalCode,
+    expectedToExist = true,
+    nextPageUrl = '/survey/home'
+}) => {
     test(`Register with access and postal codes - ${getTestCounter(context, 'registerWithAccessPostalCodeTest')}`, async () => {
         const accessCodeInput = context.page.locator('id=accessCode');
         const postalCodeInput = context.page.locator('id=postalCode');
@@ -1185,8 +1198,9 @@ export const solveCaptcha = async ({ context }: CommonTestParameters): Promise<v
             };
 
             // Find all potential captcha elements in the main document
-            const captchaElement = document.querySelector('div.captcha[role="button"]') ||
-                                  findInShadowDOM(document.documentElement, 'div.captcha[role="button"]');
+            const captchaElement =
+                document.querySelector('div.captcha[role="button"]') ||
+                findInShadowDOM(document.documentElement, 'div.captcha[role="button"]');
 
             if (captchaElement) {
                 captchaElement.click();
@@ -1194,8 +1208,9 @@ export const solveCaptcha = async ({ context }: CommonTestParameters): Promise<v
             }
 
             // Alternative approach: try to find by role and aria-label
-            const captchaByLabel = document.querySelector('[aria-label="Click to verify you\'re a human"]') ||
-                                  findInShadowDOM(document.documentElement, '[aria-label="Click to verify you\'re a human"]');
+            const captchaByLabel =
+                document.querySelector('[aria-label="Click to verify you\'re a human"]') ||
+                findInShadowDOM(document.documentElement, '[aria-label="Click to verify you\'re a human"]');
 
             if (captchaByLabel) {
                 captchaByLabel.click();
@@ -1210,53 +1225,60 @@ export const solveCaptcha = async ({ context }: CommonTestParameters): Promise<v
         }
 
         // Wait for the captcha to be verified using JavaScript evaluation
-        await context.page.waitForFunction(() => {
-            // Similar function to find in shadow DOM
-            const findInShadowDOM = (element, predicate) => {
-                // If element matches predicate, return it
-                if (predicate(element)) return element;
+        await context.page.waitForFunction(
+            () => {
+                // Similar function to find in shadow DOM
+                const findInShadowDOM = (element, predicate) => {
+                    // If element matches predicate, return it
+                    if (predicate(element)) return element;
 
-                // If the element has shadow root, search inside it
-                if (element.shadowRoot) {
-                    for (const child of element.shadowRoot.children) {
+                    // If the element has shadow root, search inside it
+                    if (element.shadowRoot) {
+                        for (const child of element.shadowRoot.children) {
+                            const foundInChild = findInShadowDOM(child, predicate);
+                            if (foundInChild) return foundInChild;
+                        }
+                    }
+
+                    // Search through element's children
+                    for (const child of element.children) {
                         const foundInChild = findInShadowDOM(child, predicate);
                         if (foundInChild) return foundInChild;
                     }
-                }
 
-                // Search through element's children
-                for (const child of element.children) {
-                    const foundInChild = findInShadowDOM(child, predicate);
-                    if (foundInChild) return foundInChild;
-                }
+                    return null;
+                };
 
-                return null;
-            };
+                // Check for solved captcha in the main document or shadow DOM
+                const solvedCaptcha =
+                    document.querySelector('div.captcha[data-state="solved"]') ||
+                    document.querySelector('div.captcha[aria-label*="verified"]') ||
+                    findInShadowDOM(
+                        document.documentElement,
+                        (el) =>
+                            el.tagName === 'DIV' &&
+                            el.classList.contains('captcha') &&
+                            (el.getAttribute('data-state') === 'solved' ||
+                                (el.getAttribute('aria-label') && el.getAttribute('aria-label').includes('verified')))
+                    );
 
-            // Check for solved captcha in the main document or shadow DOM
-            const solvedCaptcha =
-                document.querySelector('div.captcha[data-state="solved"]') ||
-                document.querySelector('div.captcha[aria-label*="verified"]') ||
-                findInShadowDOM(document.documentElement,
-                    el => (el.tagName === 'DIV' &&
-                           el.classList.contains('captcha') &&
-                           (el.getAttribute('data-state') === 'solved' ||
-                            (el.getAttribute('aria-label') &&
-                             el.getAttribute('aria-label').includes('verified')))));
-
-            return !!solvedCaptcha;
-        }, { timeout: 10000 });
-
+                return !!solvedCaptcha;
+            },
+            { timeout: 10000 }
+        );
     } catch (error) {
         console.log('Error solving captcha using JavaScript method, trying click approach');
 
         try {
             // Try a more direct approach - search for the parent container that might contain the captcha
-            const captchaContainer = await context.page.locator('form div').filter({
-                has: context.page.locator('div').filter({
-                    hasText: /Je suis humain|I am human/
+            const captchaContainer = await context.page
+                .locator('form div')
+                .filter({
+                    has: context.page.locator('div').filter({
+                        hasText: /Je suis humain|I am human/
+                    })
                 })
-            }).first();
+                .first();
 
             // Get its bounding box
             const boundingBox = await captchaContainer.boundingBox();
@@ -1264,7 +1286,7 @@ export const solveCaptcha = async ({ context }: CommonTestParameters): Promise<v
             if (boundingBox) {
                 // Click in the middle of the container
                 await context.page.mouse.click(
-                    boundingBox.x + boundingBox.width / 3,  // Try to click where the checkbox would be (left third)
+                    boundingBox.x + boundingBox.width / 3, // Try to click where the checkbox would be (left third)
                     boundingBox.y + boundingBox.height / 2
                 );
 
@@ -1276,12 +1298,14 @@ export const solveCaptcha = async ({ context }: CommonTestParameters): Promise<v
                 // Check if we need to click again
                 const isVerified = await context.page.evaluate(() => {
                     // Look for confirmation elements or state changes that indicate verification
-                    return document.querySelector('[aria-label*="verified"]') !== null ||
-                           document.querySelector('[data-state="solved"]') !== null;
+                    return (
+                        document.querySelector('[aria-label*="verified"]') !== null ||
+                        document.querySelector('[data-state="solved"]') !== null
+                    );
                 });
 
                 if (!isVerified) {
-                    console.log('First click didn\'t work, trying different position');
+                    console.log("First click didn't work, trying different position");
                     await context.page.mouse.click(
                         boundingBox.x + boundingBox.width / 2,
                         boundingBox.y + boundingBox.height / 2
