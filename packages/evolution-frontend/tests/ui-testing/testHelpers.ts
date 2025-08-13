@@ -756,14 +756,16 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
             await refreshButton.click();
         }
 
-        if (resultsNumber >= 2) {
-            // If multiple results
-            const select = inputMap.locator(`id=survey-question__${newPath}_mapFindPlace`);
+        // If there is at least one result and the select input exists, select the first option and confirm.
+        // Note: This is necessary because sometimes the select input appears with only one available option.
+        const select = inputMap.locator(`id=survey-question__${newPath}_mapFindPlace`);
+        if (resultsNumber >= 1 && (await select.count()) > 0) {
+            // Select the first option from the dropdown
             await select.focus(); // Focus on the select element
             await select.press('ArrowDown'); // take the first option from select
             await select.press('Enter');
 
-            // Confirm place
+            // Confirm place selection
             const confirmButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
             await expect(confirmButton).toBeVisible();
             await confirmButton.click();
