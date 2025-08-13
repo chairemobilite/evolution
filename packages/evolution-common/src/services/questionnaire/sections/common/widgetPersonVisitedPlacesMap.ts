@@ -12,6 +12,7 @@ import { TFunction } from 'i18next';
 import projectConfig from '../../../../config/project.config';
 import { pointsToBezierCurve } from '../../../geodata/SurveyGeographyUtils';
 import { UserInterviewAttributes } from '../../types';
+import { getActivityMarkerIcon } from '../visitedPlaces/activityIconMapping';
 
 export const getPersonVisitedPlacesMapConfig = (
     // FIXME: Type this when there is a few more widgets implemented
@@ -75,7 +76,7 @@ export const getPersonVisitedPlacesMapConfig = (
                 if (visitedPlaceGeography) {
                     const visitedPlaceGeojson = visitedPlaceGeography;
                     visitedPlaceGeojson.properties!.icon = {
-                        url: `/dist/images/activities_icons/${visitedPlace.activity}_marker.svg`,
+                        url: getActivityMarkerIcon(visitedPlace.activity),
                         size: [40, 40]
                     };
                     visitedPlaceGeojson.properties!.highlighted = false;
