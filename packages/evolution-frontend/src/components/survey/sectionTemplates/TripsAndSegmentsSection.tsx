@@ -23,6 +23,7 @@ import * as helpers from 'evolution-common/lib/utils/helpers';
 import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../services/display/frontendHelper';
 import { loopActivities } from 'evolution-common/lib/services/odSurvey/types';
 import { VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
+import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 
 export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (
     props: SectionProps & WithTranslation & WithSurveyContextProps
@@ -198,7 +199,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                 >
                     <span className="survey-trip-item-element survey-trip-item-origin-description">
                         <img
-                            src={`/dist/images/activities_icons/${origin.activity}_marker.svg`}
+                            src={getActivityMarkerIcon(origin.activity)}
                             style={{ height: '4rem' }}
                             alt={props.t(`visitedPlaces/activities/${origin.activity}`)}
                         />
@@ -217,7 +218,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                     </span>
                     <span className="survey-trip-item-element survey-trip-item-destination-description">
                         <img
-                            src={`/dist/images/activities_icons/${destination.activity}_marker.svg`}
+                            src={getActivityMarkerIcon(destination.activity)}
                             style={{ height: '4rem' }}
                             alt={props.t(`visitedPlaces/activities/${destination.activity}`)}
                         />
@@ -241,7 +242,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                             </span>
                             <span className="survey-trip-item-element survey-trip-item-destination-description">
                                 <img
-                                    src={`/dist/images/activities_icons/${nextDestination.activity}_marker.svg`}
+                                    src={getActivityMarkerIcon(nextDestination.activity)}
                                     style={{ height: '4rem' }}
                                     alt={props.t(`visitedPlaces/activities/${nextDestination.activity}`)}
                                 />

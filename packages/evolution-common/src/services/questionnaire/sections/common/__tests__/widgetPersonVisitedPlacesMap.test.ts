@@ -229,10 +229,10 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
             points: {
                 type: 'FeatureCollection',
                 features: [
-                    { ...visitedPlaces[0].geography!, properties: { ...visitedPlaces[0].geography!.properties, icon: { url: '/dist/images/activities_icons/home_marker.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 1 } },
-                    { ...visitedPlaces[1].geography!, properties: { ...visitedPlaces[1].geography!.properties, icon: { url: '/dist/images/activities_icons/work_marker.svg', size: [40, 40] }, highlighted: false, label: 'place2', sequence: 2 } },
-                    { ...visitedPlaces[2].geography!, properties: { ...visitedPlaces[2].geography!.properties, icon: { url: '/dist/images/activities_icons/shopping_marker.svg', size: [40, 40] }, highlighted: false, label: 'place3', sequence: 3 } },
-                    { ...visitedPlaces[3].geography!, properties: { ...visitedPlaces[3].geography!.properties, icon: { url: '/dist/images/activities_icons/home_marker.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 3 } }
+                    { ...visitedPlaces[0].geography!, properties: { ...visitedPlaces[0].geography!.properties, icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 1 } },
+                    { ...visitedPlaces[1].geography!, properties: { ...visitedPlaces[1].geography!.properties, icon: { url: '/dist/icons/activities/work/briefcase-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'place2', sequence: 2 } },
+                    { ...visitedPlaces[2].geography!, properties: { ...visitedPlaces[2].geography!.properties, icon: { url: '/dist/icons/activities/shopping/shopping_cart-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'place3', sequence: 3 } },
+                    { ...visitedPlaces[3].geography!, properties: { ...visitedPlaces[3].geography!.properties, icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 3 } }
                 ]
             },
             linestrings: {
@@ -297,8 +297,8 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
             points: {
                 type: 'FeatureCollection',
                 features: [
-                    { ...visitedPlaces[1].geography!, properties: { ...visitedPlaces[1].geography!.properties, icon: { url: '/dist/images/activities_icons/work_marker.svg', size: [40, 40] }, highlighted: false, label: 'place2', sequence: 2 } },
-                    { ...visitedPlaces[3].geography!, properties: { ...visitedPlaces[3].geography!.properties, icon: { url: '/dist/images/activities_icons/home_marker.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 3 } }
+                    { ...visitedPlaces[1].geography!, properties: { ...visitedPlaces[1].geography!.properties, icon: { url: '/dist/icons/activities/work/briefcase-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'place2', sequence: 2 } },
+                    { ...visitedPlaces[3].geography!, properties: { ...visitedPlaces[3].geography!.properties, icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 3 } }
                 ]
             },
             linestrings: {

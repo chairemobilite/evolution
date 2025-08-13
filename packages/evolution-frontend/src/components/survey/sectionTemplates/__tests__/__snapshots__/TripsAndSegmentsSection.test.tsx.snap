@@ -109,7 +109,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity1"
-                src="/dist/images/activities_icons/activity1_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -146,7 +146,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity2"
-                src="/dist/images/activities_icons/activity2_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -241,7 +241,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity2"
-                src="/dist/images/activities_icons/activity2_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -273,7 +273,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity3"
-                src="/dist/images/activities_icons/activity3_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -416,7 +416,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity1"
-                src="/dist/images/activities_icons/activity1_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -453,7 +453,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/workOnTheRoad"
-                src="/dist/images/activities_icons/workOnTheRoad_marker.svg"
+                src="/dist/icons/activities/work/truck_with_road-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -485,7 +485,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity3"
-                src="/dist/images/activities_icons/activity3_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -634,7 +634,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/workOnTheRoad"
-                src="/dist/images/activities_icons/workOnTheRoad_marker.svg"
+                src="/dist/icons/activities/work/truck_with_road-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -671,7 +671,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity2"
-                src="/dist/images/activities_icons/activity2_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -766,7 +766,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity2"
-                src="/dist/images/activities_icons/activity2_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -798,7 +798,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity3"
-                src="/dist/images/activities_icons/activity3_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -919,7 +919,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity1"
-                src="/dist/images/activities_icons/activity1_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -956,7 +956,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity2"
-                src="/dist/images/activities_icons/activity2_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -1037,7 +1037,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity2"
-                src="/dist/images/activities_icons/activity2_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -1069,7 +1069,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/activity3"
-                src="/dist/images/activities_icons/activity3_marker.svg"
+                src="/dist/icons/activities/other/question_mark-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
