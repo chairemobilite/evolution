@@ -4,5 +4,4 @@ node_modules/
 jestSetup.ts
 // The webpack file is not used yet, so it's ignored for now, but it should not be and it should be typescript
 webpack.config.js
-tests/
 playwright-example.config.ts

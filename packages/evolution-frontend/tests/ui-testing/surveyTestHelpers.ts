@@ -34,10 +34,7 @@ export const startAndLoginAnonymously = ({
  * @param {testHelpers.CommonTestParameters} params.context - The test context.
  * @param {string} params.title - The expected title of the survey landing page.
  */
-export const startSurvey = ({
-    context,
-    title,
-}: { title: string; } & testHelpers.CommonTestParameters) => {
+export const startSurvey = ({ context, title }: { title: string } & testHelpers.CommonTestParameters) => {
     // Test the survey landing page
     testHelpers.hasTitleTest({ title, context });
     testHelpers.hasFrenchTest({ context });
@@ -68,12 +65,17 @@ export const startAndLoginWithAccessAndPostalCodes = ({
     postalCode,
     expectedToExist,
     nextPageUrl
-}: { title: string; accessCode: string; postalCode: string; expectedToExist?: boolean; nextPageUrl?: string } & testHelpers.CommonTestParameters) => {
+}: {
+    title: string;
+    accessCode: string;
+    postalCode: string;
+    expectedToExist?: boolean;
+    nextPageUrl?: string;
+} & testHelpers.CommonTestParameters) => {
     startSurvey({ context, title });
 
     // Test the login page
     testHelpers.registerWithAccessPostalCodeTest({ context, postalCode, accessCode, expectedToExist, nextPageUrl });
-
 };
 
 /**
