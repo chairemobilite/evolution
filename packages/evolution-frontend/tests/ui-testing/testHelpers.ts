@@ -76,7 +76,7 @@ type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestPa
 type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => void;
 type WaitForMapLoadedTest = (params: CommonTestParameters) => void;
 type InputNextButtonTest = (params: { text: Text; nextPageUrl: Url } & CommonTestParameters) => void;
-type InputPopupButtonTest = (params: { text: Text; popupText: Text } & CommonTestParameters) => void;
+type InputPopupButtonTest = (params: { text: Text; popupText: Text | RegExp } & CommonTestParameters) => void;
 type RedirectionTest = (
     params: { buttonText: Text; expectedRedirectionUrl: Url; nextPageUrl: Url } & CommonTestParameters
 ) => void;
