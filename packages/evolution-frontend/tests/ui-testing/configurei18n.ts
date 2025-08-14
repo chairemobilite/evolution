@@ -9,6 +9,7 @@
 // the backend's approach. This file was copy-pasted and adapted from the
 // chaire-lib-backend/src/config/i18next.ts file.
 import i18next from 'i18next';
+// eslint-disable-next-line n/no-unpublished-import
 import Backend from 'i18next-fs-backend';
 import { join } from 'path';
 import fs from 'fs';

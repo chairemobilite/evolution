@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment';
+// eslint-disable-next-line n/no-unpublished-import
 import { test, expect, Page, Browser, Locator } from '@playwright/test';
 import configureI18n, { registerTranslationDir } from './configurei18n';
 import { SurveyObjectDetector } from './SurveyObjectDetectors';
@@ -165,7 +166,7 @@ export const initializeTestPage = async (
 
 // Close the browser after all the tests
 test.afterAll(async ({ browser }) => {
-    browser.close;
+    await browser.close();
 });
 
 const getTestCounter = (context: CommonTestParameters['context'], testKey: string) => {
@@ -386,7 +387,7 @@ export const inputRadioInvalidTest: InputRadioTest = ({ context, path, value }) 
         const radioLocator = (await inputRadio({ context, path, value })) as Locator;
         // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
         const questionContainer = context.page
-            .locator("//div[contains(@class, 'form-container')]")
+            .locator('//div[contains(@class, \'form-container\')]')
             .filter({ has: radioLocator });
         await expect(questionContainer).toHaveClass(/question-filled question-invalid/);
     });
@@ -554,7 +555,7 @@ export const inputStringInvalidValueTest: InputStringTest = ({ context, path, va
 
         // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
         const questionContainer = context.page
-            .locator("//div[contains(@class, 'form-container')]")
+            .locator('//div[contains(@class, \'form-container\')]')
             .filter({ has: inputLocator });
         await expect(questionContainer).toHaveClass(/question-filled question-invalid/);
     });
@@ -683,7 +684,7 @@ const fetchGoogleMapsApiResponse: FetchGoogleMapsApiResponse = async ({ context,
             } catch (error) {
                 if (attempts <= maxRetries) {
                     console.log(
-                        `No response received from Google Maps, retrying in 5 seconds... (Attempt ${attempts} of ${maxRetries})`
+                        `No response received from Google Maps, retrying in 5 seconds... (Attempt ${attempts} of ${maxRetries} with error ${error?.message})`
                     );
                     attempts++;
                     await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds before retrying
@@ -785,8 +786,8 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
  * @param {Object} options - The options for the test.
  */
 export const waitForMapToBeLoaded: WaitForMapLoadedTest = ({ context }) => {
-    test(`Wait for map to be loaded`, async () => {
-        const mapContainer = context.page.locator("//div[contains(@class, 'question-type-mapPoint')]");
+    test('Wait for map to be loaded', async () => {
+        const mapContainer = context.page.locator('//div[contains(@class, \'question-type-mapPoint\')]');
         await expect(mapContainer).toBeVisible();
         await mapContainer.scrollIntoViewIfNeeded();
         await expect(mapContainer).toHaveClass(/question-filled question-valid/);
@@ -988,7 +989,7 @@ export const tryToContinueWithInvalidInputs: ContinueWithInvalidEntriesTest = ({
 }) => {
     test(`Clicking ${text} when options are invalid should keep you on ${currentPageUrl} - ${getTestCounter(context, `${text} - ${currentPageUrl} - ${nextPageUrl}`)}`, async () => {
         await tryToContinueOnInvalidPage({ context, text, currentPageUrl, nextPageUrl });
-        const inputBoxes = context.page.locator("//div[contains(@class, 'form-container')]");
+        const inputBoxes = context.page.locator('//div[contains(@class, \'form-container\')]');
         const inputNumber = await inputBoxes.count();
         let hasInvalidClass = false;
         for (let i = 0; i < inputNumber; i++) {
@@ -1096,22 +1097,22 @@ export const pageRedirectionTest: RedirectionTest = ({ context, buttonText, expe
  */
 export const verifyNavBarButtonStatus: NavBarButtonStatusTest = ({ context, buttonText, buttonStatus, isDisabled }) => {
     test(`The ${buttonText} navigation button should have the '${buttonStatus}' status - ${getTestCounter(context, `${buttonText} - ${buttonStatus}`)}`, async () => {
-        const navBar = context.page.locator("div[class='survey-section-nav']");
+        const navBar = context.page.locator('div[class=\'survey-section-nav\']');
         const button = navBar.getByText(buttonText);
         let expectedStatusClass;
         switch (buttonStatus) {
-            case 'completed':
-                expectedStatusClass = 'nav-button completed-section';
-                break;
-            case 'active':
-                expectedStatusClass = 'nav-button active-section';
-                break;
-            case 'activeAndCompleted':
-                expectedStatusClass = 'nav-button active-section completed-section';
-                break;
-            case 'inactive':
-                expectedStatusClass = 'nav-button';
-                break;
+        case 'completed':
+            expectedStatusClass = 'nav-button completed-section';
+            break;
+        case 'active':
+            expectedStatusClass = 'nav-button active-section';
+            break;
+        case 'activeAndCompleted':
+            expectedStatusClass = 'nav-button active-section completed-section';
+            break;
+        case 'inactive':
+            expectedStatusClass = 'nav-button';
+            break;
         }
 
         await expect(button).toHaveClass(expectedStatusClass);
@@ -1133,7 +1134,7 @@ export const verifyNavBarButtonStatus: NavBarButtonStatusTest = ({ context, butt
  */
 export const changePageFromNavBar: ChangePageFromNavBarTest = ({ context, buttonText, nextPageUrl }) => {
     test(`Click ${buttonText} in the nav bar and check that it goes to ${nextPageUrl} ${getTestCounter(context, `${buttonText} - ${nextPageUrl}`)}`, async () => {
-        const navBar = context.page.locator("div[class='survey-section-nav']");
+        const navBar = context.page.locator('div[class=\'survey-section-nav\']');
         const button = navBar.getByText(buttonText);
         await button.scrollIntoViewIfNeeded();
         await button.click();
@@ -1152,7 +1153,7 @@ export const changePageFromNavBar: ChangePageFromNavBarTest = ({ context, button
 export const sectionProgressBarTest: SectionProgressBarTest = ({ context, sectionName, completionPercentage }) => {
     test(`Validate progress bar for section "${sectionName}" with ${completionPercentage}% completion ${getTestCounter(context, `${sectionName} - ${completionPercentage}`)}`, async () => {
         // Locate the progress bar section
-        const progressBarSection = context.page.locator("//div[contains(@class, 'survey-section__progress-bar')]");
+        const progressBarSection = context.page.locator('//div[contains(@class, \'survey-section__progress-bar\')]');
         await progressBarSection.scrollIntoViewIfNeeded();
 
         // Verify the section name is displayed in the progress bar
@@ -1223,7 +1224,7 @@ export const solveCaptcha = async ({ context }: CommonTestParameters): Promise<v
         });
 
         if (!clicked) {
-            throw new Error("Couldn't find captcha element to click");
+            throw new Error('Couldn\'t find captcha element to click');
         }
 
         // Wait for the captcha to be verified using JavaScript evaluation
@@ -1307,7 +1308,7 @@ export const solveCaptcha = async ({ context }: CommonTestParameters): Promise<v
                 });
 
                 if (!isVerified) {
-                    console.log("First click didn't work, trying different position");
+                    console.log('First click didn\'t work, trying different position');
                     await context.page.mouse.click(
                         boundingBox.x + boundingBox.width / 2,
                         boundingBox.y + boundingBox.height / 2
