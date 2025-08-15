@@ -206,6 +206,7 @@ export type InputButtonType = BaseQuestionType & {
 
 export type InputTimeType = BaseQuestionType & {
     inputType: 'time';
+    datatype: 'integer';
     suffixTimes?: ParsingFunction<{ [timeStr: string]: string }>;
     minTimeSecondsSinceMidnight?: number | ParsingFunction<number>;
     maxTimeSecondsSinceMidnight?: number | ParsingFunction<number>;

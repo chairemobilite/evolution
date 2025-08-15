@@ -19,6 +19,7 @@ import {
     InputSelectType,
     InputStringType,
     InputTextType,
+    InputTimeType,
     TextWidgetConfig
 } from 'evolution-common/lib/services/questionnaire/types';
 import { validateButtonActionWithCompleteSection } from '../../services/display/frontendHelper';
@@ -88,6 +89,13 @@ export const inputSelectBase: Pick<InputSelectType, 'type' | 'inputType' | 'data
     type: 'question',
     inputType: 'select',
     datatype: 'string'
+};
+
+// InputTime default params
+export const inputTimeBase: Pick<InputTimeType, 'type' | 'inputType' | 'datatype'> = {
+    type: 'question',
+    inputType: 'time',
+    datatype: 'integer'
 };
 
 // Next button default params
