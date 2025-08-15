@@ -246,7 +246,7 @@ const _parseSingleValue = (
             (value as any).properties = {};
         }
         // For geojson, we only accept valid geojson objects
-        return value && isFeature(value) ? value : null;
+        return value === undefined ? undefined : value && isFeature(value) ? value : null;
     }
     if (value === '') {
         return null;
