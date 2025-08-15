@@ -179,7 +179,17 @@ const prepareSimpleWidget = (
         pointLastAction === 'mapClicked' ||
         pointLastAction === 'geocoding' ||
         pointLastAction === 'findPlace';
-    // set to undefined if it was invisible before, and becomes visible:
+    // set to undefined if it was invisible before, and becomes visible
+    //
+    // FIXME This `if` includes a lot more cases than the line above explains.
+    // Why?  What is the purpose of this exactly? This caused a weird bug where
+    // the `isResponded` was reset to false in a case where the value (null) was
+    // not the same as the default (undefined) even though the
+    // affectedPath['all'] was true and the widget happened to be displayed as
+    // valid, even if it was invalid... See
+    // https://github.com/chairemobilite/evolution/issues/1130 and the weird
+    // commit which solved this single bug, but there's something fishy in this
+    // code block
     if (
         isVisible &&
         ((previousStatus && previousStatus.isVisible === false) ||
