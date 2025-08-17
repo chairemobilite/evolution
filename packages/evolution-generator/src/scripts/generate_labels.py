@@ -276,30 +276,6 @@ def add_gender_or_base_translations(
         translations_dict (dict): The translations dictionary to update
     """
     if gender_dict is not None:
-        add_translation(
-            language=language,
-            section=section,
-            path=path + "_male" + extraSuffix,
-            value=gender_dict["male"],
-            rowNumber=rowNumber,
-            translations=translations_dict[language],
-        )
-        add_translation(
-            language=language,
-            section=section,
-            path=path + "_female" + extraSuffix,
-            value=gender_dict["female"],
-            rowNumber=rowNumber,
-            translations=translations_dict[language],
-        )
-        add_translation(
-            language=language,
-            section=section,
-            path=path + "_custom" + extraSuffix,
-            value=gender_dict["custom"],
-            rowNumber=rowNumber,
-            translations=translations_dict[language],
-        )
         # The "other" translation will be the default one
         add_translation(
             language=language,
@@ -309,6 +285,36 @@ def add_gender_or_base_translations(
             rowNumber=rowNumber,
             translations=translations_dict[language],
         )
+        # To avoid cluttering the translation file, only add gender-specific translations if they differ from the "other" default
+        if gender_dict["male"] != gender_dict["other"]:
+            add_translation(
+                language=language,
+                section=section,
+                path=path + "_male" + extraSuffix,
+                value=gender_dict["male"],
+                rowNumber=rowNumber,
+                translations=translations_dict[language],
+            )
+
+        if gender_dict["female"] != gender_dict["other"]:
+            add_translation(
+                language=language,
+                section=section,
+                path=path + "_female" + extraSuffix,
+                value=gender_dict["female"],
+                rowNumber=rowNumber,
+                translations=translations_dict[language],
+            )
+
+        if gender_dict["custom"] != gender_dict["other"]:
+            add_translation(
+                language=language,
+                section=section,
+                path=path + "_custom" + extraSuffix,
+                value=gender_dict["custom"],
+                rowNumber=rowNumber,
+                translations=translations_dict[language],
+            )
     elif label is not None:
         add_translation(
             language=language,

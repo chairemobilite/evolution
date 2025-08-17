@@ -2,7 +2,12 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-from scripts.generate_labels import expand_gender, LabelFormatter, get_labels_file_path
+from scripts.generate_labels import (
+    expand_gender,
+    LabelFormatter,
+    get_labels_file_path,
+    add_gender_or_base_translations,
+)
 import importlib
 
 
@@ -115,6 +120,333 @@ def test_get_labels_file_path_widgets():
 # TODO: test_saveTranslations
 # TODO: test_addTranslationsFromExcel
 # TODO: test add_translations_from_excel
+
+
+class TestAddGenderOrBaseTranslations:
+    """Tests for add_gender_or_base_translations function"""
+
+    def test_with_gender_dict(self, monkeypatch):
+        """
+        Test add_gender_or_base_translations with a gender dictionary.
+        Should add appropriate entries to the translations dictionary.
+        """
+        # Mock the add_translation function to record calls
+        calls = []
+
+        def mock_add_translation(
+            language, section, path, value, rowNumber, translations
+        ):
+            calls.append((language, section, path, value, rowNumber, translations))
+
+        monkeypatch.setattr(
+            "scripts.generate_labels.add_translation", mock_add_translation
+        )
+
+        # Setup test data
+        language = "fr"
+        section = "test_section"
+        path = "test.path"
+        gender_dict = {
+            "male": "homme",
+            "female": "femme",
+            "custom": "personne",
+            "other": "personne",
+        }
+        extraSuffix = ""
+        rowNumber = 1
+        translations_dict = {"fr": {}, "en": {}}
+
+        # Call the function
+        add_gender_or_base_translations(
+            language,
+            section,
+            path,
+            gender_dict,
+            None,
+            extraSuffix,
+            rowNumber,
+            translations_dict,
+        )
+
+        # Verify the calls to add_translation
+        assert len(calls) == 3  # Should have 2 calls (other and female)
+        assert calls[0] == (
+            "fr",
+            "test_section",
+            "test.path",
+            "personne",
+            1,
+            {},
+        )  # Default 'other' value
+        assert calls[1] == (
+            "fr",
+            "test_section",
+            "test.path_male",
+            "homme",
+            1,
+            {},
+        )  # Male value differs
+        assert calls[2] == (
+            "fr",
+            "test_section",
+            "test.path_female",
+            "femme",
+            1,
+            {},
+        )  # Female value differs
+
+    def test_with_label_only(self, monkeypatch):
+        """
+        Test add_gender_or_base_translations with a label only (no gender dictionary).
+        Should add a single entry to the translations dictionary.
+        """
+        # Mock the add_translation function to record calls
+        calls = []
+
+        def mock_add_translation(
+            language, section, path, value, rowNumber, translations
+        ):
+            calls.append((language, section, path, value, rowNumber, translations))
+
+        monkeypatch.setattr(
+            "scripts.generate_labels.add_translation", mock_add_translation
+        )
+
+        # Setup test data
+        language = "en"
+        section = "test_section"
+        path = "test.path"
+        gender_dict = None
+        label = "Test label"
+        extraSuffix = ""
+        rowNumber = 1
+        translations_dict = {"fr": {}, "en": {}}
+
+        # Call the function
+        from scripts.generate_labels import add_gender_or_base_translations
+
+        add_gender_or_base_translations(
+            language,
+            section,
+            path,
+            gender_dict,
+            label,
+            extraSuffix,
+            rowNumber,
+            translations_dict,
+        )
+
+        # Verify the calls to add_translation
+        assert len(calls) == 1  # Should have only one call
+        assert calls[0] == ("en", "test_section", "test.path", "Test label", 1, {})
+
+    def test_with_all_different_genders(self, monkeypatch):
+        """
+        Test add_gender_or_base_translations with all gender values different from "other".
+        Should add entries for all gender types.
+        """
+        # Mock the add_translation function to record calls
+        calls = []
+
+        def mock_add_translation(
+            language, section, path, value, rowNumber, translations
+        ):
+            calls.append((language, section, path, value, rowNumber, translations))
+
+        monkeypatch.setattr(
+            "scripts.generate_labels.add_translation", mock_add_translation
+        )
+
+        # Setup test data
+        language = "fr"
+        section = "test_section"
+        path = "test.path"
+        gender_dict = {
+            "male": "étudiant",
+            "female": "étudiante",
+            "custom": "étudiant·e",
+            "other": "étudiant/e",
+        }
+        extraSuffix = ""
+        rowNumber = 1
+        translations_dict = {"fr": {}, "en": {}}
+
+        # Call the function
+        from scripts.generate_labels import add_gender_or_base_translations
+
+        add_gender_or_base_translations(
+            language,
+            section,
+            path,
+            gender_dict,
+            None,
+            extraSuffix,
+            rowNumber,
+            translations_dict,
+        )
+
+        # Verify the calls to add_translation
+        assert len(calls) == 4  # Should have 4 calls (other, male, female, custom)
+        assert calls[0] == (
+            "fr",
+            "test_section",
+            "test.path",
+            "étudiant/e",
+            1,
+            {},
+        )  # Default 'other' value
+        assert calls[1] == (
+            "fr",
+            "test_section",
+            "test.path_male",
+            "étudiant",
+            1,
+            {},
+        )  # Male value
+        assert calls[2] == (
+            "fr",
+            "test_section",
+            "test.path_female",
+            "étudiante",
+            1,
+            {},
+        )  # Female value
+        assert calls[3] == (
+            "fr",
+            "test_section",
+            "test.path_custom",
+            "étudiant·e",
+            1,
+            {},
+        )  # Custom value
+
+    def test_with_all_same_genders(self, monkeypatch):
+        """
+        Test add_gender_or_base_translations with all gender values identical to "other".
+        Should add only default entries.
+        """
+        # Mock the add_translation function to record calls
+        calls = []
+
+        def mock_add_translation(
+            language, section, path, value, rowNumber, translations
+        ):
+            calls.append((language, section, path, value, rowNumber, translations))
+
+        monkeypatch.setattr(
+            "scripts.generate_labels.add_translation", mock_add_translation
+        )
+
+        # Setup test data
+        language = "fr"
+        section = "test_section"
+        path = "test.path"
+        gender_dict = {
+            "male": "moustique",
+            "female": "moustique",
+            "custom": "moustique",
+            "other": "moustique",
+        }
+        extraSuffix = ""
+        rowNumber = 1
+        translations_dict = {"fr": {}, "en": {}}
+
+        # Call the function
+        from scripts.generate_labels import add_gender_or_base_translations
+
+        add_gender_or_base_translations(
+            language,
+            section,
+            path,
+            gender_dict,
+            None,
+            extraSuffix,
+            rowNumber,
+            translations_dict,
+        )
+
+        # Verify the calls to add_translation
+        assert len(calls) == 1  # Should have 4 calls (other, male, female, custom)
+        assert calls[0] == (
+            "fr",
+            "test_section",
+            "test.path",
+            "moustique",
+            1,
+            {},
+        )  # Default 'other' value
+
+    def test_with_extra_suffix(self, monkeypatch):
+        """
+        Test add_gender_or_base_translations with an extra suffix.
+        Should append the suffix to all keys.
+        """
+        # Mock the add_translation function to record calls
+        calls = []
+
+        def mock_add_translation(
+            language, section, path, value, rowNumber, translations
+        ):
+            calls.append((language, section, path, value, rowNumber, translations))
+
+        monkeypatch.setattr(
+            "scripts.generate_labels.add_translation", mock_add_translation
+        )
+
+        # Setup test data
+        language = "en"
+        section = "test_section"
+        path = "test.path"
+        gender_dict = {
+            "male": "actor",
+            "female": "actress",
+            "custom": "performer",
+            "other": "performer",
+        }
+        extraSuffix = "_one"
+        rowNumber = 1
+        translations_dict = {"fr": {}, "en": {}}
+
+        # Call the function
+        from scripts.generate_labels import add_gender_or_base_translations
+
+        add_gender_or_base_translations(
+            language,
+            section,
+            path,
+            gender_dict,
+            None,
+            extraSuffix,
+            rowNumber,
+            translations_dict,
+        )
+
+        # Verify the calls to add_translation
+        assert len(calls) == 3  # Should have 3 calls (other, male, female)
+        assert calls[0] == (
+            "en",
+            "test_section",
+            "test.path_one",
+            "performer",
+            1,
+            {},
+        )  # Default with suffix
+        assert calls[1] == (
+            "en",
+            "test_section",
+            "test.path_male_one",
+            "actor",
+            1,
+            {},
+        )  # Male with suffix
+        assert calls[2] == (
+            "en",
+            "test_section",
+            "test.path_female_one",
+            "actress",
+            1,
+            {},
+        )  # Female with suffix
 
 
 class TestExpandGender:
