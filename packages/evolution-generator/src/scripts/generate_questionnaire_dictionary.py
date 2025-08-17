@@ -107,7 +107,13 @@ def generate_questionnaire_dictionary(
                 if input_range:
                     range_text = ranges_map.get(input_range, "")
                 transformed_path = transform_path(question_path, sections)
-                conditional_text = conditionals_map.get(conditional, "")
+                # Get conditional text or the name if it contains 'CustomConditional'
+                conditional_text = (
+                    conditional
+                    if isinstance(conditional, str)
+                    and conditional.endswith("CustomConditional")
+                    else conditionals_map.get(conditional, conditional or "")
+                )
                 sections_questions[section_name].append(
                     (
                         question_text,
@@ -231,15 +237,16 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
         if choice_text and choice_value:
 
             # Format the choice entry based on whether it is conditional
-            if choice_conditional:
+            if isinstance(choice_conditional, str):
                 # Get the conditional text from the conditionals_map
-                conditional_text = conditionals_map.get(choice_conditional, "")
+                conditional_text = conditionals_map.get(choice_conditional)
 
-                # Check if conditional_name contains 'CustomConditional'
-                # We don't want to display the conditional_name if it is 'CustomConditional'
-                if "CustomConditional" in choice_conditional:
+                # If the conditional is not found in the map, for example when it is custom, just display the name
+                if conditional_text is None:
                     # Format as "value : text"
-                    choice_entry = f"{choice_value} : {choice_text}"
+                    choice_entry = (
+                        f"{choice_value} ({choice_conditional}): {choice_text}"
+                    )
                 else:
                     # Format as "value (conditional_text) : text"
                     choice_entry = (
