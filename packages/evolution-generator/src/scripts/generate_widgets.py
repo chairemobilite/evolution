@@ -1070,20 +1070,27 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
         ):
             # Check to see if the conditional is not empty and does not finish with 'CustomConditional'
             import_flags.has_conditionals_import = True
-        if row["inputRange"]:
+        if row.get("inputRange"):
             import_flags.has_input_range_import = True
         if row["inputType"] == "Custom":
             import_flags.has_custom_widgets_import = True
-        if row["help_popup"] or row["confirm_popup"]:
+        if row.get("help_popup") or row.get("confirm_popup"):
             import_flags.has_help_popup_import = True
 
         # Check all rows for label context
         label_fr = row.get("label::fr", "")
         label_en = row.get("label::en", "")
+        label_one_en = row.get("label_one::en", "")
+        label_one_fr = row.get("label_one::fr", "")
         # Check for {{nickname}}, {{count}}, and {{genderedSuffix:...}} in labels
         if "{{nickname}}" in label_fr or "{{nickname}}" in label_en:
             import_flags.has_nickname_label = True
-        if "{{count}}" in label_fr or "{{count}}" in label_en:
+        if (
+            (label_one_en.strip())
+            or (label_one_fr.strip())
+            or "{{count}}" in label_fr
+            or "{{count}}" in label_en
+        ):
             import_flags.has_persons_count_label = True
         if "{{genderedSuffix" in label_fr or "{{genderedSuffix" in label_en:
             import_flags.has_gendered_suffix_label = True
