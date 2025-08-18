@@ -17,6 +17,7 @@ from scripts.generate_widgets import (
     get_string_parameters,
     generate_path,
     generate_import_statements,
+    get_widgets_file_import_flags,
 )
 
 
@@ -935,3 +936,251 @@ class TestParseParameters:
         assert params["max"] == "7"
         assert params["overmaxallowed"] is True
         assert len(params) == 3  # make sure no empty or extra keys are created
+
+
+class TestGetWidgetsFileImportFlags:
+    """Tests for get_widgets_file_import_flags function"""
+
+    def test_empty_section_rows(self):
+        """Test that empty section_rows returns default ImportFlags"""
+        section_rows = []
+        import_flags = get_widgets_file_import_flags(section_rows)
+
+        # Only validations should be True by default
+        assert import_flags.has_validations_import is True
+
+        # All other flags should be False
+        assert import_flags.has_choices_import is False
+        assert import_flags.has_custom_choices_import is False
+        assert import_flags.has_conditionals_import is False
+        assert import_flags.has_input_range_import is False
+        assert import_flags.has_custom_widgets_import is False
+        assert import_flags.has_custom_validations_import is False
+        assert import_flags.has_custom_conditionals_import is False
+        assert import_flags.has_help_popup_import is False
+        assert import_flags.has_helper_import is False
+        assert import_flags.has_formatter_import is False
+        assert import_flags.has_custom_formatter_import is False
+        assert import_flags.has_nickname_label is False
+        assert import_flags.has_persons_count_label is False
+        assert import_flags.has_gendered_suffix_label is False
+
+    def test_choices_imports(self):
+        """Test that choices columns are correctly detected"""
+        # Standard choices
+        section_rows = [
+            {
+                "choices": "yesNo",
+                "inputType": "Radio",
+                "validation": "",
+                "conditional": "",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_choices_import is True
+        assert import_flags.has_custom_choices_import is False
+
+        # Custom choices
+        section_rows = [
+            {
+                "choices": "myCustomChoices",
+                "inputType": "Radio",
+                "validation": "",
+                "conditional": "",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_choices_import is False
+        assert import_flags.has_custom_choices_import is True
+
+        # Explicitly custom choices with CustomChoices suffix
+        section_rows = [
+            {
+                "choices": "myCustomChoices_customChoices",
+                "inputType": "Radio",
+                "validation": "",
+                "conditional": "",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_choices_import is False
+        assert import_flags.has_custom_choices_import is True
+
+    def test_validation_imports(self):
+        """Test that validation columns are correctly detected"""
+        # Default validations
+        section_rows = [
+            {"inputType": "Radio", "choices": "", "validation": "", "conditional": ""}
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_validations_import is True
+        assert import_flags.has_custom_validations_import is False
+
+        # Standard validation
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "phoneNumberValidation",
+                "conditional": "",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_validations_import is True
+        assert import_flags.has_custom_validations_import is False
+
+        # Explicitly custom validation with CustomValidation suffix
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "specialCustomValidation",
+                "conditional": "",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        print(import_flags)
+        # has_validation_import is always true because of default validations, should it be?
+        assert import_flags.has_validations_import is True
+        assert import_flags.has_custom_validations_import is True
+
+    def test_conditional_imports(self):
+        """Test that conditional columns are correctly detected"""
+        # Default conditionals
+        section_rows = [
+            {"inputType": "Radio", "choices": "", "validation": "", "conditional": ""}
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_conditionals_import is False
+        assert import_flags.has_custom_conditionals_import is False
+
+        # Standard conditional
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "someConditional",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_conditionals_import is True
+        assert import_flags.has_custom_conditionals_import is False
+
+        # Custom conditional with CustomConditional suffix
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "myCustomConditional",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_conditionals_import is False
+        assert import_flags.has_custom_conditionals_import is True
+
+    def test_input_range_imports(self):
+        """Test that inputRange columns are correctly detected"""
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                "inputRange": "satisfaction",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_input_range_import is True
+
+    def test_custom_widgets_imports(self):
+        """Test that Custom inputType is correctly detected"""
+        section_rows = [
+            {"inputType": "Custom", "choices": "", "validation": "", "conditional": ""}
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_custom_widgets_import is True
+
+    def test_help_popup_imports(self):
+        """Test that help_popup columns are correctly detected"""
+        # Help popup
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                "help_popup": "someHelpPopup",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_help_popup_import is True
+
+        # Confirm popup
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                "confirm_popup": "someConfirmPopup",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_help_popup_import is True
+
+    def test_label_context_imports(self):
+        """Test that label context imports are correctly detected"""
+        # Nickname label
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                "label::en": "Hello {{nickname}}!",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_nickname_label is True
+
+        # Persons count via count in label
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                "label::en": "There are {{count}} people",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_persons_count_label is True
+
+        # Persons count via label_one
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                "label::en": "Regular label",
+                "label_one::en": "Single person label",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_persons_count_label is True
+
+        # Gendered suffix
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                "label::en": "{{genderedSuffix:he/she}} is happy",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_gendered_suffix_label is True
