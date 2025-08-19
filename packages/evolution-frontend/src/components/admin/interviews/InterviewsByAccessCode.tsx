@@ -4,9 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import Loadable from 'react-loadable';
 import Loader from 'react-spinners/HashLoader';
 
 import { InterviewContext } from '../../../contexts/InterviewContext';
@@ -14,15 +13,9 @@ import InputString from 'chaire-lib-frontend/lib/components/input/InputString';
 import { Link, useLocation, useParams } from 'react-router';
 import { _booleish } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
-const loader = function Loading() {
-    return <Loader size={30} color={'#aaaaaa'} loading={true} />;
-};
+const LoaderComponent = () => <Loader size={30} color={'#aaaaaa'} loading={true} />;
 
-const InterviewsComponent = Loadable({
-    // TODO: move this to componentDidMount like in Monitoring.tsx
-    loader: () => import('./InterviewSearchList'),
-    loading: loader
-});
+const InterviewsComponent = lazy(() => import('./InterviewSearchList'));
 
 const InterviewsByAccessCode: React.FC = () => {
     const location = useLocation();
@@ -54,7 +47,9 @@ const InterviewsByAccessCode: React.FC = () => {
                     </button>
                 </Link>
             </div>
-            <InterviewsComponent autoCreateIfNoData={createNewIfNoData} queryData={urlSearch} />
+            <Suspense fallback={<LoaderComponent />}>
+                <InterviewsComponent autoCreateIfNoData={createNewIfNoData} queryData={urlSearch} />
+            </Suspense>
         </div>
     );
 };
