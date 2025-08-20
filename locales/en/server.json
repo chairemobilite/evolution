@@ -14,5 +14,7 @@
     "supportRequestSubject": "Support request for {{surveyName}}",
     "supportRequestMessage": "Hello,\n\nYou have received a support request from ({{userEmail}}) for the survey {{surveyName}}.{{supportInterviewID}}{{currentPageUrl}}\n\nMessage:\n{{message}}\n\nThank you",
     "supportInterviewID": "\n\nInterview ID: {{interviewId}}",
-    "currentPageUrl": "\n\nURL of the page: {{currentUrl}}"
+    "currentPageUrl": "\n\nURL of the page: {{currentUrl}}",
+    "confirmedByAdminEmailSubject": "Evolution: account confirmed",
+    "confirmedByAdminEmailText": "Hi {{name}},\n\nyour access request to the Evolution platform has been confirmed. You can now use your account."
 }

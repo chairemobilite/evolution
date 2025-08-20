@@ -14,5 +14,7 @@
     "supportRequestSubject": "Demande d'assistance sur {{surveyName}}",
     "supportRequestMessage": "Bonjour,\n\nVous avez reçu une demande d'assistance de la part de ({{userEmail}}) pour l'enquête {{surveyName}}.{{supportInterviewID}}{{currentPageUrl}}\n\nMessage:\n{{message}}\n\nMerci",
     "supportInterviewID": "\n\nID de l'entrevue: {{interviewId}}",
-    "currentPageUrl": "\n\nURL de la page actuelle: {{currentUrl}}"
+    "currentPageUrl": "\n\nURL de la page actuelle: {{currentUrl}}",
+    "confirmedByAdminEmailSubject": "Evolution: compte confirmé",
+    "confirmedByAdminEmailText": "Bonjour {{name}},\n\nVotre accès à la plateforme d'enquête Evolution a été confirmé. Vous pouvez maintenant utiliser votre compte."
 }
