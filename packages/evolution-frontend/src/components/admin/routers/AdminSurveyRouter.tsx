@@ -15,9 +15,11 @@ import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/Maintenanc
 import { LoginPage as AdminLoginPage } from 'chaire-lib-frontend/lib/components/pages';
 import AdminRegisterPage from 'chaire-lib-frontend/lib/components/pages/RegisterPage';
 import ForgotPasswordPage from 'chaire-lib-frontend/lib/components/pages/ForgotPasswordPage';
+import VerifyPage from 'chaire-lib-frontend/lib/components/pages/VerifyPage';
 import Survey from '../../hoc/SurveyWithErrorBoundary';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
 import ResetPasswordPage from 'chaire-lib-frontend/lib/components/pages/ResetPasswordPage';
+import UnconfirmedPage from 'chaire-lib-frontend/lib/components/pages/UnconfirmedPage';
 import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute';
 import AdminRoute from 'chaire-lib-frontend/lib/components/routers/AdminRoute';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
@@ -47,6 +49,8 @@ const AdminSurveyRouter: React.FunctionComponent = () => (
         <Route path="/login" element={<PublicRoute component={AdminLoginPage} />} />
         <Route path="/register" element={<PublicRoute component={AdminRegisterPage} />} />
         <Route path="/forgot" element={<PublicRoute component={ForgotPasswordPage} />} />
+        <Route path="/unconfirmed" element={<PublicRoute component={UnconfirmedPage} />} />
+        <Route path="/verify/:token" element={<PublicRoute component={VerifyPage} />} />
         <Route path="/reset/:token" element={<PublicRoute component={ResetPasswordPage} />} />
         <Route path="/unauthorized" element={<PublicRoute component={UnauthorizedPage} />} />
         <Route
