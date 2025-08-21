@@ -453,7 +453,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/workOnTheRoad"
-                src="/dist/icons/activities/work/truck_with_road-marker_round.svg"
+                src="/dist/icons/activities/work/truck-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
@@ -634,7 +634,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             >
               <img
                 alt="visitedPlaces/activities/workOnTheRoad"
-                src="/dist/icons/activities/work/truck_with_road-marker_round.svg"
+                src="/dist/icons/activities/work/truck-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>

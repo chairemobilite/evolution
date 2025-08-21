@@ -18,20 +18,19 @@ const activityToIconPathMapping: Record<ActivityCategory | Activity | 'default',
 
     // Home activities
     home: '/dist/icons/activities/home/home',
-    otherParentHome: '/dist/icons/activities/home/home',
-    // FIXME Validate this icon, it's using the 2 persons icon, as in the previous surveys, but its name is accompany_someone
-    visiting: '/dist/icons/activities/accompany_drop_fetch_someone/accompany_someone',
+    otherParentHome: '/dist/icons/activities/home/home_secondary',
+    visiting: '/dist/icons/activities/other/two_persons',
     secondaryHome: '/dist/icons/activities/home/home_secondary',
 
     // Work/school related activities
     work: '/dist/icons/activities/work/briefcase',
     school: '/dist/icons/activities/school/graduation_cap',
     workUsual: '/dist/icons/activities/work/briefcase',
-    workNotUsual: '/dist/icons/activities/work/building_office',
-    workOnTheRoad: '/dist/icons/activities/work/truck_with_road',
+    workNotUsual: '/dist/icons/activities/work/worker_with_necktie',
+    workOnTheRoad: '/dist/icons/activities/work/truck',
     schoolUsual: '/dist/icons/activities/school/graduation_cap',
-    schoolNotUsual: '/dist/icons/activities/school/school_building_small',
-    schoolNotStudent: '/dist/icons/activities/school/graduation_cap',
+    schoolNotUsual: '/dist/icons/activities/school/school_building_large',
+    schoolNotStudent: '/dist/icons/activities/school/school_building_large',
 
     // Service and leisure activities
     shoppingServiceRestaurant: '/dist/icons/activities/shopping/shopping_cart',
@@ -56,7 +55,7 @@ const activityToIconPathMapping: Record<ActivityCategory | Activity | 'default',
     volunteering: '/dist/icons/activities/other/volunteering',
     carElectricChargingStation: '/dist/icons/activities/other/electric_charging_station',
     carsharingStation: '/dist/icons/activities/other/carsharing_station',
-    pickClassifiedPurchase: '/dist/icons/activities/shopping/shopping_basket',
+    pickClassifiedPurchase: '/dist/icons/activities/shopping/shopping_basket_with_home',
 
     // Other options
     other: '/dist/icons/activities/other/question_mark',
