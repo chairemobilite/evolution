@@ -45,6 +45,8 @@ export type AgeGroup = (typeof ageGroupValues)[number];
 
 export const genderValues = ['female', 'male', 'custom'] as const;
 export type Gender = (typeof genderValues)[number];
+export const sexAssignedAtBirthValues = ['female', 'male', 'preferNotToAnswer'] as const;
+export type SexAssignedAtBirth = (typeof sexAssignedAtBirthValues)[number];
 
 export type DrivingLicenseOwnership = YesNoDontKnowNonApplicable;
 

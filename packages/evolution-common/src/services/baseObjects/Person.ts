@@ -25,6 +25,7 @@ export const personAttributes = [
     'age',
     'ageGroup',
     'gender',
+    'sexAssignedAtBirth',
     'drivingLicenseOwnership',
     'transitPassOwnership',
     'transitPasses',
@@ -67,6 +68,7 @@ export type PersonAttributes = {
     age?: Optional<PAttr.Age>;
     ageGroup?: Optional<PAttr.AgeGroup>; // generated, do not use as a widget
     gender?: Optional<PAttr.Gender>;
+    sexAssignedAtBirth?: Optional<PAttr.SexAssignedAtBirth>;
     drivingLicenseOwnership?: Optional<PAttr.DrivingLicenseOwnership>;
     transitPassOwnership?: Optional<PAttr.TransitPassOwnership>;
     transitPasses?: Optional<string[]>; // choices distinct by survey
@@ -201,6 +203,14 @@ export class Person implements IValidatable {
 
     set gender(value: Optional<PAttr.Gender>) {
         this._attributes.gender = value;
+    }
+
+    get sexAssignedAtBirth(): Optional<PAttr.SexAssignedAtBirth> {
+        return this._attributes.sexAssignedAtBirth;
+    }
+
+    set sexAssignedAtBirth(value: Optional<PAttr.SexAssignedAtBirth>) {
+        this._attributes.sexAssignedAtBirth = value;
     }
 
     get drivingLicenseOwnership(): Optional<PAttr.DrivingLicenseOwnership> {
