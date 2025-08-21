@@ -43,6 +43,17 @@ class ImportFlags:
     has_gendered_suffix_label: bool = False
 
 
+@dataclass
+class GenderFields:
+    """
+    Dataclass to track which gender-related fields are available in the survey.
+    This will be used to determine which field to use for gender context in labels.
+    """
+
+    has_gender: bool = False
+    has_sex_assigned_at_birth: bool = False
+
+
 class RadioNumberParametersResult(TypedDict):
     """
     TypedDict to hold the result of parsing parameters for a radio_number widget from the Widgets sheet.
@@ -94,6 +105,11 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
         # Get all unique section names
         section_names = set(row[section_index].value for row in rows[1:])
 
+        # Track gender-related fields. It will be done one section at a time, so
+        # it's not possible to use gender field in a section before it is
+        # defined, but subsequent sections can use it.
+        gender_fields = GenderFields()
+
         # Transform Excel content into TypeScript code
         def convert_excel_to_typescript(section):
             headers = [cell.value for cell in rows[0]]
@@ -114,11 +130,21 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
             # Filter rows based on section
             section_rows = [row for row in section_rows if row["section"] == section]
 
+            # See if the section contains a gender field and store it
+            for row in section_rows:
+                path = row.get("path", "")
+                if path == "gender":
+                    gender_fields.has_gender = True
+                elif path == "sexAssignedAtBirth":
+                    gender_fields.has_sex_assigned_at_birth = True
+
             # Get the widgets file import flags
             import_flags = get_widgets_file_import_flags(section_rows)
 
-            # Generate widgets statements
-            widget_results = [generate_widget_statement(row) for row in section_rows]
+            # Generate widgets statements with gender fields info
+            widget_results = [
+                generate_widget_statement(row, gender_fields) for row in section_rows
+            ]
 
             # Check if any widget has specific import flags and update import_flags accordingly
             import_flags.has_helper_import = any(
@@ -186,7 +212,9 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
 
 
 # Generate widget statement for a row
-def generate_widget_statement(row) -> WidgetResult:
+def generate_widget_statement(row, gender_fields: GenderFields = None) -> WidgetResult:
+    # Initialize gender_fields to a default class if none is provided
+    gender_fields = gender_fields or GenderFields()
     question_name = row["questionName"]
     input_type = row["inputType"]
     section = row["section"]
@@ -197,7 +225,7 @@ def generate_widget_statement(row) -> WidgetResult:
     help_popup = row["help_popup"]
     choices = row["choices"]
     confirm_popup = row["confirm_popup"] if "confirm_popup" in row else None
-    widget_label = generate_label(section, path, row, key_name="label")
+    widget_label = generate_label(section, path, row, gender_fields, key_name="label")
 
     # Initialize result with default values
     result: WidgetResult = {"statement": "", "has_helper_import": False}
@@ -257,7 +285,9 @@ def generate_widget_statement(row) -> WidgetResult:
         )
     elif input_type == "InfoText":
         # Widget label have a different key for InfoText
-        widget_label = generate_label(section, path, row, key_name="text")
+        widget_label = generate_label(
+            section, path, row, gender_fields, key_name="text"
+        )
         result["statement"] = generate_info_text_widget(
             question_name, path, conditional, widget_label, row
         )
@@ -498,7 +528,9 @@ def generate_join_with(join_with):
         return ""
 
 
-def generate_label(section, path, row, key_name="label"):
+def generate_label(
+    section, path, row, gender_fields: GenderFields = None, key_name="label"
+):
     """
     Generates the TypeScript label or text property for a widget.
     The property name is controlled by key_name ('label' or 'text').
@@ -506,9 +538,11 @@ def generate_label(section, path, row, key_name="label"):
     - If no special flags are detected, returns a simple label function.
     - If {{nickname}} is present, adds nickname context.
     - If {{count}} is present, adds countPersons context.
-    - If {{gender:...}} is present, adds getActivePersonGender context.
+    - If {{gender:...}} is present, adds gender or sexAssignedAtBirth context.
     - If label_one is present, adds countPersons assignment and count: countPersons to the translation context.
     """
+    # Initialize gender_fields to a default class if none is provided
+    gender_fields = gender_fields or GenderFields()
     label_fr = row.get("label::fr", "")  # French label
     label_en = row.get("label::en", "")  # English label
     label_one_fr = row.get("label_one::fr", "")  # French label for one person
@@ -517,9 +551,7 @@ def generate_label(section, path, row, key_name="label"):
 
     has_nickname_label = "{{nickname}}" in label_text
     has_persons_count_label = "{{count}}" in label_text
-    has_gender_context_label = (
-        "{{gender:" in label_text
-    )  # Format: {{gender:female}} or {{gender:male/female}} or {{gender:male/female/other}}
+    has_gender_context_label = "{{gender:" in label_text
     has_label_one = bool(label_one_fr or label_one_en)
 
     if not (
@@ -529,21 +561,40 @@ def generate_label(section, path, row, key_name="label"):
         or has_label_one
     ):
         return f"{INDENT}{key_name}: (t: TFunction) => t('{section}:{path}')"
+
     additional_t_context = ""
     initial_assignations = ""
+
     if has_nickname_label or has_gender_context_label:
         initial_assignations += f"{INDENT}{INDENT}const activePerson = odSurveyHelpers.getPerson({{ interview, path }});\n"
+
     if has_nickname_label:
         initial_assignations += f"{INDENT}{INDENT}const nickname = activePerson?.nickname || t('survey:noNickname');\n"
         additional_t_context += f"{INDENT}{INDENT}{INDENT}nickname,\n"
+
     if has_label_one or has_persons_count_label:
         initial_assignations += f"{INDENT}{INDENT}const countPersons = odSurveyHelpers.countPersons({{ interview }});\n"
+
     if has_gender_context_label:
-        additional_t_context += (
-            f"{INDENT}{INDENT}{INDENT}context: activePerson?.gender,\n"
-        )
+        if gender_fields.has_gender and gender_fields.has_sex_assigned_at_birth:
+            additional_t_context += f"{INDENT}{INDENT}{INDENT}context: activePerson?.gender || activePerson?.sexAssignedAtBirth,\n"
+        elif gender_fields.has_gender:
+            additional_t_context += (
+                f"{INDENT}{INDENT}{INDENT}context: activePerson?.gender,\n"
+            )
+        elif gender_fields.has_sex_assigned_at_birth:
+            additional_t_context += (
+                f"{INDENT}{INDENT}{INDENT}context: activePerson?.sexAssignedAtBirth,\n"
+            )
+        else:
+            print(
+                f"Warning: Gender context used in label for '{section}:{path}' but neither 'gender' nor 'sexAssignedAtBirth' fields are available in this section."
+            )
+            additional_t_context += f"{INDENT}{INDENT}{INDENT}context: undefined, // Warning: No gender field available\n"
+
     if has_persons_count_label or has_label_one:
         additional_t_context += f"{INDENT}{INDENT}{INDENT}count: countPersons,\n"
+
     widget_label = (
         f"{INDENT}{key_name}: (t: TFunction, interview, path) => {{\n"
         f"{initial_assignations}"

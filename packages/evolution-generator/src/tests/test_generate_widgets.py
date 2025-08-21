@@ -18,6 +18,7 @@ from scripts.generate_widgets import (
     generate_path,
     generate_import_statements,
     get_widgets_file_import_flags,
+    GenderFields,
 )
 
 
@@ -168,104 +169,175 @@ def test_generate_join_with_without_value():
     assert result == ""
 
 
-def test_generate_label_basic():
-    """Test generate_label returns a simple label function when no special context is needed"""
-    row = {
-        "label::fr": "Quel est votre nom?",
-        "label::en": "What is your name?",
-    }
-    result = generate_label(section="sectionA", path="foo.bar", row=row)
-    assert "label: (t: TFunction) => t('sectionA:foo.bar')" in result
-    assert "return t('sectionA:foo.bar', {" not in result
-    assert "const activePerson =" not in result
-    assert "const nickname =" not in result
-    assert "const countPersons =" not in result
-    assert "const personGender =" not in result
+class TestGenerateLabel:
+    """Tests for generate_label function"""
 
+    # Default gender fields for tests - gender is available, sex assigned at birth is not
+    GENDER_FIELDS = GenderFields(has_gender=True, has_sex_assigned_at_birth=False)
 
-def test_generate_label_with_nickname_label():
-    """Test generate_label includes nickname context when {{nickname}} is present"""
-    row = {
-        "label::fr": "Quel est votre nom, {{nickname}}?",
-        "label::en": "What is your name, {{nickname}}?",
-    }
-    result = generate_label(section="sectionA", path="foo.bar", row=row)
-    assert "label: (t: TFunction, interview, path) =>" in result
-    assert "return t('sectionA:foo.bar', {" in result
-    assert "const activePerson =" in result
-    assert "const nickname =" in result
-    assert "const countPersons =" not in result
-    assert "const personGender =" not in result
-    assert "nickname," in result
+    def test_generate_label_basic(self):
+        """Test generate_label returns a simple label function when no special context is needed"""
+        row = {
+            "label::fr": "Quel est votre nom?",
+            "label::en": "What is your name?",
+        }
+        result = generate_label(
+            section="sectionA",
+            path="foo.bar",
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
+        assert "label: (t: TFunction) => t('sectionA:foo.bar')" in result
+        assert "return t('sectionA:foo.bar', {" not in result
+        assert "const activePerson =" not in result
+        assert "const nickname =" not in result
+        assert "const countPersons =" not in result
+        assert "const personGender =" not in result
 
+    def test_generate_label_with_nickname_label(self):
+        """Test generate_label includes nickname context when {{nickname}} is present"""
+        row = {
+            "label::fr": "Quel est votre nom, {{nickname}}?",
+            "label::en": "What is your name, {{nickname}}?",
+        }
+        result = generate_label(
+            section="sectionA",
+            path="foo.bar",
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
+        assert "label: (t: TFunction, interview, path) =>" in result
+        assert "return t('sectionA:foo.bar', {" in result
+        assert "const activePerson =" in result
+        assert "const nickname =" in result
+        assert "const countPersons =" not in result
+        assert "const personGender =" not in result
+        assert "nickname," in result
 
-def test_generate_label_with_persons_count_label():
-    """Test generate_label includes countPersons context when {{count}} is present"""
-    row = {
-        "label::fr": "Nombre de personnes: {{count}}",
-        "label::en": "Number of persons: {{count}}",
-    }
-    result = generate_label(section="sectionB", path="baz", row=row)
-    assert "label: (t: TFunction, interview, path) =>" in result
-    assert "return t('sectionB:baz', {" in result
-    assert "const activePerson =" not in result
-    assert "const nickname =" not in result
-    assert "const countPersons =" in result
-    assert "const personGender =" not in result
-    assert "count: countPersons" in result
+    def test_generate_label_with_persons_count_label(self):
+        """Test generate_label includes countPersons context when {{count}} is present"""
+        row = {
+            "label::fr": "Nombre de personnes: {{count}}",
+            "label::en": "Number of persons: {{count}}",
+        }
+        result = generate_label(
+            section="sectionB", path="baz", row=row, gender_fields=self.GENDER_FIELDS
+        )
+        assert "label: (t: TFunction, interview, path) =>" in result
+        assert "return t('sectionB:baz', {" in result
+        assert "const activePerson =" not in result
+        assert "const nickname =" not in result
+        assert "const countPersons =" in result
+        assert "const personGender =" not in result
+        assert "count: countPersons" in result
 
+    def test_generate_label_with_gender_label_only_gender(self):
+        """Test generate_label includes gender context when {{gender:...}} is present with only gender as field"""
+        row = {
+            "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
+            "label::en": "{{gender:He/She}} has a driver's license?",
+        }
+        gender_fields = GenderFields(has_gender=True, has_sex_assigned_at_birth=False)
+        result = generate_label(
+            section="sectionC", path="qux", row=row, gender_fields=gender_fields
+        )
+        assert "label: (t: TFunction, interview, path) =>" in result
+        assert "return t('sectionC:qux', {" in result
+        assert "const activePerson =" in result
+        assert "const nickname =" not in result
+        assert "const countPersons =" not in result
+        assert "context: activePerson?.gender" in result
+        assert "activePerson?.sexAssignedAtBirth" not in result
 
-def test_generate_label_with_gender_label():
-    """Test generate_label includes gender context when {{gender:...}} is present"""
-    row = {
-        "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
-        "label::en": "{{gender:He/She}} has a driver's license?",
-    }
-    result = generate_label(section="sectionC", path="qux", row=row)
-    assert "label: (t: TFunction, interview, path) =>" in result
-    assert "return t('sectionC:qux', {" in result
-    assert "const activePerson =" in result
-    assert "const nickname =" not in result
-    assert "const countPersons =" not in result
-    assert "context: activePerson?.gender" in result
+    def test_generate_label_with_gender_label_only_sex_at_birth(self):
+        """Test generate_label includes gender context when {{gender:...}} is present with only sexAssignedAtBirth as field"""
+        gender_fields = GenderFields(has_gender=False, has_sex_assigned_at_birth=True)
+        row = {
+            "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
+            "label::en": "{{gender:He/She}} has a driver's license?",
+        }
+        result = generate_label(
+            section="sectionC", path="qux", row=row, gender_fields=gender_fields
+        )
+        assert "label: (t: TFunction, interview, path) =>" in result
+        assert "context: activePerson?.sexAssignedAtBirth" in result
+        assert "activePerson?.gender" not in result
 
+    def test_generate_label_with_gender_label_both_gender_fields(self):
+        """Test generate_label includes gender context when {{gender:...}} is present with both gender and sexAssignedAtBirth"""
+        row = {
+            "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
+            "label::en": "{{gender:He/She}} has a driver's license?",
+        }
+        gender_fields = GenderFields(has_gender=True, has_sex_assigned_at_birth=True)
+        result = generate_label(
+            section="sectionC", path="qux", row=row, gender_fields=gender_fields
+        )
+        assert "label: (t: TFunction, interview, path) =>" in result
+        assert (
+            "context: activePerson?.gender || activePerson?.sexAssignedAtBirth"
+            in result
+        )
 
-def test_generate_label_with_one_person():
-    """Test generate_label includes countPersons assignment and count context when only label_one is present"""
-    row = {
-        "label::fr": "Quel est l'âge de cette personne?",
-        "label::en": "What is this person's age?",
-        "label_one::fr": "Votre âge",
-        "label_one::en": "Your age",
-    }
-    result = generate_label(section="sectionE", path="foo.age", row=row)
-    assert "label: (t: TFunction, interview, path) =>" in result
-    assert "return t('sectionE:foo.age', {" in result
-    assert "const activePerson =" not in result
-    assert "const nickname =" not in result
-    assert "const countPersons =" in result
-    assert "const personGender =" not in result
-    assert "count: countPersons" in result
+    def test_generate_label_with_gender_label_no_gender_fields(self):
+        """Test generate_label includes gender context when {{gender:...}} is present with no label fields"""
+        row = {
+            "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
+            "label::en": "{{gender:He/She}} has a driver's license?",
+        }
+        gender_fields = GenderFields(has_gender=False, has_sex_assigned_at_birth=False)
+        result = generate_label(
+            section="sectionC", path="qux", row=row, gender_fields=gender_fields
+        )
+        assert "label: (t: TFunction, interview, path) =>" in result
+        assert "context: undefined" in result
+        assert "activePerson?.gender" not in result
+        assert "activePerson?.sexAssignedAtBirth" not in result
 
+    def test_generate_label_with_one_person(self):
+        """Test generate_label includes countPersons assignment and count context when only label_one is present"""
+        row = {
+            "label::fr": "Quel est l'âge de cette personne?",
+            "label::en": "What is this person's age?",
+            "label_one::fr": "Votre âge",
+            "label_one::en": "Your age",
+        }
+        result = generate_label(
+            section="sectionE",
+            path="foo.age",
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
+        assert "label: (t: TFunction, interview, path) =>" in result
+        assert "return t('sectionE:foo.age', {" in result
+        assert "const activePerson =" not in result
+        assert "const nickname =" not in result
+        assert "const countPersons =" in result
+        assert "const personGender =" not in result
+        assert "count: countPersons" in result
 
-def test_generate_label_with_all_contexts():
-    """Test generate_label includes all contexts when all contexts and label_one are present"""
-    row = {
-        "label::fr": "{{gender:Il/Elle}} s'appelle {{nickname}} et il y a {{count}} personnes.",
-        "label::en": "{{gender:He/She}} is named {{nickname}} and there are {{count}} persons.",
-        "label_one::fr": "Tu t'appelles {{nickname}}.",
-        "label_one::en": "Your name is {{nickname}}.",
-    }
-    result = generate_label(section="sectionD", path="bar.baz", row=row)
-    assert "label: (t: TFunction, interview, path) =>" in result
-    assert "return t('sectionD:bar.baz', {" in result
-    assert "const activePerson =" in result
-    assert "const nickname =" in result
-    assert "const countPersons =" in result
-    assert "nickname," in result
-    assert "nickname," in result
-    assert "count: countPersons" in result
-    assert "context: activePerson?.gender" in result
+    def test_generate_label_with_all_contexts(self):
+        """Test generate_label includes all contexts when all contexts and label_one are present"""
+        row = {
+            "label::fr": "{{gender:Il/Elle}} s'appelle {{nickname}} et il y a {{count}} personnes.",
+            "label::en": "{{gender:He/She}} is named {{nickname}} and there are {{count}} persons.",
+            "label_one::fr": "Tu t'appelles {{nickname}}.",
+            "label_one::en": "Your name is {{nickname}}.",
+        }
+        result = generate_label(
+            section="sectionD",
+            path="bar.baz",
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
+        assert "label: (t: TFunction, interview, path) =>" in result
+        assert "return t('sectionD:bar.baz', {" in result
+        assert "const activePerson =" in result
+        assert "const nickname =" in result
+        assert "const countPersons =" in result
+        assert "nickname," in result
+        assert "count: countPersons" in result
+        assert "context: activePerson?.gender" in result
 
 
 # TODO: Test generate_help_popup
@@ -649,6 +721,9 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
 class TestGenerateStringWidget:
     """Tests for generate_string_widget function"""
 
+    # Default gender fields for tests - gender is available, sex assigned at birth is not
+    GENDER_FIELDS = GenderFields(has_gender=True, has_sex_assigned_at_birth=False)
+
     def test_generate_string_widget_basic(self):
         """Test generate_string_widget with minimal required fields"""
         row = {
@@ -664,7 +739,12 @@ class TestGenerateStringWidget:
             "label::fr": "Code d'accès",
             "label::en": "Access code",
         }
-        widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+        widget_label = generate_label(
+            section=row["section"],
+            path=row["path"],
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
         result = generate_string_widget(
             row["questionName"],
             row["path"],
@@ -704,7 +784,12 @@ class TestGenerateStringWidget:
             "label::fr": "Code d'accès",
             "label::en": "Access code",
         }
-        widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+        widget_label = generate_label(
+            section=row["section"],
+            path=row["path"],
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
         result = generate_string_widget(
             row["questionName"],
             row["path"],
@@ -747,7 +832,12 @@ class TestGenerateStringWidget:
             "label::fr": "Code d'accès",
             "label::en": "Access code",
         }
-        widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+        widget_label = generate_label(
+            section=row["section"],
+            path=row["path"],
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
         result = generate_string_widget(
             row["questionName"],
             row["path"],
@@ -779,7 +869,12 @@ class TestGenerateStringWidget:
             "label::fr": "Code d'accès",
             "label::en": "Access code",
         }
-        widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+        widget_label = generate_label(
+            section=row["section"],
+            path=row["path"],
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
         result = generate_string_widget(
             row["questionName"],
             row["path"],
