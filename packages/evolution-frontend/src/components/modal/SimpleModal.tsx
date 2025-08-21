@@ -33,7 +33,6 @@ export const SimpleModal: React.FunctionComponent<SimpleModalProps & WithTransla
     props: SimpleModalProps & WithTranslation
 ) => {
     const close = (ev: React.MouseEvent) => {
-        console.log('this.props.action', props.action);
         if (typeof props.action === 'function') {
             props.action(ev);
         }
