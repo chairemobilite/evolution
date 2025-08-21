@@ -286,21 +286,29 @@ export const emailValidation: ValidationFunction = (value) => {
     ];
 };
 
+// Regexes developed from discussion with AI
+const northAmericanPhoneValidationRegex =
+    /^(?:(?:\+1[-.\s]?|(?!1)?)?(?:\(?([2-9][0-9]{2})\)?[-.\s]?)?([0-9]{3})[-.\s]?([0-9]{4}))$/;
+const internationalNotNaPhoneValidationRegex = /^(?:\+(?:[\s\-.()]*\d){10,15}[\s\-.()]*$)/;
+const validateNorthAmericanOrInternationalPhoneNumber = (phoneNumber: string) =>
+    northAmericanPhoneValidationRegex.test(phoneNumber) || internationalNotNaPhoneValidationRegex.test(phoneNumber);
 /**
  * Verify if the value is a valid phone number. This validation is optional.
+ * Note if only validates the format, not the content.
  *
  * The phone number must be in the format 123-456-7890.
+ *
+ * TODO This validation is from a north american perspective, ie numbers in
+ * north america do not need the country code, other international numbers do.
+ * We should support more localizations in the future.
  *
  * @see {@link ValidationFunction}
  */
 export const phoneValidation: ValidationFunction = (value) => {
     return [
         {
-            validation: !_isBlank(value) && !/^\d{3}[-\s]?\d{3}[-\s]?\d{4}$/.test(String(value)), // Accept 3 numbers, a dash space or nothing, 3 numbers, a dash space or nothing, 4 numbers
-            errorMessage: {
-                fr: 'Le numéro de téléphone est invalide. (ex.: 514-123-1234).',
-                en: 'Phone number is invalid (e.g.: 514-123-1234).'
-            }
+            validation: !_isBlank(value) && !validateNorthAmericanOrInternationalPhoneNumber(String(value)),
+            errorMessage: (t) => t('survey:errors:phoneNumberInvalid')
         }
     ];
 };
