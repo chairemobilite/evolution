@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { postalCodeValidation, getPostalCodeRegex } from '../validations';
+import * as validations from '../validations';
 import projectConfig from '../../../../config/project.config';
 
 // Mock the project config to be able to change the postalCodeRegion
@@ -19,7 +19,7 @@ describe('postalCodeValidation', () => {
 
     describe('Empty postal code validation', () => {
         it('should return error when postal code is empty', () => {
-            const result = postalCodeValidation('', undefined, {} as any, 'postalCode');
+            const result = validations.postalCodeValidation('', undefined, {} as any, 'postalCode');
             expect(result.length).toBe(2);
             expect(result[0].validation).toBe(true); // Empty validation fails
             expect(typeof result[0].errorMessage).toEqual('function');
@@ -38,7 +38,7 @@ describe('postalCodeValidation', () => {
             'H3Z 2Y7', 
             'V8C 1A5'
         ])('should accept valid Canadian postal code: %s', (postalCode) => {
-            const result = postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
+            const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(false); // Should be valid
         });
         
@@ -58,7 +58,7 @@ describe('postalCodeValidation', () => {
             ['ARU TAY', 'all letters'],
             ['311 151', 'all numbers']
         ])('should reject invalid Canadian postal code: %s (%s)', (postalCode, reason) => {
-            const result = postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
+            const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(true); // Should be invalid
             expect(typeof result[1].errorMessage).toEqual('function');
             expect((result[1].errorMessage as any)(mockTranslation)).toEqual('survey:errors:postalCodeInvalid');
@@ -77,7 +77,7 @@ describe('postalCodeValidation', () => {
             'J7V 9Z9',
             'K2V 1A1'
         ])('should accept valid Quebec postal code: %s', (postalCode) => {
-            const result = postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
+            const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(false); // Should be valid
         });
         
@@ -101,7 +101,7 @@ describe('postalCodeValidation', () => {
             ['ARU TAY', 'all letters'],
             ['311 151', 'all numbers']
         ])('should reject non-Quebec Canadian postal code: %s (%s)', (postalCode, province) => {
-            const result = postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
+            const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(true); // Should be invalid
             expect(typeof result[1].errorMessage).toEqual('function');
             expect((result[1].errorMessage as any)(mockTranslation)).toEqual('survey:errors:postalCodeInvalid');
@@ -124,7 +124,7 @@ describe('postalCodeValidation', () => {
             ['XYZ', 'Made up'],
             ['123 ABC', 'Made up with space']
         ])('should accept %s as a valid postal code (%s)', (postalCode, description) => {
-            const result = postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
+            const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(false); // Should be valid
         });
     });
@@ -136,7 +136,7 @@ describe('getPostalCodeRegex', () => {
         ['D1A 1A1', false, 'Invalid Canadian postal code (D not allowed)']
     ])('with Canada region: %s should be %s (%s)', (postalCode, expected, reason) => {
         projectConfig.postalCodeRegion = 'canada';
-        const regex = getPostalCodeRegex();
+        const regex = validations.getPostalCodeRegex();
         expect(regex.test(postalCode)).toBe(expected);
     });
     
@@ -145,7 +145,7 @@ describe('getPostalCodeRegex', () => {
         ['A1A 1A1', false, 'Not a Quebec postal code']
     ])('with Quebec region: %s should be %s (%s)', (postalCode, expected, reason) => {
         projectConfig.postalCodeRegion = 'quebec';
-        const regex = getPostalCodeRegex();
+        const regex = validations.getPostalCodeRegex();
         expect(regex.test(postalCode)).toBe(expected);
     });
     
@@ -155,7 +155,97 @@ describe('getPostalCodeRegex', () => {
         ['H2X 1A1', true, 'Canadian postal code']
     ])('with Other region: %s should be accepted (%s)', (postalCode, description) => {
         projectConfig.postalCodeRegion = 'other';
-        const regex = getPostalCodeRegex();
+        const regex = validations.getPostalCodeRegex();
         expect(regex.test(postalCode)).toBe(true);
+    });
+});
+
+describe('phoneValidation', () => {
+    // Test cases for valid phone numbers
+    test.each([
+        // Valid formats with dashes
+        '223-456-7890',
+        '999-999-9999',
+        // Valid formats with spaces
+        '223 456 7890',
+        '999 999 9999',
+        // Valid formats without separators
+        '2234567890',
+        '9999999999',
+        // Valid formats with parentheses
+        '(223) 456-7890',
+        '(223)-456-7890',
+        '(999)999-9999',
+        // Valid north american formats with +1
+        '+12234567890',
+        '+1 (223) 456-7890',
+        '+1 223-456-7890',
+        // Empty string (validation should pass for optional phone)
+        ''
+    ])('should return no validation errors for valid north american phone number: %s', (phoneNumber) => {
+        const result = validations.phoneValidation(phoneNumber, undefined, {} as any, 'phoneNumber');
+        // For valid phone numbers, the validation property should be false
+        expect(result.length).toBe(1);
+        expect(result[0].validation).toBe(false);
+    });
+
+    // Test cases for valid international phone numbers 
+    test.each([
+        // International phone numbers
+        '+44 20 7946 0958', // UK number
+        '+33 1 12 34 56 00', // France number
+        '+49 30 12345678', // Germany number
+        '+386 64 123 456', // Slovenia number
+        '+1 416 123 4567', // Canada number
+        '+1 868 123 4567', // Trinidad and Tobago number
+        '+7 495 123-45-67', // Russia number
+        '+33170189900', // France number no spacing
+        '+377 9216789', // Monaco number
+        '+86 10 5762 6809', // China number
+        '+86 138 2639 5248', // China mobile number
+        '+234 8034 123 4567', // Nigeria (Africa) number with 14 digits
+        '+27 87 135 4489', // South Africa number
+    ])('should return no validation errors for valid international phone number: %s', (phoneNumber) => {
+        const result = validations.phoneValidation(phoneNumber, undefined, {} as any, 'phoneNumber');
+        // For valid phone numbers, the validation property should be false
+        expect(result.length).toBe(1);
+        expect(result[0].validation).toBe(false);
+    });
+
+    // Test cases for invalid phone numbers
+    test.each([
+        // Too few digits
+        '223-456-789',
+        '223-45-7890',
+        '22-456-7890',
+        '+33 1 12 34 56',
+        // Too many digits
+        '223-456-78901',
+        '223-4567-7890',
+        '+44 20 7946 09589 456',
+        // north american phone without +1
+        '1234-456-7890',
+        // north american phone area code can't start with 0 or 1
+        '(123) 456-7890',
+        '(023) 456-7890',
+        // Invalid characters
+        'abc-def-ghij',
+        '223-ABC-7890',
+        '223-456-DEFG',
+        '+33 [1] 12 34 56 00', // Extra brackets
+        // Invalid formats
+        '223--456-7890',
+        '223-456--7890',
+        '-223-456-7890',
+        '223-456-7890-',
+        // International phone number without a + sign
+        '44 20 7946 0958',
+        '33 1 70 18 99 00',
+        '49 30 12345678'
+    ])('should return validation errors for invalid phone number: %s', (phoneNumber) => {
+        const result = validations.phoneValidation(phoneNumber, undefined, {} as any, 'phoneNumber');
+        // For invalid phone numbers, the validation property should be true
+        expect(result.length).toBe(1);
+        expect(result[0].validation).toBe(true);
     });
 });

@@ -148,3 +148,4 @@ errors:
   postalCodeInvalid: "Postal code is invalid."
   postalCodeInvalid_canada: "Postal code is invalid. You must live in Canada to fill this questionnaire."
   postalCodeInvalid_quebec: "Postal code is invalid. You must live in Quebec to fill this questionnaire."
+  phoneNumberInvalid: "Phone number is invalid (e.g.: 514-123-1234 or +44 20 7946 0958)."
