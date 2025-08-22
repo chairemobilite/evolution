@@ -100,7 +100,7 @@ export const getModePreWidgetConfig = (
         inputType: 'radio',
         twoColumns: false,
         datatype: 'string',
-        iconSize: '1.5em',
+        iconSize: '2.25em',
         columns: 2,
         label: (t: TFunction, interview, path) => {
             const person = odHelpers.getPerson({ interview });

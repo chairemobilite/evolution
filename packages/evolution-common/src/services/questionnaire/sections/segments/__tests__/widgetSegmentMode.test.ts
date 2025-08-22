@@ -39,7 +39,7 @@ describe('getModeWidgetConfig', () => {
             inputType: 'radio',
             twoColumns: false,
             datatype: 'string',
-            iconSize: '1.5em',
+            iconSize: '2.25em',
             columns: 2,
             label: expect.any(Function),
             choices: modeValues.map((mode) => expect.objectContaining({
