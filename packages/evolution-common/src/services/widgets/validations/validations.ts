@@ -7,6 +7,7 @@
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { type ValidationFunction } from '../../questionnaire/types';
 import * as surveyHelperNew from '../../../utils/helpers';
+import projectConfig from '../../../config/project.config';
 
 /**
  * Make sure the question is answered.
@@ -304,6 +305,33 @@ export const phoneValidation: ValidationFunction = (value) => {
     ];
 };
 
+// To be valid in Canada, the postal code cannot have the letters D, F, I, O, Q, or U. It also cannot have W or Z in the first character.
+// See: https://en.wikipedia.org/wiki/Postal_codes_in_Canada#Number_of_possible_postal_codes
+const canadianPostalCodeRegex = /^[abceghj-nprstvxy][0-9][abceghj-nprstv-z]( )?[0-9][abceghj-nprstv-z][0-9]\s*$/i;
+// Quebec postal codes starts with 'G', 'H' or 'J'. Some 'K' also exist in Gatineau. See https://www150.statcan.gc.ca/n1/pub/92-195-x/2011001/other-autre/pc-cp/tbl/tbl9-eng.htm
+const quebecPostalCodeRegex = /^[ghjk][0-9][abceghj-nprstv-z]( )?[0-9][abceghj-nprstv-z][0-9]\s*$/i;
+// Other region postal codes can be any string
+const otherPostalCodeRegex = /^.*$/;
+/**
+ * Get the appropriate postal code regex based on the configured region.
+ *
+ * TODO Support more countries and regions
+ *
+ * @returns The regular expression for validating postal codes in the configured
+ * region
+ */
+export const getPostalCodeRegex = (): RegExp => {
+    switch (projectConfig.postalCodeRegion) {
+    case 'canada':
+        return canadianPostalCodeRegex;
+    case 'quebec':
+        return quebecPostalCodeRegex;
+    case 'other':
+    default:
+        return otherPostalCodeRegex;
+    }
+};
+
 /**
  * Verify the value is a valid postal code.
  *
@@ -315,22 +343,14 @@ export const postalCodeValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: {
-                fr: 'Veuillez spécifier votre code postal.',
-                en: 'Please specify your postal code.'
-            }
+            errorMessage: (t) => t('survey:errors:postalCodeRequired')
         },
         {
-            // To be valid in Canada, the postal code cannot have the letters D, F, I, O, Q, or U. It also cannot have W or Z in the first character.
-            // See: https://en.wikipedia.org/wiki/Postal_codes_in_Canada#Number_of_possible_postal_codes
-            // TODO: Instead of directly writing the validation, make a function that takes the country/region as input and returns the right regex.
-            validation: !/^[abceghj-nprstvxy][0-9][abceghj-nprstv-z]( )?[0-9][abceghj-nprstv-z][0-9]\s*$/i.test(
-                String(value)
-            ),
-            errorMessage: {
-                fr: 'Le code postal est invalide. Vous devez résider au Canada pour compléter ce questionnaire.',
-                en: 'Postal code is invalid. You must live in Canada to fill this questionnaire.'
-            }
+            validation: !getPostalCodeRegex().test(String(value)),
+            errorMessage: (t) =>
+                t('survey:errors:postalCodeInvalid', {
+                    context: projectConfig.postalCodeRegion
+                })
         }
     ];
 };

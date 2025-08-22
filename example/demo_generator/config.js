@@ -65,6 +65,7 @@ module.exports = {
             lng: -72.9215
         }
     ],
+    postalCodeRegion: 'canada',
     detectLanguageFromUrl: true,
     detectLanguage: true,
     languages: ['fr', 'en'],

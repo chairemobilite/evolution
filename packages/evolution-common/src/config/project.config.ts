@@ -122,6 +122,12 @@ export type EvolutionProjectConfiguration = {
               };
     };
 
+    /**
+     * The region to use for postal code validation FIXME Also use for
+     * formatting
+     * */
+    postalCodeRegion: 'canada' | 'quebec' | 'other';
+
     // TODO Add more project configuration types
 };
 
@@ -149,7 +155,8 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             detectLanguageFromUrl: true,
             detectLanguage: false,
             languageNames: { en: 'English', fr: 'Français' },
-            title: { en: 'Survey', fr: 'Enquête' }
+            title: { en: 'Survey', fr: 'Enquête' },
+            postalCodeRegion: 'other'
         },
         projectConfig
     )
