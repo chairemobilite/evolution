@@ -34,6 +34,7 @@ export type InputMapFindPlaceProps = CommonInputProps & {
 };
 
 // Path to default icons
+// FIXME Use the icons from chaire-lib in `/dist/icons/` when it is possible to colorize them with proper styling
 const defaultMarkerUrl = '/dist/images/activities_icons/default_marker.svg';
 const defaultSelectedMarkerUrl = '/dist/images/activities_icons/default_selected_marker.svg';
 // Default max zoom and zoom
