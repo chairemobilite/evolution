@@ -73,7 +73,6 @@ export class InputMapFindPlace extends React.Component<
 > {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement | null> = React.createRef();
     private autoConfirmIfSingleResult: boolean;
-    private selectedIconUrl: string;
     private shouldFitBoundsIdx = 0;
     private currentBounds: [number, number, number, number] | undefined = undefined;
 
@@ -91,8 +90,6 @@ export class InputMapFindPlace extends React.Component<
               projectConfig.mapDefaultCenter;
 
         this.autoConfirmIfSingleResult = this.props.widgetConfig.autoConfirmIfSingleResult || false;
-
-        this.selectedIconUrl = defaultSelectedMarkerUrl;
 
         this.state = {
             geocoding: false,
@@ -382,6 +379,20 @@ export class InputMapFindPlace extends React.Component<
                 ? this.props.widgetConfig.placesIcon.size
                 : defaultIconSize;
 
+        const selectedIconUrl = this.props.widgetConfig.selectedIcon
+            ? surveyHelper.parseString(
+                this.props.widgetConfig.selectedIcon.url,
+                this.props.interview,
+                this.props.path,
+                this.props.user
+            ) || defaultSelectedMarkerUrl
+            : defaultSelectedMarkerUrl;
+
+        const selectedIconSize =
+            this.props.widgetConfig.selectedIcon && this.props.widgetConfig.selectedIcon.size
+                ? this.props.widgetConfig.selectedIcon.size
+                : defaultIconSize;
+
         const iconUrl = this.props.widgetConfig.icon
             ? surveyHelper.parseString(
                 this.props.widgetConfig.icon.url,
@@ -412,8 +423,8 @@ export class InputMapFindPlace extends React.Component<
                 markers.push({
                     position: feature,
                     icon: {
-                        url: feature === this.state.selectedPlace ? this.selectedIconUrl : placesIconUrl,
-                        size: placesIconSize
+                        url: feature === this.state.selectedPlace ? selectedIconUrl : placesIconUrl,
+                        size: feature === this.state.selectedPlace ? selectedIconSize : placesIconSize
                     },
                     draggable: this.state.selectedPlace ? true : false,
                     onClick: () => this.onMarkerSelect(feature)

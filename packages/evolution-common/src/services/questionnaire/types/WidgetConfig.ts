@@ -258,17 +258,32 @@ export type InputMapPointType = InputMapType &
         showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
     };
 
+/**
+ * InputMapFindPlaceType is used to configure the mapFindPlace widget.
+ * @param placesIcon: Icon used for all found places from geocoding search results
+ * @param selectedIcon: Icon used when user selects/highlights a specific place from the results
+ * @param maxGeocodingResultsBounds: Limits the search results to a specific area.
+ * @param showSearchPlaceButton: Whether to show a button to search for a place.
+ * @param searchPlaceButtonColor: Color of the search place button.
+ * @param height: The height of the map container in css units: example: 28rem or 550px
+ * @param coordinatesPrecision: Number of decimals to keep for latitute longitude coordinates.
+ * @param invalidGeocodingResultTypes: Types of geocoding results from google to set as invalid (like 'city' or 'country', which are not precise enough for the address)
+ * @param showPhoto: Whether to show a photo of the selected place, when available.
+ * @param autoConfirmIfSingleResult: Whether to automatically confirm the selected place if there is only one result
+ * @param updateDefaultValueWhenResponded: Whether to update the default value when the user responds
+ */
 export type InputMapFindPlaceType = InputMapType &
     BaseQuestionType & {
         inputType: 'mapFindPlace';
         showSearchPlaceButton?: boolean | ParsingFunction<boolean>;
         searchPlaceButtonColor?: string | ParsingFunction<string>;
         placesIcon?: IconData;
+        selectedIcon?: IconData;
         maxGeocodingResultsBounds?: ParsingFunction<
             [{ lat: number; lng: number }, { lat: number; lng: number }] | undefined
         >;
-        height?: string; // the height of the map container in css units: example: 28rem or 550px
-        coordinatesPrecision?: number; // number of decimals to keep for latitute longitude coordinates.
+        height?: string;
+        coordinatesPrecision?: number;
         invalidGeocodingResultTypes?: string[];
         showPhoto?: boolean;
         autoConfirmIfSingleResult?: boolean;

@@ -128,6 +128,7 @@ export const inputMapFindPlaceBase: Pick<
     | 'containsHtml'
     | 'autoConfirmIfSingleResult'
     | 'placesIcon'
+    | 'selectedIcon'
     | 'defaultCenter'
     | 'refreshGeocodingLabel'
     | 'showSearchPlaceButton'
@@ -141,6 +142,10 @@ export const inputMapFindPlaceBase: Pick<
     autoConfirmIfSingleResult: true,
     placesIcon: {
         url: () => '/dist/images/activities_icons/default_marker.svg',
+        size: [70, 70]
+    },
+    selectedIcon: {
+        url: () => '/dist/images/activities_icons/default_selected_marker.svg',
         size: [70, 70]
     },
     defaultCenter: config.mapDefaultCenter,
