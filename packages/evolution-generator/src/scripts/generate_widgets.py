@@ -102,8 +102,15 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
 
         # Find the index of 'section' in headers
         section_index = headers.index("section")
-        # Get all unique section names
-        section_names = set(row[section_index].value for row in rows[1:])
+
+        # Get all unique section names while preserving order from the section sheet
+        seen_sections: set[str] = set()
+        section_names: list[str] = []
+        for row in rows[1:]:
+            section = row[section_index].value
+            if section and section not in seen_sections:
+                seen_sections.add(section)
+                section_names.append(section)
 
         # Track gender-related fields. It will be done one section at a time, so
         # it's not possible to use gender field in a section before it is
