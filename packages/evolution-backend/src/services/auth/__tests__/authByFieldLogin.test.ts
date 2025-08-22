@@ -70,6 +70,11 @@ jest.mock('../../../models/interviewsPreFill.db.queries', () => ({
     getByReferenceValue: jest.fn()
 }));
 
+// Mock the project config to set the postalCodeRegion
+jest.mock('evolution-common/lib/config/project.config', () => ({
+    postalCodeRegion: 'canada'  // Default for tests
+}));
+
 const mockFind = participantAuthModel.find as jest.MockedFunction<typeof participantAuthModel.find>;
 const mockCreateAndSave = participantAuthModel.createAndSave as jest.MockedFunction<typeof participantAuthModel.createAndSave>;
 const mockGetByReferenceValue = interviewsPreFillQueries.getByReferenceValue as jest.MockedFunction<typeof interviewsPreFillQueries.getByReferenceValue>;

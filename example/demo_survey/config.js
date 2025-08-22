@@ -55,6 +55,7 @@ module.exports = {
     facebook: false,
     byField: false
   },
+  postalCodeRegion: 'canada',
   logDatabaseUpdates: true,
   askForAccessCode: true,
   surveySupportForm: true,

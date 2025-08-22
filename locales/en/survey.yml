@@ -143,3 +143,8 @@ visitedPlace:
 trip:
   tripSeq: Trip {{seq}}
   editTrip: Edit
+errors:
+  postalCodeRequired: "Please specify your postal code."
+  postalCodeInvalid: "Postal code is invalid."
+  postalCodeInvalid_canada: "Postal code is invalid. You must live in Canada to fill this questionnaire."
+  postalCodeInvalid_quebec: "Postal code is invalid. You must live in Quebec to fill this questionnaire."

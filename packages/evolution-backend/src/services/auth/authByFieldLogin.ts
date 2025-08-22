@@ -11,15 +11,15 @@ import { IAuthModel, IUserModel } from 'chaire-lib-backend/lib/services/auth/aut
 import { validateAccessCode } from '../accessCode';
 import interviewsPreFillQueries from '../../models/interviewsPreFill.db.queries';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
+import { getPostalCodeRegex } from 'evolution-common/lib/services/widgets/validations/validations';
 
 // Validate postal code
-// FIXME Should be moved to a common place, like the access code validation and support more countries
 const validatePostalCode = (postalCode: string): boolean => {
     if (!postalCode) {
         return false;
     }
-    // Validate a canadian postal code
-    if (!/^[ghjk][0-9][abceghj-nprstv-z]( )?[0-9][abceghj-nprstv-z][0-9]\s*$/i.test(postalCode)) {
+    // Validate the postal code with the regex for the configured region
+    if (!getPostalCodeRegex().test(postalCode)) {
         return false;
     }
 
