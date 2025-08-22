@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
 import { interviewAttributes } from './interviewData.test';
@@ -32,7 +32,7 @@ const userAttributes = {
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 const baseWidgetConfig = {
     type: 'question' as const,
@@ -40,8 +40,8 @@ const baseWidgetConfig = {
     path: 'test.foo',
     containsHtml: true,
     label: {
-        fr: `Texte en français`,
-        en: `English text`
+        fr: 'Texte en français',
+        en: 'English text'
     },
     size: 'medium' as const,
     inputType: 'mapFindPlace' as const,
@@ -68,12 +68,12 @@ describe('Render InputMapPoint with various parameters', () => {
     });
 
     test('Test with all parameters', () => {
-            
+
         const testWidgetConfig = Object.assign({
             geocodingQueryString: jest.fn(),
             refreshGeocodingLabel: {
-                fr: `Rafraîchir la carte`,
-                en: `Refresh map`
+                fr: 'Rafraîchir la carte',
+                en: 'Refresh map'
             },
             icon: {
                 url: 'path/to/icon',
@@ -83,14 +83,18 @@ describe('Render InputMapPoint with various parameters', () => {
             defaultZoom: 15,
             coordinatesPrecision: 6,
             placesIcon: {
-                url: 'path/to/icon',
+                url: 'path/to/places-icon',
                 size: [85, 85] as [number, number]
             },
+            selectedIcon: {
+                url: 'path/to/selected-icon',
+                size: [90, 90] as [number, number]
+            },
             maxGeocodingResultsBounds: function (interview, path) {
-                return [{lat: 45.2229, lng: -74.3230}, {lat: 46.1181, lng: -72.9215}] as [{ lat: number; lng: number; }, { lat: number; lng: number; }];
+                return [{ lat: 45.2229, lng: -74.3230 }, { lat: 46.1181, lng: -72.9215 }] as [{ lat: number; lng: number; }, { lat: number; lng: number; }];
             },
             invalidGeocodingResultTypes: [
-                'political', 
+                'political',
                 'country',
             ],
             updateDefaultValueWhenResponded: true
@@ -100,7 +104,7 @@ describe('Render InputMapPoint with various parameters', () => {
                 id={'test'}
                 onValueChange={() => { /* nothing to do */}}
                 widgetConfig={testWidgetConfig}
-                value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
+                value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02] } }}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -109,7 +113,7 @@ describe('Render InputMapPoint with various parameters', () => {
         );
         expect(container).toMatchSnapshot();
     });
-    
+
 });
 
 describe('Test geocoding requests', () => {
@@ -120,8 +124,8 @@ describe('Test geocoding requests', () => {
     const testWidgetConfig = Object.assign({
         geocodingQueryString: jest.fn().mockReturnValue(geocodingString),
         refreshGeocodingLabel: {
-            fr: `Geocode`,
-            en: `Geocode`
+            fr: 'Geocode',
+            en: 'Geocode'
         },
         icon: {
             url: 'path/to/icon',
@@ -135,18 +139,18 @@ describe('Test geocoding requests', () => {
         updateDefaultValueWhenResponded: true
     }, baseWidgetConfig);
 
-    const placeFeature1 = { 
-        type: 'Feature' as const, 
+    const placeFeature1 = {
+        type: 'Feature' as const,
         geometry: { type: 'Point' as const, coordinates: [-73.2, 45.1] },
         properties: { placeData: { place_id: '1', formatted_address: '123 test street', name: 'Foo extra good restaurant' } }
     };
     const placeFeature2 = {
-        type: 'Feature' as const, 
+        type: 'Feature' as const,
         geometry: { type: 'Point' as const, coordinates: [-73.2, 45.1] },
         properties: { placeData: { place_id: '2', formatted_address: '123 foo street', types: ['street_address'] } }
     };
     const placeFeature3 = {
-        type: 'Feature' as const, 
+        type: 'Feature' as const,
         geometry: { type: 'Point' as const, coordinates: [ -73.5673919, 45.5018869] },
         properties: { placeData: { place_id: '3', formatted_address: 'Montreal, QC, Canada', types: ['locality', 'political'] } }
     };
@@ -157,12 +161,12 @@ describe('Test geocoding requests', () => {
     });
 
     test('Geocode with multiple results', async () => {
-    
+
         const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
-            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
+            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02] } }}
             inputRef={React.createRef()}
             interview={interviewAttributes}
             user={userAttributes}
@@ -189,27 +193,27 @@ describe('Test geocoding requests', () => {
 
         // Make sure the value has not been changed
         expect(mockOnValueChange).not.toHaveBeenCalled();
-        
+
     });
 
     test('Geocode with single results, and confirm result', async () => {
-        
+
         const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
-            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
+            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02] } }}
             inputRef={React.createRef()}
             interview={interviewAttributes}
             user={userAttributes}
             path='foo.test'
             loadingState={0}
         />);
-        
+
         const user = userEvent.setup();
 
         // Find and click on the Geocode button, to return a single result
-       mockedGeocode.mockResolvedValueOnce([placeFeature1]);
+        mockedGeocode.mockResolvedValueOnce([placeFeature1]);
         await user.click(screen.getByText('Geocode'));
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
@@ -225,7 +229,7 @@ describe('Test geocoding requests', () => {
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: {
             type: 'Feature' as const,
             geometry: placeFeature1.geometry,
-            properties: { 
+            properties: {
                 lastAction: 'findPlace',
                 geocodingQueryString: geocodingString,
                 geocodingResultsData: {
@@ -234,7 +238,7 @@ describe('Test geocoding requests', () => {
                     types: undefined,
                 }
             }
-        }}})
+        } } });
 
         // There should not be any selection or confirm widgets anymore
         expect(container.querySelector('select')).not.toBeInTheDocument();
@@ -242,12 +246,12 @@ describe('Test geocoding requests', () => {
     });
 
     test('Geocode with single result, then re-query with undefined results', async () => {
-    
+
         const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
-            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
+            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02] } }}
             inputRef={React.createRef()}
             interview={interviewAttributes}
             user={userAttributes}
@@ -270,7 +274,7 @@ describe('Test geocoding requests', () => {
         expect(selectionList).toBeInTheDocument();
 
         expect(screen.getByText('ConfirmLocation')).toBeInTheDocument();
-        
+
         // Click the geocode button again, but get undefined values
         mockedGeocode.mockResolvedValueOnce(undefined);
         const newGeocodingString = 'other string';
@@ -282,16 +286,16 @@ describe('Test geocoding requests', () => {
         expect(selectionList2).not.toBeInTheDocument();
 
         expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
-        
+
     });
 
     test('Geocode with single result, then re-query with rejection', async () => {
-    
+
         const { container } = render(<InputMapFindPlace
             id={testId}
             onValueChange={mockOnValueChange}
             widgetConfig={testWidgetConfig}
-            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
+            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02] } }}
             inputRef={React.createRef()}
             interview={interviewAttributes}
             user={userAttributes}
@@ -325,23 +329,23 @@ describe('Test geocoding requests', () => {
         expect(selectionList2).not.toBeInTheDocument();
 
         expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
-        
+
     });
 
     test('Click the geocode button, that triggers an update', async () => {
-    
+
         const props = {
             id: testId,
             onValueChange: mockOnValueChange,
             widgetConfig: testWidgetConfig,
-            value: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}},
+            value: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02] } },
             inputRef: React.createRef() as React.LegacyRef<HTMLInputElement>,
             size: 'medium' as const,
             interview: interviewAttributes,
             user: userAttributes,
             path: 'foo.test',
             loadingState: 0,
-        }
+        };
 
         const { container } = render(<InputMapFindPlace {...props} />);
         const user = userEvent.setup();
@@ -359,13 +363,13 @@ describe('Test geocoding requests', () => {
         expect(selectionList).toBeInTheDocument();
 
         expect(screen.getByText('ConfirmLocation')).toBeInTheDocument();
-        
+
     });
 
     test('Geocode with single imprecise result', async () => {
         const widgetConfig = Object.assign({
             invalidGeocodingResultTypes: [
-                'political', 
+                'political',
                 'country',
                 'administrative_area_level_1',
                 'administrative_area_level_2',
@@ -411,7 +415,7 @@ describe('Test geocoding requests', () => {
         expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: {
             type: 'Feature' as const,
             geometry: placeFeature3.geometry,
-            properties: { 
+            properties: {
                 lastAction: 'findPlace',
                 geocodingQueryString: geocodingString,
                 geocodingResultsData: {
@@ -421,7 +425,7 @@ describe('Test geocoding requests', () => {
                 },
                 isGeocodingImprecise: true, // key part!
             }
-        }}})
+        } } });
 
         // Select list and confirm button should not be present
         expect(container.querySelector('select')).not.toBeInTheDocument();
