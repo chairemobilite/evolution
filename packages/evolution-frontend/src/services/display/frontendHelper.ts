@@ -201,3 +201,35 @@ export const getVisitedPlaceDescription = function (
         return `${i18n.t(`survey:visitedPlace:activities:${visitedPlace.activity}`)}${visitedPlace.name ? ` • ${visitedPlace.name}` : ''}${times}`;
     }
 };
+
+/**
+ * Get the visited place shortcut description
+ * Shortcut should not show the activity since it can make the repsondant
+ * think they canno do another activity at the same place, so we put only
+ * the place name, the person nickname and the times
+ * @param visitedPlace The visited place for which to get the description
+ * @param withTimes Whether to add the times to the description
+ * @param allowHtml Whether the description can contain HTML characters
+ * @returns
+ */
+export const getVisitedPlaceShortcutDescription = function (
+    visitedPlace: VisitedPlace,
+    withTimes: boolean = false,
+    allowHtml: boolean = true
+): string {
+    let times = '';
+    if (withTimes) {
+        const arrivalTime =
+            visitedPlace.arrivalTime !== undefined ? ' ' + secondsSinceMidnightToTimeStr(visitedPlace.arrivalTime) : '';
+        const departureTime =
+            visitedPlace.departureTime !== undefined
+                ? ' -> ' + secondsSinceMidnightToTimeStr(visitedPlace.departureTime)
+                : '';
+        times = arrivalTime + departureTime;
+    }
+    if (allowHtml) {
+        return `${visitedPlace.name ? `<em>${visitedPlace.name}</em>` : ''}${times}`;
+    } else {
+        return `${visitedPlace.name ? `${visitedPlace.name}` : ''}${times}`;
+    }
+};
