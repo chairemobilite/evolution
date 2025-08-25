@@ -275,6 +275,15 @@ def add_gender_or_base_translations(
         rowNumber (int): The row number for error reporting
         translations_dict (dict): The translations dictionary to update
     """
+    # The translation strings use the gender as context and the plural suffix to
+    # address participant directly or with a nickname. Note that in i18n, the
+    # context has priority over the plural, so, for example, with both, the
+    # labels will be looked for in priority: label_context_suffix,
+    # label_context, label_suffix, label. In Evolution, the plural (suffix)
+    # should have precedence over the context, so we need to make sure that if a
+    # label with `label_context` exists and there is plural, then
+    # `label_context_suffix` will also exist, otherwise, we'll get the
+    # multi-person gendered translation before the single-person one.
     if gender_dict is not None:
         # The "other" translation will be the default one
         add_translation(
@@ -285,36 +294,27 @@ def add_gender_or_base_translations(
             rowNumber=rowNumber,
             translations=translations_dict[language],
         )
-        # To avoid cluttering the translation file, only add gender-specific translations if they differ from the "other" default
-        if gender_dict["male"] != gender_dict["other"]:
-            add_translation(
-                language=language,
-                section=section,
-                path=path + "_male" + extraSuffix,
-                value=gender_dict["male"],
-                rowNumber=rowNumber,
-                translations=translations_dict[language],
-            )
-
-        if gender_dict["female"] != gender_dict["other"]:
-            add_translation(
-                language=language,
-                section=section,
-                path=path + "_female" + extraSuffix,
-                value=gender_dict["female"],
-                rowNumber=rowNumber,
-                translations=translations_dict[language],
-            )
-
-        if gender_dict["custom"] != gender_dict["other"]:
-            add_translation(
-                language=language,
-                section=section,
-                path=path + "_custom" + extraSuffix,
-                value=gender_dict["custom"],
-                rowNumber=rowNumber,
-                translations=translations_dict[language],
-            )
+        # To avoid cluttering the translation file, only add gender-specific translations if they are necessary
+        # Check if we should add the gender-specific translation:
+        # 1. If the gender version differs from the "other" version, or
+        # 2. If extraSuffix is not empty and there's already a gender version without the suffix
+        # Process each gender type (male, female, custom) with the same logic
+        for gender in ["male", "female", "custom"]:
+            # Add gender-specific translation if it differs from "other" or
+            # if extraSuffix exists and there's already a gender version without suffix
+            gender_key = f"{path}_{gender}"
+            if gender_dict[gender] != gender_dict["other"] or (
+                extraSuffix
+                and gender_key in translations_dict[language].get(section, {})
+            ):
+                add_translation(
+                    language=language,
+                    section=section,
+                    path=gender_key + extraSuffix,
+                    value=gender_dict[gender],
+                    rowNumber=rowNumber,
+                    translations=translations_dict[language],
+                )
     elif label is not None:
         add_translation(
             language=language,
@@ -324,6 +324,21 @@ def add_gender_or_base_translations(
             rowNumber=rowNumber,
             translations=translations_dict[language],
         )
+        # If extraSuffix is not empty, check if we need to add gender-specific translations without the suffix
+        if extraSuffix and label is not None:
+            # Check if gender-specific versions exist in translations without the extra suffix
+            for gender in ["male", "female", "custom"]:
+                gender_path = f"{path}_{gender}"
+                if gender_path in translations_dict[language].get(section, {}):
+                    # If there's a gender-specific version without suffix, add one with the suffix
+                    add_translation(
+                        language=language,
+                        section=section,
+                        path=gender_path + extraSuffix,
+                        value=label,
+                        rowNumber=rowNumber,
+                        translations=translations_dict[language],
+                    )
 
 
 def add_translations_from_excel(

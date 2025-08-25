@@ -448,6 +448,182 @@ class TestAddGenderOrBaseTranslations:
             {},
         )  # Female with suffix
 
+    def test_with_extra_suffix_and_previous_labels(self, monkeypatch):
+        """
+        Test add_gender_or_base_translations with an extra suffix and previous gendered labels.
+        Only one translation string, but all genders should be added anyway as there are already strings with context
+        """
+        # Mock the add_translation function to record calls
+        calls = []
+
+        def mock_add_translation(
+            language, section, path, value, rowNumber, translations
+        ):
+            calls.append((language, section, path, value, rowNumber, translations))
+
+        monkeypatch.setattr(
+            "scripts.generate_labels.add_translation", mock_add_translation
+        )
+
+        # Setup test data
+        language = "en"
+        section = "test_section"
+        path = "test.path"
+        gender_dict = None
+        label = "Test label"
+        extraSuffix = "_one"
+        rowNumber = 1
+        translations_dict = {
+            "en": {
+                "test_section": {
+                    "test.path": "str",
+                    "test.path_male": "strFemale",
+                    "test.path_female": "strMale",
+                    "test.path_custom": "strCustom",
+                }
+            },
+            "fr": {},
+        }
+
+        # Call the function
+        from scripts.generate_labels import add_gender_or_base_translations
+
+        add_gender_or_base_translations(
+            language,
+            section,
+            path,
+            gender_dict,
+            label,
+            extraSuffix,
+            rowNumber,
+            translations_dict,
+        )
+
+        # Verify the calls to add_translation
+        assert len(calls) == 4  # Should have 4 calls (other, male, female, custom)
+        assert calls[0] == (
+            "en",
+            "test_section",
+            "test.path_one",
+            label,
+            1,
+            translations_dict[language],
+        )  # Default with suffix
+        assert calls[1] == (
+            "en",
+            "test_section",
+            "test.path_male_one",
+            label,
+            1,
+            translations_dict[language],
+        )  # Male with suffix
+        assert calls[2] == (
+            "en",
+            "test_section",
+            "test.path_female_one",
+            label,
+            1,
+            translations_dict[language],
+        )  # Female with suffix
+        assert calls[3] == (
+            "en",
+            "test_section",
+            "test.path_custom_one",
+            label,
+            1,
+            translations_dict[language],
+        )  # Female with suffix
+
+    def test_with_gender_same_and_extra_suffix_and_previous_labels(self, monkeypatch):
+        """
+        Test add_gender_or_base_translations with an extra suffix, gendered string and previous labels.
+        All genders are the same, but should be added anyway as there are already strings with context
+        """
+        # Mock the add_translation function to record calls
+        calls = []
+
+        def mock_add_translation(
+            language, section, path, value, rowNumber, translations
+        ):
+            calls.append((language, section, path, value, rowNumber, translations))
+
+        monkeypatch.setattr(
+            "scripts.generate_labels.add_translation", mock_add_translation
+        )
+
+        # Setup test data
+        language = "en"
+        section = "test_section"
+        path = "test.path"
+        gender_dict = {
+            "male": "moustique",
+            "female": "moustique",
+            "custom": "moustique",
+            "other": "moustique",
+        }
+        extraSuffix = "_one"
+        rowNumber = 1
+        translations_dict = {
+            "en": {
+                "test_section": {
+                    "test.path": "str",
+                    "test.path_male": "strFemale",
+                    "test.path_female": "strMale",
+                    "test.path_custom": "strCustom",
+                }
+            },
+            "fr": {},
+        }
+
+        # Call the function
+        from scripts.generate_labels import add_gender_or_base_translations
+
+        add_gender_or_base_translations(
+            language,
+            section,
+            path,
+            gender_dict,
+            None,
+            extraSuffix,
+            rowNumber,
+            translations_dict,
+        )
+
+        # Verify the calls to add_translation
+        assert len(calls) == 4  # Should have 4 calls (other, male, female, custom)
+        assert calls[0] == (
+            "en",
+            "test_section",
+            "test.path_one",
+            "moustique",
+            1,
+            translations_dict[language],
+        )  # Default with suffix
+        assert calls[1] == (
+            "en",
+            "test_section",
+            "test.path_male_one",
+            "moustique",
+            1,
+            translations_dict[language],
+        )  # Male with suffix
+        assert calls[2] == (
+            "en",
+            "test_section",
+            "test.path_female_one",
+            "moustique",
+            1,
+            translations_dict[language],
+        )  # Female with suffix
+        assert calls[3] == (
+            "en",
+            "test_section",
+            "test.path_custom_one",
+            "moustique",
+            1,
+            translations_dict[language],
+        )  # Custom with suffix
+
 
 class TestExpandGender:
     """Tests for expand_gender function"""
