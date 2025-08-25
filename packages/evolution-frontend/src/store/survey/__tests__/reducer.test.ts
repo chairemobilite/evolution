@@ -39,20 +39,49 @@ const testInterview: UserRuntimeInterviewAttributes = {
     allWidgetsValid: true
 };
 
-test('Test setting an interview', () => {
-    const action = {
-        type: SurveyActionTypes.SET_INTERVIEW as const,
-        interview: testInterview,
-        interviewLoaded: true
-    };
-
-    const result =  {
-        interview: testInterview,
-        interviewLoaded: true
-    };
-
-    expect(surveyReducer({ }, action)).toEqual(result);
-});
+describe('SET_INTERVIEW action', () => {
+    test('Test setting an interview', () => {
+        const action = {
+            type: SurveyActionTypes.SET_INTERVIEW as const,
+            interview: testInterview,
+            interviewLoaded: true
+        };
+    
+        const result =  {
+            interview: testInterview,
+            interviewLoaded: true
+        };
+    
+        expect(surveyReducer({ }, action)).toEqual(result);
+    });
+    
+    test('Test setting an interview with previous state', () => {
+        const initialState = {
+            navigation: {
+                currentSection: { sectionShortname: 'previous', iterationContext: ['1234'] },
+                navigationHistory: [{ sectionShortname: 'previous3' }, { sectionShortname: 'previous2', iterationContext: ['1234'] }]
+            },
+            submitted: true,
+            errors: { field: { 'en': 'something' } },
+            interview: { id: 2 } as UserRuntimeInterviewAttributes,
+        }
+        const action = {
+            type: SurveyActionTypes.SET_INTERVIEW as const,
+            interview: testInterview,
+            interviewLoaded: true
+        };
+    
+        const result =  {
+            interview: testInterview,
+            interviewLoaded: true,
+            navigation: undefined,
+            errors: undefined,
+            submitted: undefined
+        };
+    
+        expect(surveyReducer(initialState, action)).toEqual(result);
+    });
+})
 
 test('Test updating an interview', () => {
     const action = {

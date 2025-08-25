@@ -15,7 +15,11 @@ const reducer: Reducer<SurveyState, SurveyAction> = (state = initialState, actio
         return {
             ...state,
             interview: action.interview,
-            interviewLoaded: action.interviewLoaded
+            interviewLoaded: action.interviewLoaded,
+            // Reset navigation and other states for this newly set interview, to not clash with previous interviews
+            navigation: undefined,
+            errors: undefined,
+            submitted: undefined
         };
     case SurveyActionTypes.UPDATE_INTERVIEW:
         return {
