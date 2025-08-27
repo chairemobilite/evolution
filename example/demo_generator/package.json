@@ -25,7 +25,7 @@
         "start:admin:tracing": "yarn node -r ../../tracing.js lib/admin/server.js --max-old-space-size=4096",
         "start:debug": "cross-env DEBUG=express:* yarn node --trace-warnings lib/server.js --max-old-space-size=4096",
         "reset": "rimraf src/ locales/ tests/ node_modules/ lib/",
-        "format": "prettier-eslint ./**/*.{ts,tsx} --write",
+        "format": "prettier-eslint \"./**/*.{ts,tsx}\" --write",
         "format:all": "yarn format",
         "test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test"
     },
