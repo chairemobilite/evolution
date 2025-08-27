@@ -514,7 +514,7 @@ export const homeGeography = {
         }
       },
       {
-        validation: geography && geography.properties.lastAction && geography.properties.lastAction === 'mapClicked' && geography.properties.zoom < 14,
+        validation: geography && geography.properties.lastAction && geography.properties.lastAction === 'mapClicked' && geography.properties.zoom < 15,
         errorMessage: {
           fr: `Le positionnement de votre domicile n'est pas assez précis.  Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l'icône.`,
           en: `Location of your home is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.`
