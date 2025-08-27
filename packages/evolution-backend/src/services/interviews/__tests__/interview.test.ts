@@ -27,7 +27,8 @@ jest.mock('../serverFieldUpdate', () =>
     jest.fn()
 );
 const mockedServerUpdate = serverUpdate as jest.MockedFunction<typeof serverUpdate>;
-mockedServerUpdate.mockResolvedValue([{}, undefined]);
+// Do not use a single return value as the returned object can be mutated by calling function (and tests)
+mockedServerUpdate.mockImplementation(async () => [{}, undefined]);
 
 jest.mock('../../../models/interviews.db.queries', () => ({
     update: jest.fn(),
@@ -623,6 +624,108 @@ describe('Update Interview', () => {
         expect(error).toBeDefined();
         expect(mockLog).not.toHaveBeenCalled();
 
+    });
+
+    test('With values by path to sanitize as top level strings', async () => {
+        // Prepare test data
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const scriptInjectionString = '<div onmouseover="(function(){alert(\'XSS vulnerability detected\')})()">Hover over me</div>';
+        const sanitizedValue = 'Hover over me';
+
+        // Execute interview update
+        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': scriptInjectionString } });
+
+        // Validate results
+        expect(interviewId).toEqual(testAttributes.uuid);
+        expect(serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+
+        const expectedUpdatedValues = {
+            response: _cloneDeep(interviewAttributes.response) as any,
+            validations: _cloneDeep(interviewAttributes.validations)
+        };
+        expectedUpdatedValues.response.foo = sanitizedValue;
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
+        expect(serverValuesByPath).toEqual({ 'response.foo': sanitizedValue });
+    });
+
+    test('With values by path to sanitize in inner objects', async () => {
+        // Prepare test data
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const scriptInjectionString = '<div onmouseover="(function(){alert(\'XSS vulnerability detected\')})()">Hover over me</div>';
+        const objectAsAnswer = { someNumber: 42, someString: scriptInjectionString };
+        const sanitizedObject = { someNumber: 42, someString: 'Hover over me' };
+
+        // Execute interview update
+        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': 'abc', 'response.bar': objectAsAnswer } });
+
+        // Validate results
+        expect(interviewId).toEqual(testAttributes.uuid);
+        expect(serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+
+        const expectedUpdatedValues = {
+            response: _cloneDeep(interviewAttributes.response) as any,
+            validations: _cloneDeep(interviewAttributes.validations)
+        };
+        expectedUpdatedValues.response.foo = 'abc';
+        expectedUpdatedValues.response.bar = sanitizedObject;
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
+        expect(serverValuesByPath).toEqual({ 'response.bar': sanitizedObject });
+    });
+
+    test('With values by path to sanitize an array value', async () => {
+        // Prepare test data
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const scriptInjectionString = '<div onmouseover="(function(){alert(\'XSS vulnerability detected\')})()">Hover over me</div>';
+        const sanitizedValue = 'Hover over me';
+        const arrayResponse = [scriptInjectionString, { name: scriptInjectionString}, 42];
+        const sanitizedArray = [sanitizedValue, { name: sanitizedValue}, 42];
+
+        // Execute interview update
+        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': arrayResponse } });
+
+        // Validate results
+        expect(interviewId).toEqual(testAttributes.uuid);
+        expect(serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+
+        const expectedUpdatedValues = {
+            response: _cloneDeep(interviewAttributes.response) as any,
+            validations: _cloneDeep(interviewAttributes.validations)
+        };
+        expectedUpdatedValues.response.foo = sanitizedArray;
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
+        expect(serverValuesByPath).toEqual({ 'response.foo': sanitizedArray });
+    });
+
+    test('With values by path to sanitize, overwritten by server update', async () => {
+        // Prepare test data
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const scriptInjectionString = '<div onmouseover="(function(){alert(\'XSS vulnerability detected\')})()">Hover over me</div>';
+        const serverUpdatedValue = 'serverValue';
+        const serverUpdatedValuesByPath = { 'response.foo': serverUpdatedValue };
+        mockedServerUpdate.mockResolvedValueOnce([serverUpdatedValuesByPath, undefined]);
+
+        // Execute interview update
+        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': scriptInjectionString } });
+
+        // Validate results
+        expect(interviewId).toEqual(testAttributes.uuid);
+        expect(serverValidations).toEqual(true);
+        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
+
+        const expectedUpdatedValues = {
+            response: _cloneDeep(interviewAttributes.response) as any,
+            validations: _cloneDeep(interviewAttributes.validations)
+        };
+        expectedUpdatedValues.response.foo = serverUpdatedValue;
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        expect(mockLog).not.toHaveBeenCalled();
+        expect(serverValuesByPath).toEqual(serverUpdatedValuesByPath);
     });
 
 });
