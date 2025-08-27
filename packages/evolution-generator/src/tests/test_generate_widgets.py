@@ -123,6 +123,7 @@ class TestGenerateImportStatements:
             or "import { getGenderedSuffixes }" in result
         )
         assert "import * as validations" in result
+        assert "import _escape from 'lodash/escape'" in result
 
 
 # TODO: Test generate_custom_widget
@@ -209,7 +210,10 @@ class TestGenerateLabel:
         assert "label: (t: TFunction, interview, path) =>" in result
         assert "return t('sectionA:foo.bar', {" in result
         assert "const activePerson =" in result
-        assert "const nickname =" in result
+        assert (
+            "const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));"
+            in result
+        )
         assert "const countPersons =" not in result
         assert "const personGender =" not in result
         assert "nickname," in result
@@ -333,7 +337,10 @@ class TestGenerateLabel:
         assert "label: (t: TFunction, interview, path) =>" in result
         assert "return t('sectionD:bar.baz', {" in result
         assert "const activePerson =" in result
-        assert "const nickname =" in result
+        assert (
+            "const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));"
+            in result
+        )
         assert "const countPersons =" in result
         assert "nickname," in result
         assert "count: countPersons" in result
