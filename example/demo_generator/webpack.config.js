@@ -143,16 +143,9 @@ module.exports = (env) => {
                 'process.env': {
                     IS_BROWSER: JSON.stringify(true),
                     HOST: JSON.stringify(process.env.HOST),
-                    TRROUTING_HOST: JSON.stringify(process.env.TRROUTING_HOST),
                     APP_NAME: JSON.stringify(appIncludeName),
-                    PROJECT_SHORTNAME: JSON.stringify(config.projectShortname),
-                    PROJECT_SOURCE: JSON.stringify(process.env.PROJECT_SOURCE),
                     IS_TESTING: JSON.stringify(env === 'test'),
-                    GOOGLE_API_KEY: JSON.stringify(process.env.GOOGLE_API_KEY),
-                    PROJECT_SAMPLE: JSON.stringify(process.env.PROJECT_SAMPLE),
-                    MAILCHIMP_API_KEY: JSON.stringify(process.env.MAILCHIMP_API_KEY),
-                    MAILCHIMP_LIST_ID: JSON.stringify(process.env.MAILCHIMP_LIST_ID),
-                    PHOTON_OSM_SEARCH_API_URL: JSON.stringify(process.env.PHOTON_OSM_SEARCH_API_URL)
+                    GOOGLE_API_KEY: JSON.stringify(process.env.GOOGLE_API_KEY)
                 },
                 __CONFIG__: JSON.stringify({
                     ...config
