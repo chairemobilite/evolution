@@ -167,7 +167,7 @@ export const inputMapFindPlaceBase: Pick<
                     geography &&
                     geography.properties.lastAction &&
                     geography.properties.lastAction === 'mapClicked' &&
-                    geography.properties.zoom < 14,
+                    geography.properties.zoom < 15,
                 errorMessage: {
                     fr: 'Le positionnement du lieu n\'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l\'icône.',
                     en: 'The positioning of the place is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
