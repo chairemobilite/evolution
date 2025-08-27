@@ -216,6 +216,13 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
             }}
             center={center}
             zoom={props.defaultZoom || 10}
+            options={{
+                zoomControl: true,
+                cameraControl: false,
+                zoomControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_BOTTOM
+                }
+            }}
             onLoad={onLoad}
             onUnmount={onUnmount}
             onClick={(e) => onPositionChange(e, 'mapClicked')}
