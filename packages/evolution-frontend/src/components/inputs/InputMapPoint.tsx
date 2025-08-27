@@ -24,6 +24,7 @@ import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
 // Default max zoom and zoom
 const defaultZoom = 13;
 const defaultMaxZoom = 18;
+const defaultMarkerUrl = '/dist/images/activities_icons/default_marker.svg';
 
 export type InputMapPointProps = CommonInputProps & {
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
@@ -65,8 +66,8 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
                 this.props.interview,
                 this.props.path,
                 this.props.user
-            ) || '/dist/images/default_marker.svg'
-            : '/dist/images/default_marker.svg';
+            ) || defaultMarkerUrl
+            : defaultMarkerUrl;
 
         this.iconSize =
             this.props.widgetConfig.icon && this.props.widgetConfig.icon.size
