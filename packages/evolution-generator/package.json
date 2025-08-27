@@ -17,7 +17,7 @@
     "test:sequential": "echo 'no tests to run for this workspace'",
     "test:ui": "echo 'no tests to run for this workspace'",
     "lint": "eslint .",
-    "format": "prettier-eslint ./src/**/*.{ts,tsx} --write",
+    "format": "prettier-eslint \"./src/**/*.{ts,tsx}\" --write",
     "format:python": "poetry run black .",
     "format:all": "yarn format && yarn format:python",
     "generateSurvey": "poetry run generateSurvey",
