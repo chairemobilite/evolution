@@ -388,6 +388,11 @@ def generate_widgets_names_statements(section_rows):
 
 # Generate import statement if needed
 def generate_import_statements(import_flags: ImportFlags) -> str:
+    escape_import = (
+        "import _escape from 'lodash/escape';\n"
+        if import_flags.has_nickname_label
+        else ""
+    )
     od_survey_helpers_import = (
         "import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';\n"
         if (
@@ -464,6 +469,7 @@ def generate_import_statements(import_flags: ImportFlags) -> str:
     )
     return (
         f"import {{ TFunction }} from 'i18next';\n"
+        f"{escape_import}"
         f"import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';\n"
         f"import {{ defaultConditional }} from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';\n"
         f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
@@ -576,7 +582,7 @@ def generate_label(
         initial_assignations += f"{INDENT}{INDENT}const activePerson = odSurveyHelpers.getPerson({{ interview, path }});\n"
 
     if has_nickname_label:
-        initial_assignations += f"{INDENT}{INDENT}const nickname = activePerson?.nickname || t('survey:noNickname');\n"
+        initial_assignations += f"{INDENT}{INDENT}const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));\n"
         additional_t_context += f"{INDENT}{INDENT}{INDENT}nickname,\n"
 
     if has_label_one or has_persons_count_label:
