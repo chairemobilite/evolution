@@ -7,7 +7,10 @@
 import _set from 'lodash/set';
 import _unset from 'lodash/unset';
 import _cloneDeep from 'lodash/cloneDeep';
+import _isEqual from 'lodash/isEqual';
 import moment from 'moment';
+import DOMPurify from 'dompurify';
+import { JSDOM } from 'jsdom';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import serverValidate, { ServerValidation } from '../validations/serverValidation';
 import serverUpdateField from './serverFieldUpdate';
@@ -20,6 +23,16 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { ParadataLoggingFunction } from '../logging/paradataLogging';
+
+// Create a DOMPurify instance with a virtual DOM
+const window = new JSDOM('').window;
+const purify = DOMPurify(window);
+
+// Configure allowed tags/attributes
+const sanitizeConfig = {
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong'],
+    ALLOWED_ATTR: []
+};
 
 export const addRolesToInterview = (interview: UserInterviewAttributes, user: UserAttributes) => {
     // Add the userRoles in the interview object
@@ -58,6 +71,20 @@ const updateValuesByPathWithUserAction = (
         return { [userAction.path]: userAction.value, ...valuesByPath };
     }
     return valuesByPath;
+};
+
+// Apply sanitization to all string fields
+const sanitizeInterviewData = (data: any) => {
+    if (typeof data === 'string') {
+        return purify.sanitize(data, sanitizeConfig);
+    } else if (Array.isArray(data)) {
+        return data.map(sanitizeInterviewData);
+    } else if (typeof data === 'object' && data !== null) {
+        for (const key of Object.keys(data)) {
+            data[key] = sanitizeInterviewData(data[key]);
+        }
+    }
+    return data;
 };
 
 /**
@@ -127,12 +154,15 @@ export const updateInterview = async (
         ? updateValuesByPathWithUserAction(options.valuesByPath, options.userAction)
         : options.valuesByPath;
 
+    // Sanitize all string fields in the valuesByPath, as they may contain javascript injection
+    const sanitizedValuesByPath = sanitizeInterviewData(_cloneDeep(allValuesByPath));
+
     const fieldsToUpdate = options.fieldsToUpdate || ['response', 'validations'];
     const logData = options.logData || {};
     const serverValidations = await serverValidate(
         interview,
         options.serverValidations,
-        allValuesByPath,
+        sanitizedValuesByPath,
         options.unsetPaths || []
     );
 
@@ -153,11 +183,11 @@ export const updateInterview = async (
         options.deferredUpdateCallback!(serverValuesByPath);
     };
     // Update values by path with caller provided values
-    setInterviewFields(interview, { valuesByPath: allValuesByPath, unsetPaths: options.unsetPaths });
+    setInterviewFields(interview, { valuesByPath: sanitizedValuesByPath, unsetPaths: options.unsetPaths });
     const [serverValuesByPath, redirectUrl] = await serverUpdateField(
         interview,
         projectConfig.serverUpdateCallbacks,
-        allValuesByPath,
+        sanitizedValuesByPath,
         options.unsetPaths,
         options.deferredUpdateCallback !== undefined ? deferredSaveFct : undefined
     );
@@ -165,6 +195,12 @@ export const updateInterview = async (
     if (Object.keys(serverValuesByPath).length > 0) {
         setInterviewFields(interview, { valuesByPath: serverValuesByPath, unsetPaths: options.unsetPaths });
     }
+    // Update the sanitized fields by path and send back to the client
+    Object.keys(sanitizedValuesByPath).forEach((path) => {
+        if (!_isEqual(sanitizedValuesByPath[path], allValuesByPath[path]) && serverValuesByPath[path] === undefined) {
+            serverValuesByPath[path] = sanitizedValuesByPath[path];
+        }
+    });
     // If server validation failed, add the invalid fields to validation
     if (serverValidations !== true) {
         for (const path in serverValidations) {
@@ -207,7 +243,7 @@ export const updateInterview = async (
         // prepare the widgets.  Navigation should move server-side and this
         // won't be required anymore.
         serverValuesByPath:
-            allValuesByPath['response._sections._actions'] !== undefined
+            sanitizedValuesByPath['response._sections._actions'] !== undefined
                 ? Object.assign({}, serverValuesByPath, { 'response._sections': interview.response._sections })
                 : serverValuesByPath,
         redirectUrl
