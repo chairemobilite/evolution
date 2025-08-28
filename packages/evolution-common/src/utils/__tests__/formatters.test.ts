@@ -17,25 +17,26 @@ describe('helper', () => {
       ['removes letters and special characters', 'ab12cd34ef56gh78', '1234-5678'],
       ['handles mixed special characters', '12_34-ab56!78', '1234-5678'],
       ['keeps dashes but removes other special chars', '12-34-56-78', '1234-5678'],
-      ['smaller code with dashes', '123-456', '1234-56'],
+      ['smaller code with dashes', '123-456', '123-456'],
       ['8 digits with dash at the wrong place', '123-45678', '1234-5678'],
-      ['does not format if less than 8 digits', '123456', '1234-56'],
+      ['does not format if less than 8 digits', '123456', '123456'],
       ['truncates to 9 characters max', '1234567890', '1234-5678'],
       ['handles input with spaces', '1234 5678', '1234-5678'],
       ['handles input with spaces before and after', '   12 34 5678  ', '1234-5678'],
       ['handles empty string', '', ''],
+      ['9 characters, but less than 8 digits', '123-45-6-', '1234-56'],
       ['handles with non-numeric at the end', '1234db', '1234'],
       ['partial access code, 1 character', '1', '1'],
       ['partial access code, 2 characters', '12', '12'],
       ['partial access code, 3 characters', '123', '123'],
       ['partial access code, 4 characters', '1234', '1234'],
       // FIXME The dash should remain in the formatted code, but it is not the case currently with the delimiterLazyShow
-      ['partial access code, 4 characters + dash', '1234-', '1234'],
+      ['partial access code, 4 characters + dash', '1234-', '1234-'],
       ['partial access code, 4 characters + dash + 2 characters', '1234-23', '1234-23'],
-      ['partial access code, 5 characters', '12345', '1234-5'],
-      ['partial access code, 6 characters', '123456', '1234-56'],
-      ['partial access code, 7 characters', '1234567', '1234-567'],
-    ])('%s', (_, input, expected) => {
+      ['partial access code, 5 characters', '12345', '12345'],
+      ['partial access code, 6 characters', '123456', '123456'],
+      ['partial access code, 7 characters', '1234567', '1234567'],
+    ])('%s: %s => %s', (_, input, expected) => {
       expect(eightDigitsAccessCodeFormatter(input)).toBe(expected);
     });
   });
