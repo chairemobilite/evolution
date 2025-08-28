@@ -75,7 +75,7 @@ export default <U extends IUserModel>(passport: PassportStatic, authModel: IAuth
                     // usernames if somebody enters the wrong access code and
                     // the actual participant with this access code later comes
                     // to fill the survey
-                    const username = `${accessCode}-${postalCode}`;
+                    let username = `${accessCode}-${postalCode}`;
 
                     // First, try to find a user with matching credentials in the auth model
                     const user = await authModel.find({ username });
@@ -94,6 +94,20 @@ export default <U extends IUserModel>(passport: PassportStatic, authModel: IAuth
                     if (prefillData !== undefined || userConfirmedOk) {
                         const preFilledPostalCode = prefillData?.['home.postalCode']?.value;
                         if (preFilledPostalCode === postalCode || userConfirmedOk) {
+                            if (preFilledPostalCode !== postalCode) {
+                                // Add a random alphanumeric string to the
+                                // username to avoid collision where users enter
+                                // an easily guessed unmatching pair and could
+                                // enter someone else's interview. Take the
+                                // first 6 characters after the `0.` of a random
+                                // number converted to string with radix 36
+                                // (alphanumeric).
+                                const randomString = Math.random().toString(36).substring(2, 8).toUpperCase();
+                                console.warn(
+                                    'authByFieldLogin: User confirmed mismatching postal code, adding random string to username to avoid collision.'
+                                );
+                                username = `${username}-${randomString}`;
+                            }
                             // Found matching prefill data or the user confirmed the pair is as expected, create a new user
                             const newUser = await authModel.createAndSave({
                                 username
