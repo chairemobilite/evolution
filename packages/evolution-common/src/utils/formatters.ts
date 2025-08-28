@@ -15,14 +15,17 @@ import { formatGeneral } from 'cleave-zen';
  * @param input The input to format
  * @returns The formatted access code
  */
-export const eightDigitsAccessCodeFormatter = (input: string): string =>
-    formatGeneral(input, {
-        blocks: [4, 4],
-        delimiter: '-',
-        // Use delimiterLazyShow, otherwise the delimiter cannot be erased by the user
-        delimiterLazyShow: true,
-        numericOnly: true
-    });
+export const eightDigitsAccessCodeFormatter = (input: string): string => {
+    input = input.replace('_', '-'); // change _ to -
+    input = input.replace(/[^-\d]/g, ''); // Remove everything but numbers and -
+    // Get only the digits. If we have 8 or if total input length is 9, we can automatically format the access code.
+    const digits = input.replace(/\D+/g, '');
+    if (digits.length >= 8 || input.length === 9) {
+        return digits.slice(0, 4) + (digits.length > 4 ? '-' + digits.slice(4, 8) : '');
+    }
+    // Prevent entering more than 9 characters (8 digit access code and a dash)
+    return input.slice(0, 9);
+};
 
 /**
  * Formats a canadian postal code as 2 blocks of 3 characters. Note that this
