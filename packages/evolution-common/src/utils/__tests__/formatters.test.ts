@@ -50,16 +50,17 @@ describe('helper', () => {
       ['Many invalid characters', 'h.2.e.1.r.3', 'H2E 1R3'],
       ['all numeric', '123456', '123 456'],
       ['all letters', 'abcdef', 'ABC DEF'],
+      ['longer than 7 characters', 'h2e1y6u7r4', 'H2E 1Y6'],
       ['handles input with many spaces', 'h   2 e     1r3', 'H2E 1R3'],
       ['handles input with spaces before and after', '   H2E 1R3  ', 'H2E 1R3'],
       ['handles empty string', '', ''],
       ['partial postal code, 1 character', 'h', 'H'],
       ['partial postal code, 2 characters', 'h2', 'H2'],
       ['partial postal code, 3 characters', 'h2e', 'H2E'],
-      ['partial postal code, 4 characters', 'h2e1', 'H2E 1'],
-      ['partial postal code, 5 characters', 'h2e1r', 'H2E 1R'],
-      ['partial access code, 3 characters + space', 'h2e1 ', 'H2E 1'],
-    ])('%s', (_, input, expected) => {
+      ['partial postal code, 4 characters', 'h2e1', 'H2E1'],
+      ['partial postal code, 5 characters', 'h2e1r', 'H2E1R'],
+      ['partial postal code, 4 characters + space', 'h2e1 ', 'H2E1 '],
+    ])('%s: %s => %s', (_, input, expected) => {
       expect(canadianPostalCodeFormatter(input)).toBe(expected);
     });
   });
