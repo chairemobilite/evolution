@@ -44,6 +44,7 @@ type Path = string;
 type Email = string;
 type PathAndValue = { path: Path; value: Value };
 type PathAndValueBoolOrStr = { path: Path; value: StringOrBoolean };
+type OptionalExpectedValue = { expectedValue?: Value };
 type HasTitleTest = (params: { title: Title } & CommonTestParameters) => void;
 type HasFrenchTest = (params: CommonTestParameters) => void;
 type SwitchToLanguageTest = (params: CommonTestParameters) => void;
@@ -70,7 +71,7 @@ type FetchGoogleMapsApiResponse = (params: {
 }) => Promise<{ results: any[]; resultsNumber: number }>;
 type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void | Promise<Locator>;
 type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
-type InputStringTest = (params: PathAndValue & CommonTestParameters) => void | Promise<Locator>;
+type InputStringTest = (params: PathAndValue & OptionalExpectedValue & CommonTestParameters) => void | Promise<Locator>;
 type InputRangeTest = (params: { path: Path; value: number; sliderColor?: string } & CommonTestParameters) => void;
 type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestParameters) => void;
 type InputMapFindPlaceTest = (params: { path: Path } & CommonTestParameters) => void;
@@ -398,8 +399,7 @@ export const inputRadioInvalidTest: InputRadioTest = ({ context, path, value }) 
  *
  * @param {Object} options - The options for the test.
  * @param {string} options.path - The path of the radio input question.
- * @param {string[]} options.options - The expected options for the radio input
- * question.
+ * @param {string[]} options.options - The expected options for the radio input question.
  */
 export const expectInputRadioOptionsTest = ({
     context,
@@ -461,8 +461,7 @@ export const inputSelectTest: InputSelectTest = ({ context, path, value }) => {
  *
  * @param {Object} options - The options for the test.
  * @param {string} options.path - The path of the select input question.
- * @param {string[]} options.options - The expected options for the select input
- * question.
+ * @param {string[]} options.options - The expected options for the select input question.
  */
 export const expectInputSelectOptionsTest = ({
     context,
@@ -517,11 +516,19 @@ const inputString: InputStringTest = async ({ context, path, value }): Promise<L
     return inputText;
 };
 
-// Test input string widget
-export const inputStringTest: InputStringTest = ({ context, path, value }) => {
-    test(`Fill ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
+/**
+ * Input a string, and check that the value gets correctly entered.
+ *
+ * @param {Object} options - The options for the test.
+ * @param {string} options.path - The path of the string input question.
+ * @param {string} options.value - The value to enter
+ * @param {string | undefined} [options.expectedValue] - The expected value read inside the input after it is entered.
+ * Optional, options.value will be read if not present.
+ */
+export const inputStringTest: InputStringTest = ({ context, path, value, expectedValue }) => {
+    test(`Fill ${value} → ${expectedValue ?? value} for ${path} - ${getTestCounter(context, `${path} - ${value} - ${expectedValue ?? value}`)}`, async () => {
         const inputLocator = (await inputString({ context, path, value })) as Locator;
-        await expect(inputLocator).toHaveValue(value);
+        await expect(inputLocator).toHaveValue(expectedValue ?? value);
     });
 };
 
@@ -530,8 +537,7 @@ export const inputStringTest: InputStringTest = ({ context, path, value }) => {
  *
  * @param {Object} options - The options for the test.
  * @param {string} options.path - The path of the string input question.
- * @param {string[]} options.value - The value to try and enter
- * question.
+ * @param {string} options.value - The value to try and enter
  */
 export const inputStringInvalidTypeTest: InputStringTest = ({ context, path, value }) => {
     test(`Try to fill ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
@@ -541,17 +547,18 @@ export const inputStringInvalidTypeTest: InputStringTest = ({ context, path, val
 };
 
 /**
- * Input a string that is not a valid answer for this widget, and check that it gets highlighted in red.
+ * Input a string that is not a valid answer for this widget, and check that it gets highlighted in red. Also check that the entered value is correct.
  *
  * @param {Object} options - The options for the test.
  * @param {string} options.path - The path of the string input question.
- * @param {string[]} options.value - The value to enter
- * question.
+ * @param {string} options.value - The value to enter
+ * @param {string | undefined} [options.expectedValue] - The expected value read inside the input after it is entered.
+ * Optional, options.value will be read if not present.
  */
-export const inputStringInvalidValueTest: InputStringTest = ({ context, path, value }) => {
-    test(`Fill ${value} for ${path} and check that it is invalid - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
+export const inputStringInvalidValueTest: InputStringTest = ({ context, path, value, expectedValue }) => {
+    test(`Fill ${value} → ${expectedValue ?? value} for ${path} and check that it is invalid - ${getTestCounter(context, `${path} - ${value} - ${expectedValue ?? value}`)}`, async () => {
         const inputLocator = (await inputString({ context, path, value })) as Locator;
-        await expect(inputLocator).toHaveValue(value);
+        await expect(inputLocator).toHaveValue(expectedValue ?? value);
 
         // Filter is used to find parent container instead of locator(".."), as not all input fields are located at the same depth inside their question container
         const questionContainer = context.page

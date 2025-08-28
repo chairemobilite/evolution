@@ -26,11 +26,10 @@ surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: f
 // Test the home page
 testHelpers.tryToContinueWithInvalidInputs({ context, text: 'Save and continue', currentPageUrl: '/survey/home' , nextPageUrl: '/survey/householdMembers' });
 testHelpers.inputStringInvalidValueTest({ context, path: 'household.carNumber', value: '14' });
-testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'H1S1V77' });
-testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'H1S1V' });
-testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: '1H1S7V' });
-testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'A1S1V7' });
-testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'H1D1F7' });
+testHelpers.inputStringTest({ context, path: 'home.postalCode', value: 'H1S1V77', expectedValue: 'H1S 1V7' }); // We check that the postal code doesn't accept characters past 6. This does not make the box invalid.
+testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'H1S1V', expectedValue: 'H1S 1V' });
+testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: '1H1S7V', expectedValue: '1H1 S7V' });
+testHelpers.inputStringInvalidValueTest({ context, path: 'home.postalCode', value: 'H1D1F7', expectedValue: 'H1D 1F7' });
 
 onePersonTestHelpers.completeHomePage(context);
 

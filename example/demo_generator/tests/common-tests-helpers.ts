@@ -76,7 +76,8 @@ export const completeHomeSectionTests = ({ context, householdSize }: CommonTestP
     testHelpers.inputStringTest({
         context,
         path: 'home.postalCode',
-        value: 'H1S1V7'
+        value: 'H1S1V7',
+        expectedValue: 'H1S 1V7'
     });
 
     testHelpers.inputMapFindPlaceTest({ context, path: 'home.geography' });
