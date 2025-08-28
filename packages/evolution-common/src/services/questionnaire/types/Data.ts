@@ -22,6 +22,21 @@ export type LangData = {
     [lang: string]: string | ParsingFunction<string>;
 };
 
+/**
+ * Function that produces a translated string. It takes a translation function
+ * `t`, with the interview, path and user data.
+ *
+ * Note: If the translated string contains any data coming from the
+ * participant's interview, this field should be sanitized before being
+ * concatenated to the label, to avoid javascript injection attacks. It can be
+ * done with the `lodash/escape` package.
+ *
+ * @param {TFunction} t Translation function to be used for language translation
+ * @param {UserInterviewAttributes} interview User interview attributes data
+ * @param {string} path The path or key used for translation lookup
+ * @param {CliUser} [user] Optional client user information
+ * @returns A translated string based on the provided parameters
+ */
 export type TranslatableStringFunction = (
     t: TFunction,
     interview: UserInterviewAttributes,
