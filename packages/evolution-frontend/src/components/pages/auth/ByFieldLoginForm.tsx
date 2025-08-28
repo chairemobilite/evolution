@@ -21,6 +21,7 @@ import CaptchaComponent from 'chaire-lib-frontend/lib/components/captcha/Captcha
 import { SurveyContext } from '../../../contexts/SurveyContext';
 import { ValidationFunction } from 'evolution-common/lib/services/questionnaire/types';
 import { translateString } from 'evolution-common/lib/utils/helpers';
+import FormattedInput from '../../inputs/FormattedInput';
 
 type ByFieldLoginFormProps = {
     headerText?: string;
@@ -107,16 +108,12 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({
         return postalCodeValidations ? validateValueFromInterview(postalCodeValidations, postalCode, i18n) : undefined;
     };
 
-    const handleAccessCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const accessCode = e.target.value;
-        const formattedAccessCode = formatAccessCode ? formatAccessCode(accessCode) : accessCode;
-        setFormState((prev) => ({ ...prev, accessCode: formattedAccessCode }));
+    const handleAccessCodeChange = (value: string) => {
+        setFormState((prev) => ({ ...prev, accessCode: value }));
     };
 
-    const handlePostalCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const postalCode = e.target.value;
-        const formattedPostalCode = formatPostalCode ? formatPostalCode(postalCode) : postalCode;
-        setFormState((prev) => ({ ...prev, postalCode: formattedPostalCode }));
+    const handlePostalCodeChange = (value: string) => {
+        setFormState((prev) => ({ ...prev, postalCode: value }));
     };
 
     const handleSubmit = () => {
@@ -181,16 +178,15 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({
                     <label htmlFor="accessCode" className="_flex">
                         {t('auth:AccessCode')}
                     </label>
-                    <input
-                        name="accessCode"
+                    <FormattedInput
                         id="accessCode"
-                        type="text"
-                        placeholder={t('auth:AccessCodePlaceholder')}
-                        className="apptr__form-input apptr__form-input-string apptr__input apptr__input-string"
+                        name="accessCode"
                         value={formState.accessCode}
                         onChange={handleAccessCodeChange}
-                        onKeyUp={handleKeyUp}
+                        formatValue={formatAccessCode}
+                        placeholder={t('auth:AccessCodePlaceholder')}
                         autoComplete="off"
+                        onKeyUp={handleKeyUp}
                     />
                 </div>
 
@@ -201,18 +197,18 @@ const ByFieldLoginForm: React.FC<ByFieldLoginFormProps> = ({
                     <label htmlFor="postalCode" className="_flex">
                         {t('auth:PostalCode')}
                     </label>
-                    <input
-                        name="postalCode"
+                    <FormattedInput
                         id="postalCode"
-                        type="text"
-                        placeholder={t('auth:PostalCodePlaceholder')}
-                        className="apptr__form-input apptr__form-input-string apptr__input apptr__input-string"
+                        name="postalCode"
                         value={formState.postalCode}
                         onChange={handlePostalCodeChange}
-                        onKeyUp={handleKeyUp}
+                        formatValue={formatPostalCode}
+                        placeholder={t('auth:PostalCodePlaceholder')}
                         autoComplete="postal-code"
+                        onKeyUp={handleKeyUp}
                     />
                 </div>
+
                 {hasInvalidCredentials && (
                     <div className="apptr__form-input-container">
                         <label htmlFor="confirmCredentials" className="_flex">
