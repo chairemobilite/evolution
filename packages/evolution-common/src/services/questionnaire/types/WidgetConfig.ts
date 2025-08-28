@@ -305,6 +305,15 @@ export type BaseQuestionType = {
     joinWith?: string;
     path: InterviewResponsePath;
     containsHtml?: ContainsHtml;
+    /**
+     * Label of the question.
+     *
+     * Can contain HTML if `containsHtml` is `true`. If that is the case,
+     * implementers should make sure that if the label contains any data coming
+     * from the participant's response, this field is sanitized before being
+     * concatenated to the label. It can be done with the `lodash/escape`
+     * package.
+     */
     label: I18nData;
 
     /**
@@ -343,6 +352,15 @@ export type TextWidgetConfig = {
     align?: WidgetDirectionAlign;
     path?: string;
     containsHtml?: ContainsHtml;
+    /**
+     * Text to display for this widget
+     *
+     * Can contain HTML if `containsHtml` is `true`. If that is the case,
+     * implementers should make sure that if the label contains any data coming
+     * from the participant's response, this field is sanitized before being
+     * concatenated to the label. It can be done with the `lodash/escape`
+     * package.
+     */
     text: I18nData;
     classes?: string;
     conditional?: WidgetConditional;
@@ -354,6 +372,15 @@ export type ButtonWidgetConfig = {
     path?: string;
     containsHtml?: ContainsHtml;
     color?: string;
+    /**
+     * Label of the button widget.
+     *
+     * Can contain HTML if `containsHtml` is `true`. If that is the case,
+     * implementers should make sure that if the label contains any data coming
+     * from the participant's response, this field is sanitized before being
+     * concatenated to the label. It can be done with the `lodash/escape`
+     * package.
+     */
     label: I18nData;
     /**
      * Whether to hide the button when the page is being refreshed (loading/saving data from/to the server)
