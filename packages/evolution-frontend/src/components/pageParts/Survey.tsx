@@ -43,7 +43,7 @@ const Survey: React.FC<SurveyProps> = (props: SurveyProps) => {
     const { errors, submitted, navigation } = useSelector((state: RootState) => state.survey);
     const user = useSelector((state: RootState) => state.auth.user)!;
     const loadingState = useSelector((state: RootState) => state.loadingState.loadingState);
-    const { sections } = useContext(SurveyContext);
+    const { sections, appContext } = useContext(SurveyContext);
 
     React.useEffect(() => {
         // set language if empty or unavailable and change locale:
@@ -195,7 +195,9 @@ const Survey: React.FC<SurveyProps> = (props: SurveyProps) => {
                         submitted={submitted}
                     />
                 </form>
-                <div dangerouslySetInnerHTML={{ __html: t(['survey:footer', 'main:footer']) }} />
+                <div
+                    dangerouslySetInnerHTML={{ __html: t(['survey:footer', 'main:footer'], { context: appContext }) }}
+                />
             </div>
         </div>
     );
