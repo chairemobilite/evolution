@@ -362,3 +362,20 @@ export const postalCodeValidation: ValidationFunction = (value) => {
         }
     ];
 };
+
+// Eight digits access code validation regex
+const eightDigitsAccessCodeValidation = /^\d{4}-? *\d{4}$/i;
+// FIXME Support more access code formats in the future. For now, only one format is supported if using this validation function
+const getAccessCodeRegex = () => eightDigitsAccessCodeValidation;
+export const accessCodeValidation: ValidationFunction = (value) => {
+    return [
+        {
+            validation: _isBlank(value),
+            errorMessage: (t) => t('survey:errors:accessCodeRequired')
+        },
+        {
+            validation: !getAccessCodeRegex().test(String(value)),
+            errorMessage: (t) => t('survey:errors:accessCodeInvalid')
+        }
+    ];
+};
