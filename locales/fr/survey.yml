@@ -159,3 +159,5 @@ errors:
   postalCodeInvalid_canada: "Le code postal est invalide. Vous devez résider au Canada pour compléter ce questionnaire.."
   postalCodeInvalid_quebec: "Le code postal est invalide. Vous devez résider au Québec pour compléter ce questionnaire."
   phoneNumberInvalid: "Le numéro de téléphone est invalide. (ex.: 514-123-1234 ou +33 1 23 45 67 89)."
+  accessCodeRequired: "Veuillez spécifier votre code d'accès."
+  accessCodeInvalid: "Le code d'accès est invalide."

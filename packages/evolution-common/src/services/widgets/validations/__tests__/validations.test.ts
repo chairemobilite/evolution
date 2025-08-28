@@ -249,3 +249,46 @@ describe('phoneValidation', () => {
         expect(result[0].validation).toBe(true);
     });
 });
+
+describe('accessCodeValidation', () => {
+    // Mock the translation function for errors
+    const mockTranslation = jest.fn().mockImplementation((key: string, _params) => key);
+
+    describe('Empty access code validation', () => {
+        it('should return error when access code is empty', () => {
+            const result = validations.accessCodeValidation('', undefined, {} as any, 'accessCode');
+            expect(result.length).toBe(2);
+            expect(result[0].validation).toBe(true); // Empty validation fails
+            expect(typeof result[0].errorMessage).toEqual('function');
+            expect((result[0].errorMessage as any)(mockTranslation)).toEqual('survey:errors:accessCodeRequired');
+        });
+    });
+    
+    describe('eight digits access code validation', () => {
+        
+        test.each([
+            '2345-2345', 
+            '1234 1234',
+            '12341234'
+        ])('should accept valid 8-digits access codes: %s', (accessCode) => {
+            const result = validations.accessCodeValidation(accessCode, undefined, {} as any, 'accessCode');
+            expect(result[0].validation).toBe(false); // Empty validation passes
+            expect(result[1].validation).toBe(false); // Should be valid
+        });
+        
+        test.each([
+            ['2345-abcd', 'Contains letters'],
+            ['2345 45', 'Too short'],
+            ['123412341234', 'Too long'],
+            ['12-345678', 'Misplaced dash'],
+        ])('should reject invalid 8-digits access code: %s (%s)', (accessCode, _reason) => {
+            const result = validations.accessCodeValidation(accessCode, undefined, {} as any, 'accessCode');
+            expect(result[0].validation).toBe(false); // Empty validation passes
+            expect(result[1].validation).toBe(true); // Should be invalid
+            expect(typeof result[1].errorMessage).toEqual('function');
+            expect((result[1].errorMessage as any)(mockTranslation)).toEqual('survey:errors:accessCodeInvalid');
+            expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:accessCodeInvalid');
+        });
+    });
+    
+});
