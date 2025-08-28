@@ -26,6 +26,7 @@ import requestIp from 'request-ip';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
 import surveyRoutes from './routes';
+import lusca from 'lusca';
 
 const KnexSessionStore = connectSessionKnex(expressSession);
 
@@ -76,6 +77,9 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
     app.use(favicon(path.join(publicDirectory, 'favicon.ico')));
     app.use(passport.initialize());
     app.use(passport.session());
+
+    // Apply CSRF attack protection middleware
+    app.use(lusca.csrf({ angular: true }));
 
     authRoutes(app, userAuthModel, passport);
 
