@@ -218,7 +218,7 @@ describe('Auth by Field Login Strategy Tests', () => {
         expect(mockGetByReferenceValue).toHaveBeenCalledTimes(1);
         expect(mockCreateAndSave).toHaveBeenCalledTimes(1);
         expect(mockCreateAndSave).toHaveBeenCalledWith({
-            username: '5555-5555-J4R5T6'
+            username: expect.stringMatching(/^5555-5555-J4R5T6-[A-Z0-9]{6}$/)
         });
         expect(mockRecordLogin).toHaveBeenCalledTimes(1);
     });
