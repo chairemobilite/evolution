@@ -20,6 +20,11 @@ export const Section: React.FC<SectionProps & WithSurveyContextProps> = (
 ) => {
     const { preloaded } = useSectionTemplate(props);
 
+    // Scroll to top when the section is rendered
+    React.useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [props.shortname]);
+
     // TODO: This should not be done here. Wrong responsability. Move elsewhere.
     const getSortedWidgetShortnames = () => {
         let hasRandomOrderWidgets = false;
