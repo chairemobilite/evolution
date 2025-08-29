@@ -37,7 +37,8 @@ import {
     validateAndPrepareSection,
     updateInterviewState,
     updateInterviewData,
-    startNavigateWithUpdateCallback
+    startNavigateWithUpdateCallback,
+    asyncDispatchQueue
 } from './Survey';
 import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../store/configureStore';
@@ -178,7 +179,9 @@ export const startUpdateSurveyCorrectedInterview =
             dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
             getState: () => RootState
         ) => {
-            await updateSurveyCorrectedInterview(dispatch, getState, data, callback);
+            return await asyncDispatchQueue.enqueueTask(async () => {
+                await updateSurveyCorrectedInterview(dispatch, getState, data, callback);
+            });
         };
 
 /**

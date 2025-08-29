@@ -12,6 +12,7 @@ import isEqual from 'lodash/isEqual';
 import _unset from 'lodash/unset';
 import bowser from 'bowser';
 import { ThunkDispatch } from 'redux-thunk';
+import PQueue from 'p-queue';
 
 /* eslint-disable-next-line */
 const fetchRetry = require('@zeit/fetch-retry')(require('node-fetch'));
@@ -49,6 +50,41 @@ import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 import { LoadingStateAction } from '../store/loadingState';
 import { RootState } from '../store/configureStore';
 import { createNavigationService } from 'evolution-common/lib/services/questionnaire/sections/NavigationService';
+
+/**
+ * Class used to manage a queue of asynchronous update functions, to ensure they
+ * are run sequentially.
+ *
+ * FIXME We used to use the `redux-async-queue` package, but it is old and not
+ * compatible with the current redux version. According to the documentation
+ * when doing the update, it should not be required to use a queue anymore. The
+ * `Thunk` should handle. Either, we are not using redux properly in this case,
+ * or the Thunk is not correctly configured, but we need it to avoid concurrent
+ * updates where one is lost. But we should not use this approach, or at least
+ * investigate other ways. See if we can prevent it by using the
+ * `@reduxjs/toolkit` package (see issue
+ * https://github.com/chairemobilite/transition/issues/1154 in chaire-lib)
+ */
+class AsyncDispatchQueue {
+    // Create a queue with concurrency of 1 to ensure sequential processing
+    private interviewUpdateQueue = new PQueue({ concurrency: 1 });
+
+    // Utility function to add a task to the queue and return a promise
+    public enqueueTask = <T>(task: () => Promise<T>): Promise<T> => {
+        return this.interviewUpdateQueue.add(task);
+    };
+
+    // For debugging purposes
+    public getQueueSize = (): number => {
+        return this.interviewUpdateQueue.size;
+    };
+
+    public getPendingCount = (): number => {
+        return this.interviewUpdateQueue.pending;
+    };
+}
+// Exported for the SurveyAdmin action and in case we need to monitor the queue
+export const asyncDispatchQueue = new AsyncDispatchQueue();
 
 /**
  * Called whenever an update occurs in interview response or when section is
@@ -434,33 +470,36 @@ export const startUpdateInterview =
             dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
             getState: () => RootState
         ) => {
-        // If there's a _activeSection explicitly set in valuesByPath, this is a legacy navigation request
-        // Convert it to use the navigation service instead
-            if (data?.valuesByPath && data.valuesByPath['response._activeSection']) {
-                console.error(
-                    'Warning (startUpdateInterview): _activeSection is deprecated and will no longer be supported in the next release. Define proper navigation in section configuration instead, or use the `startNavigate` callback.'
-                );
+        // Queue the update operation to ensure sequential processing
+            return await asyncDispatchQueue.enqueueTask(async () => {
+            // If there's a _activeSection explicitly set in valuesByPath, this is a legacy navigation request
+            // Convert it to use the navigation service instead
+                if (data?.valuesByPath && data.valuesByPath['response._activeSection']) {
+                    console.error(
+                        'Warning (startUpdateInterview): _activeSection is deprecated and will no longer be supported in the next release. Define proper navigation in section configuration instead, or use the `startNavigate` callback.'
+                    );
 
-                const targetSection = data.valuesByPath['response._activeSection'] as string;
-                // Remove the _activeSection from valuesByPath
-                const newValuesByPath = { ...data.valuesByPath };
-                delete newValuesByPath['response._activeSection'];
+                    const targetSection = data.valuesByPath['response._activeSection'] as string;
+                    // Remove the _activeSection from valuesByPath
+                    const newValuesByPath = { ...data.valuesByPath };
+                    delete newValuesByPath['response._activeSection'];
 
-                // If there are no other values to update, just navigate
-                if (Object.keys(newValuesByPath).length === 0) {
-                    return dispatch(startNavigate({ requestedSection: { sectionShortname: targetSection } }));
+                    // If there are no other values to update, just navigate
+                    if (Object.keys(newValuesByPath).length === 0) {
+                        return dispatch(startNavigate({ requestedSection: { sectionShortname: targetSection } }));
+                    }
+
+                    // Otherwise, update the interview then navigate in the callback
+                    const updatedData = { ...data, valuesByPath: newValuesByPath };
+                    return await updateInterviewCallback(dispatch, getState, updatedData, (updatedInterview) => {
+                        dispatch(startNavigate({ requestedSection: { sectionShortname: targetSection } }));
+                        if (callback) callback(updatedInterview);
+                    });
                 }
 
-                // Otherwise, update the interview then navigate in the callback
-                const updatedData = { ...data, valuesByPath: newValuesByPath };
-                return await updateInterviewCallback(dispatch, getState, updatedData, (updatedInterview) => {
-                    dispatch(startNavigate({ requestedSection: { sectionShortname: targetSection } }));
-                    if (callback) callback(updatedInterview);
-                });
-            }
-
-            // Standard interview update without navigation
-            await updateInterviewCallback(dispatch, getState, data, callback);
+                // Standard interview update without navigation
+                return await updateInterviewCallback(dispatch, getState, data, callback);
+            });
         };
 
 const navigate = (targetSection: NavigationSection): SurveyAction => ({

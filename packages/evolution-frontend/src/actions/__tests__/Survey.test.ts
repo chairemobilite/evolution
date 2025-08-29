@@ -113,11 +113,18 @@ const testUser = {
 jest.mock('../utils', () => ({
     prepareSectionWidgets: jest.fn().mockImplementation((_sectionShortname, interview, _affectedPaths, valuesByPath) => ({ updatedInterview: _cloneDeep(interview), updatedValuesByPath: _cloneDeep(valuesByPath), needUpdate: false }))
 }));
-const mockDispatch = jest.fn();
+const mockDispatch = jest.fn().mockImplementation((action) => {
+    if (action.type === 'UPDATE_INTERVIEW') {
+        // Set the interview to use as state
+        interviewAsState = _cloneDeep(action.interview);
+    }
+});
 const mockPrepareSectionWidgets = prepareSectionWidgets as jest.MockedFunction<typeof prepareSectionWidgets>;
+// Interview to use as state, reset before each test, but can be updated by the update state action
+let interviewAsState = _cloneDeep(interviewAttributes)
 const mockGetState = jest.fn().mockImplementation(() => ({
     survey: {
-        interview: _cloneDeep(interviewAttributes),
+        interview: interviewAsState,
         interviewLoaded: true,
         errors: undefined,
         navigationService: navigationServiceMock
@@ -130,6 +137,7 @@ const mockGetState = jest.fn().mockImplementation(() => ({
 beforeEach(() => {
     jest.clearAllMocks();
     fetchStatus = [];
+    interviewAsState = _cloneDeep(interviewAttributes)
 });
 
 describe('Update interview', () => {
@@ -556,6 +564,105 @@ describe('Update interview', () => {
             type: 'DECREMENT_LOADING_STATE'
         });
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
+    });
+
+    test('Test concurrent calls', async () => {
+        // Prepare mock and test data for first call
+        const updateCallback = jest.fn();
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
+        const valuesByPathCall1 = { 'validations.section1.q1': false };
+        const userActionCall1 = {
+            type: 'widgetInteraction' as const,
+            widgetType: 'string',
+            path: 'response.section1.q1',
+            value: 'foo'
+        };
+
+        // Prepare test data for second call
+        const valuesByPathCall2 = { 'validations.section1.q2': true };
+        const userActionCall2 = {
+            type: 'widgetInteraction' as const,
+            widgetType: 'number',
+            path: 'response.section1.q2',
+            value: 1234
+        };
+        
+        // Both path in user action and valuesByPath should have been updated for both actions
+        const expectedInterviewToPrepareForCall1 = _cloneDeep(interviewAttributes);
+        (expectedInterviewToPrepareForCall1.response as any).section1.q1 = userActionCall1.value;
+        (expectedInterviewToPrepareForCall1.validations as any).section1.q1 = false;
+        const expectedInterviewAsStateAfterCall1 = _cloneDeep(expectedInterviewToPrepareForCall1);
+        expectedInterviewAsStateAfterCall1.sectionLoaded = 'section';
+        const expectedInterviewToPrepareForCall2 = _cloneDeep(expectedInterviewAsStateAfterCall1);
+        (expectedInterviewToPrepareForCall2.response as any).section1.q2 = userActionCall2.value;
+        (expectedInterviewToPrepareForCall2.validations as any).section1.q2 = true;
+        const expectedInterviewAsStateAfterCall2 = _cloneDeep(expectedInterviewToPrepareForCall2);
+        expectedInterviewAsStateAfterCall2.sectionLoaded = 'section';
+
+        // Do the actual test
+        const callbackCall1 = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPathCall1), userAction: userActionCall1 }, updateCallback);
+        const callbackCall2 = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPathCall2), userAction: userActionCall2 }, updateCallback);
+        const callbackPromise1 = callbackCall1(mockDispatch, mockGetState);
+        const callbackPromise2 = callbackCall2(mockDispatch, mockGetState);
+        await Promise.all([callbackPromise1, callbackPromise2]);
+
+        // Verifications
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(2);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepareForCall1, { 'response.section1.q1': true, 'validations.section1.q1': true }, { ...valuesByPathCall1 }, false, testUser);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepareForCall2, { 'response.section1.q2': true, 'validations.section1.q2': true }, { ...valuesByPathCall2 }, false, testUser);
+        expect(fetchRetryMock).toHaveBeenCalledTimes(2);
+        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({
+                id: interviewAttributes.id,
+                interviewId: interviewAttributes.uuid,
+                participant_id: interviewAttributes.participant_id,
+                valuesByPath: { ...valuesByPathCall1, sectionLoaded: 'section' },
+                unsetPaths: [],
+                userAction: userActionCall1
+            })
+        }));
+        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({
+                id: interviewAttributes.id,
+                interviewId: interviewAttributes.uuid,
+                participant_id: interviewAttributes.participant_id,
+                // No sectionLoaded in the second call as it is identical to the first one
+                valuesByPath: { ...valuesByPathCall2 },
+                unsetPaths: [],
+                userAction: userActionCall2
+            })
+        }));
+        expect(mockDispatch).toHaveBeenCalledTimes(6);
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: 'INCREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, {
+            type: 'UPDATE_INTERVIEW',
+            interviewLoaded: true,
+            interview: expectedInterviewAsStateAfterCall1,
+            errors: {},
+            submitted: false
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: 'DECREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(4, {
+            type: 'INCREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(5, {
+            type: 'UPDATE_INTERVIEW',
+            interviewLoaded: true,
+            interview: expectedInterviewAsStateAfterCall2,
+            errors: {},
+            submitted: false
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(6, {
+            type: 'DECREMENT_LOADING_STATE'
+        });
+        expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsStateAfterCall1);
+        expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsStateAfterCall2);
     });
 
 });
