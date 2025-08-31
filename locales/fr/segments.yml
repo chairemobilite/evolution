@@ -25,7 +25,7 @@ mode:
     BicycleBikesharing: <strong>Vélo partage</strong>
     BicycleBikesharingElectric: <strong>Vélo partage électrique</strong>
     BicyclePassenger: <strong>Vélo passager</strong>
-    ScooterElectric: <strong>Trottinette électrique</strong>
+    KickScooterElectric: <strong>Trottinette électrique</strong>
     CarDriverPersonal: <strong>Auto conducteur</strong> avec voiture personnelle
     CarDriverRental: <strong>Auto conducteur</strong> avec voiture de location
     CarDriverCarsharingStationBased: <strong>Autopartage</strong> basé station
@@ -65,7 +65,7 @@ mode:
         walk: Marche
         bicycle: Vélo
         bicycleElectric: Vélo électrique
-        scooterElectric: Trottinette électrique
+        kickScooterElectric: Trottinette électrique
         bicyclePassenger: Vélo passager
         carDriver: Auto conducteur
         carPassenger: Auto passager

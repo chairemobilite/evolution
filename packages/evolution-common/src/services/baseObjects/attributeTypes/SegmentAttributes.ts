@@ -16,7 +16,7 @@ export const modeValues = [
     'walk',
     'bicycle', // complementary type: BicycleType
     'bicyclePassenger',
-    'scooterElectric',
+    'kickScooterElectric',
     'carDriver', // complementary type: CarType
     'carPassenger',
     'transitBus', // includes Bus Transit System (BTS) category C
@@ -56,7 +56,7 @@ export const mapModeToModeCategory: { [mode in Mode]: ModeCategory } = {
     walk: 'walk',
     bicycle: 'bicycle',
     bicyclePassenger: 'bicycle',
-    scooterElectric: 'bicycle',
+    kickScooterElectric: 'bicycle',
     transitBus: 'transit',
     transitBRT: 'transit',
     transitSchoolBus: 'schoolBus', // TODO: decide  if we should use schoolBus or transit here.

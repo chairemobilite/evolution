@@ -18,7 +18,7 @@ export const loopActivities = ['workOnTheRoad', 'leisureStroll'];
  * Simple modes, ie individual modes that involve no or private vehicles and are
  * often used multiple times in a journey
  */
-export const simpleModes = ['carDriver', 'walk', 'bicycle', 'bicycleElectric', 'scooterElectric'];
+export const simpleModes = ['carDriver', 'walk', 'bicycle', 'bicycleElectric', 'kickScooterElectric'];
 
 const modePreValues = [
     'carDriver',
@@ -40,7 +40,7 @@ export const modeToModePreMap: { [mode in Mode]: ModePre[] } = {
     walk: ['walk'],
     bicycle: ['bicycle'],
     bicyclePassenger: ['bicycle'],
-    scooterElectric: ['bicycle', 'other'],
+    kickScooterElectric: ['bicycle', 'other'],
     transitBus: ['transit'],
     transitBRT: ['transit'],
     transitSchoolBus: ['transit', 'other'],
