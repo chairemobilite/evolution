@@ -21,7 +21,7 @@ export const modeToIconMapping: Record<Mode, string> = {
     bicycle: '/dist/icons/modes/bicycle/bicycle_with_rider.svg',
     // FIXME Confirm this icon
     bicyclePassenger: '/dist/icons/modes/bicycle/bicycle_with_rider.svg',
-    scooterElectric: '/dist/icons/modes/scooter/scooter_electric.svg',
+    kickScooterElectric: '/dist/icons/modes/scooter/kick_scooter_electric.svg',
     // FIXME Confirm this icon
     otherActiveMode: '/dist/icons/modes/kick_scooter/kick_scooter.svg',
     motorcycle: '/dist/icons/modes/motorcycle/motorcycle.svg',
