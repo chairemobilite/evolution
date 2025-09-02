@@ -164,4 +164,13 @@ describe('Interview - Getters and Setters', () => {
         expect(interview.consideredToAbandonRange).toBeUndefined();
     });
 
+    it('should get and set acceptToBeContactedForHelp', () => {
+        interview.acceptToBeContactedForHelp = true;
+        expect(interview.acceptToBeContactedForHelp).toBe(true);
+        interview.acceptToBeContactedForHelp = false;
+        expect(interview.acceptToBeContactedForHelp).toBe(false);
+        interview.acceptToBeContactedForHelp = undefined;
+        expect(interview.acceptToBeContactedForHelp).toBeUndefined();
+    });
+
 });

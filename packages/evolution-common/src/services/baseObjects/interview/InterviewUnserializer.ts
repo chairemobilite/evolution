@@ -47,6 +47,13 @@ export const validateParams = function (dirtyParams: { [key: string]: unknown },
     errors.push(...ParamsValidatorUtils.isString('helpContactEmail', dirtyParams.helpContactEmail, displayName));
     errors.push(
         ...ParamsValidatorUtils.isBoolean(
+            'acceptToBeContactedForHelp',
+            dirtyParams.acceptToBeContactedForHelp,
+            displayName
+        )
+    );
+    errors.push(
+        ...ParamsValidatorUtils.isBoolean(
             'wouldLikeToParticipateInOtherSurveys',
             dirtyParams.wouldLikeToParticipateInOtherSurveys,
             displayName

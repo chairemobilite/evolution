@@ -29,6 +29,7 @@ const interviewAttributes = [
     'helpContactPhoneNumber',
     'contactEmail',
     'helpContactEmail',
+    'acceptToBeContactedForHelp',
     'wouldLikeToParticipateInOtherSurveys',
 
     'respondentComments',
@@ -64,6 +65,7 @@ export type InterviewAttributes = {
     helpContactPhoneNumber?: string; // phone number used for help by interviewer/auditor only
     contactEmail?: string; // email to use to contact the respondent
     helpContactEmail?: string; // email used for help by interviewer/auditor person only
+    acceptToBeContactedForHelp?: boolean; // boolean, consent to be contacted for help or follow-up
     wouldLikeToParticipateInOtherSurveys?: boolean; // boolean, use contactEmail or contactPhoneNumber to add to the mailing list
 
     respondentComments?: string; // comments on the interview by the respondent
@@ -159,11 +161,12 @@ export class Interview extends Uuidable {
         // do not export these attributes except for admins
         '_id', // only the uuid should be exported
         '_participant_id',
-        'accessCode', // only keep in admin exports
-        'contactPhoneNumber',
-        'helpContactPhoneNumber',
-        'contactEmail',
-        'helpContactEmail',
+        'accessCode', // only for admin exports
+        'contactPhoneNumber', // only for admin exports
+        'helpContactPhoneNumber', // only for admin exports
+        'contactEmail', // only for admin exports
+        'helpContactEmail', // only for admin exports
+        'acceptToBeContactedForHelp', // only for analysis/admin exports
         'wouldLikeToParticipateInOtherSurveys', // only for analysis/admin exports
         'respondentComments', // only for admin exports
         'interviewerComments', // only for admin exports
@@ -263,6 +266,14 @@ export class Interview extends Uuidable {
 
     set helpContactPhoneNumber(value: Optional<string>) {
         this._attributes.helpContactPhoneNumber = value;
+    }
+
+    get acceptToBeContactedForHelp(): Optional<boolean> {
+        return this._attributes.acceptToBeContactedForHelp;
+    }
+
+    set acceptToBeContactedForHelp(value: Optional<boolean>) {
+        this._attributes.acceptToBeContactedForHelp = value;
     }
 
     get wouldLikeToParticipateInOtherSurveys(): Optional<boolean> {
