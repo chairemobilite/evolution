@@ -24,6 +24,8 @@ export const householdAttributes = [
     'size',
     'carNumber',
     'twoWheelNumber',
+    'bicycleNumber',
+    'electricBicycleNumber',
     'pluginHybridCarNumber',
     'electricCarNumber',
     'category',
@@ -40,6 +42,8 @@ export type HouseholdAttributes = {
     size?: Optional<number>;
     carNumber?: Optional<number>;
     twoWheelNumber?: Optional<number>;
+    bicycleNumber?: Optional<number>;
+    electricBicycleNumber?: Optional<number>;
     pluginHybridCarNumber?: Optional<number>;
     electricCarNumber?: Optional<number>;
     category?: Optional<HAttr.HouseholdCategory>;
@@ -145,6 +149,22 @@ export class Household implements IValidatable {
 
     set twoWheelNumber(value: Optional<number>) {
         this._attributes.twoWheelNumber = value;
+    }
+
+    get bicycleNumber(): Optional<number> {
+        return this._attributes.bicycleNumber;
+    }
+
+    set bicycleNumber(value: Optional<number>) {
+        this._attributes.bicycleNumber = value;
+    }
+
+    get electricBicycleNumber(): Optional<number> {
+        return this._attributes.electricBicycleNumber;
+    }
+
+    set electricBicycleNumber(value: Optional<number>) {
+        this._attributes.electricBicycleNumber = value;
     }
 
     get pluginHybridCarNumber(): Optional<number> {
@@ -275,6 +295,16 @@ export class Household implements IValidatable {
 
         errors.push(
             ...ParamsValidatorUtils.isPositiveInteger('twoWheelNumber', dirtyParams.twoWheelNumber, displayName)
+        );
+
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('bicycleNumber', dirtyParams.bicycleNumber, displayName));
+
+        errors.push(
+            ...ParamsValidatorUtils.isPositiveInteger(
+                'electricBicycleNumber',
+                dirtyParams.electricBicycleNumber,
+                displayName
+            )
         );
 
         errors.push(
