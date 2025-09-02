@@ -74,6 +74,13 @@ export const getPersonVisitedPlacesMapConfig = (
                 const visitedPlace = visitedPlaces[i];
                 const visitedPlaceGeography = odHelpers.getVisitedPlaceGeography({ visitedPlace, interview, person });
                 if (visitedPlaceGeography) {
+                    // Make sure the properties object exists, it should, but if it doesn't, set it
+                    if (visitedPlaceGeography.properties === undefined) {
+                        console.warn(
+                            'widgetPersonVisitedPlacesMap: Visited place geography had no properties, setting to empty object'
+                        );
+                        visitedPlaceGeography.properties = {};
+                    }
                     const visitedPlaceGeojson = visitedPlaceGeography;
                     visitedPlaceGeojson.properties!.icon = {
                         url: getActivityMarkerIcon(visitedPlace.activity),
