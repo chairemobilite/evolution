@@ -1808,41 +1808,85 @@ describe('getVisitedPlaceNames', () => {
 });
 
 describe('getVisitedPlaceGeography', () => {
+    // Add a usual workplace and school place and a place
+    const usualWorkPlace = {
+        name: 'name of my work place',
+        geography: {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [-73.5, 45.5] },
+            properties: { lastAction: 'mapClicked' }
+        }
+    };
+    const usualSchoolPlace = {
+        name: 'name of my school place',
+        geography: {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [-73.5673, 45.5017] },
+            properties: { lastAction: 'mapClicked' }
+        }
+    };
+    const testInterviewAttributes = _cloneDeep(interviewAttributesForTestCases);
+    (testInterviewAttributes.response.household!.persons!.personId1 as any).usualWorkPlace = usualWorkPlace;
+    (testInterviewAttributes.response.household!.persons!.personId1 as any).usualSchoolPlace = usualSchoolPlace;
+    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.usualWorkPlace1P1 = {
+        _uuid: 'usualWorkPlace1P1',
+        _sequence: 6,
+        activity: 'workUsual'
+    };
+    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.usualSchoolPlace1P1 = {
+        _uuid: 'usualSchoolPlace1P1',
+        _sequence: 7,
+        activity: 'schoolUsual'
+    };
     each([
         [
             'Home place',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .homePlace1P1,
-            interviewAttributesForTestCases.response.household!.persons!.personId1,
-            interviewAttributesForTestCases.response.home!.geography
+            testInterviewAttributes.response.household!.persons!.personId1,
+            testInterviewAttributes.response.home!.geography
         ],
         [
             'Place with a geography',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .workPlace1P1,
-            interviewAttributesForTestCases.response.household!.persons!.personId1,
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+            testInterviewAttributes.response.household!.persons!.personId1,
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .workPlace1P1.geography
         ],
         [
             'Place with a shortcut',
-            interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
+            testInterviewAttributes.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
                 .shoppingPlace1P2,
-            interviewAttributesForTestCases.response.household!.persons!.personId2,
-            interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
+            testInterviewAttributes.response.household!.persons!.personId2,
+            testInterviewAttributes.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
                 .shoppingPlace1P2.geography
         ],
         [
             'Place without a geography',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .otherPlaceP1,
-            interviewAttributesForTestCases.response.household!.persons!.personId1,
+            testInterviewAttributes.response.household!.persons!.personId1,
             null
+        ],
+        [
+            'Usual work place',
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+                .usualWorkPlace1P1,
+            testInterviewAttributes.response.household!.persons!.personId1,
+            usualWorkPlace.geography
+        ],
+        [
+            'Usual school place',
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+                .usualSchoolPlace1P1,
+            testInterviewAttributes.response.household!.persons!.personId1,
+            usualSchoolPlace.geography
         ]
     ]).test('%s', (_title, visitedPlace, person, expected) => {
         const geography = Helpers.getVisitedPlaceGeography({
             visitedPlace,
-            interview: interviewAttributesForTestCases,
+            interview: testInterviewAttributes,
             person
         });
         if (expected) {

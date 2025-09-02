@@ -679,9 +679,9 @@ export const getVisitedPlaceGeography = function ({
             // `usualWorkPlace` and `usualSchoolPlace` fields, but they are not
             // specified. This is too custom. It needs to be generalized.
             if (visitedPlace.activity === 'workUsual') {
-                geojson = _get(person, 'usualWorkPlace', null) as GeoJSON.Feature<GeoJSON.Point> | null;
+                geojson = _get(person, 'usualWorkPlace.geography', null) as GeoJSON.Feature<GeoJSON.Point> | null;
             } else if (visitedPlace.activity === 'schoolUsual') {
-                geojson = _get(person, 'usualSchoolPlace', null) as GeoJSON.Feature<GeoJSON.Point> | null;
+                geojson = _get(person, 'usualSchoolPlace.geography', null) as GeoJSON.Feature<GeoJSON.Point> | null;
             }
         }
     }
