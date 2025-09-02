@@ -44,7 +44,7 @@ const updateCallbacks = [
                     ?  { 'testFields.fieldB': interviewAttributes.response.testFields.fieldB }
                     : {})
     }, {
-        field: { regex: 'household\.persons\.*\.origin' },
+        field: { regex: 'household\.persons\..+\.origin' },
         callback: jest.fn().mockImplementation((interview, fieldValue, fieldPath: string) => {
             const newFieldPath = fieldPath.substring(0, fieldPath.length - '.origin'.length) + '.new';
             return { [newFieldPath]: 'FOO' };
@@ -114,7 +114,20 @@ describe('Field with placeholder and regex', () => {
         expect(await updateServerFields(interviewAttributes, updateCallbacks, valuesByPath, [], deferredUpdateCallback)).toEqual([{ 'response.household.persons.1.new': 'FOO' }, undefined]);
         expect(updateCallbacks[1].callback).toHaveBeenCalledWith(interviewAttributes, valuesByPath['response.household.persons.1.origin'], 'household.persons.1.origin', expect.anything());
     });
-
+    test('Field in valuesByPath, invalid regex path should not match', async () => {
+        // This path has double dots, which should not match the regex pattern 'household\.persons\..+\.origin'
+        const valuesByPath = { 'response.household.persons..origin': 'foo' };
+        expect(await updateServerFields(interviewAttributes, updateCallbacks, valuesByPath, [], deferredUpdateCallback)).toEqual([{}, undefined]);
+        // The callback should NOT be called because the path doesn't match the regex
+        expect(updateCallbacks[1].callback).not.toHaveBeenCalled();
+    });
+    test('Field in valuesByPath, invalid regex path should not match, comma instead of dot', async () => {
+        // Test that we have a regex that have an escaped dot not the regex match all dot
+        const valuesByPath = { 'response,household,persons.1.origin': 'foo' };
+        expect(await updateServerFields(interviewAttributes, updateCallbacks, valuesByPath, [], deferredUpdateCallback)).toEqual([{}, undefined]);
+        // The callback should NOT be called because the path doesn't match the regex
+        expect(updateCallbacks[1].callback).not.toHaveBeenCalled();
+    });
     test('Field in unsetPath, should return updated value', async() => {
         const unsetPath = [ 'response.household.persons.2.origin' ];
         expect(await updateServerFields(interviewAttributes, updateCallbacks, {}, unsetPath)).toEqual([{ 'response.household.persons.2.new': 'FOO' }, undefined]);
