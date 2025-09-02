@@ -28,6 +28,7 @@ export const householdAttributes = [
     'electricBicycleNumber',
     'pluginHybridCarNumber',
     'electricCarNumber',
+    'hybridCarNumber',
     'category',
     'wouldLikeToParticipateToOtherSurveys',
     'homeCarParkings',
@@ -47,6 +48,7 @@ export type HouseholdAttributes = {
     electricBicycleNumber?: Optional<number>;
     pluginHybridCarNumber?: Optional<number>;
     electricCarNumber?: Optional<number>;
+    hybridCarNumber?: Optional<number>;
     category?: Optional<HAttr.HouseholdCategory>;
     wouldLikeToParticipateToOtherSurveys?: Optional<boolean>;
     homeCarParkings?: Optional<HAttr.HomePrivateCarParkingType[]>;
@@ -183,6 +185,14 @@ export class Household implements IValidatable {
 
     set electricCarNumber(value: Optional<number>) {
         this._attributes.electricCarNumber = value;
+    }
+
+    get hybridCarNumber(): Optional<number> {
+        return this._attributes.hybridCarNumber;
+    }
+
+    set hybridCarNumber(value: Optional<number>) {
+        this._attributes.hybridCarNumber = value;
     }
 
     get category(): Optional<HAttr.HouseholdCategory> {
@@ -327,6 +337,10 @@ export class Household implements IValidatable {
 
         errors.push(
             ...ParamsValidatorUtils.isPositiveInteger('electricCarNumber', dirtyParams.electricCarNumber, displayName)
+        );
+
+        errors.push(
+            ...ParamsValidatorUtils.isPositiveInteger('hybridCarNumber', dirtyParams.hybridCarNumber, displayName)
         );
 
         errors.push(...ParamsValidatorUtils.isString('category', dirtyParams.category, displayName));
