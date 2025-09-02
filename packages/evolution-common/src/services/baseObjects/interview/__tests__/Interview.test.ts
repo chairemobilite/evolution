@@ -61,6 +61,20 @@ describe('Interview', () => {
             expect(interview.accessCode).toBe(validParams.accessCode);
         });
 
+        it('should create an Interview instance with acceptToBeContactedForHelp', () => {
+            const paramsWithAcceptContact = {
+                ...validParams,
+                acceptToBeContactedForHelp: true
+            };
+            const interview = new Interview(paramsWithAcceptContact);
+            expect(interview.acceptToBeContactedForHelp).toBe(true);
+        });
+
+        it('should handle acceptToBeContactedForHelp as undefined by default', () => {
+            const interview = new Interview(validParams);
+            expect(interview.acceptToBeContactedForHelp).toBeUndefined();
+        });
+
         it('should generate a UUID if not provided', () => {
             const paramsWithoutUuid = { ...validParams };
             delete paramsWithoutUuid._uuid;
@@ -82,6 +96,18 @@ describe('Interview', () => {
             if (isOk(result)) {
                 expect(result.result).toBeInstanceOf(Interview);
                 expect(result.result._uuid).toBe(validParams._uuid);
+            }
+        });
+
+        it('should create an Interview instance with acceptToBeContactedForHelp using create method', () => {
+            const paramsWithAcceptContact = {
+                ...validParams,
+                acceptToBeContactedForHelp: false
+            };
+            const result = create(paramsWithAcceptContact);
+            expect(isOk(result)).toBe(true);
+            if (isOk(result)) {
+                expect(result.result.acceptToBeContactedForHelp).toBe(false);
             }
         });
 
@@ -184,5 +210,38 @@ describe('Interview', () => {
 
         // Add similar tests for household, person, and organization
         // once their implementations are complete
+    });
+
+    describe('confidential attributes', () => {
+        it('should include acceptToBeContactedForHelp in confidential attributes', () => {
+            expect(Interview._confidentialAttributes).toContain('acceptToBeContactedForHelp');
+        });
+
+        it('should include all expected confidential attributes', () => {
+            const expectedConfidentialAttributes = [
+                '_id',
+                '_participant_id',
+                'accessCode',
+                'contactPhoneNumber',
+                'helpContactPhoneNumber',
+                'contactEmail',
+                'helpContactEmail',
+                'acceptToBeContactedForHelp',
+                'wouldLikeToParticipateInOtherSurveys',
+                'respondentComments',
+                'interviewerComments',
+                'auditorComments',
+                'durationRange',
+                'durationRespondentEstimationMin',
+                'interestRange',
+                'difficultyRange',
+                'burdenRange',
+                'consideredToAbandonRange'
+            ];
+
+            expectedConfidentialAttributes.forEach((attr) => {
+                expect(Interview._confidentialAttributes).toContain(attr);
+            });
+        });
     });
 });
