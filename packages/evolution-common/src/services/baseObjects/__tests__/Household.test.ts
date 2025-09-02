@@ -37,6 +37,7 @@ describe('Household', () => {
         incomeLevel: 'high',
         contactPhoneNumber: '1234567890',
         contactEmail: 'test@example.com',
+        atLeastOnePersonWithDisability: true,
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true,
     };
@@ -153,6 +154,7 @@ describe('Household', () => {
         ['incomeLevel', 123],
         ['contactPhoneNumber', 123],
         ['contactEmail', 123],
+        ['atLeastOnePersonWithDisability', 'invalid'],
     ])('should return an error for invalid %s', (param, value) => {
         const invalidAttributes = { ...validAttributes, [param]: value };
         const errors = Household.validateParams(invalidAttributes);
@@ -196,6 +198,7 @@ describe('Household', () => {
             ['incomeLevel', 'medium'],
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'updated@example.com'],
+            ['atLeastOnePersonWithDisability', false],
         ])('should set and get %s', (attribute, value) => {
             const household = new Household(validAttributes);
             household[attribute] = value;
