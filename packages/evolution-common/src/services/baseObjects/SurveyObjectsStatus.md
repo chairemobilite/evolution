@@ -26,7 +26,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `difficultyRange` | Difficulty range | ✅ | Present in Interview |
 | `burdenRange` | Burden range | ✅ | Present in Interview |
 | `consideredToAbandonRange` | Considered abandonment | ✅ | Present in Interview |
-| `acceptToBeContactedForHelp` | Consent for contact | ❌ | Missing in Interview |
+| `acceptToBeContactedForHelp` | Consent for contact | ✅ | Present in Interview |
 | `_activePersonId` | Currently active person | ❌ | Missing in Interview |
 | `_activeJourneyId` | Currently active journey | ❌ | Missing in Interview |
 | `_activeVisitedPlaceId` | Currently active visited place | ❌ | Missing in Interview |
