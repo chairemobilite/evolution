@@ -33,7 +33,8 @@ export const householdAttributes = [
     'homeCarParkings',
     'incomeLevel',
     'contactPhoneNumber',
-    'contactEmail'
+    'contactEmail',
+    'atLeastOnePersonWithDisability'
 ];
 
 export const householdAttributesWithComposedAttributes = [...householdAttributes, 'members', 'vehicles', 'home'];
@@ -52,6 +53,7 @@ export type HouseholdAttributes = {
     incomeLevel?: Optional<HAttr.IncomeLevel>;
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
+    atLeastOnePersonWithDisability?: Optional<boolean>;
 } & UuidableAttributes &
     WeightableAttributes &
     ValidatebleAttributes;
@@ -231,6 +233,14 @@ export class Household implements IValidatable {
         this._attributes.contactEmail = value;
     }
 
+    get atLeastOnePersonWithDisability(): Optional<boolean> {
+        return this._attributes.atLeastOnePersonWithDisability;
+    }
+
+    set atLeastOnePersonWithDisability(value: Optional<boolean>) {
+        this._attributes.atLeastOnePersonWithDisability = value;
+    }
+
     get members(): Optional<Person[]> {
         return this._members;
     }
@@ -340,6 +350,14 @@ export class Household implements IValidatable {
         );
 
         errors.push(...ParamsValidatorUtils.isString('contactEmail', dirtyParams.contactEmail, displayName));
+
+        errors.push(
+            ...ParamsValidatorUtils.isBoolean(
+                'atLeastOnePersonWithDisability',
+                dirtyParams.atLeastOnePersonWithDisability,
+                displayName
+            )
+        );
 
         const membersAttributes =
             dirtyParams.members !== undefined ? (dirtyParams.members as { [key: string]: unknown }[]) : [];

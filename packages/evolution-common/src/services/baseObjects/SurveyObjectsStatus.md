@@ -50,7 +50,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `household.contactEmail` | Contact email | ✅ | Present in Household |
 | `household.bicycleNumber` | Number of bicycles | ✅ | Present in Household |
 | `household.electricBicycleNumber` | Number of e-bikes | ✅ | Present in Household |
-| `household.atLeastOnePersonWithDisability` | Disability indicator | ❌ | Missing in Household |
+| `household.atLeastOnePersonWithDisability` | Disability indicator | ✅ | Present in Household |
 | `household.hybridCarNumber` | Number of hybrid cars | ❌ | Missing in Household (only pluginHybrid exists) |
 | `household.ownership` | Home ownership | ❌ | Missing in Household |
 | `household.longDistanceTripCount` | Long distance trip count | ❌ | Missing in Household |
