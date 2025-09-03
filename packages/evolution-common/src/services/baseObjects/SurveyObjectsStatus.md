@@ -59,16 +59,16 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `household.hybridCarNumber` | Number of hybrid cars | ✅ | | Present in Household |
 | `household.income` | Specific income amount | ⚠️ | `incomeLevel` | Missing in Household (only incomeLevel exists) |
 | `household.incomeLevel` | Income level | ✅ | | Present in Household |
-| `household.longDistanceTripCount` | Long distance trip count | ❌ | | Missing in Household |
-| `household.longDistanceTripsJanuaryApril` | Long distance trips Jan-Apr | ❌ | | Missing in Household |
-| `household.longDistanceTripsMayAugust` | Long distance trips May-Aug | ❌ | | Missing in Household |
-| `household.longDistanceTripsSeptemberDecember` | Long distance trips Sep-Dec | ❌ | | Missing in Household |
+| `household.longDistanceTripCount` | Long distance trip count | ❌ | | Specific to OD Nationale Quebec |
+| `household.longDistanceTripsJanuaryApril` | Long distance trips Jan-Apr | ❌ | | Specific to OD Nationale Quebec |
+| `household.longDistanceTripsMayAugust` | Long distance trips May-Aug | ❌ | | Specific to OD Nationale Quebec |
+| `household.longDistanceTripsSeptemberDecember` | Long distance trips Sep-Dec | ❌ | | Specific to OD Nationale Quebec |
 | `household.madeLongDistanceTripsInLastYear` | Made long distance trips last year | ❌ | | Missing in Household |
 | `household.ownership` | Home ownership | ✅ | | Present in Household |
 | `household.pluginHybridCarNumber` | Number of plugin hybrid cars | ✅ | | Present in Household |
 | `household.size` | Household size | ✅ | | Present in Household |
 | `household.twoWheelNumber` | Number of two-wheelers | ✅ | | Present in Household |
-| `household.wouldLikeToParticipateToLongDistanceSurvey` | Long distance survey participation | ❌ | | Missing in Household |
+| `household.wouldLikeToParticipateToLongDistanceSurvey` | Long distance survey participation | ❌ | | Specific to OD Nationale Quebec |
 | `household.wouldLikeToParticipateToLongDistanceSurveyContactEmail` | Long distance survey contact email | ⚠️ | `interview.contactEmail` | Move to contactEmail, but make sure it is the same as other contact emails in survey |
 
 ## Person Level Attributes
@@ -86,7 +86,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.drivingLicenseOwnership` | Driving license ownership | ✅ | | Present in Person |
 | `persons.{uuid}.educationalAttainment` | Educational attainment | ✅ | | Present in Person |
 | `persons.{uuid}.gender` | Person gender | ✅ | | Present in Person |
-| `persons.{uuid}.genderCustom` | Custom gender specification | ❌ | | Missing in Person |
+| `persons.{uuid}.genderCustom` | Custom gender specification | ❌ | | Ignored in analysis (for now), otherwise, needs standard classification |
 | `persons.{uuid}.hasDisability` | Has disability | ✅ | | Present in Person |
 | `persons.{uuid}.isJobTelecommuteCompatible` | Telecommute compatible | ✅ | | Present in Person |
 | `persons.{uuid}.isOnTheRoadWorker` | On-road worker | ✅ | | Present in Person |
