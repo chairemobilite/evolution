@@ -20,7 +20,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `assignedDate` | Assigned survey date | ✅ | | Present in Interview |
 | `auditorComments` | Auditor comments | ✅ | | Present in Interview |
 | `burdenRange` | Burden range | ✅ | | Present in Interview |
-| `consideredToAbandonRange` | Considered abandonment | ✅ | | Present in Interview |
+| `consideredAbandoningRange` | Considered abandonment | ✅ | | Present in Interview |
 | `contactEmail` | Contact email | ✅ | | Present in Interview |
 | `contactPhoneNumber` | Phone number | ✅ | | Present in Interview |
 | `difficultyRange` | Difficulty range | ✅ | | Present in Interview |
@@ -28,7 +28,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `durationRespondentEstimationMin` | Duration estimation in minutes | ✅ | | Present in Interview |
 | `end.burdenOfTheSurvey` | Survey burden opinion | ✅ | `burdenRange` | Present in Interview (as burdenRange) |
 | `end.commentsOnSurvey` | Comments on survey | ✅ | `respondentComments` | Present in Interview (as respondentComments) |
-| `end.consideredAbandoningSurvey` | Considered abandoning survey | ✅ | `consideredToAbandonRange` | Present in Interview (as consideredToAbandonRange) |
+| `end.consideredAbandoningSurvey` | Considered abandoning survey | ✅ | `consideredAbandoningRange` | Present in Interview (as consideredToAbandonRange) |
 | `end.difficultyOfTheSurvey` | Survey difficulty opinion | ✅ | `difficultyRange` | Present in Interview (as difficultyRange) |
 | `end.durationOfTheSurvey` | Survey duration opinion | ✅ | `durationRange` | Present in Interview (as durationRange) |
 | `end.interestOfTheSurvey` | Interest level in survey | ✅ | `interestRange` | Present in Interview (as interestRange) |

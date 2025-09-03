@@ -157,11 +157,11 @@ describe('Interview - Getters and Setters', () => {
         expect(interview.burdenRange).toBeUndefined();
     });
 
-    it('should get and set consideredToAbandonRange', () => {
-        interview.consideredToAbandonRange = 'yes';
-        expect(interview.consideredToAbandonRange).toBe('yes');
-        interview.consideredToAbandonRange = undefined;
-        expect(interview.consideredToAbandonRange).toBeUndefined();
+    it('should get and set consideredAbandoningRange', () => {
+        interview.consideredAbandoningRange = 'yes';
+        expect(interview.consideredAbandoningRange).toBe('yes');
+        interview.consideredAbandoningRange = undefined;
+        expect(interview.consideredAbandoningRange).toBeUndefined();
     });
 
     it('should get and set acceptToBeContactedForHelp', () => {

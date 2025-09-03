@@ -76,8 +76,8 @@ export const validateParams = function (dirtyParams: { [key: string]: unknown },
     errors.push(...ParamsValidatorUtils.isPositiveInteger('burdenRange', dirtyParams.burdenRange, displayName));
     errors.push(
         ...ParamsValidatorUtils.isIn(
-            'consideredToAbandonRange',
-            dirtyParams.consideredToAbandonRange,
+            'consideredAbandoningRange',
+            dirtyParams.consideredAbandoningRange,
             displayName,
             yesNoDontKnowValues,
             'YesNoDontKnow'
