@@ -8,175 +8,230 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 
 ## Interview Level Attributes
 
-| Path | Description | Present in Current Objects | Notes |
-|------|-------------|----------------------------|-------|
-| `accessCode` | Access code for survey | ✅ | Present in Interview |
-| `assignedDate` | Assigned survey date | ✅ | Present in Interview |
-| `contactEmail` | Contact email | ✅ | Present in Interview |
-| `contactPhoneNumber` | Phone number | ✅ | Present in Interview |
-| `helpContactEmail` | Help contact email | ✅ | Present in Interview |
-| `helpContactPhoneNumber` | Help phone number | ✅ | Present in Interview |
-| `wouldLikeToParticipateInOtherSurveys` | Consent for other surveys | ✅ | Present in Interview |
-| `respondentComments` | Respondent comments | ✅ | Present in Interview |
-| `interviewerComments` | Interviewer comments | ✅ | Present in Interview |
-| `auditorComments` | Auditor comments | ✅ | Present in Interview |
-| `durationRange` | Duration appreciation range | ✅ | Present in Interview |
-| `durationRespondentEstimationMin` | Duration estimation in minutes | ✅ | Present in Interview |
-| `interestRange` | Interest range | ✅ | Present in Interview |
-| `difficultyRange` | Difficulty range | ✅ | Present in Interview |
-| `burdenRange` | Burden range | ✅ | Present in Interview |
-| `consideredToAbandonRange` | Considered abandonment | ✅ | Present in Interview |
-| `acceptToBeContactedForHelp` | Consent for contact | ✅ | Present in Interview |
-| `_activePersonId` | Currently active person | ❌ | Missing in Interview |
-| `_activeJourneyId` | Currently active journey | ❌ | Missing in Interview |
-| `_activeVisitedPlaceId` | Currently active visited place | ❌ | Missing in Interview |
-| `_interviewFinished` | Interview completion flag | ❌ | Missing in Interview |
-| `_previousDay` | Previous day reference | ❌ | Missing in Interview |
+| Path | Description | Present in Current Objects | Move To | Notes |
+|------|-------------|----------------------------|---------|-------|
+| `_activeJourneyId` | Currently active journey | ❌ | | Missing in Interview |
+| `_activePersonId` | Currently active person | ❌ | | Missing in Interview |
+| `_activeVisitedPlaceId` | Currently active visited place | ❌ | | Missing in Interview |
+| `_interviewFinished` | Interview completion flag | ❌ | | Missing in Interview |
+| `_previousDay` | Previous day reference | ❌ | | Missing in Interview |
+| `acceptToBeContactedForHelp` | Consent for contact | ✅ | | Present in Interview |
+| `accessCode` | Access code for survey | ✅ | | Present in Interview |
+| `assignedDate` | Assigned survey date | ✅ | | Present in Interview |
+| `auditorComments` | Auditor comments | ✅ | | Present in Interview |
+| `burdenRange` | Burden range | ✅ | | Present in Interview |
+| `consideredToAbandonRange` | Considered abandonment | ✅ | | Present in Interview |
+| `contactEmail` | Contact email | ✅ | | Present in Interview |
+| `contactPhoneNumber` | Phone number | ✅ | | Present in Interview |
+| `difficultyRange` | Difficulty range | ✅ | | Present in Interview |
+| `durationRange` | Duration appreciation range | ✅ | | Present in Interview |
+| `durationRespondentEstimationMin` | Duration estimation in minutes | ✅ | | Present in Interview |
+| `end.burdenOfTheSurvey` | Survey burden opinion | ✅ | `burdenRange` | Present in Interview (as burdenRange) |
+| `end.commentsOnSurvey` | Comments on survey | ✅ | `respondentComments` | Present in Interview (as respondentComments) |
+| `end.consideredAbandoningSurvey` | Considered abandoning survey | ✅ | `consideredToAbandonRange` | Present in Interview (as consideredToAbandonRange) |
+| `end.difficultyOfTheSurvey` | Survey difficulty opinion | ✅ | `difficultyRange` | Present in Interview (as difficultyRange) |
+| `end.durationOfTheSurvey` | Survey duration opinion | ✅ | `durationRange` | Present in Interview (as durationRange) |
+| `end.interestOfTheSurvey` | Interest level in survey | ✅ | `interestRange` | Present in Interview (as interestRange) |
+| `end.timeSpentAnswering` | Time spent answering | ✅ | `durationRespondentEstimationMin`| Present in Interview (as durationRespondentEstimationMin) |
+| `end.wouldLikeToParticipateInOtherSurveysChaireMobilite` | Chaire Mobilite survey participation | ❌ | `wouldLikeToParticipateInOtherSurveys` | Similar to wouldLikeToParticipateInOtherSurveys |
+| `end.wouldLikeToParticipateInOtherSurveysChaireMobiliteContactEmail` | Chaire Mobilite contact email | ❌ | `wouldLikeToParticipateInOtherSurveysContactEmail` | Missing in Interview |
+| `helpContactEmail` | Help contact email | ✅ | | Present in Interview |
+| `helpContactPhoneNumber` | Help phone number | ✅ | | Present in Interview |
+| `interestRange` | Interest range | ✅ | | Present in Interview |
+| `interviewerComments` | Interviewer comments | ✅ | | Present in Interview |
+| `respondentComments` | Respondent comments | ✅ | | Present in Interview |
+| `wouldLikeToParticipateInOtherSurveys` | Consent for other surveys | ✅ | | Present in Interview |
+| `wouldLikeToParticipateInOtherSurveysContactEmail` | Other surveys contact email | ❌ | | Missing in Interview |
 
 ## Household Level Attributes
 
-| Path | Description | Present in Current Objects | Notes |
-|------|-------------|----------------------------|-------|
-| `household.size` | Household size | ✅ | Present in Household |
-| `household.carNumber` | Number of cars | ✅ | Present in Household |
-| `household.twoWheelNumber` | Number of two-wheelers | ✅ | Present in Household |
-| `household.pluginHybridCarNumber` | Number of plugin hybrid cars | ✅ | Present in Household |
-| `household.electricCarNumber` | Number of electric cars | ✅ | Present in Household |
-| `household.category` | Household category | ✅ | Present in Household |
-| `household.wouldLikeToParticipateToOtherSurveys` | Survey participation | ✅ | Present in Household |
-| `household.homeCarParkings` | Home car parking types | ✅ | Present in Household |
-| `household.incomeLevel` | Income level | ✅ | Present in Household |
-| `household.contactPhoneNumber` | Contact phone | ✅ | Present in Household |
-| `household.contactEmail` | Contact email | ✅ | Present in Household |
-| `household.bicycleNumber` | Number of bicycles | ✅ | Present in Household |
-| `household.electricBicycleNumber` | Number of e-bikes | ✅ | Present in Household |
-| `household.atLeastOnePersonWithDisability` | Disability indicator | ✅ | Present in Household |
-| `household.hybridCarNumber` | Number of hybrid cars | ✅ | Present in Household |
-| `household.ownership` | Home ownership | ❌ | Missing in Household |
-| `household.longDistanceTripCount` | Long distance trip count | ❌ | Missing in Household |
-| `household.longDistanceTripTimeSpan` | Long distance time span | ❌ | Missing in Household |
-| `household.income` | Specific income amount | ❌ | Missing in Household (only incomeLevel exists) |
-| `household.incomeRangePreferNotToAnswer` | Income refusal flag | ❌ | Missing in Household |
-| `household.didAlsoRespondByPhone` | Phone response flag | ❌ | Missing in Household |
+| Path | Description | Present in Current Objects | Move To | Notes |
+|------|-------------|----------------------------|---------|-------|
+| `household.atLeastOnePersonWithDisability` | Disability indicator | ✅ | | Present in Household |
+| `household.bicycleNumber` | Number of bicycles | ✅ | | Present in Household |
+| `household.carNumber` | Number of cars | ✅ | | Present in Household |
+| `household.category` | Household category | ✅ | | Present in Household |
+| `household.contactEmail` | Contact email | ✅ | | Present in Household |
+| `household.contactPhoneNumber` | Contact phone | ✅ | | Present in Household |
+| `household.electricBicycleNumber` | Number of e-bikes | ✅ | | Present in Household |
+| `household.electricCarNumber` | Number of electric cars | ✅ | | Present in Household |
+| `household.homeCarParkings` | Home car parking types | ✅ | | Present in Household |
+| `household.hybridCarNumber` | Number of hybrid cars | ✅ | | Present in Household |
+| `household.income` | Specific income amount | ❌ | `incomeLevel` | Missing in Household (only incomeLevel exists) |
+| `household.incomeLevel` | Income level | ✅ | | Present in Household |
+| `household.incomeRangePreferNotToAnswer` | Income refusal flag | ❌ | | Missing in Household |
+| `household.longDistanceTripCount` | Long distance trip count | ❌ | | Missing in Household |
+| `household.longDistanceTripTimeSpan` | Long distance time span | ❌ | | Missing in Household |
+| `household.longDistanceTripsJanuaryApril` | Long distance trips Jan-Apr | ❌ | | Missing in Household |
+| `household.longDistanceTripsMayAugust` | Long distance trips May-Aug | ❌ | | Missing in Household |
+| `household.longDistanceTripsSeptemberDecember` | Long distance trips Sep-Dec | ❌ | | Missing in Household |
+| `household.madeLongDistanceTripsInLastYear` | Made long distance trips last year | ❌ | | Missing in Household |
+| `household.ownership` | Home ownership | ❌ | | Missing in Household |
+| `household.pluginHybridCarNumber` | Number of plugin hybrid cars | ✅ | | Present in Household |
+| `household.size` | Household size | ✅ | | Present in Household |
+| `household.twoWheelNumber` | Number of two-wheelers | ✅ | | Present in Household |
+| `household.wouldLikeToParticipateToLongDistanceSurvey` | Long distance survey participation | ❌ | | Missing in Household |
+| `household.wouldLikeToParticipateToLongDistanceSurveyContactEmail` | Long distance survey contact email | ❌ | | Missing in Household |
+| `household.wouldLikeToParticipateToOtherSurveys` | Survey participation | ✅ | | Present in Household |
 
 ## Person Level Attributes
 
-| Path | Description | Present in Current Objects | Notes |
-|------|-------------|----------------------------|-------|
-| `persons.{uuid}.age` | Person age | ✅ | Present in Person |
-| `persons.{uuid}.ageGroup` | Person age group | ✅ | Present in Person |
-| `persons.{uuid}.gender` | Person gender | ✅ | Present in Person |
-| `persons.{uuid}.drivingLicenseOwnership` | Driving license ownership | ✅ | Present in Person |
-| `persons.{uuid}.transitPassOwnership` | Transit pass ownership | ✅ | Present in Person |
-| `persons.{uuid}.transitPasses` | Transit passes | ✅ | Present in Person |
-| `persons.{uuid}.hasDisability` | Has disability | ✅ | Present in Person |
-| `persons.{uuid}.carsharingMember` | Carsharing member | ✅ | Present in Person |
-| `persons.{uuid}.carsharingUser` | Carsharing user | ✅ | Present in Person |
-| `persons.{uuid}.bikesharingMember` | Bikesharing member | ✅ | Present in Person |
-| `persons.{uuid}.bikesharingUser` | Bikesharing user | ✅ | Present in Person |
-| `persons.{uuid}.ridesharingMember` | Ridesharing member | ✅ | Present in Person |
-| `persons.{uuid}.ridesharingUser` | Ridesharing user | ✅ | Present in Person |
-| `persons.{uuid}.occupation` | Occupation | ✅ | Present in Person |
-| `persons.{uuid}.schoolType` | School type | ✅ | Present in Person |
-| `persons.{uuid}.schoolPlaceType` | School place type | ✅ | Present in Person |
-| `persons.{uuid}.studentType` | Student type | ✅ | Present in Person |
-| `persons.{uuid}.workerType` | Worker type | ✅ | Present in Person |
-| `persons.{uuid}.workPlaceType` | Work place type | ✅ | Present in Person |
-| `persons.{uuid}.jobCategory` | Job category | ✅ | Present in Person |
-| `persons.{uuid}.jobName` | Job name | ✅ | Present in Person |
-| `persons.{uuid}.isOnTheRoadWorker` | On-road worker | ✅ | Present in Person |
-| `persons.{uuid}.isJobTelecommuteCompatible` | Telecommute compatible | ✅ | Present in Person |
-| `persons.{uuid}.educationalAttainment` | Educational attainment | ✅ | Present in Person |
-| `persons.{uuid}.nickname` | Nickname | ✅ | Present in Person |
-| `persons.{uuid}.contactPhoneNumber` | Contact phone | ✅ | Present in Person |
-| `persons.{uuid}.contactEmail` | Contact email | ✅ | Present in Person |
-| `persons.{uuid}.sexAssignedAtBirth` | Sex assigned at birth | ✅ | Present in Person |
-| `persons.{uuid}.usualWorkPlaceIsHome` | Work from home flag | ❌ | Missing in Person |
-| `persons.{uuid}.usualSchoolPlaceIsHome` | School from home flag | ❌ | Missing in Person |
-| `persons.{uuid}.noWorkTripReason` | No work trip reason | ❌ | Missing in Person |
-| `persons.{uuid}.noSchoolTripReason` | No school trip reason | ❌ | Missing in Person |
-| `persons.{uuid}.didAlsoRespondByPhone` | Phone response flag | ❌ | Missing in Person |
+| Path | Description | Present in Current Objects | Move To | Notes |
+|------|-------------|----------------------------|---------|-------|
+| `persons.{uuid}.age` | Person age | ✅ | | Present in Person |
+| `persons.{uuid}.ageGroup` | Person age group | ✅ | | Present in Person |
+| `persons.{uuid}.bikesharingMember` | Bikesharing member | ✅ | | Present in Person |
+| `persons.{uuid}.bikesharingUser` | Bikesharing user | ✅ | | Present in Person |
+| `persons.{uuid}.carsharingMember` | Carsharing member | ✅ | | Present in Person |
+| `persons.{uuid}.carsharingUser` | Carsharing user | ✅ | | Present in Person |
+| `persons.{uuid}.contactEmail` | Contact email | ✅ | | Present in Person |
+| `persons.{uuid}.contactPhoneNumber` | Contact phone | ✅ | | Present in Person |
+| `persons.{uuid}.drivingLicenseOwnership` | Driving license ownership | ✅ | | Present in Person |
+| `persons.{uuid}.educationalAttainment` | Educational attainment | ✅ | | Present in Person |
+| `persons.{uuid}.gender` | Person gender | ✅ | | Present in Person |
+| `persons.{uuid}.genderCustom` | Custom gender specification | ❌ | | Missing in Person |
+| `persons.{uuid}.hasDisability` | Has disability | ✅ | | Present in Person |
+| `persons.{uuid}.isJobTelecommuteCompatible` | Telecommute compatible | ✅ | | Present in Person |
+| `persons.{uuid}.isOnTheRoadWorker` | On-road worker | ✅ | | Present in Person |
+| `persons.{uuid}.jobCategory` | Job category | ✅ | | Present in Person |
+| `persons.{uuid}.jobName` | Job name | ✅ | | Present in Person |
+| `persons.{uuid}.nickname` | Nickname | ✅ | | Present in Person |
+| `persons.{uuid}.noSchoolTripReason` | No school trip reason | ❌ | | Missing in Person |
+| `persons.{uuid}.noWorkTripReason` | No work trip reason | ❌ | | Missing in Person |
+| `persons.{uuid}.occupation` | Occupation | ✅ | | Present in Person |
+| `persons.{uuid}.personVisitedPlacesTitle` | Person visited places title | ❌ | | Missing in Person |
+| `persons.{uuid}.remoteWorkDays` | Remote work days | ❌ | | Missing in Person |
+| `persons.{uuid}.ridesharingMember` | Ridesharing member | ✅ | | Present in Person |
+| `persons.{uuid}.ridesharingUser` | Ridesharing user | ✅ | | Present in Person |
+| `persons.{uuid}.schoolPlaceType` | School place type | ✅ | | Present in Person |
+| `persons.{uuid}.schoolType` | School type | ✅ | | Present in Person |
+| `persons.{uuid}.schoolTypeOther` | Other school type specification | ❌ | | Missing in Person |
+| `persons.{uuid}.sexAssignedAtBirth` | Sex assigned at birth | ✅ | | Present in Person |
+| `persons.{uuid}.studentType` | Student type | ✅ | | Present in Person |
+| `persons.{uuid}.transitPassOwnership` | Transit pass ownership | ✅ | | Present in Person |
+| `persons.{uuid}.transitPasses` | Transit passes | ✅ | | Present in Person |
+| `persons.{uuid}.travelToWorkDays` | Days traveling to work | ❌ | | Missing in Person |
+| `persons.{uuid}.usualSchoolPlace.geography` | Usual school place geography | ❌ | | Missing in Person |
+| `persons.{uuid}.usualSchoolPlace.name` | Usual school place name | ❌ | | Missing in Person |
+| `persons.{uuid}.usualSchoolPlaceIsHome` | School from home flag | ❌ | | Missing in Person |
+| `persons.{uuid}.usualWorkPlace.geography` | Usual work place geography | ❌ | | Missing in Person |
+| `persons.{uuid}.usualWorkPlace.name` | Usual work place name | ❌ | | Missing in Person |
+| `persons.{uuid}.usualWorkPlaceIsHome` | Work from home flag | ❌ | | Missing in Person |
+| `persons.{uuid}.whoWillAnswerForThisPerson` | Who will answer for this person | ❌ | | Missing in Person |
+| `persons.{uuid}.workPlaceType` | Work place type | ✅ | | Present in Person |
+| `persons.{uuid}.workPlaceTypeBeforeLeave` | Work place type before leave | ❌ | | Missing in Person |
+| `persons.{uuid}.workerType` | Worker type | ✅ | | Present in Person |
+| `persons.{uuid}.workerTypeBeforeLeave` | Worker type before leave | ❌ | | Missing in Person |
+
+## Place Level Attributes (including Home)
+
+| Path | Description | Present in Current Objects | Move To | Notes |
+|------|-------------|----------------------------|---------|-------|
+| `home.address` | Home address | ✅ | | Present in Place (via Address object) |
+| `home.city` | Home city | ✅ | `address.municipalityName` | Present in Place.address.municipalityName |  
+| `home.region` | Home region | ✅ | `address.region` | Present in Place.address.region |
+| `home.country` | Home country | ✅ | `address.country` | Present in Place.address.country |
+| `home.postalCode` | Home postal code | ✅ | `address.postalCode` | Present in Place.address.postalCode |
+| `home.geography` | Home geography | ✅ | `geography` | Present in Place.geography |
 
 ## Journey Level Attributes
 
-| Path | Description | Present in Current Objects | Notes |
-|------|-------------|----------------------------|-------|
-| `persons.{uuid}.journeys.{uuid}.startDate` | Journey start date | ✅ | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.startTime` | Journey start time | ✅ | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.startTimePeriod` | Journey start time period | ✅ | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.endDate` | Journey end date | ✅ | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.endTime` | Journey end time | ✅ | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.endTimePeriod` | Journey end time period | ✅ | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.name` | Journey name | ✅ | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.type` | Journey type | ✅ | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.tripsValidated` | Trips validation flag | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.departurePlace` | Departure place info | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.departurePlaceType` | Departure place type | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.workTripType` | Work trip type | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.schoolTripType` | School trip type | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.noWorkTripReason` | No work trip reason | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.noSchoolTripReason` | No school trip reason | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.workOnTheRoadTrip` | Work on-road trip | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.schoolOnTheRoadTrip` | School on-road trip | ❌ | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.didAlsoRespondByPhone` | Phone response flag | ❌ | Missing in Journey |
+| Path | Description | Present in Current Objects | Move To | Notes |
+|------|-------------|----------------------------|---------|-------|
+| `persons.{uuid}.journeys.{uuid}._showNewPersonPopupButton` | Show new person popup button | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.departurePlace` | Departure place info | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.departurePlaceIsHome` | Departure place is home | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.departurePlaceOther` | Departure place other | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.departurePlaceType` | Departure place type | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.endDate` | Journey end date | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.endTime` | Journey end time | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.endTimePeriod` | Journey end time period | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.name` | Journey name | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.noSchoolTripReason` | No school trip reason | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.noSchoolTripReasonSpecify` | No school trip reason specification | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.noWorkTripReason` | No work trip reason | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.noWorkTripReasonSpecify` | No work trip reason specification | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.personDidTrips` | Person did trips flag | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.personDidTripsConfirm` | Person did trips confirmation | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.schoolOnTheRoadTrip` | School on-road trip | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.schoolTripType` | School trip type | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.startDate` | Journey start date | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.startTime` | Journey start time | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.startTimePeriod` | Journey start time period | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.tripsValidated` | Trips validation flag | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.type` | Journey type | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.workOnTheRoadTrip` | Work on-road trip | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.workTripType` | Work trip type | ❌ | | Missing in Journey |
 
 ## VisitedPlace Level Attributes
 
-| Path | Description | Present in Current Objects | Notes |
-|------|-------------|----------------------------|-------|
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.activity` | Activity type | ✅ | Present in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.activityCategory` | Activity category | ✅ | Present in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startDate` | Start date | ✅ | Present in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startTime` | Start time | ✅ | Present in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startTimePeriod` | Start time period | ✅ | Present in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endDate` | End date | ✅ | Present in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endTime` | End time | ✅ | Present in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endTimePeriod` | End time period | ✅ | Present in VisitedPlace |
-| All Place attributes (name, geography, etc.) | Place-related attributes | ✅ | Inherited from Place |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadType` | On-road type | ❌ | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.alreadyVisited` | Already visited flag | ❌ | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.shortcut` | Place shortcut | ❌ | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeOfArrival` | Time of arrival | ❌ | Missing in VisitedPlace (different from startTime) |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeDeparture` | Time of departure | ❌ | Missing in VisitedPlace (different from endTime) |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastVisitedSamePlaceDate` | Last visit date | ❌ | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastVisitedSamePlaceTime` | Last visit time | ❌ | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.didAlsoRespondByPhone` | Phone response flag | ❌ | Missing in VisitedPlace |
+| Path | Description | Present in Current Objects | Move To | Notes |
+|------|-------------|----------------------------|---------|-------|
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.activity` | Activity type | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.activityCategory` | Activity category | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startDate` | Start date | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startTime` | Start time | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startTimePeriod` | Start time period | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endDate` | End date | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endTime` | End time | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endTimePeriod` | End time period | ✅ | | Present in VisitedPlace |
+| All Place attributes (name, geography, etc.) | Place-related attributes | ✅ | | Inherited from Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadType` | On-road type | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.alreadyVisited` | Already visited flag | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.shortcut` | Place shortcut | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeOfArrival` | Time of arrival | ❌ | `startTime` | Missing in VisitedPlace (different from startTime) |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeDeparture` | Time of departure | ❌ | `endTime` | Missing in VisitedPlace (different from endTime) |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastVisitedSamePlaceDate` | Last visit date | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastVisitedSamePlaceTime` | Last visit time | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadDepartureType` | On-road departure type | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadArrivalType` | On-road arrival type | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.alreadyVisitedBySelfOrAnotherHouseholdMember` | Already visited by self or household member | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousPreviousDepartureTime` | Previous previous departure time | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousArrivalTime` | Previous arrival time | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousDepartureTime` | Previous departure time | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.nextPlaceCategory` | Next place category | ❌ | | Missing in VisitedPlace |
 
 ## Trip Level Attributes
 
-| Path | Description | Present in Current Objects | Notes |
-|------|-------------|----------------------------|-------|
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.startDate` | Trip start date | ✅ | Present in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.startTime` | Trip start time | ✅ | Present in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.startTimePeriod` | Trip start time period | ✅ | Present in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.endDate` | Trip end date | ✅ | Present in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.endTime` | Trip end time | ✅ | Present in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.endTimePeriod` | Trip end time period | ✅ | Present in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.birdDistanceMeters` | Bird distance | ✅ | Calculated in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.birdSpeedKph` | Bird speed | ✅ | Calculated in Trip |
-| Composed objects (startPlace, endPlace, segments, junctions) | Related objects | ✅ | Present in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.didAlsoRespondByPhone` | Phone response flag | ❌ | Missing in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.onTheRoadType` | On-road type | ❌ | Missing in Trip |
+| Path | Description | Present in Current Objects | Move To | Notes |
+|------|-------------|----------------------------|---------|-------|
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.startDate` | Trip start date | ✅ | | Present in Trip |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.startTime` | Trip start time | ✅ | | Present in Trip |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.startTimePeriod` | Trip start time period | ✅ | | Present in Trip |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.endDate` | Trip end date | ✅ | | Present in Trip |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.endTime` | Trip end time | ✅ | | Present in Trip |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.endTimePeriod` | Trip end time period | ✅ | | Present in Trip |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.birdDistanceMeters` | Bird distance | ✅ | | Calculated in Trip |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.birdSpeedKph` | Bird speed | ✅ | | Calculated in Trip |
+| Composed objects (startPlace, endPlace, segments, junctions) | Related objects | ✅ | | Present in Trip |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.onTheRoadType` | On-road type | ❌ | | Missing in Trip |
 
 ## Segment Level Attributes
 
-| Path | Description | Present in Current Objects | Notes |
-|------|-------------|----------------------------|-------|
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.mode` | Transport mode | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.modeOtherSpecify` | Other mode specification | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.driver` | Driver type | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.driverUuid` | Driver person UUID | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.carType` | Car type | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.vehicleOccupancy` | Vehicle occupancy | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.startDate` | Segment start date | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.startTime` | Segment start time | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.endDate` | Segment end date | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.endTime` | Segment end time | ✅ | Present in Segment |
-| All routing objects (transit, walking, cycling, driving) | Routing information | ✅ | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitBoardingStop` | Transit boarding stop | ❌ | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitUnboardingStop` | Transit unboarding stop | ❌ | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLine` | Transit line | ❌ | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitAgency` | Transit agency | ❌ | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLineShortname` | Transit line short name | ❌ | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLineLongname` | Transit line long name | ❌ | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.didAlsoRespondByPhone` | Phone response flag | ❌ | Missing in Segment |
+| Path | Description | Present in Current Objects | Move To | Notes |
+|------|-------------|----------------------------|---------|-------|
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.mode` | Transport mode | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.modeOtherSpecify` | Other mode specification | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.driver` | Driver type | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.driverUuid` | Driver person UUID | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.carType` | Car type | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.vehicleOccupancy` | Vehicle occupancy | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.startDate` | Segment start date | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.startTime` | Segment start time | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.endDate` | Segment end date | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.endTime` | Segment end time | ✅ | | Present in Segment |
+| All routing objects (transit, walking, cycling, driving) | Routing information | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitBoardingStop` | Transit boarding stop | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitUnboardingStop` | Transit unboarding stop | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLine` | Transit line | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitAgency` | Transit agency | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLineShortname` | Transit line short name | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLineLongname` | Transit line long name | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.modePre` | Pre-mode selection | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.howToBus` | How to access bus | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.paidForParking` | Paid for parking | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.onDemandType` | On-demand transport type | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.tripJunctionQueryString` | Junction query string | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionGeography` | Junction geography | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.busLines` | Bus lines used | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.sameModeAsReverseTrip` | Same mode as reverse trip | ❌ | | Missing in Segment |
