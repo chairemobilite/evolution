@@ -39,7 +39,6 @@ const baseHouseholdAttributes2: BaseHouseholdAttributes = {
     carNumber: 1,
     twoWheelNumber: 1,
     category: 'foo' as HAttr.HouseholdCategory,
-    wouldLikeToParticipateToOtherSurveys: true,
     homeCarParkings: ['bar', 'foo'] as HAttr.HomePrivateCarParkingType[],
     contactPhoneNumber: '123-456-7890',
     contactEmail: 'sample@example.com',
@@ -113,11 +112,6 @@ describe('BaseHousehold Class Additional Tests', () => {
         expect(householdInstance.contactEmail).toEqual(baseHouseholdAttributes2.contactEmail);
     });
 
-    it('should allow participation to other surveys if indicated', () => {
-        const householdInstance = new BaseHousehold(baseHouseholdAttributes2);
-        expect(householdInstance.wouldLikeToParticipateToOtherSurveys).toBe(true);
-    });
-
     it('should correctly set home car parkings property if provided', () => {
         const householdInstance = new BaseHousehold(baseHouseholdAttributes2);
         expect(householdInstance.homeCarParkings).toEqual(baseHouseholdAttributes2.homeCarParkings);
@@ -132,7 +126,6 @@ describe('BaseHousehold Class Additional Tests', () => {
             pluginHybridCarNumber: 0,
             electricCarNumber: 0,
             category: 'single-family',
-            wouldLikeToParticipateToOtherSurveys: true,
             homeCarParkings: ['private-garage'],
             contactPhoneNumber: '1234567890',
             contactEmail: 'valid@example.com',
@@ -152,7 +145,6 @@ describe('BaseHousehold Class Additional Tests', () => {
             pluginHybridCarNumber: -3, // Should be a non-negative integer
             electricCarNumber: 0.5, // Should be a non-negative integer
             category: 123, // Should be a string
-            wouldLikeToParticipateToOtherSurveys: 'true', // Should be a boolean
             homeCarParkings: [123], // Should contain valid strings
             contactPhoneNumber: 9876543210, // Should be a string
             contactEmail: new Date(), // Should be a valid email address
@@ -175,7 +167,6 @@ describe('BaseHousehold Class Additional Tests', () => {
             new Error('BaseHousehold validateParams: pluginHybridCarNumber should be a positive integer'),
             new Error('BaseHousehold validateParams: electricCarNumber should be a positive integer'),
             new Error('BaseHousehold validateParams: category should be a string'),
-            new Error('BaseHousehold validateParams: wouldLikeToParticipateToOtherSurveys should be a boolean'),
             new Error('BaseHousehold validateParams: homeCarParkings index 0 should be a string'),
             new Error('BaseHousehold validateParams: contactPhoneNumber should be a string'),
             new Error('BaseHousehold validateParams: contactEmail should be a string'),
