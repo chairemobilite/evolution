@@ -26,22 +26,22 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `difficultyRange` | Difficulty range | ✅ | | Present in Interview |
 | `durationRange` | Duration appreciation range | ✅ | | Present in Interview |
 | `durationRespondentEstimationMin` | Duration estimation in minutes | ✅ | | Present in Interview |
-| `end.burdenOfTheSurvey` | Survey burden opinion | ✅ | `burdenRange` | Present in Interview (as burdenRange) |
-| `end.commentsOnSurvey` | Comments on survey | ✅ | `respondentComments` | Present in Interview (as respondentComments) |
-| `end.consideredAbandoningSurvey` | Considered abandoning survey | ✅ | `consideredAbandoningRange` | Present in Interview (as consideredToAbandonRange) |
-| `end.difficultyOfTheSurvey` | Survey difficulty opinion | ✅ | `difficultyRange` | Present in Interview (as difficultyRange) |
-| `end.durationOfTheSurvey` | Survey duration opinion | ✅ | `durationRange` | Present in Interview (as durationRange) |
-| `end.interestOfTheSurvey` | Interest level in survey | ✅ | `interestRange` | Present in Interview (as interestRange) |
-| `end.timeSpentAnswering` | Time spent answering | ✅ | `durationRespondentEstimationMin`| Present in Interview (as durationRespondentEstimationMin) |
-| `end.wouldLikeToParticipateInOtherSurveysChaireMobilite` | Chaire Mobilite survey participation | ❌ | `wouldLikeToParticipateInOtherSurveys` | Similar to wouldLikeToParticipateInOtherSurveys |
-| `end.wouldLikeToParticipateInOtherSurveysChaireMobiliteContactEmail` | Chaire Mobilite contact email | ❌ | `wouldLikeToParticipateInOtherSurveysContactEmail` | Missing in Interview |
+| `end.burdenOfTheSurvey` | Survey burden opinion | ⚠️ | `burdenRange` | Present in Interview (as burdenRange) |
+| `end.commentsOnSurvey` | Comments on survey | ⚠️ | `respondentComments` | Present in Interview (as respondentComments) |
+| `end.consideredAbandoningSurvey` | Considered abandoning survey | ⚠️ | `consideredAbandoningRange` | Present in Interview (as consideredToAbandonRange) |
+| `end.difficultyOfTheSurvey` | Survey difficulty opinion | ⚠️ | `difficultyRange` | Present in Interview (as difficultyRange) |
+| `end.durationOfTheSurvey` | Survey duration opinion | ⚠️ | `durationRange` | Present in Interview (as durationRange) |
+| `end.interestOfTheSurvey` | Interest level in survey | ⚠️ | `interestRange` | Present in Interview (as interestRange) |
+| `end.timeSpentAnswering` | Time spent answering | ⚠️ | `durationRespondentEstimationMin`| Present in Interview (as durationRespondentEstimationMin) |
+| `end.wouldLikeToParticipateInOtherSurveysChaireMobilite` | Chaire Mobilite survey participation | ⚠️ | `wouldLikeToParticipateInOtherSurveys` | Similar to wouldLikeToParticipateInOtherSurveys, good proxy for respondent motivation |
+| `end.wouldLikeToParticipateInOtherSurveysChaireMobiliteContactEmail` | Chaire Mobilite contact email | ⚠️ | `contactEmail` | |
 | `helpContactEmail` | Help contact email | ✅ | | Present in Interview |
 | `helpContactPhoneNumber` | Help phone number | ✅ | | Present in Interview |
 | `interestRange` | Interest range | ✅ | | Present in Interview |
 | `interviewerComments` | Interviewer comments | ✅ | | Present in Interview |
 | `respondentComments` | Respondent comments | ✅ | | Present in Interview |
-| `wouldLikeToParticipateInOtherSurveys` | Consent for other surveys | ✅ | | Present in Interview |
-| `wouldLikeToParticipateInOtherSurveysContactEmail` | Other surveys contact email | ❌ | | Missing in Interview |
+| `wouldLikeToParticipateInOtherSurveys` | Consent for other surveys, good proxy for respondent motivation | ✅ | | Present in Interview |
+| `wouldLikeToParticipateInOtherSurveysContactEmail` | Other surveys contact email | ⚠️ | `contactEmail` | |
 
 ## Household Level Attributes
 
@@ -57,7 +57,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `household.electricCarNumber` | Number of electric cars | ✅ | | Present in Household |
 | `household.homeCarParkings` | Home car parking types | ✅ | | Present in Household |
 | `household.hybridCarNumber` | Number of hybrid cars | ✅ | | Present in Household |
-| `household.income` | Specific income amount | ❌ | `incomeLevel` | Missing in Household (only incomeLevel exists) |
+| `household.income` | Specific income amount | ⚠️ | `incomeLevel` | Missing in Household (only incomeLevel exists) |
 | `household.incomeLevel` | Income level | ✅ | | Present in Household |
 | `household.incomeRangePreferNotToAnswer` | Income refusal flag | ❌ | | Missing in Household |
 | `household.longDistanceTripCount` | Long distance trip count | ❌ | | Missing in Household |
@@ -128,11 +128,11 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | Path | Description | Present in Current Objects | Move To | Notes |
 |------|-------------|----------------------------|---------|-------|
 | `home.address` | Home address | ✅ | | Present in Place (via Address object) |
-| `home.city` | Home city | ✅ | `address.municipalityName` | Present in Place.address.municipalityName |  
-| `home.region` | Home region | ✅ | `address.region` | Present in Place.address.region |
-| `home.country` | Home country | ✅ | `address.country` | Present in Place.address.country |
-| `home.postalCode` | Home postal code | ✅ | `address.postalCode` | Present in Place.address.postalCode |
-| `home.geography` | Home geography | ✅ | `geography` | Present in Place.geography |
+| `home.city` | Home city | ⚠️ | `address.municipalityName` | Present in Place.address.municipalityName |  
+| `home.region` | Home region | ⚠️ | `address.region` | Present in Place.address.region |
+| `home.country` | Home country | ⚠️ | `address.country` | Present in Place.address.country |
+| `home.postalCode` | Home postal code | ⚠️ | `address.postalCode` | Present in Place.address.postalCode |
+| `home.geography` | Home geography | ⚠️ | `geography` | Present in Place.geography |
 
 ## Journey Level Attributes
 
@@ -179,8 +179,8 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadType` | On-road type | ❌ | | Missing in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.alreadyVisited` | Already visited flag | ❌ | | Missing in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.shortcut` | Place shortcut | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeOfArrival` | Time of arrival | ❌ | `startTime` | Missing in VisitedPlace (different from startTime) |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeDeparture` | Time of departure | ❌ | `endTime` | Missing in VisitedPlace (different from endTime) |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeOfArrival` | Time of arrival | ⚠️ | `startTime` | Missing in VisitedPlace (different from startTime) |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeDeparture` | Time of departure | ⚠️ | `endTime` | Missing in VisitedPlace (different from endTime) |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastVisitedSamePlaceDate` | Last visit date | ❌ | | Missing in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastVisitedSamePlaceTime` | Last visit time | ❌ | | Missing in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadDepartureType` | On-road departure type | ❌ | | Missing in VisitedPlace |
