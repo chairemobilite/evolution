@@ -59,9 +59,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `household.hybridCarNumber` | Number of hybrid cars | ✅ | | Present in Household |
 | `household.income` | Specific income amount | ⚠️ | `incomeLevel` | Missing in Household (only incomeLevel exists) |
 | `household.incomeLevel` | Income level | ✅ | | Present in Household |
-
 | `household.longDistanceTripCount` | Long distance trip count | ❌ | | Missing in Household |
-| `household.longDistanceTripTimeSpan` | Long distance time span | ❌ | | Missing in Household |
 | `household.longDistanceTripsJanuaryApril` | Long distance trips Jan-Apr | ❌ | | Missing in Household |
 | `household.longDistanceTripsMayAugust` | Long distance trips May-Aug | ❌ | | Missing in Household |
 | `household.longDistanceTripsSeptemberDecember` | Long distance trips Sep-Dec | ❌ | | Missing in Household |
