@@ -30,7 +30,6 @@ export const householdAttributes = [
     'electricCarNumber',
     'hybridCarNumber',
     'category',
-    'wouldLikeToParticipateToOtherSurveys',
     'homeCarParkings',
     'incomeLevel',
     'ownership',
@@ -51,7 +50,6 @@ export type HouseholdAttributes = {
     electricCarNumber?: Optional<number>;
     hybridCarNumber?: Optional<number>;
     category?: Optional<HAttr.HouseholdCategory>;
-    wouldLikeToParticipateToOtherSurveys?: Optional<boolean>;
     homeCarParkings?: Optional<HAttr.HomePrivateCarParkingType[]>;
     incomeLevel?: Optional<HAttr.IncomeLevel>;
     ownership?: Optional<HAttr.HomeOwnership>;
@@ -205,14 +203,6 @@ export class Household implements IValidatable {
         this._attributes.category = value;
     }
 
-    get wouldLikeToParticipateToOtherSurveys(): Optional<boolean> {
-        return this._attributes.wouldLikeToParticipateToOtherSurveys;
-    }
-
-    set wouldLikeToParticipateToOtherSurveys(value: Optional<boolean>) {
-        this._attributes.wouldLikeToParticipateToOtherSurveys = value;
-    }
-
     get homeCarParkings(): Optional<HAttr.HomePrivateCarParkingType[]> {
         return this._attributes.homeCarParkings;
     }
@@ -354,14 +344,6 @@ export class Household implements IValidatable {
         );
 
         errors.push(...ParamsValidatorUtils.isString('category', dirtyParams.category, displayName));
-
-        errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                'wouldLikeToParticipateToOtherSurveys',
-                dirtyParams.wouldLikeToParticipateToOtherSurveys,
-                displayName
-            )
-        );
 
         errors.push(
             ...ParamsValidatorUtils.isArrayOfStrings('homeCarParkings', dirtyParams.homeCarParkings, displayName)
