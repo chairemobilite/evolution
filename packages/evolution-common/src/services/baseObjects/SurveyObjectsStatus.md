@@ -66,7 +66,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `household.longDistanceTripsMayAugust` | Long distance trips May-Aug | ❌ | | Missing in Household |
 | `household.longDistanceTripsSeptemberDecember` | Long distance trips Sep-Dec | ❌ | | Missing in Household |
 | `household.madeLongDistanceTripsInLastYear` | Made long distance trips last year | ❌ | | Missing in Household |
-| `household.ownership` | Home ownership | ❌ | | Missing in Household |
+| `household.ownership` | Home ownership | ✅ | | Present in Household |
 | `household.pluginHybridCarNumber` | Number of plugin hybrid cars | ✅ | | Present in Household |
 | `household.size` | Household size | ✅ | | Present in Household |
 | `household.twoWheelNumber` | Number of two-wheelers | ✅ | | Present in Household |
