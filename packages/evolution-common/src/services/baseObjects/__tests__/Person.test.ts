@@ -49,7 +49,7 @@ describe('Person', () => {
         jobCategory: 'professional',
         jobName: 'engineer',
         isOnTheRoadWorker: 'no',
-        isJobTelecommuteCompatible: 'yes',
+        hasTelecommuteCompatibleJob: 'yes',
         educationalAttainment: 'university',
         nickname: 'John',
         contactPhoneNumber: '1234567890',
@@ -88,7 +88,7 @@ describe('Person', () => {
     const extendedInvalidJourneysAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        journeys: [{ custom: 333, _isValid: 111 }],
+        journeys: [{ custom: 333, _isValid: 111 }, { _isValid: 111, visitedPlaces: [{ _isValid: 111 }] }],
     };
 
 
@@ -386,6 +386,12 @@ describe('Person', () => {
             expect((person as Person).journeys).toHaveLength(1);
             expect((person as Person).journeys?.[0]).toEqual(journey);
         });
+
+        test('should return an error for invalid journeys', () => {
+            const result = Person.create(extendedInvalidJourneysAttributes);
+            expect(hasErrors(result)).toBe(true);
+            expect((unwrap(result) as Error[])).toHaveLength(3);
+        });
     });
 
     describe('Getters and Setters', () => {
@@ -413,7 +419,7 @@ describe('Person', () => {
             ['jobCategory', 'service'],
             ['jobName', 'manager'],
             ['isOnTheRoadWorker', 'yes'],
-            ['isJobTelecommuteCompatible', 'no'],
+            ['hasTelecommuteCompatibleJob', 'no'],
             ['educationalAttainment', 'master'],
             ['nickname', 'Johnny'],
             ['contactPhoneNumber', '9876543210'],

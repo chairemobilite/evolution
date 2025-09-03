@@ -133,7 +133,7 @@ export type JobName = string;
 export type IsOnTheRoadWorker = YesNoDontKnowNonApplicable;
 
 // Whether the job is compatible with telecommute:
-export type IsJobTelecommuteCompatible = YesNoDontKnowNonApplicable;
+export type HasTelecommuteCompatibleJob = YesNoDontKnowNonApplicable;
 
 // todo: update with more normalized/standardized values
 export const educationalAttainmentValues = [

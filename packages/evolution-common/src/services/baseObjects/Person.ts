@@ -45,7 +45,7 @@ export const personAttributes = [
     'jobCategory',
     'jobName',
     'isOnTheRoadWorker',
-    'isJobTelecommuteCompatible',
+    'hasTelecommuteCompatibleJob',
     'educationalAttainment',
     'nickname',
     'contactPhoneNumber',
@@ -88,7 +88,7 @@ export type PersonAttributes = {
     jobCategory?: Optional<PAttr.JobCategory>;
     jobName?: Optional<PAttr.JobName>;
     isOnTheRoadWorker?: Optional<PAttr.IsOnTheRoadWorker>;
-    isJobTelecommuteCompatible?: Optional<PAttr.IsJobTelecommuteCompatible>;
+    hasTelecommuteCompatibleJob?: Optional<PAttr.HasTelecommuteCompatibleJob>;
     educationalAttainment?: Optional<PAttr.EducationalAttainment>;
 
     // confidential:
@@ -325,12 +325,12 @@ export class Person implements IValidatable {
         this._attributes.isOnTheRoadWorker = value;
     }
 
-    get isJobTelecommuteCompatible(): Optional<PAttr.IsJobTelecommuteCompatible> {
-        return this._attributes.isJobTelecommuteCompatible;
+    get hasTelecommuteCompatibleJob(): Optional<PAttr.HasTelecommuteCompatibleJob> {
+        return this._attributes.hasTelecommuteCompatibleJob;
     }
 
-    set isJobTelecommuteCompatible(value: Optional<PAttr.IsJobTelecommuteCompatible>) {
-        this._attributes.isJobTelecommuteCompatible = value;
+    set hasTelecommuteCompatibleJob(value: Optional<PAttr.HasTelecommuteCompatibleJob>) {
+        this._attributes.hasTelecommuteCompatibleJob = value;
     }
 
     get educationalAttainment(): Optional<PAttr.EducationalAttainment> {

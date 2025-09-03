@@ -38,7 +38,7 @@ describe('BasePerson', () => {
         jobCategory: 'Software Developer' as PAttr.JobCategory, // Valid job category
         jobName: 'Software Engineer' as PAttr.JobName, // Valid job name
         isOnTheRoadWorker: 'no' as PAttr.IsOnTheRoadWorker, // Valid on-the-road worker status
-        isJobTelecommuteCompatible: 'yes' as PAttr.IsJobTelecommuteCompatible, // Valid telecommute compatibility status
+        isJobTelecommuteCompatible: 'yes' as PAttr.HasTelecommuteCompatibleJob, // Valid telecommute compatibility status, renamed from isJobTelecommuteCompatible to hasTelecommuteCompatibleJob in new Person class
         educationalAttainment: 'PhD' as PAttr.EducationalAttainment, // Valid educational attainment
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         foo: 'bar', // extended attribute
