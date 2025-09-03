@@ -29,7 +29,7 @@ type BasePersonAttributes = {
     jobCategory?: PAttr.JobCategory;
     jobName?: PAttr.JobName;
     isOnTheRoadWorker?: PAttr.IsOnTheRoadWorker;
-    isJobTelecommuteCompatible?: PAttr.IsJobTelecommuteCompatible;
+    isJobTelecommuteCompatible?: PAttr.HasTelecommuteCompatibleJob;
     educationalAttainment?: PAttr.EducationalAttainment;
 
     // must be anonymized:
@@ -62,7 +62,7 @@ class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable
     jobCategory?: PAttr.JobCategory;
     jobName?: PAttr.JobName;
     isOnTheRoadWorker?: PAttr.IsOnTheRoadWorker;
-    isJobTelecommuteCompatible?: PAttr.IsJobTelecommuteCompatible;
+    isJobTelecommuteCompatible?: PAttr.HasTelecommuteCompatibleJob;
     educationalAttainment?: PAttr.EducationalAttainment;
 
     // must be anonymized:
