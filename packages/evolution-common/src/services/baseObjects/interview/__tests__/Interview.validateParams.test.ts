@@ -28,7 +28,7 @@ describe('Interview - validateParams', () => {
         interestRange: 43,
         difficultyRange: 300,
         burdenRange: 200,
-        consideredToAbandonRange: 'yes',
+        consideredAbandoningRange: 'yes',
     };
 
     it('should validate valid params', () => {
@@ -150,10 +150,10 @@ describe('Interview - validateParams', () => {
         expect(errors.some((e) => e.message.includes('burdenRange'))).toBe(true);
     });
 
-    it('should validate consideredToAbandonRange', () => {
-        const params = { ...validParams, consideredToAbandonRange: 'invalid-value' };
+    it('should validate consideredAbandoningRange', () => {
+        const params = { ...validParams, consideredAbandoningRange: 'invalid-value' };
         const errors = validateParams(params);
-        expect(errors.some((e) => e.message.includes('consideredToAbandonRange'))).toBe(true);
+        expect(errors.some((e) => e.message.includes('consideredAbandoningRange'))).toBe(true);
     });
 
     it('should validate acceptToBeContactedForHelp', () => {
