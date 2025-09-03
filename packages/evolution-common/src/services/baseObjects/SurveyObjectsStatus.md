@@ -69,7 +69,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `household.size` | Household size | ✅ | | Present in Household |
 | `household.twoWheelNumber` | Number of two-wheelers | ✅ | | Present in Household |
 | `household.wouldLikeToParticipateToLongDistanceSurvey` | Long distance survey participation | ❌ | | Missing in Household |
-| `household.wouldLikeToParticipateToLongDistanceSurveyContactEmail` | Long distance survey contact email | ❌ | | Missing in Household |
+| `household.wouldLikeToParticipateToLongDistanceSurveyContactEmail` | Long distance survey contact email | ⚠️ | `interview.contactEmail` | Move to contactEmail, but make sure it is the same as other contact emails in survey |
 | `household.wouldLikeToParticipateToOtherSurveys` | Survey participation | ✅ | | Present in Household |
 
 ## Person Level Attributes
