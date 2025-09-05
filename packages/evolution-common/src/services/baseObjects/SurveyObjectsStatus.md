@@ -10,38 +10,38 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 
 | Path | Description | Present in Current Objects | Move To | Notes |
 |------|-------------|----------------------------|---------|-------|
-| `_activeJourneyId` | Currently active journey | ❌ | | Missing in Interview |
-| `_activePersonId` | Currently active person | ❌ | | Missing in Interview |
-| `_activeVisitedPlaceId` | Currently active visited place | ❌ | | Missing in Interview |
-| `_interviewFinished` | Interview completion flag | ❌ | | Missing in Interview |
-| `_previousDay` | Previous day reference | ❌ | | Missing in Interview |
-| `acceptToBeContactedForHelp` | Consent for contact | ✅ | | Present in Interview |
-| `accessCode` | Access code for survey | ✅ | | Present in Interview |
+| `_activeJourneyId` | Currently active journey | ❌ | | Missing in Interview, will be moved to Interview Metadata |
+| `_activePersonId` | Currently active person | ❌ | | Missing in Interview, will be moved to Interview Metadata |
+| `_activeVisitedPlaceId` | Currently active visited place | ❌ | | Missing in Interview, will be moved to Interview Metadata |
+| `_interviewFinished` | Interview completion flag | ❌ | | Missing in Interview, will be moved to Interview Metadata |
+| `_previousDay` | Previous day reference | ❌ | | Missing in Interview, will be moved to Interview Metadata |
+| `acceptToBeContactedForHelp` | Consent for contact | ✅ | | Present in Interview, not exported |
+| `accessCode` | Access code for survey | ✅ | | Present in Interview, not exported |
 | `assignedDate` | Assigned survey date | ✅ | | Present in Interview |
-| `auditorComments` | Auditor comments | ✅ | | Present in Interview |
+| `auditorComments` | Auditor comments | ✅ | | Present in Interview, not exported |
 | `burdenRange` | Burden range | ✅ | | Present in Interview |
 | `consideredAbandoningRange` | Considered abandonment | ✅ | | Present in Interview |
-| `contactEmail` | Contact email | ✅ | | Present in Interview |
-| `contactPhoneNumber` | Phone number | ✅ | | Present in Interview |
+| `contactEmail` | Contact email | ✅ | | Present in Interview, not exported |
+| `contactPhoneNumber` | Phone number | ✅ | | Present in Interview, not exported |
 | `difficultyRange` | Difficulty range | ✅ | | Present in Interview |
 | `durationRange` | Duration appreciation range | ✅ | | Present in Interview |
 | `durationRespondentEstimationMin` | Duration estimation in minutes | ✅ | | Present in Interview |
 | `end.burdenOfTheSurvey` | Survey burden opinion | ⚠️ | `burdenRange` | Present in Interview (as burdenRange) |
-| `end.commentsOnSurvey` | Comments on survey | ⚠️ | `respondentComments` | Present in Interview (as respondentComments) |
+| `end.commentsOnSurvey` | Comments on survey | ⚠️ | `respondentComments` | Present in Interview (as respondentComments), not exported |
 | `end.consideredAbandoningSurvey` | Considered abandoning survey | ⚠️ | `consideredAbandoningRange` | Present in Interview (as consideredToAbandonRange) |
 | `end.difficultyOfTheSurvey` | Survey difficulty opinion | ⚠️ | `difficultyRange` | Present in Interview (as difficultyRange) |
 | `end.durationOfTheSurvey` | Survey duration opinion | ⚠️ | `durationRange` | Present in Interview (as durationRange) |
 | `end.interestOfTheSurvey` | Interest level in survey | ⚠️ | `interestRange` | Present in Interview (as interestRange) |
 | `end.timeSpentAnswering` | Time spent answering | ⚠️ | `durationRespondentEstimationMin`| Present in Interview (as durationRespondentEstimationMin) |
-| `end.wouldLikeToParticipateInOtherSurveysChaireMobilite` | Chaire Mobilite survey participation | ⚠️ | `wouldLikeToParticipateInOtherSurveys` | Similar to wouldLikeToParticipateInOtherSurveys, good proxy for respondent motivation |
-| `end.wouldLikeToParticipateInOtherSurveysChaireMobiliteContactEmail` | Chaire Mobilite contact email | ⚠️ | `contactEmail` | |
-| `helpContactEmail` | Help contact email | ✅ | | Present in Interview |
-| `helpContactPhoneNumber` | Help phone number | ✅ | | Present in Interview |
+| `end.wouldLikeToParticipateInOtherSurveysChaireMobilite` | Chaire Mobilite survey participation | ⚠️ | `wouldLikeToParticipateInOtherSurveys` | Similar to wouldLikeToParticipateInOtherSurveys, good proxy for respondent motivation, not exported, except if converted into an interest indicator |
+| `end.wouldLikeToParticipateInOtherSurveysChaireMobiliteContactEmail` | Chaire Mobilite contact email | ⚠️ | `contactEmail` | Not exported |
+| `helpContactEmail` | Help contact email | ✅ | | Present in Interview, not exported |
+| `helpContactPhoneNumber` | Help phone number | ✅ | | Present in Interview, not exported |
 | `interestRange` | Interest range | ✅ | | Present in Interview |
-| `interviewerComments` | Interviewer comments | ✅ | | Present in Interview |
-| `respondentComments` | Respondent comments | ✅ | | Present in Interview |
-| `wouldLikeToParticipateInOtherSurveys` | Consent for other surveys, good proxy for respondent motivation | ✅ | | Present in Interview |
-| `wouldLikeToParticipateInOtherSurveysContactEmail` | Other surveys contact email | ⚠️ | `contactEmail` | |
+| `interviewerComments` | Interviewer comments | ✅ | | Present in Interview, not exported |
+| `respondentComments` | Respondent comments | ✅ | | Present in Interview, not exported |
+| `wouldLikeToParticipateInOtherSurveys` | Consent for other surveys, good proxy for respondent motivation | ✅ | | Present in Interview, not exported, except if converted into an interest indicator |
+| `wouldLikeToParticipateInOtherSurveysContactEmail` | Other surveys contact email | ⚠️ | `contactEmail` | Not exported |
 
 ## Household Level Attributes
 
@@ -68,8 +68,8 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `household.pluginHybridCarNumber` | Number of plugin hybrid cars | ✅ | | Present in Household |
 | `household.size` | Household size | ✅ | | Present in Household |
 | `household.twoWheelNumber` | Number of two-wheelers | ✅ | | Present in Household |
-| `household.wouldLikeToParticipateToLongDistanceSurvey` | Long distance survey participation | ❌ | | Specific to OD Nationale Quebec |
-| `household.wouldLikeToParticipateToLongDistanceSurveyContactEmail` | Long distance survey contact email | ⚠️ | `interview.contactEmail` | Move to contactEmail, but make sure it is the same as other contact emails in survey |
+| `household.wouldLikeToParticipateToLongDistanceSurvey` | Long distance survey participation | ❌ | | Specific to OD Nationale Quebec, not exported |
+| `household.wouldLikeToParticipateToLongDistanceSurveyContactEmail` | Long distance survey contact email | ⚠️ | `interview.contactEmail` | Move to contactEmail, but make sure it is the same as other contact emails in survey, not exported |
 
 ## Person Level Attributes
 
@@ -86,60 +86,62 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.drivingLicenseOwnership` | Driving license ownership | ✅ | | Present in Person |
 | `persons.{uuid}.educationalAttainment` | Educational attainment | ✅ | | Present in Person |
 | `persons.{uuid}.gender` | Person gender | ✅ | | Present in Person |
-| `persons.{uuid}.genderCustom` | Custom gender specification | ❌ | | Ignored in analysis (for now), otherwise, needs standard classification |
+| `persons.{uuid}.genderCustom` | Custom gender specification | ✅ | | Present in Person |
 | `persons.{uuid}.hasDisability` | Has disability | ✅ | | Present in Person |
-| `persons.{uuid}.isJobTelecommuteCompatible` | Telecommute compatible | ✅ | | Present in Person |
+| `persons.{uuid}.isJobTelecommuteCompatible` | Telecommute compatible | ⚠️ | `hasTelecommuteCompatibleJob` | Present in Person (as hasTelecommuteCompatibleJob) |
+| `persons.{uuid}.hasTelecommuteCompatibleJob` | Telecommute compatible job | ✅ | | Present in Person |
 | `persons.{uuid}.isOnTheRoadWorker` | On-road worker | ✅ | | Present in Person |
 | `persons.{uuid}.jobCategory` | Job category | ✅ | | Present in Person |
 | `persons.{uuid}.jobName` | Job name | ✅ | | Present in Person |
 | `persons.{uuid}.nickname` | Nickname | ✅ | | Present in Person |
-| `persons.{uuid}.noSchoolTripReason` | No school trip reason | ❌ | | Missing in Person |
-| `persons.{uuid}.noWorkTripReason` | No work trip reason | ❌ | | Missing in Person |
+| `persons.{uuid}.noSchoolTripReason` | No school trip reason | ✅ | `journey.{uuid}.noSchoolTripReason` | Present in Journey |
+| `persons.{uuid}.noWorkTripReason` | No work trip reason | ✅ | `journey.{uuid}.noWorkTripReason` | Present in Journey |
 | `persons.{uuid}.occupation` | Occupation | ✅ | | Present in Person |
-| `persons.{uuid}.personVisitedPlacesTitle` | Person visited places title | ❌ | | Missing in Person |
-| `persons.{uuid}.remoteWorkDays` | Remote work days | ❌ | | Missing in Person |
+| `persons.{uuid}.remoteWorkDays` | Remote work days | ⚠️ | `previousWeekRemoteWorkDays` | Present in Person (as previousWeekRemoteWorkDays) |
+| `persons.{uuid}.previousWeekRemoteWorkDays` | Previous week remote work days | ✅ | | Present in Person |
 | `persons.{uuid}.ridesharingMember` | Ridesharing member | ✅ | | Present in Person |
 | `persons.{uuid}.ridesharingUser` | Ridesharing user | ✅ | | Present in Person |
 | `persons.{uuid}.schoolPlaceType` | School place type | ✅ | | Present in Person |
 | `persons.{uuid}.schoolType` | School type | ✅ | | Present in Person |
-| `persons.{uuid}.schoolTypeOther` | Other school type specification | ❌ | | Missing in Person |
+| `persons.{uuid}.schoolTypeOther` | Other school type specification | ⚠️ | `schoolTypeOtherSpecify` | Present in Person (as schoolTypeOtherSpecify) |
+| `persons.{uuid}.schoolTypeOtherSpecify` | Other school type specification | ✅ | | Present in Person |
 | `persons.{uuid}.sexAssignedAtBirth` | Sex assigned at birth | ✅ | | Present in Person |
 | `persons.{uuid}.studentType` | Student type | ✅ | | Present in Person |
 | `persons.{uuid}.transitPassOwnership` | Transit pass ownership | ✅ | | Present in Person |
 | `persons.{uuid}.transitPasses` | Transit passes | ✅ | | Present in Person |
-| `persons.{uuid}.travelToWorkDays` | Days traveling to work | ❌ | | Missing in Person |
-| `persons.{uuid}.usualSchoolPlace.geography` | Usual school place geography | ❌ | | Missing in Person |
-| `persons.{uuid}.usualSchoolPlace.name` | Usual school place name | ❌ | | Missing in Person |
-| `persons.{uuid}.usualSchoolPlaceIsHome` | School from home flag | ❌ | | Missing in Person |
-| `persons.{uuid}.usualWorkPlace.geography` | Usual work place geography | ❌ | | Missing in Person |
-| `persons.{uuid}.usualWorkPlace.name` | Usual work place name | ❌ | | Missing in Person |
-| `persons.{uuid}.usualWorkPlaceIsHome` | Work from home flag | ❌ | | Missing in Person |
-| `persons.{uuid}.whoWillAnswerForThisPerson` | Who will answer for this person | ❌ | | Missing in Person |
+| `persons.{uuid}.travelToWorkDays` | Days traveling to work | ⚠️ | `previousWeekTravelToWorkDays` | Present in Person (as previousWeekTravelToWorkDays) |
+| `persons.{uuid}.previousWeekTravelToWorkDays` | Previous week travel to work days | ✅ | | Present in Person |
+| `persons.{uuid}.usualSchoolPlace.geography` | Usual school place geography | ✅ | | Present in Place |
+| `persons.{uuid}.usualSchoolPlace.name` | Usual school place name | ✅ | | Present in Place |
+| `persons.{uuid}.usualWorkPlace.geography` | Usual work place geography | ✅ | | Present in Place |
+| `persons.{uuid}.usualWorkPlace.name` | Usual work place name | ✅ | | Present in Place |
+| `persons.{uuid}.whoWillAnswerForThisPerson` | Who will answer for this person | ✅ | | Present in Person |
+| `persons.{uuid}.isProxy` | Is proxy respondent | ✅ | | Present in Person |
 | `persons.{uuid}.workPlaceType` | Work place type | ✅ | | Present in Person |
-| `persons.{uuid}.workPlaceTypeBeforeLeave` | Work place type before leave | ❌ | | Missing in Person |
+| `persons.{uuid}.workPlaceTypeBeforeLeave` | Work place type before leave | ⚠️ | `workPlaceType` | Missing in Person |
 | `persons.{uuid}.workerType` | Worker type | ✅ | | Present in Person |
-| `persons.{uuid}.workerTypeBeforeLeave` | Worker type before leave | ❌ | | Missing in Person |
+| `persons.{uuid}.workerTypeBeforeLeave` | Worker type before leave | ⚠️ | `workerType` | Missing in Person |
 
 ## Place Level Attributes (including Home)
 
 | Path | Description | Present in Current Objects | Move To | Notes |
 |------|-------------|----------------------------|---------|-------|
-| `home.address` | Home address | ✅ | | Present in Place (via Address object) |
-| `home.city` | Home city | ⚠️ | `address.municipalityName` | Present in Place.address.municipalityName |  
-| `home.region` | Home region | ⚠️ | `address.region` | Present in Place.address.region |
-| `home.country` | Home country | ⚠️ | `address.country` | Present in Place.address.country |
-| `home.postalCode` | Home postal code | ⚠️ | `address.postalCode` | Present in Place.address.postalCode |
-| `home.geography` | Home geography | ⚠️ | `geography` | Present in Place.geography |
+| `home.address` | Home address | ⚠️ | `civicNumber` and `streetName` | Present in Address, must be parsed using the combined address parser |
+| `home.city` | Home city | ⚠️ | `municipalityName` | Present in Address |
+| `home.region` | Home region | ⚠️ | `region` | Present in Address |
+| `home.country` | Home country | ⚠️ | `country` | Present in Address |
+| `home.postalCode` | Home postal code | ⚠️ | `postalCode` | Present in Address |
+| `home.geography` | Home geography | ⚠️ | `geography` | Present in Place |
 
 ## Journey Level Attributes
 
 | Path | Description | Present in Current Objects | Move To | Notes |
 |------|-------------|----------------------------|---------|-------|
-| `persons.{uuid}.journeys.{uuid}._showNewPersonPopupButton` | Show new person popup button | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.departurePlace` | Departure place info | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.departurePlaceIsHome` | Departure place is home | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.departurePlaceOther` | Departure place other | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.departurePlaceType` | Departure place type | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}._showNewPersonPopupButton` | Show new person popup button | ❌ | | Missing in Journey, not exported |
+| `persons.{uuid}.journeys.{uuid}.departurePlace` | Departure place info | ❌ | | Missing in Journey, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.departurePlaceIsHome` | Departure place is home | ❌ | | Missing in Journey, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.departurePlaceOther` | Departure place other | ❌ | | Missing in Journey, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.departurePlaceType` | Departure place type | ❌ | | Missing in Journey, used as metadata only |
 | `persons.{uuid}.journeys.{uuid}.endDate` | Journey end date | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.endTime` | Journey end time | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.endTimePeriod` | Journey end time period | ✅ | | Present in Journey |
