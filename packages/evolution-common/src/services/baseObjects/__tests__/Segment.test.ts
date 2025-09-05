@@ -32,10 +32,13 @@ describe('Segment', () => {
         startTime: 7200,
         startTimePeriod: 'am',
         endTimePeriod: 'pm',
-        driver: 'householdMember',
+        driverType: 'householdMember',
         driverUuid: uuidV4(),
         vehicleOccupancy: 2,
         carType: 'householdCar',
+        paidForParking: true,
+        onDemandType: 'pickupAtOrigin',
+        busLines: ['Line 1', 'Line 2'],
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
     };
@@ -140,10 +143,13 @@ describe('Segment', () => {
             ['startTime', -1],
             ['startTimePeriod', 123],
             ['endTimePeriod', 123],
-            ['driver', 123],
+            ['driverType', 123],
             ['driverUuid', 123],
             ['vehicleOccupancy', -1],
             ['carType', 123],
+            ['paidForParking', 'invalid'],
+            ['onDemandType', 123],
+            ['busLines', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Segment.validateParams(invalidAttributes);
@@ -166,10 +172,13 @@ describe('Segment', () => {
             ['startTime', 5400],
             ['startTimePeriod', 'am'],
             ['endTimePeriod', 'pm'],
-            ['driver', 'colleague'],
+            ['driverType', 'colleague'],
             ['driverUuid', uuidV4()],
             ['vehicleOccupancy', 3],
             ['carType', 'rentalCar'],
+            ['paidForParking', false],
+            ['onDemandType', 'pickupAtOrigin'],
+            ['busLines', ['Line 3', 'Line 4']],
         ])('should set and get %s', (attribute, value) => {
             const segment = new Segment(validAttributes);
             segment[attribute] = value;

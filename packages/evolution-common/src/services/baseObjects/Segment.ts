@@ -25,10 +25,13 @@ export const segmentAttributes = [
     '_uuid',
     'mode',
     'modeOtherSpecify',
-    'driver',
+    'driverType',
     'driverUuid',
     'carType',
-    'vehicleOccupancy'
+    'vehicleOccupancy',
+    'paidForParking',
+    'onDemandType',
+    'busLines'
 ];
 
 export const segmentAttributesWithComposedAttributes = [
@@ -61,10 +64,14 @@ export type SegmentWithComposedAttributes = {
 export type SegmentAttributes = {
     mode?: Optional<SAttr.Mode>;
     modeOtherSpecify?: Optional<string>;
-    driver?: Optional<SAttr.Driver>;
+    driverType?: Optional<SAttr.Driver>;
     driverUuid?: Optional<string>; // person uuid
     vehicleOccupancy?: Optional<number>; // positive integer
     carType?: Optional<SAttr.CarType>;
+    paidForParking?: Optional<boolean>;
+    onDemandType?: Optional<string>;
+    // TODO: Convert busLines from array of strings to array of UUIDs (foreign keys to Transition lines)
+    busLines?: Optional<string[]>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -249,12 +256,12 @@ export class Segment implements IValidatable {
         this._attributes.endTimePeriod = value;
     }
 
-    get driver(): Optional<SAttr.Driver> {
-        return this._attributes.driver;
+    get driverType(): Optional<SAttr.Driver> {
+        return this._attributes.driverType;
     }
 
-    set driver(value: Optional<SAttr.Driver>) {
-        this._attributes.driver = value;
+    set driverType(value: Optional<SAttr.Driver>) {
+        this._attributes.driverType = value;
     }
 
     get driverUuid(): Optional<string> {
@@ -279,6 +286,30 @@ export class Segment implements IValidatable {
 
     set carType(value: Optional<SAttr.CarType>) {
         this._attributes.carType = value;
+    }
+
+    get paidForParking(): Optional<boolean> {
+        return this._attributes.paidForParking;
+    }
+
+    set paidForParking(value: Optional<boolean>) {
+        this._attributes.paidForParking = value;
+    }
+
+    get onDemandType(): Optional<string> {
+        return this._attributes.onDemandType;
+    }
+
+    set onDemandType(value: Optional<string>) {
+        this._attributes.onDemandType = value;
+    }
+
+    get busLines(): Optional<string[]> {
+        return this._attributes.busLines;
+    }
+
+    set busLines(value: Optional<string[]>) {
+        this._attributes.busLines = value;
     }
 
     get origin(): Optional<Junction> {
@@ -406,7 +437,7 @@ export class Segment implements IValidatable {
 
         errors.push(...ParamsValidatorUtils.isString('modeOtherSpecify', dirtyParams.modeOtherSpecify, displayName));
 
-        errors.push(...ParamsValidatorUtils.isString('driver', dirtyParams.driver, displayName));
+        errors.push(...ParamsValidatorUtils.isString('driverType', dirtyParams.driverType, displayName));
 
         errors.push(...ParamsValidatorUtils.isUuid('driverUuid', dirtyParams.driverUuid, displayName));
 
@@ -415,6 +446,12 @@ export class Segment implements IValidatable {
         );
 
         errors.push(...ParamsValidatorUtils.isString('carType', dirtyParams.carType, displayName));
+
+        errors.push(...ParamsValidatorUtils.isBoolean('paidForParking', dirtyParams.paidForParking, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('onDemandType', dirtyParams.onDemandType, displayName));
+
+        errors.push(...ParamsValidatorUtils.isArrayOfStrings('busLines', dirtyParams.busLines, displayName));
 
         const transitDeclaredRoutingAttributes = dirtyParams.transitDeclaredRouting;
         if (transitDeclaredRoutingAttributes !== undefined) {
