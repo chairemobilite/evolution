@@ -137,7 +137,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 
 | Path | Description | Present in Current Objects | Move To | Notes |
 |------|-------------|----------------------------|---------|-------|
-| `persons.{uuid}.journeys.{uuid}._showNewPersonPopupButton` | Show new person popup button | ❌ | | Missing in Journey, not exported |
+| `persons.{uuid}.journeys.{uuid}._showNewPersonPopupButton` | Show new person popup button | ❌ | | Missing in Journey, used as metadata only |
 | `persons.{uuid}.journeys.{uuid}.departurePlace` | Departure place info | ❌ | | Missing in Journey, used as metadata only |
 | `persons.{uuid}.journeys.{uuid}.departurePlaceIsHome` | Departure place is home | ❌ | | Missing in Journey, used as metadata only |
 | `persons.{uuid}.journeys.{uuid}.departurePlaceOther` | Departure place other | ❌ | | Missing in Journey, used as metadata only |
@@ -146,21 +146,17 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.journeys.{uuid}.endTime` | Journey end time | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.endTimePeriod` | Journey end time period | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.name` | Journey name | ✅ | | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.noSchoolTripReason` | No school trip reason | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.noSchoolTripReasonSpecify` | No school trip reason specification | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.noWorkTripReason` | No work trip reason | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.noWorkTripReasonSpecify` | No work trip reason specification | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.personDidTrips` | Person did trips flag | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.personDidTripsConfirm` | Person did trips confirmation | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.schoolOnTheRoadTrip` | School on-road trip | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.schoolTripType` | School trip type | ❌ | | Missing in Journey |
+| `persons.{uuid}.journeys.{uuid}.noSchoolTripReason` | No school trip reason | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.noSchoolTripReasonSpecify` | No school trip reason specification | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.noWorkTripReason` | No work trip reason | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.noWorkTripReasonSpecify` | No work trip reason specification | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.personDidTrips` | Person did trips flag | ⚠️ | `didTrips` | Present in Journey (as didTrips) |
+| `persons.{uuid}.journeys.{uuid}.didTrips` | Person declared doing trips | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.personDidTripsConfirm` | Person did trips confirmation | ❌ | | Missing in Journey, used as metadata only |
 | `persons.{uuid}.journeys.{uuid}.startDate` | Journey start date | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.startTime` | Journey start time | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.startTimePeriod` | Journey start time period | ✅ | | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.tripsValidated` | Trips validation flag | ❌ | | Missing in Journey |
 | `persons.{uuid}.journeys.{uuid}.type` | Journey type | ✅ | | Present in Journey |
-| `persons.{uuid}.journeys.{uuid}.workOnTheRoadTrip` | Work on-road trip | ❌ | | Missing in Journey |
-| `persons.{uuid}.journeys.{uuid}.workTripType` | Work trip type | ❌ | | Missing in Journey |
 
 ## VisitedPlace Level Attributes
 

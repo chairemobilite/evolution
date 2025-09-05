@@ -32,6 +32,11 @@ describe('Journey', () => {
         endTimePeriod: 'afternoon',
         name: 'Sample Journey',
         type: 'week',
+        noSchoolTripReason: 'no_school',
+        noSchoolTripReasonSpecify: 'summer vacation',
+        noWorkTripReason: 'remote_work',
+        noWorkTripReasonSpecify: 'working from home',
+        didTrips: true,
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true,
     };
@@ -161,6 +166,11 @@ describe('Journey', () => {
             ['endTimePeriod', 123],
             ['name', 123],
             ['type', 123],
+            ['noSchoolTripReason', 123],
+            ['noSchoolTripReasonSpecify', 123],
+            ['noWorkTripReason', 123],
+            ['noWorkTripReasonSpecify', 123],
+            ['didTrips', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Journey.validateParams(invalidAttributes);
@@ -184,6 +194,11 @@ describe('Journey', () => {
             ['endTimePeriod', 'afternoon'],
             ['name', 'Updated Journey'],
             ['type', 'work'],
+            ['noSchoolTripReason', 'holiday'],
+            ['noSchoolTripReasonSpecify', 'winter break'],
+            ['noWorkTripReason', 'sick_leave'],
+            ['noWorkTripReasonSpecify', 'medical appointment'],
+            ['didTrips', false],
         ])('should set and get %s', (attribute, value) => {
             const journey = new Journey(validAttributes);
             journey[attribute] = value;
