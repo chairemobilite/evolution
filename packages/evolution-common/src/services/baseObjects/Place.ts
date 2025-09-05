@@ -25,13 +25,13 @@ export const placeAttributes = [
     'name',
     'shortname',
     'osmId',
-    'landRoleId',
-    'postalId',
+    'propertyRegistryId',
     'buildingId',
     'internalId',
     'geocodingPrecisionCategory',
     'geocodingPrecisionMeters',
     'geocodingQueryString',
+    'geocodingName',
     'lastAction',
     'deviceUsed',
     'zoom'
@@ -44,13 +44,13 @@ export type PlaceAttributes = {
     name?: Optional<string>;
     shortname?: Optional<string>;
     osmId?: Optional<string>;
-    landRoleId?: Optional<string>;
-    postalId?: Optional<string>;
+    propertyRegistryId?: Optional<string>;
     buildingId?: Optional<string>;
     internalId?: Optional<string>;
     geocodingPrecisionCategory?: Optional<GeocodingPrecisionCategory>;
     geocodingPrecisionMeters?: Optional<number>;
     geocodingQueryString?: Optional<string>;
+    geocodingName?: Optional<string>;
     lastAction?: Optional<LastAction>;
     deviceUsed?: Optional<Device>;
     zoom?: Optional<number>;
@@ -159,20 +159,12 @@ export class Place<ChildAttributes> implements IValidatable {
         this._attributes.osmId = value;
     }
 
-    get landRoleId(): Optional<string> {
-        return this._attributes.landRoleId;
+    get propertyRegistryId(): Optional<string> {
+        return this._attributes.propertyRegistryId;
     }
 
-    set landRoleId(value: Optional<string>) {
-        this._attributes.landRoleId = value;
-    }
-
-    get postalId(): Optional<string> {
-        return this._attributes.postalId;
-    }
-
-    set postalId(value: Optional<string>) {
-        this._attributes.postalId = value;
+    set propertyRegistryId(value: Optional<string>) {
+        this._attributes.propertyRegistryId = value;
     }
 
     get buildingId(): Optional<string> {
@@ -213,6 +205,14 @@ export class Place<ChildAttributes> implements IValidatable {
 
     set geocodingQueryString(value: Optional<string>) {
         this._attributes.geocodingQueryString = value;
+    }
+
+    get geocodingName(): Optional<string> {
+        return this._attributes.geocodingName;
+    }
+
+    set geocodingName(value: Optional<string>) {
+        this._attributes.geocodingName = value;
     }
 
     get lastAction(): Optional<LastAction> {
@@ -308,9 +308,9 @@ export class Place<ChildAttributes> implements IValidatable {
 
         errors.push(...ParamsValidatorUtils.isString('osmId', dirtyParams.osmId, displayName));
 
-        errors.push(...ParamsValidatorUtils.isString('landRoleId', dirtyParams.landRoleId, displayName));
-
-        errors.push(...ParamsValidatorUtils.isString('postalId', dirtyParams.postalId, displayName));
+        errors.push(
+            ...ParamsValidatorUtils.isString('propertyRegistryId', dirtyParams.propertyRegistryId, displayName)
+        );
 
         errors.push(...ParamsValidatorUtils.isString('buildingId', dirtyParams.buildingId, displayName));
 
@@ -335,6 +335,8 @@ export class Place<ChildAttributes> implements IValidatable {
         errors.push(
             ...ParamsValidatorUtils.isString('geocodingQueryString', dirtyParams.geocodingQueryString, displayName)
         );
+
+        errors.push(...ParamsValidatorUtils.isString('geocodingName', dirtyParams.geocodingName, displayName));
 
         errors.push(...ParamsValidatorUtils.isString('lastAction', dirtyParams.lastAction, displayName));
 
