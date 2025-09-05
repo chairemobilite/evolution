@@ -22,14 +22,15 @@ export const addressAttributes = [
     'unitNumber',
     'streetName',
     'streetNameHomogenized',
-    'streetNameId',
+    'combinedStreetUuid',
     'municipalityName',
     'municipalityCode',
     'postalMunicipalityName',
     'region',
     'country',
     'postalCode',
-    'addressId'
+    'postalId',
+    'combinedAddressUuid'
 ] as const;
 
 /**
@@ -43,9 +44,9 @@ export type AddressAttributes = {
     unitNumber?: Optional<string>; // example: 101, 202
     streetName: string; // no abbreviation, with latin characters and capital letters
     /** homogenized street name:
-     * - replace latin characters with their non-latin equivalent
+     * - replace latin characters with their non-latin equivalent (remove french accents, etc.)
      * - lowercase
-     * - no dash
+     * - keep dashes and spaces
      * - includes non-abbreviated street type/prefix and/or suffix (e.g. "rue", "avenue", "boulevard", etc.)
      * - includes non-abbreviated orientation
      * - non-abbreviated saint/sainte
@@ -53,14 +54,21 @@ export type AddressAttributes = {
      * example: 30th street | saint john boulevard | rue de la gauchetiere ouest | 5e avenue nord | rang du petit saint jean | 30e rue
      */
     streetNameHomogenized?: Optional<string>; // should be unique by municipality
-    streetNameId?: Optional<string>; // official street name id
+    /** Combined street UUID from the address integrator repository
+     * Links to all matched data sources from https://github.com/chairemobilite/address_integrator
+     */
+    combinedStreetUuid?: Optional<string>;
     municipalityName: string;
     municipalityCode?: Optional<string>; // official code for the municipality
     postalMunicipalityName?: Optional<string>; // some municipalities have a different name for postal addresses
     region: string;
     country: string;
     postalCode?: Optional<string>;
-    addressId?: Optional<string>; // official address id, linking to governmental or postal data
+    postalId?: Optional<string>; // postal identifier
+    /** Combined address UUID from the address integrator repository
+     * Links to all matched data sources from https://github.com/chairemobilite/address_integrator
+     */
+    combinedAddressUuid?: Optional<string>;
 } & UuidableAttributes &
     ValidatebleAttributes;
 
@@ -147,12 +155,12 @@ export class Address implements IValidatable {
         this._attributes.streetNameHomogenized = value;
     }
 
-    get streetNameId(): Optional<string> {
-        return this._attributes.streetNameId;
+    get combinedStreetUuid(): Optional<string> {
+        return this._attributes.combinedStreetUuid;
     }
 
-    set streetNameId(value: Optional<string>) {
-        this._attributes.streetNameId = value;
+    set combinedStreetUuid(value: Optional<string>) {
+        this._attributes.combinedStreetUuid = value;
     }
 
     get municipalityName(): string {
@@ -203,12 +211,20 @@ export class Address implements IValidatable {
         this._attributes.postalCode = value;
     }
 
-    get addressId(): Optional<string> {
-        return this._attributes.addressId;
+    get postalId(): Optional<string> {
+        return this._attributes.postalId;
     }
 
-    set addressId(value: Optional<string>) {
-        this._attributes.addressId = value;
+    set postalId(value: Optional<string>) {
+        this._attributes.postalId = value;
+    }
+
+    get combinedAddressUuid(): Optional<string> {
+        return this._attributes.combinedAddressUuid;
+    }
+
+    set combinedAddressUuid(value: Optional<string>) {
+        this._attributes.combinedAddressUuid = value;
     }
 
     // params must be sanitized and must be valid:
@@ -274,7 +290,7 @@ export class Address implements IValidatable {
             ...ParamsValidatorUtils.isString('streetNameHomogenized', dirtyParams.streetNameHomogenized, displayName)
         );
 
-        errors.push(...ParamsValidatorUtils.isString('streetNameId', dirtyParams.streetNameId, displayName));
+        errors.push(...ParamsValidatorUtils.isUuid('combinedStreetUuid', dirtyParams.combinedStreetUuid, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isNonEmptyString('municipalityName', dirtyParams.municipalityName, displayName)
@@ -292,7 +308,11 @@ export class Address implements IValidatable {
 
         errors.push(...ParamsValidatorUtils.isString('postalCode', dirtyParams.postalCode, displayName));
 
-        errors.push(...ParamsValidatorUtils.isString('addressId', dirtyParams.addressId, displayName));
+        errors.push(...ParamsValidatorUtils.isString('postalId', dirtyParams.postalId, displayName));
+
+        errors.push(
+            ...ParamsValidatorUtils.isUuid('combinedAddressUuid', dirtyParams.combinedAddressUuid, displayName)
+        );
 
         return errors;
     }

@@ -18,14 +18,15 @@ describe('Address', () => {
         unitNumber: '456',
         streetName: 'Main Street',
         streetNameHomogenized: 'main street',
-        streetNameId: 'street-id',
+        combinedStreetUuid: uuidV4(),
         municipalityName: 'City',
         municipalityCode: 'CITY',
         postalMunicipalityName: 'Postal City',
         region: 'Region',
         country: 'Country',
         postalCode: 'A1B 2C3',
-        addressId: 'address-id'
+        postalId: 'postal-id',
+        combinedAddressUuid: uuidV4()
     };
 
     /**
@@ -114,14 +115,15 @@ describe('Address', () => {
             ['unitNumber', '987A'],
             ['streetName', 'New Street'],
             ['streetNameHomogenized', 'new street'],
-            ['streetNameId', 'new-street-id'],
+            ['combinedStreetUuid', uuidV4()],
             ['municipalityName', 'New City'],
             ['municipalityCode', 'NEWCITY'],
             ['postalMunicipalityName', 'New Postal City'],
             ['region', 'New Region'],
             ['country', 'New Country'],
             ['postalCode', 'X9Y 8Z7'],
-            ['addressId', 'new-address-id'],
+            ['postalId', 'new-postal-id'],
+            ['combinedAddressUuid', uuidV4()],
             ['_isValid', false],
         ])('should set and get %s', (attribute, value) => {
             const address = new Address(validAddressAttributes);
@@ -140,10 +142,11 @@ describe('Address', () => {
             ['region', 123],
             ['country', 123],
             ['postalCode', 123],
-            ['addressId', 123],
+            ['postalId', 123],
+            ['combinedAddressUuid', 'invalid-uuid'],
             ['civicNumberSuffix', 123],
             ['streetNameHomogenized', 123],
-            ['streetNameId', 123],
+            ['combinedStreetUuid', 'invalid-uuid'],
             ['municipalityCode', 123],
             ['postalMunicipalityName', 123],
         ])('should return an error for invalid %s', (param, value) => {

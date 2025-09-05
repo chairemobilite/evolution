@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Place, PlaceAttributes, ExtendedPlaceAttributes, placeAttributes } from '../Place';
+import { Place, PlaceAttributes, placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
@@ -26,13 +26,13 @@ describe('Place', () => {
         name: 'Test Place',
         shortname: 'Test',
         osmId: '123',
-        landRoleId: 'residential',
-        postalId: '12345',
+        propertyRegistryId: 'residential',
         buildingId: '1',
         internalId: '1',
         geocodingPrecisionCategory: 'precise',
         geocodingPrecisionMeters: 10,
         geocodingQueryString: 'Test Place',
+        geocodingName: 'Test Place Name',
         lastAction: 'findPlace',
         deviceUsed: 'tablet',
         zoom: 15,
@@ -196,13 +196,13 @@ describe('Place', () => {
             ['name', 123],
             ['shortname', 123],
             ['osmId', 123],
-            ['landRoleId', 123],
-            ['postalId', 123],
+            ['propertyRegistryId', 123],
             ['buildingId', 123],
             ['internalId', 123],
             ['geocodingPrecisionCategory', 123],
             ['geocodingPrecisionMeters', 'invalid'],
             ['geocodingQueryString', 123],
+            ['geocodingName', 123],
             ['lastAction', 123],
             ['deviceUsed', 123],
             ['zoom', 'invalid'],
@@ -231,13 +231,13 @@ describe('Place', () => {
             ['name', 'New Place'],
             ['shortname', 'New'],
             ['osmId', '456'],
-            ['landRoleId', 'commercial'],
-            ['postalId', '54321'],
+            ['propertyRegistryId', 'commercial'],
             ['buildingId', '2'],
             ['internalId', '2'],
             ['geocodingPrecisionCategory', 'approximate'],
             ['geocodingPrecisionMeters', 20],
             ['geocodingQueryString', 'New Place'],
+            ['geocodingName', 'New Place Name'],
             ['lastAction', 'mapClicked'],
             ['deviceUsed', 'web'],
             ['zoom', 12],
@@ -288,14 +288,15 @@ describe('Place', () => {
                 unitNumber: '456',
                 streetName: 'New Street',
                 streetNameHomogenized: 'new street',
-                streetNameId: 'new-street-id',
+                combinedStreetUuid: uuidV4(),
                 municipalityName: 'New City',
                 municipalityCode: 'NEWCITY',
                 postalMunicipalityName: 'New Postal City',
                 region: 'New Region',
                 country: 'New Country',
                 postalCode: 'X9Y 8Z7',
-                addressId: 'new-address-id',
+                postalId: 'postal-12345',
+                combinedAddressUuid: uuidV4(),
                 _isValid: true,
             };
             const address = new Address(addressAttributes);
@@ -305,6 +306,48 @@ describe('Place', () => {
             const place = unwrap(result);
             expect((place as Place<PlaceAttributes>).address).toBeInstanceOf(Address);
             expect((place as Place<PlaceAttributes>).address).toEqual(address);
+        });
+
+        test('should handle Address with postalId correctly', () => {
+            const addressAttributes: AddressAttributes = {
+                _uuid: uuidV4(),
+                civicNumber: 456,
+                streetName: 'Test Avenue',
+                streetNameHomogenized: 'test avenue',
+                combinedStreetUuid: uuidV4(),
+                municipalityName: 'Test City',
+                region: 'Test Region',
+                country: 'Test Country',
+                postalCode: 'A1B 2C3',
+                postalId: 'test-postal-id',
+                combinedAddressUuid: uuidV4(),
+                _isValid: true,
+            };
+            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, address: addressAttributes };
+            const place = new Place(placeAttributes);
+
+            expect(place.address).toBeInstanceOf(Address);
+            expect(place.address?.postalId).toBe('test-postal-id');
+            expect(place.address?.combinedStreetUuid).toBe(addressAttributes.combinedStreetUuid);
+            expect(place.address?.combinedAddressUuid).toBe(addressAttributes.combinedAddressUuid);
+        });
+
+        test('should validate Address with new UUID fields', () => {
+            const addressAttributes: AddressAttributes = {
+                _uuid: uuidV4(),
+                civicNumber: 789,
+                streetName: 'Validation Street',
+                streetNameHomogenized: 'validation street',
+                combinedStreetUuid: uuidV4(),
+                municipalityName: 'Validation City',
+                region: 'Validation Region',
+                country: 'Validation Country',
+                combinedAddressUuid: uuidV4(),
+                _isValid: true,
+            };
+
+            const errors = Address.validateParams(addressAttributes);
+            expect(errors).toHaveLength(0);
         });
     });
 

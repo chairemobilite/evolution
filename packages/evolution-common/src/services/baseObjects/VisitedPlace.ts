@@ -18,12 +18,15 @@ export const visitedPlaceAttributes = [
     ...placeAttributes,
     ...startEndDateAndTimesAttributes,
     'activity',
-    'activityCategory'
+    'activityCategory',
+    'shortcut'
 ];
 
 export type VisitedPlaceAttributes = {
     activity?: Optional<VPAttr.Activity>;
     activityCategory?: Optional<VPAttr.ActivityCategory>;
+    /** UUID of another visited place that this place references as a shortcut */
+    shortcut?: Optional<string>;
 } & StartEndDateAndTimesAttributes &
     PlaceAttributes;
 
@@ -108,6 +111,18 @@ export class VisitedPlace extends Place<VisitedPlaceAttributes> implements IVali
         this._attributes.activityCategory = value;
     }
 
+    /**
+     * UUID of another visited place that this place references as a shortcut.
+     * Can be empty if no shortcut is defined.
+     */
+    get shortcut(): Optional<string> {
+        return this._attributes.shortcut;
+    }
+
+    set shortcut(value: Optional<string>) {
+        this._attributes.shortcut = value;
+    }
+
     get journeyUuid(): Optional<string> {
         return this._journeyUuid;
     }
@@ -147,6 +162,8 @@ export class VisitedPlace extends Place<VisitedPlaceAttributes> implements IVali
         errors.push(...ParamsValidatorUtils.isString('activity', dirtyParams.activity, displayName));
 
         errors.push(...ParamsValidatorUtils.isString('activityCategory', dirtyParams.activityCategory, displayName));
+
+        errors.push(...ParamsValidatorUtils.isUuid('shortcut', dirtyParams.shortcut, displayName));
 
         return errors;
     }

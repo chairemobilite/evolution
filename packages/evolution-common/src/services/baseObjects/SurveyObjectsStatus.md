@@ -170,21 +170,30 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endDate` | End date | ✅ | | Present in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endTime` | End time | ✅ | | Present in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.endTimePeriod` | End time period | ✅ | | Present in VisitedPlace |
-| All Place attributes (name, geography, etc.) | Place-related attributes | ✅ | | Inherited from Place |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadType` | On-road type | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.alreadyVisited` | Already visited flag | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.shortcut` | Place shortcut | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeOfArrival` | Time of arrival | ⚠️ | `startTime` | Missing in VisitedPlace (different from startTime) |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.timeDeparture` | Time of departure | ⚠️ | `endTime` | Missing in VisitedPlace (different from endTime) |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastVisitedSamePlaceDate` | Last visit date | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastVisitedSamePlaceTime` | Last visit time | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadDepartureType` | On-road departure type | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadArrivalType` | On-road arrival type | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.alreadyVisitedBySelfOrAnotherHouseholdMember` | Already visited by self or household member | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousPreviousDepartureTime` | Previous previous departure time | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousArrivalTime` | Previous arrival time | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousDepartureTime` | Previous departure time | ❌ | | Missing in VisitedPlace |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.nextPlaceCategory` | Next place category | ❌ | | Missing in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.geography` | Place geography | ⚠️ | `geography` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.name` | Place name | ⚠️ | `name` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.shortname` | Place short name | ⚠️ | `shortname` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.osmId` | OpenStreetMap ID | ⚠️ | `osmId` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.propertyRegistryId` | Property registry ID | ⚠️ | `propertyRegistryId` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.postalId` | Postal ID | ⚠️ | `address.postalId` | Present in Address |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.buildingId` | Building ID | ⚠️ | `buildingId` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.internalId` | Internal ID | ⚠️ | `internalId` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.geocodingPrecisionCategory` | Geocoding precision category | ⚠️ | `geocodingPrecisionCategory` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.geocodingPrecisionMeters` | Geocoding precision in meters | ⚠️ | `geocodingPrecisionMeters` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.geocodingQueryString` | Geocoding query string | ⚠️ | `geocodingQueryString` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.geocodingName` | Selected geocoded place name (not the respondent declared name) | ⚠️ | `geocodingName` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.lastAction` | Last action performed | ⚠️ | `lastAction` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.deviceUsed` | Device used for input | ⚠️ | `deviceUsed` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.zoom` | Map zoom level | ⚠️ | `zoom` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.address` | Address object | ⚠️ | `address` | Present in Place (composed attribute) |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.shortcut` | Place shortcut | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadDepartureType` | On-road departure type | ❌ | | Missing in VisitedPlace, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadArrivalType` | On-road arrival type | ❌ | | Missing in VisitedPlace, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.alreadyVisitedBySelfOrAnotherHouseholdMember` | Already visited by self or household member | ❌ | | Missing in VisitedPlace, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousPreviousDepartureTime` | Previous previous departure time | ❌ | | Missing in VisitedPlace, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousArrivalTime` | Previous arrival time | ❌ | | Missing in VisitedPlace, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}._previousDepartureTime` | Previous departure time | ❌ | | Missing in VisitedPlace, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.nextPlaceCategory` | Next place category | ❌ | | Missing in VisitedPlace, used as metadata only |
 
 ## Trip Level Attributes
 
@@ -198,8 +207,6 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.endTimePeriod` | Trip end time period | ✅ | | Present in Trip |
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.birdDistanceMeters` | Bird distance | ✅ | | Calculated in Trip |
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.birdSpeedKph` | Bird speed | ✅ | | Calculated in Trip |
-| Composed objects (startPlace, endPlace, segments, junctions) | Related objects | ✅ | | Present in Trip |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.onTheRoadType` | On-road type | ❌ | | Missing in Trip |
 
 ## Segment Level Attributes
 
@@ -207,7 +214,8 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 |------|-------------|----------------------------|---------|-------|
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.mode` | Transport mode | ✅ | | Present in Segment |
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.modeOtherSpecify` | Other mode specification | ✅ | | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.driver` | Driver type | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.driver` | Driver type | ⚠️ | `driverType` | Present in Segment (as driverType) |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.driverType` | Driver type | ✅ | | Present in Segment |
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.driverUuid` | Driver person UUID | ✅ | | Present in Segment |
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.carType` | Car type | ✅ | | Present in Segment |
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.vehicleOccupancy` | Vehicle occupancy | ✅ | | Present in Segment |
@@ -215,18 +223,17 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.startTime` | Segment start time | ✅ | | Present in Segment |
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.endDate` | Segment end date | ✅ | | Present in Segment |
 | `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.endTime` | Segment end time | ✅ | | Present in Segment |
-| All routing objects (transit, walking, cycling, driving) | Routing information | ✅ | | Present in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitBoardingStop` | Transit boarding stop | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitUnboardingStop` | Transit unboarding stop | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLine` | Transit line | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitAgency` | Transit agency | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLineShortname` | Transit line short name | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.transitLineLongname` | Transit line long name | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.modePre` | Pre-mode selection | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.howToBus` | How to access bus | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.paidForParking` | Paid for parking | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.onDemandType` | On-demand transport type | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.tripJunctionQueryString` | Junction query string | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionGeography` | Junction geography | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.busLines` | Bus lines used | ❌ | | Missing in Segment |
-| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.sameModeAsReverseTrip` | Same mode as reverse trip | ❌ | | Missing in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.modePre` | Pre-mode selection | ❌ | | Missing in Segment, used as metadata only |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.howToBus` | How to access bus | ❌ | | Missing in Segment, this should be converted into segments |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.paidForParking` | Paid for parking | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.onDemandType` | On-demand transport type | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionGeocodingQueryString` | Junction geocoding query string | ⚠️ | `geocodingQueryString` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.geocodingName` | Junction selected geocoded place name (not the respondent declared name) | ⚠️ | `geocodingName` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionGeography` | Junction geography | ⚠️ | `geography` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionGeocodingPrecisionCategory` | Junction geocoding precision category | ⚠️ | `geocodingPrecisionCategory` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionGeocodingPrecisionMeters` | Junction geocoding precision in meters | ⚠️ | `geocodingPrecisionMeters` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionLastAction` | Junction last action performed | ⚠️ | `lastAction` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionDeviceUsed` | Junction device used for input | ⚠️ | `deviceUsed` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.junctionZoom` | Junction map zoom level | ⚠️ | `zoom` | Present in Place |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.busLines` | Bus lines used | ✅ | | Present in Segment |
+| `persons.{uuid}.journeys.{uuid}.trips.{uuid}.segments.{uuid}.sameModeAsReverseTrip` | Same mode as reverse trip | ❌ | | Missing in Segment, used as metadata only |

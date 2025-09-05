@@ -25,13 +25,13 @@ describe('VisitedPlace', () => {
         name: 'Test Place',
         shortname: 'Test',
         osmId: '123',
-        landRoleId: 'residential',
-        postalId: '12345',
+        propertyRegistryId: 'residential',
         buildingId: '1',
         internalId: '1',
         geocodingPrecisionCategory: 'precise',
         geocodingPrecisionMeters: 10,
         geocodingQueryString: 'Test Place',
+        geocodingName: 'Test Place Name',
         lastAction: 'findPlace',
         deviceUsed: 'tablet',
         zoom: 15,
@@ -57,6 +57,7 @@ describe('VisitedPlace', () => {
         endTimePeriod: 'pm',
         activity: 'work',
         activityCategory: 'work',
+        shortcut: uuidV4(),
     };
 
     const extendedVisitedPlaceAttributes: ExtendedVisitedPlaceAttributes = {
@@ -159,6 +160,7 @@ describe('VisitedPlace', () => {
             ['endTimePeriod', 123],
             ['activity', 123],
             ['activityCategory', 123],
+            ['shortcut', 'invalid-uuid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validVisitedPlaceAttributes, [param]: value };
             const errors = VisitedPlace.validateParams(invalidAttributes);
@@ -182,6 +184,7 @@ describe('VisitedPlace', () => {
             ['endTimePeriod', 'pm'],
             ['activity', 'leisure'],
             ['activityCategory', 'leisure'],
+            ['shortcut', uuidV4()],
         ])('should set and get %s', (attribute, value) => {
             const visitedPlace = new VisitedPlace(validVisitedPlaceAttributes);
             visitedPlace[attribute] = value;
