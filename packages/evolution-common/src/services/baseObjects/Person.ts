@@ -47,6 +47,12 @@ export const personAttributes = [
     'isOnTheRoadWorker',
     'hasTelecommuteCompatibleJob',
     'educationalAttainment',
+    'genderCustom',
+    'previousWeekRemoteWorkDays',
+    'previousWeekTravelToWorkDays',
+    'schoolTypeOtherSpecify',
+    'whoWillAnswerForThisPerson',
+    'isProxy',
     'nickname',
     'contactPhoneNumber',
     'contactEmail'
@@ -60,7 +66,17 @@ export const personAttributesWithComposedAttributes = [
     'vehicles'
 ];
 
-export const nonStringAttributes = ['_weights', '_isValid', '_uuid', 'age', 'transitPasses'];
+export const nonStringAttributes = [
+    '_weights',
+    '_isValid',
+    '_uuid',
+    'age',
+    'transitPasses',
+    'previousWeekRemoteWorkDays',
+    'previousWeekTravelToWorkDays',
+    'whoWillAnswerForThisPerson',
+    'isProxy'
+];
 
 export const stringAttributes = personAttributes.filter((attr) => !nonStringAttributes.includes(attr));
 
@@ -90,6 +106,15 @@ export type PersonAttributes = {
     isOnTheRoadWorker?: Optional<PAttr.IsOnTheRoadWorker>;
     hasTelecommuteCompatibleJob?: Optional<PAttr.HasTelecommuteCompatibleJob>;
     educationalAttainment?: Optional<PAttr.EducationalAttainment>;
+    genderCustom?: Optional<string>;
+    /** Remote work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
+    previousWeekRemoteWorkDays?: Optional<PAttr.WeekdaySchedule>;
+    /** Travel to work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
+    previousWeekTravelToWorkDays?: Optional<PAttr.WeekdaySchedule>;
+    schoolTypeOtherSpecify?: Optional<string>;
+    /** UUID of the household member who will answer for this person (used to determine if isProxy = true) */
+    whoWillAnswerForThisPerson?: Optional<string>;
+    isProxy?: Optional<boolean>;
 
     // confidential:
     nickname?: Optional<string>;
@@ -341,6 +366,71 @@ export class Person implements IValidatable {
         this._attributes.educationalAttainment = value;
     }
 
+    get genderCustom(): Optional<string> {
+        return this._attributes.genderCustom;
+    }
+
+    set genderCustom(value: Optional<string>) {
+        this._attributes.genderCustom = value;
+    }
+
+    /**
+     * Remote work days for the complete week before the assigned date.
+     * If the assigned date is a Monday, this represents Sunday to Saturday
+     * of the previous week (not including the assigned Monday).
+     * Each day indicates whether the person worked remotely on that day.
+     */
+    get previousWeekRemoteWorkDays(): Optional<PAttr.WeekdaySchedule> {
+        return this._attributes.previousWeekRemoteWorkDays;
+    }
+
+    set previousWeekRemoteWorkDays(value: Optional<PAttr.WeekdaySchedule>) {
+        this._attributes.previousWeekRemoteWorkDays = value;
+    }
+
+    /**
+     * Travel to work days for the complete week before the assigned date.
+     * If the assigned date is a Monday, this represents Sunday to Saturday
+     * of the previous week (not including the assigned Monday).
+     * Each day indicates whether the person traveled to work on that day.
+     */
+    get previousWeekTravelToWorkDays(): Optional<PAttr.WeekdaySchedule> {
+        return this._attributes.previousWeekTravelToWorkDays;
+    }
+
+    set previousWeekTravelToWorkDays(value: Optional<PAttr.WeekdaySchedule>) {
+        this._attributes.previousWeekTravelToWorkDays = value;
+    }
+
+    get schoolTypeOtherSpecify(): Optional<string> {
+        return this._attributes.schoolTypeOtherSpecify;
+    }
+
+    set schoolTypeOtherSpecify(value: Optional<string>) {
+        this._attributes.schoolTypeOtherSpecify = value;
+    }
+
+    /**
+     * UUID of the household member who will answer for this person.
+     * Used to determine if this person's responses are provided by a proxy.
+     * If this UUID differs from the person's own UUID, then isProxy should be true.
+     */
+    get whoWillAnswerForThisPerson(): Optional<string> {
+        return this._attributes.whoWillAnswerForThisPerson;
+    }
+
+    set whoWillAnswerForThisPerson(value: Optional<string>) {
+        this._attributes.whoWillAnswerForThisPerson = value;
+    }
+
+    get isProxy(): Optional<boolean> {
+        return this._attributes.isProxy;
+    }
+
+    set isProxy(value: Optional<boolean>) {
+        this._attributes.isProxy = value;
+    }
+
     get nickname(): Optional<string> {
         return this._attributes.nickname;
     }
@@ -507,6 +597,30 @@ export class Person implements IValidatable {
         }
 
         errors.push(...ParamsValidatorUtils.isArrayOfStrings('transitPasses', dirtyParams.transitPasses, displayName));
+
+        // Validate new attributes
+        errors.push(
+            ...ParamsValidatorUtils.isObject(
+                'previousWeekRemoteWorkDays',
+                dirtyParams.previousWeekRemoteWorkDays,
+                displayName
+            )
+        );
+        errors.push(
+            ...ParamsValidatorUtils.isObject(
+                'previousWeekTravelToWorkDays',
+                dirtyParams.previousWeekTravelToWorkDays,
+                displayName
+            )
+        );
+        errors.push(
+            ...ParamsValidatorUtils.isUuid(
+                'whoWillAnswerForThisPerson',
+                dirtyParams.whoWillAnswerForThisPerson,
+                displayName
+            )
+        );
+        errors.push(...ParamsValidatorUtils.isBoolean('isProxy', dirtyParams.isProxy, displayName));
 
         const workPlacesAttributes =
             dirtyParams.workPlaces !== undefined ? (dirtyParams.workPlaces as { [key: string]: unknown }[]) : [];
