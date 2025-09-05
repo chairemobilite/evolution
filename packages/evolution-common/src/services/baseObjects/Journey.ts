@@ -19,13 +19,32 @@ import { TripChain, ExtendedTripChainAttributes } from './TripChain';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
 
-export const journeyAttributes = [...startEndDateAndTimesAttributes, '_weights', '_isValid', '_uuid', 'name', 'type'];
+export const journeyAttributes = [
+    ...startEndDateAndTimesAttributes,
+    '_weights',
+    '_isValid',
+    '_uuid',
+    'name',
+    'type',
+    'noSchoolTripReason',
+    'noSchoolTripReasonSpecify',
+    'noWorkTripReason',
+    'noWorkTripReasonSpecify',
+    'didTrips'
+];
 
 export const journeyAttributesWithComposedAttributes = [...journeyAttributes, 'visitedPlaces', 'trips', 'tripChains'];
 
 export type JourneyAttributes = {
     name?: Optional<string>;
     type?: Optional<JAttr.JourneyType>;
+    noSchoolTripReason?: Optional<string>;
+    noSchoolTripReasonSpecify?: Optional<string>;
+    noWorkTripReason?: Optional<string>;
+    noWorkTripReasonSpecify?: Optional<string>;
+    /** Boolean indicating if the person declared doing any trips on the assigned date.
+     * This preserves the intent even if the trip list is incomplete due to an unfinished interview. */
+    didTrips?: Optional<boolean>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -169,6 +188,52 @@ export class Journey implements IValidatable {
         this._attributes.type = value;
     }
 
+    get noSchoolTripReason(): Optional<string> {
+        return this._attributes.noSchoolTripReason;
+    }
+
+    set noSchoolTripReason(value: Optional<string>) {
+        this._attributes.noSchoolTripReason = value;
+    }
+
+    get noSchoolTripReasonSpecify(): Optional<string> {
+        return this._attributes.noSchoolTripReasonSpecify;
+    }
+
+    set noSchoolTripReasonSpecify(value: Optional<string>) {
+        this._attributes.noSchoolTripReasonSpecify = value;
+    }
+
+    get noWorkTripReason(): Optional<string> {
+        return this._attributes.noWorkTripReason;
+    }
+
+    set noWorkTripReason(value: Optional<string>) {
+        this._attributes.noWorkTripReason = value;
+    }
+
+    get noWorkTripReasonSpecify(): Optional<string> {
+        return this._attributes.noWorkTripReasonSpecify;
+    }
+
+    set noWorkTripReasonSpecify(value: Optional<string>) {
+        this._attributes.noWorkTripReasonSpecify = value;
+    }
+
+    /**
+     * Boolean indicating if the person declared doing any trips on the assigned date.
+     * This preserves the intent even if the trip list is incomplete due to an unfinished interview.
+     * Important: This should be set based on the person's declaration, not calculated from the trip count,
+     * as incomplete interviews may have empty trips but the person did intend to report trips.
+     */
+    get didTrips(): Optional<boolean> {
+        return this._attributes.didTrips;
+    }
+
+    set didTrips(value: Optional<boolean>) {
+        this._attributes.didTrips = value;
+    }
+
     get visitedPlaces(): Optional<VisitedPlace[]> {
         return this._visitedPlaces;
     }
@@ -239,6 +304,27 @@ export class Journey implements IValidatable {
         errors.push(...ParamsValidatorUtils.isString('name', dirtyParams.name, displayName));
 
         errors.push(...ParamsValidatorUtils.isString('type', dirtyParams.type, displayName));
+
+        // Validate new attributes
+        errors.push(
+            ...ParamsValidatorUtils.isString('noSchoolTripReason', dirtyParams.noSchoolTripReason, displayName)
+        );
+        errors.push(
+            ...ParamsValidatorUtils.isString(
+                'noSchoolTripReasonSpecify',
+                dirtyParams.noSchoolTripReasonSpecify,
+                displayName
+            )
+        );
+        errors.push(...ParamsValidatorUtils.isString('noWorkTripReason', dirtyParams.noWorkTripReason, displayName));
+        errors.push(
+            ...ParamsValidatorUtils.isString(
+                'noWorkTripReasonSpecify',
+                dirtyParams.noWorkTripReasonSpecify,
+                displayName
+            )
+        );
+        errors.push(...ParamsValidatorUtils.isBoolean('didTrips', dirtyParams.didTrips, displayName));
 
         const visitedPlacesAttributes =
             dirtyParams.visitedPlaces !== undefined ? (dirtyParams.visitedPlaces as { [key: string]: unknown }[]) : [];
