@@ -18,6 +18,7 @@ describe('Interview - validateParams', () => {
         helpContactPhoneNumber: '0987654321',
         contactEmail: 'test@example.com',
         helpContactEmail: 'help@example.com',
+        acceptToBeContactedForHelp: true,
         wouldLikeToParticipateInOtherSurveys: true,
         respondentComments: 'Test comment',
         interviewerComments: 'Interviewer note',
@@ -27,7 +28,7 @@ describe('Interview - validateParams', () => {
         interestRange: 43,
         difficultyRange: 300,
         burdenRange: 200,
-        consideredToAbandonRange: 'yes',
+        consideredAbandoningRange: 'yes',
     };
 
     it('should validate valid params', () => {
@@ -149,10 +150,23 @@ describe('Interview - validateParams', () => {
         expect(errors.some((e) => e.message.includes('burdenRange'))).toBe(true);
     });
 
-    it('should validate consideredToAbandonRange', () => {
-        const params = { ...validParams, consideredToAbandonRange: 'invalid-value' };
+    it('should validate consideredAbandoningRange', () => {
+        const params = { ...validParams, consideredAbandoningRange: 'invalid-value' };
         const errors = validateParams(params);
-        expect(errors.some((e) => e.message.includes('consideredToAbandonRange'))).toBe(true);
+        expect(errors.some((e) => e.message.includes('consideredAbandoningRange'))).toBe(true);
+    });
+
+    it('should validate acceptToBeContactedForHelp', () => {
+        const params = { ...validParams, acceptToBeContactedForHelp: 'not-a-boolean' };
+        const errors = validateParams(params);
+        expect(errors.some((e) => e.message.includes('acceptToBeContactedForHelp'))).toBe(true);
+    });
+
+    it('should allow acceptToBeContactedForHelp to be undefined', () => {
+        const params = { ...validParams };
+        delete (params as any).acceptToBeContactedForHelp;
+        const errors = validateParams(params);
+        expect(errors).toHaveLength(0);
     });
 
     it ('should validate with valid paradata', () => {

@@ -20,7 +20,6 @@ type BaseHouseholdAttributes = {
     pluginHybridCarNumber?: number;
     electricCarNumber?: number;
     category?: HAttr.HouseholdCategory;
-    wouldLikeToParticipateToOtherSurveys?: boolean;
     homeCarParkings?: HAttr.HomePrivateCarParkingType[];
 
     // must be anonymized:
@@ -49,7 +48,6 @@ class BaseHousehold extends Uuidable implements IValidatable {
     pluginHybridCarNumber?: number;
     electricCarNumber?: number;
     category?: HAttr.HouseholdCategory;
-    wouldLikeToParticipateToOtherSurveys?: boolean;
     homeCarParkings?: HAttr.HomePrivateCarParkingType[];
 
     // must be anonymized:
@@ -78,7 +76,6 @@ class BaseHousehold extends Uuidable implements IValidatable {
         this.pluginHybridCarNumber = params.pluginHybridCarNumber;
         this.electricCarNumber = params.electricCarNumber;
         this.category = params.category;
-        this.wouldLikeToParticipateToOtherSurveys = params.wouldLikeToParticipateToOtherSurveys;
         this.homeCarParkings = params.homeCarParkings;
         this.contactPhoneNumber = params.contactPhoneNumber;
         this.contactEmail = params.contactEmail;
@@ -176,16 +173,6 @@ class BaseHousehold extends Uuidable implements IValidatable {
         // Validate category:
         if (dirtyParams.category !== undefined && typeof dirtyParams.category !== 'string') {
             errors.push(new Error('BaseHousehold validateParams: category should be a string'));
-        }
-
-        // Validate wouldLikeToParticipateToOtherSurveys:
-        if (
-            dirtyParams.wouldLikeToParticipateToOtherSurveys !== undefined &&
-            typeof dirtyParams.wouldLikeToParticipateToOtherSurveys !== 'boolean'
-        ) {
-            errors.push(
-                new Error('BaseHousehold validateParams: wouldLikeToParticipateToOtherSurveys should be a boolean')
-            );
         }
 
         // Validate homeCarParkings:

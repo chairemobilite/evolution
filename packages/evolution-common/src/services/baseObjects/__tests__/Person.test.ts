@@ -49,8 +49,14 @@ describe('Person', () => {
         jobCategory: 'professional',
         jobName: 'engineer',
         isOnTheRoadWorker: 'no',
-        isJobTelecommuteCompatible: 'yes',
+        hasTelecommuteCompatibleJob: 'yes',
         educationalAttainment: 'university',
+        genderCustom: 'non-binary',
+        previousWeekRemoteWorkDays: { monday: true, tuesday: true, wednesday: true },
+        previousWeekTravelToWorkDays: { monday: true, tuesday: true },
+        schoolTypeOtherSpecify: 'specialized school',
+        whoWillAnswerForThisPerson: uuidV4(),
+        isProxy: false,
         nickname: 'John',
         contactPhoneNumber: '1234567890',
         contactEmail: 'john@example.com',
@@ -88,7 +94,7 @@ describe('Person', () => {
     const extendedInvalidJourneysAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        journeys: [{ custom: 333, _isValid: 111 }],
+        journeys: [{ custom: 333, _isValid: 111 }, { _isValid: 111, visitedPlaces: [{ _isValid: 111 }] }],
     };
 
 
@@ -210,6 +216,10 @@ describe('Person', () => {
             ['age', 'invalid'],
             ['_isValid', 'invalid'],
             ['_weights', 'invalid'],
+            ['previousWeekRemoteWorkDays', 'invalid'],
+            ['previousWeekTravelToWorkDays', 'invalid'],
+            ['whoWillAnswerForThisPerson', 'invalid-uuid'],
+            ['isProxy', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const result = Person.create(invalidAttributes);
@@ -386,6 +396,12 @@ describe('Person', () => {
             expect((person as Person).journeys).toHaveLength(1);
             expect((person as Person).journeys?.[0]).toEqual(journey);
         });
+
+        test('should return an error for invalid journeys', () => {
+            const result = Person.create(extendedInvalidJourneysAttributes);
+            expect(hasErrors(result)).toBe(true);
+            expect((unwrap(result) as Error[])).toHaveLength(3);
+        });
     });
 
     describe('Getters and Setters', () => {
@@ -413,8 +429,14 @@ describe('Person', () => {
             ['jobCategory', 'service'],
             ['jobName', 'manager'],
             ['isOnTheRoadWorker', 'yes'],
-            ['isJobTelecommuteCompatible', 'no'],
+            ['hasTelecommuteCompatibleJob', 'no'],
             ['educationalAttainment', 'master'],
+            ['genderCustom', 'other'],
+            ['previousWeekRemoteWorkDays', { friday: true, saturday: true, sunday: true }],
+            ['previousWeekTravelToWorkDays', { thursday: true, friday: true }],
+            ['schoolTypeOtherSpecify', 'trade school'],
+            ['whoWillAnswerForThisPerson', uuidV4()],
+            ['isProxy', true],
             ['nickname', 'Johnny'],
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'johnny@example.com'],

@@ -24,14 +24,18 @@ export const householdAttributes = [
     'size',
     'carNumber',
     'twoWheelNumber',
+    'bicycleNumber',
+    'electricBicycleNumber',
     'pluginHybridCarNumber',
     'electricCarNumber',
+    'hybridCarNumber',
     'category',
-    'wouldLikeToParticipateToOtherSurveys',
     'homeCarParkings',
     'incomeLevel',
+    'ownership',
     'contactPhoneNumber',
-    'contactEmail'
+    'contactEmail',
+    'atLeastOnePersonWithDisability'
 ];
 
 export const householdAttributesWithComposedAttributes = [...householdAttributes, 'members', 'vehicles', 'home'];
@@ -40,14 +44,18 @@ export type HouseholdAttributes = {
     size?: Optional<number>;
     carNumber?: Optional<number>;
     twoWheelNumber?: Optional<number>;
+    bicycleNumber?: Optional<number>;
+    electricBicycleNumber?: Optional<number>;
     pluginHybridCarNumber?: Optional<number>;
     electricCarNumber?: Optional<number>;
+    hybridCarNumber?: Optional<number>;
     category?: Optional<HAttr.HouseholdCategory>;
-    wouldLikeToParticipateToOtherSurveys?: Optional<boolean>;
     homeCarParkings?: Optional<HAttr.HomePrivateCarParkingType[]>;
     incomeLevel?: Optional<HAttr.IncomeLevel>;
+    ownership?: Optional<HAttr.HomeOwnership>;
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
+    atLeastOnePersonWithDisability?: Optional<boolean>;
 } & UuidableAttributes &
     WeightableAttributes &
     ValidatebleAttributes;
@@ -147,6 +155,22 @@ export class Household implements IValidatable {
         this._attributes.twoWheelNumber = value;
     }
 
+    get bicycleNumber(): Optional<number> {
+        return this._attributes.bicycleNumber;
+    }
+
+    set bicycleNumber(value: Optional<number>) {
+        this._attributes.bicycleNumber = value;
+    }
+
+    get electricBicycleNumber(): Optional<number> {
+        return this._attributes.electricBicycleNumber;
+    }
+
+    set electricBicycleNumber(value: Optional<number>) {
+        this._attributes.electricBicycleNumber = value;
+    }
+
     get pluginHybridCarNumber(): Optional<number> {
         return this._attributes.pluginHybridCarNumber;
     }
@@ -163,20 +187,20 @@ export class Household implements IValidatable {
         this._attributes.electricCarNumber = value;
     }
 
+    get hybridCarNumber(): Optional<number> {
+        return this._attributes.hybridCarNumber;
+    }
+
+    set hybridCarNumber(value: Optional<number>) {
+        this._attributes.hybridCarNumber = value;
+    }
+
     get category(): Optional<HAttr.HouseholdCategory> {
         return this._attributes.category;
     }
 
     set category(value: Optional<HAttr.HouseholdCategory>) {
         this._attributes.category = value;
-    }
-
-    get wouldLikeToParticipateToOtherSurveys(): Optional<boolean> {
-        return this._attributes.wouldLikeToParticipateToOtherSurveys;
-    }
-
-    set wouldLikeToParticipateToOtherSurveys(value: Optional<boolean>) {
-        this._attributes.wouldLikeToParticipateToOtherSurveys = value;
     }
 
     get homeCarParkings(): Optional<HAttr.HomePrivateCarParkingType[]> {
@@ -195,6 +219,14 @@ export class Household implements IValidatable {
         this._attributes.incomeLevel = value;
     }
 
+    get ownership(): Optional<HAttr.HomeOwnership> {
+        return this._attributes.ownership;
+    }
+
+    set ownership(value: Optional<HAttr.HomeOwnership>) {
+        this._attributes.ownership = value;
+    }
+
     get contactPhoneNumber(): Optional<string> {
         return this._attributes.contactPhoneNumber;
     }
@@ -209,6 +241,14 @@ export class Household implements IValidatable {
 
     set contactEmail(value: Optional<string>) {
         this._attributes.contactEmail = value;
+    }
+
+    get atLeastOnePersonWithDisability(): Optional<boolean> {
+        return this._attributes.atLeastOnePersonWithDisability;
+    }
+
+    set atLeastOnePersonWithDisability(value: Optional<boolean>) {
+        this._attributes.atLeastOnePersonWithDisability = value;
     }
 
     get members(): Optional<Person[]> {
@@ -277,6 +317,16 @@ export class Household implements IValidatable {
             ...ParamsValidatorUtils.isPositiveInteger('twoWheelNumber', dirtyParams.twoWheelNumber, displayName)
         );
 
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('bicycleNumber', dirtyParams.bicycleNumber, displayName));
+
+        errors.push(
+            ...ParamsValidatorUtils.isPositiveInteger(
+                'electricBicycleNumber',
+                dirtyParams.electricBicycleNumber,
+                displayName
+            )
+        );
+
         errors.push(
             ...ParamsValidatorUtils.isPositiveInteger(
                 'pluginHybridCarNumber',
@@ -289,15 +339,11 @@ export class Household implements IValidatable {
             ...ParamsValidatorUtils.isPositiveInteger('electricCarNumber', dirtyParams.electricCarNumber, displayName)
         );
 
-        errors.push(...ParamsValidatorUtils.isString('category', dirtyParams.category, displayName));
-
         errors.push(
-            ...ParamsValidatorUtils.isBoolean(
-                'wouldLikeToParticipateToOtherSurveys',
-                dirtyParams.wouldLikeToParticipateToOtherSurveys,
-                displayName
-            )
+            ...ParamsValidatorUtils.isPositiveInteger('hybridCarNumber', dirtyParams.hybridCarNumber, displayName)
         );
+
+        errors.push(...ParamsValidatorUtils.isString('category', dirtyParams.category, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isArrayOfStrings('homeCarParkings', dirtyParams.homeCarParkings, displayName)
@@ -305,11 +351,21 @@ export class Household implements IValidatable {
 
         errors.push(...ParamsValidatorUtils.isString('incomeLevel', dirtyParams.incomeLevel, displayName));
 
+        errors.push(...ParamsValidatorUtils.isString('ownership', dirtyParams.ownership, displayName));
+
         errors.push(
             ...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName)
         );
 
         errors.push(...ParamsValidatorUtils.isString('contactEmail', dirtyParams.contactEmail, displayName));
+
+        errors.push(
+            ...ParamsValidatorUtils.isBoolean(
+                'atLeastOnePersonWithDisability',
+                dirtyParams.atLeastOnePersonWithDisability,
+                displayName
+            )
+        );
 
         const membersAttributes =
             dirtyParams.members !== undefined ? (dirtyParams.members as { [key: string]: unknown }[]) : [];
