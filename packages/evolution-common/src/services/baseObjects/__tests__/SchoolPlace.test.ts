@@ -25,7 +25,7 @@ describe('SchoolPlace', () => {
         name: 'Test Place',
         shortname: 'Test',
         osmId: '123',
-        propertyRegistryId: 'residential',
+        propertyRegistryId: 'ABCD1234',
         buildingId: '1',
         internalId: '1',
         geocodingPrecisionCategory: 'precise',

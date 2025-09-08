@@ -5,9 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Junction, junctionAttributes } from '../Junction';
-import { placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
+import { Junction, junctionAttributes } from '../Junction';
+import { PlaceAttributes, placeAttributes } from '../Place';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
@@ -21,12 +21,12 @@ describe('Junction', () => {
         description: 'Sample weight method description',
     };
 
-    const validPlaceAttributes: { [key: string]: unknown } = {
+    const validPlaceAttributes: PlaceAttributes = {
         _uuid: uuidV4(),
         name: 'Test Place',
         shortname: 'Test',
         osmId: '123',
-        propertyRegistryId: 'residential',
+        propertyRegistryId: 'ABCD1234',
         buildingId: '1',
         internalId: '1',
         geocodingPrecisionCategory: 'precise',
