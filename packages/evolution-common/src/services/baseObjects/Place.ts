@@ -9,7 +9,7 @@ import { isFeature, isPoint } from 'geojson-validation';
 import { Optional } from '../../types/Optional.type';
 import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
 import { Address, AddressAttributes } from './Address';
-import { Device } from './BaseInterview';
+import { Device } from './attributeTypes/InterviewParadataAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Uuidable, UuidableAttributes } from './Uuidable';
