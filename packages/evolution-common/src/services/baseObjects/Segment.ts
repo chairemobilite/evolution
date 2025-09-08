@@ -70,8 +70,7 @@ export type SegmentAttributes = {
     carType?: Optional<SAttr.CarType>;
     paidForParking?: Optional<boolean>;
     onDemandType?: Optional<string>;
-    // TODO: Convert busLines from array of strings to array of UUIDs (foreign keys to Transition lines)
-    busLines?: Optional<string[]>;
+    busLines?: Optional<string[]>; // for now, the bus lines are the line slugified shortname. TODO: discuss if we want to change that.
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
