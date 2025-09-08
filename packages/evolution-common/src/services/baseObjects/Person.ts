@@ -48,8 +48,6 @@ export const personAttributes = [
     'hasTelecommuteCompatibleJob',
     'educationalAttainment',
     'genderCustom',
-    'previousWeekRemoteWorkDays',
-    'previousWeekTravelToWorkDays',
     'schoolTypeOtherSpecify',
     'whoWillAnswerForThisPerson',
     'isProxy',
@@ -72,8 +70,6 @@ export const nonStringAttributes = [
     '_uuid',
     'age',
     'transitPasses',
-    'previousWeekRemoteWorkDays',
-    'previousWeekTravelToWorkDays',
     'whoWillAnswerForThisPerson',
     'isProxy'
 ];
@@ -107,10 +103,6 @@ export type PersonAttributes = {
     hasTelecommuteCompatibleJob?: Optional<PAttr.HasTelecommuteCompatibleJob>;
     educationalAttainment?: Optional<PAttr.EducationalAttainment>;
     genderCustom?: Optional<string>;
-    /** Remote work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
-    previousWeekRemoteWorkDays?: Optional<PAttr.WeekdaySchedule>;
-    /** Travel to work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
-    previousWeekTravelToWorkDays?: Optional<PAttr.WeekdaySchedule>;
     schoolTypeOtherSpecify?: Optional<string>;
     /** UUID of the household member who will answer for this person (used to determine if isProxy = true) */
     whoWillAnswerForThisPerson?: Optional<string>;
@@ -374,34 +366,6 @@ export class Person implements IValidatable {
         this._attributes.genderCustom = value;
     }
 
-    /**
-     * Remote work days for the complete week before the assigned date.
-     * If the assigned date is a Monday, this represents Sunday to Saturday
-     * of the previous week (not including the assigned Monday).
-     * Each day indicates whether the person worked remotely on that day.
-     */
-    get previousWeekRemoteWorkDays(): Optional<PAttr.WeekdaySchedule> {
-        return this._attributes.previousWeekRemoteWorkDays;
-    }
-
-    set previousWeekRemoteWorkDays(value: Optional<PAttr.WeekdaySchedule>) {
-        this._attributes.previousWeekRemoteWorkDays = value;
-    }
-
-    /**
-     * Travel to work days for the complete week before the assigned date.
-     * If the assigned date is a Monday, this represents Sunday to Saturday
-     * of the previous week (not including the assigned Monday).
-     * Each day indicates whether the person traveled to work on that day.
-     */
-    get previousWeekTravelToWorkDays(): Optional<PAttr.WeekdaySchedule> {
-        return this._attributes.previousWeekTravelToWorkDays;
-    }
-
-    set previousWeekTravelToWorkDays(value: Optional<PAttr.WeekdaySchedule>) {
-        this._attributes.previousWeekTravelToWorkDays = value;
-    }
-
     get schoolTypeOtherSpecify(): Optional<string> {
         return this._attributes.schoolTypeOtherSpecify;
     }
@@ -599,20 +563,6 @@ export class Person implements IValidatable {
         errors.push(...ParamsValidatorUtils.isArrayOfStrings('transitPasses', dirtyParams.transitPasses, displayName));
 
         // Validate new attributes
-        errors.push(
-            ...ParamsValidatorUtils.isObject(
-                'previousWeekRemoteWorkDays',
-                dirtyParams.previousWeekRemoteWorkDays,
-                displayName
-            )
-        );
-        errors.push(
-            ...ParamsValidatorUtils.isObject(
-                'previousWeekTravelToWorkDays',
-                dirtyParams.previousWeekTravelToWorkDays,
-                displayName
-            )
-        );
         errors.push(
             ...ParamsValidatorUtils.isUuid(
                 'whoWillAnswerForThisPerson',
