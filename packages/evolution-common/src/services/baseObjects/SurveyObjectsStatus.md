@@ -20,7 +20,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `assignedDate` | Assigned survey date | ✅ | | Present in Interview |
 | `auditorComments` | Auditor comments | ✅ | | Present in Interview, not exported |
 | `burdenRange` | Burden range | ✅ | | Present in Interview |
-| `consideredAbandoningRange` | Considered abandonment | ✅ | | Present in Interview |
+| `consideredAbandoning` | Considered abandonment | ✅ | | Present in Interview |
 | `contactEmail` | Contact email | ✅ | | Present in Interview, not exported |
 | `contactPhoneNumber` | Phone number | ✅ | | Present in Interview, not exported |
 | `difficultyRange` | Difficulty range | ✅ | | Present in Interview |
@@ -28,7 +28,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `durationRespondentEstimationMin` | Duration estimation in minutes | ✅ | | Present in Interview |
 | `end.burdenOfTheSurvey` | Survey burden opinion | ⚠️ | `burdenRange` | Present in Interview (as burdenRange) |
 | `end.commentsOnSurvey` | Comments on survey | ⚠️ | `respondentComments` | Present in Interview (as respondentComments), not exported |
-| `end.consideredAbandoningSurvey` | Considered abandoning survey | ⚠️ | `consideredAbandoningRange` | Present in Interview (as consideredToAbandonRange) |
+| `end.consideredAbandoningSurvey` | Considered abandoning survey | ⚠️ | `consideredAbandoning` | Present in Interview (as consideredAbandoning) |
 | `end.difficultyOfTheSurvey` | Survey difficulty opinion | ⚠️ | `difficultyRange` | Present in Interview (as difficultyRange) |
 | `end.durationOfTheSurvey` | Survey duration opinion | ⚠️ | `durationRange` | Present in Interview (as durationRange) |
 | `end.interestOfTheSurvey` | Interest level in survey | ⚠️ | `interestRange` | Present in Interview (as interestRange) |
@@ -64,7 +64,8 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `household.longDistanceTripsMayAugust` | Long distance trips May-Aug | ❌ | | Specific to OD Nationale Quebec |
 | `household.longDistanceTripsSeptemberDecember` | Long distance trips Sep-Dec | ❌ | | Specific to OD Nationale Quebec |
 | `household.madeLongDistanceTripsInLastYear` | Made long distance trips last year | ❌ | | Missing in Household |
-| `household.ownership` | Home ownership | ✅ | | Present in Household |
+| `household.ownership` | Home ownership | ⚠️ | `homeOwnership`| Present in Household |
+| `household.homeOwnership` | Home ownership | ✅ | | Present in Household |
 | `household.pluginHybridCarNumber` | Number of plugin hybrid cars | ✅ | | Present in Household |
 | `household.size` | Household size | ✅ | | Present in Household |
 | `household.twoWheelNumber` | Number of two-wheelers | ✅ | | Present in Household |
@@ -97,8 +98,8 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.noSchoolTripReason` | No school trip reason | ✅ | `journey.{uuid}.noSchoolTripReason` | Present in Journey |
 | `persons.{uuid}.noWorkTripReason` | No work trip reason | ✅ | `journey.{uuid}.noWorkTripReason` | Present in Journey |
 | `persons.{uuid}.occupation` | Occupation | ✅ | | Present in Person |
-| `persons.{uuid}.remoteWorkDays` | Remote work days | ⚠️ | `previousWeekRemoteWorkDays` | Present in Person (as previousWeekRemoteWorkDays) |
-| `persons.{uuid}.previousWeekRemoteWorkDays` | Previous week remote work days | ✅ | | Present in Person |
+| `persons.{uuid}.remoteWorkDays` | Remote work days | ⚠️ | `journey.{uuid}.previousWeekRemoteWorkDays` | Present in Journey (as previousWeekRemoteWorkDays) |
+| `persons.{uuid}.previousWeekRemoteWorkDays` | Previous week remote work days | ⚠️ | `journey.{uuid}.previousWeekRemoteWorkDays` | Present in Journey (as previousWeekRemoteWorkDays) |
 | `persons.{uuid}.ridesharingMember` | Ridesharing member | ✅ | | Present in Person |
 | `persons.{uuid}.ridesharingUser` | Ridesharing user | ✅ | | Present in Person |
 | `persons.{uuid}.schoolPlaceType` | School place type | ✅ | | Present in Person |
@@ -109,8 +110,8 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.studentType` | Student type | ✅ | | Present in Person |
 | `persons.{uuid}.transitPassOwnership` | Transit pass ownership | ✅ | | Present in Person |
 | `persons.{uuid}.transitPasses` | Transit passes | ✅ | | Present in Person |
-| `persons.{uuid}.travelToWorkDays` | Days traveling to work | ⚠️ | `previousWeekTravelToWorkDays` | Present in Person (as previousWeekTravelToWorkDays) |
-| `persons.{uuid}.previousWeekTravelToWorkDays` | Previous week travel to work days | ✅ | | Present in Person |
+| `persons.{uuid}.travelToWorkDays` | Days traveling to work | ⚠️ | `journey.{uuid}.previousWeekTravelToWorkDays` | Present in Journey (as previousWeekTravelToWorkDays) |
+| `persons.{uuid}.previousWeekTravelToWorkDays` | Previous week travel to work days | ⚠️ | `journey.{uuid}.previousWeekTravelToWorkDays` | Present in Journey (as previousWeekTravelToWorkDays) |
 | `persons.{uuid}.usualSchoolPlace.geography` | Usual school place geography | ✅ | | Present in Place |
 | `persons.{uuid}.usualSchoolPlace.name` | Usual school place name | ✅ | | Present in Place |
 | `persons.{uuid}.usualWorkPlace.geography` | Usual work place geography | ✅ | | Present in Place |
