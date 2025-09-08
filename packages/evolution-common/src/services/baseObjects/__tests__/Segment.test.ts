@@ -76,7 +76,7 @@ describe('Segment', () => {
         expect(segment._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
-    test('should create a Segment instance with valid attributes', () => {
+    test('should create a Segment instance with valid extended attributes', () => {
         const result = Segment.create(extendedAttributes);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Segment);
@@ -150,6 +150,7 @@ describe('Segment', () => {
             ['paidForParking', 'invalid'],
             ['onDemandType', 123],
             ['busLines', 'invalid'],
+            ['busLines', [undefined, 'Line']],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Segment.validateParams(invalidAttributes);
@@ -444,7 +445,7 @@ describe('Segment', () => {
             ['schoolBus', false],
             ['other', false],
             ['dontKnow', false],
-        ])('isTransit should return %s for mode "%s"', (mode, expected) => {
+        ])('isTransit("%s") should return %s', (mode, expected) => {
             const segment = new Segment({ mode: mode as Mode });
             expect(segment.isTransit()).toBe(expected);
         });
