@@ -161,12 +161,5 @@ export const noUsualSchoolPlaceReasonValues = [
 export type NoUsualSchoolPlaceReason = (typeof noUsualSchoolPlaceReasonValues)[number];
 
 // Weekday schedule type for work/travel days
-export type WeekdaySchedule = {
-    sunday?: boolean;
-    monday?: boolean;
-    tuesday?: boolean;
-    wednesday?: boolean;
-    thursday?: boolean;
-    friday?: boolean;
-    saturday?: boolean;
-};
+export type Weekday = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday';
+export type WeekdaySchedule = Partial<Record<Weekday, boolean>>;
