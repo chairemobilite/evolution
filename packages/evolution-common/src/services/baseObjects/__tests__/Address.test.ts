@@ -108,6 +108,23 @@ describe('Address', () => {
         expect(address.customAttributes).toEqual(customAttributes);
     });
 
+    test('should report errors for invalid Address UUIDs', () => {
+        const bad: ExtendedAddressAttributes = {
+            _uuid: uuidV4(),
+            civicNumber: 1,
+            streetName: 'X',
+            municipalityName: 'Y',
+            region: 'R',
+            country: 'C',
+            combinedStreetUuid: 'not-a-uuid',
+            combinedAddressUuid: 'still-not-a-uuid',
+            _isValid: true
+        };
+        const errors = Address.validateParams(bad);
+        expect(errors.some((e) => e.toString().includes('combinedStreetUuid'))).toBe(true);
+        expect(errors.some((e) => e.toString().includes('combinedAddressUuid'))).toBe(true);
+    });
+
     describe('Getters and Setters', () => {
         test.each([
             ['civicNumber', 789],
