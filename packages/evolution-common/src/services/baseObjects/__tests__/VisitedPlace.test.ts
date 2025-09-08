@@ -25,7 +25,7 @@ describe('VisitedPlace', () => {
         name: 'Test Place',
         shortname: 'Test',
         osmId: '123',
-        propertyRegistryId: 'residential',
+        propertyRegistryId: 'ABCD1234',
         buildingId: '1',
         internalId: '1',
         geocodingPrecisionCategory: 'precise',
@@ -121,7 +121,19 @@ describe('VisitedPlace', () => {
         expect(errors).toHaveLength(0);
     });
 
-    // ... (previous test cases)
+    test('should return errors for self-reference shortcut', () => {
+        const invalidAttributes = { ...validVisitedPlaceAttributes, shortcut: validVisitedPlaceAttributes._uuid };
+        const errors = VisitedPlace.validateParams(invalidAttributes);
+        expect(errors).toHaveLength(1);
+        expect(errors[0].message).toEqual('VisitedPlace validateParams: shortcut cannot reference itself');
+    });
+
+    test('should allow shortcut to be undefined', () => {
+        const attrs = { ...validVisitedPlaceAttributes };
+        delete (attrs as any).shortcut;
+        const errors = VisitedPlace.validateParams(attrs);
+        expect(errors).toHaveLength(0);
+    });
 
     test('should return errors for invalid VisitedPlace attributes', () => {
         const invalidAttributes = { ...validVisitedPlaceAttributes, startDate: 123 };
