@@ -22,11 +22,13 @@ export const visitedPlaceAttributes = [
     'shortcut'
 ];
 
+type VisitedPlaceUuid = string;
+
 export type VisitedPlaceAttributes = {
     activity?: Optional<VPAttr.Activity>;
     activityCategory?: Optional<VPAttr.ActivityCategory>;
     /** UUID of another visited place that this place references as a shortcut */
-    shortcut?: Optional<string>;
+    shortcut?: Optional<VisitedPlaceUuid>;
 } & StartEndDateAndTimesAttributes &
     PlaceAttributes;
 
@@ -165,6 +167,14 @@ export class VisitedPlace extends Place<VisitedPlaceAttributes> implements IVali
 
         errors.push(...ParamsValidatorUtils.isUuid('shortcut', dirtyParams.shortcut, displayName));
 
+        // forbid self-reference when both UUIDs are present
+        if (
+            typeof dirtyParams._uuid === 'string' &&
+            typeof dirtyParams.shortcut === 'string' &&
+            dirtyParams._uuid === dirtyParams.shortcut
+        ) {
+            errors.push(new Error(`${displayName} validateParams: shortcut cannot reference itself`));
+        }
         return errors;
     }
 }
