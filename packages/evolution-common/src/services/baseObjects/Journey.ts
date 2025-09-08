@@ -10,6 +10,7 @@ import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import * as JAttr from './attributeTypes/JourneyAttributes';
+import * as PAttr from './attributeTypes/PersonAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
@@ -17,7 +18,7 @@ import { VisitedPlace, ExtendedVisitedPlaceAttributes } from './VisitedPlace';
 import { Trip, ExtendedTripAttributes } from './Trip';
 import { TripChain, ExtendedTripChainAttributes } from './TripChain';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
-import { TimePeriod } from './attributeTypes/GenericAttributes';
+import { TimePeriod, YesNoDontKnow } from './attributeTypes/GenericAttributes';
 
 export const journeyAttributes = [
     ...startEndDateAndTimesAttributes,
@@ -30,7 +31,9 @@ export const journeyAttributes = [
     'noSchoolTripReasonSpecify',
     'noWorkTripReason',
     'noWorkTripReasonSpecify',
-    'didTrips'
+    'didTrips',
+    'previousWeekRemoteWorkDays',
+    'previousWeekTravelToWorkDays'
 ];
 
 export const journeyAttributesWithComposedAttributes = [...journeyAttributes, 'visitedPlaces', 'trips', 'tripChains'];
@@ -44,7 +47,11 @@ export type JourneyAttributes = {
     noWorkTripReasonSpecify?: Optional<string>;
     /** Boolean indicating if the person declared doing any trips on the assigned date.
      * This preserves the intent even if the trip list is incomplete due to an unfinished interview. */
-    didTrips?: Optional<boolean>;
+    didTrips?: Optional<YesNoDontKnow>;
+    /** Remote work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
+    previousWeekRemoteWorkDays?: Optional<PAttr.WeekdaySchedule>;
+    /** Travel to work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
+    previousWeekTravelToWorkDays?: Optional<PAttr.WeekdaySchedule>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -226,12 +233,40 @@ export class Journey implements IValidatable {
      * Important: This should be set based on the person's declaration, not calculated from the trip count,
      * as incomplete interviews may have empty trips but the person did intend to report trips.
      */
-    get didTrips(): Optional<boolean> {
+    get didTrips(): Optional<YesNoDontKnow> {
         return this._attributes.didTrips;
     }
 
-    set didTrips(value: Optional<boolean>) {
+    set didTrips(value: Optional<YesNoDontKnow>) {
         this._attributes.didTrips = value;
+    }
+
+    /**
+     * Remote work days for the complete week before the assigned date.
+     * If the assigned date is a Monday, this represents Sunday to Saturday
+     * of the previous week (not including the assigned Monday).
+     * Each day indicates whether the person worked remotely on that day.
+     */
+    get previousWeekRemoteWorkDays(): Optional<PAttr.WeekdaySchedule> {
+        return this._attributes.previousWeekRemoteWorkDays;
+    }
+
+    set previousWeekRemoteWorkDays(value: Optional<PAttr.WeekdaySchedule>) {
+        this._attributes.previousWeekRemoteWorkDays = value;
+    }
+
+    /**
+     * Travel to work days for the complete week before the assigned date.
+     * If the assigned date is a Monday, this represents Sunday to Saturday
+     * of the previous week (not including the assigned Monday).
+     * Each day indicates whether the person traveled to work on that day.
+     */
+    get previousWeekTravelToWorkDays(): Optional<PAttr.WeekdaySchedule> {
+        return this._attributes.previousWeekTravelToWorkDays;
+    }
+
+    set previousWeekTravelToWorkDays(value: Optional<PAttr.WeekdaySchedule>) {
+        this._attributes.previousWeekTravelToWorkDays = value;
     }
 
     get visitedPlaces(): Optional<VisitedPlace[]> {
@@ -324,7 +359,23 @@ export class Journey implements IValidatable {
                 displayName
             )
         );
-        errors.push(...ParamsValidatorUtils.isBoolean('didTrips', dirtyParams.didTrips, displayName));
+        errors.push(...ParamsValidatorUtils.isString('didTrips', dirtyParams.didTrips, displayName));
+
+        // Validate work schedule attributes
+        errors.push(
+            ...ParamsValidatorUtils.isObject(
+                'previousWeekRemoteWorkDays',
+                dirtyParams.previousWeekRemoteWorkDays,
+                displayName
+            )
+        );
+        errors.push(
+            ...ParamsValidatorUtils.isObject(
+                'previousWeekTravelToWorkDays',
+                dirtyParams.previousWeekTravelToWorkDays,
+                displayName
+            )
+        );
 
         const visitedPlacesAttributes =
             dirtyParams.visitedPlaces !== undefined ? (dirtyParams.visitedPlaces as { [key: string]: unknown }[]) : [];

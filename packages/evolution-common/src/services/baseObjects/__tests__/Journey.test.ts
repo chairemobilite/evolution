@@ -36,7 +36,9 @@ describe('Journey', () => {
         noSchoolTripReasonSpecify: 'summer vacation',
         noWorkTripReason: 'remote_work',
         noWorkTripReasonSpecify: 'working from home',
-        didTrips: true,
+        didTrips: 'yes',
+        previousWeekRemoteWorkDays: { monday: true, tuesday: true, wednesday: true },
+        previousWeekTravelToWorkDays: { monday: true, tuesday: true },
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true,
     };
@@ -74,7 +76,7 @@ describe('Journey', () => {
         ],
     };
 
-    test('should create a Journey instance with valid attributes', () => {
+    test('should instantiate a Journey instance', () => {
         const journey = new Journey(validAttributes);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
@@ -170,7 +172,9 @@ describe('Journey', () => {
             ['noSchoolTripReasonSpecify', 123],
             ['noWorkTripReason', 123],
             ['noWorkTripReasonSpecify', 123],
-            ['didTrips', 'invalid'],
+            ['didTrips', 123],
+            ['previousWeekRemoteWorkDays', 'invalid'],
+            ['previousWeekTravelToWorkDays', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Journey.validateParams(invalidAttributes);
@@ -198,7 +202,9 @@ describe('Journey', () => {
             ['noSchoolTripReasonSpecify', 'winter break'],
             ['noWorkTripReason', 'sick_leave'],
             ['noWorkTripReasonSpecify', 'medical appointment'],
-            ['didTrips', false],
+            ['didTrips', 'no'],
+            ['previousWeekRemoteWorkDays', { friday: true, saturday: true, sunday: true }],
+            ['previousWeekTravelToWorkDays', { thursday: true, friday: true }],
         ])('should set and get %s', (attribute, value) => {
             const journey = new Journey(validAttributes);
             journey[attribute] = value;
