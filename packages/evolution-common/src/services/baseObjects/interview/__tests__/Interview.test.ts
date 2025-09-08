@@ -236,7 +236,7 @@ describe('Interview', () => {
                 'interestRange',
                 'difficultyRange',
                 'burdenRange',
-                'consideredAbandoningRange'
+                'consideredAbandoning'
             ];
 
             expectedConfidentialAttributes.forEach((attr) => {
