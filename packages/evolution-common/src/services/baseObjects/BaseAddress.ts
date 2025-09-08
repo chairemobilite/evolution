@@ -46,7 +46,7 @@ export class BaseAddress extends Uuidable implements IValidatable {
      * - includes non-abbreviated street type/prefix and/or suffix (e.g. "rue", "avenue", "boulevard", etc.)
      * - includes non-abbreviated orientation
      * - non-abbreviated saint/sainte
-     * - trimed and trimed start
+     * - trimmed and trimmed start
      * example: rue de la gauchetiere ouest | 5e avenue nord | rang du petit saint jean | 30e rue
      */
     streetNameHomogenized?: string; // homogenized street name, without latin characters, lowercase, no dash.
