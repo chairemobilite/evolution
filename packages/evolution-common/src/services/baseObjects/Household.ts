@@ -32,7 +32,7 @@ export const householdAttributes = [
     'category',
     'homeCarParkings',
     'incomeLevel',
-    'ownership',
+    'homeOwnership',
     'contactPhoneNumber',
     'contactEmail',
     'atLeastOnePersonWithDisability'
@@ -52,7 +52,7 @@ export type HouseholdAttributes = {
     category?: Optional<HAttr.HouseholdCategory>;
     homeCarParkings?: Optional<HAttr.HomePrivateCarParkingType[]>;
     incomeLevel?: Optional<HAttr.IncomeLevel>;
-    ownership?: Optional<HAttr.HomeOwnership>;
+    homeOwnership?: Optional<HAttr.HomeOwnership>;
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
     atLeastOnePersonWithDisability?: Optional<boolean>;
@@ -219,12 +219,12 @@ export class Household implements IValidatable {
         this._attributes.incomeLevel = value;
     }
 
-    get ownership(): Optional<HAttr.HomeOwnership> {
-        return this._attributes.ownership;
+    get homeOwnership(): Optional<HAttr.HomeOwnership> {
+        return this._attributes.homeOwnership;
     }
 
-    set ownership(value: Optional<HAttr.HomeOwnership>) {
-        this._attributes.ownership = value;
+    set homeOwnership(value: Optional<HAttr.HomeOwnership>) {
+        this._attributes.homeOwnership = value;
     }
 
     get contactPhoneNumber(): Optional<string> {
@@ -351,7 +351,7 @@ export class Household implements IValidatable {
 
         errors.push(...ParamsValidatorUtils.isString('incomeLevel', dirtyParams.incomeLevel, displayName));
 
-        errors.push(...ParamsValidatorUtils.isString('ownership', dirtyParams.ownership, displayName));
+        errors.push(...ParamsValidatorUtils.isString('homeOwnership', dirtyParams.homeOwnership, displayName));
 
         errors.push(
             ...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName)
