@@ -35,7 +35,7 @@ describe('Household', () => {
         category: 'family',
         homeCarParkings: ['drivewayWithoutGarage', 'streetside'],
         incomeLevel: 'high',
-        ownership: 'owned',
+        homeOwnership: 'owned',
         contactPhoneNumber: '1234567890',
         contactEmail: 'test@example.com',
         atLeastOnePersonWithDisability: true,
@@ -146,14 +146,19 @@ describe('Household', () => {
         ['carNumber', 'invalid'],
         ['twoWheelNumber', 'invalid'],
         ['bicycleNumber', 'invalid'],
+        ['bicycleNumber', -1],
         ['electricBicycleNumber', 'invalid'],
+        ['electricBicycleNumber', -1],
         ['pluginHybridCarNumber', 'invalid'],
+        ['pluginHybridCarNumber', -1],
         ['electricCarNumber', 'invalid'],
+        ['electricCarNumber', -1],
         ['hybridCarNumber', 'invalid'],
+        ['hybridCarNumber', -1],
         ['category', 123],
         ['homeCarParkings', 123],
         ['incomeLevel', 123],
-        ['ownership', 123],
+        ['homeOwnership', 123],
         ['contactPhoneNumber', 123],
         ['contactEmail', 123],
         ['atLeastOnePersonWithDisability', 'invalid'],
@@ -162,6 +167,18 @@ describe('Household', () => {
         const errors = Household.validateParams(invalidAttributes);
         expect(errors[0].toString()).toContain(param);
         expect(errors).toHaveLength(1);
+    });
+
+    test('should accept zero for new counts', () => {
+        const ok = {
+            ...validAttributes,
+            bicycleNumber: 0,
+            electricBicycleNumber: 0,
+            pluginHybridCarNumber: 0,
+            electricCarNumber: 0,
+            hybridCarNumber: 0,
+        };
+        expect(Household.validateParams(ok)).toHaveLength(0);
     });
 
     test('should validate a Household instance', () => {
@@ -185,6 +202,12 @@ describe('Household', () => {
         expect(household.customAttributes).toEqual(customAttributes);
     });
 
+    test('should allow clearing optional fields with undefined', () => {
+        const household = new Household(validAttributes);
+        household.bicycleNumber = undefined;
+        expect(household.bicycleNumber).toBeUndefined();
+    });
+
     describe('Getters and Setters', () => {
         test.each([
             ['size', 5],
@@ -198,7 +221,7 @@ describe('Household', () => {
             ['category', 'couple'],
             ['homeCarParkings', ['interior', 'exterior']],
             ['incomeLevel', 'medium'],
-            ['ownership', 'rented'],
+            ['homeOwnership', 'rented'],
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'updated@example.com'],
             ['atLeastOnePersonWithDisability', false],
