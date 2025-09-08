@@ -41,7 +41,7 @@ const interviewAttributes = [
     'interestRange',
     'difficultyRange',
     'burdenRange',
-    'consideredAbandoningRange'
+    'consideredAbandoning'
 ];
 
 const interviewAttributesWithComposedAttributes = [
@@ -78,7 +78,7 @@ export type InterviewAttributes = {
     interestRange?: number; // respondent appreciation of the interview interestfulness (range from boring to very interesting)
     difficultyRange?: number; // respondent appreciation of the interview difficulty (range from very easy to very difficult)
     burdenRange?: number; // respondent appreciation of the interview burden (range from very light to very heavy)
-    consideredAbandoningRange?: YesNoDontKnow; // yes/no/dontKnow if the respondent considered to abandon the interview
+    consideredAbandoning?: YesNoDontKnow; // yes/no/dontKnow if the respondent considered abandoning the interview
 } & UuidableAttributes;
 
 export type InterviewWithComposedObjects = InterviewAttributes & {
@@ -176,7 +176,7 @@ export class Interview extends Uuidable {
         'interestRange', // only for analysis/admin exports
         'difficultyRange', // only for analysis/admin exports
         'burdenRange', // only for analysis/admin exports
-        'consideredAbandoningRange' // only for analysis/admin exports
+        'consideredAbandoning' // only for analysis/admin exports
     ];
 
     // Use InterviewUnserializer create function to generate/validate Interview object from json data with nested composed objects
@@ -348,12 +348,12 @@ export class Interview extends Uuidable {
         this._attributes.burdenRange = value;
     }
 
-    get consideredAbandoningRange(): Optional<string> {
-        return this._attributes.consideredAbandoningRange;
+    get consideredAbandoning(): Optional<string> {
+        return this._attributes.consideredAbandoning;
     }
 
-    set consideredAbandoningRange(value: Optional<string>) {
-        this._attributes.consideredAbandoningRange = value;
+    set consideredAbandoning(value: Optional<string>) {
+        this._attributes.consideredAbandoning = value;
     }
 
     // Composed objects:
