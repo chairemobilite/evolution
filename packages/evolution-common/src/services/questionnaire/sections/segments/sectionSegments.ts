@@ -80,28 +80,17 @@ export const getSegmentsSectionConfig = (
             let foundFirstInvalidTrip = false;
 
             // Create the missing trips objects and initialize those that may have changed
+            const newTrips: { _originVisitedPlaceUuid: string; _destinationVisitedPlaceUuid: string }[] = [];
             for (let tripSequence = 1, count = visitedPlaces.length - 1; tripSequence <= count; tripSequence++) {
                 const origin = visitedPlaces[tripSequence - 1];
                 const destination = visitedPlaces[tripSequence];
                 const trip = trips[tripSequence - 1];
                 if (_isBlank(trip)) {
                     // create trip if not exists for this sequence:
-                    const addValuesByPath = addGroupedObjects(interview, 1, tripSequence, tripsPath, [
-                        {
-                            _originVisitedPlaceUuid: origin._uuid,
-                            _destinationVisitedPlaceUuid: destination._uuid
-                        }
-                    ]);
-                    // Set the first invalid trip to this one if not already set
-                    if (firstInvalidTripId === null) {
-                        const newTripKey = Object.keys(addValuesByPath).find((key) =>
-                            key.startsWith(`response.${tripsPath}`)
-                        );
-                        // From the newJourneyKey, get the journey UUID as the rest of the string after the last dot
-                        const tripUuid = newTripKey!.split('.').pop();
-                        firstInvalidTripId = tripUuid;
-                    }
-                    Object.assign(responseContent, addValuesByPath);
+                    newTrips.push({
+                        _originVisitedPlaceUuid: origin._uuid,
+                        _destinationVisitedPlaceUuid: destination._uuid
+                    });
                 } else if (
                     trip._originVisitedPlaceUuid !== origin._uuid ||
                     trip._destinationVisitedPlaceUuid !== destination._uuid
@@ -125,6 +114,31 @@ export const getSegmentsSectionConfig = (
             // If the invalid trip was not found, it is not in the trips array anymore, so we set it to null
             if (!foundFirstInvalidTrip && nextTrip !== null) {
                 firstInvalidTripId = null;
+            }
+            if (newTrips.length > 0) {
+                // Add the new trips all at once, after the existing ones
+                const addValuesByPath = addGroupedObjects(
+                    interview,
+                    newTrips.length,
+                    trips.length + 1,
+                    tripsPath,
+                    newTrips
+                );
+                // Set the first invalid trip to the first trip in the new sequence
+                if (firstInvalidTripId === null) {
+                    // Find trip with lowest sequence number
+                    const newTripKey = Object.keys(addValuesByPath)
+                        .filter((key) => key.startsWith(`response.${tripsPath}`))
+                        .sort(
+                            (tripKeyA, tripKeyB) =>
+                                (addValuesByPath[tripKeyA] as any)._sequence -
+                                (addValuesByPath[tripKeyB] as any)._sequence
+                        )[0];
+                    // From the newJourneyKey, get the journey UUID as the rest of the string after the last dot
+                    const tripUuid = newTripKey!.split('.').pop();
+                    firstInvalidTripId = tripUuid;
+                }
+                Object.assign(responseContent, addValuesByPath);
             }
 
             // remove superfluous trips, there should be one less than visited places
