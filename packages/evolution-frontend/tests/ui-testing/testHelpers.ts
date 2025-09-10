@@ -768,10 +768,46 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
         // Note: This is necessary because sometimes the select input appears with only one available option.
         const select = inputMap.locator(`id=survey-question__${newPath}_mapFindPlace`);
         if (resultsNumber >= 1 && (await select.count()) > 0) {
-            // Select the first option from the dropdown
-            await select.focus(); // Focus on the select element
-            await select.press('ArrowDown'); // take the first option from select
-            await select.press('Enter');
+            // Focus on the select element to prepare for keyboard interaction
+            await select.focus();
+
+            // Store the initial value to detect if keyboard navigation worked
+            const initialValue = await select.inputValue();
+
+            // Primary method: Try using page-level keyboard navigation (works cross-platform)
+            await context.page.keyboard.press('ArrowDown');
+
+            // Check if the keyboard navigation actually changed the selected value
+            const valueAfterKeyboard = await select.inputValue();
+
+            if (valueAfterKeyboard !== initialValue) {
+                // Success: Keyboard navigation worked, confirm the selection with Enter
+                await context.page.keyboard.press('Enter');
+            } else {
+                // Fallback: Keyboard navigation failed (Mac/Safari issue), use direct option selection
+                const options = await select.locator('option').all();
+                let targetOptionIndex = -1;
+
+                // Find the first non-empty option (skip empty placeholder options)
+                for (let i = 0; i < options.length; i++) {
+                    const optionValue = await options[i].getAttribute('value');
+                    if (optionValue && optionValue.trim() !== '') {
+                        targetOptionIndex = i;
+                        break;
+                    }
+                }
+
+                if (targetOptionIndex !== -1) {
+                    // Select the first valid non-empty option
+                    await select.selectOption({ index: targetOptionIndex });
+                } else {
+                    // Last resort: Select second option (index 1) if multiple options exist
+                    const optionCount = await select.locator('option').count();
+                    if (optionCount > 1) {
+                        await select.selectOption({ index: 1 });
+                    }
+                }
+            }
 
             // Confirm place selection
             const confirmButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
