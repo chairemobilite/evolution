@@ -6,6 +6,7 @@
  */
 import { v4 as uuidV4 } from 'uuid';
 import _cloneDeep from 'lodash/cloneDeep';
+import _isEqual from 'lodash/isEqual';
 import { addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import * as SurveyActions from '../Survey';
@@ -158,6 +159,10 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true }, { ...valuesByPath }, false, testUser);
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
@@ -211,6 +216,10 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true, 'validations.section1.q1': true }, { ...valuesByPath }, false, testUser);
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
@@ -270,6 +279,10 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true, 'response.section2.q1': true }, { ...valuesByPath }, false, testUser);
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
@@ -346,6 +359,10 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true, 'response.section2.q1': true }, { ...valuesByPath }, false, testUser);
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
@@ -357,6 +374,81 @@ describe('Update interview', () => {
                 valuesByPath: { ...valuesByPath, 'validations.section1.q2': true, sectionLoaded: 'section' },
                 unsetPaths: ['response.section2.q1'],
                 userAction: { ...buttonClickUserAction, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ] }
+            })
+        }));
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: 'INCREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, {
+            type: 'UPDATE_INTERVIEW',
+            interviewLoaded: true,
+            interview: expectedInterviewAsState,
+            errors: {},
+            submitted: false
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: 'DECREMENT_LOADING_STATE'
+        });
+        expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
+    });
+
+    test('Call with a valuesByPath set to undefined', async () => {
+        // Prepare an interview with object data
+        const testInterview = _cloneDeep(interviewAttributes);
+        testInterview.response.group = {
+            obj1: { field1: 'value1', field2: 'value2' },
+            obj2: { field1: 'value3', field2: 'value4' }
+        }
+
+        // Prepare mock and test data, to remove the obj2 object
+        const updateCallback = jest.fn();
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
+        const valuesByPath = { 'response.group.obj2': undefined, 'response.group.obj1.field1': 'newValue' };
+        const expectedInterviewToPrepare = _cloneDeep(testInterview);
+        (expectedInterviewToPrepare.response as any).group = { obj1: { field1: 'newValue', field2: 'value2' } };
+
+        // Mock the prepareSectionWidgets to return some invisible widgets
+        const validatedInterview = _cloneDeep(expectedInterviewToPrepare);
+        validatedInterview.widgets = {};
+        validatedInterview.groups = {};
+        mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => {
+            return { updatedInterview: validatedInterview, updatedValuesByPath: { ... valuesByPath, 'validations.section1.q2': true }, needUpdate: false };
+        });
+        const expectedInterviewAsState = _cloneDeep(validatedInterview);
+        expectedInterviewAsState.sectionLoaded = 'section';
+
+        // Do the actual test
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: _cloneDeep(testInterview) }, updateCallback);
+        await callback(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        
+        // Extract the actual object argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
+        
+        // Verify the rest of the arguments separately
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith(
+            'section', 
+            expect.anything(), 
+            { 'response.group.obj2': true, 'response.group.obj1.field1': true }, 
+            { ...valuesByPath }, 
+            false, 
+            testUser
+        );
+        
+        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
+        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({
+                id: interviewAttributes.id,
+                interviewId: interviewAttributes.uuid,
+                participant_id: interviewAttributes.participant_id,
+                valuesByPath: { ...valuesByPath, 'validations.section1.q2': true, sectionLoaded: 'section' },
+                unsetPaths: ['response.group.obj2']
             })
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(3);
@@ -395,6 +487,10 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true }, { ...valuesByPath }, false, undefined);
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
@@ -445,7 +541,15 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(2);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true }, { ...valuesByPath }, false, testUser);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg2 = mockPrepareSectionWidgets.mock.calls[1][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg2, expectedInterviewAsState)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewAsState, { 'response.section1.q2': true }, { ...serverUpdatedValues }, true, testUser);
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
@@ -489,6 +593,10 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true }, { ...valuesByPath }, false, testUser);
         expect(fetchRetryMock).not.toHaveBeenCalled();
         expect(mockDispatch).toHaveBeenCalledTimes(2);
@@ -518,6 +626,10 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { 'response.section1.q1': true }, { ...valuesByPath }, false, testUser);
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledTimes(2);
@@ -546,6 +658,10 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, initialInterview)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', initialInterview, { '_all': true }, { ...valuesByPath }, false, testUser);
         expect(fetchRetryMock).not.toHaveBeenCalled();
 
@@ -608,7 +724,14 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(2);
-        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepareForCall1, { 'response.section1.q1': true, 'validations.section1.q1': true }, { ...valuesByPathCall1 }, false, testUser);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArgCall1 = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArgCall1, expectedInterviewToPrepareForCall1)).toBe(true);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepareForCall1, { 'response.section1.q1': true, 'validations.section1.q1': true }, { ...valuesByPathCall1 }, false, testUser);// Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArgCall2 = mockPrepareSectionWidgets.mock.calls[1][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArgCall2, expectedInterviewToPrepareForCall2)).toBe(true);
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepareForCall2, { 'response.section1.q2': true, 'validations.section1.q2': true }, { ...valuesByPathCall2 }, false, testUser);
         expect(fetchRetryMock).toHaveBeenCalledTimes(2);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({

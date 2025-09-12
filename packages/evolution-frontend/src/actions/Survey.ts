@@ -210,7 +210,11 @@ export const updateInterviewData = (
         for (const path in updatedData.valuesByPath) {
             if (path !== '_all') {
                 affectedPaths[path] = true;
-                _set(interview, path, updatedData.valuesByPath[path]);
+                if (updatedData.valuesByPath[path] === undefined) {
+                    _unset(interview, path);
+                } else {
+                    _set(interview, path, updatedData.valuesByPath[path]);
+                }
             }
         }
     }
