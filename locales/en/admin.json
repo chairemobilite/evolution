@@ -147,5 +147,6 @@
     "DownloadSurveyQuestionnaireListUnauthorized": "You are not authorized to download the survey questionnaire list"
   },
   "UnknownError": "An unknown error occurred. See console for logs or contact the administrators.",
-  "MissingUuidSurvey": "The interview UUID is missing. Please check the URL or contact support."
+  "MissingUuidSurvey": "The interview UUID is missing. Please check the URL or contact support.",
+  "FitBounds": "Fit bounds to show all places and trips"
 }
