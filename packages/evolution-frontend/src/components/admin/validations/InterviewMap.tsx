@@ -13,6 +13,7 @@ import { TileLayer } from '@deck.gl/geo-layers';
 import { IconLayer, BitmapLayer, PathLayer } from '@deck.gl/layers';
 import AnimatedArrowPathExtension from './AnimatedArrowPathLayerExtension';
 import * as VPAttr from 'evolution-common/lib/services/baseObjects/attributeTypes/VisitedPlaceAttributes';
+import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 
 export type SurveyMapPointProperties = {
     activity: VPAttr.Activity;
@@ -70,7 +71,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
         id: 'places',
         data: props.places.features,
         getIcon: (d) => ({
-            url: `/dist/images/activities_icons/${d.properties.activity || 'default'}_marker.svg`,
+            url: getActivityMarkerIcon(d.properties.activity),
             width: 256,
             height: 256,
             anchorY: 256
