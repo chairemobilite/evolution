@@ -1,22 +1,24 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright 2025, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { DefaultProps, Layer, LayerContext, LayerExtension } from '@deck.gl/core';
 
+import { DefaultProps, Layer, LayerContext, LayerExtension } from '@deck.gl/core';
 import type { ShaderModule } from '@luma.gl/shadertools';
 import { vec3 } from 'gl-matrix';
 
 const uniformBlock = `\
 uniform animatedArrowPathUniforms {
   float time;
+  float arrowSpacing;
 } animatedArrowPath;
 `;
 
 type AnimatedArrowPathProps = {
     time: number;
+    arrowSpacing: number;
 };
 
 const defaultProps: DefaultProps<_AnimatedArrowPathLayerProps> = {
@@ -26,6 +28,7 @@ const defaultProps: DefaultProps<_AnimatedArrowPathLayerProps> = {
 
 type _AnimatedArrowPathLayerProps = {
     time: number;
+    arrowSpacing: number;
     /**
      * Set to `true` to disable animation
      */
@@ -104,39 +107,41 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
             result[i] = result[i] / sumLength;
         }
         result.push(result[0]); // add last point again to make sure closed paths are handled
-        // for some reason, with closed loop paths, it seems the segments are drawn in reverse order or with an offset of 1 index
         return result;
     }
 
-    // TODO: investigate if using a global timer updated in the MainMap state and sent as prop would be better? I guess not, but we should benchmark at least.
     draw(this: Layer<_AnimatedArrowPathLayerProps>, _params: any, _extension: this) {
         const zoom = this.context.viewport?.zoom || 14;
 
-        // Use a non-linear interpolation to match the specified values
-        // For zoom 12 -> 0.5, zoom 14 -> 1.0, zoom 20 -> 15.0
-        // these values have been tested manually and give the best animation speed by zoom
         let zoomFactor;
-
-        if (zoom < 10) {
-            zoomFactor = 0.1;
-        } else if (zoom <= 12) {
-            // Linear from minZoom to zoom 12
-            zoomFactor = 0.5;
-        } else if (zoom <= 14) {
-            // Linear from zoom 12 to zoom 14
-            zoomFactor = 0.5 + ((zoom - 12) * (1.0 - 0.5)) / (14 - 12);
+        if (zoom <= 14) {
+            zoomFactor = 1.0;
         } else {
-            // Exponential from zoom 14 to zoom 20
-            const t = (zoom - 14) / (20 - 14);
-            zoomFactor = 1.0 + t * t * (15.0 - 1.0);
+            // This function gives the best approximation of a stable speed
+            zoomFactor = 0.0007 * Math.pow(zoom - 8, 4.0);
         }
+        // Calculate animation time with seamless reset
+        // Use a cycle that matches the arrow spacing to ensure seamless looping
+        const arrowSpacing = this.props.arrowSpacing || 30.0; // Configurable arrow spacing (f32)
 
+        // Calculate cycle duration to create seamless loops
+        // The cycle should complete exactly when one arrow spacing cycle finishes
+        const baseCycleDuration = 900; // Base 30 seconds
+        const seamlessCycleDuration = baseCycleDuration * arrowSpacing; // Adjust for arrow spacing pattern
+
+        const rawTime = (performance.now() / 100) % seamlessCycleDuration;
+        const normalizedTime = rawTime / seamlessCycleDuration;
+
+        // Scale the time to match the arrow pattern
+        const seamlessTime = this.props.disableAnimation ? 1 : normalizedTime * arrowSpacing;
         const animatedArrowProps: AnimatedArrowPathProps = {
-            time: this.props.disableAnimation ? 1 : (performance.now() % 10000) / (10000 * zoomFactor)
+            time: seamlessTime / zoomFactor,
+            arrowSpacing: arrowSpacing
         };
         (this.state.model as any)?.shaderInputs.setProps({ animatedArrowPath: animatedArrowProps });
     }
 
+    // See https://deck.gl/docs/developer-guide/custom-layers/picking for more information about picking colors
     getShaders(this: Layer<_AnimatedArrowPathLayerProps>) {
         const inject = {
             'vs:#decl': `
@@ -150,7 +155,7 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
             'vs:#main-end': `
                 vLengthRatio = instanceLengthRatios;
                 vStartOffsetRatio = instanceStartOffsetRatios;
-                vArrowPathOffset += ((animatedArrowPath.time) / 30.0) / width.x;
+                vArrowPathOffset += animatedArrowPath.time / width.x;
             `,
 
             'fs:#decl': `
@@ -166,18 +171,31 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
                 float totalLength = vPathLength / vLengthRatio;
                 float startDistance = vStartOffsetRatio * totalLength;
                 float distanceSoFar = startDistance + vPathPosition.y - offset + percentFromCenter;
-                float arrowIndex = mod(distanceSoFar, 30.0);
-                float percentOfDistanceBetweenArrows = 1.0 - arrowIndex / 30.0;
+                float arrowIndex = mod(distanceSoFar, animatedArrowPath.arrowSpacing);
+                float percentOfDistanceBetweenArrows = 1.0 - arrowIndex / animatedArrowPath.arrowSpacing;
                 
+                // Create white border effect on the edges
+                float borderWidth = 0.3; // Adjust this value to control border thickness
+                float borderFactor = smoothstep(1.0 - borderWidth, 1.0, percentFromCenter);
+                
+                vec3 finalColor;
                 if (percentOfDistanceBetweenArrows < 0.5) {
                     float percentBlack = percentOfDistanceBetweenArrows / 0.5 * 0.5;
-                    fragColor = vec4(mix(vColor.r, 0.0, percentBlack), mix(vColor.g, 0.0, percentBlack), mix(vColor.b, 0.0, percentBlack), 1.0);
+                    finalColor = mix(vColor.rgb, vec3(0.0), percentBlack);
                 } else if (percentOfDistanceBetweenArrows < 0.75) {
                     float percentWhite = (1.0 - (percentOfDistanceBetweenArrows - 0.5) * 4.0) * 0.75;
-                    fragColor = vec4(mix(vColor.r, 1.0, percentWhite), mix(vColor.g, 1.0, percentWhite), mix(vColor.b, 1.0, percentWhite), 1.0);
+                    finalColor = mix(vColor.rgb, vec3(1.0), percentWhite);
                 } else {
-                    fragColor = vec4(vColor.r, vColor.g, vColor.b, 1.0);
+                    finalColor = vColor.rgb;
                 }
+                
+                // Apply white border with antialiasing
+                finalColor = mix(finalColor, vec3(1.0), borderFactor);
+                
+                // Required for events to work with picking: Apply deck.gl picking color filtering
+                // This ensures that clicking works properly by allowing deck.gl to render picking colors
+                // when in picking mode, and our custom colors when in normal rendering mode
+                fragColor = picking_filterPickingColor(vec4(finalColor, 1.0));
             `
         };
         return {
@@ -187,7 +205,8 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
                     vs: uniformBlock,
                     fs: uniformBlock,
                     uniformTypes: {
-                        time: 'f32'
+                        time: 'f32',
+                        arrowSpacing: 'f32'
                     },
                     inject
                 } as ShaderModule<any>
