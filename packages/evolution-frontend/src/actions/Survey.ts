@@ -448,6 +448,7 @@ export const updateInterviewState = (
  * call this function.
  *
  * @param interview The interview to update
+ * @param interviewLoaded Whether the interview has been loaded
  * @returns
  */
 export const setInterviewState = (interview: UserRuntimeInterviewAttributes | undefined): SurveyAction => ({

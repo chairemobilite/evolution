@@ -12,12 +12,39 @@ import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { pointsToBezierCurve } from 'evolution-common/lib/services/geodata/SurveyGeographyUtils';
 
+/**
+ * Generates GeoJSON feature collections for places and trips from an interview,
+ * with deduplication of places that share the same activity type and coordinates.
+ *
+ * Deduplication is particularly important because home and usual places (work, school, etc.)
+ * are typically duplicated multiple times within a journey:
+ * - The home place appears both as "response.home" and as visited places in journeys
+ * - Usual places like work or school appear multiple times across different trips and journeys
+ * - Multiple household members may visit the same places
+ * Without deduplication, the map would show multiple overlapping markers for the same location.
+ *
+ * @param interview - The interview data containing survey responses
+ * @param options - Configuration options
+ * @param options.activePlacePath - Path to the currently active/selected place (e.g., "response.home" or "response.household.persons.uuid.journeys.uuid.visitedPlaces.uuid")
+ * @param options.activeTripUuid - UUID of the currently active/selected trip
+ *
+ * @returns An object containing:
+ * - `placesCollection`: GeoJSON FeatureCollection of Point features representing unique places
+ * - `tripsCollection`: GeoJSON FeatureCollection of LineString features representing trips as Bezier curves
+ * - `pathToUniqueKeyMap`: Map that maps original place paths to their deduplicated unique keys.
+ *   This is used to maintain selection state when places are deduplicated. For example:
+ *   - Original paths: "response.household.persons.A.journeys.1.visitedPlaces.X" and "response.household.persons.B.journeys.2.visitedPlaces.Y"
+ *   - If both represent the same activity at the same coordinates, they map to the same unique key: "workNotUsual_-73.12345_45.67890"
+ *   - Unique keys are formatted as: `${activity}_${roundedLng}_${roundedLat}` (coordinates rounded to 5 decimal places)
+ *   - This allows the UI to know which deduplicated place corresponds to the originally selected place path
+ */
 export const generateMapFeatureFromInterview = (
     interview: InterviewAttributes,
     { activePlacePath, activeTripUuid }: { activePlacePath?: string; activeTripUuid?: string }
 ): {
     placesCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
     tripsCollection: GeoJSON.FeatureCollection<GeoJSON.LineString>;
+    pathToUniqueKeyMap: Map<string, string>;
 } => {
     const placesCollection = {
         type: 'FeatureCollection' as const,
@@ -33,21 +60,19 @@ export const generateMapFeatureFromInterview = (
 
     const roundedCoordinatesPairsCount = {};
     const coordinatesByVisitedPlaceUuid = {};
-    // Add the home geography to the places
-    const homeGeography = response.home?.geography ? response.home.geography : null;
-    if (homeGeography) {
-        const path = 'response.home.geography.geometry.coordinates';
-        const place = {
-            type: 'Feature' as const,
-            geometry: homeGeography.geometry,
-            properties: {
-                path: path,
-                activity: 'home',
-                active: (path === activePlacePath).toString()
-            }
-        };
-        placesCollection.features.push(place);
-    }
+
+    // Map to track unique places by activity and coordinates
+    const uniquePlacesMap = new Map<
+        string,
+        {
+            place: any;
+            paths: string[];
+            isAnyActive: boolean;
+        }
+    >();
+
+    // Map from original path to unique key for selection mapping
+    const pathToUniqueKeyMap = new Map<string, string>();
 
     // Add the visited places and trips to the places and trips collections for each person
     for (const person of persons) {
@@ -60,30 +85,50 @@ export const generateMapFeatureFromInterview = (
 
             // Add the visited places to the places collection
             for (const visitedPlace of visitedPlaces) {
-                const visitedPlacePath = `${personPath}.visitedPlaces.${visitedPlace._uuid}`;
+                const visitedPlacePath = `${personPath}.journeys.${journey._uuid}.visitedPlaces.${visitedPlace._uuid}`;
                 const geography = odSurveyHelper.getVisitedPlaceGeography({ visitedPlace, interview, person });
 
                 if (geography) {
                     const coordinates = _get(geography, 'geometry.coordinates', null);
-                    const path = `${visitedPlacePath}.geography.geometry.coordinates`;
                     coordinatesByVisitedPlaceUuid[visitedPlace._uuid] = coordinates;
 
-                    // Do not re-add home location
-                    if (visitedPlace.activity !== 'home') {
+                    const isActive = visitedPlacePath === activePlacePath;
+
+                    // Create unique key based on activity and rounded coordinates
+                    if (!coordinates) continue; // Skip if no coordinates
+                    const roundedLng = Math.round(coordinates[0] * 100000) / 100000;
+                    const roundedLat = Math.round(coordinates[1] * 100000) / 100000;
+                    const uniqueKey = `${visitedPlace.activity}_${roundedLng}_${roundedLat}`;
+
+                    // Map this path to the unique key
+                    pathToUniqueKeyMap.set(visitedPlacePath, uniqueKey);
+
+                    if (uniquePlacesMap.has(uniqueKey)) {
+                        // Add path to existing entry and update active state
+                        const existingEntry = uniquePlacesMap.get(uniqueKey)!;
+                        existingEntry.paths.push(visitedPlacePath);
+                        existingEntry.isAnyActive = existingEntry.isAnyActive || isActive;
+                    } else {
+                        // Create new entry
                         const place = {
                             type: 'Feature' as const,
                             geometry: geography.geometry,
                             properties: {
-                                path,
+                                path: visitedPlacePath, // Use visited place path, not coordinates path
                                 activity: visitedPlace.activity,
                                 lastAction: _get(visitedPlace, 'geography.properties.lastAction', '?'),
-                                active: (path === activePlacePath).toString(),
+                                active: isActive,
                                 name: visitedPlace.name,
                                 personUuid: person._uuid,
                                 visitedPlaceUuid: visitedPlace._uuid
                             }
                         };
-                        placesCollection.features.push(place);
+
+                        uniquePlacesMap.set(uniqueKey, {
+                            place,
+                            paths: [visitedPlacePath],
+                            isAnyActive: isActive
+                        });
                     }
                 }
             }
@@ -127,27 +172,58 @@ export const generateMapFeatureFromInterview = (
                         }
                     );
 
-                    // FIXME Add some more trip properties
-                    /*tripCurve.properties = {
-                        birdDistance: distance,
-                        startAt: secondsSinceMidnightToTimeStr(surveyProjectHelper.getStartAt(trip, visitedPlaces)),
-                        endAt: secondsSinceMidnightToTimeStr(surveyProjectHelper.getEndAt(trip, visitedPlaces)),
-                        durationSec: duration,
-                        durationMin: duration / 60,
-                        birdSpeedMps: birdSpeedMps,
-                        birdSpeedKmh: birdSpeedMps * 3.6,
-                        modes: Object.values(trip && trip.segments ? trip.segments : {}).map(function (segment) {
-                            return segment.mode;
-                        }),
-                        segmentUuids: Object.keys(trip && trip.segments ? trip.segments : {}),
-                        sequence: trip._sequence,
-                        bearing,
-                    };*/
                     tripsCollection.features.push(tripCurve);
                 }
             }
         }
     }
 
-    return { placesCollection, tripsCollection };
+    // Add the main home geography (will be deduplicated if there are home visited places)
+    const homeGeography = response.home?.geography ? response.home.geography : null;
+    if (homeGeography) {
+        const homePath = 'response.home';
+        const isHomeActive = homePath === activePlacePath;
+
+        // Create unique key for home place
+        const coordinates = homeGeography.geometry.coordinates;
+        const roundedLng = Math.round(coordinates[0] * 100000) / 100000;
+        const roundedLat = Math.round(coordinates[1] * 100000) / 100000;
+        const uniqueKey = `home_${roundedLng}_${roundedLat}`;
+
+        // Map this path to the unique key
+        pathToUniqueKeyMap.set(homePath, uniqueKey);
+
+        if (uniquePlacesMap.has(uniqueKey)) {
+            // Add path to existing entry and update active state
+            const existingEntry = uniquePlacesMap.get(uniqueKey)!;
+            existingEntry.paths.push(homePath);
+            existingEntry.isAnyActive = existingEntry.isAnyActive || isHomeActive;
+        } else {
+            // Create new entry
+            const place = {
+                type: 'Feature' as const,
+                geometry: homeGeography.geometry,
+                properties: {
+                    path: homePath,
+                    activity: 'home',
+                    active: isHomeActive
+                }
+            };
+
+            uniquePlacesMap.set(uniqueKey, {
+                place,
+                paths: [homePath],
+                isAnyActive: isHomeActive
+            });
+        }
+    }
+
+    // Add deduplicated places to the collection
+    for (const [, entry] of uniquePlacesMap) {
+        // Update the active state based on whether any duplicate is active
+        entry.place.properties.active = entry.isAnyActive;
+        placesCollection.features.push(entry.place);
+    }
+
+    return { placesCollection, tripsCollection, pathToUniqueKeyMap };
 };
