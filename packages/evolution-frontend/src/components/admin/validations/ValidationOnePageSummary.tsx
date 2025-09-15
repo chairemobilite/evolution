@@ -22,8 +22,19 @@ import { InterviewStatsProps } from './InterviewStats';
 import { StartUpdateInterview } from 'evolution-common/lib/services/questionnaire/types';
 
 const ValidationOnePageSummary = () => {
-    const [activePlacePath, setActivePlacePath] = React.useState<string | undefined>(undefined);
+    // We need two separate place paths because of deduplication:
+    // - activeMapPlacePath: Controls which icon is enlarged on the map (uses representative path for deduplicated places)
+    // - activeStatsPlacePath: Controls which visited place is highlighted in stats (uses the actual clicked path)
+    // This allows clicking on any duplicate visited place to highlight that specific entry in stats
+    // while still properly activating the single deduplicated icon on the map
+    const [activeMapPlacePath, setActiveMapPlacePath] = React.useState<string | undefined>(undefined);
+    const [activeStatsPlacePath, setActiveStatsPlacePath] = React.useState<string | undefined>(undefined);
     const [activeTripUuid, setActiveTripUuid] = React.useState<string | undefined>(undefined);
+
+    // Debug wrapper for setActiveTripUuid
+    const setActiveTripUuidWithDebug = (tripUuid: string | undefined) => {
+        setActiveTripUuid(tripUuid);
+    };
     const [InterviewStats, setInterviewStats] = useState<React.ComponentType<InterviewStatsProps> | null>(null);
     const [InterviewMap, setInterviewMap] = useState<React.ComponentType<InterviewMapProps> | null>(null);
 
@@ -50,15 +61,60 @@ const ValidationOnePageSummary = () => {
         loadComponents();
     }, []);
 
+    // Generate map features with current selection state - regenerate when selection changes
+    const { placesCollection, tripsCollection, pathToUniqueKeyMap } = React.useMemo(() => {
+        if (!interview)
+            return {
+                placesCollection: { type: 'FeatureCollection' as const, features: [] },
+                tripsCollection: { type: 'FeatureCollection' as const, features: [] },
+                pathToUniqueKeyMap: new Map()
+            };
+
+        if (appConfig.generateMapFeatures && interview?.surveyObjectsAndAudits) {
+            const result = appConfig.generateMapFeatures(interview.surveyObjectsAndAudits);
+            return { ...result, pathToUniqueKeyMap: new Map() }; // Custom generators don't have mapping yet
+        } else {
+            const result = generateMapFeatureFromInterview(interview, {
+                activePlacePath: activeMapPlacePath,
+                activeTripUuid
+            });
+            return result;
+        }
+    }, [interview, activeMapPlacePath, activeTripUuid, interview?.updateCount]);
+
+    // Smart place selection function that maps visited place paths to unique icons
+    const selectPlaceWithMapping = React.useCallback(
+        (placePath: string | undefined) => {
+            if (!placePath) {
+                setActiveMapPlacePath(undefined);
+                setActiveStatsPlacePath(undefined);
+                return;
+            }
+
+            // Always set the clicked path for stats display
+            setActiveStatsPlacePath(placePath);
+
+            // Try to find the unique key for this path
+            const uniqueKey = pathToUniqueKeyMap.get(placePath);
+            if (uniqueKey) {
+                // Find the first path that maps to this unique key (the representative path for the icon)
+                for (const [path, key] of pathToUniqueKeyMap) {
+                    if (key === uniqueKey) {
+                        setActiveMapPlacePath(path);
+                        return;
+                    }
+                }
+            }
+
+            // Fallback: use the original path if no mapping found
+            setActiveMapPlacePath(placePath);
+        },
+        [pathToUniqueKeyMap]
+    );
+
     if (!InterviewStats || !InterviewMap || !user) {
         return <LoadingPage />;
     }
-
-    // FIXME The generateMapFeatures should return points with the type requested by the map component
-    const { placesCollection, tripsCollection } =
-        appConfig.generateMapFeatures && interview?.surveyObjectsAndAudits
-            ? appConfig.generateMapFeatures(interview.surveyObjectsAndAudits)
-            : generateMapFeatureFromInterview(interview, { activePlacePath, activeTripUuid });
 
     const mapCenter =
         placesCollection.features.length > 0
@@ -76,6 +132,10 @@ const ValidationOnePageSummary = () => {
                                 trips={tripsCollection as any}
                                 center={mapCenter}
                                 updateCount={interview.updateCount}
+                                activeTripUuid={activeTripUuid}
+                                activePlacePath={activeMapPlacePath}
+                                onTripClick={setActiveTripUuidWithDebug}
+                                onPlaceClick={selectPlaceWithMapping}
                             />
                         </AdminErrorBoundary>
                     </div>
@@ -83,12 +143,11 @@ const ValidationOnePageSummary = () => {
                         {
                             <AdminErrorBoundary>
                                 <InterviewStats
-                                    key={interview.id}
-                                    selectPlace={setActivePlacePath}
-                                    selectTrip={setActiveTripUuid}
+                                    selectPlace={selectPlaceWithMapping}
+                                    selectTrip={setActiveTripUuidWithDebug}
                                     activeTripUuid={activeTripUuid}
                                     interview={interview}
-                                    activePlacePath={activePlacePath}
+                                    activePlacePath={activeStatsPlacePath}
                                     user={user}
                                     startUpdateInterview={startUpdateInterview}
                                 />

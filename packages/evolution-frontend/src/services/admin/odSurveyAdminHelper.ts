@@ -18,6 +18,7 @@ export const generateMapFeatureFromInterview = (
 ): {
     placesCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
     tripsCollection: GeoJSON.FeatureCollection<GeoJSON.LineString>;
+    pathToUniqueKeyMap: Map<string, string>;
 } => {
     const placesCollection = {
         type: 'FeatureCollection' as const,
@@ -33,21 +34,19 @@ export const generateMapFeatureFromInterview = (
 
     const roundedCoordinatesPairsCount = {};
     const coordinatesByVisitedPlaceUuid = {};
-    // Add the home geography to the places
-    const homeGeography = response.home?.geography ? response.home.geography : null;
-    if (homeGeography) {
-        const path = 'response.home.geography.geometry.coordinates';
-        const place = {
-            type: 'Feature' as const,
-            geometry: homeGeography.geometry,
-            properties: {
-                path: path,
-                activity: 'home',
-                active: (path === activePlacePath).toString()
-            }
-        };
-        placesCollection.features.push(place);
-    }
+
+    // Map to track unique places by activity and coordinates
+    const uniquePlacesMap = new Map<
+        string,
+        {
+            place: any;
+            paths: string[];
+            isAnyActive: boolean;
+        }
+    >();
+
+    // Map from original path to unique key for selection mapping
+    const pathToUniqueKeyMap = new Map<string, string>();
 
     // Add the visited places and trips to the places and trips collections for each person
     for (const person of persons) {
@@ -65,25 +64,45 @@ export const generateMapFeatureFromInterview = (
 
                 if (geography) {
                     const coordinates = _get(geography, 'geometry.coordinates', null);
-                    const path = `${visitedPlacePath}.geography.geometry.coordinates`;
                     coordinatesByVisitedPlaceUuid[visitedPlace._uuid] = coordinates;
 
-                    // Do not re-add home location
-                    if (visitedPlace.activity !== 'home') {
+                    const isActive = visitedPlacePath === activePlacePath;
+
+                    // Create unique key based on activity and rounded coordinates
+                    if (!coordinates) continue; // Skip if no coordinates
+                    const roundedLng = Math.round(coordinates[0] * 100000) / 100000;
+                    const roundedLat = Math.round(coordinates[1] * 100000) / 100000;
+                    const uniqueKey = `${visitedPlace.activity}_${roundedLng}_${roundedLat}`;
+
+                    // Map this path to the unique key
+                    pathToUniqueKeyMap.set(visitedPlacePath, uniqueKey);
+
+                    if (uniquePlacesMap.has(uniqueKey)) {
+                        // Add path to existing entry and update active state
+                        const existingEntry = uniquePlacesMap.get(uniqueKey)!;
+                        existingEntry.paths.push(visitedPlacePath);
+                        existingEntry.isAnyActive = existingEntry.isAnyActive || isActive;
+                    } else {
+                        // Create new entry
                         const place = {
                             type: 'Feature' as const,
                             geometry: geography.geometry,
                             properties: {
-                                path,
+                                path: visitedPlacePath, // Use visited place path, not coordinates path
                                 activity: visitedPlace.activity,
                                 lastAction: _get(visitedPlace, 'geography.properties.lastAction', '?'),
-                                active: (path === activePlacePath).toString(),
+                                active: isActive,
                                 name: visitedPlace.name,
                                 personUuid: person._uuid,
                                 visitedPlaceUuid: visitedPlace._uuid
                             }
                         };
-                        placesCollection.features.push(place);
+
+                        uniquePlacesMap.set(uniqueKey, {
+                            place,
+                            paths: [visitedPlacePath],
+                            isAnyActive: isActive
+                        });
                     }
                 }
             }
@@ -127,27 +146,58 @@ export const generateMapFeatureFromInterview = (
                         }
                     );
 
-                    // FIXME Add some more trip properties
-                    /*tripCurve.properties = {
-                        birdDistance: distance,
-                        startAt: secondsSinceMidnightToTimeStr(surveyProjectHelper.getStartAt(trip, visitedPlaces)),
-                        endAt: secondsSinceMidnightToTimeStr(surveyProjectHelper.getEndAt(trip, visitedPlaces)),
-                        durationSec: duration,
-                        durationMin: duration / 60,
-                        birdSpeedMps: birdSpeedMps,
-                        birdSpeedKmh: birdSpeedMps * 3.6,
-                        modes: Object.values(trip && trip.segments ? trip.segments : {}).map(function (segment) {
-                            return segment.mode;
-                        }),
-                        segmentUuids: Object.keys(trip && trip.segments ? trip.segments : {}),
-                        sequence: trip._sequence,
-                        bearing,
-                    };*/
                     tripsCollection.features.push(tripCurve);
                 }
             }
         }
     }
 
-    return { placesCollection, tripsCollection };
+    // Add the main home geography (will be deduplicated if there are home visited places)
+    const homeGeography = response.home?.geography ? response.home.geography : null;
+    if (homeGeography) {
+        const homePath = 'response.home';
+        const isHomeActive = homePath === activePlacePath;
+
+        // Create unique key for home place
+        const coordinates = homeGeography.geometry.coordinates;
+        const roundedLng = Math.round(coordinates[0] * 100000) / 100000;
+        const roundedLat = Math.round(coordinates[1] * 100000) / 100000;
+        const uniqueKey = `home_${roundedLng}_${roundedLat}`;
+
+        // Map this path to the unique key
+        pathToUniqueKeyMap.set(homePath, uniqueKey);
+
+        if (uniquePlacesMap.has(uniqueKey)) {
+            // Add path to existing entry and update active state
+            const existingEntry = uniquePlacesMap.get(uniqueKey)!;
+            existingEntry.paths.push(homePath);
+            existingEntry.isAnyActive = existingEntry.isAnyActive || isHomeActive;
+        } else {
+            // Create new entry
+            const place = {
+                type: 'Feature' as const,
+                geometry: homeGeography.geometry,
+                properties: {
+                    path: homePath,
+                    activity: 'home',
+                    active: isHomeActive
+                }
+            };
+
+            uniquePlacesMap.set(uniqueKey, {
+                place,
+                paths: [homePath],
+                isAnyActive: isHomeActive
+            });
+        }
+    }
+
+    // Add deduplicated places to the collection
+    for (const [, entry] of uniquePlacesMap) {
+        // Update the active state based on whether any duplicate is active
+        entry.place.properties.active = entry.isAnyActive;
+        placesCollection.features.push(entry.place);
+    }
+
+    return { placesCollection, tripsCollection, pathToUniqueKeyMap };
 };
