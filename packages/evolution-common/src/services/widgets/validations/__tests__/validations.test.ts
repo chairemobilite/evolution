@@ -169,6 +169,13 @@ describe('phoneValidation', () => {
         // Valid formats with spaces
         '223 456 7890',
         '999 999 9999',
+        // Valid format with spaces and dashes
+        '223- 456- 7890',
+        '  223 - 456 - 7890 ',
+        '223\t\t456\t7890\t',  // tabs
+        '223\u00A0456\u00A0\u00A07890\u00A0', // nbsp
+        '\u202F223\u202F456\u202F\u202F7890\u202F', // narrow nbsp
+        '\u2009223\u2009456\u2009\u20097890\u2009', // thin nbsp
         // Valid formats without separators
         '2234567890',
         '9999999999',
@@ -205,6 +212,11 @@ describe('phoneValidation', () => {
         '+86 138 2639 5248', // China mobile number
         '+234 8034 123 4567', // Nigeria (Africa) number with 14 digits
         '+27 87 135 4489', // South Africa number
+        '+44   20  7946  0958  ', // UK number with many separators
+        '+44\t\t20\t7946\t0958\t', // UK number with tabs
+        '+44\u00A020\u00A07946\u00A00958\u00A0', // UK number with nbsp
+        '\u202F+44\u202F20\u202F7946\u202F0958\u202F', // UK number with narrow spaces
+        '\u2009+44\u200920\u20097946\u20090958\u2009', // UK number with thin spaces
     ])('should return no validation errors for valid international phone number: %s', (phoneNumber) => {
         const result = validations.phoneValidation(phoneNumber, undefined, {} as any, 'phoneNumber');
         // For valid phone numbers, the validation property should be false

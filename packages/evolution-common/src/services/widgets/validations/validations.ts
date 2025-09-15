@@ -307,7 +307,9 @@ const validateNorthAmericanOrInternationalPhoneNumber = (phoneNumber: string) =>
 export const phoneValidation: ValidationFunction = (value) => {
     return [
         {
-            validation: !_isBlank(value) && !validateNorthAmericanOrInternationalPhoneNumber(String(value)),
+            // Trim and remove all whitespace characters (spaces, tabs, non-breaking spaces, etc.) before validating
+            validation:
+                !_isBlank(value) && !validateNorthAmericanOrInternationalPhoneNumber(String(value).replace(/\s+/g, '')),
             errorMessage: (t) => t('survey:errors:phoneNumberInvalid')
         }
     ];
