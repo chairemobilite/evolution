@@ -89,16 +89,23 @@ const updateSurveyCorrectedInterview = async (
         const sectionShortname = requestedSectionShortname
             ? requestedSectionShortname
             : navigation?.currentSection?.sectionShortname || '';
-        //if (sectionShortname !== previousSection) // need to update all widgets if new section
-        //{
-        //  affectedPaths['_all'] = true;
-        //}
-        const [updatedInterview, updatedValuesByPath] = validateAndPrepareSection(
-            sectionShortname,
-            interview as UserRuntimeInterviewAttributes,
-            affectedPaths,
-            valuesByPath as { [path: string]: unknown }
-        );
+
+        // Skip section validation for admin interface - we don't need widget preparation
+        let updatedInterview: UserRuntimeInterviewAttributes;
+        let updatedValuesByPath: { [path: string]: unknown };
+        if (!sectionShortname) {
+            // For admin interface, just update the interview data without section validation
+            updatedInterview = interview as UserRuntimeInterviewAttributes;
+            updatedValuesByPath = valuesByPath as { [path: string]: unknown };
+        } else {
+            // For regular survey sections, use the full validation
+            [updatedInterview, updatedValuesByPath] = validateAndPrepareSection(
+                sectionShortname,
+                interview as UserRuntimeInterviewAttributes,
+                affectedPaths,
+                valuesByPath as { [path: string]: unknown }
+            );
+        }
 
         if (!updatedInterview.sectionLoaded || updatedInterview.sectionLoaded !== sectionShortname) {
             updatedValuesByPath['sectionLoaded'] = sectionShortname;
