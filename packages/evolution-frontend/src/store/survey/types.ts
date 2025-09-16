@@ -18,7 +18,7 @@ export enum SurveyActionTypes {
 export type SurveyAction =
     | {
           type: SurveyActionTypes.SET_INTERVIEW;
-          interview: UserRuntimeInterviewAttributes;
+          interview: UserRuntimeInterviewAttributes | undefined;
           interviewLoaded: boolean;
       }
     | {
