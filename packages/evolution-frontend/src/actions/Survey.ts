@@ -450,10 +450,10 @@ export const updateInterviewState = (
  * @param interview The interview to update
  * @returns
  */
-export const setInterviewState = (interview: UserRuntimeInterviewAttributes): SurveyAction => ({
+export const setInterviewState = (interview: UserRuntimeInterviewAttributes | undefined): SurveyAction => ({
     type: SurveyActionTypes.SET_INTERVIEW,
     interview,
-    interviewLoaded: true
+    interviewLoaded: interview !== undefined
 });
 
 /**

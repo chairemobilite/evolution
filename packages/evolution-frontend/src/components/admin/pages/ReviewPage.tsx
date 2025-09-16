@@ -13,6 +13,7 @@ import { ThunkDispatch } from 'redux-thunk';
 
 import InterviewSummary from '../validations/InterviewSummary';
 import { startSetSurveyCorrectedInterview } from '../../../actions/SurveyAdmin';
+import { setInterviewState } from '../../../actions/Survey';
 import InterviewListComponent from '../validations/InterviewListComponent';
 import { RootState } from '../../../store/configureStore';
 import { SurveyAction } from '../../../store/survey';
@@ -49,12 +50,12 @@ const ReviewPage = () => {
                     })
                 );
             } else {
-                // FIXME This does not deactivate the current interview. It is
-                // still opened. This may have worked before, but not anymore.
-                // We should have a way in the admin to reset the current
-                // interview in the redux state.
+                // Close button clicked - clear the interview and show the list
+                setShowInterviewList(true);
                 setPrevInterviewUuid(undefined);
                 setNextInterviewUuid(undefined);
+                // Clear the current interview from Redux state
+                dispatch(setInterviewState(undefined));
             }
         },
         [dispatch]
