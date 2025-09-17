@@ -11,6 +11,10 @@ const baseConfig = require('../../tests/jest.config.base');
 
 module.exports = {
     ...baseConfig,
+    setupFilesAfterEnv: [
+        ...baseConfig.setupFilesAfterEnv,
+        './jestSetup.ts'
+    ],
     'testPathIgnorePatterns': ['(/__tests__/.*(db\\.test)\\.(jsx?|tsx?))$'],
 };
 
