@@ -96,7 +96,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
             const visitedPlaceErrors = emptyErrorResults;
 
             const visitedPlaceId = visitedPlace._uuid;
-            const visitedPlacePath = `response.household.persons.${personId}.visitedPlaces.${visitedPlaceId}`;
+            const visitedPlacePath = `response.household.persons.${personId}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaceId}`;
             const visitedPlaceStats = (
                 <div className="" key={visitedPlaceId} onClick={() => props.selectPlace(visitedPlacePath)}>
                     <span className={`_widget${props.activePlacePath === visitedPlacePath ? ' _active' : ''}`}>
