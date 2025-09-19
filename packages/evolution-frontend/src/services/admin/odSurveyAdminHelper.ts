@@ -59,7 +59,7 @@ export const generateMapFeatureFromInterview = (
 
             // Add the visited places to the places collection
             for (const visitedPlace of visitedPlaces) {
-                const visitedPlacePath = `${personPath}.visitedPlaces.${visitedPlace._uuid}`;
+                const visitedPlacePath = `${personPath}.journeys.${journey._uuid}.visitedPlaces.${visitedPlace._uuid}`;
                 const geography = odSurveyHelper.getVisitedPlaceGeography({ visitedPlace, interview, person });
 
                 if (geography) {

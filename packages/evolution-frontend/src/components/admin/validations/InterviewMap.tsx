@@ -19,6 +19,7 @@ import AnimatedArrowPathExtension from './AnimatedArrowPathExtension';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons/faLocationDot';
+import { faRotateLeft } from '@fortawesome/free-solid-svg-icons/faRotateLeft';
 
 /**
  * DeckGL Overlay Control Component for Animated Trip Paths
@@ -72,6 +73,7 @@ export type InterviewMapProps = {
     activePlacePath?: string;
     onTripClick?: (tripUuid: string) => void;
     onPlaceClick?: (placePath: string) => void;
+    onPlaceDrag?: (placePath: string, newCoordinates: [number, number]) => void;
 };
 
 /**
@@ -86,6 +88,23 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
         latitude: props.center ? props.center[1] : config.mapDefaultCenter.lat,
         zoom: 13
     });
+
+    // Drag state
+    const [draggedMarker, setDraggedMarker] = useState<{
+        placePath: string;
+        originalCoordinates: [number, number];
+        currentCoordinates: [number, number];
+    } | null>(null);
+
+    // Drag history for undo functionality
+    const [dragHistory, setDragHistory] = useState<
+        Array<{
+            placePath: string;
+            originalCoordinates: [number, number];
+            newCoordinates: [number, number];
+            timestamp: number;
+        }>
+    >([]);
 
     /**
      * Calculate icon size based on zoom level and active state
@@ -113,6 +132,83 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
      * Track whether places layer has been created to trigger deck layer updates
      */
     const [placesLayerReady, setPlacesLayerReady] = useState(false);
+
+    /**
+     * Clear drag history when interview changes
+     */
+    useEffect(() => {
+        setDragHistory([]);
+    }, [props.updateCount]);
+
+    /**
+     * Handle marker drag start
+     */
+    const onMarkerDragStart = (placePath: string, coordinates: [number, number]) => {
+        // Note: We don't clear drag history here - it persists across multiple drags
+        // History is only cleared when interview changes or component unmounts
+        setDraggedMarker({
+            placePath,
+            originalCoordinates: coordinates,
+            currentCoordinates: coordinates
+        });
+    };
+
+    /**
+     * Handle marker drag
+     */
+    const onMarkerDrag = (placePath: string, coordinates: [number, number]) => {
+        if (draggedMarker && draggedMarker.placePath === placePath) {
+            setDraggedMarker({
+                ...draggedMarker,
+                currentCoordinates: coordinates
+            });
+        }
+    };
+
+    /**
+     * Handle marker drag end
+     */
+    const onMarkerDragEnd = (placePath: string, coordinates: [number, number]) => {
+        if (draggedMarker) {
+            const moved =
+                draggedMarker.originalCoordinates[0] !== coordinates[0] ||
+                draggedMarker.originalCoordinates[1] !== coordinates[1];
+
+            if (moved) {
+                // Add to drag history
+                setDragHistory((prev) => [
+                    ...prev,
+                    {
+                        placePath: draggedMarker.placePath,
+                        originalCoordinates: draggedMarker.originalCoordinates,
+                        newCoordinates: coordinates,
+                        timestamp: Date.now()
+                    }
+                ]);
+                // Call the parent's onPlaceDrag callback to update coordinates
+                if (props.onPlaceDrag) {
+                    props.onPlaceDrag(placePath, coordinates);
+                }
+            }
+        }
+        setDraggedMarker(null);
+    };
+
+    /**
+     * Handle undo last drag operation
+     */
+    const onUndoLastDrag = () => {
+        if (dragHistory.length > 0 && props.onPlaceDrag) {
+            // Get the last drag operation
+            const lastDrag = dragHistory[dragHistory.length - 1];
+
+            // Revert to original coordinates
+            props.onPlaceDrag(lastDrag.placePath, lastDrag.originalCoordinates);
+
+            // Remove the last operation from history
+            setDragHistory((prev) => prev.slice(0, -1));
+        }
+    };
 
     /**
      * Get trip color for deck.gl PathLayer
@@ -286,14 +382,25 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
 
                     const iconSize = getIconSize(active || false, viewState.zoom);
 
+                    // Use dragged coordinates if this marker is being dragged
+                    const displayCoordinates =
+                        draggedMarker && draggedMarker.placePath === placePath
+                            ? draggedMarker.currentCoordinates
+                            : coordinates;
+
                     return (
                         <Marker
                             key={`place-marker-${index}-${placePath}-${viewState.zoom}`}
-                            longitude={coordinates[0]}
-                            latitude={coordinates[1]}
+                            longitude={displayCoordinates[0]}
+                            latitude={displayCoordinates[1]}
                             anchor="bottom"
                             offset={[0, 4]}
+                            draggable={true}
+                            onDragStart={() => placePath && onMarkerDragStart(placePath, coordinates)}
+                            onDrag={(e) => placePath && onMarkerDrag(placePath, [e.lngLat.lng, e.lngLat.lat])}
+                            onDragEnd={(e) => placePath && onMarkerDragEnd(placePath, [e.lngLat.lng, e.lngLat.lat])}
                             onClick={(e) => {
+                                console.log('info', e, placePath);
                                 e.originalEvent.stopPropagation();
                                 if (placePath && props.onPlaceClick) {
                                     props.onPlaceClick(placePath);
@@ -306,9 +413,11 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                                 style={{
                                     width: `${iconSize}px`,
                                     height: `${iconSize}px`,
-                                    cursor: 'pointer',
+                                    cursor:
+                                        draggedMarker && draggedMarker.placePath === placePath ? 'grabbing' : 'grab',
                                     transition: 'width 0.1s ease, height 0.1s ease',
                                     filter: 'drop-shadow(1px 0px 0px white) drop-shadow(-1px 0px 0px white) drop-shadow(0px 1px 0px white) drop-shadow(0px -1px 0px white)',
+                                    opacity: draggedMarker && draggedMarker.placePath === placePath ? 0.7 : 1,
                                     pointerEvents: 'none'
                                 }}
                             />
@@ -320,6 +429,40 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                 <DeckGLControl layers={deckLayers} activeTripUuid={props.activeTripUuid} />
             </Map>
             <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 1000 }}>
+                {/* Undo button - visible when there are drag operations to undo */}
+                {dragHistory.length > 0 && (
+                    <button
+                        onClick={onUndoLastDrag}
+                        style={{
+                            padding: '8px 12px',
+                            backgroundColor: '#ff4444',
+                            borderRadius: '4px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '40px',
+                            height: '40px',
+                            fontSize: '14px',
+                            color: '#fff',
+                            marginBottom: '10px',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                            gap: '4px'
+                        }}
+                        title={t(
+                            'admin:UndoDrag',
+                            `Undo last drag operation (${dragHistory.length} operation${dragHistory.length !== 1 ? 's' : ''} to undo)`
+                        )}
+                    >
+                        <FontAwesomeIcon icon={faRotateLeft} />
+                        {dragHistory.length > 1 && (
+                            <span style={{ fontSize: '12px', fontWeight: 'bold' }}>{dragHistory.length}</span>
+                        )}
+                    </button>
+                )}
+
+                {/* Fit bounds button */}
                 <button
                     onClick={fitBounds}
                     style={{

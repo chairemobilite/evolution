@@ -112,6 +112,60 @@ const ValidationOnePageSummary = () => {
         [pathToUniqueKeyMap]
     );
 
+    /**
+     * Handle place drag to update coordinates in interview data using valuesByPath
+     */
+    const handlePlaceDrag = React.useCallback(
+        (placePath: string, newCoordinates: [number, number]) => {
+            try {
+                // Find the visited place to determine its activity type
+                const visitedPlace = placesCollection.features.find(
+                    (feature) => feature.properties?.path === placePath
+                );
+                const activity = visitedPlace?.properties?.activity;
+
+                let updatePath: string;
+
+                if (activity === 'home') {
+                    // Home places: update response.home.geography.geometry.coordinates
+                    updatePath = 'response.home.geography.geometry.coordinates';
+                } else if (activity === 'workUsual') {
+                    // Usual work places: update person.usualWorkPlace.geography.geometry.coordinates
+                    const pathParts = placePath.split('.');
+                    const personUuid = pathParts[3];
+                    updatePath = `response.household.persons.${personUuid}.usualWorkPlace.geography.geometry.coordinates`;
+                } else if (activity === 'schoolUsual') {
+                    // Usual school places: update person.usualSchoolPlace.geography.geometry.coordinates
+                    const pathParts = placePath.split('.');
+                    const personUuid = pathParts[3];
+                    updatePath = `response.household.persons.${personUuid}.usualSchoolPlace.geography.geometry.coordinates`;
+                } else {
+                    // Regular visited places: update visitedPlace.geography.geometry.coordinates
+                    updatePath = placePath + '.geography.geometry.coordinates';
+                }
+
+                console.log('🎯 Updating coordinates for activity:', activity, 'at path:', updatePath);
+
+                // Update using valuesByPath - only update coordinates to preserve other properties
+                startUpdateInterview(
+                    {
+                        valuesByPath: {
+                            [updatePath]: newCoordinates
+                        }
+                    },
+                    (interview) => {
+                        if (!interview) {
+                            console.error('❌ Failed to update place coordinates');
+                        }
+                    }
+                );
+            } catch (error) {
+                console.error('❌ Error updating place coordinates:', error);
+            }
+        },
+        [startUpdateInterview, placesCollection]
+    );
+
     if (!InterviewStats || !InterviewMap || !user) {
         return <LoadingPage />;
     }
@@ -136,6 +190,7 @@ const ValidationOnePageSummary = () => {
                                 activePlacePath={activeMapPlacePath}
                                 onTripClick={setActiveTripUuidWithDebug}
                                 onPlaceClick={selectPlaceWithMapping}
+                                onPlaceDrag={handlePlaceDrag}
                             />
                         </AdminErrorBoundary>
                     </div>
