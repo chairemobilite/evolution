@@ -38,7 +38,7 @@ describe('Organization', () => {
     const extendedAttributes: ExtendedOrganizationAttributes = {
         ...validAttributes,
         customAttribute: 'Custom Value',
-        vehicles: [
+        _vehicles: [
             {
                 _uuid: uuidV4(),
                 make: 'Toyota',
@@ -46,7 +46,7 @@ describe('Organization', () => {
                 _isValid: true,
             },
         ],
-        places: [
+        _places: [
             {
                 _uuid: uuidV4(),
                 name: 'Headquarters',
@@ -200,8 +200,8 @@ describe('Organization', () => {
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['vehicles', extendedAttributes.vehicles],
-            ['places', extendedAttributes.places],
+            ['_vehicles', extendedAttributes.vehicles],
+            ['_places', extendedAttributes.places],
         ])('should set and get %s', (attribute, value) => {
             const organization = new Organization(validAttributes);
             organization[attribute] = value;
@@ -222,7 +222,7 @@ describe('Organization', () => {
 
             const organizationAttributes: ExtendedOrganizationAttributes = {
                 ...validAttributes,
-                vehicles: vehicleAttributes,
+                _vehicles: vehicleAttributes,
             };
 
             const result = Organization.create(organizationAttributes);
@@ -252,7 +252,7 @@ describe('Organization', () => {
 
             const organizationAttributes: ExtendedOrganizationAttributes = {
                 ...validAttributes,
-                places: placeAttributes,
+                _places: placeAttributes,
             };
 
             const result = Organization.create(organizationAttributes);

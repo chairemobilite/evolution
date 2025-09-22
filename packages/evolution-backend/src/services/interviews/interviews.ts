@@ -19,8 +19,8 @@ import interviewsDbQueries, {
 } from '../../models/interviews.db.queries';
 import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.queries';
 import { UserInterviewAccesses } from '../logging/loggingTypes';
-import { Audits } from '../../services/audits/Audits';
-import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
+import { SurveyObjectsAndAuditsFactory } from '../audits/SurveyObjectsAndAuditsFactory';
+import { AuditStatsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 import {
     InterviewAttributes,
     InterviewListAttributes,
@@ -170,7 +170,7 @@ export default class Interviews {
                     | { value: string | string[] | boolean | number | null; op?: keyof OperatorSigns };
             };
         } = {}
-    ): Promise<{ auditStats: AuditsByLevelAndObjectType }> => {
+    ): Promise<{ auditStats: AuditStatsByLevelAndObjectType }> => {
         const actualFilters = getFiltersForDb(params.filter || {});
 
         return interviewsDbQueries.getValidationAuditStats({ filters: actualFilters });
@@ -207,7 +207,7 @@ export default class Interviews {
                             .then(
                                 () =>
                                     new Promise((res1, _rej1) => {
-                                        Audits.runAndSaveInterviewAudits(interview)
+                                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interview)
                                             .then(() => {
                                                 res1(true);
                                             })
@@ -224,7 +224,7 @@ export default class Interviews {
                                 queryStream.resume();
                             });
                     } else {
-                        Audits.runAndSaveInterviewAudits(interview)
+                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interview)
                             .catch((error) => {
                                 console.error('Error running and saving interview audits', error);
                             })

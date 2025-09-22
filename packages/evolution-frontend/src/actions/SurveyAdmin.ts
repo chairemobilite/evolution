@@ -24,6 +24,7 @@ const fetch = async (url, opts) => {
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
+import { SurveyObjectsUnserializer } from '../utils/SurveyObjectsUnserializer';
 import {
     StartAddGroupedObjects,
     StartNavigate,
@@ -228,13 +229,44 @@ export const startSetSurveyCorrectedInterview = (
                 const body = await response.json();
                 if (body.interview) {
                     const interview = body.interview;
+
+                    // ⭐ LOG SURVEY OBJECTS WITH AUDITS DATA
+                    console.log('🔍 AUDIT WORKFLOW RESULT before unserialization:', {
+                        interviewUuid: interviewUuid,
+                        surveyObjectsAndAudits: interview.surveyObjectsAndAudits
+                    });
+
+                    // Unserialize surveyObjectsAndAudits if present
+                    if (
+                        interview.surveyObjectsAndAudits &&
+                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
+                    ) {
+                        console.log('🔄 Unserializing surveyObjectsAndAudits...');
+                        try {
+                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
+                                interview.surveyObjectsAndAudits
+                            );
+                            console.log('✅ Successfully unserialized surveyObjectsAndAudits');
+                        } catch (error) {
+                            console.warn('⚠️ Failed to unserialize surveyObjectsAndAudits:', error);
+                        }
+                    }
+
+                    // ⭐ LOG SURVEY OBJECTS WITH AUDITS DATA AFTER UNSERIALIZATION
+                    console.log('🔍 AUDIT WORKFLOW RESULT after unserialization:', {
+                        interviewUuid: interviewUuid,
+                        surveyObjectsAndAudits: interview.surveyObjectsAndAudits
+                    });
+
                     // Set the interview in the state first
                     dispatch(updateInterviewState(interview));
 
                     // Then, initialize navigation for the current interview
+                    // This will handle all necessary updates internally
                     await dispatch(startNavigateCorrectedInterview(undefined, callback));
 
-                    dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
+                    // TODO: Remove this redundant call - kept commented for testing
+                    // dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                 }
             }
         } catch (err) {
@@ -323,7 +355,44 @@ export const startResetCorrectedInterview = (
                 const body = await response.json();
                 if (body.interview) {
                     const interview = body.interview;
-                    dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
+
+                    // ⭐ LOG SURVEY OBJECTS WITH AUDITS DATA FOR RESET
+                    console.log('🔄 RESET INTERVIEW AUDIT WORKFLOW RESULT:', {
+                        interviewUuid: interviewUuid,
+                        surveyObjectsAndAudits: interview.surveyObjectsAndAudits,
+                        totalAudits: interview.surveyObjectsAndAudits?.audits?.length || 0,
+                        hasInterview: !!interview.surveyObjectsAndAudits?.interview,
+                        hasHousehold: !!interview.surveyObjectsAndAudits?.household,
+                        hasHome: !!interview.surveyObjectsAndAudits?.home,
+                        auditsByObjectKeys: interview.surveyObjectsAndAudits?.auditsByObject
+                            ? Object.keys(interview.surveyObjectsAndAudits.auditsByObject)
+                            : []
+                    });
+
+                    // Unserialize surveyObjectsAndAudits if present
+                    if (
+                        interview.surveyObjectsAndAudits &&
+                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
+                    ) {
+                        console.log('🔄 Unserializing surveyObjectsAndAudits for reset...');
+                        try {
+                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
+                                interview.surveyObjectsAndAudits
+                            );
+                            console.log('✅ Successfully unserialized surveyObjectsAndAudits for reset');
+                        } catch (error) {
+                            console.warn('⚠️ Failed to unserialize surveyObjectsAndAudits for reset:', error);
+                        }
+                    }
+
+                    // Set the interview in the state and initialize navigation
+                    dispatch(updateInterviewState(interview));
+
+                    // Initialize navigation for the reset interview
+                    await dispatch(startNavigateCorrectedInterview(undefined, callback));
+
+                    // TODO: Remove this redundant call - kept commented for testing
+                    // dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                 }
             }
         } catch (err) {

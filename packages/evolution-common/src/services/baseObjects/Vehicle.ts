@@ -12,6 +12,7 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import * as VAttr from './attributeTypes/VehicleAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
 
 export const vehicleAttributes = [
     '_weights',
@@ -51,6 +52,11 @@ export type VehicleAttributes = {
     ValidatebleAttributes;
 
 export type ExtendedVehicleAttributes = VehicleAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedVehicleAttributes = {
+    _attributes?: ExtendedVehicleAttributes;
+    _customAttributes?: { [key: string]: unknown };
+};
 
 /**
  * A vehicle is owned by a person or an organization
@@ -229,8 +235,14 @@ export class Vehicle implements IValidatable {
         this._organizationUuid = value;
     }
 
-    static unserialize(params: ExtendedVehicleAttributes): Vehicle {
-        return new Vehicle(params);
+    /**
+     * Creates a Vehicle object from sanitized parameters
+     * @param {ExtendedVehicleAttributes | SerializedExtendedVehicleAttributes} params - Sanitized vehicle parameters
+     * @returns {Vehicle} New Vehicle instance
+     */
+    static unserialize(params: ExtendedVehicleAttributes | SerializedExtendedVehicleAttributes): Vehicle {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Vehicle(flattenedParams);
     }
 
     static create(dirtyParams: { [key: string]: unknown }): Result<Vehicle> {

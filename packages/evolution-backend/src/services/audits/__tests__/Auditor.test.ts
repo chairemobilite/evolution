@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { v4 as uuidV4 } from 'uuid';
-import _omit from 'lodash/omit';
 
 import Auditor from '../Auditor';
 
@@ -18,10 +17,10 @@ type ArbitraryObject = {
 describe('auditObject', () => {
 
     const validations = {
-        'error-code-ok': (value: ArbitraryObject) => undefined,
-        'error-code-with-minimal-info': (value: ArbitraryObject) => ({ version: 2 }),
-        'error-code-with-more-info': (value: ArbitraryObject) => ({ version: 3, level: 'warning' as const, message: 'SomeMessageKey' }),
-        'error-code-without-version': (value: ArbitraryObject) => ({ message: 'OtherMessageKey' })
+        'error-code-ok': (_value: ArbitraryObject) => undefined,
+        'error-code-with-minimal-info': (_value: ArbitraryObject) => ({ version: 2 }),
+        'error-code-with-more-info': (_value: ArbitraryObject) => ({ version: 3, level: 'warning' as const, message: 'SomeMessageKey' }),
+        'error-code-without-version': (_value: ArbitraryObject) => ({ message: 'OtherMessageKey' })
     };
 
     it('should audit object and return audits', async () => {

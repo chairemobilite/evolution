@@ -1,19 +1,13 @@
 import { Optional } from '../../../types/Optional.type';
-import { Result, createErrors, createOk, hasErrors, isOk } from '../../../types/Result.type';
+import { Result, createErrors, createOk } from '../../../types/Result.type';
 import { ParamsValidatorUtils } from '../../../utils/ParamsValidatorUtils';
 import { Uuidable } from '../Uuidable';
-import { Interview, InterviewAttributes, ExtendedInterviewAttributesWithComposedObjects } from './Interview';
-import { Household, ExtendedHouseholdAttributes } from '../Household';
-import { Person, ExtendedPersonAttributes } from '../Person';
-import { Organization, ExtendedOrganizationAttributes } from '../Organization';
+import { InterviewAttributes } from '../../../services/questionnaire/types';
+import { Interview, ExtendedInterviewAttributesWithComposedObjects } from './Interview';
 import { InterviewParadata, InterviewParadataAttributes } from './InterviewParadata';
 import { yesNoDontKnowValues } from '../attributeTypes/GenericAttributes';
-import { create as createInterviewParadata } from './InterviewParadataUnserializer';
 
 export type ExtendedInterviewWithComposedAttributes = InterviewAttributes & {
-    household?: Optional<ExtendedHouseholdAttributes>;
-    person?: Optional<ExtendedPersonAttributes>;
-    organization?: Optional<ExtendedOrganizationAttributes>;
     paradata?: Optional<InterviewParadataAttributes>;
 };
 
@@ -25,17 +19,30 @@ export type ExtendedInterviewWithComposedAttributes = InterviewAttributes & {
  * @param displayName the name of the object for error messages
  * @returns an array of errors if any, or an empty array if the params are valid
  */
-export const validateParams = function (dirtyParams: { [key: string]: unknown }, displayName = 'Interview'): Error[] {
+export const validateParams = function (
+    dirtyParams: { [key: string]: unknown },
+    interviewAttributes: InterviewAttributes,
+    displayName = 'Interview'
+): Error[] {
     const errors: Error[] = [];
+
+    errors.push(...ParamsValidatorUtils.isPositiveNumber('id', interviewAttributes.id, displayName));
 
     errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
     errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
 
     errors.push(...Uuidable.validateParams(dirtyParams));
 
-    errors.push(...ParamsValidatorUtils.isPositiveNumber('_id', dirtyParams._id, displayName));
-    errors.push(...ParamsValidatorUtils.isPositiveNumber('_participant_id', dirtyParams._participant_id, displayName));
+    errors.push(
+        ...ParamsValidatorUtils.isPositiveNumber('participant_id', interviewAttributes.participant_id, displayName)
+    );
 
+    errors.push(...ParamsValidatorUtils.isBoolean('isValid', interviewAttributes.is_valid, displayName));
+    errors.push(...ParamsValidatorUtils.isBoolean('isCompleted', interviewAttributes.is_completed, displayName));
+    errors.push(...ParamsValidatorUtils.isBoolean('isQuestionable', interviewAttributes.is_questionable, displayName));
+    errors.push(...ParamsValidatorUtils.isBoolean('isValidated', interviewAttributes.is_validated, displayName));
+
+    errors.push(...ParamsValidatorUtils.isArrayOfStrings('languages', dirtyParams._languages, displayName));
     errors.push(...ParamsValidatorUtils.isString('accessCode', dirtyParams.accessCode, displayName));
     errors.push(...ParamsValidatorUtils.isDateString('assignedDate', dirtyParams.assignedDate, displayName));
     errors.push(...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName));
@@ -84,6 +91,10 @@ export const validateParams = function (dirtyParams: { [key: string]: unknown },
         )
     );
 
+    const paradataAttributes = dirtyParams._paradata;
+    if (paradataAttributes !== undefined) {
+        errors.push(...InterviewParadata.validateParams(paradataAttributes as { [key: string]: unknown }, '_paradata'));
+    }
     return errors;
 };
 
@@ -92,46 +103,23 @@ export const validateParams = function (dirtyParams: { [key: string]: unknown },
  * If any param is invalid, return a list of errors (including nested params for composed objects)
  * If no error, return the interview object with composed objects.
  * @param dirtyParams the json data
+ * @param interviewAttributes the interview attributes
  * @returns an interview object if the params are valid, or a list of errors otherwise
  */
-export const create = function (dirtyParams: { [key: string]: unknown }): Result<Interview> {
-    const errors = validateParams(dirtyParams);
-    if (dirtyParams.household) {
-        const householdResult = Household.create(dirtyParams.household as { [key: string]: unknown });
-        if (isOk(householdResult)) {
-            dirtyParams.household = householdResult.result as Household;
-        } else if (hasErrors(householdResult)) {
-            errors.push(...householdResult.errors);
-        }
-    }
-    if (dirtyParams.person) {
-        const personResult = Person.create(dirtyParams.person as { [key: string]: unknown });
-        if (isOk(personResult)) {
-            dirtyParams.person = personResult.result as Person;
-        } else if (hasErrors(personResult)) {
-            errors.push(...personResult.errors);
-        }
-    }
-    if (dirtyParams.organization) {
-        const organizationResult = Organization.create(dirtyParams.organization as { [key: string]: unknown });
-        if (isOk(organizationResult)) {
-            dirtyParams.organization = organizationResult.result as Organization;
-        } else if (hasErrors(organizationResult)) {
-            errors.push(...organizationResult.errors);
-        }
-    }
-    if (dirtyParams.paradata) {
-        const paradataResult = createInterviewParadata(dirtyParams.paradata as { [key: string]: unknown });
-        if (isOk(paradataResult)) {
-            dirtyParams.paradata = paradataResult.result as InterviewParadata;
-        } else if (hasErrors(paradataResult)) {
-            errors.push(...paradataResult.errors);
-        }
-    }
+export const create = function (
+    dirtyParams: { [key: string]: unknown },
+    interviewAttributes: InterviewAttributes
+): Result<Interview> {
+    const errors = validateParams(dirtyParams, interviewAttributes);
     const interview =
-        errors.length === 0 ? new Interview(dirtyParams as ExtendedInterviewAttributesWithComposedObjects) : undefined;
+        errors.length === 0
+            ? new Interview(dirtyParams as ExtendedInterviewAttributesWithComposedObjects, interviewAttributes)
+            : undefined;
+
+    // Return errors if any validation errors occurred
     if (errors.length > 0) {
         return createErrors(errors);
     }
+
     return createOk(interview as Interview);
 };

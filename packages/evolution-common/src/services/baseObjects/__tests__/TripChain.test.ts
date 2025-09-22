@@ -6,7 +6,7 @@
  */
 import { TripChain, TripChainAttributes, ExtendedTripChainAttributes, tripChainAttributes } from '../TripChain';
 import { TripAttributes } from '../Trip';
-import { VisitedPlaceAttributes } from '../VisitedPlace';
+import { ExtendedVisitedPlaceAttributes } from '../VisitedPlace';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
@@ -40,7 +40,7 @@ describe('TripChain', () => {
     const extendedAttributes: ExtendedTripChainAttributes = {
         ...validAttributes,
         customAttribute: 'Custom Value',
-        trips: [
+        _trips: [
             {
                 _uuid: uuidV4(),
                 startDate: '2023-05-21',
@@ -62,7 +62,7 @@ describe('TripChain', () => {
                 _isValid: true,
             },
         ],
-        visitedPlaces: [
+        _visitedPlaces: [
             {
                 _uuid: uuidV4(),
                 geography: {
@@ -231,8 +231,8 @@ describe('TripChain', () => {
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['trips', extendedAttributes.trips],
-            ['visitedPlaces', extendedAttributes.visitedPlaces],
+            ['_trips', extendedAttributes._trips],
+            ['_visitedPlaces', extendedAttributes._visitedPlaces],
             ['journeyUuid', uuidV4()],
         ])('should set and get %s', (attribute, value) => {
             const tripChain = new TripChain(validAttributes);
@@ -268,7 +268,7 @@ describe('TripChain', () => {
 
             const tripChainAttributes: ExtendedTripChainAttributes = {
                 ...validAttributes,
-                trips: tripAttributes,
+                _trips: tripAttributes,
             };
 
             const result = TripChain.create(tripChainAttributes);
@@ -281,36 +281,44 @@ describe('TripChain', () => {
         });
 
         test('should create VisitedPlace instances for visitedPlaces when creating a TripChain instance', () => {
-            const visitedPlaceAttributes: VisitedPlaceAttributes[] = [
+            const visitedPlaceAttributes: ExtendedVisitedPlaceAttributes[] = [
                 {
                     _uuid: uuidV4(),
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [0, 0],
-                        },
-                        properties: {},
-                    },
                     _isValid: true,
+                    _place: {
+                        _uuid: uuidV4(),
+                        geography: {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [0, 0],
+                            },
+                            properties: {},
+                        },
+                        _isValid: true,
+                    },
                 },
                 {
                     _uuid: uuidV4(),
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [1, 1],
-                        },
-                        properties: {},
-                    },
                     _isValid: true,
+                    _place: {
+                        _uuid: uuidV4(),
+                        geography: {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [1, 1],
+                            },
+                            properties: {},
+                        },
+                        _isValid: true,
+                    },
                 },
             ];
 
             const tripChainAttributes: ExtendedTripChainAttributes = {
                 ...validAttributes,
-                visitedPlaces: visitedPlaceAttributes,
+                _visitedPlaces: visitedPlaceAttributes,
             };
 
             const result = TripChain.create(tripChainAttributes);
@@ -318,8 +326,13 @@ describe('TripChain', () => {
             const tripChain = unwrap(result) as TripChain;
             expect(tripChain.visitedPlaces).toBeDefined();
             expect(tripChain.visitedPlaces?.length).toBe(2);
-            expect(tripChain.visitedPlaces?.[0].attributes).toEqual(visitedPlaceAttributes[0]);
-            expect(tripChain.visitedPlaces?.[1].attributes).toEqual(visitedPlaceAttributes[1]);
+            // Check that the visited places have the correct structure
+            expect(tripChain.visitedPlaces?.[0]._uuid).toEqual(visitedPlaceAttributes[0]._uuid);
+            expect(tripChain.visitedPlaces?.[0]._isValid).toEqual(visitedPlaceAttributes[0]._isValid);
+            expect(tripChain.visitedPlaces?.[0].place?.geography).toEqual(visitedPlaceAttributes[0]._place?.geography);
+            expect(tripChain.visitedPlaces?.[1]._uuid).toEqual(visitedPlaceAttributes[1]._uuid);
+            expect(tripChain.visitedPlaces?.[1]._isValid).toEqual(visitedPlaceAttributes[1]._isValid);
+            expect(tripChain.visitedPlaces?.[1].place?.geography).toEqual(visitedPlaceAttributes[1]._place?.geography);
         });
     });
 });

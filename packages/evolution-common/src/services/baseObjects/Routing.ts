@@ -10,6 +10,7 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Result, createErrors, createOk } from '../../types/Result.type';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
 
 export const routingModes = ['walking', 'cycling', 'driving', 'transit'];
 export type RoutingModes = (typeof routingModes)[number];
@@ -45,6 +46,11 @@ export type RoutingAttributes = {
 } & UuidableAttributes;
 
 export type ExtendedRoutingAttributes = RoutingAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedRoutingAttributes = {
+    _attributes?: ExtendedRoutingAttributes;
+    _customAttributes?: { [key: string]: unknown };
+};
 
 /**
  * A routing is a calculated route for a trip or a segment of trip
@@ -156,9 +162,14 @@ export class Routing {
         this._attributes.route = value;
     }*/
 
-    // params must be sanitized and must be valid:
-    static unserialize(params: ExtendedRoutingAttributes): Routing {
-        return new Routing(params);
+    /**
+     * Creates a Routing object from sanitized parameters
+     * @param {ExtendedRoutingAttributes | SerializedExtendedRoutingAttributes} params - Sanitized routing parameters
+     * @returns {Routing} New Routing instance
+     */
+    static unserialize(params: ExtendedRoutingAttributes | SerializedExtendedRoutingAttributes): Routing {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Routing(flattenedParams);
     }
 
     /**
