@@ -193,11 +193,12 @@ def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str
 
 
 # Function to clean text of markdown characters
-def clean_text(text):
+def clean_text(text) -> str:
     if text is None:
         return ""
     return (
-        text.replace("**", "")
+        str(text) # This make sure that number input doesn't break everything
+        .replace("**", "")
         .replace("__green", "")
         .replace("__red", "")
         .replace("__", "")
