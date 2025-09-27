@@ -104,7 +104,13 @@ export class ParamsValidatorUtils {
         return [];
     }
 
-    static isIn(attribute: string, value: unknown, displayName: string, inArray: unknown[], typeName?: string) {
+    static isIn(
+        attribute: string,
+        value: unknown,
+        displayName: string,
+        inArray: unknown[],
+        typeName?: string
+    ): Error[] {
         if (value !== undefined && !inArray.includes(value)) {
             return [
                 new Error(

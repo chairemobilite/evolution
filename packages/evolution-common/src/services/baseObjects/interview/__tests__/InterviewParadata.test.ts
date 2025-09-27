@@ -7,7 +7,6 @@
 
 import { InterviewParadata, InterviewParadataAttributes } from '../InterviewParadata';
 import { isOk, hasErrors } from '../../../../types/Result.type';
-import { create } from '../InterviewParadataUnserializer';
 
 describe('InterviewParadata', () => {
     const validParams: InterviewParadataAttributes = {
@@ -62,7 +61,7 @@ describe('InterviewParadata', () => {
 
     describe('create', () => {
         it('should create an InterviewParadata instance with valid parameters', () => {
-            const result = create(validParams);
+            const result = InterviewParadata.create(validParams);
             expect(isOk(result)).toBe(true);
             if (isOk(result)) {
                 expect(result.result).toBeInstanceOf(InterviewParadata);
@@ -75,7 +74,7 @@ describe('InterviewParadata', () => {
                 ...validParams,
                 startedAt: 'invalid' // should be a number
             };
-            const result = create(invalidParams);
+            const result = InterviewParadata.create(invalidParams);
             expect(hasErrors(result)).toBe(true);
             if (hasErrors(result)) {
                 expect(result.errors.length).toBeGreaterThan(0);

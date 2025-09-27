@@ -11,7 +11,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 //import _truncate from 'lodash/truncate';
 import Select from 'react-select';
 
-import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
+import { AuditStatsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 const auditLevels = ['error', 'warning', 'info'];
@@ -48,7 +48,7 @@ export const ValidationAuditFilter = ({
     column: { filterValue, setFilter },
     state: { filters }
 }: FilterProps<InterviewListAttributes> & WithTranslation) => {
-    const [auditStats, setAuditStats] = React.useState<AuditsByLevelAndObjectType>({});
+    const [auditStats, setAuditStats] = React.useState<AuditStatsByLevelAndObjectType>({});
     const fetchIdRef = React.useRef(0);
 
     React.useEffect(() => {
@@ -87,7 +87,7 @@ export const ValidationAuditFilter = ({
                 }
                 if (response.status === 200) {
                     const jsonData = await response.json();
-                    const auditStats: AuditsByLevelAndObjectType = jsonData.auditStats;
+                    const auditStats: AuditStatsByLevelAndObjectType = jsonData.auditStats;
                     //data.unshift(undefined);
                     setAuditStats(auditStats);
                 } else {
@@ -122,12 +122,12 @@ export const ValidationAuditFilter = ({
             for (let j = 0, countJ = audits.length; j < countJ; j++) {
                 const audit = audits[j];
                 const choice = {
-                    value: audit.key,
-                    label: `• ${t([`survey:validations:${audit.key}`, `surveyAdmin:${audit.key}`])} [${audit.cnt}]`
+                    value: audit.errorCode,
+                    label: `• ${t([`survey:validations:${audit.errorCode}`, `surveyAdmin:${audit.errorCode}`])} [${audit.count}]`
                 };
-                if (filterValue && filterValue.includes(audit.key)) {
+                if (filterValue && filterValue.includes(audit.errorCode)) {
                     selectedAuditChoicesByLevel[level].push(choice);
-                    selectedAuditKeyByLevel[level].push(audit.key);
+                    selectedAuditKeyByLevel[level].push(audit.errorCode);
                 }
                 choices.push(choice);
             }

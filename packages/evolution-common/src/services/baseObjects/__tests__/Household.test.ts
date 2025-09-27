@@ -7,9 +7,7 @@
 
 import { Household, householdAttributes } from '../Household';
 import { Person } from '../Person';
-import { Place } from '../Place';
 import { Vehicle } from '../Vehicle';
-import { Address } from '../Address';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
@@ -38,7 +36,7 @@ describe('Household', () => {
         homeOwnership: 'owned',
         contactPhoneNumber: '1234567890',
         contactEmail: 'test@example.com',
-        atLeastOnePersonWithDisability: true,
+        atLeastOnePersonWithDisability: 'yes',
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true,
     };
@@ -46,7 +44,7 @@ describe('Household', () => {
     const extendedAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        members: [
+        _members: [
             {
                 _uuid: uuidV4(),
                 age: 30,
@@ -62,7 +60,7 @@ describe('Household', () => {
                 _isValid: true,
             },
         ],
-        vehicles: [
+        _vehicles: [
             {
                 _uuid: uuidV4(),
                 make: 'Toyota',
@@ -77,13 +75,7 @@ describe('Household', () => {
                 modelYear: 2021,
                 _isValid: true,
             },
-        ],
-        home: {
-            _uuid: uuidV4(),
-            name: 'Sample Home',
-            shortname: 'Sample home description',
-            _isValid: true,
-        }
+        ]
     };
 
     test('should create a Household instance with valid attributes', () => {
@@ -161,7 +153,7 @@ describe('Household', () => {
         ['homeOwnership', 123],
         ['contactPhoneNumber', 123],
         ['contactEmail', 123],
-        ['atLeastOnePersonWithDisability', 'invalid'],
+        ['atLeastOnePersonWithDisability', 123],
     ])('should return an error for invalid %s', (param, value) => {
         const invalidAttributes = { ...validAttributes, [param]: value };
         const errors = Household.validateParams(invalidAttributes);
@@ -224,7 +216,7 @@ describe('Household', () => {
             ['homeOwnership', 'rented'],
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'updated@example.com'],
-            ['atLeastOnePersonWithDisability', false],
+            ['atLeastOnePersonWithDisability', 'no'],
         ])('should set and get %s', (attribute, value) => {
             const household = new Household(validAttributes);
             household[attribute] = value;
@@ -245,8 +237,8 @@ describe('Household', () => {
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['members', extendedAttributes.members],
-            ['vehicles', extendedAttributes.vehicles],
+            ['_members', extendedAttributes._members],
+            ['_vehicles', extendedAttributes._vehicles],
         ])('should set and get %s', (attribute, value) => {
             const household = new Household(validAttributes);
             household[attribute] = value;
@@ -274,7 +266,7 @@ describe('Household', () => {
 
         const householdAttributes: { [key: string]: unknown } = {
             ...validAttributes,
-            members: membersAttributes,
+            _members: membersAttributes,
         };
 
         const result = Household.create(householdAttributes);
@@ -301,7 +293,7 @@ describe('Household', () => {
 
         const householdAttributes: { [key: string]: unknown } = {
             ...validAttributes,
-            vehicles: vehiclesAttributes,
+            _vehicles: vehiclesAttributes,
         };
 
         const result = Household.create(householdAttributes);
@@ -333,7 +325,7 @@ describe('Household', () => {
 
         const householdAttributes: { [key: string]: unknown } = {
             ...validAttributes,
-            members: invalidMembersAttributes,
+            _members: invalidMembersAttributes,
         };
 
         const result = Household.create(householdAttributes);
@@ -357,7 +349,7 @@ describe('Household', () => {
 
         const householdAttributes: { [key: string]: unknown } = {
             ...validAttributes,
-            vehicles: invalidVehiclesAttributes,
+            _vehicles: invalidVehiclesAttributes,
         };
 
         const result = Household.create(householdAttributes);
@@ -365,123 +357,6 @@ describe('Household', () => {
         const errors = unwrap(result) as Error[];
         expect(errors.length).toBe(1);
         expect(errors[0].message).toContain('Vehicle 0 validateParams: make should be a string');
-    });
-
-    test('should create a Place instance for home when creating a Household instance', () => {
-        const homeAttributes: { [key: string]: unknown } = {
-            _uuid: uuidV4(),
-            name: 'Home',
-            geography: {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [0, 0],
-                },
-                properties: {},
-            },
-            _isValid: true,
-        };
-
-        const householdAttributes: { [key: string]: unknown } = {
-            ...validAttributes,
-            home: homeAttributes,
-        };
-
-        const result = Household.create(householdAttributes);
-        expect(isOk(result)).toBe(true);
-        const household = unwrap(result) as Household;
-        expect(household.home).toBeInstanceOf(Place);
-        expect(household.home?.attributes).toEqual(homeAttributes);
-    });
-
-    test('should return errors for invalid home attributes when creating a Household instance', () => {
-        const invalidHomeAttributes = {
-            _uuid: uuidV4(),
-            name: 123, // Invalid type, should be string
-            _isValid: true,
-        };
-
-        const householdAttributes: { [key: string]: unknown } = {
-            ...validAttributes,
-            home: invalidHomeAttributes,
-        };
-
-        const result = Household.create(householdAttributes);
-        expect(hasErrors(result)).toBe(true);
-        const errors = unwrap(result) as Error[];
-        expect(errors.length).toBeGreaterThan(0);
-        expect(errors[0].message).toContain('Home validateParams: name should be a string');
-    });
-
-    test('should create an Address instance for home.address when creating a Household instance', () => {
-        const addressAttributes: { [key: string]: unknown } = {
-            _uuid: uuidV4(),
-            civicNumber: 123,
-            streetName: 'Main Street',
-            municipalityName: 'City',
-            country: 'Country',
-            _isValid: true,
-        };
-
-        const homeAttributes: { [key: string]: unknown } = {
-            _uuid: uuidV4(),
-            name: 'Home',
-            geography: {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [0, 0],
-                },
-                properties: {},
-            },
-            address: addressAttributes,
-            _isValid: true,
-        };
-
-        const householdAttributes: { [key: string]: unknown } = {
-            ...validAttributes,
-            home: homeAttributes,
-        };
-
-        const result = Household.create(householdAttributes);
-        expect(isOk(result)).toBe(true);
-        const household = unwrap(result) as Household;
-        expect(household.home?.address).toBeInstanceOf(Address);
-        expect(household.home?.address?.attributes).toEqual(addressAttributes);
-    });
-
-    test('should return errors for invalid home.address attributes when creating a Household instance', () => {
-        const invalidAddressAttributes = {
-            _uuid: uuidV4(),
-            civicNumber: {}, // Invalid type, should be number
-            _isValid: true,
-        };
-
-        const homeAttributes: { [key: string]: unknown } = {
-            _uuid: uuidV4(),
-            name: 'Home',
-            geography: {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [0, 0],
-                },
-                properties: {},
-            },
-            address: invalidAddressAttributes,
-            _isValid: true,
-        };
-
-        const householdAttributes: { [key: string]: unknown } = {
-            ...validAttributes,
-            home: homeAttributes,
-        };
-
-        const result = Household.create(householdAttributes);
-        expect(hasErrors(result)).toBe(true);
-        const errors = unwrap(result) as Error[];
-        expect(errors.length).toBeGreaterThan(0);
-        expect(errors[0].message).toContain('Address validateParams: civicNumber should be a positive integer');
     });
 
 });

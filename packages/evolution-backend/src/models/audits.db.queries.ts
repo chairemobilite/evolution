@@ -84,6 +84,9 @@ const mergeOldWithNew = (newAudits: AuditForObject[], oldAudits: AuditForObject[
     const newAuditsPerObject = AuditUtils.auditArrayToAudits(newAudits);
 
     const audits: AuditForObject[] = [];
+
+    // Only process objects that have new audits
+    // If an object no longer has audits, it means the issues were fixed and should not be kept
     for (const objectKey in newAuditsPerObject) {
         const [objectType, objectUuid] = objectKey.split('.');
         const mergedAudits = oldAuditsPerObject[objectKey]
@@ -139,7 +142,7 @@ const updateAudit = async (interviewId: number, audit: AuditForObject) => {
     } catch (error) {
         throw new TrError(
             `Error setting audits for interview ${interviewId} in database (knex error: ${error})`,
-            'DBSVAUD0003',
+            'DBSVAUD0004',
             'CannotSetAuditsForInterviewBecauseDatabaseError'
         );
     }

@@ -15,13 +15,11 @@ describe('Interview - Getters and Setters', () => {
     beforeEach(() => {
         const validParams = {
             _uuid: '123e4567-e89b-12d3-a456-426614174001',
-            _id: 123,
-            _participant_id: 456,
             accessCode: 'ABC123',
             assignedDate: '2023-09-30',
             _startedAt: 1632929461
         };
-        const interviewResult = create(validParams) as Result<Interview>;
+        const interviewResult = create(validParams, { id: 123, participant_id: 456 } as any) as Result<Interview>;
         if (isOk(interviewResult)) {
             interview = unwrap(interviewResult) as Interview;
         } else {
@@ -34,22 +32,22 @@ describe('Interview - Getters and Setters', () => {
         const validParamsWithoutIdAndParticipantId = {
             _uuid: '123e4567-e89b-12d3-a456-426614174001',
         };
-        const result = create(validParamsWithoutIdAndParticipantId) as Result<Interview>;
+        const result = create(validParamsWithoutIdAndParticipantId, {} as any) as Result<Interview>;
         if (isOk(result)) {
             _interview = unwrap(result) as Interview;
         } else {
             throw new Error('Failed to create interview');
         }
-        expect(_interview._id).toBeUndefined();
-        expect(_interview._participant_id).toBeUndefined();
+        expect(_interview.id).toBeUndefined();
+        expect(_interview.participant_id).toBeUndefined();
     });
 
     it('should get _id', () => {
-        expect(interview._id).toBe(123);
+        expect(interview.id).toBe(123);
     });
 
     it('should get _participant_id', () => {
-        expect(interview._participant_id).toBe(456);
+        expect(interview.participant_id).toBe(456);
     });
 
     it('should get and set accessCode', () => {

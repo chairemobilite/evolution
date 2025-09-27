@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { WorkPlace, workPlaceAttributes } from '../WorkPlace';
+import { WorkPlace } from '../WorkPlace';
 import { placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
@@ -67,7 +67,7 @@ describe('WorkPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = WorkPlace.validateParams.toString();
-        workPlaceAttributes.filter((attribute) => attribute !== '_uuid' && !placeAttributes.includes(attribute)).forEach((attributeName) => {
+        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
             expect(validateParamsCode).toContain('\''+attributeName+'\'');
         });
     });

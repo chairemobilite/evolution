@@ -12,12 +12,13 @@ import { WorkPlace } from '../WorkPlace';
 import { SchoolPlace } from '../SchoolPlace';
 import { Vehicle } from '../Vehicle';
 import { Journey } from '../Journey';
+import { VisitedPlace } from '../VisitedPlace';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 
 describe('Person', () => {
 
-    const weightMethodAttributes : WeightMethodAttributes = {
+    const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
@@ -65,34 +66,34 @@ describe('Person', () => {
     const extendedAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        workPlaces: [{ _uuid: uuidV4(), placeType: 'office', _isValid: true }],
-        schoolPlaces: [{ placeType: 'university', _isValid: true }],
-        vehicles: [{ model: 'foo', make: 'bar', _isValid: true }],
-        journeys: [{ _uuid: uuidV4(), _isValid: true }],
+        _workPlaces: [{ _uuid: uuidV4(), placeType: 'office', _isValid: true }],
+        _schoolPlaces: [{ placeType: 'university', _isValid: true }],
+        _vehicles: [{ model: 'foo', make: 'bar', _isValid: true }],
+        _journeys: [{ _uuid: uuidV4(), _isValid: true }],
     };
 
     const extendedInvalidWorkPlacesAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        workPlaces: [{ custom: 123, _isValid: 123, parkingType: 123, parkingFeeType: 123 }],
+        _workPlaces: [{ custom: 123, _isValid: 123, parkingType: 123, parkingFeeType: 123 }],
     };
 
     const extendedInvalidSchoolPlacesAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        schoolPlaces: [{ custom: 333, _isValid: 111, parkingType: 123, parkingFeeType: 123 }],
+        _schoolPlaces: [{ custom: 333, _isValid: 111, parkingType: 123, parkingFeeType: 123 }],
     };
 
     const extendedInvalidVehiclesAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        vehicles: [{ custom: 333, _isValid: 111, model: 123, make: 234 }],
+        _vehicles: [{ custom: 333, _isValid: 111, model: 123, make: 234 }],
     };
 
     const extendedInvalidJourneysAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        journeys: [{ custom: 333, _isValid: 111 }, { _isValid: 111, visitedPlaces: [{ _isValid: 111 }] }],
+        _journeys: [{ custom: 333, _isValid: 111 }, { _isValid: 111, _visitedPlaces: [{ _isValid: 111 }] }],
     };
 
 
@@ -100,7 +101,7 @@ describe('Person', () => {
         const validateParamsCode = Person.validateParams.toString();
         // exclude string attributes, since they are validated automatically in a loop:
         nonStringAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
+            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
         });
     });
 
@@ -284,7 +285,7 @@ describe('Person', () => {
                 _isValid: true,
             };
             const workPlace = new WorkPlace(workPlaceAttributes);
-            const personAttributes: { [key: string]: unknown } = { ...validAttributes, workPlaces: [workPlaceAttributes] };
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, _workPlaces: [workPlaceAttributes] };
             const result = Person.create(personAttributes);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
@@ -317,7 +318,7 @@ describe('Person', () => {
                 _isValid: true,
             };
             const schoolPlace = new SchoolPlace(schoolPlaceAttributes);
-            const personAttributes: { [key: string]: unknown } = { ...validAttributes, schoolPlaces: [schoolPlaceAttributes] };
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, _schoolPlaces: [schoolPlaceAttributes] };
             const result = Person.create(personAttributes);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
@@ -352,7 +353,7 @@ describe('Person', () => {
                 _isValid: true
             };
             const vehicle = new Vehicle(vehiclesAttributes);
-            const personAttributes: { [key: string]: unknown } = { ...validAttributes, vehicles: [vehiclesAttributes] };
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, _vehicles: [vehiclesAttributes] };
             const result = Person.create(personAttributes);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
@@ -372,9 +373,9 @@ describe('Person', () => {
             const journeyAttributes: { [key: string]: unknown } = {
                 _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e',
                 _isValid: true,
-                visitedPlaces: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
-                trips: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
-                tripChains: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
+                _visitedPlaces: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
+                _trips: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
+                _tripChains: [{ _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e', _isValid: true }],
                 startDate: '2023-01-02',
                 endDate: '2023-01-03',
                 startTime: 10200,
@@ -385,7 +386,7 @@ describe('Person', () => {
                 type: 'testType',
             };
             const journey = new Journey(journeyAttributes);
-            const personAttributes: { [key: string]: unknown } = { ...validAttributes, journeys: [journeyAttributes] };
+            const personAttributes: { [key: string]: unknown } = { ...validAttributes, _journeys: [journeyAttributes] };
             const result = Person.create(personAttributes);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
@@ -397,6 +398,446 @@ describe('Person', () => {
             const result = Person.create(extendedInvalidJourneysAttributes);
             expect(hasErrors(result)).toBe(true);
             expect((unwrap(result) as Error[])).toHaveLength(3);
+        });
+    });
+
+    describe('Journey Management Methods', () => {
+        test('should add journeys using addJourney method', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            person.addJourney(journey2);
+
+            expect(person.journeys).toHaveLength(2);
+            expect(person.journeys![0]).toBe(journey1);
+            expect(person.journeys![1]).toBe(journey2);
+        });
+
+        test('should insert journey at specific index', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            person.addJourney(journey3);
+            person.insertJourney(journey2, 1);
+
+            const journeys = person.journeys || [];
+            expect(journeys).toHaveLength(3);
+            expect(journeys[0]).toBe(journey1);
+            expect(journeys[1]).toBe(journey2);
+            expect(journeys[2]).toBe(journey3);
+        });
+
+        test('should insert journey after specific UUID', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            person.addJourney(journey3);
+            const success = person.insertJourneyAfterUuid(journey2, journey1._uuid!);
+
+            expect(success).toBe(true);
+            const journeys = person.journeys || [];
+            expect(journeys).toHaveLength(3);
+            expect(journeys[0]).toBe(journey1);
+            expect(journeys[1]).toBe(journey2);
+            expect(journeys[2]).toBe(journey3);
+        });
+
+        test('should insert journey before specific UUID', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            person.addJourney(journey3);
+            const success = person.insertJourneyBeforeUuid(journey2, journey3._uuid!);
+
+            expect(success).toBe(true);
+            const journeys = person.journeys || [];
+            expect(journeys).toHaveLength(3);
+            expect(journeys[0]).toBe(journey1);
+            expect(journeys[1]).toBe(journey2);
+            expect(journeys[2]).toBe(journey3);
+        });
+
+        test('should return false when inserting after non-existent UUID', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            const success = person.insertJourneyAfterUuid(journey2, uuidV4());
+
+            expect(success).toBe(false);
+            expect(person.journeys || []).toHaveLength(1);
+        });
+
+        test('should return false when inserting before non-existent UUID', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            const success = person.insertJourneyBeforeUuid(journey2, uuidV4());
+
+            expect(success).toBe(false);
+            expect(person.journeys || []).toHaveLength(1);
+        });
+
+        test('should remove journey by UUID', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            person.addJourney(journey2);
+            const success = person.removeJourney(journey1._uuid!);
+
+            expect(success).toBe(true);
+            const journeys = person.journeys || [];
+            expect(journeys).toHaveLength(1);
+            expect(journeys[0]).toBe(journey2);
+        });
+
+        test('should return false when removing non-existent journey', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            const success = person.removeJourney(uuidV4());
+
+            expect(success).toBe(false);
+            expect(person.journeys || []).toHaveLength(1);
+        });
+
+        test('should get journey by UUID', () => {
+            const person = new Person(validAttributes);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            person.addJourney(journey1);
+            person.addJourney(journey2);
+
+            expect(person.getJourneyByUuid(journey1._uuid!)).toBe(journey1);
+            expect(person.getJourneyByUuid(journey2._uuid!)).toBe(journey2);
+            expect(person.getJourneyByUuid(uuidV4())).toBeUndefined();
+        });
+
+        test('should handle empty journeys array', () => {
+            const person = new Person(validAttributes);
+
+            expect(person.journeys || []).toHaveLength(0);
+            expect(person.getJourneyByUuid(uuidV4())).toBeUndefined();
+            expect(person.removeJourney(uuidV4())).toBe(false);
+        });
+
+        test('should add journey to empty array when inserting after/before UUID', () => {
+            const person = new Person(validAttributes);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            const successAfter = person.insertJourneyAfterUuid(journey, uuidV4());
+            expect(successAfter).toBe(true);
+            expect(person.journeys || []).toHaveLength(1);
+            expect((person.journeys || [])[0]).toBe(journey);
+
+            // Reset for before test
+            person.journeys = undefined;
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const successBefore = person.insertJourneyBeforeUuid(journey2, uuidV4());
+            expect(successBefore).toBe(true);
+            expect(person.journeys || []).toHaveLength(1);
+            expect((person.journeys || [])[0]).toBe(journey2);
+        });
+    });
+
+    describe('Setup Work and School Places', () => {
+        test('should setup work and school places from visited places', () => {
+            const person = new Person(validAttributes);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            // Add a work visited place
+            const workVisitedPlace = new VisitedPlace({
+                _uuid: uuidV4(),
+                activity: 'workUsual',
+                _sequence: 1,
+                _isValid: true,
+                _place: {
+                    _uuid: uuidV4(),
+                    name: 'My Office',
+                    geography: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-73.5, 45.5],
+                        },
+                        properties: {},
+                    },
+                    _isValid: true,
+                },
+            });
+
+            // Add a school visited place
+            const schoolVisitedPlace = new VisitedPlace({
+                _uuid: uuidV4(),
+                activity: 'schoolUsual',
+                _sequence: 2,
+                _isValid: true,
+                _place: {
+                    _uuid: uuidV4(),
+                    name: 'My University',
+                    geography: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-73.6, 45.6],
+                        },
+                        properties: {},
+                    },
+                    _isValid: true,
+                },
+            });
+
+            journey.addVisitedPlace(workVisitedPlace);
+            journey.addVisitedPlace(schoolVisitedPlace);
+            person.addJourney(journey);
+
+            person.setupWorkAndSchoolPlaces();
+
+            expect(person.workPlaces).toHaveLength(1);
+            expect(person.workPlaces![0].name).toBe('My Office');
+            expect(person.workPlaces![0].geography?.geometry?.coordinates).toEqual([-73.5, 45.5]);
+
+            expect(person.schoolPlaces).toHaveLength(1);
+            expect(person.schoolPlaces![0].name).toBe('My University');
+            expect(person.schoolPlaces![0].geography?.geometry?.coordinates).toEqual([-73.6, 45.6]);
+        });
+
+        test('should not duplicate work places with same coordinates', () => {
+            const person = new Person(validAttributes);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            // Pre-populate work places
+            const existingWorkPlace = new WorkPlace({
+                _uuid: uuidV4(),
+                name: 'Existing Office',
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5, 45.5],
+                    },
+                    properties: {},
+                },
+                _isValid: true,
+            });
+            person.workPlaces = [existingWorkPlace];
+
+            // Add a work visited place with same coordinates
+            const workVisitedPlace = {
+                _uuid: uuidV4(),
+                activity: 'workUsual',
+                _sequence: 1,
+                _isValid: true,
+                attributes: {
+                    _uuid: uuidV4(),
+                    activity: 'workUsual',
+                    _sequence: 1,
+                    _isValid: true,
+                },
+                _place: {
+                    _uuid: uuidV4(),
+                    name: 'Same Office',
+                    geography: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-73.5, 45.5],
+                        },
+                        properties: {},
+                    },
+                    _isValid: true,
+                },
+            };
+
+            journey.addVisitedPlace(workVisitedPlace as any);
+            person.addJourney(journey);
+
+            person.setupWorkAndSchoolPlaces();
+
+            expect(person.workPlaces).toHaveLength(1); // Should not duplicate
+            expect(person.workPlaces![0].name).toBe('Existing Office');
+        });
+
+        test('should not duplicate school places with same coordinates', () => {
+            const person = new Person(validAttributes);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            // Pre-populate school places
+            const existingSchoolPlace = new SchoolPlace({
+                _uuid: uuidV4(),
+                name: 'Existing School',
+                geography: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.6, 45.6],
+                    },
+                    properties: {},
+                },
+                _isValid: true,
+            });
+            person.schoolPlaces = [existingSchoolPlace];
+
+            // Add a school visited place with same coordinates
+            const schoolVisitedPlace = {
+                _uuid: uuidV4(),
+                activity: 'schoolUsual',
+                _sequence: 1,
+                _isValid: true,
+                attributes: {
+                    _uuid: uuidV4(),
+                    activity: 'schoolUsual',
+                    _sequence: 1,
+                    _isValid: true,
+                },
+                _place: {
+                    _uuid: uuidV4(),
+                    name: 'Same School',
+                    geography: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-73.6, 45.6],
+                        },
+                        properties: {},
+                    },
+                    _isValid: true,
+                },
+            };
+
+            journey.addVisitedPlace(schoolVisitedPlace as any);
+            person.addJourney(journey);
+
+            person.setupWorkAndSchoolPlaces();
+
+            expect(person.schoolPlaces).toHaveLength(1); // Should not duplicate
+            expect(person.schoolPlaces![0].name).toBe('Existing School');
+        });
+
+        test('should handle only workUsual activities (not workOther)', () => {
+            const person = new Person(validAttributes);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            // Add different work activities
+            const workUsualPlace = new VisitedPlace({
+                _uuid: uuidV4(),
+                activity: 'workUsual',
+                _sequence: 1,
+                _isValid: true,
+                _place: {
+                    _uuid: uuidV4(),
+                    name: 'Main Office',
+                    geography: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-73.5, 45.5],
+                        },
+                        properties: {},
+                    },
+                    _isValid: true,
+                },
+            });
+
+            const workOtherPlace = new VisitedPlace({
+                _uuid: uuidV4(),
+                activity: 'workOther',
+                _sequence: 2,
+                _isValid: true,
+                _place: {
+                    _uuid: uuidV4(),
+                    name: 'Client Office',
+                    geography: {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-73.7, 45.7],
+                        },
+                        properties: {},
+                    },
+                    _isValid: true,
+                },
+            });
+
+            journey.addVisitedPlace(workUsualPlace);
+            journey.addVisitedPlace(workOtherPlace);
+            person.addJourney(journey);
+
+            person.setupWorkAndSchoolPlaces();
+
+            // Should only include workUsual, not workOther
+            expect(person.workPlaces).toHaveLength(1);
+            expect(person.workPlaces![0].name).toBe('Main Office');
+        });
+
+        test('should handle empty journeys gracefully', () => {
+            const person = new Person(validAttributes);
+
+            person.setupWorkAndSchoolPlaces();
+
+            expect(person.workPlaces).toEqual([]);
+            expect(person.schoolPlaces).toEqual([]);
+        });
+
+        test('should initialize arrays when undefined', () => {
+            const person = new Person(validAttributes);
+            person.workPlaces = undefined;
+            person.schoolPlaces = undefined;
+
+            person.setupWorkAndSchoolPlaces();
+
+            expect(person.workPlaces).toEqual([]);
+            expect(person.schoolPlaces).toEqual([]);
+        });
+
+        test('should handle visited places without geography', () => {
+            const person = new Person(validAttributes);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+
+            // Add a work visited place without geography
+            const workVisitedPlace = {
+                _uuid: uuidV4(),
+                activity: 'workUsual',
+                _sequence: 1,
+                _isValid: true,
+                attributes: {
+                    _uuid: uuidV4(),
+                    activity: 'workUsual',
+                    _sequence: 1,
+                    _isValid: true,
+                },
+                _place: {
+                    _uuid: uuidV4(),
+                    name: 'Remote Work',
+                    geography: undefined,
+                    _isValid: true,
+                },
+            };
+
+            journey.addVisitedPlace(workVisitedPlace as any);
+            person.addJourney(journey);
+
+            person.setupWorkAndSchoolPlaces();
+
+            expect(person.workPlaces).toHaveLength(0); // Should not add places without geography
         });
     });
 
@@ -454,10 +895,10 @@ describe('Person', () => {
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['workPlaces', [new WorkPlace({ placeType: 'home', _isValid: true })]],
-            ['schoolPlaces', [new SchoolPlace({ placeType: 'college', _isValid: true })]],
-            ['vehicles', [new Vehicle({ modelYear: 2024, _isValid: true })]],
-            ['journeys', [new Journey({ name: 'test', _isValid: true })]],
+            ['_workPlaces', [new WorkPlace({ placeType: 'home', _isValid: true })]],
+            ['_schoolPlaces', [new SchoolPlace({ placeType: 'college', _isValid: true })]],
+            ['_vehicles', [new Vehicle({ modelYear: 2024, _isValid: true })]],
+            ['_journeys', [new Journey({ name: 'test', _isValid: true })]],
             ['householdUuid', uuidV4()],
         ])('should set and get %s', (attribute, value) => {
             const person = new Person(validAttributes);
