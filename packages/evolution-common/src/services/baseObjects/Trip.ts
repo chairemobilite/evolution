@@ -75,6 +75,7 @@ export type SerializedExtendedTripAttributes = {
  * Start and end dates and times could be generated from the origin and destination data
  */
 export class Trip extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: TripAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -88,8 +89,10 @@ export class Trip extends Uuidable implements IValidatable {
 
     static _confidentialAttributes = [];
 
-    constructor(params: ExtendedTripAttributes) {
+    constructor(params: ExtendedTripAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as TripAttributes;
         this._customAttributes = {};
@@ -113,14 +116,30 @@ export class Trip extends Uuidable implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.startPlace = ConstructorUtils.initializeComposedAttribute(params._startPlace, VisitedPlace.unserialize);
-        this.endPlace = ConstructorUtils.initializeComposedAttribute(params._endPlace, VisitedPlace.unserialize);
-        this.segments = ConstructorUtils.initializeComposedArrayAttributes(params._segments, Segment.unserialize);
-        this.junctions = ConstructorUtils.initializeComposedArrayAttributes(params._junctions, Junction.unserialize);
+        this.startPlace = ConstructorUtils.initializeComposedAttribute(
+            params._startPlace,
+            VisitedPlace.unserialize,
+            this._surveyObjectsRegistry
+        );
+        this.endPlace = ConstructorUtils.initializeComposedAttribute(
+            params._endPlace,
+            VisitedPlace.unserialize,
+            this._surveyObjectsRegistry
+        );
+        this.segments = ConstructorUtils.initializeComposedArrayAttributes(
+            params._segments,
+            Segment.unserialize,
+            this._surveyObjectsRegistry
+        );
+        this.junctions = ConstructorUtils.initializeComposedArrayAttributes(
+            params._junctions,
+            Junction.unserialize,
+            this._surveyObjectsRegistry
+        );
         this.journeyUuid = params._journeyUuid as Optional<string>;
         this.tripChainUuid = params._tripChainUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerTrip(this);
+        this._surveyObjectsRegistry.registerTrip(this);
     }
 
     /**
@@ -376,7 +395,7 @@ export class Trip extends Uuidable implements IValidatable {
         if (!this._journeyUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getJourney(this._journeyUuid);
+        return this._surveyObjectsRegistry.getJourney(this._journeyUuid);
     }
 
     get tripChainUuid(): Optional<string> {
@@ -391,7 +410,7 @@ export class Trip extends Uuidable implements IValidatable {
         if (!this._tripChainUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getTripChain(this._tripChainUuid);
+        return this._surveyObjectsRegistry.getTripChain(this._tripChainUuid);
     }
 
     get person(): Optional<Person> {
@@ -522,14 +541,17 @@ export class Trip extends Uuidable implements IValidatable {
      * @param {ExtendedTripAttributes | SerializedExtendedTripAttributes} params - Sanitized trip parameters
      * @returns {Trip} New Trip instance
      */
-    static unserialize(params: ExtendedTripAttributes | SerializedExtendedTripAttributes): Trip {
+    static unserialize(
+        params: ExtendedTripAttributes | SerializedExtendedTripAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Trip {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Trip(flattenedParams as ExtendedTripAttributes);
+        return new Trip(flattenedParams as ExtendedTripAttributes, surveyObjectsRegistry);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<Trip> {
+    static create(dirtyParams: { [key: string]: unknown }, surveyObjectsRegistry: SurveyObjectsRegistry): Result<Trip> {
         const errors = Trip.validateParams(dirtyParams);
-        const trip = errors.length === 0 ? new Trip(dirtyParams) : undefined;
+        const trip = errors.length === 0 ? new Trip(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

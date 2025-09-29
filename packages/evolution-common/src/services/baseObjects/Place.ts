@@ -85,6 +85,7 @@ export type SerializedExtendedPlaceAttributes = {
  * Classes can inherit this class and add their own attributes (like a work place, a school place, a junction, etc.).
  */
 export class Place extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     protected _attributes: ExtendedPlaceAttributes;
     protected _customAttributes: { [key: string]: unknown };
 
@@ -92,22 +93,29 @@ export class Place extends Uuidable implements IValidatable {
 
     static _confidentialAttributes = [];
 
-    constructor(params: ExtendedPlaceAttributes, childPlaceAttributes: string[] = placeAttributes) {
+    constructor(params: ExtendedPlaceAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as ExtendedPlaceAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
             _omit(params, ['_address', 'address']),
-            childPlaceAttributes
+            placeAttributes,
+            placeComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.address = ConstructorUtils.initializeComposedAttribute(params._address, Address.unserialize);
+        this.address = ConstructorUtils.initializeComposedAttribute(
+            params._address,
+            Address.unserialize,
+            this._surveyObjectsRegistry
+        );
 
-        SurveyObjectsRegistry.getInstance().registerPlace(this);
+        this._surveyObjectsRegistry.registerPlace(this);
     }
 
     /**
@@ -285,9 +293,12 @@ export class Place extends Uuidable implements IValidatable {
      * @param {ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes} params - Sanitized place parameters
      * @returns {Place} New Place instance
      */
-    static unserialize(params: ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes): Place {
+    static unserialize(
+        params: ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Place {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Place(flattenedParams as ExtendedPlaceAttributes);
+        return new Place(flattenedParams as ExtendedPlaceAttributes, surveyObjectsRegistry);
     }
 
     /**
@@ -297,9 +308,13 @@ export class Place extends Uuidable implements IValidatable {
      * @param dirtyParams
      * @returns Place | Error[]
      */
-    static create(dirtyParams: { [key: string]: unknown }): Result<Place> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Place> {
         const errors = Place.validateParams(dirtyParams);
-        const place = errors.length === 0 ? new Place(dirtyParams as ExtendedPlaceAttributes) : undefined;
+        const place =
+            errors.length === 0 ? new Place(dirtyParams as ExtendedPlaceAttributes, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

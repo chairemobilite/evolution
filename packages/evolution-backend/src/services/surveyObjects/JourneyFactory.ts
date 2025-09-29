@@ -11,30 +11,33 @@ import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Journey, ExtendedJourneyAttributes } from 'evolution-common/lib/services/baseObjects/Journey';
 import { isOk } from 'evolution-common/lib/types/Result.type';
-import { createVisitedPlacesForJourney } from './VisitedPlaceFactory';
-import { createTripsForJourney } from './TripFactory';
+import { populateVisitedPlacesForJourney } from './VisitedPlaceFactory';
+import { populateTripsForJourney } from './TripFactory';
 import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { Optional } from 'evolution-common/lib/types/Optional.type';
 import projectConfig from '../../config/projectConfig';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 /**
  * Generate all journeys for a person
- * Processes all journeys for a person, creating Journey objects and associating them with the person
+ * Populate journeys for a person from the person's journeys attributes
  * @param {surveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
  * @param {Person} person - The person to generate journeys for
  * @param {Home} home - The home object for geography assignment
  * @param {ExtendedPersonAttributes} personAttributes - Person attributes containing journeys data
- * @param {InterviewAttributes} interviewAttributes - Interview attributes containing journey data
+ * @param {CorrectedResponse} correctedResponse - corrected response
+ * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  * @returns {Promise<void>}
  */
-export async function createJourneysForPerson(
+export async function populateJourneysForPerson(
     surveyObjectsWithErrors: SurveyObjectsWithErrors,
     person: Person,
     personAttributes: ExtendedPersonAttributes,
     home: Optional<Home>,
-    interviewAttributes: InterviewAttributes
+    correctedResponse: CorrectedResponse,
+    surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
     const journeysAttributes = personAttributes.journeys || {};
 
@@ -52,37 +55,39 @@ export async function createJourneysForPerson(
 
         // Parse journey attributes if parser is available
         if (projectConfig.surveyObjectParsers?.journey) {
-            projectConfig.surveyObjectParsers.journey(journeyAttributes, interviewAttributes);
+            projectConfig.surveyObjectParsers.journey(journeyAttributes, correctedResponse);
         }
 
         const journey = Journey.create(
             _omit(journeyAttributes as { [key: string]: unknown }, [
                 'visitedPlaces',
                 'trips'
-            ]) as ExtendedJourneyAttributes
+            ]) as ExtendedJourneyAttributes,
+            surveyObjectsRegistry
         );
 
         if (isOk(journey)) {
-            console.log(`     ==== Journey ${journeyUuid} created successfully ====`);
             person.addJourney(journey.result);
 
             // Create visited places for this journey
-            await createVisitedPlacesForJourney(
+            await populateVisitedPlacesForJourney(
                 surveyObjectsWithErrors,
                 person,
                 journey.result,
                 journeyAttributes as ExtendedJourneyAttributes,
                 home,
-                interviewAttributes
+                correctedResponse,
+                surveyObjectsRegistry
             );
 
             // Create trips for this journey (includes segments)
-            await createTripsForJourney(
+            await populateTripsForJourney(
                 surveyObjectsWithErrors,
                 person,
                 journey.result,
                 journeyAttributes as ExtendedJourneyAttributes,
-                interviewAttributes
+                correctedResponse,
+                surveyObjectsRegistry
             );
         } else {
             console.log(

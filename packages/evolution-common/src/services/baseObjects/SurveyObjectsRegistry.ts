@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Polytechnique Montreal and contributors
+ * Copyright 2025, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -26,7 +26,6 @@ import { Place } from './Place';
  * This allows child objects to access their parents through UUID lookups.
  */
 export class SurveyObjectsRegistry {
-    private static _instance: SurveyObjectsRegistry;
     private _uuid: string = uuidv4();
 
     private _interviews: Map<string, Interview> = new Map();
@@ -42,19 +41,12 @@ export class SurveyObjectsRegistry {
     private _segments: Map<string, Segment> = new Map();
     private _junctions: Map<string, Junction> = new Map();
 
-    private constructor() {
-        // do nothing
+    constructor() {
+        this._uuid = uuidv4();
     }
 
     get uuid(): string {
         return this._uuid;
-    }
-
-    static getInstance(): SurveyObjectsRegistry {
-        if (!SurveyObjectsRegistry._instance) {
-            SurveyObjectsRegistry._instance = new SurveyObjectsRegistry();
-        }
-        return SurveyObjectsRegistry._instance;
     }
 
     // Registration methods
@@ -132,8 +124,7 @@ export class SurveyObjectsRegistry {
 
     // Lookup methods
     getInterview(uuid: string): Optional<Interview> {
-        const result = this._interviews.get(uuid);
-        return result;
+        return this._interviews.get(uuid);
     }
 
     getPlace(uuid: string): Optional<Place> {
@@ -141,8 +132,7 @@ export class SurveyObjectsRegistry {
     }
 
     getHousehold(uuid: string): Optional<Household> {
-        const result = this._households.get(uuid);
-        return result;
+        return this._households.get(uuid);
     }
 
     getPerson(uuid: string): Optional<Person> {

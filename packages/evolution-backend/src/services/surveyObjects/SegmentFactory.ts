@@ -10,22 +10,25 @@ import { Trip, ExtendedTripAttributes } from 'evolution-common/lib/services/base
 import { Segment, ExtendedSegmentAttributes } from 'evolution-common/lib/services/baseObjects/Segment';
 import { isOk } from 'evolution-common/lib/types/Result.type';
 import projectConfig from '../../config/projectConfig';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 /**
  * Generate segments for a trip
- * Creates all Segment objects for a trip and associates them with the trip
+ * Populate segments for a trip from the trip's segments attributes
  * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
  * @param {Trip} trip - The trip these segments belong to
  * @param {ExtendedTripAttributes} tripAttributes - Trip attributes containing segment data
- * @param {InterviewAttributes} interviewAttributes - Interview attributes containing segment data
+ * @param {CorrectedResponse} correctedResponse - corrected response
+ * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  * @returns {Promise<void>}
  */
-export async function createSegmentsForTrip(
+export async function populateSegmentsForTrip(
     surveyObjectsWithErrors: SurveyObjectsWithErrors,
     trip: Trip,
     tripAttributes: ExtendedTripAttributes,
-    interviewAttributes: InterviewAttributes
+    correctedResponse: CorrectedResponse,
+    surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
     const segmentsAttributes = tripAttributes?.segments || {};
 
@@ -41,18 +44,14 @@ export async function createSegmentsForTrip(
             continue;
         }
 
-        console.log(`          ==== Segment ${segmentUuid} creation ====`);
-
         // Parse segment attributes if parser is available
         if (projectConfig.surveyObjectParsers?.segment) {
-            projectConfig.surveyObjectParsers.segment(segmentAttributes, interviewAttributes);
+            projectConfig.surveyObjectParsers.segment(segmentAttributes, correctedResponse);
         }
 
-        const segment = Segment.create(segmentAttributes as ExtendedSegmentAttributes);
+        const segment = Segment.create(segmentAttributes as ExtendedSegmentAttributes, surveyObjectsRegistry);
 
         if (isOk(segment)) {
-            console.log(`          ==== Segment ${segmentUuid} created successfully ====`);
-
             // Associate segment with trip
             trip.addSegment(segment.result);
         } else {

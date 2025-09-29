@@ -11,8 +11,15 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('VisitedPlace', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
@@ -75,7 +82,7 @@ describe('VisitedPlace', () => {
     };
 
     test('should create a VisitedPlace instance with valid attributes', () => {
-        const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace);
+        const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
         expect(visitedPlace).toBeInstanceOf(VisitedPlace);
         expect(visitedPlace.attributes).toEqual(validVisitedPlaceAttributes);
     });
@@ -88,38 +95,38 @@ describe('VisitedPlace', () => {
     });
 
     test('should get uuid', () => {
-        const place = new VisitedPlace({ ...validVisitedPlaceAttributesWithPlace, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const place = new VisitedPlace({ ...validVisitedPlaceAttributesWithPlace, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(place._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a VisitedPlace instance with valid attributes', () => {
-        const result = VisitedPlace.create(validVisitedPlaceAttributesWithPlace);
+        const result = VisitedPlace.create(validVisitedPlaceAttributesWithPlace, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(VisitedPlace);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = VisitedPlace.create(invalidAttributes);
+        const result = VisitedPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[])).toHaveLength(1);
     });
 
     test('should create a VisitedPlace instance with extended attributes', () => {
-        const result = VisitedPlace.create(extendedVisitedPlaceAttributes);
+        const result = VisitedPlace.create(extendedVisitedPlaceAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(VisitedPlace);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validVisitedPlaceAttributesWithPlace, _place: { ...validPlaceAttributes, name: -1 } };
-        const result = VisitedPlace.create(invalidAttributes);
+        const result = VisitedPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a VisitedPlace instance', () => {
-        const visitedPlace = VisitedPlace.unserialize(validVisitedPlaceAttributesWithPlace);
+        const visitedPlace = VisitedPlace.unserialize(validVisitedPlaceAttributesWithPlace, registry);
         expect(visitedPlace).toBeInstanceOf(VisitedPlace);
         expect(visitedPlace.attributes).toEqual(validVisitedPlaceAttributes);
     });
@@ -150,7 +157,7 @@ describe('VisitedPlace', () => {
     });
 
     test('should validate a VisitedPlace instance', () => {
-        const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace);
+        const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
         expect(visitedPlace.validate()).toBe(true);
         expect(visitedPlace.isValid()).toBe(true);
     });
@@ -164,7 +171,7 @@ describe('VisitedPlace', () => {
             ...validVisitedPlaceAttributesWithPlace,
             ...customAttributes,
         };
-        const visitedPlace = new VisitedPlace(visitedPlaceAttributesWithCustom);
+        const visitedPlace = new VisitedPlace(visitedPlaceAttributesWithCustom, registry);
         expect(visitedPlace).toBeInstanceOf(VisitedPlace);
         expect(visitedPlace.attributes).toEqual(validVisitedPlaceAttributes);
         expect(visitedPlace.customAttributes).toEqual(customAttributes);
@@ -208,7 +215,7 @@ describe('VisitedPlace', () => {
             ['shortcut', uuidV4()],
             ['_sequence', 2],
         ])('should set and get %s', (attribute, value) => {
-            const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace);
+            const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
             visitedPlace[attribute] = value;
             expect(visitedPlace[attribute]).toEqual(value);
         });
@@ -222,7 +229,7 @@ describe('VisitedPlace', () => {
                 }],
                 ['attributes', validVisitedPlaceAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const visitedPlace = new VisitedPlace(extendedVisitedPlaceAttributes);
+                const visitedPlace = new VisitedPlace(extendedVisitedPlaceAttributes, registry);
                 expect(visitedPlace[attribute]).toEqual(value);
             });
         });
@@ -233,7 +240,7 @@ describe('VisitedPlace', () => {
             ['journeyUuid', uuidV4()],
             ['_place', validPlaceAttributes],
         ])('should set and get %s', (attribute, value) => {
-            const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace);
+            const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
             visitedPlace[attribute] = value;
             expect(visitedPlace[attribute]).toEqual(value);
         });

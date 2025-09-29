@@ -1,3 +1,10 @@
+/*
+ * Copyright 2025, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
 /**
  * Utility for unserializing survey objects that come from serialized survey objects
  * with the structure: { _attributes: {...}, _customAttributes: {...}, ...otherProps }

@@ -11,6 +11,7 @@ import { ConstructorUtils } from '../../../utils/ConstructorUtils';
 import { SurveyObjectUnserializer } from '../SurveyObjectUnserializer';
 import { ParamsValidatorUtils } from '../../../utils/ParamsValidatorUtils';
 import { Result, createErrors, createOk } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 /*
 We need to set these arrays to be able to split attributes and custom attributes during initialization.
@@ -173,10 +174,12 @@ export class InterviewParadata {
     /**
      * Creates an InterviewParadata object from sanitized parameters
      * @param {ExtendedInterviewParadataAttributes | SerializedExtendedInterviewParadataAttributes} params - Sanitized interview paradata parameters
+     * @param {SurveyObjectsRegistry} _surveyObjectsRegistry - unused since InterviewParadata is not composed of other objects, but unserializer will send the optional param.
      * @returns {InterviewParadata} New InterviewParadata instance
      */
     static unserialize(
-        params: ExtendedInterviewParadataAttributes | SerializedExtendedInterviewParadataAttributes
+        params: ExtendedInterviewParadataAttributes | SerializedExtendedInterviewParadataAttributes,
+        _surveyObjectsRegistry: SurveyObjectsRegistry
     ): InterviewParadata {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
         return new InterviewParadata(flattenedParams as ExtendedInterviewParadataAttributes);
@@ -202,10 +205,6 @@ export class InterviewParadata {
      * @param dirtyParams the json data
      * @param displayName the name of the object for error messages
      * @returns a list of errors if any, or an empty list if the params are valid
-        const errors: Error[] = [];
-        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
-        return errors;
     };
      */
     static validateParams = function (

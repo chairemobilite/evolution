@@ -246,20 +246,6 @@ export const startSetSurveyCorrectedInterview = (
                             interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
                                 interview.surveyObjectsAndAudits
                             );
-                            // for debugging during Audits development:
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            (window as any).H = interview.surveyObjectsAndAudits?.household;
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            (window as any).HM = interview.surveyObjectsAndAudits?.home;
-                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            (window as any).I = interview.surveyObjectsAndAudits?.interview;
-
-                            // for debugging during Audits development:
-                            console.log('surveyObjectsAndAudits:', {
-                                interview,
-                                interviewUuid: interviewUuid,
-                                surveyObjectsAndAudits: interview.surveyObjectsAndAudits
-                            });
                         } catch (error) {
                             console.error('Failed to unserialize surveyObjectsAndAudits:', error);
                         }
@@ -271,9 +257,6 @@ export const startSetSurveyCorrectedInterview = (
                     // Then, initialize navigation for the current interview
                     // This will handle all necessary updates internally
                     await dispatch(startNavigateCorrectedInterview(undefined, callback));
-
-                    // TODO: Remove this redundant call - kept commented for testing
-                    // dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                 }
             }
         } catch (err) {
@@ -382,9 +365,6 @@ export const startResetCorrectedInterview = (
 
                     // Initialize navigation for the reset interview
                     await dispatch(startNavigateCorrectedInterview(undefined, callback));
-
-                    // TODO: Remove this redundant call - kept commented for testing
-                    // dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                 }
             }
         } catch (err) {

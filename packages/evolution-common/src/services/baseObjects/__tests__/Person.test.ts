@@ -15,8 +15,15 @@ import { Journey } from '../Journey';
 import { VisitedPlace } from '../VisitedPlace';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Person', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+        registry.clear();
+    });
 
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
@@ -108,45 +115,45 @@ describe('Person', () => {
     nonStringAttributes.forEach((attribute) => {
         test(`should return errors for invalid ${attribute}`, () => {
             const invalidAttributes = { ...validAttributes, [attribute]: 'invalid' }; // Replace 'invalid' with a string
-            const result = Person.create(invalidAttributes);
+            const result = Person.create(invalidAttributes, registry);
             expect(hasErrors(result)).toBe(true);
             expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
         });
     });
 
     test('should create a Person instance with valid attributes', () => {
-        const result = Person.create(validAttributes);
+        const result = Person.create(validAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Person);
     });
 
     test('should create a Person instance with extended attributes', () => {
-        const result = Person.create(extendedAttributes);
+        const result = Person.create(extendedAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Person);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validAttributes, age: -1 };
-        const result = Person.create(invalidAttributes);
+        const result = Person.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a Person instance', () => {
-        const person = Person.unserialize(validAttributes);
+        const person = Person.unserialize(validAttributes, registry);
         expect(person).toBeInstanceOf(Person);
         expect(person.age).toBe(30);
     });
 
     test('should validate a Person instance', () => {
-        const person = new Person(validAttributes);
+        const person = new Person(validAttributes, registry);
         expect(person.validate()).toBe(true);
         expect(person.isValid()).toBe(true);
     });
 
     test('should get uuid', () => {
-        const person = new Person({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const person = new Person({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(person._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
@@ -159,52 +166,52 @@ describe('Person', () => {
             ...validAttributes,
             ...customAttributes,
         };
-        const person = new Person(placeAttributes);
+        const person = new Person(placeAttributes, registry);
         expect(person).toBeInstanceOf(Person);
         expect(person.attributes).toEqual(validAttributes);
         expect(person.customAttributes).toEqual(customAttributes);
     });
 
     test('should set and get custom attribute values', () => {
-        const person = new Person(extendedAttributes);
+        const person = new Person(extendedAttributes, registry);
         person.customAttributes.customAttribute = 'updated value';
         expect(person.customAttributes.customAttribute).toBe('updated value');
     });
 
     test('should set and get work places', () => {
-        const person = new Person(extendedAttributes);
-        const workPlace: WorkPlace = new WorkPlace({ parkingType: 'exterior', parkingFeeType: 'paidByEmployee', _isValid: true });
+        const person = new Person(extendedAttributes, registry);
+        const workPlace: WorkPlace = new WorkPlace({ parkingType: 'exterior', parkingFeeType: 'paidByEmployee', _isValid: true }, registry);
         person.workPlaces = [workPlace];
         expect(person.workPlaces).toHaveLength(1);
         expect(person.workPlaces[0]).toEqual(workPlace);
     });
 
     test('should set and get school places', () => {
-        const person = new Person(extendedAttributes);
-        const schoolPlace: SchoolPlace = new SchoolPlace({ parkingType: 'streetside', parkingFeeType: 'paidByStudent', _isValid: true });
+        const person = new Person(extendedAttributes, registry);
+        const schoolPlace: SchoolPlace = new SchoolPlace({ parkingType: 'streetside', parkingFeeType: 'paidByStudent', _isValid: true }, registry);
         person.schoolPlaces = [schoolPlace];
         expect(person.schoolPlaces).toHaveLength(1);
         expect(person.schoolPlaces[0]).toEqual(schoolPlace);
     });
 
     test('should set and get vehicles', () => {
-        const person = new Person(extendedAttributes);
-        const vehicle: Vehicle = new Vehicle({ make: 'foo', model: 'bar', _isValid: true });
+        const person = new Person(extendedAttributes, registry);
+        const vehicle: Vehicle = new Vehicle({ make: 'foo', model: 'bar', _isValid: true }, registry);
         person.vehicles = [vehicle];
         expect(person.vehicles).toHaveLength(1);
         expect(person.vehicles[0]).toEqual(vehicle);
     });
 
     test('should set and get journeys', () => {
-        const person = new Person(extendedAttributes);
-        const journey: Journey = new Journey({ _isValid: true });
+        const person = new Person(extendedAttributes, registry);
+        const journey: Journey = new Journey({ _isValid: true }, registry);
         person.journeys = [journey];
         expect(person.journeys).toHaveLength(1);
         expect(person.journeys[0]).toEqual(journey);
     });
 
     test('should set and get household UUID', () => {
-        const person = new Person(validAttributes);
+        const person = new Person(validAttributes, registry);
         const householdId = uuidV4();
         person.householdUuid = householdId;
         expect(person.householdUuid).toBe(householdId);
@@ -219,7 +226,7 @@ describe('Person', () => {
             ['isProxy', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
-            const result = Person.create(invalidAttributes);
+            const result = Person.create(invalidAttributes, registry);
             expect(hasErrors(result)).toBe(true);
             const errors = unwrap(result) as Error[];
             expect(errors[0].toString()).toContain(param);
@@ -228,7 +235,7 @@ describe('Person', () => {
 
         test.each(stringAttributes)('should return an error for invalid %s', (param) => {
             const invalidAttributes = { ...validAttributes, [param]: 123 };
-            const result = Person.create(invalidAttributes);
+            const result = Person.create(invalidAttributes, registry);
             expect(hasErrors(result)).toBe(true);
             const errors = unwrap(result) as Error[];
             expect(errors[0].toString()).toContain(param);
@@ -237,13 +244,13 @@ describe('Person', () => {
 
         test('should return an error for invalid params', () => {
             const invalidAttributes = 'foo' as any;
-            const result = Person.create(invalidAttributes);
+            const result = Person.create(invalidAttributes, registry);
             expect(hasErrors(result)).toBe(true);
             expect((unwrap(result) as Error[])).toHaveLength(1);
         });
 
         test('should return no errors for valid attributes', () => {
-            const result = Person.create(validAttributes);
+            const result = Person.create(validAttributes, registry);
             expect(isOk(result)).toBe(true);
             expect(unwrap(result)).toBeInstanceOf(Person);
         });
@@ -260,7 +267,7 @@ describe('Person', () => {
             const weightMethod = new WeightMethod(weightMethodAttributes);
             const weights: Weight[] = [{ weight: 1.5, method: weightMethod }];
             const personAttributes: { [key: string]: unknown } = { ...validAttributes, _weights: weights };
-            const result = Person.create(personAttributes);
+            const result = Person.create(personAttributes, registry);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
             expect((person as Person)._weights).toEqual(weights);
@@ -284,9 +291,9 @@ describe('Person', () => {
                 },
                 _isValid: true,
             };
-            const workPlace = new WorkPlace(workPlaceAttributes);
+            const workPlace = new WorkPlace(workPlaceAttributes, registry);
             const personAttributes: { [key: string]: unknown } = { ...validAttributes, _workPlaces: [workPlaceAttributes] };
-            const result = Person.create(personAttributes);
+            const result = Person.create(personAttributes, registry);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
             expect((person as Person).workPlaces).toHaveLength(1);
@@ -294,7 +301,7 @@ describe('Person', () => {
         });
 
         test('should return an error for invalid work places', () => {
-            const result = Person.create(extendedInvalidWorkPlacesAttributes);
+            const result = Person.create(extendedInvalidWorkPlacesAttributes, registry);
             expect(hasErrors(result)).toBe(true);
             expect((unwrap(result) as Error[])).toHaveLength(3);
         });
@@ -317,9 +324,9 @@ describe('Person', () => {
                 },
                 _isValid: true,
             };
-            const schoolPlace = new SchoolPlace(schoolPlaceAttributes);
+            const schoolPlace = new SchoolPlace(schoolPlaceAttributes, registry);
             const personAttributes: { [key: string]: unknown } = { ...validAttributes, _schoolPlaces: [schoolPlaceAttributes] };
-            const result = Person.create(personAttributes);
+            const result = Person.create(personAttributes, registry);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
             expect((person as Person).schoolPlaces).toHaveLength(1);
@@ -327,7 +334,7 @@ describe('Person', () => {
         });
 
         test('should return an error for invalid school places', () => {
-            const result = Person.create(extendedInvalidSchoolPlacesAttributes);
+            const result = Person.create(extendedInvalidSchoolPlacesAttributes, registry);
             expect(hasErrors(result)).toBe(true);
             expect((unwrap(result) as Error[])).toHaveLength(3);
         });
@@ -352,9 +359,9 @@ describe('Person', () => {
                 capacitySeats: 5,
                 _isValid: true
             };
-            const vehicle = new Vehicle(vehiclesAttributes);
+            const vehicle = new Vehicle(vehiclesAttributes, registry);
             const personAttributes: { [key: string]: unknown } = { ...validAttributes, _vehicles: [vehiclesAttributes] };
-            const result = Person.create(personAttributes);
+            const result = Person.create(personAttributes, registry);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
             expect((person as Person).vehicles).toHaveLength(1);
@@ -362,7 +369,7 @@ describe('Person', () => {
         });
 
         test('should return an error for invalid vehicles', () => {
-            const result = Person.create(extendedInvalidVehiclesAttributes);
+            const result = Person.create(extendedInvalidVehiclesAttributes, registry);
             expect(hasErrors(result)).toBe(true);
             expect((unwrap(result) as Error[])).toHaveLength(3);
         });
@@ -385,9 +392,9 @@ describe('Person', () => {
                 name: 'testName',
                 type: 'testType',
             };
-            const journey = new Journey(journeyAttributes);
+            const journey = new Journey(journeyAttributes, registry);
             const personAttributes: { [key: string]: unknown } = { ...validAttributes, _journeys: [journeyAttributes] };
-            const result = Person.create(personAttributes);
+            const result = Person.create(personAttributes, registry);
             expect(isOk(result)).toBe(true);
             const person = unwrap(result);
             expect((person as Person).journeys).toHaveLength(1);
@@ -395,7 +402,7 @@ describe('Person', () => {
         });
 
         test('should return an error for invalid journeys', () => {
-            const result = Person.create(extendedInvalidJourneysAttributes);
+            const result = Person.create(extendedInvalidJourneysAttributes, registry);
             expect(hasErrors(result)).toBe(true);
             expect((unwrap(result) as Error[])).toHaveLength(3);
         });
@@ -403,9 +410,9 @@ describe('Person', () => {
 
     describe('Journey Management Methods', () => {
         test('should add journeys using addJourney method', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             person.addJourney(journey2);
@@ -416,10 +423,10 @@ describe('Person', () => {
         });
 
         test('should insert journey at specific index', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             person.addJourney(journey3);
@@ -433,10 +440,10 @@ describe('Person', () => {
         });
 
         test('should insert journey after specific UUID', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             person.addJourney(journey3);
@@ -451,10 +458,10 @@ describe('Person', () => {
         });
 
         test('should insert journey before specific UUID', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey3 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             person.addJourney(journey3);
@@ -469,9 +476,9 @@ describe('Person', () => {
         });
 
         test('should return false when inserting after non-existent UUID', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             const success = person.insertJourneyAfterUuid(journey2, uuidV4());
@@ -481,9 +488,9 @@ describe('Person', () => {
         });
 
         test('should return false when inserting before non-existent UUID', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             const success = person.insertJourneyBeforeUuid(journey2, uuidV4());
@@ -493,9 +500,9 @@ describe('Person', () => {
         });
 
         test('should remove journey by UUID', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             person.addJourney(journey2);
@@ -508,8 +515,8 @@ describe('Person', () => {
         });
 
         test('should return false when removing non-existent journey', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             const success = person.removeJourney(uuidV4());
@@ -519,9 +526,9 @@ describe('Person', () => {
         });
 
         test('should get journey by UUID', () => {
-            const person = new Person(validAttributes);
-            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true });
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey1 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             person.addJourney(journey1);
             person.addJourney(journey2);
@@ -532,7 +539,7 @@ describe('Person', () => {
         });
 
         test('should handle empty journeys array', () => {
-            const person = new Person(validAttributes);
+            const person = new Person(validAttributes, registry);
 
             expect(person.journeys || []).toHaveLength(0);
             expect(person.getJourneyByUuid(uuidV4())).toBeUndefined();
@@ -540,8 +547,8 @@ describe('Person', () => {
         });
 
         test('should add journey to empty array when inserting after/before UUID', () => {
-            const person = new Person(validAttributes);
-            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             const successAfter = person.insertJourneyAfterUuid(journey, uuidV4());
             expect(successAfter).toBe(true);
@@ -550,7 +557,7 @@ describe('Person', () => {
 
             // Reset for before test
             person.journeys = undefined;
-            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const journey2 = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
             const successBefore = person.insertJourneyBeforeUuid(journey2, uuidV4());
             expect(successBefore).toBe(true);
             expect(person.journeys || []).toHaveLength(1);
@@ -560,8 +567,8 @@ describe('Person', () => {
 
     describe('Setup Work and School Places', () => {
         test('should setup work and school places from visited places', () => {
-            const person = new Person(validAttributes);
-            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Add a work visited place
             const workVisitedPlace = new VisitedPlace({
@@ -582,7 +589,7 @@ describe('Person', () => {
                     },
                     _isValid: true,
                 },
-            });
+            }, registry);
 
             // Add a school visited place
             const schoolVisitedPlace = new VisitedPlace({
@@ -603,7 +610,7 @@ describe('Person', () => {
                     },
                     _isValid: true,
                 },
-            });
+            }, registry);
 
             journey.addVisitedPlace(workVisitedPlace);
             journey.addVisitedPlace(schoolVisitedPlace);
@@ -621,8 +628,8 @@ describe('Person', () => {
         });
 
         test('should not duplicate work places with same coordinates', () => {
-            const person = new Person(validAttributes);
-            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Pre-populate work places
             const existingWorkPlace = new WorkPlace({
@@ -637,7 +644,7 @@ describe('Person', () => {
                     properties: {},
                 },
                 _isValid: true,
-            });
+            }, registry);
             person.workPlaces = [existingWorkPlace];
 
             // Add a work visited place with same coordinates
@@ -677,8 +684,8 @@ describe('Person', () => {
         });
 
         test('should not duplicate school places with same coordinates', () => {
-            const person = new Person(validAttributes);
-            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Pre-populate school places
             const existingSchoolPlace = new SchoolPlace({
@@ -693,7 +700,7 @@ describe('Person', () => {
                     properties: {},
                 },
                 _isValid: true,
-            });
+            }, registry);
             person.schoolPlaces = [existingSchoolPlace];
 
             // Add a school visited place with same coordinates
@@ -733,8 +740,8 @@ describe('Person', () => {
         });
 
         test('should handle only workUsual activities (not workOther)', () => {
-            const person = new Person(validAttributes);
-            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Add different work activities
             const workUsualPlace = new VisitedPlace({
@@ -755,7 +762,7 @@ describe('Person', () => {
                     },
                     _isValid: true,
                 },
-            });
+            }, registry);
 
             const workOtherPlace = new VisitedPlace({
                 _uuid: uuidV4(),
@@ -775,7 +782,7 @@ describe('Person', () => {
                     },
                     _isValid: true,
                 },
-            });
+            }, registry);
 
             journey.addVisitedPlace(workUsualPlace);
             journey.addVisitedPlace(workOtherPlace);
@@ -789,7 +796,7 @@ describe('Person', () => {
         });
 
         test('should handle empty journeys gracefully', () => {
-            const person = new Person(validAttributes);
+            const person = new Person(validAttributes, registry);
 
             person.setupWorkAndSchoolPlaces();
 
@@ -798,7 +805,7 @@ describe('Person', () => {
         });
 
         test('should initialize arrays when undefined', () => {
-            const person = new Person(validAttributes);
+            const person = new Person(validAttributes, registry);
             person.workPlaces = undefined;
             person.schoolPlaces = undefined;
 
@@ -809,8 +816,8 @@ describe('Person', () => {
         });
 
         test('should handle visited places without geography', () => {
-            const person = new Person(validAttributes);
-            const journey = new Journey({ _uuid: uuidV4(), _isValid: true });
+            const person = new Person(validAttributes, registry);
+            const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Add a work visited place without geography
             const workVisitedPlace = {
@@ -876,7 +883,7 @@ describe('Person', () => {
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'johnny@example.com'],
         ])('should set and get %s', (attribute, value) => {
-            const person = new Person(validAttributes);
+            const person = new Person(validAttributes, registry);
             person[attribute] = value;
             expect(person[attribute]).toEqual(value);
         });
@@ -887,21 +894,22 @@ describe('Person', () => {
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const person = new Person(extendedAttributes);
+                const person = new Person(extendedAttributes, registry);
                 expect(person[attribute]).toEqual(value);
             });
         });
 
         test.each([
-            ['_isValid', false],
-            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['_workPlaces', [new WorkPlace({ placeType: 'home', _isValid: true })]],
-            ['_schoolPlaces', [new SchoolPlace({ placeType: 'college', _isValid: true })]],
-            ['_vehicles', [new Vehicle({ modelYear: 2024, _isValid: true })]],
-            ['_journeys', [new Journey({ name: 'test', _isValid: true })]],
-            ['householdUuid', uuidV4()],
-        ])('should set and get %s', (attribute, value) => {
-            const person = new Person(validAttributes);
+            ['_isValid', () => false],
+            ['_weights', () => [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
+            ['_workPlaces', () => [new WorkPlace({ placeType: 'home', _isValid: true }, registry)]],
+            ['_schoolPlaces', () => [new SchoolPlace({ placeType: 'college', _isValid: true }, registry)]],
+            ['_vehicles', () => [new Vehicle({ modelYear: 2024, _isValid: true }, registry)]],
+            ['_journeys', () => [new Journey({ name: 'test', _isValid: true }, registry)]],
+            ['householdUuid', () => uuidV4()],
+        ])('should set and get %s', (attribute, valueFactory) => {
+            const person = new Person(validAttributes, registry);
+            const value = valueFactory();
             person[attribute] = value;
             expect(person[attribute]).toEqual(value);
         });

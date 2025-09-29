@@ -11,6 +11,7 @@ import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 
 export const routingModes = ['walking', 'cycling', 'driving', 'transit'];
 export type RoutingModes = (typeof routingModes)[number];
@@ -165,9 +166,13 @@ export class Routing {
     /**
      * Creates a Routing object from sanitized parameters
      * @param {ExtendedRoutingAttributes | SerializedExtendedRoutingAttributes} params - Sanitized routing parameters
+     * @param {SurveyObjectsRegistry} _surveyObjectsRegistry - unused since Routing is not composed of other objects, but unserializer will send the optional param.
      * @returns {Routing} New Routing instance
      */
-    static unserialize(params: ExtendedRoutingAttributes | SerializedExtendedRoutingAttributes): Routing {
+    static unserialize(
+        params: ExtendedRoutingAttributes | SerializedExtendedRoutingAttributes,
+        _surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Routing {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
         return new Routing(flattenedParams);
     }

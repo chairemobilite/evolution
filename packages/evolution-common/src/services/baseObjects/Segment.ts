@@ -117,6 +117,7 @@ export type SerializedExtendedSegmentAttributes = {
  * and/or destination when the segment is first or last for the trip
  */
 export class Segment extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: SegmentAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -135,8 +136,10 @@ export class Segment extends Uuidable implements IValidatable {
 
     static _confidentialAttributes = [];
 
-    constructor(params: ExtendedSegmentAttributes) {
+    constructor(params: ExtendedSegmentAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
         this._attributes = {} as SegmentAttributes & SegmentWithComposedAttributes;
         this._customAttributes = {};
 
@@ -170,43 +173,59 @@ export class Segment extends Uuidable implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.origin = ConstructorUtils.initializeComposedAttribute(params._origin, Junction.unserialize);
-        this.destination = ConstructorUtils.initializeComposedAttribute(params._destination, Junction.unserialize);
+        this.origin = ConstructorUtils.initializeComposedAttribute(
+            params._origin,
+            Junction.unserialize,
+            this._surveyObjectsRegistry
+        );
+        this.destination = ConstructorUtils.initializeComposedAttribute(
+            params._destination,
+            Junction.unserialize,
+            this._surveyObjectsRegistry
+        );
         this.transitDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
             params._transitDeclaredRouting,
-            Routing.unserialize
+            Routing.unserialize,
+            this._surveyObjectsRegistry
         );
         this.walkingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
             params._walkingDeclaredRouting,
-            Routing.unserialize
+            Routing.unserialize,
+            this._surveyObjectsRegistry
         );
         this.cyclingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
             params._cyclingDeclaredRouting,
-            Routing.unserialize
+            Routing.unserialize,
+            this._surveyObjectsRegistry
         );
         this.drivingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
             params._drivingDeclaredRouting,
-            Routing.unserialize
+            Routing.unserialize,
+            this._surveyObjectsRegistry
         );
         this.transitCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
             params._transitCalculatedRoutings,
-            Routing.unserialize
+            Routing.unserialize,
+            this._surveyObjectsRegistry
         );
         this.walkingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
             params._walkingCalculatedRoutings,
-            Routing.unserialize
+            Routing.unserialize,
+            this._surveyObjectsRegistry
         );
         this.cyclingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
             params._cyclingCalculatedRoutings,
-            Routing.unserialize
+            Routing.unserialize,
+            this._surveyObjectsRegistry
         );
         this.drivingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
             params._drivingCalculatedRoutings,
-            Routing.unserialize
+            Routing.unserialize,
+            this._surveyObjectsRegistry
         );
         this.tripUuid = params._tripUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerSegment(this);
+        this._surveyObjectsRegistry.registerSegment(this);
     }
 
     /**
@@ -457,7 +476,7 @@ export class Segment extends Uuidable implements IValidatable {
         if (!this._tripUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getTrip(this._tripUuid);
+        return this._surveyObjectsRegistry.getTrip(this._tripUuid);
     }
 
     get journey(): Optional<Journey> {
@@ -477,14 +496,23 @@ export class Segment extends Uuidable implements IValidatable {
      * @param {ExtendedSegmentAttributes | SerializedExtendedSegmentAttributes} params - Sanitized segment parameters
      * @returns {Segment} New Segment instance
      */
-    static unserialize(params: ExtendedSegmentAttributes | SerializedExtendedSegmentAttributes): Segment {
+    static unserialize(
+        params: ExtendedSegmentAttributes | SerializedExtendedSegmentAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Segment {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Segment(flattenedParams as ExtendedSegmentAttributes);
+        return new Segment(flattenedParams as ExtendedSegmentAttributes, surveyObjectsRegistry);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<Segment> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Segment> {
         const errors = Segment.validateParams(dirtyParams);
-        const segment = errors.length === 0 ? new Segment(dirtyParams as ExtendedSegmentAttributes) : undefined;
+        const segment =
+            errors.length === 0
+                ? new Segment(dirtyParams as ExtendedSegmentAttributes, surveyObjectsRegistry)
+                : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

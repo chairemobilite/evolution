@@ -12,8 +12,8 @@ import { create as createInterviewObject } from 'evolution-common/lib/services/b
 import { isOk } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
-import { createPersonsForHousehold } from './PersonFactory';
-import { createJourneysForPerson } from './JourneyFactory';
+import { populatePersonsForHousehold } from './PersonFactory';
+import { populateJourneysForPerson } from './JourneyFactory';
 import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import projectConfig from '../../config/projectConfig';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
@@ -54,8 +54,10 @@ export class SurveyObjectsFactory {
      * Main method to create objects and prepare for audits
      * Orchestrates the entire object creation for a single interview
      *
-     * If a survey objects has any error, it will be return as undefined
+     * If a survey objects has any error, it will be set as undefined in the surveyObjectsWithErrors
      * and the errors will be included in the errorsByObject.
+     *
+     * This function also runs the parsers found in the survey project and setup in project config.
      *
      * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
      * @param {InterviewAttributes} interviewAttributes - The interview attributes
@@ -94,19 +96,20 @@ export class SurveyObjectsFactory {
         }
 
         // reset SurveyObjectsRegistry (otherwise the registry will fill out with previous interview objects)
-        SurveyObjectsRegistry.getInstance().clear();
+        const surveyObjectsRegistry = new SurveyObjectsRegistry();
 
         // Create Interview
         console.log('==== Interview creation ====');
 
         // Parse interview attributes if parser is available
         if (projectConfig.surveyObjectParsers?.interview) {
-            projectConfig.surveyObjectParsers.interview(interviewAttributes);
+            projectConfig.surveyObjectParsers.interview(correctedResponse);
         }
 
         const interviewResult = createInterviewObject(
             _omit(correctedResponse, ['home', 'household']) as CorrectedResponse,
-            interviewAttributes
+            interviewAttributes,
+            surveyObjectsRegistry
         );
         if (isOk(interviewResult)) {
             surveyObjectsWithErrors.interview = interviewResult.result;
@@ -122,14 +125,14 @@ export class SurveyObjectsFactory {
 
         // Parse interview attributes if parser is available
         if (projectConfig.surveyObjectParsers?.home && correctedResponse.home) {
-            projectConfig.surveyObjectParsers.home(correctedResponse.home, interviewAttributes);
+            projectConfig.surveyObjectParsers.home(correctedResponse.home, correctedResponse);
         }
 
         const homeAttributes = correctedResponse.home;
 
         // Only try to create home if we have home attributes
         if (homeAttributes) {
-            const homeResult = Home.create(homeAttributes as { [key: string]: unknown });
+            const homeResult = Home.create(homeAttributes as { [key: string]: unknown }, surveyObjectsRegistry);
             if (isOk(homeResult)) {
                 surveyObjectsWithErrors.home = homeResult.result;
                 console.log('  ==== Home created successfully ====');
@@ -145,7 +148,7 @@ export class SurveyObjectsFactory {
 
         // Parse interview attributes if parser is available
         if (projectConfig.surveyObjectParsers?.household && correctedResponse.household) {
-            projectConfig.surveyObjectParsers.household(correctedResponse.household, interviewAttributes);
+            projectConfig.surveyObjectParsers.household(correctedResponse.household, correctedResponse);
         }
 
         const householdAttributes = correctedResponse.household;
@@ -153,7 +156,8 @@ export class SurveyObjectsFactory {
         // Only try to create household if we have household attributes
         if (householdAttributes) {
             const householdResult = Household.create(
-                _omit(householdAttributes, ['persons']) as { [key: string]: unknown }
+                _omit(householdAttributes, ['persons']) as { [key: string]: unknown },
+                surveyObjectsRegistry
             );
             if (isOk(householdResult)) {
                 surveyObjectsWithErrors.household = householdResult.result;
@@ -178,7 +182,12 @@ export class SurveyObjectsFactory {
 
             // For now, we'll keep the existing factory functions for persons/journeys
             // These can be refactored later in the same way
-            await createPersonsForHousehold(surveyObjectsWithErrors, household, interviewAttributes);
+            await populatePersonsForHousehold(
+                surveyObjectsWithErrors,
+                household,
+                correctedResponse,
+                surveyObjectsRegistry
+            );
 
             const personsAttributes = householdAttributes.persons || {};
             const persons = household.members || [];
@@ -193,12 +202,13 @@ export class SurveyObjectsFactory {
                 console.log('    ==== Journeys, visited places, trips and segments creation ====');
 
                 // Generate all journeys for this person (includes visited places, trips, and segments)
-                await createJourneysForPerson(
+                await populateJourneysForPerson(
                     surveyObjectsWithErrors,
                     person,
                     personAttributes,
                     home,
-                    interviewAttributes
+                    correctedResponse,
+                    surveyObjectsRegistry
                 );
 
                 // Setup work and school places after all visited places are created

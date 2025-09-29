@@ -13,7 +13,7 @@ import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WorkPlace } from './WorkPlace';
 import { SchoolPlace } from './SchoolPlace';
-import { Place, ExtendedPlaceAttributes } from './Place';
+import { ExtendedPlaceAttributes } from './Place';
 import { VisitedPlace } from './VisitedPlace';
 import * as PAttr from './attributeTypes/PersonAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
@@ -161,6 +161,7 @@ export type SerializedExtendedPersonAttributes = {
  * workPlaces, schoolPlaces, journeys, vehicles
  */
 export class Person extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: PersonAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -178,8 +179,10 @@ export class Person extends Uuidable implements IValidatable {
         'nickname'
     ];
 
-    constructor(params: ExtendedPersonAttributes) {
+    constructor(params: ExtendedPersonAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {};
         this._customAttributes = {};
@@ -202,16 +205,29 @@ export class Person extends Uuidable implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.workPlaces = ConstructorUtils.initializeComposedArrayAttributes(params._workPlaces, WorkPlace.unserialize);
+        this.workPlaces = ConstructorUtils.initializeComposedArrayAttributes(
+            params._workPlaces,
+            (params) => WorkPlace.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
         this.schoolPlaces = ConstructorUtils.initializeComposedArrayAttributes(
             params._schoolPlaces,
-            SchoolPlace.unserialize
+            (params) => SchoolPlace.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
         );
-        this.journeys = ConstructorUtils.initializeComposedArrayAttributes(params._journeys, Journey.unserialize);
-        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params._vehicles, Vehicle.unserialize);
+        this.journeys = ConstructorUtils.initializeComposedArrayAttributes(
+            params._journeys,
+            (params) => Journey.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
+            params._vehicles,
+            (params) => Vehicle.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
         this.householdUuid = params._householdUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerPerson(this);
+        this._surveyObjectsRegistry.registerPerson(this);
     }
 
     get attributes(): PersonAttributes {
@@ -560,7 +576,7 @@ export class Person extends Uuidable implements IValidatable {
         if (!this._householdUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getHousehold(this._householdUuid);
+        return this._surveyObjectsRegistry.getHousehold(this._householdUuid);
     }
 
     /**
@@ -720,7 +736,10 @@ export class Person extends Uuidable implements IValidatable {
                     // Add to work places if not already present
                     if (!alreadyFetchedWorkCoordinatesStr.includes(coordinateStr)) {
                         alreadyFetchedWorkCoordinatesStr.push(coordinateStr);
-                        const workPlace = Place.unserialize(visitedPlace.place?.attributes || {}); // Clone
+                        const workPlace = WorkPlace.unserialize(
+                            visitedPlace.place?.attributes || {},
+                            this._surveyObjectsRegistry
+                        ); // Clone
                         // Add name from visited place if needed
                         if (!workPlace.name && visitedPlace.name) {
                             workPlace.name = visitedPlace.name;
@@ -743,7 +762,10 @@ export class Person extends Uuidable implements IValidatable {
                     // Add to school places if not already present
                     if (!alreadyFetchedSchoolCoordinatesStr.includes(coordinateStr)) {
                         alreadyFetchedSchoolCoordinatesStr.push(coordinateStr);
-                        const schoolPlace = Place.unserialize(visitedPlace.place?.attributes || {}); // Clone
+                        const schoolPlace = SchoolPlace.unserialize(
+                            visitedPlace.place?.attributes || {},
+                            this._surveyObjectsRegistry
+                        ); // Clone
                         // Add name from visited place if needed
                         if (!schoolPlace.name && visitedPlace.name) {
                             schoolPlace.name = visitedPlace.name;
@@ -802,9 +824,12 @@ export class Person extends Uuidable implements IValidatable {
      * @param {ExtendedPersonAttributes | SerializedExtendedPersonAttributes} params - Sanitized person parameters
      * @returns {Person} New Person instance
      */
-    static unserialize(params: ExtendedPersonAttributes | SerializedExtendedPersonAttributes): Person {
+    static unserialize(
+        params: ExtendedPersonAttributes | SerializedExtendedPersonAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Person {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Person(flattenedParams as ExtendedPersonAttributes);
+        return new Person(flattenedParams as ExtendedPersonAttributes, surveyObjectsRegistry);
     }
 
     /**
@@ -814,9 +839,12 @@ export class Person extends Uuidable implements IValidatable {
      * @param dirtyParams
      * @returns Person | Error[]
      */
-    static create(dirtyParams: { [key: string]: unknown }): Result<Person> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Person> {
         const errors = Person.validateParams(dirtyParams);
-        const person = errors.length === 0 ? new Person(dirtyParams) : undefined;
+        const person = errors.length === 0 ? new Person(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

@@ -69,6 +69,7 @@ export type SerializedExtendedVehicleAttributes = {
  * It could include cars, trucks, planes, buses, boats, bicycles, scooters, etc.
  */
 export class Vehicle extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: VehicleAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -77,8 +78,10 @@ export class Vehicle extends Uuidable implements IValidatable {
     private _organizationUuid?: Optional<string>; // allow reverse lookup: must be filled by Organization.
     private _ownerUuid?: Optional<string>; // allow reverse lookup: must be filled by Person.
 
-    constructor(params: ExtendedVehicleAttributes) {
+    constructor(params: ExtendedVehicleAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as VehicleAttributes;
         this._customAttributes = {};
@@ -93,7 +96,7 @@ export class Vehicle extends Uuidable implements IValidatable {
         this.organizationUuid = params._organizationUuid as Optional<string>;
         this.ownerUuid = params._ownerUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerVehicle(this);
+        this._surveyObjectsRegistry.registerVehicle(this);
     }
 
     get attributes(): VehicleAttributes {
@@ -236,7 +239,7 @@ export class Vehicle extends Uuidable implements IValidatable {
         if (!this._ownerUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getPerson(this._ownerUuid);
+        return this._surveyObjectsRegistry.getPerson(this._ownerUuid);
     }
 
     get organizationUuid(): Optional<string> {
@@ -251,7 +254,7 @@ export class Vehicle extends Uuidable implements IValidatable {
         if (!this._organizationUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getOrganization(this._organizationUuid);
+        return this._surveyObjectsRegistry.getOrganization(this._organizationUuid);
     }
 
     /**
@@ -259,14 +262,20 @@ export class Vehicle extends Uuidable implements IValidatable {
      * @param {ExtendedVehicleAttributes | SerializedExtendedVehicleAttributes} params - Sanitized vehicle parameters
      * @returns {Vehicle} New Vehicle instance
      */
-    static unserialize(params: ExtendedVehicleAttributes | SerializedExtendedVehicleAttributes): Vehicle {
+    static unserialize(
+        params: ExtendedVehicleAttributes | SerializedExtendedVehicleAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Vehicle {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Vehicle(flattenedParams);
+        return new Vehicle(flattenedParams, surveyObjectsRegistry);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<Vehicle> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Vehicle> {
         const errors = Vehicle.validateParams(dirtyParams);
-        const vehicle = errors.length === 0 ? new Vehicle(dirtyParams) : undefined;
+        const vehicle = errors.length === 0 ? new Vehicle(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

@@ -6,31 +6,14 @@
  */
 
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import {
-    InterviewAuditCheckContext,
-    HouseholdAuditCheckContext,
-    HomeAuditCheckContext,
-    PersonAuditCheckContext,
-    JourneyAuditCheckContext,
-    VisitedPlaceAuditCheckContext,
-    TripAuditCheckContext,
-    SegmentAuditCheckContext,
-    InterviewAuditCheckFunction,
-    HouseholdAuditCheckFunction,
-    HomeAuditCheckFunction,
-    PersonAuditCheckFunction,
-    JourneyAuditCheckFunction,
-    VisitedPlaceAuditCheckFunction,
-    TripAuditCheckFunction,
-    SegmentAuditCheckFunction
-} from './AuditCheckContexts';
+import * as auditChecks from './AuditCheckContexts';
 
 /**
  * Run all interview audit checks
  */
 export const runInterviewAuditChecks = (
-    context: InterviewAuditCheckContext,
-    auditChecks: { [errorCode: string]: InterviewAuditCheckFunction }
+    context: auditChecks.InterviewAuditCheckContext,
+    auditChecks: { [errorCode: string]: auditChecks.InterviewAuditCheckFunction }
 ): AuditForObject[] => {
     const audits: AuditForObject[] = [];
 
@@ -54,8 +37,8 @@ export const runInterviewAuditChecks = (
  * Run all household audit checks
  */
 export const runHouseholdAuditChecks = (
-    context: HouseholdAuditCheckContext,
-    auditChecks: { [errorCode: string]: HouseholdAuditCheckFunction }
+    context: auditChecks.HouseholdAuditCheckContext,
+    auditChecks: { [errorCode: string]: auditChecks.HouseholdAuditCheckFunction }
 ): AuditForObject[] => {
     const audits: AuditForObject[] = [];
 
@@ -79,8 +62,8 @@ export const runHouseholdAuditChecks = (
  * Run all home audit checks
  */
 export const runHomeAuditChecks = (
-    context: HomeAuditCheckContext,
-    auditChecks: { [errorCode: string]: HomeAuditCheckFunction }
+    context: auditChecks.HomeAuditCheckContext,
+    auditChecks: { [errorCode: string]: auditChecks.HomeAuditCheckFunction }
 ): AuditForObject[] => {
     const audits: AuditForObject[] = [];
 
@@ -104,8 +87,8 @@ export const runHomeAuditChecks = (
  * Run all person audit checks
  */
 export const runPersonAuditChecks = (
-    context: PersonAuditCheckContext,
-    auditChecks: { [errorCode: string]: PersonAuditCheckFunction }
+    context: auditChecks.PersonAuditCheckContext,
+    auditChecks: { [errorCode: string]: auditChecks.PersonAuditCheckFunction }
 ): AuditForObject[] => {
     const audits: AuditForObject[] = [];
 
@@ -129,8 +112,8 @@ export const runPersonAuditChecks = (
  * Run all journey audit checks
  */
 export const runJourneyAuditChecks = (
-    context: JourneyAuditCheckContext,
-    auditChecks: { [errorCode: string]: JourneyAuditCheckFunction }
+    context: auditChecks.JourneyAuditCheckContext,
+    auditChecks: { [errorCode: string]: auditChecks.JourneyAuditCheckFunction }
 ): AuditForObject[] => {
     const audits: AuditForObject[] = [];
 
@@ -154,8 +137,8 @@ export const runJourneyAuditChecks = (
  * Run all visited place audit checks
  */
 export const runVisitedPlaceAuditChecks = (
-    context: VisitedPlaceAuditCheckContext,
-    auditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction }
+    context: auditChecks.VisitedPlaceAuditCheckContext,
+    auditChecks: { [errorCode: string]: auditChecks.VisitedPlaceAuditCheckFunction }
 ): AuditForObject[] => {
     const audits: AuditForObject[] = [];
 
@@ -179,8 +162,8 @@ export const runVisitedPlaceAuditChecks = (
  * Run all trip audit checks
  */
 export const runTripAuditChecks = (
-    context: TripAuditCheckContext,
-    auditChecks: { [errorCode: string]: TripAuditCheckFunction }
+    context: auditChecks.TripAuditCheckContext,
+    auditChecks: { [errorCode: string]: auditChecks.TripAuditCheckFunction }
 ): AuditForObject[] => {
     const audits: AuditForObject[] = [];
 
@@ -204,8 +187,8 @@ export const runTripAuditChecks = (
  * Run all segment audit checks
  */
 export const runSegmentAuditChecks = (
-    context: SegmentAuditCheckContext,
-    auditChecks: { [errorCode: string]: SegmentAuditCheckFunction }
+    context: auditChecks.SegmentAuditCheckContext,
+    auditChecks: { [errorCode: string]: auditChecks.SegmentAuditCheckFunction }
 ): AuditForObject[] => {
     const audits: AuditForObject[] = [];
 

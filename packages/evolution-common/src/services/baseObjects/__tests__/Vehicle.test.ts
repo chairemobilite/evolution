@@ -9,8 +9,15 @@ import { Vehicle, VehicleAttributes, ExtendedVehicleAttributes, vehicleAttribute
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Vehicle', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
@@ -43,7 +50,7 @@ describe('Vehicle', () => {
     };
 
     test('should create a Vehicle instance with valid attributes', () => {
-        const vehicle = new Vehicle(validAttributes);
+        const vehicle = new Vehicle(validAttributes, registry);
         expect(vehicle).toBeInstanceOf(Vehicle);
         expect(vehicle.attributes).toEqual(validAttributes);
     });
@@ -56,38 +63,38 @@ describe('Vehicle', () => {
     });
 
     test('should get uuid', () => {
-        const vehicle = new Vehicle({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const vehicle = new Vehicle({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(vehicle._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a Vehicle instance with valid attributes', () => {
-        const result = Vehicle.create(validAttributes);
+        const result = Vehicle.create(validAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Vehicle);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = Vehicle.create(invalidAttributes);
+        const result = Vehicle.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should create a Vehicle instance with extended attributes', () => {
-        const result = Vehicle.create(extendedAttributes);
+        const result = Vehicle.create(extendedAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Vehicle);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validAttributes, capacitySeated: -1 };
-        const result = Vehicle.create(invalidAttributes);
+        const result = Vehicle.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a Vehicle instance', () => {
-        const vehicle = Vehicle.unserialize(validAttributes);
+        const vehicle = Vehicle.unserialize(validAttributes, registry);
         expect(vehicle).toBeInstanceOf(Vehicle);
         expect(vehicle.attributes).toEqual(validAttributes);
     });
@@ -118,7 +125,7 @@ describe('Vehicle', () => {
     });
 
     test('should validate a Vehicle instance', () => {
-        const vehicle = new Vehicle(validAttributes);
+        const vehicle = new Vehicle(validAttributes, registry);
         expect(vehicle.validate()).toBe(true);
         expect(vehicle.isValid()).toBe(true);
     });
@@ -132,7 +139,7 @@ describe('Vehicle', () => {
             ...validAttributes,
             ...customAttributes,
         };
-        const vehicle = new Vehicle(vehicleAttributes);
+        const vehicle = new Vehicle(vehicleAttributes, registry);
         expect(vehicle).toBeInstanceOf(Vehicle);
         expect(vehicle.attributes).toEqual(validAttributes);
         expect(vehicle.customAttributes).toEqual(customAttributes);
@@ -154,7 +161,7 @@ describe('Vehicle', () => {
             ['licensePlateNumber', 'XYZ789'],
             ['internalId', 'V002'],
         ])('should set and get %s', (attribute, value) => {
-            const vehicle = new Vehicle(validAttributes);
+            const vehicle = new Vehicle(validAttributes, registry);
             vehicle[attribute] = value;
             expect(vehicle[attribute]).toEqual(value);
         });
@@ -165,7 +172,7 @@ describe('Vehicle', () => {
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const vehicle = new Vehicle(extendedAttributes);
+                const vehicle = new Vehicle(extendedAttributes, registry);
                 expect(vehicle[attribute]).toEqual(value);
             });
         });
@@ -174,7 +181,7 @@ describe('Vehicle', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
         ])('should set and get %s', (attribute, value) => {
-            const vehicle = new Vehicle(validAttributes);
+            const vehicle = new Vehicle(validAttributes, registry);
             vehicle[attribute] = value;
             expect(vehicle[attribute]).toEqual(value);
         });
@@ -182,14 +189,14 @@ describe('Vehicle', () => {
 
     describe('Owner and Organization UUIDs', () => {
         test('should set and get ownerUuid', () => {
-            const vehicle = new Vehicle(validAttributes);
+            const vehicle = new Vehicle(validAttributes, registry);
             const ownerUuid = uuidV4();
             vehicle.ownerUuid = ownerUuid;
             expect(vehicle.ownerUuid).toEqual(ownerUuid);
         });
 
         test('should set and get organizationUuid', () => {
-            const vehicle = new Vehicle(validAttributes);
+            const vehicle = new Vehicle(validAttributes, registry);
             const organizationUuid = uuidV4();
             vehicle.organizationUuid = organizationUuid;
             expect(vehicle.organizationUuid).toEqual(organizationUuid);

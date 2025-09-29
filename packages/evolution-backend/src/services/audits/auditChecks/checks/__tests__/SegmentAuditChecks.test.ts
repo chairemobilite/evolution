@@ -16,13 +16,23 @@ import { ExtendedJourneyAttributes } from 'evolution-common/lib/services/baseObj
 import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import { ExtendedInterviewAttributesWithComposedObjects, Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 import { ExtendedHouseholdAttributes } from 'evolution-common/lib/services/baseObjects/Household';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { segmentAuditChecks } from '../SegmentAuditChecks';
-import { runSegmentAuditChecks } from '../../infrastructure/AuditCheckRunners';
-import { SegmentAuditCheckContext } from '../../infrastructure/AuditCheckContexts';
+import { runSegmentAuditChecks } from '../../AuditCheckRunners';
+import { SegmentAuditCheckContext } from '../../AuditCheckContexts';
 import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 describe('SegmentAuditChecks', () => {
+    let surveyObjectsRegistry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        surveyObjectsRegistry = new SurveyObjectsRegistry();
+    });
+
+    afterEach(() => {
+        surveyObjectsRegistry.clear();
+    });
+
     const validUuid = uuidV4();
     const tripUuid = uuidV4();
     const journeyUuid = uuidV4();
@@ -43,14 +53,14 @@ describe('SegmentAuditChecks', () => {
         return new Trip({
             _uuid: tripUuid,
             ...overrides
-        } as ExtendedTripAttributes);
+        } as ExtendedTripAttributes, surveyObjectsRegistry);
     };
 
     const createMockJourney = (overrides: Partial<Journey> = {}) => {
         return new Journey({
             _uuid: journeyUuid,
             ...overrides
-        } as ExtendedJourneyAttributes);
+        } as ExtendedJourneyAttributes, surveyObjectsRegistry);
     };
 
     const createMockPerson = (overrides: Partial<Person> = {}) => {
@@ -58,7 +68,7 @@ describe('SegmentAuditChecks', () => {
             _uuid: personUuid,
             age: 30,
             ...overrides
-        } as ExtendedPersonAttributes);
+        } as ExtendedPersonAttributes, surveyObjectsRegistry);
     };
 
     const createMockHousehold = (overrides: Partial<Household> = {}) => {
@@ -66,41 +76,21 @@ describe('SegmentAuditChecks', () => {
             _uuid: householdUuid,
             size: 2,
             ...overrides
-        } as ExtendedHouseholdAttributes);
+        } as ExtendedHouseholdAttributes, surveyObjectsRegistry);
     };
 
     const createMockHome = (overrides: Partial<Home> = {}) => {
         return new Home({
             _uuid: homeUuid,
             ...overrides
-        } as ExtendedPlaceAttributes);
+        } as ExtendedPlaceAttributes, surveyObjectsRegistry);
     };
 
     const createMockInterview = (overrides: Partial<Interview> = {}) => {
         return new Interview({
             _uuid: interviewUuid,
             ...overrides
-        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any);
-    };
-
-    const createMockInterviewAttributes = (overrides: Partial<InterviewAttributes> = {}): InterviewAttributes => {
-        return {
-            uuid: interviewUuid,
-            id: 123,
-            participant_id: 1,
-            is_valid: true,
-            is_active: true,
-            is_completed: false,
-            is_questionable: false,
-            is_validated: false,
-            response: {
-                household: {},
-                persons: {}
-            },
-            validations: {},
-            survey_id: 1,
-            ...overrides
-        };
+        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any, surveyObjectsRegistry);
     };
 
     const createFullContext = (overrides: Partial<SegmentAuditCheckContext> = {}): SegmentAuditCheckContext => {
@@ -112,37 +102,9 @@ describe('SegmentAuditChecks', () => {
             household: createMockHousehold(),
             home: createMockHome(),
             interview: createMockInterview(),
-            interviewAttributes: createMockInterviewAttributes(),
             ...overrides
         };
     };
-
-    describe('S_M_Uuid audit check', () => {
-        it('should pass when segment has UUID', () => {
-            const context = createFullContext({
-                segment: createMockSegment({ _uuid: validUuid })
-            });
-
-            const result = segmentAuditChecks.S_M_Uuid(context);
-
-            expect(result).toBeUndefined();
-        });
-
-        it('should error when segment UUID is missing', () => {
-            const context = createFullContext({
-                segment: createMockSegment({ _uuid: undefined })
-            });
-
-            const result = segmentAuditChecks.S_M_Uuid(context);
-
-            expect(result).toEqual({
-                version: 1,
-                level: 'error',
-                message: 'Segment UUID is missing',
-                ignore: false
-            });
-        });
-    });
 
     describe('S_M_Mode audit check', () => {
         it('should pass when segment has mode', () => {
@@ -163,8 +125,11 @@ describe('SegmentAuditChecks', () => {
             const result = segmentAuditChecks.S_M_Mode(context);
 
             expect(result).toEqual({
+                objectType: 'segment',
+                objectUuid: validUuid,
+                errorCode: 'S_M_Mode',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Segment mode is missing',
                 ignore: false
             });
@@ -174,7 +139,7 @@ describe('SegmentAuditChecks', () => {
     describe('runSegmentAuditChecks function', () => {
         it('should run all segment audits and format results', () => {
             const context = createFullContext({
-                segment: createMockSegment({ _uuid: validUuid, mode: 'walk' })
+                segment: createMockSegment({ mode: 'walk' })
             });
 
             const audits = runSegmentAuditChecks(context, segmentAuditChecks);
@@ -184,7 +149,7 @@ describe('SegmentAuditChecks', () => {
         });
 
         it('should include failed audits in results', () => {
-            // Test with missing mode (UUID is valid, but mode is missing)
+            // Test with missing mode
             const context = createFullContext({
                 segment: createMockSegment({
                     mode: undefined
@@ -202,7 +167,7 @@ describe('SegmentAuditChecks', () => {
                 objectUuid: validUuid,
                 errorCode: 'S_M_Mode',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Segment mode is missing',
                 ignore: false
             });

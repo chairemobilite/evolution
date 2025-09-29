@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { AuditForObject, Audits } from './types';
+import { AuditForObject, Audits, AuditsByObject } from './types';
 
 export const auditArrayToAudits = (auditsArr: AuditForObject[]): { [objectKey: string]: Audits } => {
     const audits: { [objectKey: string]: Audits } = {};
@@ -40,8 +40,8 @@ export const auditsToAuditArray = (
  * @param auditsArray - Array of audit objects
  * @returns AuditsByObject structure with audits grouped by type and UUID
  */
-export const auditsArrayToAuditsByObject = (auditsArray: AuditForObject[]): import('./types').AuditsByObject => {
-    const auditsByObject: import('./types').AuditsByObject = {
+export const auditsArrayToAuditsByObject = (auditsArray: AuditForObject[]): AuditsByObject => {
+    const auditsByObject: AuditsByObject = {
         interview: [],
         household: [],
         home: [],

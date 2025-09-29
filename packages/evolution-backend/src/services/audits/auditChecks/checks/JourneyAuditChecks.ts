@@ -6,43 +6,26 @@
  */
 
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { JourneyAuditCheckContext, JourneyAuditCheckFunction } from '../infrastructure/AuditCheckContexts';
+import { JourneyAuditCheckContext, JourneyAuditCheckFunction } from '../AuditCheckContexts';
 
-/**
- * Journey-specific audit check functions
- */
 export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunction } = {
     /**
-     * Check if journey has missing UUID
+     * Check if journey start date is missing. The start date is taken from assignedDate
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
      */
-    J_M_Uuid: (context: JourneyAuditCheckContext): Partial<AuditForObject> | undefined => {
+    J_M_StartDate: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
         const { journey } = context;
-        const hasUuid = !!journey._uuid;
+        const hasStartDate = !!journey.startDate;
 
-        if (!hasUuid) {
+        if (!hasStartDate) {
             return {
+                objectType: 'journey',
+                objectUuid: journey._uuid!,
+                errorCode: 'J_M_StartDate',
                 version: 1,
                 level: 'error',
-                message: 'Journey UUID is missing',
-                ignore: false
-            };
-        }
-
-        return undefined; // No audit needed
-    },
-
-    /**
-     * Check if journey has missing start time
-     */
-    J_M_StartTime: (context: JourneyAuditCheckContext): Partial<AuditForObject> | undefined => {
-        const { journey } = context;
-        const hasStartTime = journey.startTime !== undefined && journey.startTime !== null;
-
-        if (!hasStartTime) {
-            return {
-                version: 1,
-                level: 'warning',
-                message: 'Journey start time is missing',
+                message: 'Journey start date is missing',
                 ignore: false
             };
         }

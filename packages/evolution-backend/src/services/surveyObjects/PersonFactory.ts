@@ -6,26 +6,28 @@
  */
 
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
-import { InterviewAttributes, CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
+import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { Person, ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import { isOk } from 'evolution-common/lib/types/Result.type';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import projectConfig from '../../config/projectConfig';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 /**
  * Generate persons
- * Processes all persons in the household, creating Person objects and associating them with the household
+ * Populate members for a household from the household's persons attributes
  * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
- * @param {InterviewAttributes} interviewAttributes - The interview attributes
- * @param {Household} household - The household to add the persons to
+ * @param {Household} household - The household to add the members to
+ * @param {CorrectedResponse} correctedResponse - corrected response
+ * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  * @returns {Promise<void>}
  */
-export async function createPersonsForHousehold(
+export async function populatePersonsForHousehold(
     surveyObjectsWithErrors: SurveyObjectsWithErrors,
     household: Household,
-    interviewAttributes: InterviewAttributes
+    correctedResponse: CorrectedResponse,
+    surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
-    const correctedResponse: CorrectedResponse = interviewAttributes.corrected_response || {};
     const householdAttributes = correctedResponse.household || {};
 
     // If no household, return
@@ -53,17 +55,14 @@ export async function createPersonsForHousehold(
             continue; // ignore if uuid is undefined
         }
 
-        console.log(`      ==== Person ${personUuid} creation ====`);
-
         // Parse person attributes if parser is available
         if (projectConfig.surveyObjectParsers?.person) {
-            projectConfig.surveyObjectParsers.person(personAttributes, interviewAttributes);
+            projectConfig.surveyObjectParsers.person(personAttributes, correctedResponse);
         }
 
-        const personResult = Person.create(personAttributes as { [key: string]: unknown });
+        const personResult = Person.create(personAttributes as { [key: string]: unknown }, surveyObjectsRegistry);
 
         if (isOk(personResult)) {
-            console.log(`      ==== Person ${personUuid} created successfully ====`);
             // Assign color to person
             personResult.result.assignColor(personIndex);
             household.members.push(personResult.result);

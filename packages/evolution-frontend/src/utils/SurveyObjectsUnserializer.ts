@@ -28,8 +28,7 @@ export class SurveyObjectsUnserializer {
 
         // clear first, especially when dealing with mulitple interviews,
         // otherwise the registry will fill out with previous interview objects
-        const registry = SurveyObjectsRegistry.getInstance();
-        registry.clear();
+        const registry = new SurveyObjectsRegistry();
 
         try {
             const data = serializedData as Record<string, unknown>;
@@ -54,7 +53,7 @@ export class SurveyObjectsUnserializer {
             if (data.interview) {
                 try {
                     const interviewData = data.interview as Record<string, unknown>;
-                    result.interview = Interview.unserialize(interviewData);
+                    result.interview = Interview.unserialize(interviewData, registry);
                 } catch (error) {
                     console.error('Failed to unserialize interview:', error);
                 }
@@ -63,7 +62,7 @@ export class SurveyObjectsUnserializer {
             // Unserialize Home - this will handle any nested Place objects
             if (data.home) {
                 try {
-                    result.home = Home.unserialize(data.home as Record<string, unknown>);
+                    result.home = Home.unserialize(data.home as Record<string, unknown>, registry);
                 } catch (error) {
                     console.error('Failed to unserialize home:', error);
                 }
@@ -74,14 +73,11 @@ export class SurveyObjectsUnserializer {
             if (data.household) {
                 try {
                     const householdData = data.household as Record<string, unknown>;
-                    result.household = Household.unserialize(householdData);
+                    result.household = Household.unserialize(householdData, registry);
                 } catch (error) {
                     console.error('Failed to unserialize household:', error);
                 }
             }
-
-            // Set up parent-child UUID relationships (objects auto-register via constructors)
-            this.registerObjectsInRegistry(result);
 
             return result;
         } catch (error) {

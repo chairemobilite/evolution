@@ -8,15 +8,16 @@
 import { Place, ExtendedPlaceAttributes, SerializedExtendedPlaceAttributes } from './Place';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 
 /**
- * SchoolPlace place class for household home locations
- * Represents the primary residence of a household
+ * SchoolPlace place class for person usual school locations
+ * Represents the primary school location of a person
  * This is an alias of Place with custom validation display name
  */
 export class SchoolPlace extends Place {
-    constructor(dirtyParams: { [key: string]: unknown }) {
-        super(dirtyParams);
+    constructor(dirtyParams: ExtendedPlaceAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
+        super(dirtyParams, surveyObjectsRegistry);
     }
 
     /**
@@ -24,9 +25,12 @@ export class SchoolPlace extends Place {
      * @param {ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes} params - Sanitized place parameters
      * @returns {SchoolPlace} New SchoolPlace instance
      */
-    static unserialize(params: ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes): SchoolPlace {
+    static unserialize(
+        params: ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): SchoolPlace {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new SchoolPlace(flattenedParams as ExtendedPlaceAttributes);
+        return new SchoolPlace(flattenedParams as ExtendedPlaceAttributes, surveyObjectsRegistry);
     }
 
     /**
@@ -34,12 +38,18 @@ export class SchoolPlace extends Place {
      * @param {Object} dirtyParams - Raw input parameters to validate
      * @returns {Result<SchoolPlace>} Either a valid SchoolPlace object or validation errors
      */
-    static create(dirtyParams: { [key: string]: unknown }): Result<SchoolPlace> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<SchoolPlace> {
         const errors = Place.validateParams(dirtyParams, 'SchoolPlace');
-        const home = errors.length === 0 ? new SchoolPlace(dirtyParams as ExtendedPlaceAttributes) : undefined;
+        const schoolPlace =
+            errors.length === 0
+                ? new SchoolPlace(dirtyParams as ExtendedPlaceAttributes, surveyObjectsRegistry)
+                : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }
-        return createOk(home as SchoolPlace);
+        return createOk(schoolPlace as SchoolPlace);
     }
 }

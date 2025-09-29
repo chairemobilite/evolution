@@ -6,44 +6,26 @@
  */
 
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../infrastructure/AuditCheckContexts';
+import { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
 
-/**
- * Household-specific audit check functions
- */
 export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFunction } = {
     /**
-     * Check if household has a valid size (invalid range or missing)
+     * Check if household size is missing
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
      */
-    HH_I_Size: (context: HouseholdAuditCheckContext): Partial<AuditForObject> | undefined => {
-        const { household, interviewAttributes } = context;
+    HH_M_Size: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
         const size = household.size;
-        const responseHouseholdSize = interviewAttributes.response?.household?.size;
 
-        if (size === undefined || size === null) {
+        if (size === undefined) {
             return {
-                version: 1,
-                level: 'warning',
-                message: 'Household size is not specified',
-                ignore: false
-            };
-        }
-
-        if (size < 1 || size > 20) {
-            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_M_Size',
                 version: 1,
                 level: 'error',
-                message: 'Household size is out of range (should be between 1 and 20)',
-                ignore: false
-            };
-        }
-
-        // Check consistency between generated object and response data
-        if (responseHouseholdSize && responseHouseholdSize !== size) {
-            return {
-                version: 1,
-                level: 'warning',
-                message: 'Household size differs between generated object and response data',
+                message: 'Household size is missing',
                 ignore: false
             };
         }
@@ -52,17 +34,23 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
-     * Check if household has missing UUID
+     * Check if household size is invalid
+     * validate size is between 1 and 20
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
      */
-    HH_M_Uuid: (context: HouseholdAuditCheckContext): Partial<AuditForObject> | undefined => {
+    HH_I_Size: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
         const { household } = context;
-        const hasUuid = !!household._uuid;
+        const size = household.size;
 
-        if (!hasUuid) {
+        if (size !== undefined && (size < 1 || size > 20)) {
             return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_I_Size',
                 version: 1,
                 level: 'error',
-                message: 'Household UUID is missing',
+                message: 'Household size is out of range (should be between 1 and 20)',
                 ignore: false
             };
         }

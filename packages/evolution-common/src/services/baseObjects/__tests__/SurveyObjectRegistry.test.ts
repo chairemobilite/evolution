@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Polytechnique Montreal and contributors
+ * Copyright 2025, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -53,19 +53,15 @@ describe('SurveyObjectsRegistry', () => {
 
     beforeEach(() => {
         // Get a fresh instance for each test
-        registry = SurveyObjectsRegistry.getInstance();
-        registry.clear();
+        registry = new SurveyObjectsRegistry();
     });
 
-    afterEach(() => {
-        registry.clear();
-    });
-
-    describe('Singleton Pattern', () => {
-        it('should return the same instance', () => {
-            const instance1 = SurveyObjectsRegistry.getInstance();
-            const instance2 = SurveyObjectsRegistry.getInstance();
-            expect(instance1).toBe(instance2);
+    describe('Instance Creation', () => {
+        it('should create different instances', () => {
+            const instance1 = new SurveyObjectsRegistry();
+            const instance2 = new SurveyObjectsRegistry();
+            expect(instance1).not.toBe(instance2);
+            expect(instance1.uuid).not.toBe(instance2.uuid);
         });
     });
 

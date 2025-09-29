@@ -6,6 +6,7 @@ import { InterviewAttributes } from '../../../services/questionnaire/types';
 import { Interview, ExtendedInterviewAttributesWithComposedObjects } from './Interview';
 import { InterviewParadata, InterviewParadataAttributes } from './InterviewParadata';
 import { yesNoDontKnowValues } from '../attributeTypes/GenericAttributes';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 export type ExtendedInterviewWithComposedAttributes = InterviewAttributes & {
     paradata?: Optional<InterviewParadataAttributes>;
@@ -108,12 +109,17 @@ export const validateParams = function (
  */
 export const create = function (
     dirtyParams: { [key: string]: unknown },
-    interviewAttributes: InterviewAttributes
+    interviewAttributes: InterviewAttributes,
+    surveyObjectsRegistry: SurveyObjectsRegistry
 ): Result<Interview> {
     const errors = validateParams(dirtyParams, interviewAttributes);
     const interview =
         errors.length === 0
-            ? new Interview(dirtyParams as ExtendedInterviewAttributesWithComposedObjects, interviewAttributes)
+            ? new Interview(
+                  dirtyParams as ExtendedInterviewAttributesWithComposedObjects,
+                  interviewAttributes,
+                  surveyObjectsRegistry
+            )
             : undefined;
 
     // Return errors if any validation errors occurred

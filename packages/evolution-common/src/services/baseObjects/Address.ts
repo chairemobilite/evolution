@@ -12,6 +12,7 @@ import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 
 // TODO: make this class more international. For now, it fits Canadian addresses only.
 
@@ -242,9 +243,13 @@ export class Address extends Uuidable implements IValidatable {
     /**
      * Creates an Address object from sanitized parameters
      * @param {ExtendedAddressAttributes | SerializedExtendedAddressAttributes} params - Sanitized address parameters
+     * @param {SurveyObjectsRegistry} _surveyObjectsRegistry - unused since Address is not composed of other objects, but unserializer will send the optional param.
      * @returns {Address} New Address instance
      */
-    static unserialize(params: ExtendedAddressAttributes | SerializedExtendedAddressAttributes): Address {
+    static unserialize(
+        params: ExtendedAddressAttributes | SerializedExtendedAddressAttributes,
+        _surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Address {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
         return new Address(flattenedParams as ExtendedAddressAttributes);
     }

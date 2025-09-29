@@ -6,42 +6,25 @@
  */
 
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { PersonAuditCheckContext, PersonAuditCheckFunction } from '../infrastructure/AuditCheckContexts';
+import { PersonAuditCheckContext, PersonAuditCheckFunction } from '../AuditCheckContexts';
 
-/**
- * Person-specific audit check functions
- */
 export const personAuditChecks: { [errorCode: string]: PersonAuditCheckFunction } = {
     /**
-     * Check if person has missing UUID
+     * Check if person age is missing
+     * @param context - PersonAuditCheckContext
+     * @returns AuditForObject
      */
-    P_M_Uuid: (context: PersonAuditCheckContext): Partial<AuditForObject> | undefined => {
-        const { person } = context;
-        const hasUuid = !!person._uuid;
-
-        if (!hasUuid) {
-            return {
-                version: 1,
-                level: 'error',
-                message: 'Person UUID is missing',
-                ignore: false
-            };
-        }
-
-        return undefined; // No audit needed
-    },
-
-    /**
-     * Check if person has missing age
-     */
-    P_M_Age: (context: PersonAuditCheckContext): Partial<AuditForObject> | undefined => {
+    P_M_Age: (context: PersonAuditCheckContext): AuditForObject | undefined => {
         const { person } = context;
         const age = person.age;
 
         if (age === undefined || age === null) {
             return {
+                objectType: 'person',
+                objectUuid: person._uuid!,
+                errorCode: 'P_M_Age',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Person age is missing',
                 ignore: false
             };

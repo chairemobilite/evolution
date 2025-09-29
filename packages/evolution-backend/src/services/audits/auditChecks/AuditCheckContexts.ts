@@ -13,7 +13,6 @@ import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
 import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
 import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { Optional } from 'evolution-common/lib/types/Optional.type';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 
@@ -22,7 +21,6 @@ import { AuditForObject } from 'evolution-common/lib/services/audits/types';
  */
 export type InterviewAuditCheckContext = {
     interview: Interview;
-    interviewAttributes: InterviewAttributes;
 };
 
 /**
@@ -31,7 +29,6 @@ export type InterviewAuditCheckContext = {
 export type HouseholdAuditCheckContext = {
     household: Household;
     interview: Interview;
-    interviewAttributes: InterviewAttributes;
 };
 
 /**
@@ -41,7 +38,6 @@ export type HomeAuditCheckContext = {
     home: Home;
     household: Optional<Household>;
     interview: Interview;
-    interviewAttributes: InterviewAttributes;
 };
 
 /**
@@ -52,7 +48,6 @@ export type PersonAuditCheckContext = {
     household: Optional<Household>;
     home: Optional<Home>;
     interview: Interview;
-    interviewAttributes: InterviewAttributes;
 };
 
 /**
@@ -64,7 +59,6 @@ export type JourneyAuditCheckContext = {
     household: Optional<Household>;
     home: Optional<Home>;
     interview: Interview;
-    interviewAttributes: InterviewAttributes;
 };
 
 /**
@@ -77,7 +71,6 @@ export type VisitedPlaceAuditCheckContext = {
     household: Optional<Household>;
     home: Optional<Home>;
     interview: Interview;
-    interviewAttributes: InterviewAttributes;
 };
 
 /**
@@ -90,7 +83,6 @@ export type TripAuditCheckContext = {
     household: Optional<Household>;
     home: Optional<Home>;
     interview: Interview;
-    interviewAttributes: InterviewAttributes;
 };
 
 /**
@@ -104,7 +96,6 @@ export type SegmentAuditCheckContext = {
     household: Optional<Household>;
     home: Optional<Home>;
     interview: Interview;
-    interviewAttributes: InterviewAttributes;
 };
 
 /**

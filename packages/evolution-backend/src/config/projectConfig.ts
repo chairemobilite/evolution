@@ -7,7 +7,7 @@
 import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import { ServerFieldUpdateCallback } from '../services/interviews/serverFieldUpdate';
 import { ServerValidation } from '../services/validations/serverValidation';
-import { AttributesToRestore, SurveyObjectParsers } from '../services/audits/types';
+import { SurveyObjectParsers } from '../services/audits/types';
 import {
     InterviewAttributes,
     InterviewListAttributes,
@@ -29,12 +29,6 @@ interface ProjectServerConfig {
      * individual audits. It is optional. If the survey does not require auditing, just leave blank.
      */
     auditInterview?: (attributes: InterviewAttributes) => Promise<SurveyObjectsWithAudits>;
-    /**
-     * Configuration for restoring attributes from original responses during audit workflow.
-     * This allows preserving respondent preferences that may have been overwritten during admin corrections.
-     * Optional - if not provided, no attribute restoration will occur.
-     */
-    attributesToRestore?: AttributesToRestore;
     /**
      * Configuration for parsing survey response values before object creation.
      * This allows converting string values like 'yes'/'no' to proper types like boolean

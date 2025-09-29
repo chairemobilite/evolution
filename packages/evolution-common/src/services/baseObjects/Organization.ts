@@ -78,6 +78,7 @@ export type SerializedExtendedOrganizationAttributes = {
  * a company, a place with employees, or a group of persons other than a household.
  */
 export class Organization extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: OrganizationAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -88,8 +89,10 @@ export class Organization extends Uuidable implements IValidatable {
 
     static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
 
-    constructor(params: ExtendedOrganizationAttributes) {
+    constructor(params: ExtendedOrganizationAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as OrganizationAttributes;
         this._customAttributes = {};
@@ -102,11 +105,19 @@ export class Organization extends Uuidable implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params._vehicles, Vehicle.unserialize);
-        this.places = ConstructorUtils.initializeComposedArrayAttributes(params._places, Place.unserialize);
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
+            params._vehicles,
+            (params) => Vehicle.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
+        this.places = ConstructorUtils.initializeComposedArrayAttributes(
+            params._places,
+            (params) => Place.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
         this.interviewUuid = params._interviewUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerOrganization(this);
+        this._surveyObjectsRegistry.registerOrganization(this);
     }
 
     get attributes(): OrganizationAttributes {
@@ -233,7 +244,7 @@ export class Organization extends Uuidable implements IValidatable {
         if (!this._interviewUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getInterview(this._interviewUuid);
+        return this._surveyObjectsRegistry.getInterview(this._interviewUuid);
     }
 
     /**
@@ -242,15 +253,19 @@ export class Organization extends Uuidable implements IValidatable {
      * @returns {Organization} New Organization instance
      */
     static unserialize(
-        params: ExtendedOrganizationAttributes | SerializedExtendedOrganizationAttributes
+        params: ExtendedOrganizationAttributes | SerializedExtendedOrganizationAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
     ): Organization {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Organization(flattenedParams as ExtendedOrganizationAttributes);
+        return new Organization(flattenedParams as ExtendedOrganizationAttributes, surveyObjectsRegistry);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<Organization> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Organization> {
         const errors = Organization.validateParams(dirtyParams);
-        const organization = errors.length === 0 ? new Organization(dirtyParams) : undefined;
+        const organization = errors.length === 0 ? new Organization(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

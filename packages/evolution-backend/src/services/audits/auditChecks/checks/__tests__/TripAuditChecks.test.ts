@@ -7,6 +7,7 @@
 
 import { v4 as uuidV4 } from 'uuid';
 import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
+import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
 import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
@@ -15,13 +16,23 @@ import { ExtendedJourneyAttributes } from 'evolution-common/lib/services/baseObj
 import { ExtendedInterviewAttributesWithComposedObjects, Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import { ExtendedHouseholdAttributes } from 'evolution-common/lib/services/baseObjects/Household';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { tripAuditChecks } from '../TripAuditChecks';
-import { runTripAuditChecks } from '../../infrastructure/AuditCheckRunners';
-import { TripAuditCheckContext } from '../../infrastructure/AuditCheckContexts';
+import { runTripAuditChecks } from '../../AuditCheckRunners';
+import { TripAuditCheckContext } from '../../AuditCheckContexts';
 import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 describe('TripAuditChecks', () => {
+    let surveyObjectsRegistry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        surveyObjectsRegistry = new SurveyObjectsRegistry();
+    });
+
+    afterEach(() => {
+        surveyObjectsRegistry.clear();
+    });
+
     const validUuid = uuidV4();
     const journeyUuid = uuidV4();
     const personUuid = uuidV4();
@@ -37,11 +48,19 @@ describe('TripAuditChecks', () => {
         } as Trip;
     };
 
+    const createMockSegment = (overrides: Partial<Segment> = {}) => {
+        return {
+            _uuid: uuidV4(),
+            mode: 'walk',
+            ...overrides
+        } as Segment;
+    };
+
     const createMockJourney = (overrides: Partial<Journey> = {}) => {
         return new Journey({
             _uuid: journeyUuid,
             ...overrides
-        } as ExtendedJourneyAttributes);
+        } as ExtendedJourneyAttributes, surveyObjectsRegistry);
     };
 
     const createMockPerson = (overrides: Partial<Person> = {}) => {
@@ -49,7 +68,7 @@ describe('TripAuditChecks', () => {
             _uuid: personUuid,
             age: 30,
             ...overrides
-        } as ExtendedPersonAttributes);
+        } as ExtendedPersonAttributes, surveyObjectsRegistry);
     };
 
     const createMockHousehold = (overrides: Partial<Household> = {}) => {
@@ -57,41 +76,21 @@ describe('TripAuditChecks', () => {
             _uuid: householdUuid,
             size: 2,
             ...overrides
-        } as ExtendedHouseholdAttributes);
+        } as ExtendedHouseholdAttributes, surveyObjectsRegistry);
     };
 
     const createMockHome = (overrides: Partial<Home> = {}) => {
         return new Home({
             _uuid: homeUuid,
             ...overrides
-        } as ExtendedPlaceAttributes);
+        } as ExtendedPlaceAttributes, surveyObjectsRegistry);
     };
 
     const createMockInterview = (overrides: Partial<Interview> = {}) => {
         return new Interview({
             _uuid: interviewUuid,
             ...overrides
-        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any);
-    };
-
-    const createMockInterviewAttributes = (overrides: Partial<InterviewAttributes> = {}): InterviewAttributes => {
-        return {
-            uuid: interviewUuid,
-            id: 123,
-            participant_id: 1,
-            is_valid: true,
-            is_active: true,
-            is_completed: false,
-            is_questionable: false,
-            is_validated: false,
-            response: {
-                household: {},
-                persons: {}
-            },
-            validations: {},
-            survey_id: 1,
-            ...overrides
-        };
+        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any, surveyObjectsRegistry);
     };
 
     const createFullContext = (overrides: Partial<TripAuditCheckContext> = {}): TripAuditCheckContext => {
@@ -102,70 +101,62 @@ describe('TripAuditChecks', () => {
             household: createMockHousehold(),
             home: createMockHome(),
             interview: createMockInterview(),
-            interviewAttributes: createMockInterviewAttributes(),
             ...overrides
         };
     };
 
-    describe('T_M_Uuid audit check', () => {
-        it('should pass when trip has UUID', () => {
+    describe('T_M_Segments audit check', () => {
+        it('should pass when trip has segments', () => {
             const context = createFullContext({
-                trip: createMockTrip({ _uuid: validUuid })
+                trip: createMockTrip({ segments: [createMockSegment({ mode: 'walk' })] })
             });
 
-            const result = tripAuditChecks.T_M_Uuid(context);
+            const result = tripAuditChecks.T_M_Segments(context);
 
             expect(result).toBeUndefined();
         });
 
-        it('should error when trip UUID is missing', () => {
+        it('should error when trip segments are missing', () => {
             const context = createFullContext({
-                trip: createMockTrip({ _uuid: undefined })
+                trip: createMockTrip({ segments: undefined })
             });
 
-            const result = tripAuditChecks.T_M_Uuid(context);
+            const result = tripAuditChecks.T_M_Segments(context);
 
             expect(result).toEqual({
+                objectType: 'trip',
+                objectUuid: validUuid,
+                errorCode: 'T_M_Segments',
                 version: 1,
                 level: 'error',
-                message: 'Trip UUID is missing',
+                message: 'Trip segments are missing',
                 ignore: false
             });
         });
-    });
 
-    describe('T_M_StartDate audit check', () => {
-        it('should pass when trip has start date', () => {
+        it('should error when trip has empty segments array', () => {
             const context = createFullContext({
-                trip: createMockTrip({ startDate: '2023-10-15' })
+                trip: createMockTrip({ segments: [] })
             });
 
-            const result = tripAuditChecks.T_M_StartDate(context);
-
-            expect(result).toBeUndefined();
-        });
-
-        it('should warn when trip start date is missing', () => {
-            const context = createFullContext({
-                trip: createMockTrip({ startDate: undefined })
-            });
-
-            const result = tripAuditChecks.T_M_StartDate(context);
+            const result = tripAuditChecks.T_M_Segments(context);
 
             expect(result).toEqual({
+                objectType: 'trip',
+                objectUuid: validUuid,
+                errorCode: 'T_M_Segments',
                 version: 1,
-                level: 'warning',
-                message: 'Trip start date is missing',
+                level: 'error',
+                message: 'Trip segments are missing',
                 ignore: false
             });
         });
     });
-
 
     describe('runTripAuditChecks function', () => {
         it('should run all trip audits and format results', () => {
             const context = createFullContext({
-                trip: createMockTrip({ _uuid: validUuid, startDate: '2023-10-15' })
+                trip: createMockTrip({ segments: [createMockSegment({ mode: 'walk' })] })
             });
 
             const audits = runTripAuditChecks(context, tripAuditChecks);
@@ -175,26 +166,24 @@ describe('TripAuditChecks', () => {
         });
 
         it('should include failed audits in results', () => {
-            // Test with missing start date (UUID is valid, but startDate is missing)
+            // Test with missing segments
             const context = createFullContext({
-                trip: createMockTrip({
-                    startDate: undefined
-                })
+                trip: createMockTrip({ segments: undefined })
             });
 
             const audits = runTripAuditChecks(context, tripAuditChecks);
 
-            expect(audits).toHaveLength(1); // Only start date audit should fail
+            expect(audits).toHaveLength(1); // Only segments audit should fail
 
-            // Check start date audit
-            const startDateAudit = audits.find((audit) => audit.errorCode === 'T_M_StartDate');
-            expect(startDateAudit).toEqual({
+            // Check segments audit
+            const segmentsAudit = audits.find((audit) => audit.errorCode === 'T_M_Segments');
+            expect(segmentsAudit).toEqual({
                 objectType: 'trip',
                 objectUuid: validUuid,
-                errorCode: 'T_M_StartDate',
+                errorCode: 'T_M_Segments',
                 version: 1,
-                level: 'warning',
-                message: 'Trip start date is missing',
+                level: 'error',
+                message: 'Trip segments are missing',
                 ignore: false
             });
         });
