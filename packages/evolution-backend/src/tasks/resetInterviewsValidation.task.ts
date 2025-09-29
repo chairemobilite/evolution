@@ -8,7 +8,7 @@ import '../config/projectConfig'; // Unused, but must be imported
 import 'chaire-lib-backend/lib/config/dotenv.config';
 import Interviews from '../services/interviews/interviews';
 
-// this task will remove all corrected responses from every valid interviews and replace corrected response with original response (not modified by validators/admins)
+// this task will remove all corrected responses from every valid interviews and replace corrected response with original response (not modified by reviewers/admins)
 // You must provide this argument to confirm reset: I WANT TO DELETE ALL VALIDATION WORK
 const confirm = process.argv[2];
 

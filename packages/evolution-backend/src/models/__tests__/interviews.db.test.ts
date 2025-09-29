@@ -613,7 +613,6 @@ describe('list interviews', () => {
     });
 
     test('Sort data', async () => {
-        const pageSize = 2;
         // Sort by is_valid
         const { interviews: page, totalCount: totalCount } = await dbQueries.getList({
             filters: {},
@@ -801,20 +800,20 @@ describe('Queries with audits', () => {
         expect(auditStats.error).toEqual({
             person: [
                 {
-                    key: 'errorOne',
-                    cnt: '6'
+                    errorCode: 'errorOne',
+                    count: 6
                 }
             ],
             interview: [
                 {
-                    key: 'errorThree',
-                    cnt: '1'
+                    errorCode: 'errorThree',
+                    count: 1
                 }
             ],
             household: [
                 {
-                    key: 'errorTwo',
-                    cnt: '1'
+                    errorCode: 'errorTwo',
+                    count: 1
                 }
             ]
         });
@@ -826,14 +825,14 @@ describe('Queries with audits', () => {
         expect(auditStats.error).toEqual({
             person: [
                 {
-                    key: 'errorOne',
-                    cnt: '3'
+                    errorCode: 'errorOne',
+                    count: 3
                 }
             ],
             household: [
                 {
-                    key: 'errorTwo',
-                    cnt: '1'
+                    errorCode: 'errorTwo',
+                    count: 1
                 }
             ]
         });
