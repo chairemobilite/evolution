@@ -5,23 +5,32 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../../types/Optional.type';
 import { Uuidable, UuidableAttributes } from '../Uuidable';
-import { Household } from '../Household';
-import { Person } from '../Person';
-import { Organization } from '../Organization';
 import { YesNoDontKnow } from '../attributeTypes/GenericAttributes';
 import { ConstructorUtils } from '../../../utils/ConstructorUtils';
-import { InterviewParadata } from './InterviewParadata';
+import { InterviewParadata, InterviewParadataAttributes } from './InterviewParadata';
+import { InterviewAttributes as rawInterviewAttributes } from '../../../services/questionnaire/types';
+import { SurveyObjectUnserializer } from '../SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 /*
 We need to set these arrays to be able to split attributes and custom attributes during initialization.
 Using keyof do not work because constructor is run-time and keyof is typescript only.
 */
-const interviewAttributes = [
+const interviewAttributesNames = [
     '_uuid',
     '_id',
     '_participant_id',
+    '_languages',
+
+    // reviewing flags
+    '_isValid',
+    '_isCompleted',
+    '_isQuestionable',
+    '_isValidated',
 
     'accessCode',
     'assignedDate',
@@ -44,20 +53,21 @@ const interviewAttributes = [
     'consideredAbandoning'
 ];
 
-const interviewAttributesWithComposedAttributes = [
-    ...interviewAttributes,
-    'household',
-    'person',
-    'organization',
-
-    'paradata'
-];
+const interviewAttributesWithComposedAttributes = [...interviewAttributesNames, '_paradata'];
 
 export type InterviewAttributes = {
     _uuid?: string; // TODO: discuss whether the original and audited should have the same uuid
     _id?: number; // integer primary key from db.
     _participant_id?: number; // integer respondent/participan/user primary key id from db, TODO: update the User class to use this Interview class instead
+    _languages?: string[]; // array of ISO 639-1 two letters language codes
 
+    // reviewing flags
+    _isValid?: boolean; // whether the interview is valid (legit) and must be kept for export (true by default, must be set to false by a validator)
+    _isCompleted?: boolean; // whether the interview is completed (false by default, changed by validators)
+    _isQuestionable?: boolean; // whether the interview is doubtful or could be non genuine, changed by validator
+    _isValidated?: boolean; // whether the interview is validated (undefined by default, must be set to false by an admin or supervisor/super validator)
+
+    // response attributes
     accessCode?: string; // accessCode used when starting an interview in most survey. This could be the code sent in a letter for households to be pre-geolocalized
     // TODO: consider using the new luxon package to deal with dates instead of momentJS
     assignedDate?: string; // string, YYYY-MM-DD, the assigned date for the survey (trips date most of the time)
@@ -82,10 +92,7 @@ export type InterviewAttributes = {
 } & UuidableAttributes;
 
 export type InterviewWithComposedObjects = InterviewAttributes & {
-    household?: Optional<Household>; // TODO: test when Household will be updated to replace BaseHousehold
-    person?: Optional<Person>; // TODO: test when Person will be updated to replace BasePerson
-    organization?: Optional<Organization>; // TODO: test when Organization will be updated to replace BaseOrganization
-    paradata?: Optional<InterviewParadata>;
+    _paradata?: Optional<InterviewParadataAttributes>;
 };
 
 /**
@@ -97,6 +104,11 @@ export type InterviewWithComposedObjects = InterviewAttributes & {
  * TODO: document the process of creating custom widgets with audits and enhancements
  */
 export type ExtendedInterviewAttributesWithComposedObjects = InterviewWithComposedObjects & { [key: string]: unknown };
+
+export type SerializedExtendedInterviewAttributesWithComposedObjects = {
+    _attributes?: ExtendedInterviewAttributesWithComposedObjects;
+    _customAttributes?: { [key: string]: unknown };
+};
 
 /**
  * Represents an interview in the survey.
@@ -152,9 +164,6 @@ export class Interview extends Uuidable {
     private _attributes: InterviewAttributes;
     private _customAttributes: { [key: string]: unknown };
 
-    private _household?: Optional<Household>; // for a household interview
-    private _person?: Optional<Person>; // for a single-person interview (rare since most of the time, we ask for minimum household members attributes)
-    private _organization?: Optional<Organization>; // for an organization interview
     private _paradata?: Optional<InterviewParadata>;
 
     static _confidentialAttributes: string[] = [
@@ -180,24 +189,30 @@ export class Interview extends Uuidable {
     ];
 
     // Use InterviewUnserializer create function to generate/validate Interview object from json data with nested composed objects
-    constructor(params: ExtendedInterviewAttributesWithComposedObjects) {
-        super(params._uuid);
+    constructor(params: ExtendedInterviewAttributesWithComposedObjects, interviewAttributes: rawInterviewAttributes) {
+        super(interviewAttributes.uuid || params._uuid);
 
         this._attributes = {} as InterviewAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
-            interviewAttributes,
+            _omit(params, ['_paradata', 'paradata']),
+            interviewAttributesNames,
             interviewAttributesWithComposedAttributes
         );
+
         this._attributes = attributes;
+        this._attributes._id = interviewAttributes.id;
+        this._attributes._participant_id = interviewAttributes.participant_id;
+        this._attributes._isValid = interviewAttributes.is_valid;
+        this._attributes._isCompleted = interviewAttributes.is_completed;
+        this._attributes._isQuestionable = interviewAttributes.is_questionable;
+        this._attributes._isValidated = interviewAttributes.is_validated;
         this._customAttributes = customAttributes;
 
-        this.household = params.household;
-        this.person = params.person;
-        this.organization = params.organization;
-        this.paradata = params.paradata;
+        this._paradata = ConstructorUtils.initializeComposedAttribute(params._paradata, InterviewParadata.unserialize);
+
+        SurveyObjectsRegistry.getInstance().registerInterview(this);
     }
 
     get attributes(): InterviewAttributes {
@@ -210,14 +225,54 @@ export class Interview extends Uuidable {
 
     // Getters and setters for the attributes dictionary:
 
-    get _id(): Optional<number> {
+    get id(): Optional<number> {
         // no setter, comes from the db
         return this._attributes._id;
     }
 
-    get _participant_id(): Optional<number> {
+    get participant_id(): Optional<number> {
         // no setter, comes from the db
         return this._attributes._participant_id;
+    }
+
+    get languages(): Optional<string[]> {
+        return this._attributes._languages;
+    }
+
+    set languages(value: Optional<string[]>) {
+        this._attributes._languages = value;
+    }
+
+    get isValid(): Optional<boolean> {
+        return this._attributes._isValid;
+    }
+
+    set isValid(value: Optional<boolean>) {
+        this._attributes._isValid = value;
+    }
+
+    get isCompleted(): Optional<boolean> {
+        return this._attributes._isCompleted;
+    }
+
+    set isCompleted(value: Optional<boolean>) {
+        this._attributes._isCompleted = value;
+    }
+
+    get isQuestionable(): Optional<boolean> {
+        return this._attributes._isQuestionable;
+    }
+
+    set isQuestionable(value: Optional<boolean>) {
+        this._attributes._isQuestionable = value;
+    }
+
+    get isValidated(): Optional<boolean> {
+        return this._attributes._isValidated;
+    }
+
+    set isValidated(value: Optional<boolean>) {
+        this._attributes._isValidated = value;
     }
 
     get accessCode(): Optional<string> {
@@ -356,37 +411,50 @@ export class Interview extends Uuidable {
         this._attributes.consideredAbandoning = value;
     }
 
-    // Composed objects:
-
-    get household(): Optional<Household> {
-        return this._household;
-    }
-
-    set household(value: Optional<Household>) {
-        this._household = value;
-    }
-
-    get person(): Optional<Person> {
-        return this._person;
-    }
-
-    set person(value: Optional<Person>) {
-        this._person = value;
-    }
-
-    get organization(): Optional<Organization> {
-        return this._organization;
-    }
-
-    set organization(value: Optional<Organization>) {
-        this._organization = value;
-    }
-
     get paradata(): Optional<InterviewParadata> {
         return this._paradata;
     }
 
     set paradata(value: Optional<InterviewParadata>) {
         this._paradata = value;
+    }
+
+    /**
+     * Creates an Interview object from sanitized parameters
+     * This method is used for unserialization when the Interview object comes from serialized data
+     * @param {ExtendedInterviewAttributesWithComposedObjects | SerializedExtendedInterviewAttributesWithComposedObjects} params - Sanitized interview parameters
+     * @param {rawInterviewAttributes} interviewAttributes - Raw interview attributes from database
+     * @returns {Interview} New Interview instance
+     */
+    static unserialize(
+        params:
+            | ExtendedInterviewAttributesWithComposedObjects
+            | SerializedExtendedInterviewAttributesWithComposedObjects,
+        interviewAttributes?: rawInterviewAttributes
+    ): Interview {
+        // If we have serialized data, flatten it first
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+
+        // If interviewAttributes are not provided, extract them from the flattened params
+        let rawInterviewAttributes: rawInterviewAttributes;
+        if (interviewAttributes) {
+            rawInterviewAttributes = interviewAttributes;
+        } else {
+            // Extract the raw interview attributes from the flattened params
+            const flattenedParamsAny = flattenedParams as Record<string, unknown>;
+            rawInterviewAttributes = {
+                id: flattenedParamsAny._id as number,
+                uuid: flattenedParamsAny._uuid as string,
+                participant_id: flattenedParamsAny._participant_id as number,
+                is_completed: flattenedParamsAny._isCompleted as boolean,
+                response: flattenedParamsAny.response || {},
+                validations: flattenedParamsAny.validations || {},
+                is_valid: flattenedParamsAny._isValid as boolean,
+                is_questionable: flattenedParamsAny._isQuestionable as boolean,
+                is_validated: flattenedParamsAny._isValidated as boolean
+            };
+        }
+
+        return new Interview(flattenedParams as ExtendedInterviewAttributesWithComposedObjects, rawInterviewAttributes);
     }
 }

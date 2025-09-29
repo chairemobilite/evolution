@@ -7,7 +7,6 @@
 
 import { InterviewParadata } from '../InterviewParadata';
 import { Result, isOk, unwrap } from '../../../../types/Result.type';
-import { create } from '../InterviewParadataUnserializer';
 describe('InterviewParadata - Getters and Setters', () => {
     let paradata: InterviewParadata;
 
@@ -29,7 +28,7 @@ describe('InterviewParadata - Getters and Setters', () => {
                 'section1': [{ startTimestamp: 1632929461, endTimestamp: 1632930461, widgets: {} }]
             }
         };
-        const result = create(validParams) as Result<InterviewParadata>;
+        const result = InterviewParadata.create(validParams) as Result<InterviewParadata>;
         if (isOk(result)) {
             paradata = unwrap(result) as InterviewParadata;
         } else {
