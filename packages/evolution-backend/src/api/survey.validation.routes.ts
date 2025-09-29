@@ -18,7 +18,8 @@ import { handleUserActionSideEffect, mapResponseToCorrectedResponse } from '../s
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
 import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { Audits } from '../services/audits/Audits';
+import { SurveyObjectsAndAuditsFactory } from '../services/audits/SurveyObjectsAndAuditsFactory';
+import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import validateUuidMiddleware from './helpers/validateUuidMiddleware';
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
@@ -42,7 +43,9 @@ router.get(
                         await copyResponseToCorrectedResponse(interview);
                     }
                     // Run audits on the corrected_response
-                    const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interview);
+                    const objectsAndAudits: SurveyObjectsWithAudits =
+                        await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interview);
+
                     // TODO Here, the response field should not make it to frontend. But make sure there are no side effect in the frontend, where the _response is used or checked.
                     const { response, corrected_response, ...rest } = interview;
                     return res.status(200).json({
@@ -216,7 +219,7 @@ router.post('/validation/updateAudits/:uuid', async (req, res, _next) => {
         if (!interview) {
             throw 'Interview does not exist';
         }
-        Audits.updateAudits(interview.id, audits);
+        await SurveyObjectsAndAuditsFactory.updateAudits(interview.id, audits);
 
         return res.status(200).json({
             status: 'ok'

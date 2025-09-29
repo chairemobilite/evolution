@@ -9,7 +9,7 @@ import TrError from 'chaire-lib-common/lib/utils/TrError';
 import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 import { _booleish, _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { AuditsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
+import { AuditStatsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 import { isFeature, isPolygon } from 'geojson-validation';
 import knexPostgis from 'knex-postgis';
 import { QueryBuilder } from 'knex';
@@ -645,13 +645,13 @@ const getList = async (params: {
  */
 const getValidationAuditStats = async (params: {
     filters: { [key: string]: ValueFilterType };
-}): Promise<{ auditStats: AuditsByLevelAndObjectType }> => {
+}): Promise<{ auditStats: AuditStatsByLevelAndObjectType }> => {
     try {
         const baseRawFilter =
             'i.is_active IS TRUE AND participant.is_valid IS TRUE AND participant.is_test IS NOT TRUE';
         const [rawFilter, bindings] = updateRawWhereClause(params.filters, baseRawFilter);
         const validationAuditStatsQuery = knex
-            .select('error_code as key', knex.raw('count(error_code) cnt'), 'level', 'object_type')
+            .select('error_code', knex.raw('count(error_code) cnt'), 'level', 'object_type')
             .from(`${tableName} as i`)
             .innerJoin('sv_audits', 'id', 'interview_id')
             .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
@@ -661,7 +661,7 @@ const getValidationAuditStats = async (params: {
 
         const audits = await validationAuditStatsQuery;
 
-        const auditStats: AuditsByLevelAndObjectType = {};
+        const auditStats: AuditStatsByLevelAndObjectType = {};
         audits.forEach((audit) => {
             if (!auditStats[audit.level]) {
                 auditStats[audit.level] = {};
@@ -669,7 +669,10 @@ const getValidationAuditStats = async (params: {
             if (!auditStats[audit.level][audit.object_type]) {
                 auditStats[audit.level][audit.object_type] = [];
             }
-            auditStats[audit.level][audit.object_type].push({ cnt: audit.cnt, key: audit.key });
+            auditStats[audit.level][audit.object_type].push({
+                count: isNaN(Number(audit.cnt)) ? undefined : Number(audit.cnt),
+                errorCode: audit.error_code
+            });
         });
 
         return { auditStats };
