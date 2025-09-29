@@ -44,7 +44,7 @@ router.get(
                     }
                     // Run audits on the corrected_response
                     const objectsAndAudits: SurveyObjectsWithAudits =
-                        await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interview);
+                        await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview);
 
                     // TODO Here, the response field should not make it to frontend. But make sure there are no side effect in the frontend, where the _response is used or checked.
                     const { response, corrected_response, ...rest } = interview;

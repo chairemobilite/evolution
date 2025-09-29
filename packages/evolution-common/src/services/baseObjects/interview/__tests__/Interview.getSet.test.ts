@@ -8,6 +8,13 @@
 import { Interview } from '../Interview';
 import { create } from '../InterviewUnserializer';
 import { Result, isOk, unwrap } from '../../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../../SurveyObjectsRegistry';
+
+let registry: SurveyObjectsRegistry;
+
+beforeEach(() => {
+    registry = new SurveyObjectsRegistry();
+});
 
 describe('Interview - Getters and Setters', () => {
     let interview: Interview;
@@ -19,7 +26,7 @@ describe('Interview - Getters and Setters', () => {
             assignedDate: '2023-09-30',
             _startedAt: 1632929461
         };
-        const interviewResult = create(validParams, { id: 123, participant_id: 456 } as any) as Result<Interview>;
+        const interviewResult = create(validParams, { id: 123, participant_id: 456 } as any, registry) as Result<Interview>;
         if (isOk(interviewResult)) {
             interview = unwrap(interviewResult) as Interview;
         } else {
@@ -32,7 +39,7 @@ describe('Interview - Getters and Setters', () => {
         const validParamsWithoutIdAndParticipantId = {
             _uuid: '123e4567-e89b-12d3-a456-426614174001',
         };
-        const result = create(validParamsWithoutIdAndParticipantId, {} as any) as Result<Interview>;
+        const result = create(validParamsWithoutIdAndParticipantId, {} as any, registry) as Result<Interview>;
         if (isOk(result)) {
             _interview = unwrap(result) as Interview;
         } else {

@@ -97,6 +97,7 @@ export type SerializedExtendedJourneyAttributes = {
  * a week, a weekend or a long distance trip
  */
 export class Journey extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: JourneyAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -108,8 +109,10 @@ export class Journey extends Uuidable implements IValidatable {
 
     static _confidentialAttributes = [];
 
-    constructor(params: ExtendedJourneyAttributes) {
+    constructor(params: ExtendedJourneyAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as JourneyAttributes;
         this._customAttributes = {};
@@ -132,13 +135,22 @@ export class Journey extends Uuidable implements IValidatable {
 
         this.visitedPlaces = ConstructorUtils.initializeComposedArrayAttributes(
             params._visitedPlaces,
-            VisitedPlace.unserialize
+            VisitedPlace.unserialize,
+            this._surveyObjectsRegistry
         );
-        this.trips = ConstructorUtils.initializeComposedArrayAttributes(params._trips, Trip.unserialize);
-        this.tripChains = ConstructorUtils.initializeComposedArrayAttributes(params._tripChains, TripChain.unserialize);
+        this.trips = ConstructorUtils.initializeComposedArrayAttributes(
+            params._trips,
+            Trip.unserialize,
+            this._surveyObjectsRegistry
+        );
+        this.tripChains = ConstructorUtils.initializeComposedArrayAttributes(
+            params._tripChains,
+            TripChain.unserialize,
+            this._surveyObjectsRegistry
+        );
         this.personUuid = params._personUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerJourney(this);
+        this._surveyObjectsRegistry.registerJourney(this);
     }
 
     get attributes(): JourneyAttributes {
@@ -339,7 +351,7 @@ export class Journey extends Uuidable implements IValidatable {
         if (!this._personUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getPerson(this._personUuid);
+        return this._surveyObjectsRegistry.getPerson(this._personUuid);
     }
 
     get household(): Optional<Household> {
@@ -533,14 +545,20 @@ export class Journey extends Uuidable implements IValidatable {
      * @param {ExtendedJourneyAttributes | SerializedExtendedJourneyAttributes} params - Sanitized journey parameters
      * @returns {Journey} New Journey instance
      */
-    static unserialize(params: ExtendedJourneyAttributes | SerializedExtendedJourneyAttributes): Journey {
+    static unserialize(
+        params: ExtendedJourneyAttributes | SerializedExtendedJourneyAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Journey {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Journey(flattenedParams as ExtendedJourneyAttributes);
+        return new Journey(flattenedParams as ExtendedJourneyAttributes, surveyObjectsRegistry);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<Journey> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Journey> {
         const errors = Journey.validateParams(dirtyParams);
-        const journey = errors.length === 0 ? new Journey(dirtyParams) : undefined;
+        const journey = errors.length === 0 ? new Journey(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

@@ -11,6 +11,13 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+
+let registry: SurveyObjectsRegistry;
+
+beforeEach(() => {
+    registry = new SurveyObjectsRegistry();
+});
 
 describe('TripChain', () => {
     const weightMethodAttributes: WeightMethodAttributes = {
@@ -91,7 +98,7 @@ describe('TripChain', () => {
     };
 
     test('should create a TripChain instance with valid attributes', () => {
-        const tripChain = new TripChain(validAttributes);
+        const tripChain = new TripChain(validAttributes, registry);
         expect(tripChain).toBeInstanceOf(TripChain);
         expect(tripChain.attributes).toEqual(validAttributes);
     });
@@ -104,38 +111,38 @@ describe('TripChain', () => {
     });
 
     test('should get uuid', () => {
-        const tripChain = new TripChain({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const tripChain = new TripChain({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(tripChain._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a TripChain instance with valid attributes', () => {
-        const result = TripChain.create(validAttributes);
+        const result = TripChain.create(validAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(TripChain);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = TripChain.create(invalidAttributes);
+        const result = TripChain.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should create a TripChain instance with extended attributes', () => {
-        const result = TripChain.create(extendedAttributes);
+        const result = TripChain.create(extendedAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(TripChain);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validAttributes, startTime: 'invalid' };
-        const result = TripChain.create(invalidAttributes);
+        const result = TripChain.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a TripChain instance', () => {
-        const tripChain = TripChain.unserialize(validAttributes);
+        const tripChain = TripChain.unserialize(validAttributes, registry);
         expect(tripChain).toBeInstanceOf(TripChain);
         expect(tripChain.attributes).toEqual(validAttributes);
     });
@@ -152,7 +159,7 @@ describe('TripChain', () => {
     });
 
     test('should validate a TripChain instance', () => {
-        const tripChain = new TripChain(validAttributes);
+        const tripChain = new TripChain(validAttributes, registry);
         expect(tripChain.validate()).toBe(true);
         expect(tripChain.isValid()).toBe(true);
     });
@@ -166,7 +173,7 @@ describe('TripChain', () => {
             ...validAttributes,
             ...customAttributes,
         };
-        const tripChain = new TripChain(tripChainAttributes);
+        const tripChain = new TripChain(tripChainAttributes, registry);
         expect(tripChain).toBeInstanceOf(TripChain);
         expect(tripChain.attributes).toEqual(validAttributes);
         expect(tripChain.customAttributes).toEqual(customAttributes);
@@ -212,7 +219,7 @@ describe('TripChain', () => {
             ['mainActivity', 'school'],
             ['mainActivityCategory', 'education'],
         ])('should set and get %s', (attribute, value) => {
-            const tripChain = new TripChain(validAttributes);
+            const tripChain = new TripChain(validAttributes, registry);
             tripChain[attribute] = value;
             expect(tripChain[attribute]).toEqual(value);
         });
@@ -223,7 +230,7 @@ describe('TripChain', () => {
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const tripChain = new TripChain(extendedAttributes);
+                const tripChain = new TripChain(extendedAttributes, registry);
                 expect(tripChain[attribute]).toEqual(value);
             });
         });
@@ -235,7 +242,7 @@ describe('TripChain', () => {
             ['_visitedPlaces', extendedAttributes._visitedPlaces],
             ['journeyUuid', uuidV4()],
         ])('should set and get %s', (attribute, value) => {
-            const tripChain = new TripChain(validAttributes);
+            const tripChain = new TripChain(validAttributes, registry);
             tripChain[attribute] = value;
             expect(tripChain[attribute]).toEqual(value);
         });
@@ -271,7 +278,7 @@ describe('TripChain', () => {
                 _trips: tripAttributes,
             };
 
-            const result = TripChain.create(tripChainAttributes);
+            const result = TripChain.create(tripChainAttributes, registry);
             expect(isOk(result)).toBe(true);
             const tripChain = unwrap(result) as TripChain;
             expect(tripChain.trips).toBeDefined();
@@ -321,7 +328,7 @@ describe('TripChain', () => {
                 _visitedPlaces: visitedPlaceAttributes,
             };
 
-            const result = TripChain.create(tripChainAttributes);
+            const result = TripChain.create(tripChainAttributes, registry);
             expect(isOk(result)).toBe(true);
             const tripChain = unwrap(result) as TripChain;
             expect(tripChain.visitedPlaces).toBeDefined();

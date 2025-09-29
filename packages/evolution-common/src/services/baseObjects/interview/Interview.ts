@@ -161,6 +161,7 @@ export type SerializedExtendedInterviewAttributesWithComposedObjects = {
  * The InterviewAudited class handles data for steps 2, 3 and 4.
  */
 export class Interview extends Uuidable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: InterviewAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -189,8 +190,14 @@ export class Interview extends Uuidable {
     ];
 
     // Use InterviewUnserializer create function to generate/validate Interview object from json data with nested composed objects
-    constructor(params: ExtendedInterviewAttributesWithComposedObjects, interviewAttributes: rawInterviewAttributes) {
+    constructor(
+        params: ExtendedInterviewAttributesWithComposedObjects,
+        interviewAttributes: rawInterviewAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ) {
         super(interviewAttributes.uuid || params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as InterviewAttributes;
         this._customAttributes = {};
@@ -210,9 +217,13 @@ export class Interview extends Uuidable {
         this._attributes._isValidated = interviewAttributes.is_validated;
         this._customAttributes = customAttributes;
 
-        this._paradata = ConstructorUtils.initializeComposedAttribute(params._paradata, InterviewParadata.unserialize);
+        this._paradata = ConstructorUtils.initializeComposedAttribute(
+            params._paradata,
+            (params) => InterviewParadata.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
 
-        SurveyObjectsRegistry.getInstance().registerInterview(this);
+        this._surveyObjectsRegistry.registerInterview(this);
     }
 
     get attributes(): InterviewAttributes {
@@ -430,6 +441,7 @@ export class Interview extends Uuidable {
         params:
             | ExtendedInterviewAttributesWithComposedObjects
             | SerializedExtendedInterviewAttributesWithComposedObjects,
+        surveyObjectsRegistry: SurveyObjectsRegistry,
         interviewAttributes?: rawInterviewAttributes
     ): Interview {
         // If we have serialized data, flatten it first
@@ -455,6 +467,10 @@ export class Interview extends Uuidable {
             };
         }
 
-        return new Interview(flattenedParams as ExtendedInterviewAttributesWithComposedObjects, rawInterviewAttributes);
+        return new Interview(
+            flattenedParams as ExtendedInterviewAttributesWithComposedObjects,
+            rawInterviewAttributes,
+            surveyObjectsRegistry
+        );
     }
 }

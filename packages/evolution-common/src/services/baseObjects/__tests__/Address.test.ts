@@ -8,8 +8,16 @@
 import { Address, ExtendedAddressAttributes, addressAttributes } from '../Address';
 import { v4 as uuidV4 } from 'uuid';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Address', () => {
+
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const validAddressAttributes: ExtendedAddressAttributes = {
         _uuid: uuidV4(),
         _isValid: true,
@@ -73,7 +81,7 @@ describe('Address', () => {
     });
 
     test('should unserialize an Address instance', () => {
-        const address = Address.unserialize(validAddressAttributes);
+        const address = Address.unserialize(validAddressAttributes, registry);
         expect(address).toBeInstanceOf(Address);
         expect(address.attributes).toEqual(validAddressAttributes);
     });

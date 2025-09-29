@@ -13,8 +13,15 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Journey', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
@@ -77,7 +84,7 @@ describe('Journey', () => {
     };
 
     test('should instantiate a Journey instance', () => {
-        const journey = new Journey(validAttributes);
+        const journey = new Journey(validAttributes, registry);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
     });
@@ -90,38 +97,38 @@ describe('Journey', () => {
     });
 
     test('should get uuid', () => {
-        const journey = new Journey({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const journey = new Journey({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(journey._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a Journey instance with valid attributes', () => {
-        const result = Journey.create(validAttributes);
+        const result = Journey.create(validAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Journey);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = Journey.create(invalidAttributes);
+        const result = Journey.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should create a Journey instance with extended attributes', () => {
-        const result = Journey.create(extendedAttributes);
+        const result = Journey.create(extendedAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Journey);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validAttributes, startTime: 'invalid' };
-        const result = Journey.create(invalidAttributes);
+        const result = Journey.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a Journey instance', () => {
-        const journey = Journey.unserialize(validAttributes);
+        const journey = Journey.unserialize(validAttributes, registry);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
     });
@@ -138,7 +145,7 @@ describe('Journey', () => {
     });
 
     test('should validate a Journey instance', () => {
-        const journey = new Journey(validAttributes);
+        const journey = new Journey(validAttributes, registry);
         expect(journey.validate()).toBe(true);
         expect(journey.isValid()).toBe(true);
     });
@@ -152,7 +159,7 @@ describe('Journey', () => {
             ...validAttributes,
             ...customAttributes,
         };
-        const journey = new Journey(journeyAttributes);
+        const journey = new Journey(journeyAttributes, registry);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
         expect(journey.customAttributes).toEqual(customAttributes);
@@ -206,7 +213,7 @@ describe('Journey', () => {
             ['previousWeekRemoteWorkDays', { friday: true, saturday: true, sunday: true }],
             ['previousWeekTravelToWorkDays', { thursday: true, friday: true }],
         ])('should set and get %s', (attribute, value) => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;
             expect(journey[attribute]).toEqual(value);
         });
@@ -217,7 +224,7 @@ describe('Journey', () => {
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const journey = new Journey(extendedAttributes);
+                const journey = new Journey(extendedAttributes, registry);
                 expect(journey[attribute]).toEqual(value);
             });
         });
@@ -230,7 +237,7 @@ describe('Journey', () => {
             ['_tripChains', extendedAttributes._tripChains],
             ['personUuid', uuidV4()],
         ])('should set and get %s', (attribute, value) => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;
             expect(journey[attribute]).toEqual(value);
         });
@@ -238,7 +245,7 @@ describe('Journey', () => {
 
     describe('VisitedPlace and Trip Management Methods', () => {
         test('should add visited places using addVisitedPlace method', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const vp1 = { _uuid: uuidV4(), _isValid: true };
             const vp2 = { _uuid: uuidV4(), _isValid: true };
 
@@ -252,7 +259,7 @@ describe('Journey', () => {
         });
 
         test('should insert visited place at specific index', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const vp1 = { _uuid: uuidV4(), _isValid: true };
             const vp2 = { _uuid: uuidV4(), _isValid: true };
             const vp3 = { _uuid: uuidV4(), _isValid: true };
@@ -269,7 +276,7 @@ describe('Journey', () => {
         });
 
         test('should insert visited place after specific UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const vp1 = { _uuid: uuidV4(), _isValid: true };
             const vp2 = { _uuid: uuidV4(), _isValid: true };
             const vp3 = { _uuid: uuidV4(), _isValid: true };
@@ -287,7 +294,7 @@ describe('Journey', () => {
         });
 
         test('should insert visited place before specific UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const vp1 = { _uuid: uuidV4(), _isValid: true };
             const vp2 = { _uuid: uuidV4(), _isValid: true };
             const vp3 = { _uuid: uuidV4(), _isValid: true };
@@ -305,7 +312,7 @@ describe('Journey', () => {
         });
 
         test('should remove visited place by UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const vp1 = { _uuid: uuidV4(), _isValid: true };
             const vp2 = { _uuid: uuidV4(), _isValid: true };
 
@@ -320,7 +327,7 @@ describe('Journey', () => {
         });
 
         test('should get visited place by UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const vp1 = { _uuid: uuidV4(), _isValid: true };
             const vp2 = { _uuid: uuidV4(), _isValid: true };
 
@@ -333,7 +340,7 @@ describe('Journey', () => {
         });
 
         test('should add trips using addTrip method', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const trip1 = { _uuid: uuidV4(), _isValid: true };
             const trip2 = { _uuid: uuidV4(), _isValid: true };
 
@@ -347,7 +354,7 @@ describe('Journey', () => {
         });
 
         test('should insert trip at specific index', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const trip1 = { _uuid: uuidV4(), _isValid: true };
             const trip2 = { _uuid: uuidV4(), _isValid: true };
             const trip3 = { _uuid: uuidV4(), _isValid: true };
@@ -364,7 +371,7 @@ describe('Journey', () => {
         });
 
         test('should insert trip after specific UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const trip1 = { _uuid: uuidV4(), _isValid: true };
             const trip2 = { _uuid: uuidV4(), _isValid: true };
             const trip3 = { _uuid: uuidV4(), _isValid: true };
@@ -382,7 +389,7 @@ describe('Journey', () => {
         });
 
         test('should insert trip before specific UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const trip1 = { _uuid: uuidV4(), _isValid: true };
             const trip2 = { _uuid: uuidV4(), _isValid: true };
             const trip3 = { _uuid: uuidV4(), _isValid: true };
@@ -400,7 +407,7 @@ describe('Journey', () => {
         });
 
         test('should remove trip by UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const trip1 = { _uuid: uuidV4(), _isValid: true };
             const trip2 = { _uuid: uuidV4(), _isValid: true };
 
@@ -415,7 +422,7 @@ describe('Journey', () => {
         });
 
         test('should get trip by UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const trip1 = { _uuid: uuidV4(), _isValid: true };
             const trip2 = { _uuid: uuidV4(), _isValid: true };
 
@@ -428,7 +435,7 @@ describe('Journey', () => {
         });
 
         test('should return false when inserting after/before non-existent UUID', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const vp1 = { _uuid: uuidV4(), _isValid: true };
             const vp2 = { _uuid: uuidV4(), _isValid: true };
             const trip1 = { _uuid: uuidV4(), _isValid: true };
@@ -446,7 +453,7 @@ describe('Journey', () => {
         });
 
         test('should handle empty arrays', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
 
             expect(journey.visitedPlaces).toHaveLength(0);
             expect(journey.trips).toHaveLength(0);
@@ -457,7 +464,7 @@ describe('Journey', () => {
         });
 
         test('should add to empty array when inserting after/before UUID with empty array', () => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             const vp = { _uuid: uuidV4(), _isValid: true };
             const trip = { _uuid: uuidV4(), _isValid: true };
 
@@ -501,7 +508,7 @@ describe('Journey', () => {
                 _visitedPlaces: visitedPlaceAttributes,
             };
 
-            const result = Journey.create(journeyAttributes);
+            const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);
             const journey = unwrap(result) as Journey;
             expect(journey.visitedPlaces).toBeDefined();
@@ -530,7 +537,7 @@ describe('Journey', () => {
                 _trips: tripAttributes,
             };
 
-            const result = Journey.create(journeyAttributes);
+            const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);
             const journey = unwrap(result) as Journey;
             expect(journey.trips).toBeDefined();
@@ -552,7 +559,7 @@ describe('Journey', () => {
                 _tripChains: tripChainAttributes,
             };
 
-            const result = Journey.create(journeyAttributes);
+            const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);
             const journey = unwrap(result) as Journey;
             expect(journey.tripChains).toBeDefined();

@@ -8,8 +8,16 @@
 import { Routing, routingAttributes } from '../Routing';
 import { v4 as uuidV4 } from 'uuid';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Routing', () => {
+
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const validAttributes: { [key: string]: unknown } = {
         _uuid: uuidV4(),
         endDate: '2023-05-22',
@@ -78,7 +86,7 @@ describe('Routing', () => {
     });
 
     test('should unserialize a Routing instance', () => {
-        const routing = Routing.unserialize(validAttributes);
+        const routing = Routing.unserialize(validAttributes, registry);
         expect(routing).toBeInstanceOf(Routing);
         expect(routing.attributes).toEqual(validAttributes);
     });

@@ -5,56 +5,53 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { VisitedPlaceAuditCheckContext, VisitedPlaceAuditCheckFunction } from '../infrastructure/AuditCheckContexts';
+import { isFeature, isPoint } from 'geojson-validation';
 
-/**
- * VisitedPlace-specific audit check functions
- */
+import { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { VisitedPlaceAuditCheckContext, VisitedPlaceAuditCheckFunction } from '../AuditCheckContexts';
+
 export const visitedPlaceAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
     /**
-     * Check if visited place has missing or invalid geographic coordinates
+     * Check if visited place geography is missing
+     * @param context - VisitedPlaceAuditCheckContext
+     * @returns AuditForObject
      */
-    VP_M_Geography: (context: VisitedPlaceAuditCheckContext): Partial<AuditForObject> | undefined => {
+    VP_M_Geography: (context: VisitedPlaceAuditCheckContext): AuditForObject | undefined => {
         const { visitedPlace } = context;
         const geography = visitedPlace.geography;
 
         if (!geography) {
             return {
+                objectType: 'visitedPlace',
+                objectUuid: visitedPlace._uuid!,
+                errorCode: 'VP_M_Geography',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Visited place geography is missing',
                 ignore: false
             };
-        }
-
-        if (geography.type === 'Feature' && geography.geometry?.type === 'Point') {
-            const coordinates = geography.geometry.coordinates;
-            if (!coordinates || coordinates.length !== 2) {
-                return {
-                    version: 1,
-                    level: 'error',
-                    message: 'Visited place coordinates are invalid',
-                    ignore: false
-                };
-            }
         }
 
         return undefined; // No audit needed
     },
 
     /**
-     * Check if visited place has missing UUID
+     * Check if visited place geography is invalid
+     * @param context - VisitedPlaceAuditCheckContext
+     * @returns AuditForObject
      */
-    VP_M_Uuid: (context: VisitedPlaceAuditCheckContext): Partial<AuditForObject> | undefined => {
+    VP_I_Geography: (context: VisitedPlaceAuditCheckContext): AuditForObject | undefined => {
         const { visitedPlace } = context;
-        const hasUuid = !!visitedPlace._uuid;
+        const geography = visitedPlace.geography;
 
-        if (!hasUuid) {
+        if (geography && (!isFeature(geography) || !isPoint(geography.geometry))) {
             return {
+                objectType: 'visitedPlace',
+                objectUuid: visitedPlace._uuid!,
+                errorCode: 'VP_I_Geography',
                 version: 1,
                 level: 'error',
-                message: 'Visited place UUID is missing',
+                message: 'Visited place geography is invalid',
                 ignore: false
             };
         }

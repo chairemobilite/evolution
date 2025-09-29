@@ -76,6 +76,7 @@ export type SerializedExtendedVisitedPlaceAttributes = {
  * a shopping place, etc.
  */
 export class VisitedPlace extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: VisitedPlaceAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -84,8 +85,10 @@ export class VisitedPlace extends Uuidable implements IValidatable {
 
     static _confidentialAttributes = [];
 
-    constructor(params: ExtendedVisitedPlaceAttributes) {
+    constructor(params: ExtendedVisitedPlaceAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as VisitedPlaceAttributes;
         this._customAttributes = {};
@@ -98,10 +101,14 @@ export class VisitedPlace extends Uuidable implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.place = ConstructorUtils.initializeComposedAttribute(params._place, Place.unserialize);
+        this.place = ConstructorUtils.initializeComposedAttribute(
+            params._place,
+            Place.unserialize,
+            this._surveyObjectsRegistry
+        );
         this.journeyUuid = params._journeyUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerVisitedPlace(this);
+        this._surveyObjectsRegistry.registerVisitedPlace(this);
     }
 
     get attributes(): VisitedPlaceAttributes {
@@ -244,7 +251,7 @@ export class VisitedPlace extends Uuidable implements IValidatable {
         if (!this._journeyUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getJourney(this._journeyUuid);
+        return this._surveyObjectsRegistry.getJourney(this._journeyUuid);
     }
 
     get person(): Optional<Person> {
@@ -261,15 +268,19 @@ export class VisitedPlace extends Uuidable implements IValidatable {
      * @returns {VisitedPlace} New VisitedPlace instance
      */
     static unserialize(
-        params: ExtendedVisitedPlaceAttributes | SerializedExtendedVisitedPlaceAttributes
+        params: ExtendedVisitedPlaceAttributes | SerializedExtendedVisitedPlaceAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
     ): VisitedPlace {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new VisitedPlace(flattenedParams as ExtendedVisitedPlaceAttributes);
+        return new VisitedPlace(flattenedParams as ExtendedVisitedPlaceAttributes, surveyObjectsRegistry);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<VisitedPlace> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<VisitedPlace> {
         const errors = VisitedPlace.validateParams(dirtyParams);
-        const visitedPlace = errors.length === 0 ? new VisitedPlace(dirtyParams) : undefined;
+        const visitedPlace = errors.length === 0 ? new VisitedPlace(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

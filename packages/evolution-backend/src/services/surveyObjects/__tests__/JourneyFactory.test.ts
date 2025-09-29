@@ -5,14 +5,15 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { createJourneysForPerson } from '../JourneyFactory';
-import { createVisitedPlacesForJourney } from '../VisitedPlaceFactory';
-import { createTripsForJourney } from '../TripFactory';
+import { populateJourneysForPerson } from '../JourneyFactory';
+import { populateVisitedPlacesForJourney } from '../VisitedPlaceFactory';
+import { populateTripsForJourney } from '../TripFactory';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { Person, ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 // Mock dependencies
 jest.mock('evolution-common/lib/services/baseObjects/Journey', () => ({
@@ -24,16 +25,18 @@ jest.mock('../VisitedPlaceFactory');
 jest.mock('../TripFactory');
 
 const MockedJourney = Journey as jest.MockedClass<typeof Journey>;
-const mockedCreateVisitedPlacesForJourney = createVisitedPlacesForJourney as jest.MockedFunction<typeof createVisitedPlacesForJourney>;
-const mockedCreateTripsForJourney = createTripsForJourney as jest.MockedFunction<typeof createTripsForJourney>;
+const mockedpopulateVisitedPlacesForJourney = populateVisitedPlacesForJourney as jest.MockedFunction<typeof populateVisitedPlacesForJourney>;
+const mockedpopulateTripsForJourney = populateTripsForJourney as jest.MockedFunction<typeof populateTripsForJourney>;
 
 describe('JourneyFactory', () => {
+    let surveyObjectsRegistry: SurveyObjectsRegistry;
     let surveyObjectsWithErrors: SurveyObjectsWithErrors;
     let person: Person;
     let personAttributes: ExtendedPersonAttributes;
     let home: Home;
 
     beforeEach(() => {
+        surveyObjectsRegistry = new SurveyObjectsRegistry();
         surveyObjectsWithErrors = {
             interview: undefined,
             household: undefined,
@@ -87,7 +90,7 @@ describe('JourneyFactory', () => {
         jest.clearAllMocks();
     });
 
-    describe('createJourneysForPerson', () => {
+    describe('populateJourneysForPerson', () => {
         it('should create journeys successfully and add them to person', async () => {
             const mockJourney1 = {
                 _uuid: 'journey-1',
@@ -103,23 +106,29 @@ describe('JourneyFactory', () => {
                 .mockReturnValueOnce(createOk(mockJourney1))
                 .mockReturnValueOnce(createOk(mockJourney2));
 
-            mockedCreateVisitedPlacesForJourney.mockResolvedValue();
-            mockedCreateTripsForJourney.mockResolvedValue();
+            mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
+            mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await createJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify Journey.create was called with correct attributes (visitedPlaces and trips are omitted)
             expect(MockedJourney.create).toHaveBeenCalledTimes(2);
-            expect(MockedJourney.create).toHaveBeenCalledWith({
-                _uuid: 'journey-1',
-                _sequence: 1,
-                name: 'Work Day'
-            });
-            expect(MockedJourney.create).toHaveBeenCalledWith({
-                _uuid: 'journey-2',
-                _sequence: 2,
-                name: 'Weekend'
-            });
+            expect(MockedJourney.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    _uuid: 'journey-1',
+                    _sequence: 1,
+                    name: 'Work Day'
+                }),
+                surveyObjectsRegistry
+            );
+            expect(MockedJourney.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    _uuid: 'journey-2',
+                    _sequence: 2,
+                    name: 'Weekend'
+                }),
+                surveyObjectsRegistry
+            );
 
             // Verify journeys were added to person
             expect(person.addJourney).toHaveBeenCalledTimes(2);
@@ -127,8 +136,8 @@ describe('JourneyFactory', () => {
             expect(person.addJourney).toHaveBeenCalledWith(mockJourney2);
 
             // Verify visited places and trips were created for each journey
-            expect(mockedCreateVisitedPlacesForJourney).toHaveBeenCalledTimes(2);
-            expect(mockedCreateTripsForJourney).toHaveBeenCalledTimes(2);
+            expect(mockedpopulateVisitedPlacesForJourney).toHaveBeenCalledTimes(2);
+            expect(mockedpopulateTripsForJourney).toHaveBeenCalledTimes(2);
 
             // Verify no errors
             expect(surveyObjectsWithErrors.errorsByObject.journeysByUuid).toEqual({});
@@ -142,10 +151,10 @@ describe('JourneyFactory', () => {
                     _uuid: 'journey-2'
                 } as Journey));
 
-            mockedCreateVisitedPlacesForJourney.mockResolvedValue();
-            mockedCreateTripsForJourney.mockResolvedValue();
+            mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
+            mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await createJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify error was stored
             expect(surveyObjectsWithErrors.errorsByObject.journeysByUuid['journey-1']).toEqual(errors);
@@ -154,8 +163,8 @@ describe('JourneyFactory', () => {
             expect(person.addJourney).toHaveBeenCalledTimes(1);
 
             // Verify visited places and trips were only created for successful journey
-            expect(mockedCreateVisitedPlacesForJourney).toHaveBeenCalledTimes(1);
-            expect(mockedCreateTripsForJourney).toHaveBeenCalledTimes(1);
+            expect(mockedpopulateVisitedPlacesForJourney).toHaveBeenCalledTimes(1);
+            expect(mockedpopulateTripsForJourney).toHaveBeenCalledTimes(1);
         });
 
         it('should skip journeys with undefined uuid', async () => {
@@ -174,10 +183,10 @@ describe('JourneyFactory', () => {
                 _uuid: 'journey-1'
             } as Journey));
 
-            mockedCreateVisitedPlacesForJourney.mockResolvedValue();
-            mockedCreateTripsForJourney.mockResolvedValue();
+            mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
+            mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await createJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Should only create one journey (skip undefined)
             expect(MockedJourney.create).toHaveBeenCalledTimes(1);
@@ -187,7 +196,7 @@ describe('JourneyFactory', () => {
         it('should handle missing journeys attributes', async () => {
             personAttributes.journeys = undefined;
 
-            await createJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             expect(MockedJourney.create).not.toHaveBeenCalled();
             expect(person.addJourney).not.toHaveBeenCalled();
@@ -217,15 +226,15 @@ describe('JourneyFactory', () => {
                 .mockReturnValueOnce(createOk({ _uuid: 'journey-2' } as Journey))
                 .mockReturnValueOnce(createOk({ _uuid: 'journey-3' } as Journey));
 
-            mockedCreateVisitedPlacesForJourney.mockResolvedValue();
-            mockedCreateTripsForJourney.mockResolvedValue();
+            mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
+            mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await createJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify journeys were created in sequence order (1, 2, 3)
-            expect(MockedJourney.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }));
-            expect(MockedJourney.create).toHaveBeenNthCalledWith(2, expect.objectContaining({ _sequence: 2 }));
-            expect(MockedJourney.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }));
+            expect(MockedJourney.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }), surveyObjectsRegistry);
+            expect(MockedJourney.create).toHaveBeenNthCalledWith(2, expect.objectContaining({ _sequence: 2 }), surveyObjectsRegistry);
+            expect(MockedJourney.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }), surveyObjectsRegistry);
         });
 
         it('should pass correct parameters to nested factory functions', async () => {
@@ -234,28 +243,30 @@ describe('JourneyFactory', () => {
             } as Journey;
 
             (MockedJourney.create as jest.Mock).mockReturnValue(createOk(mockJourney));
-            mockedCreateVisitedPlacesForJourney.mockResolvedValue();
-            mockedCreateTripsForJourney.mockResolvedValue();
+            mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
+            mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await createJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify visited places factory was called with correct parameters
-            expect(mockedCreateVisitedPlacesForJourney).toHaveBeenCalledWith(
+            expect(mockedpopulateVisitedPlacesForJourney).toHaveBeenCalledWith(
                 surveyObjectsWithErrors,
                 person,
                 mockJourney,
                 personAttributes.journeys!['journey-1'],
                 home,
-                { uuid: 'test' }
+                { uuid: 'test' },
+                surveyObjectsRegistry
             );
 
             // Verify trips factory was called with correct parameters
-            expect(mockedCreateTripsForJourney).toHaveBeenCalledWith(
+            expect(mockedpopulateTripsForJourney).toHaveBeenCalledWith(
                 surveyObjectsWithErrors,
                 person,
                 mockJourney,
                 personAttributes.journeys!['journey-1'],
-                { uuid: 'test' }
+                { uuid: 'test' },
+                surveyObjectsRegistry
             );
         });
     });

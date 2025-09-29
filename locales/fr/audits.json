@@ -1,26 +1,20 @@
 {
-  "I_M_Uuid": "Le UUID de l'entrevue est manquant",
-  "I_M_Id": "Le ID de l'entrevue est manquant",
-  "I_M_Response": "L'entrevue ne contient pas de réponse",
+  "I_M_Languages": "Les langues de l'entrevue sont manquantes",
 
   "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 20)",
-  "HH_M_Uuid": "Le UUID du ménage est manquant",
+  "HH_M_Size": "La taille du ménage est manquante",
 
   "HM_M_Geography": "La géographie du domicile est manquante",
-  "HM_M_Uuid": "Le UUID du domicile est manquant",
+  "HM_I_Geography": "La géographie du domicile est invalide",
 
-  "P_M_Uuid": "Le UUID de la personne est manquant",
   "P_M_Age": "L'âge de la personne est manquant",
 
-  "J_M_Uuid": "Le UUID du séjour est manquant",
-  "J_M_StartTime": "L'heure de début du séjour est manquante",
+  "J_M_StartDate": "La date de début du séjour est manquante",
 
   "VP_M_Geography": "La géographie du lieu visité est manquante",
-  "VP_M_Uuid": "Le UUID du lieu visité est manquant",
+  "VP_I_Geography": "La géographie du lieu visité est invalide",
 
-  "T_M_Uuid": "Le UUID du déplacement est manquant",
-  "T_M_StartDate": "La date de début du déplacement est manquante",
+  "T_M_Segments": "Les segments du déplacement sont manquants",
   
-  "S_M_Uuid": "Le UUID du segment est manquant",
   "S_M_Mode": "Le mode du segment est manquant"
 }

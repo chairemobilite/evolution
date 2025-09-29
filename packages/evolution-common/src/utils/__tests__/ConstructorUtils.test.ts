@@ -6,6 +6,13 @@
  */
 
 import { ConstructorUtils } from '../ConstructorUtils';
+import { SurveyObjectsRegistry } from '../../services/baseObjects/SurveyObjectsRegistry';
+
+let surveyObjectsRegistry: SurveyObjectsRegistry;
+
+beforeEach(() => {
+    surveyObjectsRegistry = new SurveyObjectsRegistry();
+});
 
 describe('ConstructorUtils', () => {
     describe('initializeAttributes', () => {
@@ -49,7 +56,8 @@ describe('ConstructorUtils', () => {
             const unserializeFunc = (item) => ({ id: item.id, name: `Item ${item.id}` });
             const composedAttributes = ConstructorUtils.initializeComposedArrayAttributes(
                 params.composedAttr,
-                unserializeFunc
+                unserializeFunc,
+                surveyObjectsRegistry
             );
             expect(composedAttributes).toEqual([
                 { id: 1, name: 'Item 1' },
@@ -62,7 +70,8 @@ describe('ConstructorUtils', () => {
             const unserializeFunc = (item) => item;
             const composedAttributes = ConstructorUtils.initializeComposedArrayAttributes(
                 params,
-                unserializeFunc
+                unserializeFunc,
+                surveyObjectsRegistry
             );
             expect(composedAttributes).toEqual([]);
         });
@@ -72,7 +81,8 @@ describe('ConstructorUtils', () => {
             const unserializeFunc = (item) => item;
             const composedAttributes = ConstructorUtils.initializeComposedArrayAttributes(
                 params,
-                unserializeFunc
+                unserializeFunc,
+                surveyObjectsRegistry
             );
             expect(composedAttributes).toEqual([]);
         });
@@ -86,7 +96,8 @@ describe('ConstructorUtils', () => {
             const unserializeFunc = (item) => ({ id: item.id, name: `Item ${item.id}` });
             const composedAttributes = ConstructorUtils.initializeComposedAttribute(
                 params.composedAttr,
-                unserializeFunc
+                unserializeFunc,
+                surveyObjectsRegistry
             );
             expect(composedAttributes).toEqual({ id: 1, name: 'Item 1' });
         });
@@ -96,7 +107,8 @@ describe('ConstructorUtils', () => {
             const unserializeFunc = (item) => item;
             const composedAttributes = ConstructorUtils.initializeComposedAttribute(
                 params,
-                unserializeFunc
+                unserializeFunc,
+                surveyObjectsRegistry
             );
             expect(composedAttributes).toEqual(undefined);
         });

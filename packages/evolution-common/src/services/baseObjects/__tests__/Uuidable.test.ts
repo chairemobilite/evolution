@@ -7,7 +7,6 @@
 
 import { Uuidable } from '../Uuidable';
 import { validate as uuidValidate, v4 as uuidV4 } from 'uuid';
-import { Optional } from '../../../types/Optional.type';
 
 describe('Uuidable Class', () => {
 

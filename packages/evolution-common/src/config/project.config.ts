@@ -163,6 +163,7 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             title: { en: 'Survey', fr: 'Enquête' },
             postalCodeRegion: 'other',
             personColorsPalette: [
+                // FIXME See this issue https://github.com/chairemobilite/evolution/issues/1246
                 '#FFAE70',
                 '#FFBCF2',
                 '#F2ED6A',

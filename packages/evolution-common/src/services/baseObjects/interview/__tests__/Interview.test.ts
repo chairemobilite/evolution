@@ -10,6 +10,13 @@ import { InterviewParadata, InterviewParadataAttributes } from '../InterviewPara
 import { create } from '../InterviewUnserializer';
 import { isOk, hasErrors } from '../../../../types/Result.type';
 import { validate as uuidValidate } from 'uuid';
+import { SurveyObjectsRegistry } from '../../SurveyObjectsRegistry';
+
+let registry: SurveyObjectsRegistry;
+
+beforeEach(() => {
+    registry = new SurveyObjectsRegistry();
+});
 
 describe('Interview', () => {
     const validParams: InterviewAttributes = {
@@ -56,7 +63,7 @@ describe('Interview', () => {
 
     describe('constructor', () => {
         it('should create an Interview instance with valid parameters', () => {
-            const interview = new Interview(validParams, { id: 1, participant_id: 1, uuid: validParams._uuid } as any);
+            const interview = new Interview(validParams, { id: 1, participant_id: 1, uuid: validParams._uuid } as any, registry);
             expect(interview).toBeInstanceOf(Interview);
             expect(interview._uuid).toBe(validParams._uuid);
             expect(interview.accessCode).toBe(validParams.accessCode);
@@ -67,32 +74,32 @@ describe('Interview', () => {
                 ...validParams,
                 acceptToBeContactedForHelp: true
             };
-            const interview = new Interview(paramsWithAcceptContact, { id: 1, participant_id: 1, uuid: validParams._uuid } as any);
+            const interview = new Interview(paramsWithAcceptContact, { id: 1, participant_id: 1, uuid: validParams._uuid } as any, registry);
             expect(interview.acceptToBeContactedForHelp).toBe(true);
         });
 
         it('should handle acceptToBeContactedForHelp as undefined by default', () => {
-            const interview = new Interview(validParams, { id: 1, participant_id: 1, uuid: validParams._uuid } as any);
+            const interview = new Interview(validParams, { id: 1, participant_id: 1, uuid: validParams._uuid } as any, registry);
             expect(interview.acceptToBeContactedForHelp).toBeUndefined();
         });
 
         it('should generate a UUID if not provided', () => {
             const paramsWithoutUuid = { ...validParams };
             delete paramsWithoutUuid._uuid;
-            const interview = new Interview(paramsWithoutUuid, { id: 1, participant_id: 1 } as any);
+            const interview = new Interview(paramsWithoutUuid, { id: 1, participant_id: 1 } as any, registry);
             expect(interview._uuid).toBeDefined();
             expect(typeof interview._uuid).toBe('string');
         });
 
         it('should throw an error for invalid UUID', () => {
             const invalidParams = { ...validParams, _uuid: 'invalid-uuid' };
-            expect(() => new Interview(invalidParams, { id: 1, participant_id: 1 } as any)).toThrow('Uuidable: invalid uuid');
+            expect(() => new Interview(invalidParams, { id: 1, participant_id: 1 } as any, registry)).toThrow('Uuidable: invalid uuid');
         });
     });
 
     describe('create', () => {
         it('should create an Interview instance with valid parameters', () => {
-            const result = create(validParams, { id: 1, participant_id: 1 } as any);
+            const result = create(validParams, { id: 1, participant_id: 1 } as any, registry);
             expect(isOk(result)).toBe(true);
             if (isOk(result)) {
                 expect(result.result).toBeInstanceOf(Interview);
@@ -105,7 +112,7 @@ describe('Interview', () => {
                 ...validParams,
                 acceptToBeContactedForHelp: false
             };
-            const result = create(paramsWithAcceptContact, { id: 1, participant_id: 1 } as any);
+            const result = create(paramsWithAcceptContact, { id: 1, participant_id: 1 } as any, registry);
             expect(isOk(result)).toBe(true);
             if (isOk(result)) {
                 expect(result.result.acceptToBeContactedForHelp).toBe(false);
@@ -117,7 +124,7 @@ describe('Interview', () => {
                 ...validParams,
                 contactEmail: 123 // other attributes are tested in validateParams test file
             };
-            const result = create(invalidParams, { id: 1, participant_id: 1 } as any);
+            const result = create(invalidParams, { id: 1, participant_id: 1 } as any, registry);
             expect(hasErrors(result)).toBe(true);
             if (hasErrors(result)) {
                 expect(result.errors.length).toBeGreaterThan(0);
@@ -128,20 +135,20 @@ describe('Interview', () => {
 
     describe('UUID handling', () => {
         it('should accept a valid UUID', () => {
-            const interview = new Interview(validParams, { id: 1, participant_id: 1 } as any);
+            const interview = new Interview(validParams, { id: 1, participant_id: 1 } as any, registry);
             expect(interview._uuid).toBe(validParams._uuid);
         });
 
         it('should generate a valid UUID if not provided', () => {
             const paramsWithoutUuid = { ...validParams };
             delete paramsWithoutUuid._uuid;
-            const interview = new Interview(paramsWithoutUuid, { id: 1, participant_id: 1 } as any);
+            const interview = new Interview(paramsWithoutUuid, { id: 1, participant_id: 1 } as any, registry);
             expect(uuidValidate(interview._uuid as string)).toBe(true);
         });
 
         it('should throw an error for an invalid UUID', () => {
             const invalidUuidParams = { ...validParams, _uuid: 'invalid-uuid' };
-            expect(() => new Interview(invalidUuidParams, { id: 1, participant_id: 1 } as any)).toThrow('Uuidable: invalid uuid');
+            expect(() => new Interview(invalidUuidParams, { id: 1, participant_id: 1 } as any, registry)).toThrow('Uuidable: invalid uuid');
         });
     });
 
@@ -151,7 +158,7 @@ describe('Interview', () => {
                 ...validParams,
                 _paradata: validParadataParams
             };
-            const interview = new Interview(paramsWithParadata, { id: 1, participant_id: 1 } as any);
+            const interview = new Interview(paramsWithParadata, { id: 1, participant_id: 1 } as any, registry);
             expect(interview.paradata).toBeInstanceOf(InterviewParadata);
             expect(interview.paradata?.startedAt).toBe(validParadataParams.startedAt);
         });
@@ -161,7 +168,7 @@ describe('Interview', () => {
                 ...validParams,
                 _paradata: validParadataParams
             };
-            const result = create(paramsWithParadata, { id: 1, participant_id: 1 } as any);
+            const result = create(paramsWithParadata, { id: 1, participant_id: 1 } as any, registry);
             expect(isOk(result)).toBe(true);
             if (isOk(result)) {
                 expect(result.result).toBeInstanceOf(Interview);
@@ -180,7 +187,7 @@ describe('Interview', () => {
                 ...validParams,
                 _paradata: invalidParadataParams
             };
-            const result = create(paramsWithInvalidParadata, { id: 1, participant_id: 1 } as any);
+            const result = create(paramsWithInvalidParadata, { id: 1, participant_id: 1 } as any, registry);
             expect(hasErrors(result)).toBe(true);
             if (hasErrors(result)) {
                 expect(result.errors.length).toBeGreaterThan(0);
@@ -197,13 +204,13 @@ describe('Interview', () => {
                 customField1: 'value1',
                 customField2: 42
             };
-            const interview = new Interview(customParams, { id: 1, participant_id: 1 } as any);
+            const interview = new Interview(customParams, { id: 1, participant_id: 1 } as any, registry);
             expect(interview.customAttributes.customField1).toBe('value1');
             expect(interview.customAttributes.customField2).toBe(42);
         });
 
         it('should get and set paradata', () => {
-            const interview = new Interview(validParams, { id: 1, participant_id: 1 } as any);
+            const interview = new Interview(validParams, { id: 1, participant_id: 1 } as any, registry);
             const paradata = new InterviewParadata(validParadataParams);
             interview.paradata = paradata;
             expect(interview.paradata).toBe(paradata);

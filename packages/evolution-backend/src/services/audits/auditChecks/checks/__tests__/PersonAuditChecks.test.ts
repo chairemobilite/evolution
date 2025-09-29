@@ -12,12 +12,22 @@ import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { ExtendedInterviewAttributesWithComposedObjects, Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 import { ExtendedHouseholdAttributes } from 'evolution-common/lib/services/baseObjects/Household';
 import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { personAuditChecks } from '../PersonAuditChecks';
-import { runPersonAuditChecks } from '../../infrastructure/AuditCheckRunners';
-import { PersonAuditCheckContext } from '../../infrastructure/AuditCheckContexts';
+import { runPersonAuditChecks } from '../../AuditCheckRunners';
+import { PersonAuditCheckContext } from '../../AuditCheckContexts';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 describe('PersonAuditChecks', () => {
+    let surveyObjectsRegistry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        surveyObjectsRegistry = new SurveyObjectsRegistry();
+    });
+
+    afterEach(() => {
+        surveyObjectsRegistry.clear();
+    });
+
     const validUuid = uuidV4();
     const householdUuid = uuidV4();
     const homeUuid = uuidV4();
@@ -36,41 +46,21 @@ describe('PersonAuditChecks', () => {
             _uuid: householdUuid,
             size: 2,
             ...overrides
-        } as ExtendedHouseholdAttributes);
+        } as ExtendedHouseholdAttributes, surveyObjectsRegistry);
     };
 
     const createMockHome = (overrides: Partial<Home> = {}) => {
         return new Home({
             _uuid: homeUuid,
             ...overrides
-        } as ExtendedPlaceAttributes);
+        } as ExtendedPlaceAttributes, surveyObjectsRegistry);
     };
 
     const createMockInterview = (overrides: Partial<Interview> = {}) => {
         return new Interview({
             _uuid: interviewUuid,
             ...overrides
-        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any);
-    };
-
-    const createMockInterviewAttributes = (overrides: Partial<InterviewAttributes> = {}): InterviewAttributes => {
-        return {
-            uuid: interviewUuid,
-            id: 123,
-            participant_id: 1,
-            is_valid: true,
-            is_active: true,
-            is_completed: false,
-            is_questionable: false,
-            is_validated: false,
-            response: {
-                household: {},
-                persons: {}
-            },
-            validations: {},
-            survey_id: 1,
-            ...overrides
-        };
+        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any, surveyObjectsRegistry);
     };
 
     const createFullContext = (overrides: Partial<PersonAuditCheckContext> = {}): PersonAuditCheckContext => {
@@ -79,37 +69,9 @@ describe('PersonAuditChecks', () => {
             household: createMockHousehold(),
             home: createMockHome(),
             interview: createMockInterview(),
-            interviewAttributes: createMockInterviewAttributes(),
             ...overrides
         };
     };
-
-    describe('P_M_Uuid audit check', () => {
-        it('should pass when person has valid UUID', () => {
-            const context = createFullContext({
-                person: createMockPerson({ _uuid: validUuid })
-            });
-
-            const result = personAuditChecks.P_M_Uuid(context);
-
-            expect(result).toBeUndefined();
-        });
-
-        it('should error when person UUID is missing', () => {
-            const context = createFullContext({
-                person: createMockPerson({ _uuid: undefined })
-            });
-
-            const result = personAuditChecks.P_M_Uuid(context);
-
-            expect(result).toEqual({
-                version: 1,
-                level: 'error',
-                message: 'Person UUID is missing',
-                ignore: false
-            });
-        });
-    });
 
     describe('P_M_Age audit check', () => {
         it('should pass when person has valid age', () => {
@@ -130,8 +92,11 @@ describe('PersonAuditChecks', () => {
             const result = personAuditChecks.P_M_Age(context);
 
             expect(result).toEqual({
+                objectType: 'person',
+                objectUuid: validUuid,
+                errorCode: 'P_M_Age',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Person age is missing',
                 ignore: false
             });
@@ -142,7 +107,7 @@ describe('PersonAuditChecks', () => {
     describe('runPersonAuditChecks function', () => {
         it('should run all person audits and format results', () => {
             const context = createFullContext({
-                person: createMockPerson({ _uuid: validUuid, age: 30 })
+                person: createMockPerson({ age: 30 })
             });
 
             const audits = runPersonAuditChecks(context, personAuditChecks);
@@ -152,7 +117,7 @@ describe('PersonAuditChecks', () => {
         });
 
         it('should include failed audits in results', () => {
-            // Test with missing age (UUID is valid, but age is missing)
+            // Test with missing age
             const context = createFullContext({
                 person: createMockPerson({
                     age: undefined
@@ -170,7 +135,7 @@ describe('PersonAuditChecks', () => {
                 objectUuid: validUuid,
                 errorCode: 'P_M_Age',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Person age is missing',
                 ignore: false
             });

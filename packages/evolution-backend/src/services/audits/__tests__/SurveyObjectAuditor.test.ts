@@ -8,7 +8,6 @@
 import { v4 as uuidV4 } from 'uuid';
 import { SurveyObjectAuditor } from '../SurveyObjectAuditor';
 import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
@@ -91,25 +90,6 @@ describe('SurveyObjectAuditor', () => {
     const visitedPlaceUuid = uuidV4();
     const tripUuid = uuidV4();
 
-    const createMockInterviewAttributes = (): InterviewAttributes => ({
-        uuid: interviewUuid,
-        id: 123,
-        participant_id: 1,
-        is_valid: true,
-        is_active: true,
-        is_completed: false,
-        is_questionable: false,
-        is_validated: false,
-        response: {
-            household: { size: 2 },
-            persons: {
-                [personUuid]: { age: 30 }
-            }
-        },
-        validations: {},
-        survey_id: 1
-    });
-
     const createMockSurveyObjects = (): SurveyObjectsWithAudits => {
         const mockInterview = { _uuid: interviewUuid, _id: 123 };
         const mockHome = { _uuid: 'home-uuid' } as Home;
@@ -156,13 +136,11 @@ describe('SurveyObjectAuditor', () => {
     describe('auditSurveyObjects', () => {
         it('should audit interview when present', () => {
             const surveyObjects = createMockSurveyObjects();
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runInterviewAuditChecks).toHaveBeenCalledWith({
-                interview: surveyObjects.interview,
-                interviewAttributes
+                interview: surveyObjects.interview
             }, expect.any(Object));
 
             expect(audits).toContainEqual({
@@ -178,14 +156,12 @@ describe('SurveyObjectAuditor', () => {
 
         it('should audit household when present', () => {
             const surveyObjects = createMockSurveyObjects();
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runHouseholdAuditChecks).toHaveBeenCalledWith({
                 household: surveyObjects.household,
-                interview: surveyObjects.interview,
-                interviewAttributes
+                interview: surveyObjects.interview
             }, expect.any(Object));
 
             expect(audits).toContainEqual({
@@ -201,15 +177,13 @@ describe('SurveyObjectAuditor', () => {
 
         it('should audit home when present', () => {
             const surveyObjects = createMockSurveyObjects();
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runHomeAuditChecks).toHaveBeenCalledWith({
                 home: surveyObjects.home,
                 household: surveyObjects.household,
-                interview: surveyObjects.interview,
-                interviewAttributes
+                interview: surveyObjects.interview
             }, expect.any(Object));
 
             expect(audits).toContainEqual({
@@ -225,9 +199,8 @@ describe('SurveyObjectAuditor', () => {
 
         it('should audit visited places with full hierarchy context', () => {
             const surveyObjects = createMockSurveyObjects();
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runVisitedPlaceAuditChecks).toHaveBeenCalledWith({
                 visitedPlace: surveyObjects.household?.members?.[0]?.journeys?.[0]?.visitedPlaces?.[0],
@@ -235,8 +208,7 @@ describe('SurveyObjectAuditor', () => {
                 journey: surveyObjects.household?.members?.[0]?.journeys?.[0],
                 household: surveyObjects.household,
                 home: surveyObjects.home,
-                interview: surveyObjects.interview,
-                interviewAttributes
+                interview: surveyObjects.interview
             }, expect.any(Object));
 
             expect(audits).toContainEqual({
@@ -267,9 +239,8 @@ describe('SurveyObjectAuditor', () => {
                     segments: {}
                 }
             };
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runInterviewAuditChecks).not.toHaveBeenCalled();
             expect(runHouseholdAuditChecks).not.toHaveBeenCalled();
@@ -283,9 +254,8 @@ describe('SurveyObjectAuditor', () => {
             if (surveyObjects.household?.members) {
                 surveyObjects.household.members = [];
             }
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runInterviewAuditChecks).toHaveBeenCalled();
             expect(runHouseholdAuditChecks).toHaveBeenCalled();
@@ -301,9 +271,8 @@ describe('SurveyObjectAuditor', () => {
             if (surveyObjects.household?.members?.[0]) {
                 surveyObjects.household.members[0].journeys = [];
             }
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runVisitedPlaceAuditChecks).not.toHaveBeenCalled();
 
@@ -316,9 +285,8 @@ describe('SurveyObjectAuditor', () => {
             if (surveyObjects.household?.members?.[0]?.journeys?.[0]) {
                 surveyObjects.household.members[0].journeys[0].visitedPlaces = [];
             }
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runVisitedPlaceAuditChecks).not.toHaveBeenCalled();
 
@@ -328,9 +296,8 @@ describe('SurveyObjectAuditor', () => {
 
         it('should combine all audits from different objects', () => {
             const surveyObjects = createMockSurveyObjects();
-            const interviewAttributes = createMockInterviewAttributes();
 
-            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects, interviewAttributes);
+            const audits = SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             // Should have audits from interview, household, home, and visited place
             expect(audits.length).toBeGreaterThanOrEqual(4);
