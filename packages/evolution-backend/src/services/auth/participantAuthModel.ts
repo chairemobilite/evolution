@@ -47,8 +47,9 @@ class ParticipantAuthModel extends AuthModelBase<ParticipantModel> {
         const user = this.newUser(userAttribs);
 
         // Send a welcome email to the new user if the server is configured to do so
-        if (config.auth?.welcomeEmail === true) {
-            await sendWelcomeEmail(user);
+        if ((config.auth as any)?.welcomeEmail === true) {
+            // Send welcome email, no need to wait for it
+            sendWelcomeEmail(user);
         }
 
         return user;
