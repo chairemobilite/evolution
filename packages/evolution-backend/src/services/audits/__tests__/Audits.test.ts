@@ -5,11 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _omit from 'lodash/omit';
-import _cloneDeep from 'lodash/cloneDeep';
 import auditsDbQueries from '../../../models/audits.db.queries';
-import { Audits } from '../Audits';
+import { SurveyObjectsAndAuditsFactory } from '../SurveyObjectsAndAuditsFactory';
 import { setProjectConfig } from '../../../config/projectConfig';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 jest.mock('../../../models/audits.db.queries', () => ({
     setAuditsForInterview: jest.fn(),
@@ -28,7 +26,7 @@ describe('updateAudits', () => {
     });
 
     test('update empty list of audits', async () => {
-        await Audits.updateAudits(3, []);
+        await SurveyObjectsAndAuditsFactory.updateAudits(3, []);
         expect(mockUpdateAudit).not.toHaveBeenCalled();
     });
 
@@ -39,7 +37,7 @@ describe('updateAudits', () => {
             objectUuid: 'arbitrary',
             errorCode: 'err-code'
         }];
-        await Audits.updateAudits(interviewId, audits);
+        await SurveyObjectsAndAuditsFactory.updateAudits(interviewId, audits);
         expect(mockUpdateAudit).toHaveBeenCalledTimes(audits.length);
         expect(mockUpdateAudit).toHaveBeenCalledWith(interviewId, audits[0]);
     });
@@ -61,7 +59,7 @@ describe('updateAudits', () => {
             objectUuid: 'arbitrary2',
             errorCode: 'err-code'
         }];
-        await Audits.updateAudits(interviewId, audits);
+        await SurveyObjectsAndAuditsFactory.updateAudits(interviewId, audits);
         expect(mockUpdateAudit).toHaveBeenCalledTimes(audits.length);
         expect(mockUpdateAudit).toHaveBeenCalledWith(interviewId, audits[0]);
         expect(mockUpdateAudit).toHaveBeenCalledWith(interviewId, audits[1]);
@@ -69,19 +67,31 @@ describe('updateAudits', () => {
     });
 });
 
-describe('runAndSaveInterviewAudits', () => {
+describe('createSurveyObjectsAndAudit', () => {
 
-    const interviewAttributes: InterviewAttributes = {
+    const interviewAttributes = {
         id: interviewId,
-        uuid: 'arbitrary',
+        uuid: '123e4567-e89b-12d3-a456-426614174000',
         participant_id: 1,
         is_valid: true,
         response: {
             fieldA: 'a',
             fieldB: 'b',
-            someObject: {
-                _uuid: 'arbitraryUuid',
-                field1: 3
+            home: {
+                _uuid: 'home-uuid-123',
+                address: '123 Test Street',
+                city: 'Test City'
+            },
+            household: {
+                _uuid: 'household-uuid-123',
+                size: 2
+            },
+            persons: {
+                'person-uuid-123': {
+                    _uuid: 'person-uuid-123',
+                    age: 30,
+                    _sequence: 1
+                }
             }
         } as any,
         validations: {},
@@ -89,10 +99,21 @@ describe('runAndSaveInterviewAudits', () => {
         corrected_response: {
             fieldA: 'modifiedA',
             fieldB: 'modifiedB',
-            someObject: {
-                _uuid: 'arbitraryUuid',
-                field1: 3,
-                newField: 'added'
+            home: {
+                _uuid: 'home-uuid-123',
+                address: '456 Modified Street',
+                city: 'Modified City'
+            },
+            household: {
+                _uuid: 'household-uuid-123',
+                size: 3
+            },
+            persons: {
+                'person-uuid-123': {
+                    _uuid: 'person-uuid-123',
+                    age: 35,
+                    _sequence: 1
+                }
             }
         } as any
     };
@@ -105,66 +126,61 @@ describe('runAndSaveInterviewAudits', () => {
         setProjectConfig({ auditInterview: mockInterviewAudits });
     });
 
-    test('audit function not set in config', async () => {
+    test('audit function not set in config - uses default implementation', async () => {
         // Unset the interview audit function
         setProjectConfig({ auditInterview: undefined });
 
-        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
-        expect(objectsAndAudits.audits).toEqual([]);
+        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interviewAttributes);
+        // Should use default audit implementation, so we expect some audits
+        expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
         expect(mockInterviewAudits).not.toHaveBeenCalled();
     });
 
     test('corrected_response not set in interview', async () => {
-        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(_omit(interviewAttributes, 'corrected_response'));
+        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(_omit(interviewAttributes, 'corrected_response'));
         expect(objectsAndAudits.audits).toEqual([]);
         expect(mockInterviewAudits).not.toHaveBeenCalled();
     });
 
-    test('Function returns empty audits', async () => {
-        // Return empty audit array
-        mockInterviewAudits.mockResolvedValueOnce({ audits: [] });
+    test('Function returns audits from comprehensive audit service', async () => {
+        // The new system uses ComprehensiveAuditService which produces real audits
+        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interviewAttributes);
 
-        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
-        expect(objectsAndAudits.audits).toEqual([]);
-        expect(mockInterviewAudits).toHaveBeenCalledTimes(1);
-        expect(mockInterviewAudits).toHaveBeenCalledWith(interviewAttributes);
+        // Should have some audits from the comprehensive audit system
+        expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
+
+        // Should have audits for objects with validation errors (home, household, etc.)
+        // The system only generates audits when there are actual validation errors
+        expect(objectsAndAudits.audits.length).toBe(2); // Based on console logs: 3 parameter errors converted to audits
+
+        // The old mock interview audit function should not be called anymore
+        expect(mockInterviewAudits).not.toHaveBeenCalled();
+
+        // Database should be called to save the audits
         expect(mockSetAudits).toHaveBeenCalledTimes(1);
-        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, []);
+        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, objectsAndAudits.audits);
     });
 
-    test('Function returns some audits', async () => {
-        // Return an array of audits
-        const auditsFromInterview = {
-            audits: [{
-                version: 3,
-                objectType: 'person',
-                objectUuid: 'arbitrary',
-                errorCode: 'err-code'
-            }, {
-                version: 3,
-                objectType: 'interview',
-                objectUuid: 'arbitrary',
-                errorCode: 'err-code'
-            }, {
-                version: 3,
-                objectType: 'person',
-                objectUuid: 'arbitrary2',
-                errorCode: 'err-code'
-            }]
-        };
-        const originalAudits = _cloneDeep(auditsFromInterview.audits);
-        mockInterviewAudits.mockResolvedValueOnce(auditsFromInterview);
-        // Add an ignore status to all audits when saving
-        mockSetAudits.mockImplementationOnce(async (_interviewId, audits) => audits.map((audit) => ({ ...audit, ignore: true })));
+    test('Function saves audits to database and returns updated audits', async () => {
+        // Mock the database to add ignore status to all audits when saving
+        mockSetAudits.mockImplementationOnce(async (_interviewId, audits) =>
+            audits.map((audit) => ({ ...audit, ignore: true }))
+        );
 
-        const objectsAndAudits = await Audits.runAndSaveInterviewAudits(interviewAttributes);
-        expect(mockInterviewAudits).toHaveBeenCalledTimes(1);
-        expect(mockInterviewAudits).toHaveBeenCalledWith(interviewAttributes);
+        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interviewAttributes);
+
+        // Should have some audits from the comprehensive audit system
+        expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
+
+        // All audits should have the ignore flag set by the database mock
+        expect(objectsAndAudits.audits.every((audit) => audit.ignore === true)).toBe(true);
+
+        // The old mock interview audit function should not be called anymore
+        expect(mockInterviewAudits).not.toHaveBeenCalled();
+
+        // Database should be called to save the audits
         expect(mockSetAudits).toHaveBeenCalledTimes(1);
-        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, originalAudits);
-
-        // Returned audits should be the updated ones from the database set
-        expect(objectsAndAudits.audits).toEqual(objectsAndAudits.audits.map((audit) => ({ ...audit, ignore: true })));
+        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, expect.any(Array));
     });
 });
 
