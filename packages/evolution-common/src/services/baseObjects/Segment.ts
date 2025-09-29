@@ -5,24 +5,33 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import * as SAttr from './attributeTypes/SegmentAttributes';
-import { Junction, ExtendedJunctionAttributes } from './Junction';
-import { Routing, RoutingAttributes } from './Routing';
+import { Junction, ExtendedJunctionAttributes, SerializedExtendedJunctionAttributes } from './Junction';
+import { Routing, RoutingAttributes, SerializedExtendedRoutingAttributes } from './Routing';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Trip } from './Trip';
+import { Person } from './Person';
+import { Journey } from './Journey';
+import { Household } from './Household';
 
 export const segmentAttributes = [
     ...startEndDateAndTimesAttributes,
     '_weights',
     '_isValid',
     '_uuid',
+    '_sequence',
     'mode',
     'modeOtherSpecify',
     'driverType',
@@ -36,32 +45,39 @@ export const segmentAttributes = [
 
 export const segmentAttributesWithComposedAttributes = [
     ...segmentAttributes,
-    'origin',
-    'destination',
-    'transitDeclaredRouting',
-    'walkingDeclaredRouting',
-    'cyclingDeclaredRouting',
-    'drivingDeclaredRouting',
-    'transitCalculatedRoutings',
-    'walkingCalculatedRoutings',
-    'cyclingCalculatedRoutings',
-    'drivingCalculatedRoutings'
+    '_origin',
+    '_destination',
+    '_transitDeclaredRouting',
+    '_walkingDeclaredRouting',
+    '_cyclingDeclaredRouting',
+    '_drivingDeclaredRouting',
+    '_transitCalculatedRoutings',
+    '_walkingCalculatedRoutings',
+    '_cyclingCalculatedRoutings',
+    '_drivingCalculatedRoutings'
 ];
 
 export type SegmentWithComposedAttributes = {
-    origin?: Optional<ExtendedJunctionAttributes>;
-    destination?: Optional<ExtendedJunctionAttributes>;
-    transitDeclaredRouting?: Optional<RoutingAttributes>;
-    walkingDeclaredRouting?: Optional<RoutingAttributes>;
-    cyclingDeclaredRouting?: Optional<RoutingAttributes>;
-    drivingDeclaredRouting?: Optional<RoutingAttributes>;
-    transitCalculatedRoutings?: Optional<RoutingAttributes[]>;
-    walkingCalculatedRoutings?: Optional<RoutingAttributes[]>;
-    cyclingCalculatedRoutings?: Optional<RoutingAttributes[]>;
-    drivingCalculatedRoutings?: Optional<RoutingAttributes[]>;
+    _origin?: Optional<ExtendedJunctionAttributes>;
+    _destination?: Optional<ExtendedJunctionAttributes>;
+    _transitDeclaredRouting?: Optional<RoutingAttributes>;
+    _walkingDeclaredRouting?: Optional<RoutingAttributes>;
+    _cyclingDeclaredRouting?: Optional<RoutingAttributes>;
+    _drivingDeclaredRouting?: Optional<RoutingAttributes>;
+    _transitCalculatedRoutings?: Optional<RoutingAttributes[]>;
+    _walkingCalculatedRoutings?: Optional<RoutingAttributes[]>;
+    _cyclingCalculatedRoutings?: Optional<RoutingAttributes[]>;
+    _drivingCalculatedRoutings?: Optional<RoutingAttributes[]>;
 };
 
 export type SegmentAttributes = {
+    /**
+     * Sequence number for ordering nested composed objects.
+     * NOTE: This will be removed when we use objects directly inside the interview process.
+     * Right now, since nested composed objects are still using objects with uuid as key,
+     * they need a _sequence attribute to be able to order them.
+     */
+    _sequence?: Optional<number>;
     mode?: Optional<SAttr.Mode>;
     modeOtherSpecify?: Optional<string>;
     driverType?: Optional<SAttr.Driver>;
@@ -78,6 +94,21 @@ export type SegmentAttributes = {
 
 export type ExtendedSegmentAttributes = SegmentAttributes & SegmentWithComposedAttributes & { [key: string]: unknown };
 
+export type SerializedExtendedSegmentAttributes = {
+    _attributes?: ExtendedSegmentAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _origin?: SerializedExtendedJunctionAttributes;
+    _destination?: SerializedExtendedJunctionAttributes;
+    _transitDeclaredRouting?: SerializedExtendedRoutingAttributes;
+    _walkingDeclaredRouting?: SerializedExtendedRoutingAttributes;
+    _cyclingDeclaredRouting?: SerializedExtendedRoutingAttributes;
+    _drivingDeclaredRouting?: SerializedExtendedRoutingAttributes;
+    _transitCalculatedRoutings?: SerializedExtendedRoutingAttributes[];
+    _walkingCalculatedRoutings?: SerializedExtendedRoutingAttributes[];
+    _cyclingCalculatedRoutings?: SerializedExtendedRoutingAttributes[];
+    _drivingCalculatedRoutings?: SerializedExtendedRoutingAttributes[];
+};
+
 /**
  * A segment is a part of a trip using a single unique mode
  * Segments can have a start junction and an end junction
@@ -85,7 +116,7 @@ export type ExtendedSegmentAttributes = SegmentAttributes & SegmentWithComposedA
  * like subway station, a parking or another or the trip origin
  * and/or destination when the segment is first or last for the trip
  */
-export class Segment implements IValidatable {
+export class Segment extends Uuidable implements IValidatable {
     private _attributes: SegmentAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -100,55 +131,82 @@ export class Segment implements IValidatable {
     private _cyclingCalculatedRoutings?: Optional<Routing[]>;
     private _drivingCalculatedRoutings?: Optional<Routing[]>;
 
+    private _tripUuid?: Optional<string>;
+
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedSegmentAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+        super(params._uuid);
         this._attributes = {} as SegmentAttributes & SegmentWithComposedAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
+            _omit(params, [
+                '_origin',
+                '_destination',
+                '_transitDeclaredRouting',
+                '_walkingDeclaredRouting',
+                '_cyclingDeclaredRouting',
+                '_drivingDeclaredRouting',
+                '_transitCalculatedRoutings',
+                '_walkingCalculatedRoutings',
+                '_cyclingCalculatedRoutings',
+                '_drivingCalculatedRoutings',
+                'origin',
+                'destination',
+                'transitDeclaredRouting',
+                'walkingDeclaredRouting',
+                'cyclingDeclaredRouting',
+                'drivingDeclaredRouting',
+                'transitCalculatedRoutings',
+                'walkingCalculatedRoutings',
+                'cyclingCalculatedRoutings',
+                'drivingCalculatedRoutings',
+                '_tripUuid'
+            ]),
             segmentAttributes,
             segmentAttributesWithComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.origin = ConstructorUtils.initializeComposedAttribute(params.origin, Junction.unserialize);
-        this.destination = ConstructorUtils.initializeComposedAttribute(params.destination, Junction.unserialize);
+        this.origin = ConstructorUtils.initializeComposedAttribute(params._origin, Junction.unserialize);
+        this.destination = ConstructorUtils.initializeComposedAttribute(params._destination, Junction.unserialize);
         this.transitDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
-            params.transitDeclaredRouting,
+            params._transitDeclaredRouting,
             Routing.unserialize
         );
         this.walkingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
-            params.walkingDeclaredRouting,
+            params._walkingDeclaredRouting,
             Routing.unserialize
         );
         this.cyclingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
-            params.cyclingDeclaredRouting,
+            params._cyclingDeclaredRouting,
             Routing.unserialize
         );
         this.drivingDeclaredRouting = ConstructorUtils.initializeComposedAttribute(
-            params.drivingDeclaredRouting,
+            params._drivingDeclaredRouting,
             Routing.unserialize
         );
         this.transitCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
-            params.transitCalculatedRoutings,
+            params._transitCalculatedRoutings,
             Routing.unserialize
         );
         this.walkingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
-            params.walkingCalculatedRoutings,
+            params._walkingCalculatedRoutings,
             Routing.unserialize
         );
         this.cyclingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
-            params.cyclingCalculatedRoutings,
+            params._cyclingCalculatedRoutings,
             Routing.unserialize
         );
         this.drivingCalculatedRoutings = ConstructorUtils.initializeComposedArrayAttributes(
-            params.drivingCalculatedRoutings,
+            params._drivingCalculatedRoutings,
             Routing.unserialize
         );
+        this.tripUuid = params._tripUuid as Optional<string>;
+
+        SurveyObjectsRegistry.getInstance().registerSegment(this);
     }
 
     /**
@@ -169,10 +227,6 @@ export class Segment implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -391,8 +445,41 @@ export class Segment implements IValidatable {
         this._drivingCalculatedRoutings = value;
     }
 
-    static unserialize(params: ExtendedSegmentAttributes): Segment {
-        return new Segment(params);
+    get tripUuid(): Optional<string> {
+        return this._tripUuid;
+    }
+
+    set tripUuid(value: Optional<string>) {
+        this._tripUuid = value;
+    }
+
+    get trip(): Optional<Trip> {
+        if (!this._tripUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getTrip(this._tripUuid);
+    }
+
+    get journey(): Optional<Journey> {
+        return this.trip?.journey;
+    }
+
+    get person(): Optional<Person> {
+        return this.trip?.journey?.person;
+    }
+
+    get household(): Optional<Household> {
+        return this.trip?.journey?.person?.household;
+    }
+
+    /**
+     * Creates a Segment object from sanitized parameters
+     * @param {ExtendedSegmentAttributes | SerializedExtendedSegmentAttributes} params - Sanitized segment parameters
+     * @returns {Segment} New Segment instance
+     */
+    static unserialize(params: ExtendedSegmentAttributes | SerializedExtendedSegmentAttributes): Segment {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Segment(flattenedParams as ExtendedSegmentAttributes);
     }
 
     static create(dirtyParams: { [key: string]: unknown }): Result<Segment> {
@@ -428,6 +515,8 @@ export class Segment implements IValidatable {
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
+
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
@@ -452,7 +541,7 @@ export class Segment implements IValidatable {
 
         errors.push(...ParamsValidatorUtils.isArrayOfStrings('busLines', dirtyParams.busLines, displayName));
 
-        const transitDeclaredRoutingAttributes = dirtyParams.transitDeclaredRouting;
+        const transitDeclaredRoutingAttributes = dirtyParams._transitDeclaredRouting;
         if (transitDeclaredRoutingAttributes !== undefined) {
             errors.push(
                 ...Routing.validateParams(
@@ -461,7 +550,7 @@ export class Segment implements IValidatable {
                 )
             );
         }
-        const walkingDeclaredRoutingAttributes = dirtyParams.walkingDeclaredRouting;
+        const walkingDeclaredRoutingAttributes = dirtyParams._walkingDeclaredRouting;
         if (walkingDeclaredRoutingAttributes !== undefined) {
             errors.push(
                 ...Routing.validateParams(
@@ -470,7 +559,7 @@ export class Segment implements IValidatable {
                 )
             );
         }
-        const cyclingDeclaredRoutingAttributes = dirtyParams.cyclingDeclaredRouting;
+        const cyclingDeclaredRoutingAttributes = dirtyParams._cyclingDeclaredRouting;
         if (cyclingDeclaredRoutingAttributes !== undefined) {
             errors.push(
                 ...Routing.validateParams(
@@ -479,7 +568,7 @@ export class Segment implements IValidatable {
                 )
             );
         }
-        const drivingDeclaredRoutingAttributes = dirtyParams.drivingDeclaredRouting;
+        const drivingDeclaredRoutingAttributes = dirtyParams._drivingDeclaredRouting;
         if (drivingDeclaredRoutingAttributes !== undefined) {
             errors.push(
                 ...Routing.validateParams(
@@ -490,8 +579,8 @@ export class Segment implements IValidatable {
         }
 
         const transitCalculatedRoutingsAttributes =
-            dirtyParams.transitCalculatedRoutings !== undefined
-                ? (dirtyParams.transitCalculatedRoutings as { [key: string]: unknown }[])
+            dirtyParams._transitCalculatedRoutings !== undefined
+                ? (dirtyParams._transitCalculatedRoutings as { [key: string]: unknown }[])
                 : [];
         for (let i = 0, countI = transitCalculatedRoutingsAttributes.length; i < countI; i++) {
             errors.push(
@@ -502,8 +591,8 @@ export class Segment implements IValidatable {
             );
         }
         const walkingCalculatedRoutingsAttributes =
-            dirtyParams.walkingCalculatedRoutings !== undefined
-                ? (dirtyParams.walkingCalculatedRoutings as { [key: string]: unknown }[])
+            dirtyParams._walkingCalculatedRoutings !== undefined
+                ? (dirtyParams._walkingCalculatedRoutings as { [key: string]: unknown }[])
                 : [];
         for (let i = 0, countI = walkingCalculatedRoutingsAttributes.length; i < countI; i++) {
             errors.push(
@@ -514,8 +603,8 @@ export class Segment implements IValidatable {
             );
         }
         const cyclingCalculatedRoutingsAttributes =
-            dirtyParams.cyclingCalculatedRoutings !== undefined
-                ? (dirtyParams.cyclingCalculatedRoutings as { [key: string]: unknown }[])
+            dirtyParams._cyclingCalculatedRoutings !== undefined
+                ? (dirtyParams._cyclingCalculatedRoutings as { [key: string]: unknown }[])
                 : [];
         for (let i = 0, countI = cyclingCalculatedRoutingsAttributes.length; i < countI; i++) {
             errors.push(
@@ -526,8 +615,8 @@ export class Segment implements IValidatable {
             );
         }
         const drivingCalculatedRoutingsAttributes =
-            dirtyParams.drivingCalculatedRoutings !== undefined
-                ? (dirtyParams.drivingCalculatedRoutings as { [key: string]: unknown }[])
+            dirtyParams._drivingCalculatedRoutings !== undefined
+                ? (dirtyParams._drivingCalculatedRoutings as { [key: string]: unknown }[])
                 : [];
         for (let i = 0, countI = drivingCalculatedRoutingsAttributes.length; i < countI; i++) {
             errors.push(
@@ -537,6 +626,8 @@ export class Segment implements IValidatable {
                 )
             );
         }
+
+        errors.push(...ParamsValidatorUtils.isUuid('_tripUuid', dirtyParams._tripUuid, displayName));
 
         return errors;
     }

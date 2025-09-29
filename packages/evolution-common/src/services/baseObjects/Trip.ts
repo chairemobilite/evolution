@@ -5,7 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
 import _uniq from 'lodash/uniq';
+
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -13,43 +15,66 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { VisitedPlace, ExtendedVisitedPlaceAttributes } from './VisitedPlace';
-import { Segment, ExtendedSegmentAttributes } from './Segment';
+import { VisitedPlace, ExtendedVisitedPlaceAttributes, SerializedExtendedVisitedPlaceAttributes } from './VisitedPlace';
+import { Segment, ExtendedSegmentAttributes, SerializedExtendedSegmentAttributes } from './Segment';
 import { Mode, ModeCategory } from './attributeTypes/SegmentAttributes';
-import { Junction, ExtendedJunctionAttributes } from './Junction';
+import { Junction, ExtendedJunctionAttributes, SerializedExtendedJunctionAttributes } from './Junction';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
 import { getBirdDistanceMeters, getBirdSpeedKph } from '../../utils/PhysicsUtils';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Journey } from './Journey';
+import { TripChain } from './TripChain';
+import { Person } from './Person';
+import { Household } from './Household';
 
-export const tripAttributes = [...startEndDateAndTimesAttributes, '_weights', '_isValid', '_uuid'];
+export const tripAttributes = [...startEndDateAndTimesAttributes, '_weights', '_isValid', '_uuid', '_sequence'];
 
 export const tripAttributesWithComposedAttributes = [
     ...tripAttributes,
-    'startPlace',
-    'endPlace',
-    'segments',
-    'junctions'
+    '_startPlace',
+    '_endPlace',
+    '_segments',
+    '_junctions'
 ];
 
-export type TripAttributes = StartEndDateAndTimesAttributes &
+export type TripAttributes = {
+    /**
+     * Sequence number for ordering nested composed objects.
+     * NOTE: This will be removed when we use objects directly inside the interview process.
+     * Right now, since nested composed objects are still using hashMap with uuid as key,
+     * they need a _sequence attribute to be able to order them.
+     */
+    _sequence?: Optional<number>;
+} & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
     ValidatebleAttributes;
 
 export type TripWithComposedAttributes = TripAttributes & {
-    startPlace?: Optional<ExtendedVisitedPlaceAttributes>; // origin
-    endPlace?: Optional<ExtendedVisitedPlaceAttributes>; // destination
-    segments?: Optional<ExtendedSegmentAttributes[]>;
-    junctions?: Optional<ExtendedJunctionAttributes[]>;
+    _startPlace?: Optional<ExtendedVisitedPlaceAttributes>; // origin
+    _endPlace?: Optional<ExtendedVisitedPlaceAttributes>; // destination
+    _segments?: Optional<ExtendedSegmentAttributes[]>;
+    _junctions?: Optional<ExtendedJunctionAttributes[]>;
 };
 
 export type ExtendedTripAttributes = TripWithComposedAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedTripAttributes = {
+    _attributes?: ExtendedTripAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _startPlace?: SerializedExtendedVisitedPlaceAttributes;
+    _endPlace?: SerializedExtendedVisitedPlaceAttributes;
+    _segments?: SerializedExtendedSegmentAttributes[];
+    _junctions?: SerializedExtendedJunctionAttributes[];
+};
 
 /**
  * A trip include the travelling action between two places (visited places: origin|destination)
  * Start and end dates and times could be generated from the origin and destination data
  */
-export class Trip implements IValidatable {
+export class Trip extends Uuidable implements IValidatable {
     private _attributes: TripAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -64,23 +89,38 @@ export class Trip implements IValidatable {
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedTripAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+        super(params._uuid);
 
         this._attributes = {} as TripAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
+            _omit(params, [
+                '_startPlace',
+                '_endPlace',
+                '_segments',
+                '_junctions',
+                'startPlace',
+                'endPlace',
+                'segments',
+                'junctions',
+                '_journeyUuid',
+                '_tripChainUuid'
+            ]),
             tripAttributes,
             tripAttributesWithComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.startPlace = ConstructorUtils.initializeComposedAttribute(params.startPlace, VisitedPlace.unserialize);
-        this.endPlace = ConstructorUtils.initializeComposedAttribute(params.endPlace, VisitedPlace.unserialize);
-        this.segments = ConstructorUtils.initializeComposedArrayAttributes(params.segments, Segment.unserialize);
-        this.junctions = ConstructorUtils.initializeComposedArrayAttributes(params.junctions, Junction.unserialize);
+        this.startPlace = ConstructorUtils.initializeComposedAttribute(params._startPlace, VisitedPlace.unserialize);
+        this.endPlace = ConstructorUtils.initializeComposedAttribute(params._endPlace, VisitedPlace.unserialize);
+        this.segments = ConstructorUtils.initializeComposedArrayAttributes(params._segments, Segment.unserialize);
+        this.junctions = ConstructorUtils.initializeComposedArrayAttributes(params._junctions, Junction.unserialize);
+        this.journeyUuid = params._journeyUuid as Optional<string>;
+        this.tripChainUuid = params._tripChainUuid as Optional<string>;
+
+        SurveyObjectsRegistry.getInstance().registerTrip(this);
     }
 
     /**
@@ -192,6 +232,18 @@ export class Trip implements IValidatable {
         return getBirdSpeedKph(this.startPlace?.geography, this.endPlace?.geography, this.getDurationSeconds());
     }
 
+    /**
+     * Setup the start and end times if they are not set
+     */
+    setupStartAndEndTimes(): void {
+        if (this.startTime === undefined && this.startPlace?.endTime) {
+            this.startTime = this.startPlace.endTime;
+        }
+        if (this.endTime === undefined && this.endPlace?.startTime) {
+            this.endTime = this.endPlace.startTime;
+        }
+    }
+
     get origin(): Optional<VisitedPlace> {
         return this.startPlace;
     }
@@ -214,10 +266,6 @@ export class Trip implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -324,6 +372,13 @@ export class Trip implements IValidatable {
         this._journeyUuid = value;
     }
 
+    get journey(): Optional<Journey> {
+        if (!this._journeyUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getJourney(this._journeyUuid);
+    }
+
     get tripChainUuid(): Optional<string> {
         return this._tripChainUuid;
     }
@@ -332,8 +387,144 @@ export class Trip implements IValidatable {
         this._tripChainUuid = value;
     }
 
-    static unserialize(params: ExtendedTripAttributes): Trip {
-        return new Trip(params);
+    get tripChain(): Optional<TripChain> {
+        if (!this._tripChainUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getTripChain(this._tripChainUuid);
+    }
+
+    get person(): Optional<Person> {
+        return this.journey?.person;
+    }
+
+    get household(): Optional<Household> {
+        return this.journey?.person?.household;
+    }
+
+    /**
+     * Add a segment to this trip
+     */
+    addSegment(segment: Segment): void {
+        if (!this._segments) {
+            this._segments = [];
+        }
+        this._segments.push(segment);
+    }
+
+    /**
+     * Insert a segment at a specific index
+     */
+    insertSegment(segment: Segment, index: number): void {
+        if (!this._segments) {
+            this._segments = [];
+        }
+        this._segments.splice(index, 0, segment);
+    }
+
+    /**
+     * Insert a segment after another segment with the specified UUID
+     */
+    insertSegmentAfterUuid(segment: Segment, afterUuid: string): boolean {
+        if (!this._segments) {
+            this._segments = [];
+        }
+
+        // If array is empty, add the segment
+        if (this._segments.length === 0) {
+            this._segments.push(segment);
+            return true;
+        }
+
+        const index = this._segments.findIndex((s) => s._uuid === afterUuid);
+        if (index >= 0) {
+            this._segments.splice(index + 1, 0, segment);
+            return true;
+        }
+        // If UUID not found in non-empty array, return false
+        return false;
+    }
+
+    /**
+     * Insert a segment before another segment with the specified UUID
+     */
+    insertSegmentBeforeUuid(segment: Segment, beforeUuid: string): boolean {
+        if (!this._segments) {
+            this._segments = [];
+        }
+
+        // If array is empty, add the segment
+        if (this._segments.length === 0) {
+            this._segments.push(segment);
+            return true;
+        }
+
+        const index = this._segments.findIndex((s) => s._uuid === beforeUuid);
+        if (index >= 0) {
+            this._segments.splice(index, 0, segment);
+            return true;
+        }
+        // If UUID not found in non-empty array, return false
+        return false;
+    }
+
+    /**
+     * Get segments without walking segments in multimodal trips
+     * Walking segments are implicit and excluded unless the entire trip is on foot
+     * @returns Array of segments with walking segments filtered out if other modes exist
+     */
+    getSegmentsWithoutWalkingInMultimode(): Segment[] {
+        const segments = this.segments || [];
+
+        if (segments.length === 0) {
+            return segments;
+        }
+
+        // Get unique modes to determine if this is truly multimodal, we don't want to filter walk,walk for instance (this would be audited though)
+        const uniqueModes = new Set(segments.map((segment) => segment.mode));
+
+        // Filter out walking segments if there are multiple unique modes and non-walking modes exist
+        const newSegmentsWithoutWalking =
+            uniqueModes.size > 1 && segments.some((segment) => segment.mode !== 'walk')
+                ? segments.filter((segment) => segment.mode !== 'walk')
+                : segments;
+
+        return newSegmentsWithoutWalking;
+    }
+
+    /**
+     * Remove a segment from this trip by UUID
+     */
+    removeSegment(segmentUuid: string): boolean {
+        if (!this._segments) {
+            return false;
+        }
+        const index = this._segments.findIndex((segment) => segment._uuid === segmentUuid);
+        if (index >= 0) {
+            this._segments.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get a segment by UUID
+     */
+    getSegmentByUuid(segmentUuid: string): Segment | undefined {
+        if (!this._segments) {
+            return undefined;
+        }
+        return this._segments.find((segment) => segment._uuid === segmentUuid);
+    }
+
+    /**
+     * Creates a Trip object from sanitized parameters
+     * @param {ExtendedTripAttributes | SerializedExtendedTripAttributes} params - Sanitized trip parameters
+     * @returns {Trip} New Trip instance
+     */
+    static unserialize(params: ExtendedTripAttributes | SerializedExtendedTripAttributes): Trip {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Trip(flattenedParams as ExtendedTripAttributes);
     }
 
     static create(dirtyParams: { [key: string]: unknown }): Result<Trip> {
@@ -363,6 +554,8 @@ export class Trip implements IValidatable {
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
+
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
@@ -378,18 +571,21 @@ export class Trip implements IValidatable {
         }
 
         const segmentsAttributes =
-            dirtyParams.segments !== undefined ? (dirtyParams.segments as { [key: string]: unknown }[]) : [];
+            dirtyParams._segments !== undefined ? (dirtyParams._segments as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = segmentsAttributes.length; i < countI; i++) {
             const segmentAttributes = segmentsAttributes[i];
             errors.push(...Segment.validateParams(segmentAttributes, `Segment ${i}`));
         }
 
         const junctionsAttributes =
-            dirtyParams.junctions !== undefined ? (dirtyParams.junctions as { [key: string]: unknown }[]) : [];
+            dirtyParams._junctions !== undefined ? (dirtyParams._junctions as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = junctionsAttributes.length; i < countI; i++) {
             const junctionAttributes = junctionsAttributes[i];
             errors.push(...Junction.validateParams(junctionAttributes, `Junction ${i}`));
         }
+
+        errors.push(...ParamsValidatorUtils.isUuid('_journeyUuid', dirtyParams._journeyUuid, displayName));
+        errors.push(...ParamsValidatorUtils.isUuid('_tripChainUuid', dirtyParams._tripChainUuid, displayName));
 
         return errors;
     }

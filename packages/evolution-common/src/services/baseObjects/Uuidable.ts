@@ -20,6 +20,10 @@ export class Uuidable {
         this._uuid = Uuidable.getUuid(_uuid);
     }
 
+    get uuid(): Optional<string> {
+        return this._uuid;
+    }
+
     static getUuid(_uuid?: Optional<string>) {
         if (_uuid && !uuidValidate(_uuid)) {
             throw new Error('Uuidable: invalid uuid');

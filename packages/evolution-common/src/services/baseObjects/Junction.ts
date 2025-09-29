@@ -5,42 +5,121 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../types/Optional.type';
-import { IValidatable } from './IValidatable';
+import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { Uuidable, UuidableAttributes } from './Uuidable';
+import { WeightableAttributes, Weight } from './Weight';
 import * as PlAttr from './attributeTypes/PlaceAttributes';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
-import { Place, PlaceAttributes, placeAttributes } from './Place';
+import { Place, ExtendedPlaceAttributes, SerializedExtendedPlaceAttributes } from './Place';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
+import { ConstructorUtils } from '../../utils/ConstructorUtils';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Trip } from './Trip';
 
 export const junctionAttributes = [
-    ...placeAttributes,
     ...startEndDateAndTimesAttributes,
+    '_weights',
+    '_isValid',
+    '_uuid',
     'parkingType',
     'parkingFeeType',
     'transitPlaceType'
 ];
+
+export const junctionAttributesWithComposedAttributes = [...junctionAttributes, 'place'];
 
 export type JunctionAttributes = {
     parkingType?: Optional<PlAttr.ParkingType>;
     parkingFeeType?: Optional<PlAttr.ParkingFeeType>;
     transitPlaceType?: Optional<PlAttr.TransitPlaceType>; // for transit junctions
 } & StartEndDateAndTimesAttributes &
-    PlaceAttributes;
+    UuidableAttributes &
+    WeightableAttributes &
+    ValidatebleAttributes;
 
-export type ExtendedJunctionAttributes = JunctionAttributes & { [key: string]: unknown };
+export type JunctionWithComposedAttributes = JunctionAttributes & {
+    _place?: Optional<ExtendedPlaceAttributes>;
+};
+
+export type ExtendedJunctionAttributes = JunctionWithComposedAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedJunctionAttributes = {
+    _attributes?: ExtendedJunctionAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _place?: Optional<SerializedExtendedPlaceAttributes>;
+};
 
 /**
  * A junction is a place used to transfer between segments/modes by a person during a trip
  * Usually, junctions are used as origin and/or destination for segments
  * Junctions are optional in most surveys
  */
-export class Junction extends Place<JunctionAttributes> implements IValidatable {
+export class Junction extends Uuidable implements IValidatable {
+    private _attributes: JunctionAttributes;
+    private _customAttributes: { [key: string]: unknown };
+
+    private _place?: Optional<Place>;
+
+    private _tripUuid?: Optional<string>; // allow reverse lookup
+
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedJunctionAttributes) {
-        super(params, junctionAttributes);
+        super(params._uuid);
+
+        this._attributes = {} as JunctionAttributes;
+        this._customAttributes = {};
+
+        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
+            _omit(params, ['_place', 'place', '_tripUuid']),
+            junctionAttributes,
+            junctionAttributesWithComposedAttributes
+        );
+        this._attributes = attributes;
+        this._customAttributes = customAttributes;
+
+        this.place = ConstructorUtils.initializeComposedAttribute(params._place, Place.unserialize);
+        this.tripUuid = params._tripUuid as Optional<string>;
+
+        SurveyObjectsRegistry.getInstance().registerJunction(this);
+    }
+
+    get attributes(): JunctionAttributes {
+        return this._attributes;
+    }
+
+    get customAttributes(): { [key: string]: unknown } {
+        return this._customAttributes;
+    }
+
+    get _isValid(): Optional<boolean> {
+        return this._attributes._isValid;
+    }
+
+    set _isValid(value: Optional<boolean>) {
+        this._attributes._isValid = value;
+    }
+
+    get _weights(): Optional<Weight[]> {
+        return this._attributes._weights;
+    }
+
+    set _weights(value: Optional<Weight[]>) {
+        this._attributes._weights = value;
+    }
+
+    get place(): Optional<Place> {
+        return this._place;
+    }
+
+    set place(value: Optional<Place>) {
+        this._place = value;
     }
 
     get startDate(): Optional<string> {
@@ -115,8 +194,29 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
         this._attributes.transitPlaceType = value;
     }
 
-    static unserialize(params: ExtendedJunctionAttributes): Junction {
-        return new Junction(params);
+    get tripUuid(): Optional<string> {
+        return this._tripUuid;
+    }
+
+    set tripUuid(value: Optional<string>) {
+        this._tripUuid = value;
+    }
+
+    get trip(): Optional<Trip> {
+        if (!this._tripUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getTrip(this._tripUuid);
+    }
+
+    /**
+     * Creates a Junction object from sanitized parameters
+     * @param {ExtendedJunctionAttributes | SerializedExtendedJunctionAttributes} params - Sanitized junction parameters
+     * @returns {Junction} New Junction instance
+     */
+    static unserialize(params: ExtendedJunctionAttributes | SerializedExtendedJunctionAttributes): Junction {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Junction(flattenedParams as ExtendedJunctionAttributes);
     }
 
     static create(dirtyParams: { [key: string]: unknown }): Result<Junction> {
@@ -146,14 +246,31 @@ export class Junction extends Place<JunctionAttributes> implements IValidatable 
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Junction'): Error[] {
         const errors: Error[] = [];
 
-        errors.push(...Place.validateParams(dirtyParams, displayName));
+        // Validate params object:
+        errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+
+        // Validate _uuid:
+        errors.push(...Uuidable.validateParams(dirtyParams));
+
+        // Validate _isValid:
+        errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        // Validate StartEndable attributes:
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
+        // Validate junction-specific attributes:
         errors.push(...ParamsValidatorUtils.isString('parkingType', dirtyParams.parkingType, displayName));
-
         errors.push(...ParamsValidatorUtils.isString('parkingFeeType', dirtyParams.parkingFeeType, displayName));
-
         errors.push(...ParamsValidatorUtils.isString('transitPlaceType', dirtyParams.transitPlaceType, displayName));
+
+        // Validate composed place:
+        const placeAttributes = dirtyParams._place as { [key: string]: unknown };
+        if (placeAttributes) {
+            errors.push(...Place.validateParams(placeAttributes, 'Junction Place'));
+        }
+
+        errors.push(...ParamsValidatorUtils.isUuid('_tripUuid', dirtyParams._tripUuid, displayName));
 
         return errors;
     }

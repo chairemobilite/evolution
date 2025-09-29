@@ -53,28 +53,12 @@ export const parkingFeeTypeValues = [
     'paidByWeek',
     'paidByMonth',
     'paidByYear',
-    'parkingMeter',
-    'dontKnow',
-    'nonApplicable'
-] as const;
-export type ParkingFeeType = (typeof parkingFeeTypeValues)[number];
-
-export const workParkingFeeTypeValues = [
-    'free',
     'paidByEmployer',
     'paidByEmployee',
-    'parkingMeter',
-    'dontKnow',
-    'nonApplicable'
-] as const;
-export type WorkParkingFeeType = (typeof workParkingFeeTypeValues)[number];
-
-export const schoolParkingFeeTypeValues = [
-    'free',
     'paidBySchool',
     'paidByStudent',
     'parkingMeter',
     'dontKnow',
     'nonApplicable'
 ] as const;
-export type SchoolParkingFeeType = (typeof schoolParkingFeeTypeValues)[number];
+export type ParkingFeeType = (typeof parkingFeeTypeValues)[number];

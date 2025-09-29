@@ -46,16 +46,16 @@ describe('Segment', () => {
     const extendedAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        origin: { name: 'Origin' },
-        destination: { name: 'Destination' },
-        transitDeclaredRouting: { mode: 'transit' },
-        walkingDeclaredRouting: { mode: 'walking' },
-        cyclingDeclaredRouting: { mode: 'cycling' },
-        drivingDeclaredRouting: { mode: 'driving' },
-        transitCalculatedRoutings: [{ mode: 'transit' }],
-        walkingCalculatedRoutings: [{ mode: 'walking' }],
-        cyclingCalculatedRoutings: [{ mode: 'cycling' }],
-        drivingCalculatedRoutings: [{ mode: 'driving' }],
+        _origin: { name: 'Origin' },
+        _destination: { name: 'Destination' },
+        _transitDeclaredRouting: { mode: 'transit' },
+        _walkingDeclaredRouting: { mode: 'walking' },
+        _cyclingDeclaredRouting: { mode: 'cycling' },
+        _drivingDeclaredRouting: { mode: 'driving' },
+        _transitCalculatedRoutings: [{ mode: 'transit' }],
+        _walkingCalculatedRoutings: [{ mode: 'walking' }],
+        _cyclingCalculatedRoutings: [{ mode: 'cycling' }],
+        _drivingCalculatedRoutings: [{ mode: 'driving' }],
     };
 
     test('should create a Segment instance with valid attributes', () => {
@@ -189,16 +189,16 @@ describe('Segment', () => {
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['origin', new Junction({ name: 'Updated Origin' })],
-            ['destination', new Junction({ name: 'Updated Destination' })],
-            ['transitDeclaredRouting', new Routing({ mode: 'transit' })],
-            ['walkingDeclaredRouting', new Routing({ mode: 'walking' })],
-            ['cyclingDeclaredRouting', new Routing({ mode: 'cycling' })],
-            ['drivingDeclaredRouting', new Routing({ mode: 'driving' })],
-            ['transitCalculatedRoutings', [new Routing({ mode: 'transit' }), new Routing({ mode: 'transit' })]],
-            ['walkingCalculatedRoutings', [new Routing({ mode: 'walking' }), new Routing({ mode: 'walking' })]],
-            ['cyclingCalculatedRoutings', [new Routing({ mode: 'cycling' }), new Routing({ mode: 'cycling' })]],
-            ['drivingCalculatedRoutings', [new Routing({ mode: 'driving' }), new Routing({ mode: 'driving' })]],
+            ['_origin', new Junction({ name: 'Updated Origin' })],
+            ['_destination', new Junction({ name: 'Updated Destination' })],
+            ['_transitDeclaredRouting', new Routing({ mode: 'transit' })],
+            ['_walkingDeclaredRouting', new Routing({ mode: 'walking' })],
+            ['_cyclingDeclaredRouting', new Routing({ mode: 'cycling' })],
+            ['_drivingDeclaredRouting', new Routing({ mode: 'driving' })],
+            ['_transitCalculatedRoutings', [new Routing({ mode: 'transit' }), new Routing({ mode: 'transit' })]],
+            ['_walkingCalculatedRoutings', [new Routing({ mode: 'walking' }), new Routing({ mode: 'walking' })]],
+            ['_cyclingCalculatedRoutings', [new Routing({ mode: 'cycling' }), new Routing({ mode: 'cycling' })]],
+            ['_drivingCalculatedRoutings', [new Routing({ mode: 'driving' }), new Routing({ mode: 'driving' })]],
         ])('should set and get %s', (attribute, value) => {
             const segment = new Segment(validAttributes);
             segment[attribute] = value;
@@ -218,12 +218,12 @@ describe('Segment', () => {
         });
 
         test.each([
-            ['origin', undefined],
-            ['destination', undefined],
-            ['transitDeclaredRouting', undefined],
-            ['walkingDeclaredRouting', undefined],
-            ['cyclingDeclaredRouting', undefined],
-            ['drivingDeclaredRouting', undefined]
+            ['_origin', undefined],
+            ['_destination', undefined],
+            ['_transitDeclaredRouting', undefined],
+            ['_walkingDeclaredRouting', undefined],
+            ['_cyclingDeclaredRouting', undefined],
+            ['_drivingDeclaredRouting', undefined]
         ])('should get and set %s to undefined', (attribute, value) => {
             const segment = new Segment(validAttributes);
             segment[attribute] = value;
@@ -231,10 +231,10 @@ describe('Segment', () => {
         });
 
         test.each([
-            ['transitCalculatedRoutings', []],
-            ['walkingCalculatedRoutings', []],
-            ['cyclingCalculatedRoutings', []],
-            ['drivingCalculatedRoutings', []]
+            ['_transitCalculatedRoutings', []],
+            ['_walkingCalculatedRoutings', []],
+            ['_cyclingCalculatedRoutings', []],
+            ['_drivingCalculatedRoutings', []]
         ])('should set and get empty arrays for %s', (attribute, value) => {
             const segment = new Segment(validAttributes);
             segment[attribute] = value;
@@ -247,7 +247,7 @@ describe('Segment', () => {
         it('should report errors for invalid transitDeclaredRouting', () => {
             const invalidRouting = { '_uuid': 'foo' };
             const segment = Segment.create({
-                transitDeclaredRouting: invalidRouting
+                _transitDeclaredRouting: invalidRouting
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -257,7 +257,7 @@ describe('Segment', () => {
         it('should report errors for invalid transitDeclaredRouting', () => {
             const invalidRouting = 123;
             const segment = Segment.create({
-                transitDeclaredRouting: invalidRouting
+                _transitDeclaredRouting: invalidRouting
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -267,7 +267,7 @@ describe('Segment', () => {
         it('should report errors for invalid walkingDeclaredRouting', () => {
             const invalidRouting = { '_uuid': 'foo' };
             const segment = Segment.create({
-                walkingDeclaredRouting: invalidRouting
+                _walkingDeclaredRouting: invalidRouting
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -277,7 +277,7 @@ describe('Segment', () => {
         it('should report errors for invalid walkingDeclaredRouting', () => {
             const invalidRouting = 123;
             const segment = Segment.create({
-                walkingDeclaredRouting: invalidRouting
+                _walkingDeclaredRouting: invalidRouting
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -287,7 +287,7 @@ describe('Segment', () => {
         it('should report errors for invalid cyclingDeclaredRouting', () => {
             const invalidRouting = { '_uuid': 'foo' };
             const segment = Segment.create({
-                cyclingDeclaredRouting: invalidRouting
+                _cyclingDeclaredRouting: invalidRouting
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -297,7 +297,7 @@ describe('Segment', () => {
         it('should report errors for invalid cyclingDeclaredRouting', () => {
             const invalidRouting = 123;
             const segment = Segment.create({
-                cyclingDeclaredRouting: invalidRouting
+                _cyclingDeclaredRouting: invalidRouting
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -307,7 +307,7 @@ describe('Segment', () => {
         it('should report errors for invalid drivingDeclaredRouting', () => {
             const invalidRouting = { '_uuid': 'foo' };
             const segment = Segment.create({
-                drivingDeclaredRouting: invalidRouting
+                _drivingDeclaredRouting: invalidRouting
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -317,7 +317,7 @@ describe('Segment', () => {
         it('should report errors for invalid drivingDeclaredRouting', () => {
             const invalidRouting = 123;
             const segment = Segment.create({
-                drivingDeclaredRouting: invalidRouting
+                _drivingDeclaredRouting: invalidRouting
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -329,7 +329,7 @@ describe('Segment', () => {
         it('should report errors for invalid transitCalculatedRoutings', () => {
             const invalidRouting = { '_uuid': 'bar' };
             const segment = Segment.create({
-                transitCalculatedRoutings: [invalidRouting]
+                _transitCalculatedRoutings: [invalidRouting]
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -339,7 +339,7 @@ describe('Segment', () => {
         it('should report errors for invalid transitCalculatedRoutings', () => {
             const invalidRouting = 123;
             const segment = Segment.create({
-                transitCalculatedRoutings: [invalidRouting]
+                _transitCalculatedRoutings: [invalidRouting]
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -349,7 +349,7 @@ describe('Segment', () => {
         it('should report errors for invalid walkingCalculatedRoutings', () => {
             const invalidRouting = { '_uuid': 'bar' };
             const segment = Segment.create({
-                walkingCalculatedRoutings: [invalidRouting]
+                _walkingCalculatedRoutings: [invalidRouting]
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -359,7 +359,7 @@ describe('Segment', () => {
         it('should report errors for invalid walkingCalculatedRoutings', () => {
             const invalidRouting = 123;
             const segment = Segment.create({
-                walkingCalculatedRoutings: [invalidRouting]
+                _walkingCalculatedRoutings: [invalidRouting]
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -369,7 +369,7 @@ describe('Segment', () => {
         it('should report errors for invalid cyclingCalculatedRoutings', () => {
             const invalidRouting = { '_uuid': 'bar' };
             const segment = Segment.create({
-                cyclingCalculatedRoutings: [invalidRouting]
+                _cyclingCalculatedRoutings: [invalidRouting]
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -379,7 +379,7 @@ describe('Segment', () => {
         it('should report errors for invalid cyclingCalculatedRoutings', () => {
             const invalidRouting = 123;
             const segment = Segment.create({
-                cyclingCalculatedRoutings: [invalidRouting]
+                _cyclingCalculatedRoutings: [invalidRouting]
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -389,7 +389,7 @@ describe('Segment', () => {
         it('should report errors for invalid drivingCalculatedRoutings', () => {
             const invalidRouting = { '_uuid': 'bar' };
             const segment = Segment.create({
-                drivingCalculatedRoutings: [invalidRouting]
+                _drivingCalculatedRoutings: [invalidRouting]
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
@@ -399,7 +399,7 @@ describe('Segment', () => {
         it('should report errors for invalid drivingCalculatedRoutings', () => {
             const invalidRouting = 123;
             const segment = Segment.create({
-                drivingCalculatedRoutings: [invalidRouting]
+                _drivingCalculatedRoutings: [invalidRouting]
             });
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);

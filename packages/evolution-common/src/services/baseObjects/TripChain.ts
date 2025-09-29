@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -14,10 +16,15 @@ import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { Trip, ExtendedTripAttributes } from './Trip';
-import { VisitedPlace, ExtendedVisitedPlaceAttributes } from './VisitedPlace';
+import { Trip, ExtendedTripAttributes, SerializedExtendedTripAttributes } from './Trip';
+import { VisitedPlace, ExtendedVisitedPlaceAttributes, SerializedExtendedVisitedPlaceAttributes } from './VisitedPlace';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Journey } from './Journey';
+import { Person } from './Person';
+import { Household } from './Household';
 
 export const tripChainAttributes = [
     ...startEndDateAndTimesAttributes,
@@ -45,11 +52,18 @@ export type TripChainAttributes = {
     ValidatebleAttributes;
 
 export type TripChainWithComposedAttributes = TripChainAttributes & {
-    trips?: Optional<ExtendedTripAttributes[]>;
-    visitedPlaces?: Optional<ExtendedVisitedPlaceAttributes[]>;
+    _trips?: Optional<ExtendedTripAttributes[]>;
+    _visitedPlaces?: Optional<ExtendedVisitedPlaceAttributes[]>;
 };
 
 export type ExtendedTripChainAttributes = TripChainWithComposedAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedTripChainAttributes = {
+    _attributes?: ExtendedTripChainAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _trips?: SerializedExtendedTripAttributes[];
+    _visitedPlaces?: SerializedExtendedVisitedPlaceAttributes[];
+};
 
 /**
  * A trip chain is a group or consecutive trips between two anchors
@@ -62,7 +76,7 @@ export type ExtendedTripChainAttributes = TripChainWithComposedAttributes & { [k
  * for which the timing and/or location is usually fixed/not flexible
  * TODO: document the official academic/students definition of the trip chain with more examples
  */
-export class TripChain implements IValidatable {
+export class TripChain extends Uuidable implements IValidatable {
     private _attributes: TripChainAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -74,24 +88,27 @@ export class TripChain implements IValidatable {
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedTripChainAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+        super(params._uuid);
 
         this._attributes = {} as TripChainAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
+            _omit(params, ['_trips', '_visitedPlaces', 'trips', 'visitedPlaces', '_journeyUuid']),
             tripChainAttributes,
             tripChainAttributesWithComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.trips = ConstructorUtils.initializeComposedArrayAttributes(params.trips, Trip.unserialize);
+        this.trips = ConstructorUtils.initializeComposedArrayAttributes(params._trips, Trip.unserialize);
         this.visitedPlaces = ConstructorUtils.initializeComposedArrayAttributes(
-            params.visitedPlaces,
+            params._visitedPlaces,
             VisitedPlace.unserialize
         );
+        this.journeyUuid = params._journeyUuid as Optional<string>;
+
+        SurveyObjectsRegistry.getInstance().registerTripChain(this);
     }
 
     get attributes(): TripChainAttributes {
@@ -100,10 +117,6 @@ export class TripChain implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -234,8 +247,29 @@ export class TripChain implements IValidatable {
         this._journeyUuid = value;
     }
 
-    static unserialize(params: ExtendedTripChainAttributes): TripChain {
-        return new TripChain(params);
+    get journey(): Optional<Journey> {
+        if (!this._journeyUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getJourney(this._journeyUuid);
+    }
+
+    get person(): Optional<Person> {
+        return this.journey?.person;
+    }
+
+    get household(): Optional<Household> {
+        return this.journey?.person?.household;
+    }
+
+    /**
+     * Creates a TripChain object from sanitized parameters
+     * @param {ExtendedTripChainAttributes | SerializedExtendedTripChainAttributes} params - Sanitized trip chain parameters
+     * @returns {TripChain} New TripChain instance
+     */
+    static unserialize(params: ExtendedTripChainAttributes | SerializedExtendedTripChainAttributes): TripChain {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new TripChain(flattenedParams as ExtendedTripChainAttributes);
     }
 
     static create(dirtyParams: { [key: string]: unknown }): Result<TripChain> {
@@ -282,18 +316,22 @@ export class TripChain implements IValidatable {
         );
 
         const tripsAttributes =
-            dirtyParams.trips !== undefined ? (dirtyParams.trips as { [key: string]: unknown }[]) : [];
+            dirtyParams._trips !== undefined ? (dirtyParams._trips as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = tripsAttributes.length; i < countI; i++) {
             const tripAttributes = tripsAttributes[i];
             errors.push(...Trip.validateParams(tripAttributes, 'Trip'));
         }
 
         const visitedPlacesAttributes =
-            dirtyParams.visitedPlaces !== undefined ? (dirtyParams.visitedPlaces as { [key: string]: unknown }[]) : [];
+            dirtyParams._visitedPlaces !== undefined
+                ? (dirtyParams._visitedPlaces as { [key: string]: unknown }[])
+                : [];
         for (let i = 0, countI = visitedPlacesAttributes.length; i < countI; i++) {
             const visitedPlaceAttributes = visitedPlacesAttributes[i];
             errors.push(...VisitedPlace.validateParams(visitedPlaceAttributes, 'VisitedPlace'));
         }
+
+        errors.push(...ParamsValidatorUtils.isUuid('_journeyUuid', dirtyParams._journeyUuid, displayName));
 
         return errors;
     }
