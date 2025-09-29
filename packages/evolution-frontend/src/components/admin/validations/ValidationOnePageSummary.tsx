@@ -168,8 +168,6 @@ const ValidationOnePageSummary = () => {
                     updatePath = placePath + '.geography.geometry.coordinates';
                 }
 
-                console.log('🎯 Updating coordinates for activity:', activity, 'at path:', updatePath);
-
                 // Update using valuesByPath - only update coordinates to preserve other properties
                 startUpdateInterview(
                     {
@@ -226,6 +224,7 @@ const ValidationOnePageSummary = () => {
                                     selectTrip={toggleActiveTripUuid}
                                     activeTripUuid={activeTripUuid}
                                     interview={interview}
+                                    surveyObjectsAndAudits={interview?.surveyObjectsAndAudits}
                                     activePlacePath={activeStatsPlacePath}
                                     user={user}
                                     startUpdateInterview={startUpdateInterview}

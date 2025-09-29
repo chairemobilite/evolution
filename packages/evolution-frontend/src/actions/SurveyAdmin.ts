@@ -24,6 +24,7 @@ const fetch = async (url, opts) => {
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
+import { SurveyObjectsUnserializer } from '../utils/SurveyObjectsUnserializer';
 import {
     StartAddGroupedObjects,
     StartNavigate,
@@ -31,6 +32,12 @@ import {
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
+import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+
+// Extended type for admin interviews that includes surveyObjectsAndAudits
+type AdminInterviewAttributes = UserRuntimeInterviewAttributes & {
+    surveyObjectsAndAudits?: SurveyObjectsWithAudits;
+};
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
 import {
@@ -62,17 +69,16 @@ const updateSurveyCorrectedInterview = async (
         unsetPaths = [],
         interview: initialInterview,
         userAction
-    }: Parameters<StartUpdateInterview>[0] = {},
+    }: Parameters<StartUpdateInterview>[0] & { interview?: AdminInterviewAttributes } = {},
     callback?: Parameters<StartUpdateInterview>[1]
 ) => {
-    //surveyHelper.devLog(`Update interview and section with values by path`, valuesByPath);
     try {
         const { survey } = getState();
         const navigation = survey?.navigation;
 
         const interview = initialInterview
             ? initialInterview
-            : (_cloneDeep(survey?.interview) as UserRuntimeInterviewAttributes);
+            : (_cloneDeep(survey?.interview) as AdminInterviewAttributes);
 
         dispatch(incrementLoadingState());
 
@@ -91,11 +97,11 @@ const updateSurveyCorrectedInterview = async (
             : navigation?.currentSection?.sectionShortname || '';
 
         // Skip section validation for admin interface - we don't need widget preparation
-        let updatedInterview: UserRuntimeInterviewAttributes;
+        let updatedInterview: AdminInterviewAttributes;
         let updatedValuesByPath: { [path: string]: unknown };
         if (!sectionShortname) {
             // For admin interface, just update the interview data without section validation
-            updatedInterview = interview as UserRuntimeInterviewAttributes;
+            updatedInterview = interview as AdminInterviewAttributes;
             updatedValuesByPath = valuesByPath as { [path: string]: unknown };
         } else {
             // For regular survey sections, use the full validation
@@ -105,6 +111,8 @@ const updateSurveyCorrectedInterview = async (
                 affectedPaths,
                 valuesByPath as { [path: string]: unknown }
             );
+            // Preserve surveyObjectsAndAudits after validation
+            updatedInterview = { ...updatedInterview, surveyObjectsAndAudits: interview.surveyObjectsAndAudits };
         }
 
         if (!updatedInterview.sectionLoaded || updatedInterview.sectionLoaded !== sectionShortname) {
@@ -157,11 +165,11 @@ const updateSurveyCorrectedInterview = async (
                 // TODO we need to do something if no interview is returned (error)
             }
         } else {
-            console.log(`startUpdateSurveyCorrectedInterview: wrong response status: ${response.status}`);
+            console.error(`startUpdateSurveyCorrectedInterview: wrong response status: ${response.status}`);
             handleHttpOtherResponseCode(response.status, dispatch);
         }
     } catch (error) {
-        console.log('Error updating interview', error);
+        console.error('Error updating interview', error);
     } finally {
         // Loading state needs to be decremented, so the page can be updated
         dispatch(decrementLoadingState());
@@ -212,7 +220,7 @@ export const startNavigateCorrectedInterview = (
 // TODO: unit test
 export const startSetSurveyCorrectedInterview = (
     interviewUuid: string,
-    callback: (interview: UserRuntimeInterviewAttributes) => void = function () {
+    callback: (interview: AdminInterviewAttributes) => void = function () {
         return;
     }
 ) => {
@@ -228,13 +236,44 @@ export const startSetSurveyCorrectedInterview = (
                 const body = await response.json();
                 if (body.interview) {
                     const interview = body.interview;
+
+                    // Unserialize surveyObjectsAndAudits if present
+                    if (
+                        interview.surveyObjectsAndAudits &&
+                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
+                    ) {
+                        try {
+                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
+                                interview.surveyObjectsAndAudits
+                            );
+                            // for debugging during Audits development:
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            (window as any).H = interview.surveyObjectsAndAudits?.household;
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            (window as any).HM = interview.surveyObjectsAndAudits?.home;
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            (window as any).I = interview.surveyObjectsAndAudits?.interview;
+
+                            // for debugging during Audits development:
+                            console.log('surveyObjectsAndAudits:', {
+                                interview,
+                                interviewUuid: interviewUuid,
+                                surveyObjectsAndAudits: interview.surveyObjectsAndAudits
+                            });
+                        } catch (error) {
+                            console.error('Failed to unserialize surveyObjectsAndAudits:', error);
+                        }
+                    }
+
                     // Set the interview in the state first
                     dispatch(updateInterviewState(interview));
 
                     // Then, initialize navigation for the current interview
+                    // This will handle all necessary updates internally
                     await dispatch(startNavigateCorrectedInterview(undefined, callback));
 
-                    dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
+                    // TODO: Remove this redundant call - kept commented for testing
+                    // dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                 }
             }
         } catch (err) {
@@ -307,7 +346,7 @@ export const startSurveyCorrectedRemoveGroupedObjects = (
 // TODO: unit test
 export const startResetCorrectedInterview = (
     interviewUuid: string,
-    callback: (interview: UserRuntimeInterviewAttributes) => void = function () {
+    callback: (interview: AdminInterviewAttributes) => void = function () {
         return;
     }
 ) => {
@@ -323,7 +362,29 @@ export const startResetCorrectedInterview = (
                 const body = await response.json();
                 if (body.interview) {
                     const interview = body.interview;
-                    dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
+
+                    // Unserialize surveyObjectsAndAudits if present
+                    if (
+                        interview.surveyObjectsAndAudits &&
+                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
+                    ) {
+                        try {
+                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
+                                interview.surveyObjectsAndAudits
+                            );
+                        } catch (error) {
+                            console.error('Failed to unserialize surveyObjectsAndAudits for reset:', error);
+                        }
+                    }
+
+                    // Set the interview in the state and initialize navigation
+                    dispatch(updateInterviewState(interview));
+
+                    // Initialize navigation for the reset interview
+                    await dispatch(startNavigateCorrectedInterview(undefined, callback));
+
+                    // TODO: Remove this redundant call - kept commented for testing
+                    // dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: {}, interview }, callback));
                 }
             }
         } catch (err) {
