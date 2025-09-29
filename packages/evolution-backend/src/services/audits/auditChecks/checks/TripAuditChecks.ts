@@ -6,47 +6,30 @@
  */
 
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { TripAuditCheckContext, TripAuditCheckFunction } from '../infrastructure/AuditCheckContexts';
+import { TripAuditCheckContext, TripAuditCheckFunction } from '../AuditCheckContexts';
 
-/**
- * Trip-specific audit check functions
- */
 export const tripAuditChecks: { [errorCode: string]: TripAuditCheckFunction } = {
     /**
-     * Check if trip has missing UUID
+     * Check if trip segments are missing
+     * @param context - TripAuditCheckContext
+     * @returns AuditForObject
      */
-    T_M_Uuid: (context: TripAuditCheckContext): Partial<AuditForObject> | undefined => {
+    T_M_Segments: (context: TripAuditCheckContext): AuditForObject | undefined => {
         const { trip } = context;
-        const hasUuid = !!trip._uuid;
+        const hasSegments = trip.segments !== undefined && trip.segments.length > 0;
 
-        if (!hasUuid) {
+        if (!hasSegments) {
             return {
+                objectType: 'trip',
+                objectUuid: trip._uuid!,
+                errorCode: 'T_M_Segments',
                 version: 1,
                 level: 'error',
-                message: 'Trip UUID is missing',
+                message: 'Trip segments are missing',
                 ignore: false
             };
         }
 
-        return undefined; // No audit needed
-    },
-
-    /**
-     * Check if trip has missing start date
-     */
-    T_M_StartDate: (context: TripAuditCheckContext): Partial<AuditForObject> | undefined => {
-        const { trip } = context;
-        const hasStartDate = !!trip.startDate;
-
-        if (!hasStartDate) {
-            return {
-                version: 1,
-                level: 'warning',
-                message: 'Trip start date is missing',
-                ignore: false
-            };
-        }
-
-        return undefined; // No audit needed
+        return undefined;
     }
 };

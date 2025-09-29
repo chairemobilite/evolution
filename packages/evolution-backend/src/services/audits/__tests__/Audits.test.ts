@@ -67,7 +67,7 @@ describe('updateAudits', () => {
     });
 });
 
-describe('createSurveyObjectsAndAudit', () => {
+describe('createSurveyObjectsAndSaveAuditsToDb', () => {
 
     const interviewAttributes = {
         id: interviewId,
@@ -84,13 +84,13 @@ describe('createSurveyObjectsAndAudit', () => {
             },
             household: {
                 _uuid: 'household-uuid-123',
-                size: 2
-            },
-            persons: {
-                'person-uuid-123': {
-                    _uuid: 'person-uuid-123',
-                    age: 30,
-                    _sequence: 1
+                size: 2,
+                persons: {
+                    'person-uuid-123': {
+                        _uuid: 'person-uuid-123',
+                        age: 30,
+                        _sequence: 1
+                    }
                 }
             }
         } as any,
@@ -106,13 +106,13 @@ describe('createSurveyObjectsAndAudit', () => {
             },
             household: {
                 _uuid: 'household-uuid-123',
-                size: 3
-            },
-            persons: {
-                'person-uuid-123': {
-                    _uuid: 'person-uuid-123',
-                    age: 35,
-                    _sequence: 1
+                size: 3,
+                persons: {
+                    'person-uuid-123': {
+                        _uuid: 'person-uuid-123',
+                        age: 35,
+                        _sequence: 1
+                    }
                 }
             }
         } as any
@@ -130,28 +130,28 @@ describe('createSurveyObjectsAndAudit', () => {
         // Unset the interview audit function
         setProjectConfig({ auditInterview: undefined });
 
-        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interviewAttributes);
+        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interviewAttributes);
         // Should use default audit implementation, so we expect some audits
         expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
         expect(mockInterviewAudits).not.toHaveBeenCalled();
     });
 
     test('corrected_response not set in interview', async () => {
-        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(_omit(interviewAttributes, 'corrected_response'));
-        expect(objectsAndAudits.audits).toEqual([]);
+        await expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(_omit(interviewAttributes, 'corrected_response')))
+            .rejects.toThrow('Corrected response is required to create survey objects and audits');
         expect(mockInterviewAudits).not.toHaveBeenCalled();
     });
 
-    test('Function returns audits from comprehensive audit service', async () => {
-        // The new system uses ComprehensiveAuditService which produces real audits
-        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interviewAttributes);
+    test('Function returns audits from audit service', async () => {
+        // The new system uses AuditService which produces real audits
+        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interviewAttributes);
 
-        // Should have some audits from the comprehensive audit system
+        // Should have some audits from the audit system
         expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
 
         // Should have audits for objects with validation errors (home, household, etc.)
         // The system only generates audits when there are actual validation errors
-        expect(objectsAndAudits.audits.length).toBe(2); // Based on console logs: 3 parameter errors converted to audits
+        expect(objectsAndAudits.audits.length).toBe(3);
 
         // The old mock interview audit function should not be called anymore
         expect(mockInterviewAudits).not.toHaveBeenCalled();
@@ -167,9 +167,9 @@ describe('createSurveyObjectsAndAudit', () => {
             audits.map((audit) => ({ ...audit, ignore: true }))
         );
 
-        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interviewAttributes);
+        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interviewAttributes);
 
-        // Should have some audits from the comprehensive audit system
+        // Should have some audits from the audit system
         expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
 
         // All audits should have the ignore flag set by the database mock

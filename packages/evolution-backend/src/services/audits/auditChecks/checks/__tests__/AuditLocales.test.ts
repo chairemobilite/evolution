@@ -1,0 +1,73 @@
+/*
+ * Copyright 2025, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
+import { interviewAuditChecks } from '../InterviewAuditChecks';
+import { householdAuditChecks } from '../HouseholdAuditChecks';
+import { homeAuditChecks } from '../HomeAuditChecks';
+import { personAuditChecks } from '../PersonAuditChecks';
+import { journeyAuditChecks } from '../JourneyAuditChecks';
+import { visitedPlaceAuditChecks } from '../VisitedPlaceAuditChecks';
+import { tripAuditChecks } from '../TripAuditChecks';
+import { segmentAuditChecks } from '../SegmentAuditChecks';
+import i18n, { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
+import path from 'path';
+
+const languages = ['en', 'fr'];
+
+// Register translation directory and namespace for tests
+registerTranslationDir(path.join(__dirname, '../../../../../../../../locales/'));
+addTranslationNamespace('audits');
+
+// This test is used to ensure that all audit error codes are defined
+// in the locale i18n files in at least fr and en languages.
+
+describe('Audit Locales', () => {
+    // Initialize i18n before running tests
+    beforeAll(() => {
+        // Force i18n initialization by calling it
+        i18n();
+    });
+
+    // Collect all audit error codes from all audit check modules
+    const getAllAuditErrorCodes = (): string[] => {
+        const allErrorCodes: string[] = [];
+
+        // Add error codes from each audit check module
+        allErrorCodes.push(...Object.keys(interviewAuditChecks));
+        allErrorCodes.push(...Object.keys(householdAuditChecks));
+        allErrorCodes.push(...Object.keys(homeAuditChecks));
+        allErrorCodes.push(...Object.keys(personAuditChecks));
+        allErrorCodes.push(...Object.keys(journeyAuditChecks));
+        allErrorCodes.push(...Object.keys(visitedPlaceAuditChecks));
+        allErrorCodes.push(...Object.keys(tripAuditChecks));
+        allErrorCodes.push(...Object.keys(segmentAuditChecks));
+
+        // Remove duplicates and sort
+        return [...new Set(allErrorCodes)].sort();
+    };
+
+    describe('Audit error code translations', () => {
+        const allErrorCodes = getAllAuditErrorCodes();
+
+        it('should have all audit error codes defined in audit check modules', () => {
+            expect(allErrorCodes.length).toBeGreaterThan(0);
+            console.log(`Found ${allErrorCodes.length} audit error codes:`, allErrorCodes);
+        });
+
+        describe.each(languages)('Language: %s', (language) => {
+            it.each(allErrorCodes)('should have translation for error code: %s', (errorCode) => {
+                const translate = i18n().getFixedT(language, 'audits');
+                const translation = translate(errorCode);
+
+                expect(translation).not.toBe(errorCode); // Translation should not be the key itself
+                expect(translation.trim()).not.toBe(''); // Translation should not be empty
+            });
+        });
+
+    });
+
+});

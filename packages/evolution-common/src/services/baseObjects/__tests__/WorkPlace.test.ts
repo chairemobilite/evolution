@@ -10,8 +10,15 @@ import { placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('WorkPlace', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+        registry.clear();
+    });
 
     const weightMethodAttributes : WeightMethodAttributes = {
         _uuid: uuidV4(),
@@ -60,7 +67,7 @@ describe('WorkPlace', () => {
     };
 
     test('should create a WorkPlace instance with valid attributes', () => {
-        const workPlace = new WorkPlace(validWorkPlaceAttributes);
+        const workPlace = new WorkPlace(validWorkPlaceAttributes, registry);
         expect(workPlace).toBeInstanceOf(WorkPlace);
         expect(workPlace.attributes).toEqual(validWorkPlaceAttributes);
     });
@@ -73,38 +80,38 @@ describe('WorkPlace', () => {
     });
 
     test('should get uuid', () => {
-        const place = new WorkPlace({ ...validWorkPlaceAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const place = new WorkPlace({ ...validWorkPlaceAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(place._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a WorkPlace instance with valid attributes', () => {
-        const result = WorkPlace.create(validPlaceAttributes);
+        const result = WorkPlace.create(validPlaceAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(WorkPlace);
     });
 
     test('should create a WorkPlace instance with extended attributes', () => {
-        const result = WorkPlace.create(extendedWorkPlaceAttributes);
+        const result = WorkPlace.create(extendedWorkPlaceAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(WorkPlace);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = WorkPlace.create(invalidAttributes);
+        const result = WorkPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[])).toHaveLength(1);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validPlaceAttributes, name: -1 };
-        const result = WorkPlace.create(invalidAttributes);
+        const result = WorkPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a WorkPlace instance', () => {
-        const workPlace = WorkPlace.unserialize(validWorkPlaceAttributes);
+        const workPlace = WorkPlace.unserialize(validWorkPlaceAttributes, registry);
         expect(workPlace).toBeInstanceOf(WorkPlace);
         expect(workPlace.attributes).toEqual(validWorkPlaceAttributes);
     });
@@ -121,7 +128,7 @@ describe('WorkPlace', () => {
     });
 
     test('should validate a WorkPlace instance', () => {
-        const workPlace = new WorkPlace(validPlaceAttributes);
+        const workPlace = new WorkPlace(validPlaceAttributes, registry);
         expect(workPlace.validate()).toBe(true);
         expect(workPlace.isValid()).toBe(true);
     });
@@ -135,7 +142,7 @@ describe('WorkPlace', () => {
             ...validPlaceAttributes,
             ...customAttributes,
         };
-        const place = new WorkPlace(placeAttributes);
+        const place = new WorkPlace(placeAttributes, registry);
         expect(place).toBeInstanceOf(WorkPlace);
         expect(place.attributes).toEqual(validPlaceAttributes);
         expect(place.customAttributes).toEqual(customAttributes);
@@ -163,7 +170,7 @@ describe('WorkPlace', () => {
             ['parkingType', 'exteriorAssignedOrGuaranteed'],
             ['parkingFeeType', 'free'],
         ])('should set and get %s', (attribute, value) => {
-            const workPlace = new WorkPlace(validWorkPlaceAttributes);
+            const workPlace = new WorkPlace(validWorkPlaceAttributes, registry);
             workPlace[attribute] = value;
             expect(workPlace[attribute]).toEqual(value);
         });
@@ -177,7 +184,7 @@ describe('WorkPlace', () => {
                 }],
                 ['attributes', validWorkPlaceAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const workPlace = new WorkPlace(extendedWorkPlaceAttributes);
+                const workPlace = new WorkPlace(extendedWorkPlaceAttributes, registry);
                 expect(workPlace[attribute]).toEqual(value);
             });
         });
@@ -186,7 +193,7 @@ describe('WorkPlace', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
         ])('should set and get %s', (attribute, value) => {
-            const workPlace = new WorkPlace(validWorkPlaceAttributes);
+            const workPlace = new WorkPlace(validWorkPlaceAttributes, registry);
             workPlace[attribute] = value;
             expect(workPlace[attribute]).toEqual(value);
         });

@@ -9,12 +9,22 @@ import { v4 as uuidV4 } from 'uuid';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { ExtendedHouseholdAttributes, Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { ExtendedInterviewAttributesWithComposedObjects, Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { homeAuditChecks } from '../HomeAuditChecks';
-import { runHomeAuditChecks } from '../../infrastructure/AuditCheckRunners';
-import { HomeAuditCheckContext } from '../../infrastructure/AuditCheckContexts';
+import { runHomeAuditChecks } from '../../AuditCheckRunners';
+import { HomeAuditCheckContext } from '../../AuditCheckContexts';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 describe('HomeAuditChecks', () => {
+    let surveyObjectsRegistry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        surveyObjectsRegistry = new SurveyObjectsRegistry();
+    });
+
+    afterEach(() => {
+        surveyObjectsRegistry.clear();
+    });
+
     const validUuid = uuidV4();
     const interviewUuid = uuidV4();
 
@@ -37,7 +47,7 @@ describe('HomeAuditChecks', () => {
         return new Interview({
             _uuid: interviewUuid,
             ...overrides
-        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any);
+        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any, surveyObjectsRegistry);
     };
 
     const createMockHousehold = (overrides: Partial<Household> = {}) => {
@@ -45,55 +55,48 @@ describe('HomeAuditChecks', () => {
             _uuid: validUuid,
             size: 2,
             ...overrides
-        } as ExtendedHouseholdAttributes);
-    };
-
-    const createMockInterviewAttributes = (overrides: Partial<InterviewAttributes> = {}): InterviewAttributes => {
-        return {
-            uuid: interviewUuid,
-            id: 123,
-            participant_id: 1,
-            is_valid: true,
-            is_active: true,
-            is_completed: false,
-            is_questionable: false,
-            is_validated: false,
-            response: {
-                household: {},
-                persons: {}
-            },
-            validations: {},
-            survey_id: 1,
-            ...overrides
-        };
+        } as ExtendedHouseholdAttributes, surveyObjectsRegistry);
     };
 
     describe('HM_M_Geography audit check', () => {
         it('should pass when home has valid geography', () => {
             const home = createMockHome();
             const interview = createMockInterview();
-            const interviewAttributes = createMockInterviewAttributes();
-            const context: HomeAuditCheckContext = { home, interview, interviewAttributes, household: createMockHousehold() };
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
 
             const result = homeAuditChecks.HM_M_Geography(context);
 
             expect(result).toBeUndefined();
         });
 
-        it('should warn when home has no geography', () => {
+        it('should error when home has no geography', () => {
             const home = createMockHome({ geography: undefined });
             const interview = createMockInterview();
-            const interviewAttributes = createMockInterviewAttributes();
-            const context: HomeAuditCheckContext = { home, interview, interviewAttributes, household: createMockHousehold() };
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
 
             const result = homeAuditChecks.HM_M_Geography(context);
 
             expect(result).toEqual({
+                objectType: 'home',
+                objectUuid: validUuid,
+                errorCode: 'HM_M_Geography',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Home geography is missing',
                 ignore: false
             });
+        });
+    });
+
+    describe('HM_I_Geography audit check', () => {
+        it('should pass when home has valid geography', () => {
+            const home = createMockHome();
+            const interview = createMockInterview();
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
+
+            const result = homeAuditChecks.HM_I_Geography(context);
+
+            expect(result).toBeUndefined();
         });
 
         it('should error when geography has invalid coordinates', () => {
@@ -108,15 +111,17 @@ describe('HomeAuditChecks', () => {
                 }
             });
             const interview = createMockInterview();
-            const interviewAttributes = createMockInterviewAttributes();
-            const context: HomeAuditCheckContext = { home, interview, interviewAttributes, household: createMockHousehold() };
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
 
-            const result = homeAuditChecks.HM_M_Geography(context);
+            const result = homeAuditChecks.HM_I_Geography(context);
 
             expect(result).toEqual({
+                objectType: 'home',
+                objectUuid: validUuid,
+                errorCode: 'HM_I_Geography',
                 version: 1,
                 level: 'error',
-                message: 'Home coordinates are invalid',
+                message: 'Home geography is invalid',
                 ignore: false
             });
         });
@@ -133,46 +138,29 @@ describe('HomeAuditChecks', () => {
                 }
             });
             const interview = createMockInterview();
-            const interviewAttributes = createMockInterviewAttributes();
-            const context: HomeAuditCheckContext = { home, interview, interviewAttributes, household: createMockHousehold() };
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
 
-            const result = homeAuditChecks.HM_M_Geography(context);
+            const result = homeAuditChecks.HM_I_Geography(context);
 
             expect(result).toEqual({
+                objectType: 'home',
+                objectUuid: validUuid,
+                errorCode: 'HM_I_Geography',
                 version: 1,
                 level: 'error',
-                message: 'Home coordinates are invalid',
+                message: 'Home geography is invalid',
                 ignore: false
             });
         });
-    });
 
-    describe('HM_M_Uuid audit check', () => {
-        it('should pass when home has uuid', () => {
-            const home = createMockHome();
+        it('should pass when geography is missing (handled by HM_M_Geography)', () => {
+            const home = createMockHome({ geography: undefined });
             const interview = createMockInterview();
-            const interviewAttributes = createMockInterviewAttributes();
-            const context: HomeAuditCheckContext = { home, interview, interviewAttributes, household: createMockHousehold() };
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
 
-            const result = homeAuditChecks.HM_M_Uuid(context);
+            const result = homeAuditChecks.HM_I_Geography(context);
 
             expect(result).toBeUndefined();
-        });
-
-        it('should error when home missing uuid', () => {
-            const home = createMockHome({ _uuid: undefined });
-            const interview = createMockInterview();
-            const interviewAttributes = createMockInterviewAttributes();
-            const context: HomeAuditCheckContext = { home, interview, interviewAttributes, household: createMockHousehold() };
-
-            const result = homeAuditChecks.HM_M_Uuid(context);
-
-            expect(result).toEqual({
-                version: 1,
-                level: 'error',
-                message: 'Home UUID is missing',
-                ignore: false
-            });
         });
     });
 
@@ -180,8 +168,7 @@ describe('HomeAuditChecks', () => {
         it('should run all home audits and format results', () => {
             const home = createMockHome();
             const interview = createMockInterview();
-            const interviewAttributes = createMockInterviewAttributes();
-            const context: HomeAuditCheckContext = { home, interview, interviewAttributes, household: createMockHousehold() };
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
 
             const audits = runHomeAuditChecks(context, homeAuditChecks);
 
@@ -195,12 +182,11 @@ describe('HomeAuditChecks', () => {
                 geography: undefined
             });
             const interview = createMockInterview();
-            const interviewAttributes = createMockInterviewAttributes();
-            const context: HomeAuditCheckContext = { home, interview, interviewAttributes, household: createMockHousehold() };
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
 
             const audits = runHomeAuditChecks(context, homeAuditChecks);
 
-            expect(audits).toHaveLength(1); // Only geography audit should fail
+            expect(audits).toHaveLength(1); // Only geography missing audit should fail
 
             // Check geography audit
             const geographyAudit = audits.find((audit) => audit.errorCode === 'HM_M_Geography');
@@ -209,8 +195,40 @@ describe('HomeAuditChecks', () => {
                 objectUuid: validUuid,
                 errorCode: 'HM_M_Geography',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Home geography is missing',
+                ignore: false
+            });
+        });
+
+        it('should include invalid geography audits in results', () => {
+            // Test with invalid geography (has geography but invalid coordinates)
+            const home = createMockHome({
+                geography: {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5] // Missing latitude
+                    }
+                }
+            });
+            const interview = createMockInterview();
+            const context: HomeAuditCheckContext = { home, interview, household: createMockHousehold() };
+
+            const audits = runHomeAuditChecks(context, homeAuditChecks);
+
+            expect(audits).toHaveLength(1); // Only geography invalid audit should fail
+
+            // Check geography audit
+            const geographyAudit = audits.find((audit) => audit.errorCode === 'HM_I_Geography');
+            expect(geographyAudit).toEqual({
+                objectType: 'home',
+                objectUuid: validUuid,
+                errorCode: 'HM_I_Geography',
+                version: 1,
+                level: 'error',
+                message: 'Home geography is invalid',
                 ignore: false
             });
         });

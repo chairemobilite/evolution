@@ -8,6 +8,7 @@
 import { Place, ExtendedPlaceAttributes, SerializedExtendedPlaceAttributes } from './Place';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 
 /**
  * Home place class for household home locations
@@ -16,8 +17,8 @@ import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
  * uuid for home must be equal to the uuid of the household and the uuid of the interview
  */
 export class Home extends Place {
-    constructor(dirtyParams: { [key: string]: unknown }) {
-        super(dirtyParams);
+    constructor(dirtyParams: ExtendedPlaceAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
+        super(dirtyParams, surveyObjectsRegistry);
     }
 
     /**
@@ -25,9 +26,12 @@ export class Home extends Place {
      * @param {ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes} params - Sanitized place parameters
      * @returns {Home} New Place instance
      */
-    static unserialize(params: ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes): Home {
+    static unserialize(
+        params: ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Home {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Home(flattenedParams as ExtendedPlaceAttributes);
+        return new Home(flattenedParams as ExtendedPlaceAttributes, surveyObjectsRegistry);
     }
 
     /**
@@ -35,9 +39,10 @@ export class Home extends Place {
      * @param {Object} dirtyParams - Raw input parameters to validate
      * @returns {Result<Home>} Either a valid Home object or validation errors
      */
-    static create(dirtyParams: { [key: string]: unknown }): Result<Home> {
+    static create(dirtyParams: { [key: string]: unknown }, surveyObjectsRegistry: SurveyObjectsRegistry): Result<Home> {
         const errors = Place.validateParams(dirtyParams, 'Home');
-        const home = errors.length === 0 ? new Home(dirtyParams as ExtendedPlaceAttributes) : undefined;
+        const home =
+            errors.length === 0 ? new Home(dirtyParams as ExtendedPlaceAttributes, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

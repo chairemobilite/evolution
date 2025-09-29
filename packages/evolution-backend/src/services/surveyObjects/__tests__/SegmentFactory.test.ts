@@ -5,11 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { createSegmentsForTrip } from '../SegmentFactory';
+import { populateSegmentsForTrip } from '../SegmentFactory';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { Trip, ExtendedTripAttributes } from 'evolution-common/lib/services/baseObjects/Trip';
 import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
 import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 // Mock Segment.create
 jest.mock('evolution-common/lib/services/baseObjects/Segment', () => ({
@@ -20,11 +21,13 @@ jest.mock('evolution-common/lib/services/baseObjects/Segment', () => ({
 const MockedSegment = Segment as jest.MockedClass<typeof Segment>;
 
 describe('SegmentFactory', () => {
+    let surveyObjectsRegistry: SurveyObjectsRegistry;
     let surveyObjectsWithErrors: SurveyObjectsWithErrors;
     let trip: Trip;
     let tripAttributes: ExtendedTripAttributes;
 
     beforeEach(() => {
+        surveyObjectsRegistry = new SurveyObjectsRegistry();
         surveyObjectsWithErrors = {
             interview: undefined,
             household: undefined,
@@ -71,7 +74,7 @@ describe('SegmentFactory', () => {
         jest.clearAllMocks();
     });
 
-    describe('createSegmentsForTrip', () => {
+    describe('populateSegmentsForTrip', () => {
         it('should create segments successfully and add them to trip', async () => {
             const mockSegment1 = {
                 _uuid: 'segment-1',
@@ -86,22 +89,28 @@ describe('SegmentFactory', () => {
             (MockedSegment.create as jest.Mock).mockReturnValueOnce(createOk(mockSegment1))
                 .mockReturnValueOnce(createOk(mockSegment2));
 
-            await createSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any);
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify Segment.create was called with correct attributes
             expect(MockedSegment.create).toHaveBeenCalledTimes(2);
-            expect(MockedSegment.create).toHaveBeenCalledWith({
-                _uuid: 'segment-1',
-                _sequence: 1,
-                mode: 'walk',
-                distanceMeters: 500
-            });
-            expect(MockedSegment.create).toHaveBeenCalledWith({
-                _uuid: 'segment-2',
-                _sequence: 2,
-                mode: 'bus',
-                distanceMeters: 2000
-            });
+            expect(MockedSegment.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    _uuid: 'segment-1',
+                    _sequence: 1,
+                    mode: 'walk',
+                    distanceMeters: 500
+                }),
+                surveyObjectsRegistry
+            );
+            expect(MockedSegment.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    _uuid: 'segment-2',
+                    _sequence: 2,
+                    mode: 'bus',
+                    distanceMeters: 2000
+                }),
+                surveyObjectsRegistry
+            );
 
             // Verify segments were added to trip
             expect(trip.addSegment).toHaveBeenCalledTimes(2);
@@ -120,7 +129,7 @@ describe('SegmentFactory', () => {
                     _uuid: 'segment-2'
                 } as unknown as Segment));
 
-            await createSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any);
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify error was stored
             expect(surveyObjectsWithErrors.errorsByObject.segmentsByUuid['segment-1']).toEqual(errors);
@@ -145,7 +154,7 @@ describe('SegmentFactory', () => {
                 _uuid: 'segment-1'
             } as Segment));
 
-            await createSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any);
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Should only create one segment (skip undefined)
             expect(MockedSegment.create).toHaveBeenCalledTimes(1);
@@ -155,7 +164,7 @@ describe('SegmentFactory', () => {
         it('should handle missing segments attributes', async () => {
             tripAttributes.segments = undefined;
 
-            await createSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any);
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             expect(MockedSegment.create).not.toHaveBeenCalled();
             expect(trip.addSegment).not.toHaveBeenCalled();
@@ -164,7 +173,7 @@ describe('SegmentFactory', () => {
         it('should handle empty segments object', async () => {
             tripAttributes.segments = {} as any;
 
-            await createSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any);
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             expect(MockedSegment.create).not.toHaveBeenCalled();
             expect(trip.addSegment).not.toHaveBeenCalled();
@@ -194,12 +203,12 @@ describe('SegmentFactory', () => {
                 .mockReturnValueOnce(createOk({ _uuid: 'segment-2' } as Segment))
                 .mockReturnValueOnce(createOk({ _uuid: 'segment-3' } as Segment));
 
-            await createSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any);
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify segments were created in sequence order (1, 2, 3)
-            expect(MockedSegment.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }));
-            expect(MockedSegment.create).toHaveBeenNthCalledWith(2, expect.objectContaining({ _sequence: 2 }));
-            expect(MockedSegment.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }));
+            expect(MockedSegment.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }), surveyObjectsRegistry);
+            expect(MockedSegment.create).toHaveBeenNthCalledWith(2, expect.objectContaining({ _sequence: 2 }), surveyObjectsRegistry);
+            expect(MockedSegment.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }), surveyObjectsRegistry);
         });
 
         it('should handle segments with zero or missing sequence', async () => {
@@ -225,7 +234,7 @@ describe('SegmentFactory', () => {
                 .mockReturnValueOnce(createOk({ _uuid: 'segment-zero' } as Segment))
                 .mockReturnValueOnce(createOk({ _uuid: 'segment-1' } as Segment));
 
-            await createSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any);
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify all segments were created (missing sequence defaults to 0)
             expect(MockedSegment.create).toHaveBeenCalledTimes(3);
@@ -258,13 +267,13 @@ describe('SegmentFactory', () => {
 
             (MockedSegment.create as jest.Mock).mockReturnValue(createOk({} as Segment));
 
-            await createSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any);
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify all different modes were processed
-            expect(MockedSegment.create).toHaveBeenCalledWith(expect.objectContaining({ mode: 'walk' }));
-            expect(MockedSegment.create).toHaveBeenCalledWith(expect.objectContaining({ mode: 'transit' }));
-            expect(MockedSegment.create).toHaveBeenCalledWith(expect.objectContaining({ mode: 'carDriver' }));
-            expect(MockedSegment.create).toHaveBeenCalledWith(expect.objectContaining({ mode: 'bicycle' }));
+            expect(MockedSegment.create).toHaveBeenCalledWith(expect.objectContaining({ mode: 'walk' }), surveyObjectsRegistry);
+            expect(MockedSegment.create).toHaveBeenCalledWith(expect.objectContaining({ mode: 'transit' }), surveyObjectsRegistry);
+            expect(MockedSegment.create).toHaveBeenCalledWith(expect.objectContaining({ mode: 'carDriver' }), surveyObjectsRegistry);
+            expect(MockedSegment.create).toHaveBeenCalledWith(expect.objectContaining({ mode: 'bicycle' }), surveyObjectsRegistry);
 
             expect(MockedSegment.create).toHaveBeenCalledTimes(4);
             expect(trip.addSegment).toHaveBeenCalledTimes(4);

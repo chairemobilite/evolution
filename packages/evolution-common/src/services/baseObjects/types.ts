@@ -30,6 +30,7 @@ export type SurveyObjects = {
  * validateParams runs on each survey object type.
  * We store the errors by survey object type to be able to convert them
  * to audits later.
+ * FIXME: uuids of parent objects whould be included in the errors.
  */
 export type ErrorsBySurveyObject = {
     interviewUuid: string;

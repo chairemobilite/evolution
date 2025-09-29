@@ -11,8 +11,14 @@ import { ExtendedPlaceAttributes } from '../Place';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Junction', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
 
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
@@ -75,7 +81,7 @@ describe('Junction', () => {
     };
 
     test('should create a Junction instance with valid attributes', () => {
-        const junction = new Junction(validJunctionAttributesWithPlace);
+        const junction = new Junction(validJunctionAttributesWithPlace, registry);
         expect(junction).toBeInstanceOf(Junction);
         expect(junction.attributes).toEqual(validJunctionAttributes);
     });
@@ -88,38 +94,38 @@ describe('Junction', () => {
     });
 
     test('should get uuid', () => {
-        const place = new Junction({ ...validJunctionAttributesWithPlace, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const place = new Junction({ ...validJunctionAttributesWithPlace, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(place._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a Junction instance with valid attributes', () => {
-        const result = Junction.create(validJunctionAttributesWithPlace);
+        const result = Junction.create(validJunctionAttributesWithPlace, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Junction);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = Junction.create(invalidAttributes);
+        const result = Junction.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[])).toHaveLength(1);
     });
 
     test('should create a Junction instance with extended attributes', () => {
-        const result = Junction.create(extendedJunctionAttributes);
+        const result = Junction.create(extendedJunctionAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Junction);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validJunctionAttributesWithPlace, _place: { ...validPlaceAttributes, name: -1 } };
-        const result = Junction.create(invalidAttributes);
+        const result = Junction.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a Junction instance', () => {
-        const junction = Junction.unserialize(validJunctionAttributesWithPlace);
+        const junction = Junction.unserialize(validJunctionAttributesWithPlace, registry);
         expect(junction).toBeInstanceOf(Junction);
         expect(junction.attributes).toEqual(validJunctionAttributes);
     });
@@ -136,7 +142,7 @@ describe('Junction', () => {
     });
 
     test('should validate a Junction instance', () => {
-        const junction = new Junction(validJunctionAttributesWithPlace);
+        const junction = new Junction(validJunctionAttributesWithPlace, registry);
         expect(junction.validate()).toBe(true);
         expect(junction.isValid()).toBe(true);
     });
@@ -150,7 +156,7 @@ describe('Junction', () => {
             ...validJunctionAttributesWithPlace,
             ...customAttributes,
         };
-        const junction = new Junction(junctionAttributesWithCustom);
+        const junction = new Junction(junctionAttributesWithCustom, registry);
         expect(junction).toBeInstanceOf(Junction);
         expect(junction.attributes).toEqual(validJunctionAttributes);
         expect(junction.customAttributes).toEqual(customAttributes);
@@ -192,7 +198,7 @@ describe('Junction', () => {
             ['parkingFeeType', 'paidByEmployer'],
             ['transitPlaceType', 'busStation'],
         ])('should set and get %s', (attribute, value) => {
-            const junction = new Junction(validJunctionAttributesWithPlace);
+            const junction = new Junction(validJunctionAttributesWithPlace, registry);
             junction[attribute] = value;
             expect(junction[attribute]).toEqual(value);
         });
@@ -206,7 +212,7 @@ describe('Junction', () => {
                 }],
                 ['attributes', validJunctionAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const junction = new Junction(extendedJunctionAttributes);
+                const junction = new Junction(extendedJunctionAttributes, registry);
                 expect(junction[attribute]).toEqual(value);
             });
         });
@@ -216,7 +222,7 @@ describe('Junction', () => {
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
             ['_place', validPlaceAttributes],
         ])('should set and get %s', (attribute, value) => {
-            const junction = new Junction(validJunctionAttributesWithPlace);
+            const junction = new Junction(validJunctionAttributesWithPlace, registry);
             junction[attribute] = value;
             expect(junction[attribute]).toEqual(value);
         });

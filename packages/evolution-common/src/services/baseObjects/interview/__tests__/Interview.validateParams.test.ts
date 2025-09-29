@@ -48,13 +48,13 @@ describe('Interview - validateParams', () => {
         expect(errors.some((e) => e.message.includes('_uuid'))).toBe(true);
     });
 
-    it('should validate _id', () => {
+    it('should validate id', () => {
         const params = { ...validParams };
         const errors = validateParams(params, { id: 'invalid-number', participant_id: 1 } as any);
         expect(errors.some((e) => e.message.includes('id'))).toBe(true);
     });
 
-    it('should validate _participant_id', () => {
+    it('should validate participant_id', () => {
         const params = { ...validParams };
         const errors = validateParams(params, { id: 1, participant_id: 'invalid-number' } as any);
         expect(errors.some((e) => e.message.includes('participant_id'))).toBe(true);

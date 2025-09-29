@@ -11,8 +11,15 @@ import { PlaceAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Organization', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
@@ -64,7 +71,7 @@ describe('Organization', () => {
     };
 
     test('should create an Organization instance with valid attributes', () => {
-        const organization = new Organization(validAttributes);
+        const organization = new Organization(validAttributes, registry);
         expect(organization).toBeInstanceOf(Organization);
         expect(organization.attributes).toEqual(validAttributes);
     });
@@ -77,38 +84,38 @@ describe('Organization', () => {
     });
 
     test('should get uuid', () => {
-        const organization = new Organization({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const organization = new Organization({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(organization._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create an Organization instance with valid attributes', () => {
-        const result = Organization.create(validAttributes);
+        const result = Organization.create(validAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Organization);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = Organization.create(invalidAttributes);
+        const result = Organization.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should create an Organization instance with extended attributes', () => {
-        const result = Organization.create(extendedAttributes);
+        const result = Organization.create(extendedAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Organization);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validAttributes, numberOfEmployees: 'invalid' };
-        const result = Organization.create(invalidAttributes);
+        const result = Organization.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize an Organization instance', () => {
-        const organization = Organization.unserialize(validAttributes);
+        const organization = Organization.unserialize(validAttributes, registry);
         expect(organization).toBeInstanceOf(Organization);
         expect(organization.attributes).toEqual(validAttributes);
     });
@@ -125,7 +132,7 @@ describe('Organization', () => {
     });
 
     test('should validate an Organization instance', () => {
-        const organization = new Organization(validAttributes);
+        const organization = new Organization(validAttributes, registry);
         expect(organization.validate()).toBe(true);
         expect(organization.isValid()).toBe(true);
     });
@@ -139,7 +146,7 @@ describe('Organization', () => {
             ...validAttributes,
             ...customAttributes,
         };
-        const organization = new Organization(organizationAttributes);
+        const organization = new Organization(organizationAttributes, registry);
         expect(organization).toBeInstanceOf(Organization);
         expect(organization.attributes).toEqual(validAttributes);
         expect(organization.customAttributes).toEqual(customAttributes);
@@ -181,7 +188,7 @@ describe('Organization', () => {
             ['contactEmail', 'jane.smith@example.com'],
             ['revenueLevel', 'Medium'],
         ])('should set and get %s', (attribute, value) => {
-            const organization = new Organization(validAttributes);
+            const organization = new Organization(validAttributes, registry);
             organization[attribute] = value;
             expect(organization[attribute]).toEqual(value);
         });
@@ -192,7 +199,7 @@ describe('Organization', () => {
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const organization = new Organization(extendedAttributes);
+                const organization = new Organization(extendedAttributes, registry);
                 expect(organization[attribute]).toEqual(value);
             });
         });
@@ -203,7 +210,7 @@ describe('Organization', () => {
             ['_vehicles', extendedAttributes.vehicles],
             ['_places', extendedAttributes.places],
         ])('should set and get %s', (attribute, value) => {
-            const organization = new Organization(validAttributes);
+            const organization = new Organization(validAttributes, registry);
             organization[attribute] = value;
             expect(organization[attribute]).toEqual(value);
         });
@@ -225,7 +232,7 @@ describe('Organization', () => {
                 _vehicles: vehicleAttributes,
             };
 
-            const result = Organization.create(organizationAttributes);
+            const result = Organization.create(organizationAttributes, registry);
             expect(isOk(result)).toBe(true);
             const organization = unwrap(result) as Organization;
             expect(organization.vehicles).toBeDefined();
@@ -255,7 +262,7 @@ describe('Organization', () => {
                 _places: placeAttributes,
             };
 
-            const result = Organization.create(organizationAttributes);
+            const result = Organization.create(organizationAttributes, registry);
             expect(isOk(result)).toBe(true);
             const organization = unwrap(result) as Organization;
             expect(organization.places).toBeDefined();

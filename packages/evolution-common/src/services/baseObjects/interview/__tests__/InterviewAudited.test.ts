@@ -8,6 +8,13 @@
 import { InterviewAudited } from '../InterviewAudited';
 import { Interview } from '../Interview';
 import { Audit } from '../../../audits/types';
+import { SurveyObjectsRegistry } from '../../SurveyObjectsRegistry';
+
+let registry: SurveyObjectsRegistry;
+
+beforeEach(() => {
+    registry = new SurveyObjectsRegistry();
+});
 
 describe('InterviewAudited', () => {
     let interview: Interview;
@@ -19,7 +26,7 @@ describe('InterviewAudited', () => {
             _uuid: '123e4567-e89b-12d3-a456-426614174000',
             accessCode: 'TEST123',
             assignedDate: '2023-05-01'
-        }, { id: 1, participant_id: 1 } as any);
+        }, { id: 1, participant_id: 1 } as any, registry);
 
         // Create an InterviewAudited instance
         interviewAudited = new InterviewAudited({

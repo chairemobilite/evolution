@@ -12,12 +12,22 @@ import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { ExtendedInterviewAttributesWithComposedObjects, Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { journeyAuditChecks } from '../JourneyAuditChecks';
-import { runJourneyAuditChecks } from '../../infrastructure/AuditCheckRunners';
-import { JourneyAuditCheckContext } from '../../infrastructure/AuditCheckContexts';
+import { runJourneyAuditChecks } from '../../AuditCheckRunners';
+import { JourneyAuditCheckContext } from '../../AuditCheckContexts';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 describe('JourneyAuditChecks', () => {
+    let surveyObjectsRegistry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        surveyObjectsRegistry = new SurveyObjectsRegistry();
+    });
+
+    afterEach(() => {
+        surveyObjectsRegistry.clear();
+    });
+
     const validUuid = uuidV4();
     const personUuid = uuidV4();
     const householdUuid = uuidV4();
@@ -38,7 +48,7 @@ describe('JourneyAuditChecks', () => {
             _uuid: personUuid,
             age: 30,
             ...overrides
-        } as ExtendedPersonAttributes);
+        } as ExtendedPersonAttributes, surveyObjectsRegistry);
     };
 
     const createMockHousehold = (overrides: Partial<Household> = {}) => {
@@ -60,27 +70,18 @@ describe('JourneyAuditChecks', () => {
         return new Interview({
             _uuid: interviewUuid,
             ...overrides
-        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any);
-    };
-
-    const createMockInterviewAttributes = (overrides: Partial<InterviewAttributes> = {}): InterviewAttributes => {
-        return {
-            uuid: interviewUuid,
+        } as ExtendedInterviewAttributesWithComposedObjects, {
             id: 123,
             participant_id: 1,
+            uuid: interviewUuid,
+            is_completed: false,
+            response: {},
+            validations: {},
             is_valid: true,
             is_active: true,
-            is_completed: false,
             is_questionable: false,
-            is_validated: false,
-            response: {
-                household: {},
-                persons: {}
-            },
-            validations: {},
-            survey_id: 1,
-            ...overrides
-        };
+            survey_id: 1
+        }, surveyObjectsRegistry);
     };
 
     const createFullContext = (overrides: Partial<JourneyAuditCheckContext> = {}): JourneyAuditCheckContext => {
@@ -90,83 +91,44 @@ describe('JourneyAuditChecks', () => {
             household: createMockHousehold(),
             home: createMockHome(),
             interview: createMockInterview(),
-            interviewAttributes: createMockInterviewAttributes(),
             ...overrides
         };
     };
 
-    describe('J_M_Uuid audit check', () => {
-        it('should pass when journey has UUID', () => {
+    describe('J_M_StartDate audit check', () => {
+        it('should pass when journey has start date', () => {
             const context = createFullContext({
-                journey: createMockJourney({ _uuid: validUuid })
+                journey: createMockJourney({ startDate: '2023-10-15' })
             });
 
-            const result = journeyAuditChecks.J_M_Uuid(context);
+            const result = journeyAuditChecks.J_M_StartDate(context);
 
             expect(result).toBeUndefined();
         });
 
-        it('should error when journey UUID is missing', () => {
+        it('should error when journey start date is missing', () => {
             const context = createFullContext({
-                journey: createMockJourney({ _uuid: undefined })
+                journey: createMockJourney({ startDate: undefined })
             });
 
-            const result = journeyAuditChecks.J_M_Uuid(context);
+            const result = journeyAuditChecks.J_M_StartDate(context);
 
             expect(result).toEqual({
+                objectType: 'journey',
+                objectUuid: validUuid,
+                errorCode: 'J_M_StartDate',
                 version: 1,
                 level: 'error',
-                message: 'Journey UUID is missing',
+                message: 'Journey start date is missing',
                 ignore: false
             });
         });
     });
-
-    describe('J_M_StartTime audit check', () => {
-        it('should pass when journey has start time', () => {
-            const context = createFullContext();
-
-            const result = journeyAuditChecks.J_M_StartTime(context);
-
-            expect(result).toBeUndefined();
-        });
-
-        it('should warn when journey start time is undefined', () => {
-            const context = createFullContext({
-                journey: createMockJourney({ startTime: undefined })
-            });
-
-            const result = journeyAuditChecks.J_M_StartTime(context);
-
-            expect(result).toEqual({
-                version: 1,
-                level: 'warning',
-                message: 'Journey start time is missing',
-                ignore: false
-            });
-        });
-
-        it('should warn when journey start time is null', () => {
-            const context = createFullContext({
-                journey: createMockJourney({ startTime: undefined })
-            });
-
-            const result = journeyAuditChecks.J_M_StartTime(context);
-
-            expect(result).toEqual({
-                version: 1,
-                level: 'warning',
-                message: 'Journey start time is missing',
-                ignore: false
-            });
-        });
-    });
-
 
     describe('runJourneyAuditChecks function', () => {
         it('should run all journey audits and format results', () => {
             const context = createFullContext({
-                journey: createMockJourney({ _uuid: validUuid, startTime: 28800 })
+                journey: createMockJourney({ startDate: '2023-10-15' })
             });
 
             const audits = runJourneyAuditChecks(context, journeyAuditChecks);
@@ -177,50 +139,22 @@ describe('JourneyAuditChecks', () => {
 
         it('should include failed audits in results', () => {
             const context = createFullContext({
-                journey: createMockJourney({
-                    startTime: undefined,
-                    endTime: 28800
-                })
+                journey: createMockJourney({ startDate: undefined })
             });
 
             const audits = runJourneyAuditChecks(context, journeyAuditChecks);
 
             expect(audits).toHaveLength(1);
 
-            // Check start time audit
-            const startTimeAudit = audits.find((audit) => audit.errorCode === 'J_M_StartTime');
-            expect(startTimeAudit).toEqual({
+            // Check start date audit
+            const startDateAudit = audits.find((audit) => audit.errorCode === 'J_M_StartDate');
+            expect(startDateAudit).toEqual({
                 objectType: 'journey',
                 objectUuid: validUuid,
-                errorCode: 'J_M_StartTime',
+                errorCode: 'J_M_StartDate',
                 version: 1,
-                level: 'warning',
-                message: 'Journey start time is missing',
-                ignore: false
-            });
-        });
-
-        it('should include multiple failed audits in results', () => {
-            // Test with missing start time (UUID is valid, but startTime is missing)
-            const context = createFullContext({
-                journey: createMockJourney({
-                    startTime: undefined
-                })
-            });
-
-            const audits = runJourneyAuditChecks(context, journeyAuditChecks);
-
-            expect(audits).toHaveLength(1); // Only start time audit should fail
-
-            // Check start time audit
-            const startTimeAudit = audits.find((audit) => audit.errorCode === 'J_M_StartTime');
-            expect(startTimeAudit).toEqual({
-                objectType: 'journey',
-                objectUuid: validUuid,
-                errorCode: 'J_M_StartTime',
-                version: 1,
-                level: 'warning',
-                message: 'Journey start time is missing',
+                level: 'error',
+                message: 'Journey start date is missing',
                 ignore: false
             });
         });

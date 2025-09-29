@@ -6,12 +6,13 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
-import { createPersonsForHousehold } from '../PersonFactory';
+import { populatePersonsForHousehold } from '../PersonFactory';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 // Mock Person.create
 jest.mock('evolution-common/lib/services/baseObjects/Person', () => ({
@@ -22,11 +23,13 @@ jest.mock('evolution-common/lib/services/baseObjects/Person', () => ({
 const MockedPerson = Person as jest.MockedClass<typeof Person>;
 
 describe('PersonFactory', () => {
+    let surveyObjectsRegistry: SurveyObjectsRegistry;
     let surveyObjectsWithErrors: SurveyObjectsWithErrors;
     let household: Household;
-    let interviewAttributes: InterviewAttributes;
+    let correctedResponse: CorrectedResponse;
 
     beforeEach(() => {
+        surveyObjectsRegistry = new SurveyObjectsRegistry();
         surveyObjectsWithErrors = {
             interview: undefined,
             household: undefined,
@@ -49,30 +52,27 @@ describe('PersonFactory', () => {
         household = new Household({
             _uuid: uuidV4(),
             size: 2
-        });
+        }, surveyObjectsRegistry);
         household.members = [];
 
-        interviewAttributes = {
-            uuid: 'interview-uuid',
-            corrected_response: {
-                household: {
-                    persons: {
-                        'person-1': {
-                            _uuid: 'person-1',
-                            _sequence: 1,
-                            age: 30,
-                            gender: 'male'
-                        },
-                        'person-2': {
-                            _uuid: 'person-2',
-                            _sequence: 2,
-                            age: 25,
-                            gender: 'female'
-                        }
+        correctedResponse = {
+            household: {
+                persons: {
+                    'person-1': {
+                        _uuid: 'person-1',
+                        _sequence: 1,
+                        age: 30,
+                        gender: 'male'
+                    },
+                    'person-2': {
+                        _uuid: 'person-2',
+                        _sequence: 2,
+                        age: 25,
+                        gender: 'female'
                     }
                 }
             }
-        } as unknown as InterviewAttributes;
+        } as unknown as CorrectedResponse;
 
         surveyObjectsWithErrors.household = household;
 
@@ -80,7 +80,7 @@ describe('PersonFactory', () => {
         jest.clearAllMocks();
     });
 
-    describe('createPersonsForHousehold', () => {
+    describe('populatePersonsForHousehold', () => {
         it('should create persons successfully and add them to household', async () => {
             // Mock successful person creation
             const mockPerson1 = {
@@ -99,22 +99,28 @@ describe('PersonFactory', () => {
                 .mockReturnValueOnce(createOk(mockPerson1))
                 .mockReturnValueOnce(createOk(mockPerson2));
 
-            await createPersonsForHousehold(surveyObjectsWithErrors, household, interviewAttributes);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
 
             // Verify Person.create was called with correct attributes
             expect(MockedPerson.create).toHaveBeenCalledTimes(2);
-            expect(MockedPerson.create).toHaveBeenCalledWith({
-                _uuid: 'person-1',
-                _sequence: 1,
-                age: 30,
-                gender: 'male'
-            });
-            expect(MockedPerson.create).toHaveBeenCalledWith({
-                _uuid: 'person-2',
-                _sequence: 2,
-                age: 25,
-                gender: 'female'
-            });
+            expect(MockedPerson.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    _uuid: 'person-1',
+                    _sequence: 1,
+                    age: 30,
+                    gender: 'male'
+                }),
+                surveyObjectsRegistry
+            );
+            expect(MockedPerson.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    _uuid: 'person-2',
+                    _sequence: 2,
+                    age: 25,
+                    gender: 'female'
+                }),
+                surveyObjectsRegistry
+            );
 
             // Verify persons were added to household in correct order
             expect(household.members).toHaveLength(2);
@@ -139,7 +145,7 @@ describe('PersonFactory', () => {
                     assignColor: jest.fn()
                 } as unknown as Person));
 
-            await createPersonsForHousehold(surveyObjectsWithErrors, household, interviewAttributes);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
 
             // Verify error was stored
             expect(surveyObjectsWithErrors.errorsByObject.personsByUuid['person-1']).toEqual(errors);
@@ -150,7 +156,7 @@ describe('PersonFactory', () => {
         });
 
         it('should skip persons with undefined uuid', async () => {
-            interviewAttributes.corrected_response!.household!.persons = {
+            correctedResponse.household!.persons = {
                 'undefined': {
                     _sequence: 1,
                     _uuid: 'undefined',
@@ -168,7 +174,7 @@ describe('PersonFactory', () => {
                 assignColor: jest.fn()
             } as unknown as Person));
 
-            await createPersonsForHousehold(surveyObjectsWithErrors, household, interviewAttributes);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
 
             // Should only create one person (skip undefined)
             expect(MockedPerson.create).toHaveBeenCalledTimes(1);
@@ -178,15 +184,15 @@ describe('PersonFactory', () => {
         it('should handle missing household', async () => {
             surveyObjectsWithErrors.household = undefined;
 
-            await createPersonsForHousehold(surveyObjectsWithErrors, household, interviewAttributes);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
 
             expect(MockedPerson.create).not.toHaveBeenCalled();
         });
 
         it('should handle missing persons attributes', async () => {
-            interviewAttributes.corrected_response!.household!.persons = undefined;
+            correctedResponse.household!.persons = undefined;
 
-            await createPersonsForHousehold(surveyObjectsWithErrors, household, interviewAttributes);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
 
             expect(MockedPerson.create).not.toHaveBeenCalled();
             expect(household.members).toHaveLength(0);
@@ -194,7 +200,7 @@ describe('PersonFactory', () => {
 
         it('should sort persons by sequence', async () => {
             // Create persons with mixed sequence order
-            interviewAttributes.corrected_response!.household!.persons = {
+            correctedResponse.household!.persons = {
                 'person-3': {
                     _uuid: 'person-3',
                     _sequence: 3,
@@ -217,12 +223,12 @@ describe('PersonFactory', () => {
                 .mockReturnValueOnce(createOk({ _uuid: 'person-2', assignColor: jest.fn() } as unknown as Person))
                 .mockReturnValueOnce(createOk({ _uuid: 'person-3', assignColor: jest.fn() } as unknown as Person));
 
-            await createPersonsForHousehold(surveyObjectsWithErrors, household, interviewAttributes);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
 
             // Verify persons were created in sequence order (1, 2, 3)
-            expect(MockedPerson.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }));
-            expect(MockedPerson.create).toHaveBeenNthCalledWith(2, expect.objectContaining({ _sequence: 2 }));
-            expect(MockedPerson.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }));
+            expect(MockedPerson.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }), surveyObjectsRegistry);
+            expect(MockedPerson.create).toHaveBeenNthCalledWith(2, expect.objectContaining({ _sequence: 2 }), surveyObjectsRegistry);
+            expect(MockedPerson.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }), surveyObjectsRegistry);
         });
     });
 });

@@ -85,6 +85,7 @@ export type SerializedExtendedHouseholdAttributes = {
  * uuid for the household must be equal to the uuid of the interview
  */
 export class Household extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: HouseholdAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -96,8 +97,10 @@ export class Household extends Uuidable implements IValidatable {
 
     static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
 
-    constructor(params: ExtendedHouseholdAttributes) {
+    constructor(params: ExtendedHouseholdAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as HouseholdAttributes;
         this._customAttributes = {};
@@ -110,12 +113,20 @@ export class Household extends Uuidable implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.members = ConstructorUtils.initializeComposedArrayAttributes(params._members, Person.unserialize);
-        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params._vehicles, Vehicle.unserialize);
+        this.members = ConstructorUtils.initializeComposedArrayAttributes(
+            params._members,
+            (params) => Person.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(
+            params._vehicles,
+            (params) => Vehicle.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
         this.homeUuid = params._homeUuid as Optional<string>;
         this.interviewUuid = params._interviewUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerHousehold(this);
+        this._surveyObjectsRegistry.registerHousehold(this);
     }
 
     get attributes(): HouseholdAttributes {
@@ -290,7 +301,7 @@ export class Household extends Uuidable implements IValidatable {
         if (!this._homeUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getPlace(this._homeUuid) as Home;
+        return this._surveyObjectsRegistry.getPlace(this._homeUuid) as Home;
     }
 
     get interviewUuid(): Optional<string> {
@@ -305,7 +316,7 @@ export class Household extends Uuidable implements IValidatable {
         if (!this._interviewUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getInterview(this._interviewUuid);
+        return this._surveyObjectsRegistry.getInterview(this._interviewUuid);
     }
 
     /**
@@ -313,14 +324,20 @@ export class Household extends Uuidable implements IValidatable {
      * @param {ExtendedHouseholdAttributes | SerializedExtendedHouseholdAttributes} params - Sanitized household parameters
      * @returns {Household} New Household instance
      */
-    static unserialize(params: ExtendedHouseholdAttributes | SerializedExtendedHouseholdAttributes): Household {
+    static unserialize(
+        params: ExtendedHouseholdAttributes | SerializedExtendedHouseholdAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Household {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Household(flattenedParams as ExtendedHouseholdAttributes);
+        return new Household(flattenedParams as ExtendedHouseholdAttributes, surveyObjectsRegistry);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<Household> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Household> {
         const errors = Household.validateParams(dirtyParams);
-        const household = errors.length === 0 ? new Household(dirtyParams) : undefined;
+        const household = errors.length === 0 ? new Household(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }

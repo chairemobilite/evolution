@@ -6,47 +6,30 @@
  */
 
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { SegmentAuditCheckContext, SegmentAuditCheckFunction } from '../infrastructure/AuditCheckContexts';
+import { SegmentAuditCheckContext, SegmentAuditCheckFunction } from '../AuditCheckContexts';
 
-/**
- * Segment-specific audit check functions
- */
 export const segmentAuditChecks: { [errorCode: string]: SegmentAuditCheckFunction } = {
     /**
-     * Check if segment has missing UUID
+     * Check if segment mode is missing
+     * @param context - SegmentAuditCheckContext
+     * @returns AuditForObject
      */
-    S_M_Uuid: (context: SegmentAuditCheckContext): Partial<AuditForObject> | undefined => {
-        const { segment } = context;
-        const hasUuid = !!segment._uuid;
-
-        if (!hasUuid) {
-            return {
-                version: 1,
-                level: 'error',
-                message: 'Segment UUID is missing',
-                ignore: false
-            };
-        }
-
-        return undefined; // No audit needed
-    },
-
-    /**
-     * Check if segment has missing mode
-     */
-    S_M_Mode: (context: SegmentAuditCheckContext): Partial<AuditForObject> | undefined => {
+    S_M_Mode: (context: SegmentAuditCheckContext): AuditForObject | undefined => {
         const { segment } = context;
         const hasMode = !!segment.mode;
 
         if (!hasMode) {
             return {
+                objectType: 'segment',
+                objectUuid: segment._uuid!,
+                errorCode: 'S_M_Mode',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Segment mode is missing',
                 ignore: false
             };
         }
 
-        return undefined; // No audit needed
+        return undefined;
     }
 };

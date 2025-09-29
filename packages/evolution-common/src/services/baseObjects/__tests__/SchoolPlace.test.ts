@@ -10,8 +10,14 @@ import { placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('SchoolPlace', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
 
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
@@ -60,7 +66,7 @@ describe('SchoolPlace', () => {
     };
 
     test('should create a SchoolPlace instance with valid attributes', () => {
-        const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes);
+        const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes, registry);
         expect(schoolPlace).toBeInstanceOf(SchoolPlace);
         expect(schoolPlace.attributes).toEqual(validSchoolPlaceAttributes);
     });
@@ -73,38 +79,38 @@ describe('SchoolPlace', () => {
     });
 
     test('should get uuid', () => {
-        const place = new SchoolPlace({ ...validSchoolPlaceAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const place = new SchoolPlace({ ...validSchoolPlaceAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry    );
         expect(place._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a SchoolPlace instance with valid attributes', () => {
-        const result = SchoolPlace.create(validPlaceAttributes);
+        const result = SchoolPlace.create(validPlaceAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(SchoolPlace);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = SchoolPlace.create(invalidAttributes);
+        const result = SchoolPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[])).toHaveLength(1);
     });
 
     test('should create a SchoolPlace instance with extended attributes', () => {
-        const result = SchoolPlace.create(extendedSchoolPlaceAttributes);
+        const result = SchoolPlace.create(extendedSchoolPlaceAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(SchoolPlace);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validPlaceAttributes, name: -1 };
-        const result = SchoolPlace.create(invalidAttributes);
+        const result = SchoolPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a SchoolPlace instance', () => {
-        const schoolPlace = SchoolPlace.unserialize(validSchoolPlaceAttributes);
+        const schoolPlace = SchoolPlace.unserialize(validSchoolPlaceAttributes, registry);
         expect(schoolPlace).toBeInstanceOf(SchoolPlace);
         expect(schoolPlace.attributes).toEqual(validSchoolPlaceAttributes);
     });
@@ -121,7 +127,7 @@ describe('SchoolPlace', () => {
     });
 
     test('should validate a SchoolPlace instance', () => {
-        const schoolPlace = new SchoolPlace(validPlaceAttributes);
+        const schoolPlace = new SchoolPlace(validPlaceAttributes, registry);
         expect(schoolPlace.validate()).toBe(true);
         expect(schoolPlace.isValid()).toBe(true);
     });
@@ -135,7 +141,7 @@ describe('SchoolPlace', () => {
             ...validPlaceAttributes,
             ...customAttributes,
         };
-        const place = new SchoolPlace(placeAttributes);
+        const place = new SchoolPlace(placeAttributes, registry);
         expect(place).toBeInstanceOf(SchoolPlace);
         expect(place.attributes).toEqual(validPlaceAttributes);
         expect(place.customAttributes).toEqual(customAttributes);
@@ -163,7 +169,7 @@ describe('SchoolPlace', () => {
             ['parkingType', 'streetside'],
             ['parkingFeeType', 'paidByStudent'],
         ])('should set and get %s', (attribute, value) => {
-            const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes);
+            const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes, registry);
             schoolPlace[attribute] = value;
             expect(schoolPlace[attribute]).toEqual(value);
         });
@@ -177,7 +183,7 @@ describe('SchoolPlace', () => {
                 }],
                 ['attributes', validSchoolPlaceAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const schoolPlace = new SchoolPlace(extendedSchoolPlaceAttributes);
+                const schoolPlace = new SchoolPlace(extendedSchoolPlaceAttributes, registry);
                 expect(schoolPlace[attribute]).toEqual(value);
             });
         });
@@ -186,7 +192,7 @@ describe('SchoolPlace', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
         ])('should set and get %s', (attribute, value) => {
-            const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes);
+            const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes, registry);
             schoolPlace[attribute] = value;
             expect(schoolPlace[attribute]).toEqual(value);
         });

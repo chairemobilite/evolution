@@ -11,8 +11,15 @@ import { Vehicle } from '../Vehicle';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Household', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
@@ -79,7 +86,7 @@ describe('Household', () => {
     };
 
     test('should create a Household instance with valid attributes', () => {
-        const household = new Household(validAttributes);
+        const household = new Household(validAttributes, registry);
         expect(household).toBeInstanceOf(Household);
         expect(household.attributes).toEqual(validAttributes);
     });
@@ -92,38 +99,38 @@ describe('Household', () => {
     });
 
     test('should get uuid', () => {
-        const household = new Household({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const household = new Household({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(household._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a Household instance with valid attributes', () => {
-        const result = Household.create(validAttributes);
+        const result = Household.create(validAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Household);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = Household.create(invalidAttributes);
+        const result = Household.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should create a Household instance with extended attributes', () => {
-        const result = Household.create(extendedAttributes);
+        const result = Household.create(extendedAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Household);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validAttributes, size: -1 };
-        const result = Household.create(invalidAttributes);
+        const result = Household.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a Household instance', () => {
-        const household = Household.unserialize(validAttributes);
+        const household = Household.unserialize(validAttributes, registry);
         expect(household).toBeInstanceOf(Household);
         expect(household.attributes).toEqual(validAttributes);
     });
@@ -174,7 +181,7 @@ describe('Household', () => {
     });
 
     test('should validate a Household instance', () => {
-        const household = new Household(validAttributes);
+        const household = new Household(validAttributes, registry);
         expect(household.validate()).toBe(true);
         expect(household.isValid()).toBe(true);
     });
@@ -188,14 +195,14 @@ describe('Household', () => {
             ...validAttributes,
             ...customAttributes,
         };
-        const household = new Household(householdAttributes);
+        const household = new Household(householdAttributes, registry);
         expect(household).toBeInstanceOf(Household);
         expect(household.attributes).toEqual(validAttributes);
         expect(household.customAttributes).toEqual(customAttributes);
     });
 
     test('should allow clearing optional fields with undefined', () => {
-        const household = new Household(validAttributes);
+        const household = new Household(validAttributes, registry);
         household.bicycleNumber = undefined;
         expect(household.bicycleNumber).toBeUndefined();
     });
@@ -218,7 +225,7 @@ describe('Household', () => {
             ['contactEmail', 'updated@example.com'],
             ['atLeastOnePersonWithDisability', 'no'],
         ])('should set and get %s', (attribute, value) => {
-            const household = new Household(validAttributes);
+            const household = new Household(validAttributes, registry);
             household[attribute] = value;
             expect(household[attribute]).toEqual(value);
         });
@@ -229,7 +236,7 @@ describe('Household', () => {
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const household = new Household(extendedAttributes);
+                const household = new Household(extendedAttributes, registry);
                 expect(household[attribute]).toEqual(value);
             });
         });
@@ -240,7 +247,7 @@ describe('Household', () => {
             ['_members', extendedAttributes._members],
             ['_vehicles', extendedAttributes._vehicles],
         ])('should set and get %s', (attribute, value) => {
-            const household = new Household(validAttributes);
+            const household = new Household(validAttributes, registry);
             household[attribute] = value;
             expect(household[attribute]).toEqual(value);
         });
@@ -269,7 +276,7 @@ describe('Household', () => {
             _members: membersAttributes,
         };
 
-        const result = Household.create(householdAttributes);
+        const result = Household.create(householdAttributes, registry);
         expect(isOk(result)).toBe(true);
         const household = unwrap(result) as Household;
         expect(household.members).toBeDefined();
@@ -296,7 +303,7 @@ describe('Household', () => {
             _vehicles: vehiclesAttributes,
         };
 
-        const result = Household.create(householdAttributes);
+        const result = Household.create(householdAttributes, registry);
         expect(isOk(result)).toBe(true);
         const household = unwrap(result) as Household;
         expect(household.vehicles).toBeDefined();
@@ -328,7 +335,7 @@ describe('Household', () => {
             _members: invalidMembersAttributes,
         };
 
-        const result = Household.create(householdAttributes);
+        const result = Household.create(householdAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         const errors = unwrap(result) as Error[];
         expect(errors.length).toBe(2);
@@ -352,7 +359,7 @@ describe('Household', () => {
             _vehicles: invalidVehiclesAttributes,
         };
 
-        const result = Household.create(householdAttributes);
+        const result = Household.create(householdAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         const errors = unwrap(result) as Error[];
         expect(errors.length).toBe(1);

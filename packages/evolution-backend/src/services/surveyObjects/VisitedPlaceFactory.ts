@@ -14,7 +14,8 @@ import { Place } from 'evolution-common/lib/services/baseObjects/Place';
 import { Optional } from 'evolution-common/lib/types/Optional.type';
 import { isOk } from 'evolution-common/lib/types/Result.type';
 import projectConfig from '../../config/projectConfig';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 /**
  * Create all visited places for a journey
@@ -24,15 +25,17 @@ import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire
  * @param {Journey} journey - The journey to generate visited places for
  * @param {ExtendedJourneyAttributes} journeyAttributes - Journey attributes containing visited places data
  * @param {Optional<Home>} home - The home object for geography assignment
- * @param {InterviewAttributes} interviewAttributes - Interview attributes containing visited places data
+ * @param {CorrectedResponse} correctedResponse - corrected response,
+ * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  */
-export async function createVisitedPlacesForJourney(
+export async function populateVisitedPlacesForJourney(
     surveyObjectsWithErrors: SurveyObjectsWithErrors,
     person: Person,
     journey: Journey,
     journeyAttributes: ExtendedJourneyAttributes,
     home: Optional<Home>,
-    interviewAttributes: InterviewAttributes
+    correctedResponse: CorrectedResponse,
+    surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
     const visitedPlacesAttributes = journeyAttributes?.visitedPlaces || {};
 
@@ -48,18 +51,17 @@ export async function createVisitedPlacesForJourney(
             continue;
         }
 
-        console.log(`        ==== VisitedPlace ${visitedPlaceUuid} creation ====`);
-
         // Parse visited place attributes if parser is available
         if (projectConfig.surveyObjectParsers?.visitedPlace) {
-            projectConfig.surveyObjectParsers.visitedPlace(visitedPlaceAttributes, interviewAttributes);
+            projectConfig.surveyObjectParsers.visitedPlace(visitedPlaceAttributes, correctedResponse);
         }
 
-        const visitedPlaceResult = VisitedPlace.create(visitedPlaceAttributes as ExtendedVisitedPlaceAttributes);
+        const visitedPlaceResult = VisitedPlace.create(
+            visitedPlaceAttributes as ExtendedVisitedPlaceAttributes,
+            surveyObjectsRegistry
+        );
 
         if (isOk(visitedPlaceResult)) {
-            console.log(`        ==== VisitedPlace ${visitedPlaceUuid} created successfully ====`);
-
             const visitedPlace = visitedPlaceResult.result;
 
             if (!visitedPlace.place) {
@@ -80,10 +82,13 @@ export async function createVisitedPlacesForJourney(
                     visitedPlace.place = person.schoolPlaces[0];
                 } else {
                     // we need to fetch place from the geography attribute directly
-                    const placeResult = Place.create({
-                        name: visitedPlaceAttributes.name,
-                        geography: visitedPlaceAttributes.geography
-                    });
+                    const placeResult = Place.create(
+                        {
+                            name: visitedPlaceAttributes.name,
+                            geography: visitedPlaceAttributes.geography
+                        },
+                        surveyObjectsRegistry
+                    );
                     if (isOk(placeResult)) {
                         visitedPlace.place = placeResult.result;
                     } else {

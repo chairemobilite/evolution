@@ -122,7 +122,7 @@ const mockDispatch = jest.fn().mockImplementation((action) => {
 });
 const mockPrepareSectionWidgets = prepareSectionWidgets as jest.MockedFunction<typeof prepareSectionWidgets>;
 // Interview to use as state, reset before each test, but can be updated by the update state action
-let interviewAsState = _cloneDeep(interviewAttributes)
+let interviewAsState = _cloneDeep(interviewAttributes);
 const mockGetState = jest.fn().mockImplementation(() => ({
     survey: {
         interview: interviewAsState,
@@ -138,7 +138,7 @@ const mockGetState = jest.fn().mockImplementation(() => ({
 beforeEach(() => {
     jest.clearAllMocks();
     fetchStatus = [];
-    interviewAsState = _cloneDeep(interviewAttributes)
+    interviewAsState = _cloneDeep(interviewAttributes);
 });
 
 describe('Update interview', () => {
@@ -399,7 +399,7 @@ describe('Update interview', () => {
         testInterview.response.group = {
             obj1: { field1: 'value1', field2: 'value2' },
             obj2: { field1: 'value3', field2: 'value4' }
-        }
+        };
 
         // Prepare mock and test data, to remove the obj2 object
         const updateCallback = jest.fn();
@@ -424,22 +424,22 @@ describe('Update interview', () => {
 
         // Verifications
         expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
-        
+
         // Extract the actual object argument and verify with a strict comparison approach
         const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
         // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
         expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
-        
+
         // Verify the rest of the arguments separately
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith(
-            'section', 
-            expect.anything(), 
-            { 'response.group.obj2': true, 'response.group.obj1.field1': true }, 
-            { ...valuesByPath }, 
-            false, 
+            'section',
+            expect.anything(),
+            { 'response.group.obj2': true, 'response.group.obj1.field1': true },
+            { ...valuesByPath },
+            false,
             testUser
         );
-        
+
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
             method: 'POST',
@@ -702,7 +702,7 @@ describe('Update interview', () => {
             path: 'response.section1.q2',
             value: 1234
         };
-        
+
         // Both path in user action and valuesByPath should have been updated for both actions
         const expectedInterviewToPrepareForCall1 = _cloneDeep(interviewAttributes);
         (expectedInterviewToPrepareForCall1.response as any).section1.q1 = userActionCall1.value;
@@ -869,7 +869,7 @@ describe('startNavigate', () => {
         });
 
     });
-    
+
     test('should navigation to next section if called without parameters, but with prior navigation', async () => {
         // Prepare mock and test data
         const targetSection = { sectionShortname: 'nextSection' };
@@ -1039,13 +1039,13 @@ describe('startNavigate', () => {
         const validationValuesByPath = { 'response.section1.q2': true, 'response.section1.q3': 4 };
         // Nav values at the end
         const navValuesByPath = { 'response.section1.q1': 'foo', 'response.navField': 3 };
-        
+
         mockNavigate.mockReturnValueOnce({ targetSection, valuesByPath: navValuesByPath });
-        validateAndPrepareSectionSpy.mockImplementationOnce((_s, interview, _a, valuesByPath, _U, _user) => [ interview, validationValuesByPath ])
+        validateAndPrepareSectionSpy.mockImplementationOnce((_s, interview, _a, valuesByPath, _U, _user) => [ interview, validationValuesByPath ]);
         mockGetState.mockImplementationOnce(mockStateWithNav);
 
         // Do the actual test
-        const callback = SurveyActions.startNavigate({ valuesByPath: requestValuesByPath});
+        const callback = SurveyActions.startNavigate({ valuesByPath: requestValuesByPath });
         await callback(mockDispatch, mockGetState);
 
         // Verify validation function call
@@ -1086,7 +1086,7 @@ describe('startNavigate', () => {
         // Prepare mock and test data
         const targetSection = { sectionShortname: 'nextSection' };
         mockNavigate.mockReturnValueOnce({ targetSection });
-        validateAndPrepareSectionSpy.mockImplementationOnce((_s, interview, _a, valuesByPath, _U, _user) => [ {...interview, allWidgetsValid: false }, valuesByPath ])
+        validateAndPrepareSectionSpy.mockImplementationOnce((_s, interview, _a, valuesByPath, _U, _user) => [ { ...interview, allWidgetsValid: false }, valuesByPath ]);
         mockGetState.mockImplementationOnce(mockStateWithNav);
 
         // Do the actual test
@@ -1118,7 +1118,7 @@ describe('startNavigate', () => {
     test('Should add hidden widgets if previous section had invisible widgets', async () => {
         // Prepare mock and test data
         const targetSection = { sectionShortname: 'nextSection' };
-        
+
         mockNavigate.mockReturnValueOnce({ targetSection });
         // Mock the prepareSectionWidgets to return some invisible widgets
         const nextWidgetStatuses = {
@@ -1455,7 +1455,7 @@ describe('startSetInterview', () => {
     });
 
     test('No interview returned, should give an error message', async () => {
-        const consoleErrorSpy = jest.spyOn(console, 'error')
+        const consoleErrorSpy = jest.spyOn(console, 'error');
 
         // Prepare mock and test data
         jsonFetchResolve.mockResolvedValue({ status: 'success' });

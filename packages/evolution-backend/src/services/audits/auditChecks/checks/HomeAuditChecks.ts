@@ -5,56 +5,53 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { HomeAuditCheckContext, HomeAuditCheckFunction } from '../infrastructure/AuditCheckContexts';
+import { isFeature, isPoint } from 'geojson-validation';
 
-/**
- * Home-specific audit check functions
- */
+import { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { HomeAuditCheckContext, HomeAuditCheckFunction } from '../AuditCheckContexts';
+
 export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = {
     /**
-     * Check if home has missing or invalid geographic coordinates
+     * Check if home is missing geography
+     * @param context - HomeAuditCheckContext
+     * @returns AuditForObject
      */
-    HM_M_Geography: (context: HomeAuditCheckContext): Partial<AuditForObject> | undefined => {
+    HM_M_Geography: (context: HomeAuditCheckContext): AuditForObject | undefined => {
         const { home } = context;
         const geography = home.geography;
 
         if (!geography) {
             return {
+                objectType: 'home',
+                objectUuid: home._uuid!,
+                errorCode: 'HM_M_Geography',
                 version: 1,
-                level: 'warning',
+                level: 'error',
                 message: 'Home geography is missing',
                 ignore: false
             };
-        }
-
-        if (geography.type === 'Feature' && geography.geometry?.type === 'Point') {
-            const coordinates = geography.geometry.coordinates;
-            if (!coordinates || coordinates.length !== 2) {
-                return {
-                    version: 1,
-                    level: 'error',
-                    message: 'Home coordinates are invalid',
-                    ignore: false
-                };
-            }
         }
 
         return undefined; // No audit needed
     },
 
     /**
-     * Check if home has missing UUID
+     * Check if home has an invalid geography
+     * @param context - HomeAuditCheckContext
+     * @returns AuditForObject
      */
-    HM_M_Uuid: (context: HomeAuditCheckContext): Partial<AuditForObject> | undefined => {
+    HM_I_Geography: (context: HomeAuditCheckContext): AuditForObject | undefined => {
         const { home } = context;
-        const hasUuid = !!home._uuid;
+        const geography = home.geography;
 
-        if (!hasUuid) {
+        if (geography && (!isFeature(geography) || !isPoint(geography.geometry))) {
             return {
+                objectType: 'home',
+                objectUuid: home._uuid!,
+                errorCode: 'HM_I_Geography',
                 version: 1,
                 level: 'error',
-                message: 'Home UUID is missing',
+                message: 'Home geography is invalid',
                 ignore: false
             };
         }

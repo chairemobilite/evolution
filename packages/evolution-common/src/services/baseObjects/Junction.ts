@@ -10,7 +10,7 @@ import _omit from 'lodash/omit';
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
-import { WeightableAttributes, Weight } from './Weight';
+import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import * as PlAttr from './attributeTypes/PlaceAttributes';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Place, ExtendedPlaceAttributes, SerializedExtendedPlaceAttributes } from './Place';
@@ -61,6 +61,7 @@ export type SerializedExtendedJunctionAttributes = {
  * Junctions are optional in most surveys
  */
 export class Junction extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: JunctionAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -70,8 +71,10 @@ export class Junction extends Uuidable implements IValidatable {
 
     static _confidentialAttributes = [];
 
-    constructor(params: ExtendedJunctionAttributes) {
+    constructor(params: ExtendedJunctionAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as JunctionAttributes;
         this._customAttributes = {};
@@ -84,10 +87,14 @@ export class Junction extends Uuidable implements IValidatable {
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.place = ConstructorUtils.initializeComposedAttribute(params._place, Place.unserialize);
+        this.place = ConstructorUtils.initializeComposedAttribute(
+            params._place,
+            (params) => Place.unserialize(params, this._surveyObjectsRegistry),
+            this._surveyObjectsRegistry
+        );
         this.tripUuid = params._tripUuid as Optional<string>;
 
-        SurveyObjectsRegistry.getInstance().registerJunction(this);
+        this._surveyObjectsRegistry.registerJunction(this);
     }
 
     get attributes(): JunctionAttributes {
@@ -206,7 +213,7 @@ export class Junction extends Uuidable implements IValidatable {
         if (!this._tripUuid) {
             return undefined;
         }
-        return SurveyObjectsRegistry.getInstance().getTrip(this._tripUuid);
+        return this._surveyObjectsRegistry.getTrip(this._tripUuid);
     }
 
     /**
@@ -214,14 +221,20 @@ export class Junction extends Uuidable implements IValidatable {
      * @param {ExtendedJunctionAttributes | SerializedExtendedJunctionAttributes} params - Sanitized junction parameters
      * @returns {Junction} New Junction instance
      */
-    static unserialize(params: ExtendedJunctionAttributes | SerializedExtendedJunctionAttributes): Junction {
+    static unserialize(
+        params: ExtendedJunctionAttributes | SerializedExtendedJunctionAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Junction {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Junction(flattenedParams as ExtendedJunctionAttributes);
+        return new Junction(flattenedParams as ExtendedJunctionAttributes, surveyObjectsRegistry);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<Junction> {
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Junction> {
         const errors = Junction.validateParams(dirtyParams);
-        const junction = errors.length === 0 ? new Junction(dirtyParams) : undefined;
+        const junction = errors.length === 0 ? new Junction(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }
@@ -255,6 +268,9 @@ export class Junction extends Uuidable implements IValidatable {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        // Validate _weights:
+        errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
         // Validate StartEndable attributes:
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));

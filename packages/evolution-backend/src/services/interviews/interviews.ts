@@ -207,7 +207,7 @@ export default class Interviews {
                             .then(
                                 () =>
                                     new Promise((res1, _rej1) => {
-                                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interview)
+                                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview)
                                             .then(() => {
                                                 res1(true);
                                             })
@@ -224,7 +224,7 @@ export default class Interviews {
                                 queryStream.resume();
                             });
                     } else {
-                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudit(interview)
+                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview)
                             .catch((error) => {
                                 console.error('Error running and saving interview audits', error);
                             })

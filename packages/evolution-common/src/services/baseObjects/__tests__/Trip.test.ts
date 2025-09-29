@@ -13,8 +13,15 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Trip', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
@@ -134,7 +141,7 @@ describe('Trip', () => {
     };
 
     test('should create a Trip instance with valid attributes', () => {
-        const trip = new Trip(validAttributes);
+        const trip = new Trip(validAttributes, registry);
         expect(trip).toBeInstanceOf(Trip);
         expect(trip.attributes).toEqual(validAttributes);
     });
@@ -147,38 +154,38 @@ describe('Trip', () => {
     });
 
     test('should get uuid', () => {
-        const trip = new Trip({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const trip = new Trip({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(trip._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a Trip instance with valid attributes', () => {
-        const result = Trip.create(validAttributes);
+        const result = Trip.create(validAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Trip);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = Trip.create(invalidAttributes);
+        const result = Trip.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should create a Trip instance with extended attributes', () => {
-        const result = Trip.create(extendedAttributes);
+        const result = Trip.create(extendedAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Trip);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validAttributes, startTime: 'invalid' };
-        const result = Trip.create(invalidAttributes);
+        const result = Trip.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a Trip instance', () => {
-        const trip = Trip.unserialize(validAttributes);
+        const trip = Trip.unserialize(validAttributes, registry);
         expect(trip).toBeInstanceOf(Trip);
         expect(trip.attributes).toEqual(validAttributes);
     });
@@ -195,7 +202,7 @@ describe('Trip', () => {
     });
 
     test('should validate a Trip instance', () => {
-        const trip = new Trip(validAttributes);
+        const trip = new Trip(validAttributes, registry);
         expect(trip.validate()).toBe(true);
         expect(trip.isValid()).toBe(true);
     });
@@ -209,7 +216,7 @@ describe('Trip', () => {
             ...validAttributes,
             ...customAttributes,
         };
-        const trip = new Trip(tripAttributes);
+        const trip = new Trip(tripAttributes, registry);
         expect(trip).toBeInstanceOf(Trip);
         expect(trip.attributes).toEqual(validAttributes);
         expect(trip.customAttributes).toEqual(customAttributes);
@@ -249,7 +256,7 @@ describe('Trip', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
         ])('should set and get %s', (attribute, value) => {
-            const trip = new Trip(validAttributes);
+            const trip = new Trip(validAttributes, registry);
             trip[attribute] = value;
             expect(trip[attribute]).toEqual(value);
         });
@@ -260,20 +267,21 @@ describe('Trip', () => {
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const trip = new Trip(extendedAttributes);
+                const trip = new Trip(extendedAttributes, registry);
                 expect(trip[attribute]).toEqual(value);
             });
         });
 
         test.each([
-            ['_startPlace', new VisitedPlace(extendedAttributes._startPlace as ExtendedVisitedPlaceAttributes)],
-            ['_endPlace', new VisitedPlace(extendedAttributes._endPlace as ExtendedVisitedPlaceAttributes)],
-            ['_origin', new VisitedPlace(extendedAttributes._startPlace as ExtendedVisitedPlaceAttributes)],
-            ['_destination', new VisitedPlace(extendedAttributes._endPlace as ExtendedVisitedPlaceAttributes)],
-            ['_segments', extendedAttributes._segments?.map((segment) => new Segment(segment as ExtendedSegmentAttributes))],
-            ['_junctions', extendedAttributes._junctions?.map((junction) => new Junction(junction as ExtendedJunctionAttributes))],
-        ])('should set and get %s', (attribute, value) => {
-            const trip = new Trip(validAttributes);
+            ['_startPlace', () => new VisitedPlace(extendedAttributes._startPlace as ExtendedVisitedPlaceAttributes, registry)],
+            ['_endPlace', () => new VisitedPlace(extendedAttributes._endPlace as ExtendedVisitedPlaceAttributes, registry)],
+            ['_origin', () => new VisitedPlace(extendedAttributes._startPlace as ExtendedVisitedPlaceAttributes, registry)],
+            ['_destination', () => new VisitedPlace(extendedAttributes._endPlace as ExtendedVisitedPlaceAttributes, registry)],
+            ['_segments', () => extendedAttributes._segments?.map((segment) => new Segment(segment as ExtendedSegmentAttributes, registry))],
+            ['_junctions', () => extendedAttributes._junctions?.map((junction) => new Junction(junction as ExtendedJunctionAttributes, registry))],
+        ])('should set and get %s', (attribute, valueFactory) => {
+            const trip = new Trip(validAttributes, registry);
+            const value = valueFactory();
             trip[attribute] = value;
             expect(trip[attribute]).toEqual(value);
         });
@@ -281,9 +289,9 @@ describe('Trip', () => {
 
     describe('Segment Management Methods', () => {
         test('should add segments using addSegment method', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             trip.addSegment(segment2);
@@ -295,10 +303,10 @@ describe('Trip', () => {
         });
 
         test('should insert segment at specific index', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment3 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment3 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             trip.addSegment(segment3);
@@ -312,10 +320,10 @@ describe('Trip', () => {
         });
 
         test('should insert segment after specific UUID', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment3 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment3 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             trip.addSegment(segment3);
@@ -330,10 +338,10 @@ describe('Trip', () => {
         });
 
         test('should insert segment before specific UUID', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment3 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment3 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             trip.addSegment(segment3);
@@ -348,9 +356,9 @@ describe('Trip', () => {
         });
 
         test('should return false when inserting after non-existent UUID', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             const success = trip.insertSegmentAfterUuid(segment2, uuidV4());
@@ -360,9 +368,9 @@ describe('Trip', () => {
         });
 
         test('should return false when inserting before non-existent UUID', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             const success = trip.insertSegmentBeforeUuid(segment2, uuidV4());
@@ -372,9 +380,9 @@ describe('Trip', () => {
         });
 
         test('should remove segment by UUID', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             trip.addSegment(segment2);
@@ -387,8 +395,8 @@ describe('Trip', () => {
         });
 
         test('should return false when removing non-existent segment', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             const success = trip.removeSegment(uuidV4());
@@ -398,9 +406,9 @@ describe('Trip', () => {
         });
 
         test('should get segment by UUID', () => {
-            const trip = new Trip(validAttributes);
-            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true });
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment1 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             trip.addSegment(segment1);
             trip.addSegment(segment2);
@@ -411,7 +419,7 @@ describe('Trip', () => {
         });
 
         test('should handle empty segments array', () => {
-            const trip = new Trip(validAttributes);
+            const trip = new Trip(validAttributes, registry);
 
             expect(trip.segments).toHaveLength(0);
             expect(trip.getSegmentByUuid(uuidV4())).toBeUndefined();
@@ -419,8 +427,8 @@ describe('Trip', () => {
         });
 
         test('should add segment to empty array when inserting after/before UUID', () => {
-            const trip = new Trip(validAttributes);
-            const segment = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const segment = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
 
             const successAfter = trip.insertSegmentAfterUuid(segment, uuidV4());
             expect(successAfter).toBe(true);
@@ -430,7 +438,7 @@ describe('Trip', () => {
 
             // Reset for before test
             trip.segments = undefined;
-            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true });
+            const segment2 = new Segment({ _uuid: uuidV4(), _isValid: true }, registry);
             const successBefore = trip.insertSegmentBeforeUuid(segment2, uuidV4());
             expect(successBefore).toBe(true);
             const segments2 = trip.segments || [];
@@ -441,14 +449,14 @@ describe('Trip', () => {
 
     describe('getSegmentsWithoutWalkingInMultimode', () => {
         test('should return all segments when trip is empty', () => {
-            const trip = new Trip(validAttributes);
+            const trip = new Trip(validAttributes, registry);
             const result = trip.getSegmentsWithoutWalkingInMultimode();
             expect(result).toHaveLength(0);
         });
 
         test('should return walking segment when it is the only segment', () => {
-            const trip = new Trip(validAttributes);
-            const walkSegment = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const walkSegment = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
 
             trip.addSegment(walkSegment);
             const result = trip.getSegmentsWithoutWalkingInMultimode();
@@ -458,9 +466,9 @@ describe('Trip', () => {
         });
 
         test('should return all walking segments when all segments are walking', () => {
-            const trip = new Trip(validAttributes);
-            const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
-            const walkSegment2 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
+            const walkSegment2 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
 
             trip.addSegment(walkSegment1);
             trip.addSegment(walkSegment2);
@@ -472,10 +480,10 @@ describe('Trip', () => {
         });
 
         test('should filter out walking segments in multimodal trip', () => {
-            const trip = new Trip(validAttributes);
-            const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
-            const busSegment = new Segment({ _uuid: uuidV4(), mode: 'transitBus', _isValid: true });
-            const walkSegment2 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
+            const busSegment = new Segment({ _uuid: uuidV4(), mode: 'transitBus', _isValid: true }, registry);
+            const walkSegment2 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
 
             trip.addSegment(walkSegment1);
             trip.addSegment(busSegment);
@@ -487,10 +495,10 @@ describe('Trip', () => {
         });
 
         test('should preserve multiple non-walking segments', () => {
-            const trip = new Trip(validAttributes);
-            const walkSegment = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
-            const busSegment = new Segment({ _uuid: uuidV4(), mode: 'transitBus', _isValid: true });
-            const trainSegment = new Segment({ _uuid: uuidV4(), mode: 'transitRegionalRail', _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const walkSegment = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
+            const busSegment = new Segment({ _uuid: uuidV4(), mode: 'transitBus', _isValid: true }, registry);
+            const trainSegment = new Segment({ _uuid: uuidV4(), mode: 'transitRegionalRail', _isValid: true }, registry);
 
             trip.addSegment(walkSegment);
             trip.addSegment(busSegment);
@@ -503,9 +511,9 @@ describe('Trip', () => {
         });
 
         test('should preserve order when filtering multimodal trip', () => {
-            const trip = new Trip(validAttributes);
-            const walkSegment = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
-            const busSegment = new Segment({ _uuid: uuidV4(), mode: 'transitBus', _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const walkSegment = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
+            const busSegment = new Segment({ _uuid: uuidV4(), mode: 'transitBus', _isValid: true }, registry);
 
             trip.addSegment(walkSegment);
             trip.addSegment(busSegment);
@@ -516,11 +524,11 @@ describe('Trip', () => {
         });
 
         test('should handle mixed modes with car and cycling', () => {
-            const trip = new Trip(validAttributes);
-            const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
-            const carSegment = new Segment({ _uuid: uuidV4(), mode: 'carDriver', _isValid: true });
-            const cyclingSegment = new Segment({ _uuid: uuidV4(), mode: 'bicycle', _isValid: true });
-            const walkSegment2 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
+            const carSegment = new Segment({ _uuid: uuidV4(), mode: 'carDriver', _isValid: true }, registry);
+            const cyclingSegment = new Segment({ _uuid: uuidV4(), mode: 'bicycle', _isValid: true }, registry);
+            const walkSegment2 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
 
             trip.addSegment(walkSegment1);
             trip.addSegment(carSegment);
@@ -534,10 +542,10 @@ describe('Trip', () => {
         });
 
         test('should return single non-walking segment when mixed with walking', () => {
-            const trip = new Trip(validAttributes);
-            const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
-            const taxiSegment = new Segment({ _uuid: uuidV4(), mode: 'taxi', _isValid: true });
-            const walkSegment2 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true });
+            const trip = new Trip(validAttributes, registry);
+            const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
+            const taxiSegment = new Segment({ _uuid: uuidV4(), mode: 'taxi', _isValid: true }, registry);
+            const walkSegment2 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
 
             trip.addSegment(walkSegment1);
             trip.addSegment(taxiSegment);
@@ -599,7 +607,7 @@ describe('Trip', () => {
                 _endPlace: endPlaceAttributes,
             };
 
-            const result = Trip.create(tripAttributes);
+            const result = Trip.create(tripAttributes, registry);
             expect(isOk(result)).toBe(true);
             const trip = unwrap(result) as Trip;
             expect(trip.startPlace).toBeDefined();
@@ -659,7 +667,7 @@ describe('Trip', () => {
                 _segments: segmentAttributes,
             };
 
-            const result = Trip.create(tripAttributes);
+            const result = Trip.create(tripAttributes, registry);
             expect(isOk(result)).toBe(true);
             const trip = unwrap(result) as Trip;
             expect(trip.segments).toBeDefined();
@@ -717,7 +725,7 @@ describe('Trip', () => {
                 _junctions: junctionAttributes,
             };
 
-            const result = Trip.create(tripAttributes);
+            const result = Trip.create(tripAttributes, registry);
             expect(isOk(result)).toBe(true);
             const trip = unwrap(result) as Trip;
             expect(trip.junctions).toBeDefined();
@@ -746,7 +754,7 @@ describe('Trip', () => {
         let trip: Trip;
 
         beforeEach(() => {
-            trip = new Trip(validAttributes);
+            trip = new Trip(validAttributes, registry);
         });
 
         describe('hasSegments', () => {
@@ -761,7 +769,7 @@ describe('Trip', () => {
             });
 
             test('should return true if segments is not empty', () => {
-                trip.segments = [new Segment({ mode: 'walk' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry)];
                 expect(trip.hasSegments()).toBe(true);
             });
         });
@@ -778,12 +786,12 @@ describe('Trip', () => {
             });
 
             test('should return false if segments has no transit mode', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.hasTransit()).toBe(false);
             });
 
             test('should return true if segments has at least one transit mode', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry)];
                 expect(trip.hasTransit()).toBe(true);
             });
         });
@@ -800,7 +808,7 @@ describe('Trip', () => {
             });
 
             test('should return the modes of the segments', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.getModes()).toEqual(['walk', 'transitBus', 'bicycle']);
             });
         });
@@ -817,7 +825,7 @@ describe('Trip', () => {
             });
 
             test('should return the mode categories of the segments', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.getModeCategories()).toEqual(['walk', 'transit', 'bicycle']);
             });
         });
@@ -834,12 +842,12 @@ describe('Trip', () => {
             });
 
             test('should return false if segments has only one mode', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'walk' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'walk' }, registry)];
                 expect(trip.isMultimodal()).toBe(false);
             });
 
             test('should return true if segments has multiple modes', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry)];
                 expect(trip.isMultimodal()).toBe(true);
             });
         });
@@ -856,7 +864,7 @@ describe('Trip', () => {
             });
 
             test('should return the modes without walk', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.getModesWithoutWalk()).toEqual(['transitBus', 'bicycle']);
             });
         });
@@ -873,7 +881,7 @@ describe('Trip', () => {
             });
 
             test('should return the transit modes', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'transitRRT' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'transitRRT' }, registry)];
                 expect(trip.getTransitModes()).toEqual(['transitBus', 'transitRRT']);
             });
         });
@@ -890,7 +898,7 @@ describe('Trip', () => {
             });
 
             test('should return the non-transit modes', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.getNonTransitModes()).toEqual(['walk', 'bicycle']);
             });
         });
@@ -907,22 +915,22 @@ describe('Trip', () => {
             });
 
             test('should return false if segments has no transit mode', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.isTransitMultimodal()).toBe(false);
             });
 
             test('should return false if segments has only one non-transit mode but it is walking', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry)];
                 expect(trip.isTransitMultimodal()).toBe(false);
             });
 
             test('should return true if segments has transit mode and multiple non-transit modes, not including walking', () => {
-                trip.segments = [new Segment({ mode: 'carDriver' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'carDriver' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.isTransitMultimodal()).toBe(true);
             });
 
             test('should return true if segments has transit mode and multiple non-transit modes, including walking', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.isTransitMultimodal()).toBe(true);
             });
         });
@@ -939,17 +947,17 @@ describe('Trip', () => {
             });
 
             test('should return false if segments has no transit mode', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.isTransitOnly()).toBe(false);
             });
 
             test('should return false if segments has non-transit modes other than walk', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'bicycle' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.isTransitOnly()).toBe(false);
             });
 
             test('should return true if segments has only transit modes and walk (which is ignored)', () => {
-                trip.segments = [new Segment({ mode: 'walk' }), new Segment({ mode: 'transitBus' }), new Segment({ mode: 'transitRRT' })];
+                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'transitRRT' }, registry)];
                 expect(trip.isTransitOnly()).toBe(true);
             });
         });
@@ -1001,8 +1009,8 @@ describe('Trip', () => {
 
         describe('getBirdDistanceMeters', () => {
             test('should return the bird distance in meters', () => {
-                trip.origin = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} }, _isValid: true } });
-                trip.destination = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.6, -75.4] }, properties: {} }, _isValid: true } });
+                trip.origin = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} }, _isValid: true } }, registry);
+                trip.destination = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.6, -75.4] }, properties: {} }, _isValid: true } }, registry);
                 expect(trip.getBirdDistanceMeters()).toBe(11466);
             });
 
@@ -1012,16 +1020,16 @@ describe('Trip', () => {
             });
 
             test('should return undefined if origin or destination is not a valid point', () => {
-                trip.origin = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] }, properties: {} } as any });
-                trip.destination = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} } as any });
+                trip.origin = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] }, properties: {} } as any }, registry);
+                trip.destination = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} } as any }, registry);
                 expect(trip.getBirdDistanceMeters()).toBe(undefined);
             });
         });
 
         describe('getBirdSpeedKph', () => {
             test('should return the bird speed in km/h', () => {
-                trip.origin = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} }, _isValid: true } });
-                trip.destination = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.6, -75.4] }, properties: {} }, _isValid: true } });
+                trip.origin = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} }, _isValid: true } }, registry);
+                trip.destination = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.6, -75.4] }, properties: {} }, _isValid: true } }, registry);
                 trip.startTime = 7200; // 2:00 AM in seconds
                 trip.endTime = 10020; // 2:47 AM in seconds (47 minutes later = 2820 seconds)
                 const speed = trip.getBirdSpeedKph() as number;
@@ -1034,8 +1042,8 @@ describe('Trip', () => {
             });
 
             test('should return undefined if origin or destination is not a valid point', () => {
-                trip.origin = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] }, properties: {} } as any });
-                trip.destination = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} } as any });
+                trip.origin = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] }, properties: {} } as any }, registry);
+                trip.destination = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} } as any }, registry);
                 expect(trip.getBirdSpeedKph()).toBe(undefined);
             });
         });

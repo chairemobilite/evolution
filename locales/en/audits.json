@@ -1,26 +1,20 @@
 {
-  "I_M_Uuid": "Interview UUID is missing",
-  "I_M_Id": "Interview ID is missing",
-  "I_M_Response": "Interview has no response",
+  "I_M_Languages": "Interview languages are missing",
 
   "HH_I_Size": "Household size is out of range (should be between 1 and 20)",
-  "HH_M_Uuid": "Household UUID is missing",
+  "HH_M_Size": "Household size is missing",
   
   "HM_M_Geography": "Home geography is missing",
-  "HM_M_Uuid": "Home UUID is missing",
+  "HM_I_Geography": "Home geography is invalid",
 
-  "P_M_Uuid": "Person UUID is missing",
   "P_M_Age": "Person age is missing",
 
-  "J_M_Uuid": "Journey UUID is missing",
-  "J_M_StartTime": "Journey start time is missing",
+  "J_M_StartDate": "Journey start date is missing",
 
   "VP_M_Geography": "Visited place geography is missing",
-  "VP_M_Uuid": "Visited place UUID is missing",
+  "VP_I_Geography": "Visited place geography is invalid",
   
-  "T_M_Uuid": "Trip UUID is missing",
-  "T_M_StartDate": "Trip start date is missing",
+  "T_M_Segments": "Trip segments are missing",
   
-  "S_M_Uuid": "Segment UUID is missing",
   "S_M_Mode": "Segment mode is missing"
 }

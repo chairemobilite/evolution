@@ -6,8 +6,8 @@
  */
 
 // Export all audit check infrastructure and functions
-export * from './infrastructure/AuditCheckContexts';
-export * from './infrastructure/AuditCheckRunners';
+export * from './AuditCheckContexts';
+export * from './AuditCheckRunners';
 
 // Export all audit check functions
 export * from './checks/InterviewAuditChecks';
