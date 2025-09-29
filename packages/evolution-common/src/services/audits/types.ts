@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { SurveyObjects } from '../baseObjects/types';
+
 export type Audit = {
     /**
      * Indicate the current version of a validation. If the validation changes, the version will change
@@ -39,23 +41,47 @@ export type AuditForObject = Audit & {
     objectUuid: string;
 };
 
-export type Audits = { [key: string]: Audit };
+export type Audits = { [errorCode: string]: Audit }; // audits by errorCode (key)
 
-// used when running audits on backend, returning both audits and serialized survey objects for use in frontend:
-export type SurveyObjectsWithAudits = {
-    surveyShortname?: string;
-    interview?: any; // serialized, typed in survey
-    metadata?: any; // serialized, typed in survey
-    household?: any; // serialized, typed in survey
-    home?: any; // serialized, typed in survey
-    audits: AuditForObject[];
+/**
+ * Survey objects with audits
+ *
+ * This is the base type to store survey objects with their audits.
+ */
+export type SurveyObjectsWithAudits = SurveyObjects & {
+    audits: AuditForObject[]; // all audits for the interview and its survey objects
+    auditsByObject?: AuditsByObject; // audits by each object type
 };
 
-export type AuditsByLevelAndObjectType = {
+// Audits by audit level (error, warning, info) and object type
+// This is used to get the audit statistics by level and object type.
+export type AuditStatsByLevelAndObjectType = {
     [level: string]: {
-        [object_type: string]: {
-            key: string;
-            cnt: string;
+        [objectType: string]: {
+            errorCode: string;
+            count: number | undefined;
         }[];
+    };
+};
+
+// Includes audits for each object type, by uuid when nested/composed
+export type AuditsByObject = {
+    interview: AuditForObject[];
+    household: AuditForObject[];
+    home: AuditForObject[];
+    persons: {
+        [key: string]: AuditForObject[]; // key: uuid
+    };
+    journeys: {
+        [key: string]: AuditForObject[]; // key: uuid
+    };
+    visitedPlaces: {
+        [key: string]: AuditForObject[]; // key: uuid
+    };
+    trips: {
+        [key: string]: AuditForObject[]; // key: uuid
+    };
+    segments: {
+        [key: string]: AuditForObject[]; // key: uuid
     };
 };
