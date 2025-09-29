@@ -9,6 +9,7 @@ import { Optional } from '../../../types/Optional.type';
 import { IAudited } from '../../audits/IAudited';
 import { Audit } from '../../audits/types';
 import { Interview } from './Interview';
+
 export type InterviewAuditedAttributes = {
     _isValid?: boolean; // whether the interview is valid (legit) and must be kept for export (true by default, must be set to false by a validator)
     _isCompleted?: boolean; // whether the interview is completed (false by default, changed by validators)
