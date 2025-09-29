@@ -11,12 +11,14 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
 
 // TODO: make this class more international. For now, it fits Canadian addresses only.
 
 export const addressAttributes = [
     '_uuid',
     '_isValid',
+    'fullAddress', // full address string, when coming from the survey and/or entered by humans
     'civicNumber',
     'civicNumberSuffix',
     'unitNumber',
@@ -39,10 +41,11 @@ export const addressAttributes = [
  * We add the Optional type to make it obvious that the attribute is optional everywhere it appears
  */
 export type AddressAttributes = {
-    civicNumber: number;
+    fullAddress?: Optional<string>; // full address string, when coming from the survey and/or entered by humans
+    civicNumber?: Optional<number>;
     civicNumberSuffix?: Optional<string>; // example: A, B, C
     unitNumber?: Optional<string>; // example: 101, 202
-    streetName: string; // no abbreviation, with latin characters and capital letters
+    streetName?: Optional<string>; // no abbreviation, with latin characters and capital letters
     /** homogenized street name:
      * - replace latin characters with their non-latin equivalent (remove french accents, etc.)
      * - lowercase
@@ -58,11 +61,11 @@ export type AddressAttributes = {
      * Links to all matched data sources from https://github.com/chairemobilite/address_integrator
      */
     combinedStreetUuid?: Optional<string>;
-    municipalityName: string;
+    municipalityName?: Optional<string>;
     municipalityCode?: Optional<string>; // official code for the municipality
     postalMunicipalityName?: Optional<string>; // some municipalities have a different name for postal addresses
-    region: string;
-    country: string;
+    region?: Optional<string>;
+    country?: Optional<string>;
     postalCode?: Optional<string>;
     postalId?: Optional<string>; // postal identifier
     /** Combined address UUID from the address integrator repository
@@ -74,18 +77,23 @@ export type AddressAttributes = {
 
 export type ExtendedAddressAttributes = AddressAttributes & { [key: string]: unknown };
 
+export type SerializedExtendedAddressAttributes = {
+    _attributes?: ExtendedAddressAttributes;
+    _customAttributes?: { [key: string]: unknown };
+};
+
 /**
  * Address objects are created from official data sources and are used
  * to match geolocations with a civic address.
  */
-export class Address implements IValidatable {
+export class Address extends Uuidable implements IValidatable {
     private _attributes: AddressAttributes;
     private _customAttributes: { [key: string]: unknown };
 
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedAddressAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+        super(params._uuid);
 
         this._attributes = {} as AddressAttributes;
         this._customAttributes = {};
@@ -103,10 +111,6 @@ export class Address implements IValidatable {
         return this._customAttributes;
     }
 
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
-    }
-
     get _isValid(): Optional<boolean> {
         return this._attributes._isValid;
     }
@@ -115,11 +119,19 @@ export class Address implements IValidatable {
         this._attributes._isValid = value;
     }
 
-    get civicNumber(): number {
+    get fullAddress(): Optional<string> {
+        return this._attributes.fullAddress;
+    }
+
+    set fullAddress(value: Optional<string>) {
+        this._attributes.fullAddress = value;
+    }
+
+    get civicNumber(): Optional<number> {
         return this._attributes.civicNumber;
     }
 
-    set civicNumber(value: number) {
+    set civicNumber(value: Optional<number>) {
         this._attributes.civicNumber = value;
     }
 
@@ -139,11 +151,11 @@ export class Address implements IValidatable {
         this._attributes.unitNumber = value;
     }
 
-    get streetName(): string {
+    get streetName(): Optional<string> {
         return this._attributes.streetName;
     }
 
-    set streetName(value: string) {
+    set streetName(value: Optional<string>) {
         this._attributes.streetName = value;
     }
 
@@ -163,11 +175,11 @@ export class Address implements IValidatable {
         this._attributes.combinedStreetUuid = value;
     }
 
-    get municipalityName(): string {
+    get municipalityName(): Optional<string> {
         return this._attributes.municipalityName;
     }
 
-    set municipalityName(value: string) {
+    set municipalityName(value: Optional<string>) {
         this._attributes.municipalityName = value;
     }
 
@@ -187,19 +199,19 @@ export class Address implements IValidatable {
         this._attributes.postalMunicipalityName = value;
     }
 
-    get region(): string {
+    get region(): Optional<string> {
         return this._attributes.region;
     }
 
-    set region(value: string) {
+    set region(value: Optional<string>) {
         this._attributes.region = value;
     }
 
-    get country(): string {
+    get country(): Optional<string> {
         return this._attributes.country;
     }
 
-    set country(value: string) {
+    set country(value: Optional<string>) {
         this._attributes.country = value;
     }
 
@@ -227,9 +239,14 @@ export class Address implements IValidatable {
         this._attributes.combinedAddressUuid = value;
     }
 
-    // params must be sanitized and must be valid:
-    static unserialize(params: ExtendedAddressAttributes): Address {
-        return new Address(params);
+    /**
+     * Creates an Address object from sanitized parameters
+     * @param {ExtendedAddressAttributes | SerializedExtendedAddressAttributes} params - Sanitized address parameters
+     * @returns {Address} New Address instance
+     */
+    static unserialize(params: ExtendedAddressAttributes | SerializedExtendedAddressAttributes): Address {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Address(flattenedParams as ExtendedAddressAttributes);
     }
 
     /**
@@ -278,6 +295,8 @@ export class Address implements IValidatable {
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         // Validate attributes
+        errors.push(...ParamsValidatorUtils.isString('fullAddress', dirtyParams.fullAddress, displayName));
+
         errors.push(...ParamsValidatorUtils.isPositiveInteger('civicNumber', dirtyParams.civicNumber, displayName));
 
         errors.push(...ParamsValidatorUtils.isString('civicNumberSuffix', dirtyParams.civicNumberSuffix, displayName));

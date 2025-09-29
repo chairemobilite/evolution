@@ -5,23 +5,35 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
-import { WorkPlace, ExtendedWorkPlaceAttributes } from './WorkPlace';
-import { SchoolPlace, ExtendedSchoolPlaceAttributes } from './SchoolPlace';
+import { WorkPlace } from './WorkPlace';
+import { SchoolPlace } from './SchoolPlace';
+import { Place, ExtendedPlaceAttributes } from './Place';
+import { VisitedPlace } from './VisitedPlace';
 import * as PAttr from './attributeTypes/PersonAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
-import { Journey, ExtendedJourneyAttributes } from './Journey';
+import { Vehicle, ExtendedVehicleAttributes, SerializedExtendedVehicleAttributes } from './Vehicle';
+import { Journey, ExtendedJourneyAttributes, SerializedExtendedJourneyAttributes } from './Journey';
+import { SerializedExtendedPlaceAttributes } from './Place';
+import projectConfig from '../../config/project.config';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Household } from './Household';
 
 export const personAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    '_sequence',
+    '_color',
+    '_keepDiscard',
     'age',
     'ageGroup',
     'gender',
@@ -58,16 +70,17 @@ export const personAttributes = [
 
 export const personAttributesWithComposedAttributes = [
     ...personAttributes,
-    'workPlaces',
-    'schoolPlaces',
-    'journeys',
-    'vehicles'
+    '_workPlaces',
+    '_schoolPlaces',
+    '_journeys',
+    '_vehicles'
 ];
 
 export const nonStringAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    '_sequence',
     'age',
     'transitPasses',
     'whoWillAnswerForThisPerson',
@@ -77,6 +90,15 @@ export const nonStringAttributes = [
 export const stringAttributes = personAttributes.filter((attr) => !nonStringAttributes.includes(attr));
 
 export type PersonAttributes = {
+    /**
+     * Sequence number for ordering nested composed objects.
+     * NOTE: This will be removed when we use objects directly inside the interview process.
+     * Right now, since nested composed objects are still using objects with uuid as key,
+     * they need a _sequence attribute to be able to order them.
+     */
+    _sequence?: Optional<number>;
+    _color?: Optional<string>; // used for reviewing to color each person's trips on map
+    _keepDiscard?: Optional<string>; // 'Keep' or 'Discard'
     age?: Optional<PAttr.Age>;
     ageGroup?: Optional<PAttr.AgeGroup>; // generated, do not use as a widget
     gender?: Optional<PAttr.Gender>;
@@ -117,19 +139,28 @@ export type PersonAttributes = {
     ValidatebleAttributes;
 
 export type PersonWithComposedAttributes = PersonAttributes & {
-    workPlaces?: Optional<ExtendedWorkPlaceAttributes[]>;
-    schoolPlaces?: Optional<ExtendedSchoolPlaceAttributes[]>;
-    journeys?: Optional<ExtendedJourneyAttributes[]>;
-    vehicles?: Optional<ExtendedVehicleAttributes[]>;
+    _workPlaces?: Optional<ExtendedPlaceAttributes[]>;
+    _schoolPlaces?: Optional<ExtendedPlaceAttributes[]>;
+    _journeys?: Optional<ExtendedJourneyAttributes[]>;
+    _vehicles?: Optional<ExtendedVehicleAttributes[]>;
 };
 
 export type ExtendedPersonAttributes = PersonWithComposedAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedPersonAttributes = {
+    _attributes?: ExtendedPersonAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _workPlaces?: SerializedExtendedPlaceAttributes[];
+    _schoolPlaces?: SerializedExtendedPlaceAttributes[];
+    _journeys?: SerializedExtendedJourneyAttributes[];
+    _vehicles?: SerializedExtendedVehicleAttributes[];
+};
 
 /**
  * A person is a member of a household. it can have these composed objects:
  * workPlaces, schoolPlaces, journeys, vehicles
  */
-export class Person implements IValidatable {
+export class Person extends Uuidable implements IValidatable {
     private _attributes: PersonAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -148,26 +179,39 @@ export class Person implements IValidatable {
     ];
 
     constructor(params: ExtendedPersonAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+        super(params._uuid);
 
         this._attributes = {};
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
+            _omit(params, [
+                '_workPlaces',
+                '_schoolPlaces',
+                '_journeys',
+                '_vehicles',
+                'workPlaces',
+                'schoolPlaces',
+                'journeys',
+                'vehicles',
+                '_householdUuid'
+            ]),
             personAttributes,
             personAttributesWithComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.workPlaces = ConstructorUtils.initializeComposedArrayAttributes(params.workPlaces, WorkPlace.unserialize);
+        this.workPlaces = ConstructorUtils.initializeComposedArrayAttributes(params._workPlaces, WorkPlace.unserialize);
         this.schoolPlaces = ConstructorUtils.initializeComposedArrayAttributes(
-            params.schoolPlaces,
+            params._schoolPlaces,
             SchoolPlace.unserialize
         );
-        this.journeys = ConstructorUtils.initializeComposedArrayAttributes(params.journeys, Journey.unserialize);
-        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params.vehicles, Vehicle.unserialize);
+        this.journeys = ConstructorUtils.initializeComposedArrayAttributes(params._journeys, Journey.unserialize);
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params._vehicles, Vehicle.unserialize);
+        this.householdUuid = params._householdUuid as Optional<string>;
+
+        SurveyObjectsRegistry.getInstance().registerPerson(this);
     }
 
     get attributes(): PersonAttributes {
@@ -176,10 +220,6 @@ export class Person implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -196,6 +236,22 @@ export class Person implements IValidatable {
 
     set _weights(value: Optional<Weight[]>) {
         this._attributes._weights = value;
+    }
+
+    get _color(): Optional<string> {
+        return this._attributes._color;
+    }
+
+    set _color(value: Optional<string>) {
+        this._attributes._color = value;
+    }
+
+    get _keepDiscard(): Optional<string> {
+        return this._attributes._keepDiscard;
+    }
+
+    set _keepDiscard(value: Optional<string>) {
+        this._attributes._keepDiscard = value;
     }
 
     get age(): Optional<PAttr.Age> {
@@ -500,9 +556,255 @@ export class Person implements IValidatable {
         this._householdUuid = value;
     }
 
-    // params must be sanitized and must be valid:
-    static unserialize(params: PersonWithComposedAttributes): Person {
-        return new Person(params);
+    get household(): Optional<Household> {
+        if (!this._householdUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getHousehold(this._householdUuid);
+    }
+
+    /**
+     * Add a journey to this person
+     */
+    addJourney(journey: Journey): void {
+        if (!this._journeys) {
+            this._journeys = [];
+        }
+        this._journeys.push(journey);
+    }
+
+    /**
+     * Insert a journey at a specific index
+     */
+    insertJourney(journey: Journey, index: number): void {
+        if (!this._journeys) {
+            this._journeys = [];
+        }
+        this._journeys.splice(index, 0, journey);
+    }
+
+    /**
+     * Insert a journey after another journey with the specified UUID
+     */
+    insertJourneyAfterUuid(journey: Journey, afterUuid: string): boolean {
+        if (!this._journeys) {
+            this._journeys = [];
+        }
+
+        // If array is empty, add the journey
+        if (this._journeys.length === 0) {
+            this._journeys.push(journey);
+            return true;
+        }
+
+        const index = this._journeys.findIndex((j) => j._uuid === afterUuid);
+        if (index >= 0) {
+            this._journeys.splice(index + 1, 0, journey);
+            return true;
+        }
+        // If UUID not found in non-empty array, return false
+        return false;
+    }
+
+    /**
+     * Insert a journey before another journey with the specified UUID
+     */
+    insertJourneyBeforeUuid(journey: Journey, beforeUuid: string): boolean {
+        if (!this._journeys) {
+            this._journeys = [];
+        }
+
+        // If array is empty, add the journey
+        if (this._journeys.length === 0) {
+            this._journeys.push(journey);
+            return true;
+        }
+
+        const index = this._journeys.findIndex((j) => j._uuid === beforeUuid);
+        if (index >= 0) {
+            this._journeys.splice(index, 0, journey);
+            return true;
+        }
+        // If UUID not found in non-empty array, return false
+        return false;
+    }
+
+    /**
+     * Remove a journey from this person by UUID
+     */
+    removeJourney(journeyUuid: string): boolean {
+        if (!this._journeys) {
+            return false;
+        }
+        const index = this._journeys.findIndex((journey) => journey._uuid === journeyUuid);
+        if (index >= 0) {
+            this._journeys.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get a journey by UUID
+     */
+    getJourneyByUuid(journeyUuid: string): Journey | undefined {
+        if (!this._journeys) {
+            return undefined;
+        }
+        return this._journeys.find((journey) => journey._uuid === journeyUuid);
+    }
+
+    /**
+     * Find visited place by UUID in person's journeys
+     * Searches through all journeys of this person to find a specific visited place
+     * @param {string} uuid - UUID of the visited place to find
+     * @returns {VisitedPlace | undefined} The found visited place or undefined if not found
+     */
+    findVisitedPlaceByUuid(uuid: string): VisitedPlace | undefined {
+        // Look through all journeys to find the visited place
+        const journeys = this._journeys || [];
+        for (const journey of journeys) {
+            const visitedPlaces = journey.visitedPlaces || [];
+            const foundPlace = visitedPlaces.find((vp: VisitedPlace) => vp._uuid === uuid);
+            if (foundPlace) {
+                return foundPlace;
+            }
+        }
+        return undefined;
+    }
+
+    /**
+     * Setup work and school places by extracting usual places from visited places
+     * This ensures usual places are available even if only declared in travel diary
+     */
+    setupWorkAndSchoolPlaces(): void {
+        // Initialize arrays if undefined
+        if (this.workPlaces === undefined) {
+            this.workPlaces = [];
+        }
+        if (this.schoolPlaces === undefined) {
+            this.schoolPlaces = [];
+        }
+
+        // Fetch existing coordinates to avoid adding them again
+        const alreadyFetchedWorkCoordinatesStr: string[] = [];
+        const alreadyFetchedSchoolCoordinatesStr: string[] = [];
+
+        // Get existing work place coordinates
+        for (let i = 0, countI = this.workPlaces.length; i < countI; i++) {
+            const workPlace = this.workPlaces[i];
+            const coordinates = workPlace.geography?.geometry?.coordinates;
+            if (coordinates) {
+                alreadyFetchedWorkCoordinatesStr.push(`${coordinates[0]},${coordinates[1]}`);
+            }
+        }
+
+        // Get existing school place coordinates
+        for (let i = 0, countI = this.schoolPlaces.length; i < countI; i++) {
+            const schoolPlace = this.schoolPlaces[i];
+            const coordinates = schoolPlace.geography?.geometry?.coordinates;
+            if (coordinates) {
+                alreadyFetchedSchoolCoordinatesStr.push(`${coordinates[0]},${coordinates[1]}`);
+            }
+        }
+
+        // Get usual work visited places from all journeys
+        const usualWorkVisitedPlaces = this.getUsualWorkVisitedPlaces();
+        for (let i = 0, countI = usualWorkVisitedPlaces.length; i < countI; i++) {
+            const visitedPlace = usualWorkVisitedPlaces[i];
+            if (visitedPlace.geography !== undefined) {
+                const lon = visitedPlace.geography?.geometry?.coordinates?.[0];
+                const lat = visitedPlace.geography?.geometry?.coordinates?.[1];
+                if (lat !== undefined && lon !== undefined) {
+                    const coordinateStr = `${lon},${lat}`;
+                    // Add to work places if not already present
+                    if (!alreadyFetchedWorkCoordinatesStr.includes(coordinateStr)) {
+                        alreadyFetchedWorkCoordinatesStr.push(coordinateStr);
+                        const workPlace = Place.unserialize(visitedPlace.place?.attributes || {}); // Clone
+                        // Add name from visited place if needed
+                        if (!workPlace.name && visitedPlace.name) {
+                            workPlace.name = visitedPlace.name;
+                        }
+                        this.workPlaces.push(workPlace as WorkPlace);
+                    }
+                }
+            }
+        }
+
+        // Get usual school visited places from all journeys
+        const usualSchoolVisitedPlaces = this.getUsualSchoolVisitedPlaces();
+        for (let i = 0, countI = usualSchoolVisitedPlaces.length; i < countI; i++) {
+            const visitedPlace = usualSchoolVisitedPlaces[i];
+            if (visitedPlace.geography !== undefined) {
+                const lon = visitedPlace.geography?.geometry?.coordinates?.[0];
+                const lat = visitedPlace.geography?.geometry?.coordinates?.[1];
+                if (lat !== undefined && lon !== undefined) {
+                    const coordinateStr = `${lon},${lat}`;
+                    // Add to school places if not already present
+                    if (!alreadyFetchedSchoolCoordinatesStr.includes(coordinateStr)) {
+                        alreadyFetchedSchoolCoordinatesStr.push(coordinateStr);
+                        const schoolPlace = Place.unserialize(visitedPlace.place?.attributes || {}); // Clone
+                        // Add name from visited place if needed
+                        if (!schoolPlace.name && visitedPlace.name) {
+                            schoolPlace.name = visitedPlace.name;
+                        }
+                        this.schoolPlaces.push(schoolPlace as SchoolPlace);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Get usual work visited places from all journeys
+     * @returns Array of visited places with workUsual activity only
+     */
+    private getUsualWorkVisitedPlaces(): VisitedPlace[] {
+        const workVisitedPlaces: VisitedPlace[] = [];
+        const journeys = this.journeys || [];
+
+        for (const journey of journeys) {
+            const visitedPlaces = journey.visitedPlaces || [];
+            for (const visitedPlace of visitedPlaces) {
+                // Check if this is a work-related activity at usual place
+                if (visitedPlace.activity === 'workUsual') {
+                    workVisitedPlaces.push(visitedPlace);
+                }
+            }
+        }
+
+        return workVisitedPlaces;
+    }
+
+    /**
+     * Get usual school visited places from all journeys
+     * @returns Array of visited places with schoolUsual activity only
+     */
+    private getUsualSchoolVisitedPlaces(): VisitedPlace[] {
+        const schoolVisitedPlaces: VisitedPlace[] = [];
+        const journeys = this.journeys || [];
+
+        for (const journey of journeys) {
+            const visitedPlaces = journey.visitedPlaces || [];
+            for (const visitedPlace of visitedPlaces) {
+                // Check if this is a school-related activity at usual place
+                if (visitedPlace.activity === 'schoolUsual') {
+                    schoolVisitedPlaces.push(visitedPlace);
+                }
+            }
+        }
+
+        return schoolVisitedPlaces;
+    }
+
+    /**
+     * Creates a Person object from sanitized parameters
+     * @param {ExtendedPersonAttributes | SerializedExtendedPersonAttributes} params - Sanitized person parameters
+     * @returns {Person} New Person instance
+     */
+    static unserialize(params: ExtendedPersonAttributes | SerializedExtendedPersonAttributes): Person {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Person(flattenedParams as ExtendedPersonAttributes);
     }
 
     /**
@@ -550,6 +852,8 @@ export class Person implements IValidatable {
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
+
         // Validate _weights:
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
@@ -573,33 +877,52 @@ export class Person implements IValidatable {
         errors.push(...ParamsValidatorUtils.isBoolean('isProxy', dirtyParams.isProxy, displayName));
 
         const workPlacesAttributes =
-            dirtyParams.workPlaces !== undefined ? (dirtyParams.workPlaces as { [key: string]: unknown }[]) : [];
+            dirtyParams._workPlaces !== undefined ? (dirtyParams._workPlaces as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = workPlacesAttributes.length; i < countI; i++) {
             const workPlaceAttributes = workPlacesAttributes[i];
             errors.push(...WorkPlace.validateParams(workPlaceAttributes, `WorkPlace ${i}`));
         }
 
         const schoolPlacesAttributes =
-            dirtyParams.schoolPlaces !== undefined ? (dirtyParams.schoolPlaces as { [key: string]: unknown }[]) : [];
+            dirtyParams._schoolPlaces !== undefined ? (dirtyParams._schoolPlaces as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = schoolPlacesAttributes.length; i < countI; i++) {
             const schoolPlaceAttributes = schoolPlacesAttributes[i];
             errors.push(...SchoolPlace.validateParams(schoolPlaceAttributes, `SchoolPlace ${i}`));
         }
 
         const journeysAttributes =
-            dirtyParams.journeys !== undefined ? (dirtyParams.journeys as { [key: string]: unknown }[]) : [];
+            dirtyParams._journeys !== undefined ? (dirtyParams._journeys as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = journeysAttributes.length; i < countI; i++) {
             const journeyAttributes = journeysAttributes[i];
             errors.push(...Journey.validateParams(journeyAttributes, `Journey ${i}`));
         }
 
         const vehiclesAttributes =
-            dirtyParams.vehicles !== undefined ? (dirtyParams.vehicles as { [key: string]: unknown }[]) : [];
+            dirtyParams._vehicles !== undefined ? (dirtyParams._vehicles as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = vehiclesAttributes.length; i < countI; i++) {
             const vehicleAttributes = vehiclesAttributes[i];
             errors.push(...Vehicle.validateParams(vehicleAttributes, `Vehicle ${i}`));
         }
 
+        errors.push(...ParamsValidatorUtils.isUuid('_householdUuid', dirtyParams._householdUuid, displayName));
+
         return errors;
+    }
+
+    /**
+     * Assign color to person from the configured color palette
+     * Assigns a unique color to each person for visualization purposes, cycling through the palette
+     * @param {number} personIndex - Index of the person in the household (for color cycling)
+     * @returns {void}
+     */
+    assignColor(personIndex: number): void {
+        const colorsPalette = projectConfig.personColorsPalette;
+
+        // Cycle through the color palette if there are more persons than colors
+        const colorIndex = personIndex % colorsPalette.length;
+        const assignedColor = colorsPalette[colorIndex];
+
+        // Assign color to person
+        this._color = assignedColor;
     }
 }

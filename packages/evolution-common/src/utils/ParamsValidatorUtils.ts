@@ -22,7 +22,7 @@ declare type Class<T = unknown> = new (...args: unknown[]) => T;
 
 export class ParamsValidatorUtils {
     static isObject(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && typeof value !== 'object') {
+        if (value !== undefined && value !== null && typeof value !== 'object') {
             return [new Error(`${displayName} validateParams: ${attribute} should be an object`)];
         } else {
             return [];
@@ -30,7 +30,7 @@ export class ParamsValidatorUtils {
     }
 
     static isRequired(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value === undefined) {
+        if (value === undefined || value === null) {
             return [new Error(`${displayName} validateParams: ${attribute} is required`)];
         } else {
             return [];
@@ -38,7 +38,7 @@ export class ParamsValidatorUtils {
     }
 
     static isInstanceOf(attribute: string, value: unknown, displayName: string, _class: Class): Error[] {
-        if (value !== undefined && !(value instanceof _class)) {
+        if (value !== undefined && value !== null && !(value instanceof _class)) {
             return [new Error(`${displayName} validateParams: ${attribute} should be an instance of ${_class.name}`)];
         } else {
             return [];
@@ -46,7 +46,7 @@ export class ParamsValidatorUtils {
     }
 
     static isString(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && typeof value !== 'string') {
+        if (value !== undefined && value !== null && typeof value !== 'string') {
             return [new Error(`${displayName} validateParams: ${attribute} should be a string`)];
         } else {
             return [];
@@ -54,7 +54,7 @@ export class ParamsValidatorUtils {
     }
 
     static isNonEmptyString(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (typeof value !== 'string' || value.trimStart().trim() === '')) {
+        if (value !== undefined && value !== null && (typeof value !== 'string' || value.trimStart().trim() === '')) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a non-empty string`)];
         } else {
             return [];
@@ -62,7 +62,7 @@ export class ParamsValidatorUtils {
     }
 
     static isBoolean(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && typeof value !== 'boolean') {
+        if (value !== undefined && value !== null && typeof value !== 'boolean') {
             return [new Error(`${displayName} validateParams: ${attribute} should be a boolean`)];
         } else {
             return [];
@@ -70,7 +70,7 @@ export class ParamsValidatorUtils {
     }
 
     static isUuid(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (typeof value !== 'string' || !uuidValidate(value))) {
+        if (value !== undefined && value !== null && (typeof value !== 'string' || !uuidValidate(value))) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a valid uuid`)];
         } else {
             return [];
@@ -78,7 +78,7 @@ export class ParamsValidatorUtils {
     }
 
     static isPositiveInteger(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!Number.isInteger(value) || Number(value) < 0)) {
+        if (value !== undefined && value !== null && (!Number.isInteger(value) || Number(value) < 0)) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a positive integer`)];
         } else {
             return [];
@@ -86,7 +86,7 @@ export class ParamsValidatorUtils {
     }
 
     static isPositiveNumber(attribute: string, value: unknown, displayName: string): Error[] {
-        if ((value !== undefined && typeof value !== 'number') || Number(value) < 0) {
+        if ((value !== undefined && value !== null && typeof value !== 'number') || Number(value) < 0) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a positive number`)];
         } else {
             return [];
@@ -95,7 +95,7 @@ export class ParamsValidatorUtils {
 
     // a date string is a string of format 'YYYY-MM-DD'
     static isDateString(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined) {
+        if (value !== undefined && value !== null) {
             const date = new Date(value + 'T00:00:00');
             if (!(date instanceof Date) || isNaN(date.getDate())) {
                 return [new Error(`${displayName} validateParams: ${attribute} should be a valid date string`)];
@@ -104,8 +104,14 @@ export class ParamsValidatorUtils {
         return [];
     }
 
-    static isIn(attribute: string, value: unknown, displayName: string, inArray: unknown[], typeName?: string) {
-        if (value !== undefined && !inArray.includes(value)) {
+    static isIn(
+        attribute: string,
+        value: unknown,
+        displayName: string,
+        inArray: unknown[],
+        typeName?: string
+    ): Error[] {
+        if (value !== undefined && value !== null && !inArray.includes(value)) {
             return [
                 new Error(
                     `${displayName} validateParams: ${attribute} ${
@@ -119,7 +125,7 @@ export class ParamsValidatorUtils {
     }
 
     static isArray(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && !Array.isArray(value)) {
+        if (value !== undefined && value !== null && !Array.isArray(value)) {
             return [new Error(`${displayName} validateParams: ${attribute} should be an array`)];
         } else {
             return [];
@@ -127,7 +133,11 @@ export class ParamsValidatorUtils {
     }
 
     static isArrayOfStrings(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!Array.isArray(value) || value.some((v) => typeof v !== 'string'))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!Array.isArray(value) || value.some((v) => typeof v !== 'string'))
+        ) {
             return [new Error(`${displayName} validateParams: ${attribute} should be an array of strings`)];
         } else {
             return [];
@@ -135,7 +145,7 @@ export class ParamsValidatorUtils {
     }
 
     static isArrayOfDateStrings(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && Array.isArray(value)) {
+        if (value !== undefined && value !== null && Array.isArray(value)) {
             for (let i = 0, countI = value.length; i < countI; i++) {
                 if (typeof value[i] !== 'string') {
                     return [new Error(`${displayName} validateParams: ${attribute} should be an array of strings`)];
@@ -147,14 +157,18 @@ export class ParamsValidatorUtils {
                     ];
                 }
             }
-        } else if (value !== undefined && !Array.isArray(value)) {
+        } else if (value !== undefined && value !== null && !Array.isArray(value)) {
             return [new Error(`${displayName} validateParams: ${attribute} should be an array`)];
         }
         return [];
     }
 
     static isArrayOfNumbers(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!Array.isArray(value) || value.some((v) => typeof v !== 'number'))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!Array.isArray(value) || value.some((v) => typeof v !== 'number'))
+        ) {
             return [new Error(`${displayName} validateParams: ${attribute} should be an array of numbers`)];
         } else {
             return [];
@@ -162,7 +176,7 @@ export class ParamsValidatorUtils {
     }
 
     static isArrayOfUuids(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!Array.isArray(value) || value.some((v) => !uuidValidate(v)))) {
+        if (value !== undefined && value !== null && (!Array.isArray(value) || value.some((v) => !uuidValidate(v)))) {
             return [new Error(`${displayName} validateParams: ${attribute} should be an array of valid uuids`)];
         } else {
             return [];
@@ -170,7 +184,11 @@ export class ParamsValidatorUtils {
     }
 
     static isArrayOf(attribute: string, value: unknown, displayName: string, _class: Class): Error[] {
-        if (value !== undefined && (!Array.isArray(value) || value.some((v) => !(v instanceof _class)))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!Array.isArray(value) || value.some((v) => !(v instanceof _class)))
+        ) {
             return [new Error(`${displayName} validateParams: ${attribute} should be an array of ${_class.name}`)];
         } else {
             return [];
@@ -178,7 +196,11 @@ export class ParamsValidatorUtils {
     }
 
     static isGeojsonPoint(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!isFeature(value) || !isPoint((value as GeoJSON.Feature).geometry))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!isFeature(value) || !isPoint((value as GeoJSON.Feature).geometry))
+        ) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a valid geojson point`)];
         } else {
             return [];
@@ -186,7 +208,11 @@ export class ParamsValidatorUtils {
     }
 
     static isGeojsonLineString(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!isFeature(value) || !isLineString((value as GeoJSON.Feature).geometry))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!isFeature(value) || !isLineString((value as GeoJSON.Feature).geometry))
+        ) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a valid geojson line string`)];
         } else {
             return [];
@@ -194,7 +220,11 @@ export class ParamsValidatorUtils {
     }
 
     static isGeojsonPolygon(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!isFeature(value) || !isPolygon((value as GeoJSON.Feature).geometry))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!isFeature(value) || !isPolygon((value as GeoJSON.Feature).geometry))
+        ) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a valid geojson polygon`)];
         } else {
             return [];
@@ -202,7 +232,11 @@ export class ParamsValidatorUtils {
     }
 
     static isGeojsonMultiPoint(attribute, value: unknown, displayName): Error[] {
-        if (value !== undefined && (!isFeature(value) || !isMultiPoint((value as GeoJSON.Feature).geometry))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!isFeature(value) || !isMultiPoint((value as GeoJSON.Feature).geometry))
+        ) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a valid geojson multi point`)];
         } else {
             return [];
@@ -210,7 +244,11 @@ export class ParamsValidatorUtils {
     }
 
     static isGeojsonMultiLineString(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!isFeature(value) || !isMultiLineString((value as GeoJSON.Feature).geometry))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!isFeature(value) || !isMultiLineString((value as GeoJSON.Feature).geometry))
+        ) {
             return [
                 new Error(`${displayName} validateParams: ${attribute} should be a valid geojson multi line string`)
             ];
@@ -220,7 +258,11 @@ export class ParamsValidatorUtils {
     }
 
     static isGeojsonMultiPolygon(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && (!isFeature(value) || !isMultiPolygon((value as GeoJSON.Feature).geometry))) {
+        if (
+            value !== undefined &&
+            value !== null &&
+            (!isFeature(value) || !isMultiPolygon((value as GeoJSON.Feature).geometry))
+        ) {
             return [new Error(`${displayName} validateParams: ${attribute} should be a valid geojson multi polygon`)];
         } else {
             return [];
@@ -228,7 +270,7 @@ export class ParamsValidatorUtils {
     }
 
     static isGeojsonFeatureCollection(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && !isFeatureCollection(value)) {
+        if (value !== undefined && value !== null && !isFeatureCollection(value)) {
             return [
                 new Error(`${displayName} validateParams: ${attribute} should be a valid geojson feature collection`)
             ];

@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Place, PlaceAttributes, placeAttributes } from '../Place';
+import { Place, ExtendedPlaceAttributes, placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
@@ -21,7 +21,7 @@ describe('Place', () => {
         description: 'Sample weight method description',
     };
 
-    const validPlaceAttributes: { [key: string]: unknown } = {
+    const validPlaceAttributes: ExtendedPlaceAttributes = {
         _uuid: uuidV4(),
         name: 'Test Place',
         shortname: 'Test',
@@ -57,8 +57,10 @@ describe('Place', () => {
     const extendedAttributesWithAddress: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         customAttribute: 'custom value',
-        address: {
+        _address: {
+            _uuid: uuidV4(),
             _isValid: true,
+            fullAddress: '123 Main Street',
             civicNumber: 123,
             streetName: 'Main Street',
             municipalityName: 'City',
@@ -70,8 +72,9 @@ describe('Place', () => {
     const extendedInvalidAddressAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         customAttribute: 'custom value',
-        address: {
+        _address: {
             _isValid: 123,
+            fullAddress: 123,
             civicNumber: 'foo',
             streetName: 123,
             municipalityName: 123,
@@ -116,10 +119,10 @@ describe('Place', () => {
     test('should create a Place instance with extended attributes and address', () => {
         const result = Place.create(extendedAttributesWithAddress);
         expect(isOk(result)).toBe(true);
-        const place = unwrap(result) as Place<PlaceAttributes>;
+        const place = unwrap(result) as Place;
         expect(place).toBeInstanceOf(Place);
         expect(place.address).toBeInstanceOf(Address);
-        expect(place.address?.attributes).toEqual(extendedAttributesWithAddress.address);
+        expect(place.address?.attributes).toEqual(extendedAttributesWithAddress._address);
     });
 
     test('should return errors for invalid attributes', () => {
@@ -186,7 +189,7 @@ describe('Place', () => {
             const result = Place.create(placeAttributes);
             expect(isOk(result)).toBe(true);
             const place = unwrap(result);
-            expect((place as Place<PlaceAttributes>)._weights).toEqual(weights);
+            expect((place as Place)._weights).toEqual(weights);
         });
     });
 
@@ -222,7 +225,7 @@ describe('Place', () => {
         test('should return an error for invalid address', () => {
             const result = Place.create(extendedInvalidAddressAttributes);
             expect(hasErrors(result)).toBe(true);
-            expect((unwrap(result) as Error[])).toHaveLength(6);
+            expect((unwrap(result) as Error[])).toHaveLength(7);
         });
     });
 
@@ -283,6 +286,7 @@ describe('Place', () => {
         test('should create an Address instance with valid address', () => {
             const addressAttributes: AddressAttributes = {
                 _uuid: uuidV4(),
+                fullAddress: '123 New Street',
                 civicNumber: 123,
                 civicNumberSuffix: 'A',
                 unitNumber: '456',
@@ -300,17 +304,18 @@ describe('Place', () => {
                 _isValid: true,
             };
             const address = new Address(addressAttributes);
-            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, address: addressAttributes };
+            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, _address: addressAttributes };
             const result = Place.create(placeAttributes);
             expect(isOk(result)).toBe(true);
             const place = unwrap(result);
-            expect((place as Place<PlaceAttributes>).address).toBeInstanceOf(Address);
-            expect((place as Place<PlaceAttributes>).address).toEqual(address);
+            expect((place as Place).address).toBeInstanceOf(Address);
+            expect((place as Place).address).toEqual(address);
         });
 
         test('should handle Address with postalId correctly', () => {
             const addressAttributes: AddressAttributes = {
                 _uuid: uuidV4(),
+                fullAddress: '123 Test Avenue',
                 civicNumber: 456,
                 streetName: 'Test Avenue',
                 streetNameHomogenized: 'test avenue',
@@ -323,7 +328,7 @@ describe('Place', () => {
                 combinedAddressUuid: uuidV4(),
                 _isValid: true,
             };
-            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, address: addressAttributes };
+            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, _address: addressAttributes };
             const place = new Place(placeAttributes);
 
             expect(place.address).toBeInstanceOf(Address);
@@ -335,6 +340,7 @@ describe('Place', () => {
         test('should validate Address with new UUID fields', () => {
             const addressAttributes: AddressAttributes = {
                 _uuid: uuidV4(),
+                fullAddress: '789 Validation Street',
                 civicNumber: 789,
                 streetName: 'Validation Street',
                 streetNameHomogenized: 'validation street',

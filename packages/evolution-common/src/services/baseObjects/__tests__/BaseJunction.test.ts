@@ -33,6 +33,7 @@ describe('BaseJunction', () => {
 
     const baseJunctionAttributes: BaseJunctionAttributes = {
         _uuid: validUUID,
+        uuid: validUUID,
         arrivalDate: '2023-10-05',
         departureDate: '2023-10-06',
         arrivalTime: 36000, // 10:00 AM in seconds since midnight
@@ -64,11 +65,12 @@ describe('BaseJunction', () => {
 
         const minimalJunctionAttributes: BaseJunctionAttributes = {
             _uuid: validUUID,
+            uuid: validUUID,
         };
 
         const junction = new BaseJunction({ ...minimalJunctionAttributes, basePlace: new BasePlace(minimalBasePlaceAttributes) });
         expect(junction).toBeInstanceOf(BaseJunction);
-        expect(junction._uuid).toEqual(validUUID);
+        expect(junction.uuid).toEqual(validUUID);
         expect(junction.basePlace).toBeInstanceOf(BasePlace);
         expect(junction.basePlace?.geography).toBeUndefined();
         expect(junction.basePlace?.name).toEqual('Minimal Test Place');

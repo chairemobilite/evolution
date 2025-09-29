@@ -5,9 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { isFeature, isPoint } from 'geojson-validation';
 import { Optional } from '../../types/Optional.type';
 import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
+import { ParkingType, ParkingFeeType } from './attributeTypes/PlaceAttributes';
 import { Address, AddressAttributes } from './Address';
 import { Device } from './attributeTypes/InterviewParadataAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
@@ -16,6 +19,9 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
+import { SerializedExtendedAddressAttributes } from './Address';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 
 export const placeAttributes = [
     '_weights',
@@ -28,6 +34,8 @@ export const placeAttributes = [
     'propertyRegistryId',
     'buildingId',
     'internalId',
+    'parkingType',
+    'parkingFeeType',
     'geocodingPrecisionCategory',
     'geocodingPrecisionMeters',
     'geocodingQueryString',
@@ -37,7 +45,7 @@ export const placeAttributes = [
     'zoom'
 ];
 
-export const placeComposedAttributes = [...placeAttributes, 'address'];
+export const placeComposedAttributes = [...placeAttributes, '_address'];
 
 export type PlaceAttributes = {
     geography?: Optional<GeoJSON.Feature<GeoJSON.Point>>;
@@ -47,6 +55,8 @@ export type PlaceAttributes = {
     propertyRegistryId?: Optional<string>;
     buildingId?: Optional<string>;
     internalId?: Optional<string>;
+    parkingType?: Optional<ParkingType>;
+    parkingFeeType?: Optional<ParkingFeeType>;
     geocodingPrecisionCategory?: Optional<GeocodingPrecisionCategory>;
     geocodingPrecisionMeters?: Optional<number>;
     geocodingQueryString?: Optional<string>;
@@ -59,34 +69,45 @@ export type PlaceAttributes = {
     ValidatebleAttributes;
 
 export type PlaceWithComposedAttributes = PlaceAttributes & {
-    address?: AddressAttributes;
+    _address?: Optional<AddressAttributes>;
 };
 
 export type ExtendedPlaceAttributes = PlaceWithComposedAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedPlaceAttributes = {
+    _attributes?: ExtendedPlaceAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _address?: Optional<SerializedExtendedAddressAttributes>;
+};
 
 /**
  * A place is a location (GeoJSON point) with attributes.
  * Classes can inherit this class and add their own attributes (like a work place, a school place, a junction, etc.).
  */
-export class Place<ChildAttributes> implements IValidatable {
-    protected _attributes: ChildAttributes & PlaceAttributes;
+export class Place extends Uuidable implements IValidatable {
+    protected _attributes: ExtendedPlaceAttributes;
     protected _customAttributes: { [key: string]: unknown };
 
     private _address?: Optional<Address>;
 
     static _confidentialAttributes = [];
 
-    constructor(params: ChildAttributes & ExtendedPlaceAttributes, childPlaceAttributes: string[] = placeAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+    constructor(params: ExtendedPlaceAttributes, childPlaceAttributes: string[] = placeAttributes) {
+        super(params._uuid);
 
-        this._attributes = {} as ChildAttributes & PlaceAttributes;
+        this._attributes = {} as ExtendedPlaceAttributes;
         this._customAttributes = {};
 
-        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, childPlaceAttributes);
+        const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
+            _omit(params, ['_address', 'address']),
+            childPlaceAttributes
+        );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.address = ConstructorUtils.initializeComposedAttribute(params.address, Address.unserialize);
+        this.address = ConstructorUtils.initializeComposedAttribute(params._address, Address.unserialize);
+
+        SurveyObjectsRegistry.getInstance().registerPlace(this);
     }
 
     /**
@@ -99,16 +120,12 @@ export class Place<ChildAttributes> implements IValidatable {
             : undefined;
     }
 
-    get attributes(): ChildAttributes & PlaceAttributes {
+    get attributes(): ExtendedPlaceAttributes {
         return this._attributes;
     }
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -183,6 +200,22 @@ export class Place<ChildAttributes> implements IValidatable {
         this._attributes.internalId = value;
     }
 
+    get parkingType(): Optional<ParkingType> {
+        return this._attributes.parkingType;
+    }
+
+    set parkingType(value: Optional<ParkingType>) {
+        this._attributes.parkingType = value;
+    }
+
+    get parkingFeeType(): Optional<ParkingFeeType> {
+        return this._attributes.parkingFeeType;
+    }
+
+    set parkingFeeType(value: Optional<ParkingFeeType>) {
+        this._attributes.parkingFeeType = value;
+    }
+
     get geocodingPrecisionCategory(): Optional<GeocodingPrecisionCategory> {
         return this._attributes.geocodingPrecisionCategory;
     }
@@ -247,9 +280,14 @@ export class Place<ChildAttributes> implements IValidatable {
         this._attributes.geography = value;
     }
 
-    // params must be sanitized and must be valid:
-    static unserialize(params: ExtendedPlaceAttributes): Place<PlaceAttributes> {
-        return new Place(params);
+    /**
+     * Creates a Place object from sanitized parameters
+     * @param {ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes} params - Sanitized place parameters
+     * @returns {Place} New Place instance
+     */
+    static unserialize(params: ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes): Place {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Place(flattenedParams as ExtendedPlaceAttributes);
     }
 
     /**
@@ -259,13 +297,13 @@ export class Place<ChildAttributes> implements IValidatable {
      * @param dirtyParams
      * @returns Place | Error[]
      */
-    static create(dirtyParams: { [key: string]: unknown }): Result<Place<PlaceAttributes>> {
+    static create(dirtyParams: { [key: string]: unknown }): Result<Place> {
         const errors = Place.validateParams(dirtyParams);
-        const place = errors.length === 0 ? new Place(dirtyParams) : undefined;
+        const place = errors.length === 0 ? new Place(dirtyParams as ExtendedPlaceAttributes) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }
-        return createOk(place as Place<PlaceAttributes>);
+        return createOk(place as Place);
     }
 
     validate(): Optional<boolean> {
@@ -316,6 +354,10 @@ export class Place<ChildAttributes> implements IValidatable {
 
         errors.push(...ParamsValidatorUtils.isString('internalId', dirtyParams.internalId, displayName));
 
+        errors.push(...ParamsValidatorUtils.isString('parkingType', dirtyParams.parkingType, displayName));
+
+        errors.push(...ParamsValidatorUtils.isString('parkingFeeType', dirtyParams.parkingFeeType, displayName));
+
         errors.push(
             ...ParamsValidatorUtils.isString(
                 'geocodingPrecisionCategory',
@@ -344,7 +386,7 @@ export class Place<ChildAttributes> implements IValidatable {
 
         errors.push(...ParamsValidatorUtils.isPositiveInteger('zoom', dirtyParams.zoom, displayName));
 
-        const addressAttributes = dirtyParams.address as { [key: string]: unknown };
+        const addressAttributes = dirtyParams._address as { [key: string]: unknown };
         if (addressAttributes) {
             errors.push(...Address.validateParams(addressAttributes, 'Address'));
         }

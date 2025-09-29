@@ -5,17 +5,22 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
-import { Person, ExtendedPersonAttributes } from './Person';
-import { Place, ExtendedPlaceAttributes, PlaceAttributes } from './Place';
+import { Person, ExtendedPersonAttributes, SerializedExtendedPersonAttributes } from './Person';
 import * as HAttr from './attributeTypes/HouseholdAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
+import { Vehicle, ExtendedVehicleAttributes, SerializedExtendedVehicleAttributes } from './Vehicle';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Home } from './Home';
+import { Interview } from './interview/Interview';
 
 export const householdAttributes = [
     '_weights',
@@ -38,7 +43,7 @@ export const householdAttributes = [
     'atLeastOnePersonWithDisability'
 ];
 
-export const householdAttributesWithComposedAttributes = [...householdAttributes, 'members', 'vehicles', 'home'];
+export const householdAttributesWithComposedAttributes = [...householdAttributes, '_members', '_vehicles'];
 
 export type HouseholdAttributes = {
     size?: Optional<number>;
@@ -55,52 +60,62 @@ export type HouseholdAttributes = {
     homeOwnership?: Optional<HAttr.HomeOwnership>;
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
-    atLeastOnePersonWithDisability?: Optional<boolean>;
+    atLeastOnePersonWithDisability?: Optional<string>;
 } & UuidableAttributes &
     WeightableAttributes &
     ValidatebleAttributes;
 
 export type HouseholdWithComposedAttributes = HouseholdAttributes & {
-    members?: Optional<ExtendedPersonAttributes[]>;
-    vehicles?: Optional<ExtendedVehicleAttributes[]>;
-    home?: Optional<ExtendedPlaceAttributes>;
+    _members?: Optional<ExtendedPersonAttributes[]>;
+    _vehicles?: Optional<ExtendedVehicleAttributes[]>;
 };
 
 export type ExtendedHouseholdAttributes = HouseholdWithComposedAttributes & { [key: string]: unknown };
 
+export type SerializedExtendedHouseholdAttributes = {
+    _attributes?: ExtendedHouseholdAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _members?: Optional<SerializedExtendedPersonAttributes[]>;
+    _vehicles?: Optional<SerializedExtendedVehicleAttributes[]>;
+};
+
 /**
  * The Household class represents households with their members and attributes.
  * the members composed array includes Person objects.
+ * uuid for the household must be equal to the uuid of the interview
  */
-export class Household implements IValidatable {
+export class Household extends Uuidable implements IValidatable {
     private _attributes: HouseholdAttributes;
     private _customAttributes: { [key: string]: unknown };
 
     private _members?: Optional<Person[]>;
-    private _home?: Optional<Place<PlaceAttributes>>;
     private _vehicles?: Optional<Vehicle[]>;
+
+    private _homeUuid?: Optional<string>; // allow reverse lookup
+    private _interviewUuid?: Optional<string>; // allow reverse lookup
 
     static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
 
     constructor(params: ExtendedHouseholdAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+        super(params._uuid);
 
         this._attributes = {} as HouseholdAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
+            _omit(params, ['_members', '_vehicles', 'members', 'vehicles', '_homeUuid', '_interviewUuid']),
             householdAttributes,
             householdAttributesWithComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.members = ConstructorUtils.initializeComposedArrayAttributes(params.members, Person.unserialize);
+        this.members = ConstructorUtils.initializeComposedArrayAttributes(params._members, Person.unserialize);
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params._vehicles, Vehicle.unserialize);
+        this.homeUuid = params._homeUuid as Optional<string>;
+        this.interviewUuid = params._interviewUuid as Optional<string>;
 
-        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params.vehicles, Vehicle.unserialize);
-
-        this.home = ConstructorUtils.initializeComposedAttribute(params.home, Place.unserialize);
+        SurveyObjectsRegistry.getInstance().registerHousehold(this);
     }
 
     get attributes(): HouseholdAttributes {
@@ -109,10 +124,6 @@ export class Household implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -243,11 +254,11 @@ export class Household implements IValidatable {
         this._attributes.contactEmail = value;
     }
 
-    get atLeastOnePersonWithDisability(): Optional<boolean> {
+    get atLeastOnePersonWithDisability(): Optional<string> {
         return this._attributes.atLeastOnePersonWithDisability;
     }
 
-    set atLeastOnePersonWithDisability(value: Optional<boolean>) {
+    set atLeastOnePersonWithDisability(value: Optional<string>) {
         this._attributes.atLeastOnePersonWithDisability = value;
     }
 
@@ -267,16 +278,44 @@ export class Household implements IValidatable {
         this._vehicles = value;
     }
 
-    get home(): Optional<Place<PlaceAttributes>> {
-        return this._home;
+    get homeUuid(): Optional<string> {
+        return this._homeUuid;
     }
 
-    set home(value: Optional<Place<PlaceAttributes>>) {
-        this._home = value;
+    set homeUuid(value: Optional<string>) {
+        this._homeUuid = value;
     }
 
-    static unserialize(params: HouseholdWithComposedAttributes): Household {
-        return new Household(params);
+    get home(): Optional<Home> {
+        if (!this._homeUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getPlace(this._homeUuid) as Home;
+    }
+
+    get interviewUuid(): Optional<string> {
+        return this._interviewUuid;
+    }
+
+    set interviewUuid(value: Optional<string>) {
+        this._interviewUuid = value;
+    }
+
+    get interview(): Optional<Interview> {
+        if (!this._interviewUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getInterview(this._interviewUuid);
+    }
+
+    /**
+     * Creates a Household object from sanitized parameters
+     * @param {ExtendedHouseholdAttributes | SerializedExtendedHouseholdAttributes} params - Sanitized household parameters
+     * @returns {Household} New Household instance
+     */
+    static unserialize(params: ExtendedHouseholdAttributes | SerializedExtendedHouseholdAttributes): Household {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Household(flattenedParams as ExtendedHouseholdAttributes);
     }
 
     static create(dirtyParams: { [key: string]: unknown }): Result<Household> {
@@ -360,7 +399,7 @@ export class Household implements IValidatable {
         errors.push(...ParamsValidatorUtils.isString('contactEmail', dirtyParams.contactEmail, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isBoolean(
+            ...ParamsValidatorUtils.isString(
                 'atLeastOnePersonWithDisability',
                 dirtyParams.atLeastOnePersonWithDisability,
                 displayName
@@ -368,21 +407,21 @@ export class Household implements IValidatable {
         );
 
         const membersAttributes =
-            dirtyParams.members !== undefined ? (dirtyParams.members as { [key: string]: unknown }[]) : [];
+            dirtyParams._members !== undefined ? (dirtyParams._members as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = membersAttributes.length; i < countI; i++) {
             const memberAttributes = membersAttributes[i];
             errors.push(...Person.validateParams(memberAttributes, `Person ${i}`));
         }
 
         const vehiclesAttributes =
-            dirtyParams.vehicles !== undefined ? (dirtyParams.vehicles as { [key: string]: unknown }[]) : [];
+            dirtyParams._vehicles !== undefined ? (dirtyParams._vehicles as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = vehiclesAttributes.length; i < countI; i++) {
             const vehicleAttributes = vehiclesAttributes[i];
             errors.push(...Vehicle.validateParams(vehicleAttributes, `Vehicle ${i}`));
         }
 
-        const homeAttributes = dirtyParams.home !== undefined ? (dirtyParams.home as { [key: string]: unknown }) : {};
-        errors.push(...Place.validateParams(homeAttributes, 'Home'));
+        errors.push(...ParamsValidatorUtils.isUuid('_homeUuid', dirtyParams._homeUuid, displayName));
+        errors.push(...ParamsValidatorUtils.isUuid('_interviewUuid', dirtyParams._interviewUuid, displayName));
 
         return errors;
     }

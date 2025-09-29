@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -14,17 +16,22 @@ import * as PAttr from './attributeTypes/PersonAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { VisitedPlace, ExtendedVisitedPlaceAttributes } from './VisitedPlace';
-import { Trip, ExtendedTripAttributes } from './Trip';
-import { TripChain, ExtendedTripChainAttributes } from './TripChain';
+import { VisitedPlace, ExtendedVisitedPlaceAttributes, SerializedExtendedVisitedPlaceAttributes } from './VisitedPlace';
+import { Trip, ExtendedTripAttributes, SerializedExtendedTripAttributes } from './Trip';
+import { TripChain, ExtendedTripChainAttributes, SerializedExtendedTripChainAttributes } from './TripChain';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod, YesNoDontKnow } from './attributeTypes/GenericAttributes';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Person } from './Person';
+import { Household } from './Household';
 
 export const journeyAttributes = [
     ...startEndDateAndTimesAttributes,
     '_weights',
     '_isValid',
     '_uuid',
+    '_sequence',
     'name',
     'type',
     'noSchoolTripReason',
@@ -36,9 +43,21 @@ export const journeyAttributes = [
     'previousWeekTravelToWorkDays'
 ];
 
-export const journeyAttributesWithComposedAttributes = [...journeyAttributes, 'visitedPlaces', 'trips', 'tripChains'];
+export const journeyAttributesWithComposedAttributes = [
+    ...journeyAttributes,
+    '_visitedPlaces',
+    '_trips',
+    '_tripChains'
+];
 
 export type JourneyAttributes = {
+    /**
+     * Sequence number for ordering nested composed objects.
+     * NOTE: This will be removed when we use objects directly inside the interview process.
+     * Right now, since nested composed objects are still using objects with uuid as key,
+     * they need a _sequence attribute to be able to order them.
+     */
+    _sequence?: Optional<number>;
     name?: Optional<string>;
     type?: Optional<JAttr.JourneyType>;
     noSchoolTripReason?: Optional<string>;
@@ -58,18 +77,26 @@ export type JourneyAttributes = {
     ValidatebleAttributes;
 
 export type JourneyWithComposedAttributes = JourneyAttributes & {
-    visitedPlaces?: Optional<ExtendedVisitedPlaceAttributes[]>;
-    trips?: Optional<ExtendedTripAttributes[]>;
-    tripChains?: Optional<ExtendedTripChainAttributes[]>;
+    _visitedPlaces?: Optional<ExtendedVisitedPlaceAttributes[]>;
+    _trips?: Optional<ExtendedTripAttributes[]>;
+    _tripChains?: Optional<ExtendedTripChainAttributes[]>;
 };
 
 export type ExtendedJourneyAttributes = JourneyWithComposedAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedJourneyAttributes = {
+    _attributes?: ExtendedJourneyAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _visitedPlaces?: Optional<SerializedExtendedVisitedPlaceAttributes[]>;
+    _trips?: Optional<SerializedExtendedTripAttributes[]>;
+    _tripChains?: Optional<SerializedExtendedTripChainAttributes[]>;
+};
 
 /** A journey is a sequence of visited places that form trips and trip chains.
  * They can be all the visited places for a single person for a day, part of a day,
  * a week, a weekend or a long distance trip
  */
-export class Journey implements IValidatable {
+export class Journey extends Uuidable implements IValidatable {
     private _attributes: JourneyAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -82,13 +109,21 @@ export class Journey implements IValidatable {
     static _confidentialAttributes = [];
 
     constructor(params: ExtendedJourneyAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+        super(params._uuid);
 
         this._attributes = {} as JourneyAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
+            _omit(params, [
+                '_visitedPlaces',
+                '_trips',
+                '_tripChains',
+                'visitedPlaces',
+                'trips',
+                'tripChains',
+                '_personUuid'
+            ]),
             journeyAttributes,
             journeyAttributesWithComposedAttributes
         );
@@ -96,11 +131,14 @@ export class Journey implements IValidatable {
         this._customAttributes = customAttributes;
 
         this.visitedPlaces = ConstructorUtils.initializeComposedArrayAttributes(
-            params.visitedPlaces,
+            params._visitedPlaces,
             VisitedPlace.unserialize
         );
-        this.trips = ConstructorUtils.initializeComposedArrayAttributes(params.trips, Trip.unserialize);
-        this.tripChains = ConstructorUtils.initializeComposedArrayAttributes(params.tripChains, TripChain.unserialize);
+        this.trips = ConstructorUtils.initializeComposedArrayAttributes(params._trips, Trip.unserialize);
+        this.tripChains = ConstructorUtils.initializeComposedArrayAttributes(params._tripChains, TripChain.unserialize);
+        this.personUuid = params._personUuid as Optional<string>;
+
+        SurveyObjectsRegistry.getInstance().registerJourney(this);
     }
 
     get attributes(): JourneyAttributes {
@@ -109,10 +147,6 @@ export class Journey implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -301,8 +335,207 @@ export class Journey implements IValidatable {
         this._personUuid = value;
     }
 
-    static unserialize(params: ExtendedJourneyAttributes): Journey {
-        return new Journey(params);
+    get person(): Optional<Person> {
+        if (!this._personUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getPerson(this._personUuid);
+    }
+
+    get household(): Optional<Household> {
+        return this.person?.household;
+    }
+
+    /**
+     * Add a visited place to this journey
+     */
+    addVisitedPlace(visitedPlace: VisitedPlace): void {
+        if (!this._visitedPlaces) {
+            this._visitedPlaces = [];
+        }
+        this._visitedPlaces.push(visitedPlace);
+    }
+
+    /**
+     * Insert a visited place at a specific index
+     */
+    insertVisitedPlace(visitedPlace: VisitedPlace, index: number): void {
+        if (!this._visitedPlaces) {
+            this._visitedPlaces = [];
+        }
+        this._visitedPlaces.splice(index, 0, visitedPlace);
+    }
+
+    /**
+     * Insert a visited place after another visited place with the specified UUID
+     */
+    insertVisitedPlaceAfterUuid(visitedPlace: VisitedPlace, afterUuid: string): boolean {
+        if (!this._visitedPlaces) {
+            this._visitedPlaces = [];
+        }
+
+        // If array is empty, add the visited place
+        if (this._visitedPlaces.length === 0) {
+            this._visitedPlaces.push(visitedPlace);
+            return true;
+        }
+
+        const index = this._visitedPlaces.findIndex((vp) => vp._uuid === afterUuid);
+        if (index >= 0) {
+            this._visitedPlaces.splice(index + 1, 0, visitedPlace);
+            return true;
+        }
+        // If UUID not found in non-empty array, return false
+        return false;
+    }
+
+    /**
+     * Insert a visited place before another visited place with the specified UUID
+     */
+    insertVisitedPlaceBeforeUuid(visitedPlace: VisitedPlace, beforeUuid: string): boolean {
+        if (!this._visitedPlaces) {
+            this._visitedPlaces = [];
+        }
+
+        // If array is empty, add the visited place
+        if (this._visitedPlaces.length === 0) {
+            this._visitedPlaces.push(visitedPlace);
+            return true;
+        }
+
+        const index = this._visitedPlaces.findIndex((vp) => vp._uuid === beforeUuid);
+        if (index >= 0) {
+            this._visitedPlaces.splice(index, 0, visitedPlace);
+            return true;
+        }
+        // If UUID not found in non-empty array, return false
+        return false;
+    }
+
+    /**
+     * Remove a visited place from this journey by UUID
+     */
+    removeVisitedPlace(visitedPlaceUuid: string): boolean {
+        if (!this._visitedPlaces) {
+            return false;
+        }
+        const index = this._visitedPlaces.findIndex((vp) => vp._uuid === visitedPlaceUuid);
+        if (index >= 0) {
+            this._visitedPlaces.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get a visited place by UUID
+     */
+    getVisitedPlaceByUuid(visitedPlaceUuid: string): VisitedPlace | undefined {
+        if (!this._visitedPlaces) {
+            return undefined;
+        }
+        return this._visitedPlaces.find((vp) => vp._uuid === visitedPlaceUuid);
+    }
+
+    /**
+     * Add a trip to this journey
+     */
+    addTrip(trip: Trip): void {
+        if (!this._trips) {
+            this._trips = [];
+        }
+        this._trips.push(trip);
+    }
+
+    /**
+     * Insert a trip at a specific index
+     */
+    insertTrip(trip: Trip, index: number): void {
+        if (!this._trips) {
+            this._trips = [];
+        }
+        this._trips.splice(index, 0, trip);
+    }
+
+    /**
+     * Insert a trip after another trip with the specified UUID
+     */
+    insertTripAfterUuid(trip: Trip, afterUuid: string): boolean {
+        if (!this._trips) {
+            this._trips = [];
+        }
+
+        // If array is empty, add the trip
+        if (this._trips.length === 0) {
+            this._trips.push(trip);
+            return true;
+        }
+
+        const index = this._trips.findIndex((t) => t._uuid === afterUuid);
+        if (index >= 0) {
+            this._trips.splice(index + 1, 0, trip);
+            return true;
+        }
+        // If UUID not found in non-empty array, return false
+        return false;
+    }
+
+    /**
+     * Insert a trip before another trip with the specified UUID
+     */
+    insertTripBeforeUuid(trip: Trip, beforeUuid: string): boolean {
+        if (!this._trips) {
+            this._trips = [];
+        }
+
+        // If array is empty, add the trip
+        if (this._trips.length === 0) {
+            this._trips.push(trip);
+            return true;
+        }
+
+        const index = this._trips.findIndex((t) => t._uuid === beforeUuid);
+        if (index >= 0) {
+            this._trips.splice(index, 0, trip);
+            return true;
+        }
+        // If UUID not found in non-empty array, return false
+        return false;
+    }
+
+    /**
+     * Remove a trip from this journey by UUID
+     */
+    removeTrip(tripUuid: string): boolean {
+        if (!this._trips) {
+            return false;
+        }
+        const index = this._trips.findIndex((trip) => trip._uuid === tripUuid);
+        if (index >= 0) {
+            this._trips.splice(index, 1);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get a trip by UUID
+     */
+    getTripByUuid(tripUuid: string): Trip | undefined {
+        if (!this._trips) {
+            return undefined;
+        }
+        return this._trips.find((trip) => trip._uuid === tripUuid);
+    }
+
+    /**
+     * Creates a Journey object from sanitized parameters
+     * @param {ExtendedJourneyAttributes | SerializedExtendedJourneyAttributes} params - Sanitized journey parameters
+     * @returns {Journey} New Journey instance
+     */
+    static unserialize(params: ExtendedJourneyAttributes | SerializedExtendedJourneyAttributes): Journey {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Journey(flattenedParams as ExtendedJourneyAttributes);
     }
 
     static create(dirtyParams: { [key: string]: unknown }): Result<Journey> {
@@ -331,6 +564,8 @@ export class Journey implements IValidatable {
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
+
+        errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
@@ -378,25 +613,29 @@ export class Journey implements IValidatable {
         );
 
         const visitedPlacesAttributes =
-            dirtyParams.visitedPlaces !== undefined ? (dirtyParams.visitedPlaces as { [key: string]: unknown }[]) : [];
+            dirtyParams._visitedPlaces !== undefined
+                ? (dirtyParams._visitedPlaces as { [key: string]: unknown }[])
+                : [];
         for (let i = 0, countI = visitedPlacesAttributes.length; i < countI; i++) {
             const visitedPlaceAttributes = visitedPlacesAttributes[i];
             errors.push(...VisitedPlace.validateParams(visitedPlaceAttributes, 'VisitedPlace'));
         }
 
         const tripsAttributes =
-            dirtyParams.trips !== undefined ? (dirtyParams.trips as { [key: string]: unknown }[]) : [];
+            dirtyParams._trips !== undefined ? (dirtyParams._trips as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = tripsAttributes.length; i < countI; i++) {
             const tripAttributes = tripsAttributes[i];
             errors.push(...Trip.validateParams(tripAttributes, 'Trip'));
         }
 
         const tripChainsAttributes =
-            dirtyParams.tripChains !== undefined ? (dirtyParams.tripChains as { [key: string]: unknown }[]) : [];
+            dirtyParams._tripChains !== undefined ? (dirtyParams._tripChains as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = tripChainsAttributes.length; i < countI; i++) {
             const tripChainAttributes = tripChainsAttributes[i];
             errors.push(...TripChain.validateParams(tripChainAttributes, 'TripChain'));
         }
+
+        errors.push(...ParamsValidatorUtils.isUuid('_personUuid', dirtyParams._personUuid, displayName));
 
         return errors;
     }

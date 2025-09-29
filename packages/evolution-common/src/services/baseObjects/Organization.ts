@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -13,8 +15,11 @@ import * as OAttr from './attributeTypes/OrganizationAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
-import { Vehicle, ExtendedVehicleAttributes } from './Vehicle';
-import { Place, PlaceAttributes, ExtendedPlaceAttributes } from './Place';
+import { Vehicle, ExtendedVehicleAttributes, SerializedExtendedVehicleAttributes } from './Vehicle';
+import { Place, ExtendedPlaceAttributes, SerializedExtendedPlaceAttributes } from './Place';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Interview } from './interview/Interview';
 
 export const organizationAttributes = [
     '_weights',
@@ -31,7 +36,7 @@ export const organizationAttributes = [
     'revenueLevel'
 ];
 
-export const organizationAttributesWithComposedAttributes = [...organizationAttributes, 'vehicles', 'places'];
+export const organizationAttributesWithComposedAttributes = [...organizationAttributes, '_vehicles', '_places'];
 
 export type OrganizationAttributes = {
     name?: Optional<string>;
@@ -51,45 +56,57 @@ export type OrganizationWithComposedAttributes = OrganizationAttributes & {
     /**
      * These are the vehicles owned by the organization or surveyed in the active survey
      */
-    vehicles?: Optional<ExtendedVehicleAttributes[]>;
+    _vehicles?: Optional<ExtendedVehicleAttributes[]>;
     /**
      * These are the places owned/used by the organization or surveyed in the active survey
      * (factories, headquarters, offices, shops, garages, warehouses, etc.)
      */
-    places?: Optional<ExtendedPlaceAttributes[]>;
+    _places?: Optional<ExtendedPlaceAttributes[]>;
 };
 
 export type ExtendedOrganizationAttributes = OrganizationWithComposedAttributes & { [key: string]: unknown };
+
+export type SerializedExtendedOrganizationAttributes = {
+    _attributes?: ExtendedOrganizationAttributes;
+    _customAttributes?: { [key: string]: unknown };
+    _vehicles?: SerializedExtendedVehicleAttributes[];
+    _places?: SerializedExtendedPlaceAttributes[];
+};
 
 /**
  * Organization is a base object that represents an organization,
  * a company, a place with employees, or a group of persons other than a household.
  */
-export class Organization implements IValidatable {
+export class Organization extends Uuidable implements IValidatable {
     private _attributes: OrganizationAttributes;
     private _customAttributes: { [key: string]: unknown };
 
     private _vehicles?: Optional<Vehicle[]>;
-    private _places?: Optional<Place<PlaceAttributes>[]>;
+    private _places?: Optional<Place[]>;
+
+    private _interviewUuid?: Optional<string>; // allow reverse lookup
 
     static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
 
     constructor(params: ExtendedOrganizationAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+        super(params._uuid);
 
         this._attributes = {} as OrganizationAttributes;
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            params,
+            _omit(params, ['_vehicles', '_places', 'vehicles', 'places', '_interviewUuid']),
             organizationAttributes,
             organizationAttributesWithComposedAttributes
         );
         this._attributes = attributes;
         this._customAttributes = customAttributes;
 
-        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params.vehicles, Vehicle.unserialize);
-        this.places = ConstructorUtils.initializeComposedArrayAttributes(params.places, Place.unserialize);
+        this.vehicles = ConstructorUtils.initializeComposedArrayAttributes(params._vehicles, Vehicle.unserialize);
+        this.places = ConstructorUtils.initializeComposedArrayAttributes(params._places, Place.unserialize);
+        this.interviewUuid = params._interviewUuid as Optional<string>;
+
+        SurveyObjectsRegistry.getInstance().registerOrganization(this);
     }
 
     get attributes(): OrganizationAttributes {
@@ -98,10 +115,6 @@ export class Organization implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -200,16 +213,39 @@ export class Organization implements IValidatable {
         this._vehicles = value;
     }
 
-    get places(): Optional<Place<PlaceAttributes>[]> {
+    get places(): Optional<Place[]> {
         return this._places;
     }
 
-    set places(value: Optional<Place<PlaceAttributes>[]>) {
+    set places(value: Optional<Place[]>) {
         this._places = value;
     }
 
-    static unserialize(params: ExtendedOrganizationAttributes): Organization {
-        return new Organization(params);
+    get interviewUuid(): Optional<string> {
+        return this._interviewUuid;
+    }
+
+    set interviewUuid(value: Optional<string>) {
+        this._interviewUuid = value;
+    }
+
+    get interview(): Optional<Interview> {
+        if (!this._interviewUuid) {
+            return undefined;
+        }
+        return SurveyObjectsRegistry.getInstance().getInterview(this._interviewUuid);
+    }
+
+    /**
+     * Creates an Organization object from sanitized parameters
+     * @param {ExtendedOrganizationAttributes | SerializedExtendedOrganizationAttributes} params - Sanitized organization parameters
+     * @returns {Organization} New Organization instance
+     */
+    static unserialize(
+        params: ExtendedOrganizationAttributes | SerializedExtendedOrganizationAttributes
+    ): Organization {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Organization(flattenedParams as ExtendedOrganizationAttributes);
     }
 
     static create(dirtyParams: { [key: string]: unknown }): Result<Organization> {
@@ -265,18 +301,20 @@ export class Organization implements IValidatable {
         errors.push(...ParamsValidatorUtils.isString('revenueLevel', dirtyParams.revenueLevel, displayName));
 
         const vehiclesAttributes =
-            dirtyParams.vehicles !== undefined ? (dirtyParams.vehicles as { [key: string]: unknown }[]) : [];
+            dirtyParams._vehicles !== undefined ? (dirtyParams._vehicles as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = vehiclesAttributes.length; i < countI; i++) {
             const vehicleAttributes = vehiclesAttributes[i];
             errors.push(...Vehicle.validateParams(vehicleAttributes, 'Vehicle'));
         }
 
         const placesAttributes =
-            dirtyParams.places !== undefined ? (dirtyParams.places as { [key: string]: unknown }[]) : [];
+            dirtyParams._places !== undefined ? (dirtyParams._places as { [key: string]: unknown }[]) : [];
         for (let i = 0, countI = placesAttributes.length; i < countI; i++) {
             const placeAttributes = placesAttributes[i];
             errors.push(...Place.validateParams(placeAttributes, 'Place'));
         }
+
+        errors.push(...ParamsValidatorUtils.isUuid('_interviewUuid', dirtyParams._interviewUuid, displayName));
 
         return errors;
     }

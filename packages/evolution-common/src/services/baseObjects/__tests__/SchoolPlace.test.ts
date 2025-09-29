@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { SchoolPlace, schoolPlaceAttributes } from '../SchoolPlace';
+import { SchoolPlace } from '../SchoolPlace';
 import { placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
@@ -67,7 +67,7 @@ describe('SchoolPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = SchoolPlace.validateParams.toString();
-        schoolPlaceAttributes.filter((attribute) => attribute !== '_uuid' && !placeAttributes.includes(attribute)).forEach((attributeName) => {
+        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
             expect(validateParamsCode).toContain('\''+attributeName+'\'');
         });
     });
