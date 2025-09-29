@@ -99,6 +99,11 @@ export type EvolutionProjectConfiguration = {
         [key: string]: string;
     };
 
+    /**
+     * Color palette for person visualization in maps and charts
+     */
+    personColorsPalette: string[];
+
     // Add additional properties to the config
     auth: ProjectConfiguration<any>['auth'] & {
         /**
@@ -156,7 +161,36 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
             detectLanguage: false,
             languageNames: { en: 'English', fr: 'Français' },
             title: { en: 'Survey', fr: 'Enquête' },
-            postalCodeRegion: 'other'
+            postalCodeRegion: 'other',
+            personColorsPalette: [
+                '#FFAE70',
+                '#FFBCF2',
+                '#F2ED6A',
+                '#90E04A',
+                '#61CAD8',
+                '#9F70FF',
+                '#FF6868',
+                '#63A021',
+                '#21A09E',
+                '#4146B5',
+                '#9F41B5',
+                '#B5417B',
+                '#B5B5B5',
+                '#B59900',
+                '#9E5135',
+                '#FFAE70',
+                '#FFBCF2',
+                '#F2ED6A',
+                '#90E04A',
+                '#61CAD8',
+                '#9F70FF',
+                '#FF6868',
+                '#63A021',
+                '#21A09E',
+                '#4146B5',
+                '#9F41B5',
+                '#B5417B'
+            ]
         },
         projectConfig
     )
