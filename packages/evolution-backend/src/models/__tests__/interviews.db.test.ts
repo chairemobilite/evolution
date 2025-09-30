@@ -86,6 +86,7 @@ const localUserInterviewAttributes = {
     participant_id: localUser.id,
     is_valid: false,
     is_active: true,
+    is_frozen: false,
     is_completed: undefined,
     response: {
         accessCode: '11111',
@@ -333,6 +334,7 @@ describe('Get interview by user id', () => {
             uuid: localUserInterviewAttributes.uuid,
             participant_id: localUser.id,
             is_completed: localUserInterviewAttributes.is_completed,
+            is_frozen: localUserInterviewAttributes.is_frozen,
             response: localUserInterviewAttributes.response,
             survey_id: 1,
             is_valid: localUserInterviewAttributes.is_valid,

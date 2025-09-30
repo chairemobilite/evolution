@@ -240,6 +240,7 @@ export interface UserInterviewAttributes {
     response: InterviewResponse;
     validations: InterviewValidations;
     is_valid: boolean;
+    is_frozen?: boolean; // Freeze the interview for the user, they cannot change it anymore
     is_questionable?: boolean;
     userRoles?: string[];
 }
@@ -258,7 +259,6 @@ export interface InterviewAttributes extends UserInterviewAttributes {
     audits?: InterviewAudits;
     is_validated?: boolean;
     is_questionable?: boolean;
-    is_frozen?: boolean;
     // TODO Type the following fields to date times
     start_at?: string;
     end_at?: string;

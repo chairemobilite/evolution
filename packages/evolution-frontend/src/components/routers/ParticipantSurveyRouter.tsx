@@ -11,6 +11,7 @@ import HomePage from '../pages/HomePage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
 import SurveyErrorPage from '../pages/SurveyErrorPage';
 import AuthPage from '../pages/auth/AuthPage';
+import SurveyUnavailablePage from '../pages/SurveyUnavailablePage';
 import MagicLinkVerifyPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/MagicLinkVerify';
 import CheckMagicEmailPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/CheckMagicEmail';
 import Survey from '../hoc/SurveyWithErrorBoundary';
@@ -34,6 +35,7 @@ const SurveyRouter: React.FunctionComponent = () => (
             <Route path="/error" element={<PublicRoute component={SurveyErrorPage} />} />
             <Route path="/" element={<PublicRoute component={HomePage} />} />
             <Route path="/home" element={<PublicRoute component={HomePage} />} />
+            <Route path="/unavailable" element={<PrivateRoute component={SurveyUnavailablePage} />} />
             <Route path="/survey/:sectionShortname" element={<PrivateRoute component={Survey} />} />
             <Route path="/survey" element={<PrivateRoute component={Survey} />} />
             <Route path="*" element={<PrivateRoute component={Survey} />} />

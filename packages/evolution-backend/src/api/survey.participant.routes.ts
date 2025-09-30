@@ -70,8 +70,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
             try {
                 if (!req.user) {
                     console.log('activeSurvey: Request user is not defined!');
-                    res.status(400).json({ status: 'BadRequest' });
-                    return;
+                    return res.status(400).json({ status: 'BadRequest' });
                 }
                 // Get the current interview for user
                 let interview = await Interviews.getUserInterview((req.user as UserAttributes).id);
@@ -83,7 +82,15 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                         ['id', 'uuid', 'is_valid', 'is_completed', 'response', 'participant_id']
                     );
                 }
-                res.status(200).json({ status: 'success', interview });
+
+                // Check if interview is frozen, if so, do not allow access
+                if (interview?.is_frozen) {
+                    console.log('activeSurvey: Interview is frozen');
+                    return res
+                        .status(403)
+                        .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
+                }
+                return res.status(200).json({ status: 'success', interview });
             } catch (error) {
                 console.error(`Error opening participant's interview: ${error}`);
                 return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });
