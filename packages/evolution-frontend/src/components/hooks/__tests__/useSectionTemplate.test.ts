@@ -58,6 +58,10 @@ describe('useSectionTemplate', () => {
     });
 
     it('should focus on the first invalid input if form is submitted and not all widgets are valid', () => {
+        // Setup scrollIntoView mock
+        const scrollIntoViewMock = jest.fn();
+        Element.prototype.scrollIntoView = scrollIntoViewMock;
+
         document.body.innerHTML = `
             <div class="question-invalid">
                 <input id="invalid-input" type="text" />
@@ -66,24 +70,32 @@ describe('useSectionTemplate', () => {
         props.allWidgetsValid = false;
         props.submitted = true;
         renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
+        
+        // Verify scrollIntoView was called
+        expect(scrollIntoViewMock).toHaveBeenCalledWith({ behavior: 'smooth', block: 'nearest' });
+        
+        // Verify focus was set on text input
         const inputElement = document.getElementById('invalid-input');
         expect(document.activeElement).toBe(inputElement);
     });
 
     it('should scroll to the first invalid question if form is submitted and not all widgets are valid', () => {
-        const gotoPosition = 1000;
+        // Setup scrollIntoView mock
+        const scrollIntoViewMock = jest.fn();
+        Element.prototype.scrollIntoView = scrollIntoViewMock;
+        
         document.body.innerHTML = `
-            <div class="question-invalid" style="margin-top: 1000px;">
+            <div class="question-invalid">
                 <input id="invalid-input" type="checkbox" />
             </div>
         `;
-        const invalidElement = document.querySelector('.question-invalid');
-        Object.defineProperty(invalidElement, 'offsetTop', { value: gotoPosition });
-        window.scrollTo = jest.fn();
+        
         props.allWidgetsValid = false;
         props.submitted = true;
         renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
-        expect(window.scrollTo).toHaveBeenCalledWith(0, gotoPosition);
+        
+        // Verify scrollIntoView was called with correct parameters
+        expect(scrollIntoViewMock).toHaveBeenCalledWith({ behavior: 'smooth', block: 'nearest' });
     });
 
 });
