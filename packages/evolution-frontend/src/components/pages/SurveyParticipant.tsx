@@ -30,6 +30,7 @@ import { RootState } from '../../store/configureStore';
 import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../store/survey';
 import Survey from '../pageParts/Survey';
+import SurveyFrozenPage from './SurveyFrozenPage';
 import { SurveyContext } from '../../contexts/SurveyContext';
 
 type StartSetInterview = (
@@ -89,7 +90,11 @@ const SurveyParticipant: React.FC = () => {
 
     // FIXME See if we can use react Suspense instead of this logic for the loading page (https://react.dev/reference/react/Suspense)
     if (!interviewLoaded || !interview || !interview.sectionLoaded) {
-        surveyHelperNew.devLog('%c rendering empty survey', 'background: rgba(0,0,0,0.1);');
+        if (interview?.is_frozen) {
+            // Render the frozen survey page if the interview is frozen
+            return <SurveyFrozenPage />;
+        }
+        surveyHelperNew.devLog('%c rendering empty survey ', 'background: rgba(0,0,0,0.1);');
         return <LoadingPage />;
     }
 
