@@ -6,7 +6,6 @@
  */
 import { useEffect, useState } from 'react';
 import { getPathForSection } from '../../services/url'; // Adjust the import path
-import _get from 'lodash/get';
 import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
@@ -46,22 +45,23 @@ export function useSectionTemplate(props: SectionProps) {
     // Scroll to first invalid component, if any
     useEffect(() => {
         if (!props.allWidgetsValid && props.submitted && props.loadingState === 0) {
-            const invalidInputs = document.querySelectorAll('.question-invalid input') as NodeListOf<HTMLInputElement>;
+            // Scroll to the position of the first invalid question in all
+            // cases. Some browsers, like Safari iOS have security features
+            // preventing focus without explicit user interaction (and this is
+            // not considered one)
+            const firstInvalidElement = document.getElementsByClassName('question-invalid')[0];
+            if (firstInvalidElement) {
+                firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
             // Not all widgets types focus correclty on all browsers, so we do the
-            // actual focus only on text widgets. For the others, we scroll to the
-            // position of the first invalid question to make sure it is in view. This
-            // works for all widgets types.
+            // actual focus only on text widgets.
+            const invalidInputs = document.querySelectorAll('.question-invalid input') as NodeListOf<HTMLInputElement>;
             if (invalidInputs.length > 0 && invalidInputs[0].id && invalidInputs[0].type === 'text') {
                 // Focus on invalid input if found, it has an ID, and is of type text
                 const inputElement = document.getElementById(invalidInputs[0].id);
                 if (inputElement) {
                     inputElement.focus();
-                }
-            } else {
-                // Otherwise scroll to the position of the first invalid question
-                const scrollPosition = _get(document.getElementsByClassName('question-invalid'), '[0].offsetTop', null);
-                if (scrollPosition && scrollPosition >= 0) {
-                    window.scrollTo(0, scrollPosition);
                 }
             }
         }
