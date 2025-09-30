@@ -35,7 +35,9 @@
     &.survey-with-logo {
         background-image: var(--dynamic-logo-image), url(../../assets/images/ornaments/ornament_flower_points_pale.svg);
         background-size: 15rem, 6rem;
-        background-position: left 1rem bottom 1rem, right 1rem top 100.5%;
+        background-position:
+            left 1rem bottom 1rem,
+            right 1rem top 100.5%;
         background-repeat: no-repeat, no-repeat;
     }
 
@@ -240,5 +242,40 @@
         font-size: $font-size-xlarge;
         color: black;
         font-weight: 700;
+    }
+
+    // For unavailable survey page
+    .survey-unavailable-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 600px;
+        margin: 0 auto;
+
+        .survey-unavailable-title {
+            // Reset all the style from H2
+            all: unset;
+            display: block;
+            color: inherit;
+
+            // Style the title
+            font-weight: 700;
+            font-size: $font-size-xlarge;
+            margin: $m-size;
+            text-align: left;
+            width: 100%;
+        }
+        h2.survey-unavailable-title::after {
+            // Reset all the style from H2::after
+            display: none;
+            content: none;
+            background: none;
+        }
+
+        .survey-unavailable-image {
+            max-width: 300px;
+            margin: 2em;
+        }
     }
 }

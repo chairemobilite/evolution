@@ -31,7 +31,7 @@ jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
     isLoggedIn: jest.fn((req, res, next) => {
         req.user = { id: mockUserId }; // Mock user object
         next();
-    }),
+    })
 }));
 const mockIsLoggedIn = isLoggedIn as jest.MockedFunction<typeof isLoggedIn>;
 
@@ -45,12 +45,9 @@ const mockedValidateCaptchaToken = jest.fn().mockImplementation((req, res, next)
 
 const app = express();
 app.use(express.json());
-app.use(
-    surveyParticipantRoutes(mockAuthorizationMiddleware, mockLoggingMiddleware)
-);
+app.use(surveyParticipantRoutes(mockAuthorizationMiddleware, mockLoggingMiddleware));
 
 describe('GET /survey/activeInterview', () => {
-
     afterEach(() => {
         jest.clearAllMocks();
     });
@@ -62,7 +59,7 @@ describe('GET /survey/activeInterview', () => {
             is_valid: true,
             is_completed: false,
             response: {},
-            participant_id: 1,
+            participant_id: 1
         };
         (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
 
@@ -80,7 +77,7 @@ describe('GET /survey/activeInterview', () => {
             is_valid: true,
             is_completed: false,
             response: {},
-            participant_id: 1,
+            participant_id: 1
         };
         (Interviews.getUserInterview as jest.Mock).mockResolvedValue(undefined);
         (Interviews.createInterviewForUser as jest.Mock).mockResolvedValue(mockCreatedInterview);
@@ -90,12 +87,14 @@ describe('GET /survey/activeInterview', () => {
         expect(response.status).toBe(200);
         expect(response.body).toEqual({ status: 'success', interview: mockCreatedInterview });
         expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
-        expect(Interviews.createInterviewForUser).toHaveBeenCalledWith(
-            mockUserId,
-            {},
-            undefined,
-            ['id', 'uuid', 'is_valid', 'is_completed', 'response', 'participant_id']
-        );
+        expect(Interviews.createInterviewForUser).toHaveBeenCalledWith(mockUserId, {}, undefined, [
+            'id',
+            'uuid',
+            'is_valid',
+            'is_completed',
+            'response',
+            'participant_id'
+        ]);
     });
 
     test('should return 400 if user is not defined', async () => {
@@ -120,14 +119,32 @@ describe('GET /survey/activeInterview', () => {
         expect(response.body).toEqual({
             status: 'failed',
             interview: null,
-            error: 'cannot fetch interview',
+            error: 'cannot fetch interview'
         });
+        expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
+    });
+
+    test('should return 403 if interview is frozen', async () => {
+        const mockFrozenInterview = {
+            id: 1,
+            uuid: 'mockUuid',
+            is_valid: true,
+            is_completed: false,
+            response: {},
+            participant_id: 1,
+            is_frozen: true
+        };
+        (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockFrozenInterview);
+
+        const response = await request(app).get('/survey/activeInterview');
+
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
         expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
     });
 });
 
 describe('POST /supportRequest', () => {
-
     // Setup public routes app
     const publicApp = express();
     publicApp.use(express.json());
@@ -146,9 +163,7 @@ describe('POST /supportRequest', () => {
 
         (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
 
-        const response = await request(publicApp)
-            .post('/supportRequest/')
-            .send(requestData);
+        const response = await request(publicApp).post('/supportRequest/').send(requestData);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual({ status: 'success' });
@@ -182,9 +197,7 @@ describe('POST /supportRequest', () => {
             currentUrl: 'http://test.com/page'
         };
 
-        const response = await request(loggedInApp)
-            .post('/supportRequest/')
-            .send(requestData);
+        const response = await request(loggedInApp).post('/supportRequest/').send(requestData);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual({ status: 'success' });
@@ -206,9 +219,7 @@ describe('POST /supportRequest', () => {
 
         (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
 
-        const response = await request(publicApp)
-            .post('/supportRequest/')
-            .send(requestData);
+        const response = await request(publicApp).post('/supportRequest/').send(requestData);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual({ status: 'success' });
@@ -229,9 +240,7 @@ describe('POST /supportRequest', () => {
             message: 'Help me please'
         };
 
-        const response = await request(publicApp)
-            .post('/supportRequest/')
-            .send(requestData);
+        const response = await request(publicApp).post('/supportRequest/').send(requestData);
 
         expect(response.status).toBe(500);
         expect(response.body).toEqual({ status: 'failed' });
@@ -242,7 +251,7 @@ describe('POST /supportRequest', () => {
         // Make the captcha fail
         mockedValidateCaptchaToken.mockImplementationOnce((req, res, next) => {
             return res.status(403).json({ status: 'InvalidCaptcha' });
-        })
+        });
 
         const requestData = {
             email: 'test@example.com',
@@ -252,9 +261,7 @@ describe('POST /supportRequest', () => {
 
         (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
 
-        const response = await request(publicApp)
-            .post('/supportRequest/')
-            .send(requestData);
+        const response = await request(publicApp).post('/supportRequest/').send(requestData);
 
         expect(response.status).toBe(403);
         expect(response.body).toEqual({ status: 'InvalidCaptcha' });
@@ -268,21 +275,18 @@ describe('POST /supportRequest', () => {
         jest.mock('evolution-common/lib/config/project.config', () => ({
             surveySupportForm: false
         }));
-        
+
         // Re-import to get updated config, otherwise it still uses the previous config mock and the result is a 500 error
         const { getPublicParticipantRoutes: getUpdatedRoutes } = require('../survey.participant.routes');
-        
+
         const disabledApp = express();
         disabledApp.use(express.json());
         disabledApp.use(getUpdatedRoutes());
 
-        const response = await request(disabledApp)
-            .post('/supportRequest/')
-            .send({ message: 'test' });
+        const response = await request(disabledApp).post('/supportRequest/').send({ message: 'test' });
 
         // When route doesn't exist, Express returns 404 Not Found
         expect(response.status).toBe(404);
         expect(mockedValidateCaptchaToken).not.toHaveBeenCalled();
     });
-
 });

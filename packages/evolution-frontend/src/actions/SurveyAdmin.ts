@@ -258,6 +258,10 @@ export const startSetSurveyCorrectedInterview = (
                     // This will handle all necessary updates internally
                     await dispatch(startNavigateCorrectedInterview(undefined, callback));
                 }
+            } else if (response.status === 403) {
+                // The interview is frozen, redirect to the survey unavailable page
+                surveyHelper.devLog('Redirect to unavailable page: frozen interview');
+                window.location.href = '/unavailable'; // User goes to 'unavailable' page
             }
         } catch (err) {
             surveyHelper.devLog('Error fetching interview to correct.', err);

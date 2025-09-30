@@ -792,6 +792,14 @@ export const startSetInterview = (
                         'Error: Get active interview: no interview was returned, it\'s not supposed to happen'
                     );
                 }
+            } else if (response.status === 403) {
+                // The interview is frozen, redirect to the survey unavailable page
+                surveyHelper.devLog('Redirect to unavailable page: frozen interview');
+                if (navigate) {
+                    navigate('/unavailable'); // User goes to 'unavailable' page
+                } else {
+                    window.location.href = '/unavailable'; // User goes to 'unavailable' page
+                }
             } else {
                 // FIXME Maybe handle specific response codes, like 404
                 console.log(`Get active interview: wrong response status: ${response.status}`);

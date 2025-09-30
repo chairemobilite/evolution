@@ -39,7 +39,12 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                 }
                 // Get the current interview with uuid
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
-                if (interview !== undefined) {
+                if (interview?.is_frozen) {
+                    console.log('activeSurvey: Interview is frozen');
+                    return res
+                        .status(403)
+                        .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
+                } else if (interview !== undefined) {
                     addRolesToInterview(interview, req.user as UserAttributes);
                     res.status(200).json({ status: 'success', interview });
                 } else {

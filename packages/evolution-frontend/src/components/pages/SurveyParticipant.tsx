@@ -101,7 +101,7 @@ const SurveyParticipant: React.FC = () => {
 
     // FIXME See if we can use react Suspense instead of this logic for the loading page (https://react.dev/reference/react/Suspense)
     if (!interviewLoaded || !interview || !interview.sectionLoaded) {
-        surveyHelperNew.devLog('%c rendering empty survey', 'background: rgba(0,0,0,0.1);');
+        surveyHelperNew.devLog('%c interview not yet available or loading', 'background: rgba(0,0,0,0.1);');
         return <LoadingPage />;
     }
 

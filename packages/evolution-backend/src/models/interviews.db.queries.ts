@@ -189,6 +189,7 @@ const getUserInterview = async (participantId: number): Promise<UserInterviewAtt
                 'response',
                 'validations',
                 'participant_id',
+                'is_frozen',
                 'is_valid',
                 'is_completed',
                 'is_questionable',
