@@ -39,6 +39,8 @@
   "InputMapGeocodeNoResult": "The search did not return any result",
   "InputMapGeocodeError": "The search returned an error, please try again to locate the location or click on the map to select the location",
   "BackToSurveyPage": "Back to survey",
+  "SurveyFrozenTitle": "Survey is frozen",
+  "SurveyFrozenDefaultReason": "This survey is currently frozen and cannot be filled. Please contact the survey administrator for more information.",
   "AnErrorOccurred": "An error occurred.",
   "MakeSureReliableConnection": "Make sure you have a reliable internet connection.",
   "ErrorPersistsWhatToDo": "If the problem persists, please contact the survey administrators.",
