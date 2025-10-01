@@ -28,6 +28,7 @@ const fetch = async (url, opts) => {
     return await fetchRetry(url, Object.assign({ retry: { retries: 4 }, ...opts }));
 };
 
+import i18n from '../config/i18n.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { prepareSectionWidgets } from './utils';
@@ -767,6 +768,13 @@ export const startSetInterview = (
                     const newBrowserUa = browserTechData.getUA();
                     if (existingBrowserUa !== newBrowserUa) {
                         valuesByPath['response._browser'] = browserTechData;
+                    }
+
+                    // Set or update the current language if required
+                    const previousLanguage = _get(interview, 'response._language', null);
+                    const currentLanguage = i18n.language;
+                    if (_isBlank(previousLanguage) || previousLanguage !== currentLanguage) {
+                        valuesByPath['response._language'] = currentLanguage;
                     }
                     // Set the interview in the state first
                     dispatch(setInterviewState(interview));
