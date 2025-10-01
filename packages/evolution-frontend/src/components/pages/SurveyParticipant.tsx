@@ -31,6 +31,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../store/survey';
 import Survey from '../pageParts/Survey';
 import { SurveyContext } from '../../contexts/SurveyContext';
+import { useTranslation } from 'react-i18next';
 
 type StartSetInterview = (
     activeSection: string | undefined,
@@ -46,6 +47,7 @@ const SurveyParticipant: React.FC = () => {
     const navigate = useNavigate();
     const { sectionShortname: pathSectionShortname, uuid: surveyUuid } = useParams();
     const { sections } = useContext(SurveyContext);
+    const { i18n } = useTranslation();
 
     const { state: interviewContext } = React.useContext(InterviewContext);
 
@@ -86,6 +88,16 @@ const SurveyParticipant: React.FC = () => {
                 : undefined
         );
     }, [surveyUuid, dispatch]); // Re-run when survey uuid changes
+
+    React.useEffect(() => {
+        const languageChange = (language) => {
+            startUpdateInterviewAction({ userAction: { type: 'languageChange', language } });
+        };
+        i18n.on('languageChanged', languageChange);
+        return () => {
+            i18n.off('languageChanged', languageChange);
+        };
+    }, [startUpdateInterviewAction]);
 
     // FIXME See if we can use react Suspense instead of this logic for the loading page (https://react.dev/reference/react/Suspense)
     if (!interviewLoaded || !interview || !interview.sectionLoaded) {
