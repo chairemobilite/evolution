@@ -5,14 +5,20 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Place, PlaceAttributes, placeAttributes } from '../Place';
+import { Place, ExtendedPlaceAttributes, placeAttributes } from '../Place';
 import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { Address, AddressAttributes } from '../Address';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Place', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
 
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
@@ -21,7 +27,7 @@ describe('Place', () => {
         description: 'Sample weight method description',
     };
 
-    const validPlaceAttributes: { [key: string]: unknown } = {
+    const validPlaceAttributes: ExtendedPlaceAttributes = {
         _uuid: uuidV4(),
         name: 'Test Place',
         shortname: 'Test',
@@ -57,8 +63,10 @@ describe('Place', () => {
     const extendedAttributesWithAddress: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         customAttribute: 'custom value',
-        address: {
+        _address: {
+            _uuid: uuidV4(),
             _isValid: true,
+            fullAddress: '123 Main Street',
             civicNumber: 123,
             streetName: 'Main Street',
             municipalityName: 'City',
@@ -70,8 +78,9 @@ describe('Place', () => {
     const extendedInvalidAddressAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         customAttribute: 'custom value',
-        address: {
+        _address: {
             _isValid: 123,
+            fullAddress: 123,
             civicNumber: 'foo',
             streetName: 123,
             municipalityName: 123,
@@ -89,48 +98,48 @@ describe('Place', () => {
     });
 
     test('should create a Place instance with valid attributes using constructor', () => {
-        const place = new Place(validPlaceAttributes);
+        const place = new Place(validPlaceAttributes, registry);
         expect(place).toBeInstanceOf(Place);
         expect(place.attributes).toEqual(validPlaceAttributes);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = Place.create(invalidAttributes);
+        const result = Place.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[])).toHaveLength(1);
     });
 
     test('should create a Place instance with valid attributes', () => {
-        const result = Place.create(validPlaceAttributes);
+        const result = Place.create(validPlaceAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Place);
     });
 
     test('should create a Place instance with extended attributes', () => {
-        const result = Place.create(extendedPlaceAttributes);
+        const result = Place.create(extendedPlaceAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Place);
     });
 
     test('should create a Place instance with extended attributes and address', () => {
-        const result = Place.create(extendedAttributesWithAddress);
+        const result = Place.create(extendedAttributesWithAddress, registry);
         expect(isOk(result)).toBe(true);
-        const place = unwrap(result) as Place<PlaceAttributes>;
+        const place = unwrap(result) as Place;
         expect(place).toBeInstanceOf(Place);
         expect(place.address).toBeInstanceOf(Address);
-        expect(place.address?.attributes).toEqual(extendedAttributesWithAddress.address);
+        expect(place.address?.attributes).toEqual(extendedAttributesWithAddress._address);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validPlaceAttributes, name: -1 };
-        const result = Place.create(invalidAttributes);
+        const result = Place.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a Place instance', () => {
-        const place = Place.unserialize(validPlaceAttributes);
+        const place = Place.unserialize(validPlaceAttributes, registry);
         expect(place).toBeInstanceOf(Place);
         expect(place.attributes).toEqual(validPlaceAttributes);
     });
@@ -141,7 +150,7 @@ describe('Place', () => {
     });
 
     test('should get uuid', () => {
-        const place = new Place({ ...validPlaceAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const place = new Place({ ...validPlaceAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(place._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
@@ -152,7 +161,7 @@ describe('Place', () => {
     });
 
     test('should validate a Place instance', () => {
-        const place = new Place(validPlaceAttributes);
+        const place = new Place(validPlaceAttributes, registry);
         expect(place.validate()).toBe(true);
         expect(place.isValid()).toBe(true);
     });
@@ -166,7 +175,7 @@ describe('Place', () => {
             ...validPlaceAttributes,
             ...customAttributes,
         };
-        const place = new Place(placeAttributes);
+        const place = new Place(placeAttributes, registry);
         expect(place).toBeInstanceOf(Place);
         expect(place.attributes).toEqual(validPlaceAttributes);
         expect(place.customAttributes).toEqual(customAttributes);
@@ -183,10 +192,10 @@ describe('Place', () => {
             const weightMethod = new WeightMethod(weightMethodAttributes);
             const weights: Weight[] = [{ weight: 1.5, method: weightMethod }];
             const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, _weights: weights };
-            const result = Place.create(placeAttributes);
+            const result = Place.create(placeAttributes, registry);
             expect(isOk(result)).toBe(true);
             const place = unwrap(result);
-            expect((place as Place<PlaceAttributes>)._weights).toEqual(weights);
+            expect((place as Place)._weights).toEqual(weights);
         });
     });
 
@@ -220,9 +229,9 @@ describe('Place', () => {
         });
 
         test('should return an error for invalid address', () => {
-            const result = Place.create(extendedInvalidAddressAttributes);
+            const result = Place.create(extendedInvalidAddressAttributes, registry);
             expect(hasErrors(result)).toBe(true);
-            expect((unwrap(result) as Error[])).toHaveLength(6);
+            expect((unwrap(result) as Error[])).toHaveLength(7);
         });
     });
 
@@ -250,7 +259,7 @@ describe('Place', () => {
                 properties: {},
             }],
         ])('should set and get %s', (attribute, value) => {
-            const place = new Place(validPlaceAttributes);
+            const place = new Place(validPlaceAttributes, registry);
             place[attribute] = value;
             expect(place[attribute]).toEqual(value);
         });
@@ -264,7 +273,7 @@ describe('Place', () => {
                 }],
                 ['attributes', validPlaceAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const place = new Place(extendedPlaceAttributes);
+                const place = new Place(extendedPlaceAttributes, registry);
                 expect(place[attribute]).toEqual(value);
             });
         });
@@ -273,7 +282,7 @@ describe('Place', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
         ])('should set and get %s', (attribute, value) => {
-            const place = new Place(validPlaceAttributes);
+            const place = new Place(validPlaceAttributes, registry);
             place[attribute] = value;
             expect(place[attribute]).toEqual(value);
         });
@@ -283,6 +292,7 @@ describe('Place', () => {
         test('should create an Address instance with valid address', () => {
             const addressAttributes: AddressAttributes = {
                 _uuid: uuidV4(),
+                fullAddress: '123 New Street',
                 civicNumber: 123,
                 civicNumberSuffix: 'A',
                 unitNumber: '456',
@@ -300,17 +310,18 @@ describe('Place', () => {
                 _isValid: true,
             };
             const address = new Address(addressAttributes);
-            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, address: addressAttributes };
-            const result = Place.create(placeAttributes);
+            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, _address: addressAttributes };
+            const result = Place.create(placeAttributes, registry);
             expect(isOk(result)).toBe(true);
             const place = unwrap(result);
-            expect((place as Place<PlaceAttributes>).address).toBeInstanceOf(Address);
-            expect((place as Place<PlaceAttributes>).address).toEqual(address);
+            expect((place as Place).address).toBeInstanceOf(Address);
+            expect((place as Place).address).toEqual(address);
         });
 
         test('should handle Address with postalId correctly', () => {
             const addressAttributes: AddressAttributes = {
                 _uuid: uuidV4(),
+                fullAddress: '123 Test Avenue',
                 civicNumber: 456,
                 streetName: 'Test Avenue',
                 streetNameHomogenized: 'test avenue',
@@ -323,8 +334,8 @@ describe('Place', () => {
                 combinedAddressUuid: uuidV4(),
                 _isValid: true,
             };
-            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, address: addressAttributes };
-            const place = new Place(placeAttributes);
+            const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, _address: addressAttributes };
+            const place = new Place(placeAttributes, registry);
 
             expect(place.address).toBeInstanceOf(Address);
             expect(place.address?.postalId).toBe('test-postal-id');
@@ -335,6 +346,7 @@ describe('Place', () => {
         test('should validate Address with new UUID fields', () => {
             const addressAttributes: AddressAttributes = {
                 _uuid: uuidV4(),
+                fullAddress: '789 Validation Street',
                 civicNumber: 789,
                 streetName: 'Validation Street',
                 streetNameHomogenized: 'validation street',
@@ -353,24 +365,24 @@ describe('Place', () => {
 
     describe('geographyIsValid', () => {
         test('should return true for valid geography', () => {
-            const place = new Place(validPlaceAttributes);
+            const place = new Place(validPlaceAttributes, registry);
             expect(place.geographyIsValid()).toBe(true);
         });
 
         test('should return false for invalid geography', () => {
-            const place = new Place(validPlaceAttributes);
+            const place = new Place(validPlaceAttributes, registry);
             place.geography = 'invalid' as any;
             expect(place.geographyIsValid()).toBe(false);
         });
 
         test('should return undefined for no geography', () => {
-            const place = new Place(validPlaceAttributes);
+            const place = new Place(validPlaceAttributes, registry);
             place.geography = undefined;
             expect(place.geographyIsValid()).toBe(undefined);
         });
 
         test('should return false for valid feature, but not a point', () => {
-            const place = new Place(validPlaceAttributes);
+            const place = new Place(validPlaceAttributes, registry);
             place.geography = {
                 type: 'Feature',
                 geometry: {

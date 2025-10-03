@@ -6,7 +6,7 @@
  */
 
 import { Optional } from '../types/Optional.type';
-
+import { SurveyObjectsRegistry } from '../services/baseObjects/SurveyObjectsRegistry';
 export class ConstructorUtils {
     /**
      * Initializes the attributes and custom attributes of an object based on the provided parameters.
@@ -49,11 +49,13 @@ export class ConstructorUtils {
      * @template P - The type of the attribute item parameters.
      * @param params - The parameters object containing the composed attribute values. Undefined array elements are allowed but will be ignored
      * @param unserializeFunc - The function used to unserialize each attribute item.
+     * @param surveyObjectsRegistry - The survey objects registry.
      * @returns An array of unserialized attribute items.
      */
     static initializeComposedArrayAttributes<U, P>(
         attributeParams: Optional<P[]>,
-        unserializeFunc: (params: P) => U
+        unserializeFunc: (params: P, surveyObjectsRegistry: SurveyObjectsRegistry) => U,
+        surveyObjectsRegistry: SurveyObjectsRegistry
     ): U[] {
         const attributeList: U[] = [];
 
@@ -61,7 +63,7 @@ export class ConstructorUtils {
             for (const itemParams of attributeParams) {
                 if (itemParams !== undefined) {
                     // Unserialize each attribute item using the provided unserialize function
-                    attributeList.push(unserializeFunc(itemParams));
+                    attributeList.push(unserializeFunc(itemParams, surveyObjectsRegistry));
                 }
             }
         }
@@ -76,11 +78,16 @@ export class ConstructorUtils {
      * @template P - The type of the attribute item parameters.
      * @param params - The composed parameters values.
      * @param unserializeFunc - The function used to unserialize each attribute item.
+     * @param surveyObjectsRegistry - The survey objects registry.
      * @returns the unserialized attribute items.
      */
-    static initializeComposedAttribute<U, P>(params: Optional<P>, unserializeFunc: (params: P) => U): Optional<U> {
+    static initializeComposedAttribute<U, P>(
+        params: Optional<P>,
+        unserializeFunc: (params: P, surveyObjectsRegistry: SurveyObjectsRegistry) => U,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Optional<U> {
         if (params !== undefined) {
-            return unserializeFunc(params);
+            return unserializeFunc(params, surveyObjectsRegistry);
         } else {
             return undefined;
         }

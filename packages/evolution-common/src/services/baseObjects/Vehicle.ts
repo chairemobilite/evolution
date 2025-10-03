@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { Optional } from '../../types/Optional.type';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -12,6 +14,10 @@ import { Uuidable, UuidableAttributes } from './Uuidable';
 import * as VAttr from './attributeTypes/VehicleAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
+import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
+import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
+import { Organization } from './Organization';
+import { Person } from './Person';
 
 export const vehicleAttributes = [
     '_weights',
@@ -52,12 +58,18 @@ export type VehicleAttributes = {
 
 export type ExtendedVehicleAttributes = VehicleAttributes & { [key: string]: unknown };
 
+export type SerializedExtendedVehicleAttributes = {
+    _attributes?: ExtendedVehicleAttributes;
+    _customAttributes?: { [key: string]: unknown };
+};
+
 /**
  * A vehicle is owned by a person or an organization
  * and could be used during a trip or a segment of a trip
  * It could include cars, trucks, planes, buses, boats, bicycles, scooters, etc.
  */
-export class Vehicle implements IValidatable {
+export class Vehicle extends Uuidable implements IValidatable {
+    private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: VehicleAttributes;
     private _customAttributes: { [key: string]: unknown };
 
@@ -66,19 +78,25 @@ export class Vehicle implements IValidatable {
     private _organizationUuid?: Optional<string>; // allow reverse lookup: must be filled by Organization.
     private _ownerUuid?: Optional<string>; // allow reverse lookup: must be filled by Person.
 
-    constructor(params: ExtendedVehicleAttributes) {
-        params._uuid = Uuidable.getUuid(params._uuid);
+    constructor(params: ExtendedVehicleAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
+        super(params._uuid);
+
+        this._surveyObjectsRegistry = surveyObjectsRegistry;
 
         this._attributes = {} as VehicleAttributes;
         this._customAttributes = {};
 
-        for (const attribute in params) {
+        for (const attribute in _omit(params, ['_organizationUuid', '_ownerUuid'])) {
             if (vehicleAttributes.includes(attribute)) {
                 this._attributes[attribute] = params[attribute];
             } else {
                 this._customAttributes[attribute] = params[attribute];
             }
         }
+        this.organizationUuid = params._organizationUuid as Optional<string>;
+        this.ownerUuid = params._ownerUuid as Optional<string>;
+
+        this._surveyObjectsRegistry.registerVehicle(this);
     }
 
     get attributes(): VehicleAttributes {
@@ -87,10 +105,6 @@ export class Vehicle implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _uuid(): Optional<string> {
-        return this._attributes._uuid;
     }
 
     get _isValid(): Optional<boolean> {
@@ -221,6 +235,13 @@ export class Vehicle implements IValidatable {
         this._ownerUuid = value;
     }
 
+    get owner(): Optional<Person> {
+        if (!this._ownerUuid) {
+            return undefined;
+        }
+        return this._surveyObjectsRegistry.getPerson(this._ownerUuid);
+    }
+
     get organizationUuid(): Optional<string> {
         return this._organizationUuid;
     }
@@ -229,13 +250,32 @@ export class Vehicle implements IValidatable {
         this._organizationUuid = value;
     }
 
-    static unserialize(params: ExtendedVehicleAttributes): Vehicle {
-        return new Vehicle(params);
+    get organization(): Optional<Organization> {
+        if (!this._organizationUuid) {
+            return undefined;
+        }
+        return this._surveyObjectsRegistry.getOrganization(this._organizationUuid);
     }
 
-    static create(dirtyParams: { [key: string]: unknown }): Result<Vehicle> {
+    /**
+     * Creates a Vehicle object from sanitized parameters
+     * @param {ExtendedVehicleAttributes | SerializedExtendedVehicleAttributes} params - Sanitized vehicle parameters
+     * @returns {Vehicle} New Vehicle instance
+     */
+    static unserialize(
+        params: ExtendedVehicleAttributes | SerializedExtendedVehicleAttributes,
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Vehicle {
+        const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
+        return new Vehicle(flattenedParams, surveyObjectsRegistry);
+    }
+
+    static create(
+        dirtyParams: { [key: string]: unknown },
+        surveyObjectsRegistry: SurveyObjectsRegistry
+    ): Result<Vehicle> {
         const errors = Vehicle.validateParams(dirtyParams);
-        const vehicle = errors.length === 0 ? new Vehicle(dirtyParams) : undefined;
+        const vehicle = errors.length === 0 ? new Vehicle(dirtyParams, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }
@@ -294,6 +334,9 @@ export class Vehicle implements IValidatable {
         );
 
         errors.push(...ParamsValidatorUtils.isString('internalId', dirtyParams.internalId, displayName));
+
+        errors.push(...ParamsValidatorUtils.isUuid('_ownerUuid', dirtyParams._ownerUuid, displayName));
+        errors.push(...ParamsValidatorUtils.isUuid('_organizationUuid', dirtyParams._organizationUuid, displayName));
 
         return errors;
     }

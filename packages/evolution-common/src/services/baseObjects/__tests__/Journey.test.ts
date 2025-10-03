@@ -6,15 +6,22 @@
  */
 
 import { Journey, JourneyAttributes, ExtendedJourneyAttributes, journeyAttributes } from '../Journey';
-import { VisitedPlaceAttributes } from '../VisitedPlace';
+import { ExtendedVisitedPlaceAttributes } from '../VisitedPlace';
 import { TripAttributes } from '../Trip';
 import { TripChainAttributes } from '../TripChain';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Journey', () => {
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
@@ -46,7 +53,7 @@ describe('Journey', () => {
     const extendedAttributes: ExtendedJourneyAttributes = {
         ...validAttributes,
         customAttribute: 'Custom Value',
-        visitedPlaces: [
+        _visitedPlaces: [
             {
                 _uuid: uuidV4(),
                 geography: {
@@ -60,14 +67,14 @@ describe('Journey', () => {
                 _isValid: true,
             },
         ],
-        trips: [
+        _trips: [
             {
                 _uuid: uuidV4(),
                 startDate: '2023-01-03',
                 _isValid: true,
             },
         ],
-        tripChains: [
+        _tripChains: [
             {
                 _uuid: uuidV4(),
                 category: 'simple',
@@ -77,7 +84,7 @@ describe('Journey', () => {
     };
 
     test('should instantiate a Journey instance', () => {
-        const journey = new Journey(validAttributes);
+        const journey = new Journey(validAttributes, registry);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
     });
@@ -90,38 +97,38 @@ describe('Journey', () => {
     });
 
     test('should get uuid', () => {
-        const journey = new Journey({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' });
+        const journey = new Journey({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(journey._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
     test('should create a Journey instance with valid attributes', () => {
-        const result = Journey.create(validAttributes);
+        const result = Journey.create(validAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Journey);
     });
 
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
-        const result = Journey.create(invalidAttributes);
+        const result = Journey.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should create a Journey instance with extended attributes', () => {
-        const result = Journey.create(extendedAttributes);
+        const result = Journey.create(extendedAttributes, registry);
         expect(isOk(result)).toBe(true);
         expect(unwrap(result)).toBeInstanceOf(Journey);
     });
 
     test('should return errors for invalid attributes', () => {
         const invalidAttributes = { ...validAttributes, startTime: 'invalid' };
-        const result = Journey.create(invalidAttributes);
+        const result = Journey.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
         expect((unwrap(result) as Error[]).length).toBeGreaterThan(0);
     });
 
     test('should unserialize a Journey instance', () => {
-        const journey = Journey.unserialize(validAttributes);
+        const journey = Journey.unserialize(validAttributes, registry);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
     });
@@ -138,7 +145,7 @@ describe('Journey', () => {
     });
 
     test('should validate a Journey instance', () => {
-        const journey = new Journey(validAttributes);
+        const journey = new Journey(validAttributes, registry);
         expect(journey.validate()).toBe(true);
         expect(journey.isValid()).toBe(true);
     });
@@ -152,7 +159,7 @@ describe('Journey', () => {
             ...validAttributes,
             ...customAttributes,
         };
-        const journey = new Journey(journeyAttributes);
+        const journey = new Journey(journeyAttributes, registry);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
         expect(journey.customAttributes).toEqual(customAttributes);
@@ -206,7 +213,7 @@ describe('Journey', () => {
             ['previousWeekRemoteWorkDays', { friday: true, saturday: true, sunday: true }],
             ['previousWeekTravelToWorkDays', { thursday: true, friday: true }],
         ])('should set and get %s', (attribute, value) => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;
             expect(journey[attribute]).toEqual(value);
         });
@@ -217,7 +224,7 @@ describe('Journey', () => {
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
                 ['attributes', validAttributes],
             ])('should set and get %s', (attribute, value) => {
-                const journey = new Journey(extendedAttributes);
+                const journey = new Journey(extendedAttributes, registry);
                 expect(journey[attribute]).toEqual(value);
             });
         });
@@ -225,45 +232,295 @@ describe('Journey', () => {
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['visitedPlaces', extendedAttributes.visitedPlaces],
-            ['trips', extendedAttributes.trips],
-            ['tripChains', extendedAttributes.tripChains],
+            ['_visitedPlaces', extendedAttributes._visitedPlaces],
+            ['_trips', extendedAttributes._trips],
+            ['_tripChains', extendedAttributes._tripChains],
             ['personUuid', uuidV4()],
         ])('should set and get %s', (attribute, value) => {
-            const journey = new Journey(validAttributes);
+            const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;
             expect(journey[attribute]).toEqual(value);
         });
     });
 
+    describe('VisitedPlace and Trip Management Methods', () => {
+        test('should add visited places using addVisitedPlace method', () => {
+            const journey = new Journey(validAttributes, registry);
+            const vp1 = { _uuid: uuidV4(), _isValid: true };
+            const vp2 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addVisitedPlace(vp1 as any);
+            journey.addVisitedPlace(vp2 as any);
+
+            const visitedPlaces = journey.visitedPlaces || [];
+            expect(visitedPlaces).toHaveLength(2);
+            expect(visitedPlaces[0]).toBe(vp1);
+            expect(visitedPlaces[1]).toBe(vp2);
+        });
+
+        test('should insert visited place at specific index', () => {
+            const journey = new Journey(validAttributes, registry);
+            const vp1 = { _uuid: uuidV4(), _isValid: true };
+            const vp2 = { _uuid: uuidV4(), _isValid: true };
+            const vp3 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addVisitedPlace(vp1 as any);
+            journey.addVisitedPlace(vp3 as any);
+            journey.insertVisitedPlace(vp2 as any, 1);
+
+            const visitedPlaces = journey.visitedPlaces || [];
+            expect(visitedPlaces).toHaveLength(3);
+            expect(visitedPlaces[0]).toBe(vp1);
+            expect(visitedPlaces[1]).toBe(vp2);
+            expect(visitedPlaces[2]).toBe(vp3);
+        });
+
+        test('should insert visited place after specific UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const vp1 = { _uuid: uuidV4(), _isValid: true };
+            const vp2 = { _uuid: uuidV4(), _isValid: true };
+            const vp3 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addVisitedPlace(vp1 as any);
+            journey.addVisitedPlace(vp3 as any);
+            const success = journey.insertVisitedPlaceAfterUuid(vp2 as any, vp1._uuid);
+
+            expect(success).toBe(true);
+            const visitedPlaces = journey.visitedPlaces || [];
+            expect(visitedPlaces).toHaveLength(3);
+            expect(visitedPlaces[0]).toBe(vp1);
+            expect(visitedPlaces[1]).toBe(vp2);
+            expect(visitedPlaces[2]).toBe(vp3);
+        });
+
+        test('should insert visited place before specific UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const vp1 = { _uuid: uuidV4(), _isValid: true };
+            const vp2 = { _uuid: uuidV4(), _isValid: true };
+            const vp3 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addVisitedPlace(vp1 as any);
+            journey.addVisitedPlace(vp3 as any);
+            const success = journey.insertVisitedPlaceBeforeUuid(vp2 as any, vp3._uuid);
+
+            expect(success).toBe(true);
+            const visitedPlaces = journey.visitedPlaces || [];
+            expect(visitedPlaces).toHaveLength(3);
+            expect(visitedPlaces[0]).toBe(vp1);
+            expect(visitedPlaces[1]).toBe(vp2);
+            expect(visitedPlaces[2]).toBe(vp3);
+        });
+
+        test('should remove visited place by UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const vp1 = { _uuid: uuidV4(), _isValid: true };
+            const vp2 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addVisitedPlace(vp1 as any);
+            journey.addVisitedPlace(vp2 as any);
+            const success = journey.removeVisitedPlace(vp1._uuid);
+
+            expect(success).toBe(true);
+            const visitedPlaces = journey.visitedPlaces || [];
+            expect(visitedPlaces).toHaveLength(1);
+            expect(visitedPlaces[0]).toBe(vp2);
+        });
+
+        test('should get visited place by UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const vp1 = { _uuid: uuidV4(), _isValid: true };
+            const vp2 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addVisitedPlace(vp1 as any);
+            journey.addVisitedPlace(vp2 as any);
+
+            expect(journey.getVisitedPlaceByUuid(vp1._uuid)).toBe(vp1);
+            expect(journey.getVisitedPlaceByUuid(vp2._uuid)).toBe(vp2);
+            expect(journey.getVisitedPlaceByUuid(uuidV4())).toBeUndefined();
+        });
+
+        test('should add trips using addTrip method', () => {
+            const journey = new Journey(validAttributes, registry);
+            const trip1 = { _uuid: uuidV4(), _isValid: true };
+            const trip2 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addTrip(trip1 as any);
+            journey.addTrip(trip2 as any);
+
+            const trips = journey.trips || [];
+            expect(trips).toHaveLength(2);
+            expect(trips[0]).toBe(trip1);
+            expect(trips[1]).toBe(trip2);
+        });
+
+        test('should insert trip at specific index', () => {
+            const journey = new Journey(validAttributes, registry);
+            const trip1 = { _uuid: uuidV4(), _isValid: true };
+            const trip2 = { _uuid: uuidV4(), _isValid: true };
+            const trip3 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addTrip(trip1 as any);
+            journey.addTrip(trip3 as any);
+            journey.insertTrip(trip2 as any, 1);
+
+            const trips = journey.trips || [];
+            expect(trips).toHaveLength(3);
+            expect(trips[0]).toBe(trip1);
+            expect(trips[1]).toBe(trip2);
+            expect(trips[2]).toBe(trip3);
+        });
+
+        test('should insert trip after specific UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const trip1 = { _uuid: uuidV4(), _isValid: true };
+            const trip2 = { _uuid: uuidV4(), _isValid: true };
+            const trip3 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addTrip(trip1 as any);
+            journey.addTrip(trip3 as any);
+            const success = journey.insertTripAfterUuid(trip2 as any, trip1._uuid);
+
+            expect(success).toBe(true);
+            const trips = journey.trips || [];
+            expect(trips).toHaveLength(3);
+            expect(trips[0]).toBe(trip1);
+            expect(trips[1]).toBe(trip2);
+            expect(trips[2]).toBe(trip3);
+        });
+
+        test('should insert trip before specific UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const trip1 = { _uuid: uuidV4(), _isValid: true };
+            const trip2 = { _uuid: uuidV4(), _isValid: true };
+            const trip3 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addTrip(trip1 as any);
+            journey.addTrip(trip3 as any);
+            const success = journey.insertTripBeforeUuid(trip2 as any, trip3._uuid);
+
+            expect(success).toBe(true);
+            const trips = journey.trips || [];
+            expect(trips).toHaveLength(3);
+            expect(trips[0]).toBe(trip1);
+            expect(trips[1]).toBe(trip2);
+            expect(trips[2]).toBe(trip3);
+        });
+
+        test('should remove trip by UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const trip1 = { _uuid: uuidV4(), _isValid: true };
+            const trip2 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addTrip(trip1 as any);
+            journey.addTrip(trip2 as any);
+            const success = journey.removeTrip(trip1._uuid);
+
+            expect(success).toBe(true);
+            const trips = journey.trips || [];
+            expect(trips).toHaveLength(1);
+            expect(trips[0]).toBe(trip2);
+        });
+
+        test('should get trip by UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const trip1 = { _uuid: uuidV4(), _isValid: true };
+            const trip2 = { _uuid: uuidV4(), _isValid: true };
+
+            journey.addTrip(trip1 as any);
+            journey.addTrip(trip2 as any);
+
+            expect(journey.getTripByUuid(trip1._uuid)).toBe(trip1);
+            expect(journey.getTripByUuid(trip2._uuid)).toBe(trip2);
+            expect(journey.getTripByUuid(uuidV4())).toBeUndefined();
+        });
+
+        test('should return false when inserting after/before non-existent UUID', () => {
+            const journey = new Journey(validAttributes, registry);
+            const vp1 = { _uuid: uuidV4(), _isValid: true };
+            const vp2 = { _uuid: uuidV4(), _isValid: true };
+            const trip1 = { _uuid: uuidV4(), _isValid: true };
+            const trip2 = { _uuid: uuidV4(), _isValid: true };
+
+            // Add items first to make arrays non-empty
+            journey.addVisitedPlace(vp1 as any);
+            journey.addTrip(trip1 as any);
+
+            // Now test insertion with non-existent UUID - should return false
+            expect(journey.insertVisitedPlaceAfterUuid(vp2 as any, uuidV4())).toBe(false);
+            expect(journey.insertVisitedPlaceBeforeUuid(vp2 as any, uuidV4())).toBe(false);
+            expect(journey.insertTripAfterUuid(trip2 as any, uuidV4())).toBe(false);
+            expect(journey.insertTripBeforeUuid(trip2 as any, uuidV4())).toBe(false);
+        });
+
+        test('should handle empty arrays', () => {
+            const journey = new Journey(validAttributes, registry);
+
+            expect(journey.visitedPlaces).toHaveLength(0);
+            expect(journey.trips).toHaveLength(0);
+            expect(journey.getVisitedPlaceByUuid(uuidV4())).toBeUndefined();
+            expect(journey.getTripByUuid(uuidV4())).toBeUndefined();
+            expect(journey.removeVisitedPlace(uuidV4())).toBe(false);
+            expect(journey.removeTrip(uuidV4())).toBe(false);
+        });
+
+        test('should add to empty array when inserting after/before UUID with empty array', () => {
+            const journey = new Journey(validAttributes, registry);
+            const vp = { _uuid: uuidV4(), _isValid: true };
+            const trip = { _uuid: uuidV4(), _isValid: true };
+
+            const vpSuccessAfter = journey.insertVisitedPlaceAfterUuid(vp as any, uuidV4());
+            expect(vpSuccessAfter).toBe(true);
+            expect(journey.visitedPlaces).toHaveLength(1);
+
+            const tripSuccessAfter = journey.insertTripAfterUuid(trip as any, uuidV4());
+            expect(tripSuccessAfter).toBe(true);
+            expect(journey.trips).toHaveLength(1);
+        });
+    });
+
     describe('Composed Attributes', () => {
         test('should create VisitedPlace instances for visitedPlaces when creating a Journey instance', () => {
-            const visitedPlaceAttributes: VisitedPlaceAttributes[] = [
+            const visitedPlaceAttributes: ExtendedVisitedPlaceAttributes[] = [
                 {
                     _uuid: uuidV4(),
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [0, 0],
-                        },
-                        properties: {},
-                    },
+                    _sequence: 1,
+                    activity: 'home',
+                    activityCategory: 'home',
+                    _weights: [{ weight: 1.0, method: new WeightMethod(weightMethodAttributes) }],
                     _isValid: true,
+                    _place: {
+                        _uuid: uuidV4(),
+                        geography: {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [0, 0],
+                            },
+                            properties: {},
+                        },
+                        _isValid: true,
+                    },
                 },
             ];
 
             const journeyAttributes: ExtendedJourneyAttributes = {
                 ...validAttributes,
-                visitedPlaces: visitedPlaceAttributes,
+                _visitedPlaces: visitedPlaceAttributes,
             };
 
-            const result = Journey.create(journeyAttributes);
+            const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);
             const journey = unwrap(result) as Journey;
             expect(journey.visitedPlaces).toBeDefined();
             expect(journey.visitedPlaces?.length).toBe(1);
-            expect(journey.visitedPlaces?.[0].attributes).toEqual(visitedPlaceAttributes[0]);
+            expect(journey.visitedPlaces?.[0].attributes).toEqual({
+                _uuid: visitedPlaceAttributes[0]._uuid,
+                _sequence: visitedPlaceAttributes[0]._sequence,
+                activity: visitedPlaceAttributes[0].activity,
+                activityCategory: visitedPlaceAttributes[0].activityCategory,
+                _weights: visitedPlaceAttributes[0]._weights,
+                _isValid: visitedPlaceAttributes[0]._isValid,
+            });
         });
 
         test('should create Trip instances for trips when creating a Journey instance', () => {
@@ -277,10 +534,10 @@ describe('Journey', () => {
 
             const journeyAttributes: ExtendedJourneyAttributes = {
                 ...validAttributes,
-                trips: tripAttributes,
+                _trips: tripAttributes,
             };
 
-            const result = Journey.create(journeyAttributes);
+            const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);
             const journey = unwrap(result) as Journey;
             expect(journey.trips).toBeDefined();
@@ -299,10 +556,10 @@ describe('Journey', () => {
 
             const journeyAttributes: ExtendedJourneyAttributes = {
                 ...validAttributes,
-                tripChains: tripChainAttributes,
+                _tripChains: tripChainAttributes,
             };
 
-            const result = Journey.create(journeyAttributes);
+            const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);
             const journey = unwrap(result) as Journey;
             expect(journey.tripChains).toBeDefined();

@@ -7,6 +7,15 @@
 import { AuditForObject, Audits } from 'evolution-common/lib/services/audits/types';
 import slugify from 'slugify';
 
+/**
+ * Convert parameter validation errors to audit objects
+ * Transforms validation errors into audit format for consistent error reporting
+ * @param {Error[]} errors - Array of validation errors to convert
+ * @param {Object} objectData - Context information for the audit
+ * @param {string} objectData.objectType - Type of object that failed validation
+ * @param {string} objectData.objectUuid - UUID of the object that failed validation
+ * @returns {AuditForObject[]} Array of audit objects representing the errors
+ */
 export const convertParamsErrorsToAudits = (
     errors: Error[],
     objectData: Pick<AuditForObject, 'objectType' | 'objectUuid'>
@@ -27,8 +36,14 @@ export const convertParamsErrorsToAudits = (
     return audits;
 };
 
-// Will ignore audits set to ignore except if overrideIgnoredAudits is true.
-// Old existing audits not triggering errors in new version will be removed.
+/**
+ * Merge new audits with existing audits, preserving ignored status when appropriate
+ *
+ * @param {Audits} existingAudits existing audits to merge with new audits
+ * @param {Audits} newAudits new audits to merge with existing audits
+ * @param {boolean} [overrideIgnoredAudits=false] will ignore audits set to ignore except if overrideIgnoredAudits is true.
+ * @returns {Audits} merged audits
+ */
 export const mergeWithExisting = (existingAudits: Audits, newAudits: Audits, overrideIgnoredAudits = false): Audits => {
     for (const errorCode in existingAudits) {
         if (!newAudits[errorCode]) {

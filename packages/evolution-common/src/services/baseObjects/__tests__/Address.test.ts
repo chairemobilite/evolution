@@ -8,11 +8,20 @@
 import { Address, ExtendedAddressAttributes, addressAttributes } from '../Address';
 import { v4 as uuidV4 } from 'uuid';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
+import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Address', () => {
+
+    let registry: SurveyObjectsRegistry;
+
+    beforeEach(() => {
+        registry = new SurveyObjectsRegistry();
+    });
+
     const validAddressAttributes: ExtendedAddressAttributes = {
         _uuid: uuidV4(),
         _isValid: true,
+        fullAddress: '123 Main Street',
         civicNumber: 123,
         civicNumberSuffix: 'A',
         unitNumber: '456',
@@ -72,7 +81,7 @@ describe('Address', () => {
     });
 
     test('should unserialize an Address instance', () => {
-        const address = Address.unserialize(validAddressAttributes);
+        const address = Address.unserialize(validAddressAttributes, registry);
         expect(address).toBeInstanceOf(Address);
         expect(address.attributes).toEqual(validAddressAttributes);
     });
@@ -111,6 +120,7 @@ describe('Address', () => {
     test('should report errors for invalid Address UUIDs', () => {
         const bad: ExtendedAddressAttributes = {
             _uuid: uuidV4(),
+            fullAddress: '123 Main Street',
             civicNumber: 1,
             streetName: 'X',
             municipalityName: 'Y',
@@ -127,6 +137,7 @@ describe('Address', () => {
 
     describe('Getters and Setters', () => {
         test.each([
+            ['fullAddress', '123 Main Street'],
             ['civicNumber', 789],
             ['civicNumberSuffix', 'B'],
             ['unitNumber', '987A'],
@@ -152,6 +163,7 @@ describe('Address', () => {
 
     describe('validateParams', () => {
         test.each([
+            ['fullAddress', 123],
             ['civicNumber', 'invalid'],
             ['unitNumber', {}],
             ['streetName', 123],

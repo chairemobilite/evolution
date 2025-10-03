@@ -7,6 +7,7 @@
 import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import { ServerFieldUpdateCallback } from '../services/interviews/serverFieldUpdate';
 import { ServerValidation } from '../services/validations/serverValidation';
+import { SurveyObjectParsers } from '../services/audits/types';
 import {
     InterviewAttributes,
     InterviewListAttributes,
@@ -28,6 +29,12 @@ interface ProjectServerConfig {
      * individual audits. It is optional. If the survey does not require auditing, just leave blank.
      */
     auditInterview?: (attributes: InterviewAttributes) => Promise<SurveyObjectsWithAudits>;
+    /**
+     * Configuration for parsing survey response values before object creation.
+     * This allows converting string values like 'yes'/'no' to proper types like boolean
+     * before validation occurs. Optional - if not provided, no parsing will occur.
+     */
+    surveyObjectParsers?: SurveyObjectParsers;
     /**
      * Configuration of a Transition instance for route calculations. If not
      * set, route calculations will not use the Transition public API for

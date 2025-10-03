@@ -216,7 +216,7 @@ export type InterviewResponse = {
     [key: string]: any;
 };
 
-type CorrectedResponse = InterviewResponse & {
+export type CorrectedResponse = InterviewResponse & {
     _correctedResponseCopiedAt?: number;
     _validationComment?: string;
 };

@@ -29,6 +29,7 @@ describe('BaseJourney', () => {
 
     const baseJourneyAttributes: ExtendedJourneyAttributes = {
         _uuid: validUUID,
+        uuid: validUUID,
         startDate: '2023-10-05',
         endDate: '2023-10-06',
         startTime: 36000, // 10 hours in seconds
@@ -53,6 +54,7 @@ describe('BaseJourney', () => {
     it('should create a new BaseJourney instance with minimal attributes', () => {
         const minimalAttributes: BaseJourneyAttributes = {
             _uuid: validUUID,
+            uuid: validUUID,
             startDate: '2023-10-07',
             endDate: '2023-10-08',
             startTime: 36100, // 10 hours in seconds
