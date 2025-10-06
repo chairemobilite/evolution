@@ -39,15 +39,14 @@ export async function populateSegmentsForTrip(
         return sequenceA - sequenceB;
     });
 
-    for (const [segmentUuid, segmentAttributes] of sortedSegmentEntries) {
+    for (const [segmentUuid, originalCorrectedSegmentAttributes] of sortedSegmentEntries) {
         if (segmentUuid === 'undefined') {
             continue;
         }
 
-        // Parse segment attributes if parser is available
-        if (projectConfig.surveyObjectParsers?.segment) {
-            projectConfig.surveyObjectParsers.segment(segmentAttributes, correctedResponse);
-        }
+        const segmentAttributes = projectConfig.surveyObjectParsers?.segment
+            ? projectConfig.surveyObjectParsers.segment(originalCorrectedSegmentAttributes, correctedResponse)
+            : originalCorrectedSegmentAttributes;
 
         const segment = Segment.create(segmentAttributes as ExtendedSegmentAttributes, surveyObjectsRegistry);
 

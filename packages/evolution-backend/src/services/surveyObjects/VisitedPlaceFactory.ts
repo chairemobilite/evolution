@@ -46,15 +46,14 @@ export async function populateVisitedPlacesForJourney(
         return sequenceA - sequenceB;
     });
 
-    for (const [visitedPlaceUuid, visitedPlaceAttributes] of sortedVisitedPlaceEntries) {
+    for (const [visitedPlaceUuid, originalCorrectedVisitedPlaceAttributes] of sortedVisitedPlaceEntries) {
         if (visitedPlaceUuid === 'undefined') {
             continue;
         }
 
-        // Parse visited place attributes if parser is available
-        if (projectConfig.surveyObjectParsers?.visitedPlace) {
-            projectConfig.surveyObjectParsers.visitedPlace(visitedPlaceAttributes, correctedResponse);
-        }
+        const visitedPlaceAttributes = projectConfig.surveyObjectParsers?.visitedPlace
+            ? projectConfig.surveyObjectParsers.visitedPlace(originalCorrectedVisitedPlaceAttributes, correctedResponse)
+            : originalCorrectedVisitedPlaceAttributes;
 
         const visitedPlaceResult = VisitedPlace.create(
             visitedPlaceAttributes as ExtendedVisitedPlaceAttributes,

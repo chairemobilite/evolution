@@ -17,13 +17,16 @@ import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/t
 /**
  * Parser function type for converting survey response values to proper types
  * before object validation. For example, converting 'yes'/'no' strings to boolean values.
- * Parsers modify the corrected response in place.
+ *
+ * All parser functions must return a copied/cloned version of the corrected attributes (TInput)
  */
-export type SurveyObjectParserInterview<TInput> = (attributes: TInput) => void;
+export type SurveyObjectParserInterview<CorrectedResponse> = (
+    originalCorrectedResponse: Readonly<CorrectedResponse>
+) => CorrectedResponse;
 export type SurveyObjectParser<TInput, CorrectedResponse> = (
-    attributes: TInput,
-    correctedResponse: CorrectedResponse
-) => void;
+    originalCorrectedAttributes: Readonly<TInput>,
+    correctedResponse: Readonly<CorrectedResponse>
+) => TInput;
 
 /**
  * Configuration for survey object parsers.

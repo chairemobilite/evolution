@@ -45,15 +45,14 @@ export async function populateTripsForJourney(
         return sequenceA - sequenceB;
     });
 
-    for (const [tripUuid, tripAttributes] of sortedTripEntries) {
+    for (const [tripUuid, originalCorrectedTripAttributes] of sortedTripEntries) {
         if (tripUuid === 'undefined') {
             continue;
         }
 
-        // Parse trip attributes if parser is available
-        if (projectConfig.surveyObjectParsers?.trip) {
-            projectConfig.surveyObjectParsers.trip(tripAttributes, correctedResponse);
-        }
+        const tripAttributes = projectConfig.surveyObjectParsers?.trip
+            ? projectConfig.surveyObjectParsers.trip(originalCorrectedTripAttributes, correctedResponse)
+            : originalCorrectedTripAttributes;
 
         const trip = Trip.create(
             _omit(tripAttributes as { [key: string]: unknown }, ['segments']) as ExtendedTripAttributes,

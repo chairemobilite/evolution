@@ -44,7 +44,7 @@ describe('SurveyObjectParsers Integration', () => {
 
     describe('Parser Configuration Integration', () => {
         it('should call interview parser when configured in SurveyObjectsFactory', async () => {
-            const mockInterviewParser = jest.fn();
+            const mockInterviewParser = jest.fn().mockReturnValue({ _language: 'en' });
 
             setProjectConfig({
                 surveyObjectParsers: {
@@ -67,7 +67,10 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call home parser when configured in SurveyObjectsFactory', async () => {
-            const mockHomeParser = jest.fn();
+            const mockHomeParser = jest.fn().mockReturnValue({
+                _uuid: uuidV4(),
+                address: '123 Test St'
+            });
 
             setProjectConfig({
                 surveyObjectParsers: {
@@ -96,7 +99,10 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call household parser when configured in SurveyObjectsFactory', async () => {
-            const mockHouseholdParser = jest.fn();
+            const mockHouseholdParser = jest.fn().mockReturnValue({
+                _uuid: uuidV4(),
+                size: 2
+            });
 
             setProjectConfig({
                 surveyObjectParsers: {
@@ -125,7 +131,11 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call person parser when configured in PersonFactory', async () => {
-            const mockPersonParser = jest.fn();
+            const mockPersonParser = jest.fn().mockReturnValue({
+                _uuid: 'person-uuid',
+                _sequence: 1,
+                age: 30
+            });
 
             setProjectConfig({
                 surveyObjectParsers: {
@@ -133,7 +143,7 @@ describe('SurveyObjectParsers Integration', () => {
                 }
             });
 
-            const personUuid = uuidV4();
+            const personUuid = 'person-uuid';
             const householdUuid = uuidV4();
 
             // Create a household object first
@@ -188,7 +198,10 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call journey parser when configured in JourneyFactory', async () => {
-            const mockJourneyParser = jest.fn();
+            const mockJourneyParser = jest.fn().mockReturnValue({
+                _uuid: 'journey-uuid',
+                _sequence: 1
+            });
 
             setProjectConfig({
                 surveyObjectParsers: {
@@ -248,7 +261,10 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call trip parser when configured in TripFactory', async () => {
-            const mockTripParser = jest.fn();
+            const mockTripParser = jest.fn().mockReturnValue({
+                _uuid: 'trip-uuid',
+                _sequence: 1
+            });
 
             setProjectConfig({
                 surveyObjectParsers: {
@@ -310,7 +326,11 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call segment parser when configured in SegmentFactory', async () => {
-            const mockSegmentParser = jest.fn();
+            const mockSegmentParser = jest.fn().mockReturnValue({
+                _uuid: 'segment-uuid',
+                _sequence: 1,
+                mode: 'walk'
+            });
 
             setProjectConfig({
                 surveyObjectParsers: {
@@ -371,7 +391,11 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call visitedPlace parser when configured in VisitedPlaceFactory', async () => {
-            const mockVisitedPlaceParser = jest.fn();
+            const mockVisitedPlaceParser = jest.fn().mockReturnValue({
+                _uuid: 'place-uuid',
+                _sequence: 1,
+                activity: 'home'
+            });
 
             setProjectConfig({
                 surveyObjectParsers: {
