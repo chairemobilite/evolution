@@ -17,8 +17,9 @@ import { populateJourneysForPerson } from './JourneyFactory';
 import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import projectConfig from '../../config/projectConfig';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
-import { Household } from 'evolution-common/lib/services/baseObjects/Household';
+import { ExtendedHouseholdAttributes, Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
 
 /**
  * Configuration options for object creation
@@ -84,9 +85,7 @@ export class SurveyObjectsFactory {
             }
         };
 
-        const correctedResponse = interviewAttributes.corrected_response;
-
-        if (!correctedResponse) {
+        if (!interviewAttributes.corrected_response) {
             surveyObjectsWithErrors.errorsByObject.interview = [
                 new Error(
                     'Interview validateParams: Corrected response is missing from interview attributes. It must be generated from original responses on first review.'
@@ -99,12 +98,9 @@ export class SurveyObjectsFactory {
         const surveyObjectsRegistry = new SurveyObjectsRegistry();
 
         // Create Interview
-        console.log('==== Interview creation ====');
-
-        // Parse interview attributes if parser is available
-        if (projectConfig.surveyObjectParsers?.interview) {
-            projectConfig.surveyObjectParsers.interview(correctedResponse);
-        }
+        const correctedResponse = projectConfig.surveyObjectParsers?.interview
+            ? projectConfig.surveyObjectParsers.interview(interviewAttributes.corrected_response)
+            : interviewAttributes.corrected_response;
 
         const interviewResult = createInterviewObject(
             _omit(correctedResponse, ['home', 'household']) as CorrectedResponse,
@@ -113,7 +109,6 @@ export class SurveyObjectsFactory {
         );
         if (isOk(interviewResult)) {
             surveyObjectsWithErrors.interview = interviewResult.result;
-            console.log('==== Interview created successfully ====');
         } else {
             surveyObjectsWithErrors.errorsByObject.interview = interviewResult.errors;
             console.log(
@@ -121,21 +116,18 @@ export class SurveyObjectsFactory {
             );
         }
 
-        console.log('  ==== Home creation ====');
-
-        // Parse interview attributes if parser is available
-        if (projectConfig.surveyObjectParsers?.home && correctedResponse.home) {
-            projectConfig.surveyObjectParsers.home(correctedResponse.home, correctedResponse);
-        }
-
-        const homeAttributes = correctedResponse.home;
+        const homeAttributes = projectConfig.surveyObjectParsers?.home
+            ? projectConfig.surveyObjectParsers.home(
+                  correctedResponse.home as ExtendedPlaceAttributes,
+                  correctedResponse
+            )
+            : correctedResponse.home;
 
         // Only try to create home if we have home attributes
         if (homeAttributes) {
             const homeResult = Home.create(homeAttributes as { [key: string]: unknown }, surveyObjectsRegistry);
             if (isOk(homeResult)) {
                 surveyObjectsWithErrors.home = homeResult.result;
-                console.log('  ==== Home created successfully ====');
             } else {
                 surveyObjectsWithErrors.errorsByObject.home = homeResult.errors;
                 console.log(`  ==== Home creation failed with errors count: ${homeResult.errors?.length || 0} ====`);
@@ -144,14 +136,12 @@ export class SurveyObjectsFactory {
             console.log('  ==== Home creation skipped (no home attributes) ====');
         }
 
-        console.log('  ==== Household creation ====');
-
-        // Parse interview attributes if parser is available
-        if (projectConfig.surveyObjectParsers?.household && correctedResponse.household) {
-            projectConfig.surveyObjectParsers.household(correctedResponse.household, correctedResponse);
-        }
-
-        const householdAttributes = correctedResponse.household;
+        const householdAttributes = projectConfig.surveyObjectParsers?.household
+            ? projectConfig.surveyObjectParsers.household(
+                  correctedResponse.household as ExtendedHouseholdAttributes,
+                  correctedResponse
+            )
+            : correctedResponse.household;
 
         // Only try to create household if we have household attributes
         if (householdAttributes) {
@@ -161,7 +151,6 @@ export class SurveyObjectsFactory {
             );
             if (isOk(householdResult)) {
                 surveyObjectsWithErrors.household = householdResult.result;
-                console.log('  ==== Household created successfully ====');
             } else {
                 surveyObjectsWithErrors.errorsByObject.household = householdResult.errors;
                 console.log(
@@ -177,9 +166,6 @@ export class SurveyObjectsFactory {
 
         // Continue with persons, journeys, etc. if household and home were created
         if (household && householdAttributes) {
-            // Log the creation of persons
-            console.log('    ==== Persons creation ====');
-
             // For now, we'll keep the existing factory functions for persons/journeys
             // These can be refactored later in the same way
             await populatePersonsForHousehold(
@@ -197,9 +183,6 @@ export class SurveyObjectsFactory {
                 const person = persons[i];
                 const personUuid = person._uuid!;
                 const personAttributes = personsAttributes[personUuid] as ExtendedPersonAttributes;
-
-                // Log the creation of journeys, visited places, trips and segments
-                console.log('    ==== Journeys, visited places, trips and segments creation ====');
 
                 // Generate all journeys for this person (includes visited places, trips, and segments)
                 await populateJourneysForPerson(

@@ -50,15 +50,14 @@ export async function populatePersonsForHousehold(
     // Track person index for color assignment
     let personIndex = 0;
 
-    for (const [personUuid, personAttributes] of sortedPersonEntries) {
+    for (const [personUuid, originalCorrectedPersonAttributes] of sortedPersonEntries) {
         if (personUuid === 'undefined') {
             continue; // ignore if uuid is undefined
         }
 
-        // Parse person attributes if parser is available
-        if (projectConfig.surveyObjectParsers?.person) {
-            projectConfig.surveyObjectParsers.person(personAttributes, correctedResponse);
-        }
+        const personAttributes = projectConfig.surveyObjectParsers?.person
+            ? projectConfig.surveyObjectParsers.person(originalCorrectedPersonAttributes, correctedResponse)
+            : originalCorrectedPersonAttributes;
 
         const personResult = Person.create(personAttributes as { [key: string]: unknown }, surveyObjectsRegistry);
 

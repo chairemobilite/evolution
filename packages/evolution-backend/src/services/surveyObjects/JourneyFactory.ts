@@ -48,15 +48,14 @@ export async function populateJourneysForPerson(
         return sequenceA - sequenceB;
     });
 
-    for (const [journeyUuid, journeyAttributes] of sortedJourneyEntries) {
+    for (const [journeyUuid, originalCorrectedJourneyAttributes] of sortedJourneyEntries) {
         if (journeyUuid === 'undefined') {
             continue;
         }
 
-        // Parse journey attributes if parser is available
-        if (projectConfig.surveyObjectParsers?.journey) {
-            projectConfig.surveyObjectParsers.journey(journeyAttributes, correctedResponse);
-        }
+        const journeyAttributes = projectConfig.surveyObjectParsers?.journey
+            ? projectConfig.surveyObjectParsers.journey(originalCorrectedJourneyAttributes, correctedResponse)
+            : originalCorrectedJourneyAttributes;
 
         const journey = Journey.create(
             _omit(journeyAttributes as { [key: string]: unknown }, [

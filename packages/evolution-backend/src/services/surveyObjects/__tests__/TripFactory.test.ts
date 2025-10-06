@@ -138,7 +138,7 @@ describe('TripFactory', () => {
                     _originVisitedPlaceUuid: 'origin-vp-uuid',
                     _destinationVisitedPlaceUuid: 'destination-vp-uuid'
                 }),
-                expect.any(SurveyObjectsRegistry)
+                surveyObjectsRegistry
             );
             expect(MockedTrip.create).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -147,7 +147,7 @@ describe('TripFactory', () => {
                     _originVisitedPlaceUuid: 'destination-vp-uuid',
                     _destinationVisitedPlaceUuid: 'origin-vp-uuid'
                 }),
-                expect.any(SurveyObjectsRegistry)
+                surveyObjectsRegistry
             );
 
             // Verify trips were added to journey
@@ -359,7 +359,7 @@ describe('TripFactory', () => {
                 mockTrip,
                 journeyAttributes.trips!['trip-1'],
                 { uuid: 'test' },
-                expect.any(SurveyObjectsRegistry)
+                surveyObjectsRegistry
             );
         });
     });
