@@ -123,7 +123,7 @@ export const ValidationAuditFilter = ({
                 const audit = audits[j];
                 const choice = {
                     value: audit.errorCode,
-                    label: `• ${t([`survey:validations:${audit.errorCode}`, `surveyAdmin:${audit.errorCode}`])} [${audit.count}]`
+                    label: `• ${t([`audits:${audit.errorCode}`])} [${audit.count}]`
                 };
                 if (filterValue && filterValue.includes(audit.errorCode)) {
                     selectedAuditChoicesByLevel[level].push(choice);
@@ -132,7 +132,7 @@ export const ValidationAuditFilter = ({
                 choices.push(choice);
             }
             groupedChoices.push({
-                label: t(`admin:auditSurveyObjects:${surveyObject}`),
+                label: t(`admin:auditObjectTypes:${surveyObject}`),
                 options: choices
             });
         }

@@ -35,6 +35,9 @@
   "trips": "trips",
   "Interview": "Interview",
   "interview": "interview",
+  "Home": "Home",
+  "Household": "Household",
+  "Comments": "Comments",
   "StartedAndCompletedInterviewsPerDay": "Started and completed interviews per day",
   "StartedAndCompletedInterviewsPerHouseholdSize": "Started and completed interviews per household size",
   "NumberOfInterviews": "Number of interviews",
@@ -113,10 +116,43 @@
     "Keep": "Keep",
     "Discard": "Discard"
   },
+  "AllAudits": "All Audits",
   "auditLevels": {
     "error": "Errors",
     "warning": "Warnings",
     "info": "Infos"
+  },
+  "interviewStats": {
+    "errors": {
+      "error": "Error",
+      "surveyObjectsNotAvailable": "Survey objects not available. Please ensure the interview has been properly processed.",
+      "interviewNotAvailable": "Interview not available. Please ensure the interview has been properly processed.",
+      "householdNotAvailable": "Household not available. Please ensure the interview has been properly processed.",
+      "homeNotAvailable": "Home not available. Please ensure the interview has been properly processed."
+    },
+    "labels": {
+      "uuid": "UUID",
+      "accessCode": "Access Code",
+      "interviewLanguage": "Interview Language",
+      "travelDate": "Travel Date",
+      "noComments": "No comments",
+      "proxy": "Proxy",
+      "nonProxy": "Non-proxy",
+      "noWorkTripReason": "Reason for no work trip",
+      "noSchoolTripReason": "Reason for no school trip",
+      "didTrips": "Made trips",
+      "noTrips": "Did not make trips",
+      "dontKnowTrips": "Don't know if made trips",
+      "persons": "Persons",
+      "segment": {
+        "vehicleOccupancy": "Occupancy",
+        "paidForParking": "Paid for parking?",
+        "driverType": "Who was driving?",
+        "busLines": "Bus lines"
+      },
+      "unitNumber": "#Unit",
+      "yearsOld": "years old"
+    }
   },
   "auditObjectTypes": {
     "interview": "Interview",
@@ -129,6 +165,8 @@
     "vehicle": "Vehicle",
     "place": "Place"
   },
+  "ShowAuditErrorCodes": "Show audit error codes",
+  "HideAuditErrorCodes": "Hide audit error codes",
   "InterviewId": "interview ID",
   "HouseholdSize": "Household size",
   "Select": "Select",

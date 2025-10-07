@@ -35,6 +35,9 @@
   "trips": "déplacements",
   "Interview": "Entrevue",
   "interview": "entrevue",
+  "Home": "Domicile",
+  "Household": "Ménage",
+  "Comments": "Commentaires",
   "StartedAndCompletedInterviewsPerDay": "Entrevues débutées et complétées par jour",
   "StartedAndCompletedInterviewsPerHouseholdSize": "Entrevues débutées et complétées par taille du ménage",
   "NumberOfInterviews": "Nombre d'entrevues",
@@ -113,10 +116,43 @@
     "Keep": "Garder",
     "Discard": "Écarter"
   },
+  "AllAudits": "Tous les audits",
   "auditLevels": {
     "error": "Erreurs",
     "warning": "Avertissements",
     "info": "Infos"
+  },
+  "interviewStats": {
+    "errors": {
+      "error": "Erreur",
+      "surveyObjectsNotAvailable": "Objets d'enquête non disponibles. Veuillez vous assurer que l'entrevue a été correctement traitée.",
+      "interviewNotAvailable": "Entrevue non disponible. Veuillez vous assurer que l'entrevue a été correctement traitée.",
+      "householdNotAvailable": "Ménage non disponible. Veuillez vous assurer que l'entrevue a été correctement traitée.",
+      "homeNotAvailable": "Domicile non disponible. Veuillez vous assurer que l'entrevue a été correctement traitée."
+    },
+    "labels": {
+      "uuid": "UUID",
+      "accessCode": "Code d'accès",
+      "interviewLanguage": "Langue d'entrevue",
+      "travelDate": "Date de déplacements",
+      "noComments": "Aucun commentaire",
+      "proxy": "Proxy",
+      "nonProxy": "Non-proxy",
+      "noWorkTripReason": "Raison pour aucun déplacement travail",
+      "noSchoolTripReason": "Raison pour aucun déplacement études",
+      "didTrips": "A fait des déplacements",
+      "noTrips": "N'a pas fait de déplacements",
+      "dontKnowTrips": "Ne sait pas si fait des déplacements",
+      "persons": "Personnes",
+      "segment": {
+        "vehicleOccupancy": "Occupants",
+        "paidForParking": "Stationnement payant?",
+        "driverType": "Qui conduisait?",
+        "busLines": "Lignes de bus"
+      },
+      "unitNumber": "#Unité",
+      "yearsOld": "ans"
+    }
   },
   "auditObjectTypes": {
     "interview": "Entrevue",
@@ -129,6 +165,8 @@
     "vehicle": "Véhicule",
     "place": "Lieu"
   },
+  "ShowAuditErrorCodes": "Montrer les codes d'erreur d'audit",
+  "HideAuditErrorCodes": "Cacher les codes d'erreur d'audit",
   "InterviewId": "ID d'entrevue",
   "HouseholdSize": "Taille du ménage",
   "Select": "Sélectionner",

@@ -15,7 +15,7 @@ import InterviewByCodeFilter from './InterviewByCodeFilter';
 import InterviewByDateFilter from './InterviewByDateFilter';
 import ValidationAuditFilter from './ValidationAuditFilter';
 import InteviewByHomeGeographyFilter from './InterviewByHomeGeographyFilter';
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons/faExclamationTriangle';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons/faTriangleExclamation';
 import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
 import { faEnvelope as faValidationComment } from '@fortawesome/free-solid-svg-icons/faEnvelope';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -189,7 +189,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                         ''
                     ) : (
                         <FontAwesomeIcon
-                            icon={faExclamationTriangle}
+                            icon={faTriangleExclamation}
                             className="faIconNoMargin _error _red"
                             title={Object.keys(value)
                                 /* eslint-disable-next-line react/prop-types */

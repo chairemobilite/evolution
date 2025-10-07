@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React, { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
@@ -18,7 +17,6 @@ import {
 } from '../../../actions/SurveyAdmin';
 import ValidationLinks from './ValidationLinks';
 import AdminErrorBoundary from '../hoc/AdminErrorBoundary';
-import FormErrors from 'chaire-lib-frontend/lib/components/pageParts/FormErrors';
 import { RootState } from '../../../store/configureStore';
 import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../../store/survey';
@@ -32,12 +30,9 @@ type InterviewSummaryProps = {
 };
 
 const InterviewSummary = (props: InterviewSummaryProps) => {
-    const { t } = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const interview = useSelector((state: RootState) => state.survey.interview) as UserRuntimeInterviewAttributes;
     const user = useSelector((state: RootState) => state.auth.user) as CliUser;
-    // FIXME Add the validationDataDirty to the interview type, but it is only for the admin
-    const validationDataDirty = (interview as any)?.validationDataDirty;
 
     const refreshInterview = useCallback(() => {
         dispatch(startSetSurveyCorrectedInterview(interview.uuid));
@@ -86,9 +81,6 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
                         resetInterview={resetInterview}
                         user={user}
                     />
-                    {validationDataDirty && (
-                        <FormErrors errors={[t(['admin:ValidationDataDirty'])]} errorType="Warning" />
-                    )}
                 </div>
                 <AdminErrorBoundary>
                     <ValidationOnePageSummary key={interview.uuid} />
