@@ -20,16 +20,21 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 
 interface UsersTableProps extends WithTranslation {
-    columns: any[];
+    columns: Array<Record<string, unknown>>;
     data: InterviewStatusAttributesBase[];
-    fetchData: ({ pageSize, pageIndex, filters }: any) => void;
+    fetchData: (params: {
+        pageSize: number;
+        pageIndex: number;
+        filters: unknown;
+        sortBy: { id: string; desc?: boolean }[];
+    }) => void;
     loading: boolean;
     pageCount: number;
     itemCount: number;
     initialSortBy: { id: string; desc?: boolean }[];
     interviewListChange: (show: boolean) => void;
     showInterviewList: boolean;
-    validationInterview: any;
+    validationInterview: InterviewStatusAttributesBase | null;
 }
 
 // User react-table to handle a few table functionalities like paging and filtering
@@ -77,6 +82,28 @@ const InterviewList = (props: UsersTableProps) => {
         // TODO: handle multi-cooumns sorting
         const newSort = [{ id: columnId, desc: sortOrder === 'desc' }];
         setSortBy(newSort);
+    };
+
+    const getRowClassName = (
+        row: { original: InterviewStatusAttributesBase },
+        validationInterview: InterviewStatusAttributesBase | null
+    ): string => {
+        if (validationInterview && row.original.uuid === validationInterview.uuid) {
+            return '_active-background _blue';
+        }
+        if (row.original.is_validated && row.original.is_valid && row.original.is_completed) {
+            return '_green _strong _active-background';
+        }
+        if (row.original.is_valid && row.original.is_completed) {
+            return '_dark-green _strong';
+        }
+        if (row.original.is_valid && !row.original.is_completed) {
+            return '_orange _strong';
+        }
+        if (row.original.is_valid === false) {
+            return '_dark-red _strong';
+        }
+        return '';
     };
 
     return props.loading ? (
@@ -168,24 +195,7 @@ const InterviewList = (props: UsersTableProps) => {
                         return (
                             <li
                                 title={row.original.uuid}
-                                className={`${
-                                    row.original.is_valid === true && row.original.is_completed === true
-                                        ? '_dark-green _strong'
-                                        : ''
-                                }
-                                    ${
-                            row.original.is_validated === true &&
-                                        row.original.is_valid === true &&
-                                        row.original.is_completed === true
-                                ? '_green _strong _active-background'
-                                : ''
-                            }
-                                    ${
-                            row.original.is_valid === true && !row.original.is_completed === true
-                                ? '_orange _strong'
-                                : ''
-                            }
-                                    ${row.original.is_valid === false ? '_dark-red _strong' : ''}`}
+                                className={getRowClassName(row, props.validationInterview)}
                                 {...row.getRowProps()}
                             >
                                 {row.cells.map((cell, index) => {

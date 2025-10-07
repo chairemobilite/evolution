@@ -150,6 +150,6 @@
   "MissingUuidSurvey": "The interview UUID is missing. Please check the URL or contact support.",
   "FitBounds": "Fit bounds to show all places and trips",
   "MapLayerSelect": "Map layer",
-  "MapLayerOSM": "OSM tiles",
+  "MapLayerOSM": "OpenStreetMap tiles",
   "MapLayerAerial": "Aerial imagery"
 }

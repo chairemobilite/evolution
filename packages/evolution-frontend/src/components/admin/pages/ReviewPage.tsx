@@ -22,31 +22,36 @@ const ReviewPage = () => {
     const { t } = useTranslation();
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const interview = useSelector((state: RootState) => state.survey.interview);
-    const [showInterviewList, setShowInterviewList] = useState(false);
+    const [showInterviewList, setShowInterviewList] = useState(true);
     const [prevInterviewUuid, setPrevInterviewUuid] = useState<string | undefined>(undefined);
     const [nextInterviewUuid, setNextInterviewUuid] = useState<string | undefined>(undefined);
 
     const handleInterviewSummaryChange = useCallback(
-        (interviewUuid: string | null) => {
+        (interviewUuid: string | null, prevUuid?: string, nextUuid?: string) => {
             if (interviewUuid) {
-                // FIXME The next/previous interviews come from the list. That
-                // makes the last/first interview of the _list_ the last/first
-                // total, but there could be pages. It should be handled
-                // differently.
-                const listButton = document.getElementById(`interviewButtonList_${interviewUuid}`);
-                if (!listButton) {
-                    // The filter probably changed, reset to null
-                    setPrevInterviewUuid(undefined);
-                    setNextInterviewUuid(undefined);
-                    return;
+                // If prev/next UUIDs are provided (called from list), use them directly
+                if (prevUuid !== undefined || nextUuid !== undefined) {
+                    setPrevInterviewUuid(prevUuid || undefined);
+                    setNextInterviewUuid(nextUuid || undefined);
+                } else {
+                    // If no prev/next UUIDs provided (called from navigation buttons),
+                    // try to extract them from the DOM as fallback
+                    const listButton = document.getElementById(`interviewButtonList_${interviewUuid}`);
+                    if (listButton) {
+                        const domPrevUuid = listButton.getAttribute('data-prev-uuid');
+                        const domNextUuid = listButton.getAttribute('data-next-uuid');
+                        setPrevInterviewUuid(domPrevUuid === null || domPrevUuid === '' ? undefined : domPrevUuid);
+                        setNextInterviewUuid(domNextUuid === null || domNextUuid === '' ? undefined : domNextUuid);
+                    } else {
+                        // If DOM element not found, clear the navigation
+                        setPrevInterviewUuid(undefined);
+                        setNextInterviewUuid(undefined);
+                    }
                 }
-                const prevUuid = listButton.getAttribute('data-prev-uuid');
-                const nextUuid = listButton.getAttribute('data-next-uuid');
 
                 dispatch(
                     startSetSurveyCorrectedInterview(interviewUuid, () => {
-                        setPrevInterviewUuid(prevUuid === null ? undefined : prevUuid);
-                        setNextInterviewUuid(nextUuid === null ? undefined : nextUuid);
+                        // UUIDs are already set above
                     })
                 );
             } else {
