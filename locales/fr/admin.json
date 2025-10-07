@@ -148,5 +148,8 @@
   },
   "UnknownError": "Une erreur s'est produite. Voir les logs de la console ou contacter les administrateurs de l'enquête.",
   "MissingUuidSurvey": "L'entrevue n'a pas d'UUID. Veuillez contacter les administrateurs de l'enquête.",
-  "FitBounds": "Ajuster les limites pour afficher tous les lieux et déplacements"
+  "FitBounds": "Ajuster les limites pour afficher tous les lieux et déplacements",
+  "MapLayerSelect": "Couche de carte",
+  "MapLayerOSM": "Tuiles OSM",
+  "MapLayerAerial": "Photos aériennes"
 }

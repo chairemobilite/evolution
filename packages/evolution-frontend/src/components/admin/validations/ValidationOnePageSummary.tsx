@@ -30,6 +30,7 @@ const ValidationOnePageSummary = () => {
     const [activeMapPlacePath, setActiveMapPlacePath] = React.useState<string | undefined>(undefined);
     const [activeStatsPlacePath, setActiveStatsPlacePath] = React.useState<string | undefined>(undefined);
     const [activeTripUuid, setActiveTripUuid] = React.useState<string | undefined>(undefined);
+    const [shouldZoomToPlace, setShouldZoomToPlace] = React.useState<boolean>(false);
 
     // Debug wrapper for setActiveTripUuid with unselect behavior
     const toggleActiveTripUuid = (tripUuid: string | undefined) => {
@@ -89,10 +90,11 @@ const ValidationOnePageSummary = () => {
 
     // Smart place selection function that maps visited place paths to unique icons
     const selectPlaceWithMapping = React.useCallback(
-        (placePath: string | undefined) => {
+        (placePath: string | undefined, shouldZoom: boolean = false) => {
             if (!placePath) {
                 setActiveMapPlacePath(undefined);
                 setActiveStatsPlacePath(undefined);
+                setShouldZoomToPlace(false);
                 return;
             }
 
@@ -100,6 +102,7 @@ const ValidationOnePageSummary = () => {
             if (activeStatsPlacePath === placePath) {
                 setActiveMapPlacePath(undefined);
                 setActiveStatsPlacePath(undefined);
+                setShouldZoomToPlace(false);
                 return;
             }
 
@@ -109,11 +112,13 @@ const ValidationOnePageSummary = () => {
             if (clickedUniqueKey && currentUniqueKey && clickedUniqueKey === currentUniqueKey) {
                 setActiveMapPlacePath(undefined);
                 setActiveStatsPlacePath(undefined);
+                setShouldZoomToPlace(false);
                 return;
             }
 
             // Always set the clicked path for stats display
             setActiveStatsPlacePath(placePath);
+            setShouldZoomToPlace(shouldZoom);
 
             // Try to find the unique key for this path
             // We select the first path from the non unique location/activity and set it to active.
@@ -134,6 +139,22 @@ const ValidationOnePageSummary = () => {
             setActiveMapPlacePath(placePath);
         },
         [pathToUniqueKeyMap, activeStatsPlacePath]
+    );
+
+    // Place selection from map (no auto-zoom)
+    const selectPlaceFromMap = React.useCallback(
+        (placePath: string | undefined) => {
+            selectPlaceWithMapping(placePath, false);
+        },
+        [selectPlaceWithMapping]
+    );
+
+    // Place selection from stats (with auto-zoom)
+    const selectPlaceFromStats = React.useCallback(
+        (placePath: string | undefined) => {
+            selectPlaceWithMapping(placePath, true);
+        },
+        [selectPlaceWithMapping]
     );
 
     /**
@@ -210,8 +231,9 @@ const ValidationOnePageSummary = () => {
                                 updateCount={interview.updateCount}
                                 activeTripUuid={activeTripUuid}
                                 activePlacePath={activeMapPlacePath}
+                                shouldZoomToPlace={shouldZoomToPlace}
                                 onTripClick={toggleActiveTripUuid}
-                                onPlaceClick={selectPlaceWithMapping}
+                                onPlaceClick={selectPlaceFromMap}
                                 onPlaceDrag={handlePlaceDrag}
                             />
                         </AdminErrorBoundary>
@@ -220,7 +242,7 @@ const ValidationOnePageSummary = () => {
                         {
                             <AdminErrorBoundary>
                                 <InterviewStats
-                                    selectPlace={selectPlaceWithMapping}
+                                    selectPlace={selectPlaceFromStats}
                                     selectTrip={toggleActiveTripUuid}
                                     activeTripUuid={activeTripUuid}
                                     interview={interview}

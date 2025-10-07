@@ -126,7 +126,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
                 acc[person._uuid!] = person;
                 return acc;
             },
-              {} as { [key: string]: Person }
+            {} as { [key: string]: Person }
         )
         : {};
 
@@ -168,8 +168,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
                         {i + 1}. {visitedPlaceDecorator.getDescription(true)}{' '}
                         {visitedPlace.startTime && visitedPlace.endTime
                             ? '(' +
-                              Math.round((10 * (visitedPlace.endTime - visitedPlace.startTime)) / 3600) / 10 +
-                              'h)'
+                            Math.round((10 * (visitedPlace.endTime - visitedPlace.startTime)) / 3600) / 10 +
+                            'h)'
                             : ''}
                     </span>
                     <ValidationErrors errors={visitedPlaceErrors} />
@@ -187,57 +187,61 @@ const InterviewStats = (props: InterviewStatsProps) => {
             const tripId = trip._uuid!;
             const origin = trip.origin;
             const destination = trip.destination;
-            const startAt = origin!.endTime as number;
-            const endAt = destination!.startTime as number;
-            const duration = !_isBlank(startAt) && !_isBlank(endAt) ? endAt! - startAt! : undefined;
-            const birdSpeedMps = null; // FIXME Calculate
+            if (origin && destination) {
+                const startAt = origin!.endTime as number;
+                const endAt = destination!.startTime as number;
+                const duration = !_isBlank(startAt) && !_isBlank(endAt) ? endAt! - startAt! : undefined;
+                const birdSpeedMps = null; // FIXME Calculate
 
-            const segmentsArray: Segment[] = trip.segments || [];
-            const segmentsErrors = emptyErrorResults;
-            const segmentsStats: JSX.Element[] = [];
+                const segmentsArray: Segment[] = trip.segments || [];
+                const segmentsErrors = emptyErrorResults;
+                const segmentsStats: JSX.Element[] = [];
 
-            for (let j = 0, countJ = segmentsArray.length; j < countJ; j++) {
-                const segment: Segment = segmentsArray[j];
-                const segmentStats: string[] = [];
-                if (!_isBlank(segment.mode)) {
-                    if (segment.mode === 'carDriver') {
-                        segmentStats.push(
-                            `(occ: ${segment.vehicleOccupancy ? segment.vehicleOccupancy.toString() : '?'} | stat: ${segment.paidForParking ? segment.paidForParking.toString() : '?'}`
-                        );
-                    } else if (segment.mode === 'carPassenger') {
-                        segmentStats.push(`(cond: ${segment.driverType ? segment.driverType.toString() : '?'})`);
-                    } else if (segment.mode === 'transitBus') {
-                        segmentStats.push(`(lignes: ${segment.busLines ? segment.busLines.join(',') : '?'})`);
+                for (let j = 0, countJ = segmentsArray.length; j < countJ; j++) {
+                    const segment: Segment = segmentsArray[j];
+                    const segmentStats: string[] = [];
+                    if (!_isBlank(segment.mode)) {
+                        if (segment.mode === 'carDriver') {
+                            segmentStats.push(
+                                `(occ: ${segment.vehicleOccupancy ? segment.vehicleOccupancy.toString() : '?'} | stat: ${segment.paidForParking ? segment.paidForParking.toString() : '?'}`
+                            );
+                        } else if (segment.mode === 'carPassenger') {
+                            segmentStats.push(`(cond: ${segment.driverType ? segment.driverType.toString() : '?'})`);
+                        } else if (segment.mode === 'transitBus') {
+                            segmentStats.push(`(lignes: ${segment.busLines ? segment.busLines.join(',') : '?'})`);
+                        }
                     }
+                    segmentsStats.push(
+                        <span className="" style={{ display: 'block' }} key={segment._uuid}>
+                            <strong>{segment.mode || '?'}</strong>: {segmentStats}
+                        </span>
+                    );
                 }
-                segmentsStats.push(
-                    <span className="" style={{ display: 'block' }} key={segment._uuid}>
-                        <strong>{segment.mode || '?'}</strong>: {segmentStats}
-                    </span>
-                );
-            }
 
-            const tripStats = (
-                <div className="" key={tripId} onClick={() => props.selectTrip(tripId)}>
-                    <span key="trip" className={`_widget${props.activeTripUuid === tripId ? ' _active' : ''}`}>
-                        {i + 1}. <FontAwesomeIcon icon={faClock} className="faIconLeft" />
-                        {secondsSinceMidnightToTimeStr(startAt)}
-                        <FontAwesomeIcon icon={faArrowRight} />
-                        {secondsSinceMidnightToTimeStr(endAt)} ({Math.ceil(duration! / 60)} min) • (
-                        {Math.round((birdSpeedMps! * 3.6 * 100) / 100)}km/h)
-                    </span>
-                    <span
-                        key="segments"
-                        style={{ marginLeft: '1rem' }}
-                        className={`_widget${props.activeTripUuid === tripId ? ' _active' : ''}`}
-                    >
-                        {segmentsStats}
-                    </span>
-                    <ValidationErrors errors={tripErrors} />
-                    <ValidationErrors errors={segmentsErrors} />
-                </div>
-            );
-            tripsStats.push(tripStats);
+                const tripStats = (
+                    <div className="" key={tripId} onClick={() => props.selectTrip(tripId)}>
+                        <span key="trip" className={`_widget${props.activeTripUuid === tripId ? ' _active' : ''}`}>
+                            {i + 1}. <FontAwesomeIcon icon={faClock} className="faIconLeft" />
+                            {secondsSinceMidnightToTimeStr(startAt)}
+                            <FontAwesomeIcon icon={faArrowRight} />
+                            {secondsSinceMidnightToTimeStr(endAt)} ({Math.ceil(duration! / 60)} min) • (
+                            {Math.round((birdSpeedMps! * 3.6 * 100) / 100)}km/h)
+                        </span>
+                        <span
+                            key="segments"
+                            style={{ marginLeft: '1rem' }}
+                            className={`_widget${props.activeTripUuid === tripId ? ' _active' : ''}`}
+                        >
+                            {segmentsStats}
+                        </span>
+                        <ValidationErrors errors={tripErrors} />
+                        <ValidationErrors errors={segmentsErrors} />
+                    </div>
+                );
+                tripsStats.push(tripStats);
+            } else {
+                console.warn('❌ InterviewStats - Trip for person uuid has no origin or destination', person.uuid, trip);
+            }
         }
 
         const personStats = (

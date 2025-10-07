@@ -354,3 +354,184 @@ header {
     display: block;
   }
 }
+
+// InterviewMap styles
+.admin__interview-map-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
+.admin__map-layer-switcher {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.admin__map-layer-button {
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.admin__map-layer-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 200px;
+  z-index: 1001;
+  overflow: hidden;
+}
+
+.admin__map-layer-option {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &.active {
+    background-color: #f0f8ff;
+  }
+
+  &:not(.active):hover {
+    background-color: #f8f8f8;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+  }
+}
+
+.admin__map-layer-thumbnail {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  margin-right: 12px;
+  border: 2px solid transparent;
+
+  &.active {
+    border-color: #007bff;
+  }
+}
+
+.admin__map-layer-aerial-thumbnail {
+  background-color: #4A903E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background-color: #2F702F;
+    border-radius: 50%;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+  }
+
+  &::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background-color: #2F702F;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+  }
+}
+
+.admin__map-layer-label {
+  font-size: 14px;
+  color: #333;
+
+  &.active {
+    font-weight: 600;
+  }
+}
+
+.admin__map-undo-button {
+  padding: 8px 12px;
+  background-color: #ff4444;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  font-size: 14px;
+  color: #fff;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  gap: 4px;
+}
+
+.admin__map-undo-count {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.admin__map-fitbounds-button {
+  padding: 10px;
+  background-color: #fff;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  font-size: 30px;
+  color: #333;
+}
+
+.admin__map-fitbounds-icon {
+  position: relative;
+  display: inline-block;
+
+  .fa-location-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 15px;
+    color: #333;
+  }
+
+  .fa-expand {
+    font-size: 30px;
+  }
+}
+
+.admin__map-marker {
+  cursor: grab;
+  transition: width 0.1s ease, height 0.1s ease;
+  filter: drop-shadow(1px 0px 0px white) drop-shadow(-1px 0px 0px white) drop-shadow(0px 1px 0px white) drop-shadow(0px -1px 0px white);
+  pointer-events: none;
+
+  &.dragging {
+    cursor: grabbing;
+    opacity: 0.7;
+  }
+}

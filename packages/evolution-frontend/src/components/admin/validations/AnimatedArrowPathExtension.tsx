@@ -113,24 +113,22 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
     draw(this: Layer<_AnimatedArrowPathLayerProps>, _params: any, _extension: this) {
         const zoom = this.context.viewport?.zoom || 14;
 
-        let zoomFactor;
-        if (zoom <= 14) {
-            zoomFactor = 1.0;
-        } else {
-            // This function gives the best approximation of a stable speed
-            zoomFactor = 0.0007 * Math.pow(zoom - 8, 4.0);
-        }
+        // Here is a good approximation of the zoom factor, based on map/zoom theory: Math.pow(2, zoom - 14)
+        // Multiplier adjusts for low zoom being too fast visually even if speed was the same.
+        const multiplier = (199 - 9 * zoom) / 19; // 10.0 times slower at zoom 1, equal speed at zoom 20.
+        const zoomFactor = multiplier * Math.pow(2, zoom - 14);
+
         // Calculate animation time with seamless reset
         // Use a cycle that matches the arrow spacing to ensure seamless looping
         const arrowSpacing = this.props.arrowSpacing || 30.0; // Configurable arrow spacing (f32)
 
         // Calculate cycle duration to create seamless loops
         // The cycle should complete exactly when one arrow spacing cycle finishes
-        const baseCycleDuration = 900; // Base 30 seconds
+        const baseCycleDuration = 90;
         const seamlessCycleDuration = baseCycleDuration * arrowSpacing; // Adjust for arrow spacing pattern
 
         const rawTime = (performance.now() / 100) % seamlessCycleDuration;
-        const normalizedTime = rawTime / seamlessCycleDuration;
+        const normalizedTime = rawTime / (10 * seamlessCycleDuration);
 
         // Scale the time to match the arrow pattern
         const seamlessTime = this.props.disableAnimation ? 1 : normalizedTime * arrowSpacing;
