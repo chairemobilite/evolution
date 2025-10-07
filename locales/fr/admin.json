@@ -150,6 +150,6 @@
   "MissingUuidSurvey": "L'entrevue n'a pas d'UUID. Veuillez contacter les administrateurs de l'enquête.",
   "FitBounds": "Ajuster les limites pour afficher tous les lieux et déplacements",
   "MapLayerSelect": "Couche de carte",
-  "MapLayerOSM": "Tuiles OSM",
+  "MapLayerOSM": "Tuiles OpenStreetMap",
   "MapLayerAerial": "Photos aériennes"
 }

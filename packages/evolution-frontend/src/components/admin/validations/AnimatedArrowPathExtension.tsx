@@ -55,7 +55,7 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
         });
     }
 
-    getStartOffsetRatios(this: Layer<_AnimatedArrowPathLayerProps>, path): number[] {
+    getStartOffsetRatios(this: Layer<_AnimatedArrowPathLayerProps>, path: number[] | number[][]): number[] {
         const result = [0] as number[];
         if (path === undefined || path.length < 2) {
             return result;
@@ -64,12 +64,14 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
         const isNested = Array.isArray(path[0]);
         const geometrySize = isNested ? path.length : path.length / positionSize;
         let sumLength = 0;
-        let p;
-        let prevP;
+        let p: number[];
+        let prevP: number[] | undefined;
         for (let i = 0; i < geometrySize; i++) {
-            p = isNested ? path[i] : path.slice(i * positionSize, i * positionSize + positionSize);
+            p = isNested
+                ? (path as number[][])[i]
+                : (path as number[]).slice(i * positionSize, i * positionSize + positionSize);
             p = this.projectPosition(p);
-            if (i > 0) {
+            if (i > 0 && prevP !== undefined) {
                 const distance = vec3.dist(prevP, p);
                 if (i < geometrySize - 1) {
                     result[i] = result[i - 1] + distance;
@@ -84,7 +86,7 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
         return result;
     }
 
-    getLengthRatios(this: Layer<AnimatedArrowPathProps>, path): number[] {
+    getLengthRatios(this: Layer<AnimatedArrowPathProps>, path: number[] | number[][]): number[] {
         const result = [] as number[];
         if (path === undefined || path.length < 2) {
             return result;
@@ -93,10 +95,14 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
         const isNested = Array.isArray(path[0]);
         const geometrySize = isNested ? path.length : path.length / positionSize;
         let sumLength = 0;
-        let p;
-        let prevP = this.projectPosition(isNested ? path[0] : path.slice(0, positionSize));
+        let p: number[];
+        let prevP: number[] = this.projectPosition(
+            isNested ? (path as number[][])[0] : (path as number[]).slice(0, positionSize)
+        );
         for (let i = 1; i < geometrySize; i++) {
-            p = isNested ? path[i] : path.slice(i * positionSize, i * positionSize + positionSize);
+            p = isNested
+                ? (path as number[][])[i]
+                : (path as number[]).slice(i * positionSize, i * positionSize + positionSize);
             p = this.projectPosition(p);
             const distance = vec3.dist(prevP, p);
             sumLength += distance;
@@ -110,33 +116,37 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
         return result;
     }
 
-    draw(this: Layer<_AnimatedArrowPathLayerProps>, _params: any, _extension: this) {
+    draw(this: Layer<_AnimatedArrowPathLayerProps>, _params: Record<string, unknown>, _extension: this) {
         const zoom = this.context.viewport?.zoom || 14;
 
-        // Here is a good approximation of the zoom factor, based on map/zoom theory: Math.pow(2, zoom - 14)
-        // Multiplier adjusts for low zoom being too fast visually even if speed was the same.
-        const multiplier = (199 - 9 * zoom) / 19; // 10.0 times slower at zoom 1, equal speed at zoom 20.
-        const zoomFactor = multiplier * Math.pow(2, zoom - 14);
+        // Arrow spacing in shader units - this is how far apart arrows are
+        const arrowSpacing = this.props.arrowSpacing || 30.0;
 
-        // Calculate animation time with seamless reset
-        // Use a cycle that matches the arrow spacing to ensure seamless looping
-        const arrowSpacing = this.props.arrowSpacing || 30.0; // Configurable arrow spacing (f32)
+        // Zoom factor calculation
+        // Multiplier adjusts for low zoom being too fast visually
+        const multiplier = (199 - 9 * zoom) / 19; // 10x slower at zoom 1, 1x at zoom 20
+        // See for exact formula: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+        const zoomFactor = multiplier * Math.pow(2, zoom - 15.6);
 
-        // Calculate cycle duration to create seamless loops
-        // The cycle should complete exactly when one arrow spacing cycle finishes
-        const baseCycleDuration = 90;
-        const seamlessCycleDuration = baseCycleDuration * arrowSpacing; // Adjust for arrow spacing pattern
+        // Original speed calculation to maintain correct visual speed
+        const baseSpeed = 0.01; // Shader units per second before zoom adjustment, gives a good average speed
+        const adjustedSpeed = baseSpeed / zoomFactor;
 
-        const rawTime = (performance.now() / 100) % seamlessCycleDuration;
-        const normalizedTime = rawTime / (10 * seamlessCycleDuration);
+        // Fixed cycle duration - there will be a shift every 60 seconds when time wraps
+        // The shift amount depends on zoom level and is generally acceptable for this use case
+        const cycleDuration = 60.0; // seconds
 
-        // Scale the time to match the arrow pattern
-        const seamlessTime = this.props.disableAnimation ? 1 : normalizedTime * arrowSpacing;
+        // Wrap time at the cycle duration to prevent overflow (performance.now() / 1000 gives seconds)
+        const wrappedTime = (performance.now() / 1000) % cycleDuration;
+
+        // Calculate distance traveled in this cycle - this is the animation time value
+        const animationTime = this.props.disableAnimation ? 1 : wrappedTime * adjustedSpeed;
         const animatedArrowProps: AnimatedArrowPathProps = {
-            time: seamlessTime / zoomFactor,
+            time: animationTime,
             arrowSpacing: arrowSpacing
         };
-        (this.state.model as any)?.shaderInputs.setProps({ animatedArrowPath: animatedArrowProps });
+        const model = this.state.model as { shaderInputs?: { setProps: (props: Record<string, unknown>) => void } };
+        model?.shaderInputs?.setProps({ animatedArrowPath: animatedArrowProps });
     }
 
     // See https://deck.gl/docs/developer-guide/custom-layers/picking for more information about picking colors
@@ -168,7 +178,8 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
                 float offset = vArrowPathOffset;
                 float totalLength = vPathLength / vLengthRatio;
                 float startDistance = vStartOffsetRatio * totalLength;
-                float distanceSoFar = startDistance + vPathPosition.y - offset + percentFromCenter;
+                // percentFromCenter * 2.0 makes the arrow twice as pointy.
+                float distanceSoFar = startDistance + vPathPosition.y - offset + percentFromCenter * 2.0;
                 float arrowIndex = mod(distanceSoFar, animatedArrowPath.arrowSpacing);
                 float percentOfDistanceBetweenArrows = 1.0 - arrowIndex / animatedArrowPath.arrowSpacing;
                 
@@ -207,7 +218,7 @@ export default class AnimatedArrowPathExtension extends LayerExtension {
                         arrowSpacing: 'f32'
                     },
                     inject
-                } as ShaderModule<any>
+                } as ShaderModule<AnimatedArrowPathProps>
             ]
         };
     }

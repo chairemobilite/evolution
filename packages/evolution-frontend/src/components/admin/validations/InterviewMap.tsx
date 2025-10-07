@@ -8,7 +8,13 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
 import config from 'evolution-common/lib/config/project.config';
 import { useTranslation } from 'react-i18next';
-import MapLibreMap, { MapRef, useControl, Marker, SourceSpecification, LayerSpecification } from 'react-map-gl/maplibre';
+import MapLibreMap, {
+    MapRef,
+    useControl,
+    Marker,
+    SourceSpecification,
+    LayerSpecification
+} from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { PathLayer } from '@deck.gl/layers';
@@ -253,7 +259,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
     ): [number, number, number, number] => {
         const personColor = feature.properties?.personColor;
         const tripColor = feature.properties?.color;
-        const colorHex = personColor || tripColor || '#ff0000';
+        const colorHex = tripColor || personColor || '#000000';
         const rgbColor = hexToRgb(colorHex);
         return rgbColor ? [rgbColor[0], rgbColor[1], rgbColor[2], 255] : [255, 0, 0, 255];
     };
@@ -314,6 +320,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                 id: 'trips-animated',
                 data: props.trips.features,
                 antialias: true,
+                highPrecision: true,
                 getPath: (feature: GeoJSON.Feature<GeoJSON.LineString, SurveyMapTripProperties>) => {
                     return feature.geometry.coordinates as Position[];
                 },
@@ -403,10 +410,9 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
         }
 
         return {
-            version: 8 as const,
+            version: 8 as const, // must be 8, see https://maplibre.org/maplibre-style-spec/root/#version
             sources,
-            layers,
-            glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf'
+            layers
         };
     };
 
@@ -442,7 +448,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                 [Math.max(...lngs), Math.max(...lats)]
             ];
 
-            map.fitBounds(bounds, { padding: 50, animate: false });
+            map.fitBounds(bounds, { padding: 50, animate: false, maxZoom: 17 });
         }
     };
 
@@ -479,7 +485,8 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
         map.fitBounds(bounds, {
             padding: 100, // More padding for better view of origin/destination
             animate: true,
-            duration: 1000 // Smooth animation
+            duration: 1000, // Smooth animation
+            maxZoom: 17 // Limit zoom to prevent blurry tiles
         });
     };
 
@@ -491,21 +498,21 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
         if (!map || !props.activePlacePath) return;
 
         // Find the active place
-        const activePlace = props.places.features.find(
-            (feature) => feature.properties?.path === props.activePlacePath
-        );
+        const activePlace = props.places.features.find((feature) => feature.properties?.path === props.activePlacePath);
 
         if (!activePlace || !activePlace.geometry.coordinates) return;
 
         const coordinates = activePlace.geometry.coordinates as [number, number];
 
-        // Smoothly animate to the place with zoom level 16
+        // Smoothly animate to the place with zoom level 14
         map.flyTo({
             center: coordinates,
             zoom: 14,
-            duration: 500, // 0.5 second animation
+            duration: 500 // 0.5 second animation
         });
     };
+
+    const mapStyle = useMemo(getMapStyle, [showAerialTiles, config.mapAerialTilesUrl]);
 
     return (
         <div className="admin__interview-map" style={{ height: 'calc(100vh - 120px)', width: '100%' }}>
@@ -519,7 +526,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                 onLoad={onMapLoad}
                 style={{ width: '100%', height: '100%' }}
                 maxZoom={20} // Anything more than 20 is not really useful, since most aerial imageries are maxed out at zoom 20.
-                mapStyle={getMapStyle()}
+                mapStyle={mapStyle}
             >
                 {/* Place markers - re-render when zoom changes */}
                 {props.places.features.map((feature, index) => {
@@ -580,6 +587,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                     <div ref={layerSelectRef} className="admin__map-layer-switcher">
                         {/* Layer icon button */}
                         <button
+                            type="button" // disable defaut form submission (default is type=submit)
                             onClick={toggleLayerSelect}
                             className="admin__map-layer-button"
                             title={t('admin:MapLayerSelect')}
@@ -610,8 +618,9 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                                     onClick={() => handleLayerChange('aerial')}
                                     className={`admin__map-layer-option ${showAerialTiles ? 'active' : ''}`}
                                 >
-                                    <div className={`admin__map-layer-thumbnail admin__map-layer-aerial-thumbnail ${showAerialTiles ? 'active' : ''}`}>
-                                    </div>
+                                    <div
+                                        className={`admin__map-layer-thumbnail admin__map-layer-aerial-thumbnail ${showAerialTiles ? 'active' : ''}`}
+                                    ></div>
                                     <span className={`admin__map-layer-label ${showAerialTiles ? 'active' : ''}`}>
                                         {t('admin:MapLayerAerial')}
                                     </span>
@@ -624,6 +633,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                 {/* Undo button - visible when there are drag operations to undo */}
                 {dragHistory.length > 0 && (
                     <button
+                        type="button" // disable defaut form submission (default is type=submit)
                         onClick={onUndoLastDrag}
                         className="admin__map-undo-button"
                         title={t(
@@ -632,14 +642,13 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                         )}
                     >
                         <FontAwesomeIcon icon={faRotateLeft} />
-                        {dragHistory.length > 1 && (
-                            <span className="admin__map-undo-count">{dragHistory.length}</span>
-                        )}
+                        {dragHistory.length > 1 && <span className="admin__map-undo-count">{dragHistory.length}</span>}
                     </button>
                 )}
 
                 {/* Fit bounds button */}
                 <button
+                    type="button" // disable defaut form submission (default is type=submit)
                     onClick={fitBounds}
                     className="admin__map-fitbounds-button"
                     title={t('FitBounds')}

@@ -56,7 +56,20 @@ export const generateMapFeatureFromInterview = (
     } as GeoJSON.FeatureCollection<GeoJSON.LineString>;
 
     const response = interview.response;
+
+    // Use raw response data for trip generation (as it was working before)
     const persons = odSurveyHelper.getPersonsArray({ interview });
+
+    // But get person colors from deserialized survey objects
+    const deserializedPersons = (interview as any)?.surveyObjectsAndAudits?.household?.members || [];
+    const personColorMap = new Map<string, string>();
+
+    // Build a map of person UUID to color from deserialized objects
+    deserializedPersons.forEach((person: any) => {
+        if (person._uuid && person._color) {
+            personColorMap.set(person._uuid, person._color);
+        }
+    });
 
     const roundedCoordinatesPairsCount = {};
     const coordinatesByVisitedPlaceUuid = {};
@@ -76,9 +89,12 @@ export const generateMapFeatureFromInterview = (
 
     // Add the visited places and trips to the places and trips collections for each person
     for (const person of persons) {
-        const personColor = (person as any)._color || '#000000';
+        // Get person color from deserialized objects, fallback to raw data, then default
+        const personColor = personColorMap.get(person._uuid as string) || (person as any)._color || '#000000';
+
         const personPath = `response.household.persons.${person._uuid}`;
         const journeys = odSurveyHelper.getJourneysArray({ person });
+
         for (const journey of journeys) {
             const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
             const trips = odSurveyHelper.getTripsArray({ journey });
@@ -167,7 +183,7 @@ export const generateMapFeatureFromInterview = (
                                 personUuid: person._uuid,
                                 tripUuid: trip._uuid,
                                 active: activeTripUuid === trip._uuid,
-                                color: personColor
+                                personColor: personColor
                             }
                         }
                     );

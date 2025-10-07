@@ -126,7 +126,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
                 acc[person._uuid!] = person;
                 return acc;
             },
-            {} as { [key: string]: Person }
+              {} as { [key: string]: Person }
         )
         : {};
 
@@ -168,8 +168,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
                         {i + 1}. {visitedPlaceDecorator.getDescription(true)}{' '}
                         {visitedPlace.startTime && visitedPlace.endTime
                             ? '(' +
-                            Math.round((10 * (visitedPlace.endTime - visitedPlace.startTime)) / 3600) / 10 +
-                            'h)'
+                              Math.round((10 * (visitedPlace.endTime - visitedPlace.startTime)) / 3600) / 10 +
+                              'h)'
                             : ''}
                     </span>
                     <ValidationErrors errors={visitedPlaceErrors} />
@@ -240,7 +240,11 @@ const InterviewStats = (props: InterviewStatsProps) => {
                 );
                 tripsStats.push(tripStats);
             } else {
-                console.warn('❌ InterviewStats - Trip for person uuid has no origin or destination', person.uuid, trip);
+                console.warn(
+                    '❌ InterviewStats - Trip for person uuid has no origin or destination',
+                    person.uuid,
+                    trip
+                );
             }
         }
 
