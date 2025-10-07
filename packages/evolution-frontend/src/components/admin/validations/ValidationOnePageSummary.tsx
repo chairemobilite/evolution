@@ -6,6 +6,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import Preferences from 'chaire-lib-common/lib/config/Preferences';
 
 import appConfig from '../../../config/application.config';
 import config from 'evolution-common/lib/config/project.config';
@@ -43,10 +44,13 @@ const ValidationOnePageSummary = () => {
     };
     const [InterviewStats, setInterviewStats] = useState<React.ComponentType<InterviewStatsProps> | null>(null);
     const [InterviewMap, setInterviewMap] = useState<React.ComponentType<InterviewMapProps> | null>(null);
+    const [showAuditErrorCode, setShowAuditErrorCode] = useState<boolean>(false);
 
     // FIXME Admin interview type should be different from participant, with more types
     const interview = useSelector((state: RootState) => state.survey.interview) as any;
     const user = useSelector((state: RootState) => state.auth.user);
+    // FIXME Add the validationDataDirty to the interview type, but it is only for the admin
+    const validationDataDirty = interview?.validationDataDirty;
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const startUpdateInterview: StartUpdateInterview = (data, callback) =>
         dispatch(startUpdateSurveyCorrectedInterview(data, callback));
@@ -66,6 +70,45 @@ const ValidationOnePageSummary = () => {
 
         loadComponents();
     }, []);
+
+    // Load preferences and set up preference change listener
+    useEffect(() => {
+        const loadPreferences = async () => {
+            try {
+                await Preferences.load();
+                setShowAuditErrorCode(Preferences.get('admin.interviewStats.showAuditErrorCode', false));
+            } catch (e) {
+                console.error('Failed to load preferences', e);
+            }
+        };
+
+        loadPreferences();
+
+        // Set up preference change listener
+        const preferenceChangeHandler = (changedPrefs: any) => {
+            if (changedPrefs['admin.interviewStats.showAuditErrorCode'] !== undefined) {
+                setShowAuditErrorCode(changedPrefs['admin.interviewStats.showAuditErrorCode']);
+            }
+        };
+
+        Preferences.addChangeListener(preferenceChangeHandler);
+
+        return () => {
+            Preferences.removeChangeListener(preferenceChangeHandler);
+        };
+    }, []);
+
+    const toggleAuditErrorCode = async () => {
+        const prev = showAuditErrorCode;
+        const newValue = !showAuditErrorCode;
+        setShowAuditErrorCode(newValue);
+        try {
+            await Preferences.update({ 'admin.interviewStats.showAuditErrorCode': newValue });
+        } catch (e) {
+            console.error('Failed to update preferences', e);
+            setShowAuditErrorCode(prev);
+        }
+    };
 
     // Generate map features with current selection state - regenerate when selection changes
     const { placesCollection, tripsCollection, pathToUniqueKeyMap } = React.useMemo(() => {
@@ -250,6 +293,9 @@ const ValidationOnePageSummary = () => {
                                     activePlacePath={activeStatsPlacePath}
                                     user={user}
                                     startUpdateInterview={startUpdateInterview}
+                                    prefs={{ showAuditErrorCode }}
+                                    toggleAuditErrorCode={toggleAuditErrorCode}
+                                    validationDataDirty={validationDataDirty}
                                 />
                             </AdminErrorBoundary>
                         }

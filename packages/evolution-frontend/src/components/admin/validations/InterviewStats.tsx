@@ -4,27 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { JSX } from 'react';
-//import { useTranslation } from 'react-i18next';
-import moment from 'moment';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-import { faTimes } from '@fortawesome/free-solid-svg-icons/faTimes';
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons/faUserCircle';
-import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons/faArrowRight';
-import { faCar } from '@fortawesome/free-solid-svg-icons/faCar';
-import { faCarSide } from '@fortawesome/free-solid-svg-icons/faCarSide';
-import { faBicycle } from '@fortawesome/free-solid-svg-icons/faBicycle';
-import { faBus } from '@fortawesome/free-solid-svg-icons/faBus';
-import { faIdCard } from '@fortawesome/free-solid-svg-icons/faIdCard';
-import { faDollarSign } from '@fortawesome/free-solid-svg-icons/faDollarSign';
-import steeringWheelSvg from '../../../assets/images/admin/steering-wheel-solid.svg';
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
-//import { SurveyContext } from '../../../contexts/SurveyContext';
-import ValidationErrors from './ValidationErrors';
-import KeepDiscard from './KeepDiscard';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
@@ -33,20 +14,21 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
-import { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
-import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
-import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Optional } from 'evolution-common/lib/types/Optional.type';
-import { VisitedPlaceDecorator } from '../../../services/surveyObjectDecorators/VisitedPlaceDecorator';
+import { InterviewPanel } from '../widgets/InterviewPanel';
+import { HomePanel } from '../widgets/HomePanel';
+import { HouseholdPanel } from '../widgets/HouseholdPanel';
+import { PersonPanel } from '../widgets/PersonPanel';
+import AuditDisplay from '../AuditDisplay';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
-// Temporarily replaces the calls to the old demoSurveyHelpers that was validating with previous validation results.
 // TODO This component should be replaced by the v2 audits that come from the server and uses an object to validate the survey.
-const emptyErrorResults = {
-    errors: [],
-    warnings: [],
-    audits: []
+
+export type InterviewStatsPrefs = {
+    showAuditErrorCode: boolean; // if true, will show audit error codes instead of translated messages
 };
 
 export type InterviewStatsProps = {
@@ -58,12 +40,17 @@ export type InterviewStatsProps = {
     selectPlace: (path: string | undefined) => void;
     selectTrip: (uuid: string | undefined) => void;
     activePlacePath?: string;
+    prefs?: InterviewStatsPrefs;
+    toggleAuditErrorCode?: () => void;
+    validationDataDirty?: boolean;
 };
 
 const InterviewStats = (props: InterviewStatsProps) => {
+    const { t } = useTranslation(['admin']);
+
     const keepDiscard = ({ choice, personId }) => {
         const valuesByPath = {};
-        valuesByPath[`response.household.persons.${personId}.keepDiscard`] = choice;
+        valuesByPath[`response.household.persons.${personId}._keepDiscard`] = choice;
         props.startUpdateInterview({ valuesByPath });
     };
 
@@ -77,10 +64,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
         console.error('❌ InterviewStats - No survey objects available');
         return (
             <div className="admin__interview-stats">
-                <h4>Error</h4>
-                <p className="_red">
-                    Survey objects not available. Please ensure the interview has been properly processed.
-                </p>
+                <h4>{t('interviewStats.errors.error')}</h4>
+                <p className="_red">{t('interviewStats.errors.surveyObjectsNotAvailable')}</p>
             </div>
         );
     }
@@ -92,10 +77,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
     if (!interview) {
         return (
             <div className="admin__interview-stats">
-                <h4>Error</h4>
-                <p className="_red">
-                    Interview not available. Please ensure the interview has been properly processed.
-                </p>
+                <h4>{t('interviewStats.errors.error')}</h4>
+                <p className="_red">{t('interviewStats.errors.interviewNotAvailable')}</p>
             </div>
         );
     }
@@ -103,10 +86,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
     if (!household) {
         return (
             <div className="admin__interview-stats">
-                <h4>Error</h4>
-                <p className="_red">
-                    Household not available. Please ensure the interview has been properly processed.
-                </p>
+                <h4>{t('interviewStats.errors.error')}</h4>
+                <p className="_red">{t('interviewStats.errors.householdNotAvailable')}</p>
             </div>
         );
     }
@@ -114,8 +95,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
     if (!home) {
         return (
             <div className="admin__interview-stats">
-                <h4>Error</h4>
-                <p className="_red">Home not available. Please ensure the interview has been properly processed.</p>
+                <h4>{t('interviewStats.errors.error')}</h4>
+                <p className="_red">{t('interviewStats.errors.homeNotAvailable')}</p>
             </div>
         );
     }
@@ -130,313 +111,103 @@ const InterviewStats = (props: InterviewStatsProps) => {
         )
         : {};
 
-    const interviewErrors = emptyErrorResults;
-    const householdErrors = emptyErrorResults;
-
-    const formattedTripsDate = interview?.assignedDate ? moment(interview.assignedDate).format('LL') : '-';
-
-    const personsStats: JSX.Element[] = [];
-    for (const personId in persons) {
-        const person: Person = persons[personId];
-        const personErrors = emptyErrorResults;
-
-        const visitedPlacesStats: JSX.Element[] = [];
-
-        // Use unserialized journey objects
-        let journey: Optional<Journey>;
-        let visitedPlacesArray: VisitedPlace[] = [];
-
-        // Find the corresponding unserialized person
-        const unserializedPerson = household?.members?.find((p) => p._uuid === personId);
-        if (unserializedPerson?.journeys && unserializedPerson.journeys.length > 0) {
-            journey = unserializedPerson.journeys[0];
-            if (journey.visitedPlaces) {
-                visitedPlacesArray = journey.visitedPlaces;
-            }
-        }
-
-        for (let i = 0, count = visitedPlacesArray.length; i < count; i++) {
-            const visitedPlace: VisitedPlace = visitedPlacesArray[i];
-            const visitedPlaceDecorator = new VisitedPlaceDecorator(visitedPlace);
-            const visitedPlaceErrors = emptyErrorResults;
-
-            const visitedPlaceId = visitedPlace.uuid;
-            const visitedPlacePath = `response.household.persons.${personId}.journeys.${journey?.uuid}.visitedPlaces.${visitedPlaceId}`;
-            const visitedPlaceStats = (
-                <div className="" key={visitedPlaceId} onClick={() => props.selectPlace(visitedPlacePath)}>
-                    <span className={`_widget${props.activePlacePath === visitedPlacePath ? ' _active' : ''}`}>
-                        {i + 1}. {visitedPlaceDecorator.getDescription(true)}{' '}
-                        {visitedPlace.startTime && visitedPlace.endTime
-                            ? '(' +
-                              Math.round((10 * (visitedPlace.endTime - visitedPlace.startTime)) / 3600) / 10 +
-                              'h)'
-                            : ''}
-                    </span>
-                    <ValidationErrors errors={visitedPlaceErrors} />
-                </div>
-            );
-            visitedPlacesStats.push(visitedPlaceStats);
-        }
-
-        const tripsStats: JSX.Element[] = [];
-        const tripsArray: Trip[] = journey?.trips || [];
-
-        for (let i = 0, count = tripsArray.length; i < count; i++) {
-            const trip: Trip = tripsArray[i];
-            const tripErrors = emptyErrorResults;
-            const tripId = trip._uuid!;
-            const origin = trip.origin;
-            const destination = trip.destination;
-            if (origin && destination) {
-                const startAt = origin!.endTime as number;
-                const endAt = destination!.startTime as number;
-                const duration = !_isBlank(startAt) && !_isBlank(endAt) ? endAt! - startAt! : undefined;
-                const birdSpeedMps = null; // FIXME Calculate
-
-                const segmentsArray: Segment[] = trip.segments || [];
-                const segmentsErrors = emptyErrorResults;
-                const segmentsStats: JSX.Element[] = [];
-
-                for (let j = 0, countJ = segmentsArray.length; j < countJ; j++) {
-                    const segment: Segment = segmentsArray[j];
-                    const segmentStats: string[] = [];
-                    if (!_isBlank(segment.mode)) {
-                        if (segment.mode === 'carDriver') {
-                            segmentStats.push(
-                                `(occ: ${segment.vehicleOccupancy ? segment.vehicleOccupancy.toString() : '?'} | stat: ${segment.paidForParking ? segment.paidForParking.toString() : '?'}`
-                            );
-                        } else if (segment.mode === 'carPassenger') {
-                            segmentStats.push(`(cond: ${segment.driverType ? segment.driverType.toString() : '?'})`);
-                        } else if (segment.mode === 'transitBus') {
-                            segmentStats.push(`(lignes: ${segment.busLines ? segment.busLines.join(',') : '?'})`);
-                        }
-                    }
-                    segmentsStats.push(
-                        <span className="" style={{ display: 'block' }} key={segment._uuid}>
-                            <strong>{segment.mode || '?'}</strong>: {segmentStats}
-                        </span>
-                    );
-                }
-
-                const tripStats = (
-                    <div className="" key={tripId} onClick={() => props.selectTrip(tripId)}>
-                        <span key="trip" className={`_widget${props.activeTripUuid === tripId ? ' _active' : ''}`}>
-                            {i + 1}. <FontAwesomeIcon icon={faClock} className="faIconLeft" />
-                            {secondsSinceMidnightToTimeStr(startAt)}
-                            <FontAwesomeIcon icon={faArrowRight} />
-                            {secondsSinceMidnightToTimeStr(endAt)} ({Math.ceil(duration! / 60)} min) • (
-                            {Math.round((birdSpeedMps! * 3.6 * 100) / 100)}km/h)
-                        </span>
-                        <span
-                            key="segments"
-                            style={{ marginLeft: '1rem' }}
-                            className={`_widget${props.activeTripUuid === tripId ? ' _active' : ''}`}
-                        >
-                            {segmentsStats}
-                        </span>
-                        <ValidationErrors errors={tripErrors} />
-                        <ValidationErrors errors={segmentsErrors} />
-                    </div>
-                );
-                tripsStats.push(tripStats);
-            } else {
-                console.warn(
-                    '❌ InterviewStats - Trip for person uuid has no origin or destination',
-                    person.uuid,
-                    trip
-                );
-            }
-        }
-
-        const personStats = (
-            <details
-                open={person.customAttributes.keepDiscard !== 'Discard'}
-                className="_widget_container"
-                key={personId}
-            >
-                <summary>
-                    {person.gender} {person.age} ans
-                    <KeepDiscard
-                        personId={personId}
-                        choice={person.customAttributes.keepDiscard as KeepDiscard}
-                        onChange={keepDiscard}
-                    />
-                </summary>
-                <span className="_widget">
-                    <FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />
-                    {person.age} ans
-                </span>
-                <span className="_widget">{person.gender}</span>
-                <span className="_widget">{person.occupation}</span>
-                <span className="_widget">
-                    {person.whoWillAnswerForThisPerson !== person._uuid ? 'proxy' : 'non-proxy'}
-                </span>
-                <br />
-                {journey?.noWorkTripReason && <span className="_widget _pale _oblique">noWorkTripReason</span>}
-                {journey?.noSchoolTripReason && <span className="_widget _pale _oblique">noSchoolTripReason</span>}
-                <span className="_widget _pale _oblique">noWorkTrip?:{journey?.noWorkTripReason}</span>
-                <span className="_widget _pale _oblique">noSchoolTrip?:{journey?.noSchoolTripReason}</span>
-                <br />
-                {journey?.didTrips === 'yes' && <span className="_widget _green">DidTrips</span>}
-                {journey?.didTrips === 'no' && <span className="_widget _green">noTrips</span>}
-                {journey?.didTrips === 'dontKnow' && <span className="_widget _red">dontKnowTrips</span>}
-                {person.drivingLicenseOwnership === 'yes' && (
-                    <span className="_widget">
-                        <FontAwesomeIcon icon={faCheck} />
-                        <img src={steeringWheelSvg} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.drivingLicenseOwnership === 'no' && (
-                    <span className="_widget">
-                        <FontAwesomeIcon icon={faTimes} />
-                        <img src={steeringWheelSvg} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.drivingLicenseOwnership === 'dontKnow' && (
-                    <span className="_widget">
-                        ?<img src={steeringWheelSvg} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.transitPassOwnership === 'yes' && (
-                    <span className="_widget">
-                        <FontAwesomeIcon icon={faCheck} />
-                        <FontAwesomeIcon icon={faBus} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.transitPassOwnership === 'no' && (
-                    <span className="_widget">
-                        <FontAwesomeIcon icon={faTimes} />
-                        <FontAwesomeIcon icon={faBus} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.transitPassOwnership === 'dontKnow' && (
-                    <span className="_widget">
-                        ?<FontAwesomeIcon icon={faBus} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.carsharingMember === 'yes' && (
-                    <span className="_widget">
-                        <FontAwesomeIcon icon={faCheck} />
-                        <FontAwesomeIcon icon={faCarSide} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.carsharingMember === 'no' && (
-                    <span className="_widget">
-                        <FontAwesomeIcon icon={faTimes} />
-                        <FontAwesomeIcon icon={faCarSide} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.carsharingMember === 'dontKnow' && (
-                    <span className="_widget">
-                        ?<FontAwesomeIcon icon={faCarSide} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.bikesharingMember === 'yes' && (
-                    <span className="_widget">
-                        <FontAwesomeIcon icon={faCheck} />
-                        <FontAwesomeIcon icon={faBicycle} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.bikesharingMember === 'no' && (
-                    <span className="_widget">
-                        <FontAwesomeIcon icon={faTimes} />
-                        <FontAwesomeIcon icon={faBicycle} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                {person.bikesharingMember === 'dontKnow' && (
-                    <span className="_widget">
-                        ?<FontAwesomeIcon icon={faBicycle} />
-                        <FontAwesomeIcon icon={faIdCard} />
-                    </span>
-                )}
-                <ValidationErrors errors={personErrors} />
-                {visitedPlacesStats.length > 0 && <br />}
-                {visitedPlacesStats}
-                {tripsStats.length > 0 && <br />}
-                {tripsStats}
-            </details>
-        );
-        personsStats.push(personStats);
-    }
+    // Check if there are any audits in the interview
+    const hasAudits = Boolean(
+        (surveyObjects?.auditsByObject &&
+            Object.keys(surveyObjects.auditsByObject).some(
+                (key) => surveyObjects.auditsByObject![key] && surveyObjects.auditsByObject![key].length > 0
+            )) ||
+            (surveyObjects?.audits && surveyObjects.audits.length > 0)
+    );
 
     return (
         <React.Fragment>
-            <div className="admin__interview-stats" key="household">
-                <h4>Entrevue</h4>
-                <span className="_widget">
-                    UUID: <span className="_strong">{interview?._uuid}</span>
-                </span>
-                {/*{(interview.username || interview.email) && (
-                    <span className="_widget">
-                        Username/Email:{' '}
-                        <span className="_strong">{(interview as any).username || (interview as any).email}</span>
+            {props.validationDataDirty && (
+                <p className="_audit-error _strong">
+                    <FontAwesomeIcon icon={faTriangleExclamation} className="faIconLeft" />
+                    {t('ValidationDataDirty')}
+                </p>
+            )}
+            <div key="header">
+                {props.toggleAuditErrorCode && hasAudits && (
+                    <span className="_widget _oblique">
+                        <a
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                props.toggleAuditErrorCode?.();
+                            }}
+                        >
+                            {props.prefs?.showAuditErrorCode ? t('HideAuditErrorCodes') : t('ShowAuditErrorCodes')}
+                        </a>
                     </span>
                 )}
-                {interview.google_id && (
-                    <span className="_widget">
-                        Google ID: <span className="_strong">{(interview as any).google_id}</span>
-                    </span>
-                )}
-                {interview.facebook_id && (
-                    <span className="_widget">
-                        Facebook ID: <span className="_strong">{(interview as any).facebook_id}</span>
-                    </span>
-                )}*/}
-                {home && (
-                    <span className="_widget">
-                        <span className="_strong">
-                            {home.address?.fullAddress ||
-                                `${home.address?.municipalityName || ''} ${home.address?.region || ''} ${home.address?.country || ''} ${home.address?.postalCode || ''}`.trim() ||
-                                ''}{' '}
-                            {home.address?.unitNumber ? 'app' + home.address?.unitNumber : ''}{' '}
-                            {home.address?.municipalityName ? home.address?.municipalityName : ''}
-                        </span>
-                    </span>
-                )}
-                <span className="_widget">
-                    Code d&apos;accès: <span className="_strong">{interview.accessCode || 'Aucun'}</span>
-                </span>
-                <span className="_widget">
-                    Langue d&apos;entrevue: <span className="_strong">{interview.languages?.[0] || '?'}</span>
-                </span>
-                <span className="_widget">
-                    Date de déplacements: <span className="_strong">{formattedTripsDate}</span>
-                </span>
-                <ValidationErrors errors={interviewErrors} />
-                <h4>Ménage</h4>
-                <span className="_widget">
-                    <FontAwesomeIcon icon={faUserCircle} className="faIconLeft" />
-                    {household?.attributes?.size}
-                </span>
-                <span className="_widget">
-                    <FontAwesomeIcon icon={faCar} className="faIconLeft" />
-                    {household?.attributes?.carNumber}
-                </span>
-                <span className="_widget">
-                    <FontAwesomeIcon icon={faDollarSign} className="faIconLeft" />
-                    {household.incomeLevel}
-                </span>
-                <ValidationErrors errors={householdErrors} />
             </div>
+            {surveyObjects?.interview && (
+                <InterviewPanel
+                    interview={surveyObjects.interview}
+                    audits={surveyObjects?.auditsByObject?.interview}
+                    showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                />
+            )}
+            <HomePanel
+                home={home}
+                audits={surveyObjects?.auditsByObject?.home}
+                showAuditErrorCode={props.prefs?.showAuditErrorCode}
+            />
+            <HouseholdPanel
+                household={household}
+                audits={surveyObjects?.auditsByObject?.household}
+                showAuditErrorCode={props.prefs?.showAuditErrorCode}
+            />
             <div className="admin__interview-stats" key="persons">
-                <h4>Personnes</h4>
-                {personsStats}
+                <h4>{t('interviewStats.labels.persons')}</h4>
+                {Object.keys(persons).map((personId, index) => {
+                    const person: Person = persons[personId];
+                    const unserializedPerson = household?.members?.find((p) => p._uuid === personId);
+                    let journey: Optional<Journey>;
+                    if (unserializedPerson?.journeys && unserializedPerson.journeys.length > 0) {
+                        journey = unserializedPerson.journeys[0];
+                    }
+
+                    return (
+                        <PersonPanel
+                            key={personId}
+                            person={person}
+                            journey={journey}
+                            personId={personId}
+                            personIndex={index + 1}
+                            audits={surveyObjects?.auditsByObject?.persons?.[personId]}
+                            activeTripUuid={props.activeTripUuid}
+                            activePlacePath={props.activePlacePath}
+                            selectPlace={props.selectPlace}
+                            selectTrip={props.selectTrip}
+                            keepDiscard={keepDiscard}
+                            showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                        />
+                    );
+                })}
             </div>
             <div className="admin__interview-stats" key="comments">
-                <h4>Commentaire</h4>
-                <p className="_scrollable _oblique _small">{interview.respondentComments || 'Aucun commentaire'}</p>
+                <h4>{t('Comments')}</h4>
+                <p className="_scrollable _oblique _small">
+                    {interview.respondentComments || t('interviewStats.labels.noComments')}
+                </p>
             </div>
+            {surveyObjects?.audits && surveyObjects.audits.length > 0 && (
+                <div className="admin__interview-stats" key="all-audits">
+                    <details open={false}>
+                        <summary>
+                            <h4 style={{ display: 'inline', margin: 0 }}>{t('AllAudits')}</h4>
+                        </summary>
+                        <AuditDisplay
+                            hideInfoAudits={false}
+                            audits={surveyObjects.audits}
+                            showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                        />
+                    </details>
+                </div>
+            )}
         </React.Fragment>
     );
 };

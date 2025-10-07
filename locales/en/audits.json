@@ -3,7 +3,7 @@
 
   "HH_I_Size": "Household size is out of range (should be between 1 and 20)",
   "HH_M_Size": "Household size is missing",
-  
+
   "HM_M_Geography": "Home geography is missing",
   "HM_I_Geography": "Home geography is invalid",
 
@@ -13,8 +13,8 @@
 
   "VP_M_Geography": "Visited place geography is missing",
   "VP_I_Geography": "Visited place geography is invalid",
-  
+
   "T_M_Segments": "Trip segments are missing",
-  
+
   "S_M_Mode": "Segment mode is missing"
 }
