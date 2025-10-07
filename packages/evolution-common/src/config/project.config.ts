@@ -65,6 +65,12 @@ export type EvolutionProjectConfiguration = {
         lat: number;
         lon: number;
     };
+    /**
+     * URL template for aerial/satellite tile layer. If provided, enables a toggle button
+     * to switch between OSM and aerial tiles on maps. Should include {z}, {x}, {y} placeholders.
+     * Example: 'https://URL/tiles/{z}/{y}/{x}'
+     */
+    mapAerialTilesUrl?: string;
 
     hideStartButtonOnHomePage: boolean;
     introductionTwoParagraph: boolean; // whether to show a second paragraph on the home page
@@ -105,7 +111,7 @@ export type EvolutionProjectConfiguration = {
     personColorsPalette: string[];
 
     // Add additional properties to the config
-    auth: ProjectConfiguration<any>['auth'] & {
+    auth: ProjectConfiguration<unknown>['auth'] & {
         /**
          * If true or with fields defined, the auth model will use the
          * combination of access code and postal code as login credentials.
