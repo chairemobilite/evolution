@@ -25,6 +25,14 @@ export type EvolutionProjectConfiguration = {
     /** Used for Google Maps localization. See
      * https://developers.google.com/maps/coverage for possible region codes */
     region: string;
+    /**
+     * Start date for the survey. Interviews started before this date should be invalidated and/or ignored
+     * */
+    startDate: string, // format: YYYY-MM-DD. Interviews started before this date should be invalidated and/or ignored
+    /**
+     * End date for the survey.
+     * */
+    endDate: string, // format: YYYY-MM-DD.
     /** Whether to log database updates. FIXME This should be server-side only
      * */
     logDatabaseUpdates: boolean;
@@ -157,6 +165,8 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
                 lat: 45.5,
                 lon: -73.6
             },
+            startDate: undefined,
+            endDate: undefined,
             hideStartButtonOnHomePage: false,
             introductionTwoParagraph: false,
             introBanner: false,
