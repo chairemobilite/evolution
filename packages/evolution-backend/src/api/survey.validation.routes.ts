@@ -28,6 +28,8 @@ const router = express.Router();
 
 router.use(interviewUserIsAuthorized(['validate', 'read']));
 
+// This route fetches the interview for correction. It runs the audit and
+// returns serialized objects for the interview summary page.
 router.get(
     '/survey/correctInterview/:interviewUuid',
     validateUuidMiddleware,
@@ -37,14 +39,6 @@ router.get(
             try {
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
                 if (interview) {
-                    // Check if interview is frozen, if so, do not allow access
-                    if (interview?.is_frozen) {
-                        console.log('activeSurvey: Interview is frozen');
-                        return res
-                            .status(403)
-                            .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
-                    }
-
                     const forceCopy = _booleish(req.query.reset) === true;
                     // Copy the response in the corrected_response
                     if (forceCopy || _isBlank(interview.corrected_response)) {
@@ -68,6 +62,57 @@ router.get(
                                 interview.is_frozen !== true &&
                                 (corrected_response?._correctedResponseCopiedAt === undefined ||
                                     corrected_response._correctedResponseCopiedAt < response._updatedAt)
+                        }
+                    });
+                } else {
+                    return res.status(500).json({ status: 'failed', interview: null });
+                }
+            } catch (error) {
+                console.error(`Error getting interview to validate: ${error}`);
+                return res.status(500).json({ status: 'failed', interview: null, error: 'cannot fetch interview' });
+            }
+        } else {
+            return res.status(500).json({ status: 'failed', interview: null, error: 'wrong interview id' });
+        }
+    }
+);
+
+// This route fetches the interview for correction in "edit" mode. It returns the corrected response only
+router.get(
+    '/survey/activeCorrectedInterview/:interviewUuid',
+    validateUuidMiddleware,
+    logUserAccessesMiddleware.openingInterview(true),
+    async (req: Request, res: Response) => {
+        if (req.params.interviewUuid) {
+            try {
+                const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+                if (interview) {
+                    // FIXME Check if interview is frozen, if so, do not allow
+                    // access. When
+                    // https://github.com/chairemobilite/evolution/issues/1257
+                    // is fixed, we can remove this check and still open the
+                    // interview, the corrector knows what he is doing. Or we
+                    // can pass a parameter to bypass the check and make sure we
+                    // had confirmation from the corrector.
+                    if (interview?.is_frozen) {
+                        console.log('activeSurvey: Interview is frozen');
+                        return res
+                            .status(403)
+                            .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
+                    }
+
+                    // Copy the response in the corrected_response if it is not already
+                    if (_isBlank(interview.corrected_response)) {
+                        await copyResponseToCorrectedResponse(interview);
+                    }
+
+                    // Make sure the original response does not make it to the frontend
+                    const { response: _response, corrected_response, ...rest } = interview;
+                    return res.status(200).json({
+                        status: 'success',
+                        interview: {
+                            response: corrected_response,
+                            ...rest
                         }
                     });
                 } else {

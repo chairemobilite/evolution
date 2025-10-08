@@ -11,7 +11,7 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import ValidationOnePageSummary from './ValidationOnePageSummary';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import {
-    startSetSurveyCorrectedInterview,
+    startFetchCorrectedInterviewAndAudits,
     startUpdateSurveyCorrectedInterview,
     startResetCorrectedInterview
 } from '../../../actions/SurveyAdmin';
@@ -35,7 +35,7 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
     const user = useSelector((state: RootState) => state.auth.user) as CliUser;
 
     const refreshInterview = useCallback(() => {
-        dispatch(startSetSurveyCorrectedInterview(interview.uuid));
+        dispatch(startFetchCorrectedInterviewAndAudits(interview.uuid));
     }, [dispatch, interview.uuid]);
 
     const resetInterview = useCallback(() => {
