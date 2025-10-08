@@ -794,7 +794,8 @@ export const startSetInterview = (
                 }
             } else if (response.status === 403) {
                 // The interview is frozen, redirect to the survey unavailable page
-                surveyHelper.devLog('Redirect to unavailable page: frozen interview');
+                // Note: We want to monitor how often this happens.
+                console.log('Redirect to unavailable page: interview cannot be accessed for respondent');
                 if (navigate) {
                     navigate('/unavailable'); // User goes to 'unavailable' page
                 } else {

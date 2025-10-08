@@ -40,7 +40,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                 // Get the current interview with uuid
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
                 if (interview?.is_frozen) {
-                    console.log('activeSurvey: Interview is frozen');
+                    console.log(`activeSurvey: Interview is frozen for interview id ${interview?.id}`);
                     return res
                         .status(403)
                         .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
