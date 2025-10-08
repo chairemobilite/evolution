@@ -37,14 +37,6 @@ router.get(
             try {
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
                 if (interview) {
-                    // Check if interview is frozen, if so, do not allow access
-                    if (interview?.is_frozen) {
-                        console.log('activeSurvey: Interview is frozen');
-                        return res
-                            .status(403)
-                            .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
-                    }
-
                     const forceCopy = _booleish(req.query.reset) === true;
                     // Copy the response in the corrected_response
                     if (forceCopy || _isBlank(interview.corrected_response)) {
