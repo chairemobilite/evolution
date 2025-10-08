@@ -126,7 +126,7 @@ module.exports = (env) => {
             new CleanWebpackPlugin({
                 dry: !isProduction,
                 verbose: true,
-                cleanAfterEveryBuildPatterns: ['**/*', '!images/**', '!*.html']
+                cleanAfterEveryBuildPatterns: ['**/*', '!images/**', '!icons/**', '!*.html']
             }),
             new HtmlWebpackPlugin({
                 title: process.env.DEFAULT_TITLE || 'Evolution',
@@ -162,6 +162,12 @@ module.exports = (env) => {
             new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, new RegExp(momentLanguagesFilter)),
             new CopyWebpackPlugin({
                 patterns: [
+                    {
+                        context: path.join(__dirname, '..', '..', 'node_modules', 'chaire-lib-frontend', 'lib', 'assets'),
+                        from: "**/*",
+                        to: "",
+                        noErrorOnMissing: true
+                    },
                     {
                         context: path.join(
                             __dirname,
