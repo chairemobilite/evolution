@@ -8,6 +8,7 @@ import React from 'react';
 import moment from 'moment';
 import appConfig from '../../../config/application.config';
 import StartedAndCompletedInterviewsByDay from '../monitoring/StartedAndCompletedInterviewByDay';
+import { ProgressionMonitoringCharts } from '../monitoring/ProgressionMonitoringCharts';
 import ExportInterviewData from './ExportInterviewData';
 
 type CustomMonitoringComponentProps = {
@@ -35,9 +36,13 @@ const Monitoring: React.FC = () => {
 
     return (
         <div className="survey">
-            <div className="admin">
-                <StartedAndCompletedInterviewsByDay />
-                <ExportInterviewData />
+            <div className="monitoring">
+                {/* TODO: Fix this layout, it's not working on small screens and when the graphs have too many days */}
+                <div className="monitoring-first-row">
+                    <StartedAndCompletedInterviewsByDay />
+                    <ExportInterviewData />
+                </div>
+                <ProgressionMonitoringCharts />
                 {customMonitoringComponentsArray}
             </div>
         </div>
