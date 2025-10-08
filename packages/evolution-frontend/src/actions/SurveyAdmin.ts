@@ -246,7 +246,8 @@ export const startSetSurveyCorrectedInterview = (
                 }
             } else if (response.status === 403) {
                 // The interview is frozen, redirect to the survey unavailable page
-                surveyHelper.devLog('Redirect to unavailable page: frozen interview');
+                // Note: We want to monitor how often this happens.
+                console.log('Redirect to unavailable page: interview cannot be accessed for admin');
                 window.location.href = '/unavailable'; // User goes to 'unavailable' page
             }
         } catch (err) {
