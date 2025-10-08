@@ -12,7 +12,7 @@ import { faFolderOpen } from '@fortawesome/free-solid-svg-icons/faFolderOpen';
 import { ThunkDispatch } from 'redux-thunk';
 
 import InterviewSummary from '../validations/InterviewSummary';
-import { startSetSurveyCorrectedInterview } from '../../../actions/SurveyAdmin';
+import { startFetchCorrectedInterviewAndAudits } from '../../../actions/SurveyAdmin';
 import { setInterviewState } from '../../../actions/Survey';
 import InterviewListComponent from '../validations/InterviewListComponent';
 import { RootState } from '../../../store/configureStore';
@@ -49,11 +49,7 @@ const ReviewPage = () => {
                     }
                 }
 
-                dispatch(
-                    startSetSurveyCorrectedInterview(interviewUuid, () => {
-                        // UUIDs are already set above
-                    })
-                );
+                dispatch(startFetchCorrectedInterviewAndAudits(interviewUuid));
             } else {
                 // Close button clicked - clear the interview and show the list
                 setShowInterviewList(true);

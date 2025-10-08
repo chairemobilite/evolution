@@ -229,27 +229,13 @@ export const startSetSurveyCorrectedInterview = (
         _getState: () => RootState
     ) => {
         try {
-            const response = await fetch(`/api/survey/correctInterview/${interviewUuid}`, {
+            const response = await fetch(`/api/survey/activeCorrectedInterview/${interviewUuid}`, {
                 credentials: 'include'
             });
             if (response.status === 200) {
                 const body = await response.json();
                 if (body.interview) {
                     const interview = body.interview;
-
-                    // Unserialize surveyObjectsAndAudits if present
-                    if (
-                        interview.surveyObjectsAndAudits &&
-                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
-                    ) {
-                        try {
-                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
-                                interview.surveyObjectsAndAudits
-                            );
-                        } catch (error) {
-                            console.error('Failed to unserialize surveyObjectsAndAudits:', error);
-                        }
-                    }
 
                     // Set the interview in the state first
                     dispatch(updateInterviewState(interview));
@@ -318,6 +304,52 @@ export const startSurveyCorrectedRemoveGroupedObjects = (
             return [valuesByPath, unsetPaths];
         } else {
             dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath, unsetPaths }, callback));
+        }
+    };
+};
+
+/**
+ * Fetch an interview from server, run the audits and return the interview for
+ * visualization
+ *
+ * @param {*} interviewUuid The uuid of the interview to open
+ * @returns
+ */
+// TODO: unit test
+export const startFetchCorrectedInterviewAndAudits = (interviewUuid: string) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        _getState: () => RootState
+    ) => {
+        try {
+            const response = await fetch(`/api/survey/correctInterview/${interviewUuid}`, {
+                credentials: 'include'
+            });
+            if (response.status === 200) {
+                const body = await response.json();
+                if (body.interview) {
+                    const interview = body.interview;
+
+                    // Unserialize surveyObjectsAndAudits if present
+                    if (
+                        interview.surveyObjectsAndAudits &&
+                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
+                    ) {
+                        try {
+                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
+                                interview.surveyObjectsAndAudits
+                            );
+                        } catch (error) {
+                            console.error('Failed to unserialize surveyObjectsAndAudits:', error);
+                        }
+                    }
+
+                    // Set the interview in the state first
+                    dispatch(updateInterviewState(interview));
+                }
+            }
+        } catch (err) {
+            surveyHelper.devLog('Error fetching interview to correct.', err);
         }
     };
 };
