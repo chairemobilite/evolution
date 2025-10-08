@@ -31,7 +31,7 @@
         "no-cond-assign": "error",
         "no-dupe-else-if": "error",
         "no-unused-vars": "off",
-        "@typescript-eslint/no-unused-vars": ["error", { "vars": "all", "args": "after-used", "argsIgnorePattern": "^_", "ignoreRestSiblings": false }],
+        "@typescript-eslint/no-unused-vars": ["error", { "vars": "all", "args": "after-used", "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "ignoreRestSiblings": false }],
         "object-curly-spacing": ["error", "always"],
         "semi": ["error", "always"],
         "quotes": ["error", "single"]
