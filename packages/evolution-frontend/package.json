@@ -42,6 +42,7 @@
     "bowser": "^2.11.0",
     "chaire-lib-common": "^0.2.2",
     "chaire-lib-frontend": "^0.2.2",
+    "d3": "^7.9.0",
     "date-fns": "^2.29.1",
     "dompurify": "^3.2.4",
     "evolution-common": "^0.5.0",
