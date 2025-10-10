@@ -9,6 +9,7 @@ import moment from 'moment';
 import appConfig from '../../../config/application.config';
 import StartedAndCompletedInterviewsByDay from '../monitoring/StartedAndCompletedInterviewByDay';
 import { ProgressionMonitoringCharts } from '../monitoring/ProgressionMonitoringCharts';
+import { RespondentBurdensMonitoringCharts } from '../monitoring/RespondentBurdensMonitoringCharts';
 import ExportInterviewData from './ExportInterviewData';
 
 type CustomMonitoringComponentProps = {
@@ -43,6 +44,7 @@ const Monitoring: React.FC = () => {
                     <ExportInterviewData />
                 </div>
                 <ProgressionMonitoringCharts />
+                <RespondentBurdensMonitoringCharts />
                 {customMonitoringComponentsArray}
             </div>
         </div>
