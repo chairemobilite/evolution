@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
@@ -20,7 +20,9 @@ import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardLi
 import { faChevronCircleRight } from '@fortawesome/free-solid-svg-icons/faChevronCircleRight';
 import { faChevronCircleLeft } from '@fortawesome/free-solid-svg-icons/faChevronCircleLeft';
 
+import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 type ValidationLinksProps = {
     handleInterviewSummaryChange: (uuid: string | null) => void;
@@ -35,6 +37,7 @@ type ValidationLinksProps = {
     resetInterview: () => void;
     interviewIsComplete: boolean;
     interviewIsValidated: boolean;
+    interview: UserRuntimeInterviewAttributes;
 };
 
 const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
@@ -49,10 +52,44 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
     refreshInterview,
     resetInterview,
     interviewIsComplete,
-    interviewIsValidated
+    interviewIsValidated,
+    interview
 }: ValidationLinksProps) => {
     const { t } = useTranslation('admin');
     const canConfirm = user.isAuthorized({ Interviews: ['confirm'] });
+
+    // State for confirmation modals
+    const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+    const [showEditFrozenConfirmation, setShowEditFrozenConfirmation] = useState(false);
+
+    // Check if interview is frozen
+    const interviewIsFrozen = interview.is_frozen === true;
+
+    const handleResetClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setShowResetConfirmation(true);
+    };
+
+    // FIXME Add an option to not show this dialog again for the session when https://github.com/chairemobilite/transition/pull/1510 is merged
+    const handleEditClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (interviewIsFrozen) {
+            setShowEditFrozenConfirmation(true);
+        } else {
+            window.open(`/admin/survey/interview/${interviewUuid}`, '_blank');
+        }
+    };
+
+    const handleResetConfirm = () => {
+        resetInterview();
+        setShowResetConfirmation(false);
+    };
+
+    const handleEditFrozenConfirm = () => {
+        window.open(`/admin/survey/interview/${interviewUuid}`, '_blank');
+        setShowEditFrozenConfirmation(false);
+    };
+
     return (
         <p className="center _large">
             <a
@@ -192,12 +229,7 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                 </React.Fragment>
             )}{' '}
             &nbsp;&nbsp;
-            <a
-                href={`/admin/survey/interview/${interviewUuid}`}
-                rel="noreferrer"
-                target="_blank"
-                title={t('admin:editValidationInterview')}
-            >
+            <a href="#" onClick={handleEditClick} title={t('admin:editValidationInterview')}>
                 <FontAwesomeIcon icon={faPencilAlt} />
             </a>{' '}
             <a
@@ -210,14 +242,7 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
             >
                 <FontAwesomeIcon icon={faSyncAlt} />
             </a>{' '}
-            <a
-                href="#"
-                onClick={(e) => {
-                    e.preventDefault();
-                    resetInterview();
-                }}
-                title={t('admin:resetInterview')}
-            >
+            <a href="#" onClick={handleResetClick} title={t('admin:resetInterview')}>
                 <FontAwesomeIcon icon={faUndoAlt} />
             </a>
             {prevInterviewUuid && (
@@ -250,6 +275,25 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     </a>
                 </React.Fragment>
             )}
+            {/* Confirmation modals */}
+            <ConfirmModal
+                isOpen={showResetConfirmation}
+                closeModal={() => setShowResetConfirmation(false)}
+                title={t('admin:resetInterviewConfirmTitle')}
+                text={t('admin:resetInterviewConfirmMessage')}
+                confirmAction={handleResetConfirm}
+                confirmButtonLabel={t('admin:confirmButton')}
+                cancelButtonLabel={t('admin:cancelButton')}
+            />
+            <ConfirmModal
+                isOpen={showEditFrozenConfirmation}
+                closeModal={() => setShowEditFrozenConfirmation(false)}
+                title={t('admin:editReviewedInterviewConfirmTitle')}
+                text={t('admin:editReviewedInterviewConfirmMessage')}
+                confirmAction={handleEditFrozenConfirm}
+                confirmButtonLabel={t('admin:confirmButton')}
+                cancelButtonLabel={t('admin:cancelButton')}
+            />
         </p>
     );
 };

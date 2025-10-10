@@ -189,5 +189,12 @@
   "FitBounds": "Ajuster les limites pour afficher tous les lieux et déplacements",
   "MapLayerSelect": "Couche de carte",
   "MapLayerOSM": "Tuiles OpenStreetMap",
-  "MapLayerAerial": "Photos aériennes"
+  "MapLayerAerial": "Photos aériennes",
+  "resetInterviewConfirmTitle": "Réinitialiser les données de l'entrevue?",
+  "resetInterviewConfirmMessage": "Cette action effacera toutes les données corrigées et réinitialisera l'entrevue aux valeurs originales du participant. Cette action ne peut pas être annulée. Êtes-vous sûr de vouloir continuer?",
+  "editReviewedInterviewConfirmTitle": "Modifier une entrevue révisée?",
+  "editReviewedInterviewConfirmMessage": "Cette entrevue est déjà révisée. La modifier pourrait causer des incohérences. Êtes-vous sûr de vouloir continuer?",
+  "cancelButton": "Annuler",
+  "confirmButton": "Confirmer",
+  "dontShowAgain": "Ne plus afficher cet avertissement pendant cette session"
 }
