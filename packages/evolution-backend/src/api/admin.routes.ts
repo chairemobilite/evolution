@@ -33,8 +33,31 @@ router.all('/data/widgets/:widget/', (req, res, _next) => {
     case 'interviews-completion-rate':
         getInterviewsCompletionRate(res);
         break;
+    case 'median-survey-duration':
+        getMedianSurveyDuration(res);
+        break;
+    case 'estimated-median-survey-duration':
+        getEstimatedMedianSurveyDuration(res);
+        break;
+    case 'average-survey-interest':
+        getAverageSurveyInterest(res);
+        break;
+    case 'average-survey-difficulty':
+        getAverageSurveyDifficulty(res);
+        break;
+    case 'survey-duration-perception':
+        getSurveyDurationPerception(res);
+        break;
+    case 'survey-difficulty':
+        getSurveyDifficulty(res);
+        break;
+    case 'survey-demandingness':
+        getSurveyDemandingness(res);
+        break;
     default:
-        // TODO: new widgets will be added
+        return res
+            .status(404)
+            .json({ status: 'ERROR', message: `Admin monitoring widget '${widgetName}' not found` });
     }
 });
 
@@ -133,6 +156,48 @@ const getInterviewsCompletionRate = async (res) => {
         console.error('Error fetching interviews completion rate:', error);
         return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch interviews completion rate' });
     }
+};
+
+// Get the median survey duration in minutes from completed interviews
+const getMedianSurveyDuration = async (res) => {
+    // TODO: Implement median survey duration calculation
+    return res.status(200).json({ status: 'OK', medianSurveyDuration: 0 });
+};
+
+// Get the estimated median survey duration in minutes based on survey design
+const getEstimatedMedianSurveyDuration = async (res) => {
+    // TODO: Implement estimated median survey duration calculation
+    return res.status(200).json({ status: 'OK', estimatedMedianSurveyDuration: 0 });
+};
+
+// Get the average survey interest rating from respondent feedback
+const getAverageSurveyInterest = async (res) => {
+    // TODO: Implement average survey interest calculation
+    return res.status(200).json({ status: 'OK', averageSurveyInterest: 0 });
+};
+
+// Get the average survey difficulty rating from respondent feedback
+const getAverageSurveyDifficulty = async (res) => {
+    // TODO: Implement average survey difficulty calculation
+    return res.status(200).json({ status: 'OK', averageSurveyDifficulty: 0 });
+};
+
+// Get the survey duration perception rating from respondent feedback
+const getSurveyDurationPerception = async (res) => {
+    // TODO: Implement survey duration perception calculation
+    return res.status(200).json({ status: 'OK', surveyDurationPerception: 0 });
+};
+
+// Get the survey difficulty assessment from respondent feedback
+const getSurveyDifficulty = async (res) => {
+    // TODO: Implement survey difficulty calculation
+    return res.status(200).json({ status: 'OK', surveyDifficulty: 0 });
+};
+
+// Get the survey demandingness rating from respondent feedback
+const getSurveyDemandingness = async (res) => {
+    // TODO: Implement survey demandingness calculation
+    return res.status(200).json({ status: 'OK', surveyDemandingness: 0 });
 };
 
 export default router;
