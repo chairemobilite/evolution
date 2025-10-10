@@ -4,10 +4,17 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
-import { _isBlank, _isEmail } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import config from 'chaire-lib-common/lib/config/shared/project.config';
 import moment from 'moment';
+import { TFunction } from 'i18next';
+import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
+import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';
+import { defaultConditional } from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';
+import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';
+import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
+import * as inputRange from '../common/inputRange';
+
 
 export const householdResidentialPhoneType = {
     type: 'question',
@@ -80,7 +87,7 @@ export const householdResidentialPhoneType = {
     validations: function (value, customValue, interview, path, customPath) {
         return [
             {
-                validation: _isBlank(value),
+                validation: (_isBlank(value)),
                 errorMessage: {
                     fr: 'Le type de téléphone résidentiel est requis.',
                     en: 'Residential phone type is required.'
@@ -88,6 +95,7 @@ export const householdResidentialPhoneType = {
             }
         ];
     }
+
 };
 
 export const householdWouldLikeToParticipateInOtherSurveys = {
@@ -123,7 +131,7 @@ export const householdWouldLikeToParticipateInOtherSurveys = {
     validations: function (value, customValue, interview, path, customPath) {
         return [
             {
-                validation: _isBlank(value),
+                validation: (_isBlank(value)),
                 errorMessage: {
                     fr: 'Cette réponse est requise.',
                     en: 'This field is required.'
@@ -131,6 +139,7 @@ export const householdWouldLikeToParticipateInOtherSurveys = {
             }
         ];
     }
+
 };
 
 export const householdDidAlsoRespondByPhone = {
@@ -166,7 +175,7 @@ export const householdDidAlsoRespondByPhone = {
     validations: function (value, customValue, interview, path, customPath) {
         return [
             {
-                validation: _isBlank(value),
+                validation: (_isBlank(value)),
                 errorMessage: {
                     fr: 'Cette réponse est requise.',
                     en: 'This field is required'
@@ -174,6 +183,7 @@ export const householdDidAlsoRespondByPhone = {
             }
         ];
     }
+
 };
 
 export const householdContactEmail = {
@@ -191,15 +201,12 @@ export const householdContactEmail = {
         }
     },
     conditional: function (interview, path) {
-        return [
-            surveyHelperNew.getResponse(interview, path, null, '../wouldLikeToParticipateInOtherSurveys') === true,
-            null
-        ];
+        return [surveyHelperNew.getResponse(interview, path, null, '../wouldLikeToParticipateInOtherSurveys') === true, null];
     },
     validations: function (value, customValue, interview, path, customPath) {
         return [
             {
-                validation: !_isBlank(value) && !_isEmail(value),
+                validation: (!_isBlank(value) && !(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/).test(value)),
                 errorMessage: {
                     fr: 'Le courriel est invalide.',
                     en: 'Email is invalid'
@@ -235,11 +242,8 @@ export const householdDateNextContact = {
         }
     },
     conditional: function (interview, path) {
-        return [
-            surveyHelperNew.getResponse(interview, path, null, '../wouldLikeToParticipateInOtherSurveys') === true,
-            null
-        ];
-    }
+        return [surveyHelperNew.getResponse(interview, path, null, '../wouldLikeToParticipateInOtherSurveys') === true, null];
+    },
 };
 
 export const householdIncome = {
@@ -360,7 +364,18 @@ export const householdSurveyAppreciation = {
         en: function (interview, path) {
             return 'How did you like this survey?';
         }
-    }
+    },
+};
+
+export const endPerceivedBurdenDifficultyRange: WidgetConfig.InputRangeType = {
+    ...defaultInputBase.inputRangeBase,
+    ...inputRange.sliderVeryEasyToVeryDifficult,
+    path: 'perceivedBurden.difficultyRange',
+    twoColumns: false,
+    containsHtml: true,
+    label: (t: TFunction) => t('end:perceivedBurden.difficultyRange'),
+    conditional: defaultConditional,
+    validations: validations.inputRangeValidation,
 };
 
 export const householdCommentsOnSurvey = {
@@ -377,6 +392,7 @@ export const householdCommentsOnSurvey = {
             return 'Your comments and suggestions about the questionnaire';
         }
     }
+
 };
 
 export const completedText = {

@@ -129,6 +129,7 @@ export const householdDidAlsoRespondByPhone: any = endWidgets.householdDidAlsoRe
 export const householdContactEmail: any = endWidgets.householdContactEmail;
 export const householdIncome: any = endWidgets.householdIncome;
 export const householdSurveyAppreciation: any = endWidgets.householdSurveyAppreciation;
+export const endPerceivedBurdenDifficultyRange: any = endWidgets.endPerceivedBurdenDifficultyRange;
 export const householdDateNextContact: any = endWidgets.householdDateNextContact;
 export const householdCommentsOnSurvey: any = endWidgets.householdCommentsOnSurvey;
 export const completedText: any = endWidgets.completedText;

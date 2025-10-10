@@ -519,6 +519,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
             'householdDateNextContact',
             'householdIncome',
             'householdSurveyAppreciation',
+            'endPerceivedBurdenDifficultyRange',
             'householdCommentsOnSurvey',
             'buttonCompleteInterview'
         ],
