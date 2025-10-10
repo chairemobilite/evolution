@@ -80,6 +80,7 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
                         refreshInterview={refreshInterview}
                         resetInterview={resetInterview}
                         user={user}
+                        interview={interview}
                     />
                 </div>
                 <AdminErrorBoundary>

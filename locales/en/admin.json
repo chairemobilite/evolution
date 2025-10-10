@@ -189,5 +189,12 @@
   "FitBounds": "Fit bounds to show all places and trips",
   "MapLayerSelect": "Map layer",
   "MapLayerOSM": "OpenStreetMap tiles",
-  "MapLayerAerial": "Aerial imagery"
+  "MapLayerAerial": "Aerial imagery",
+  "resetInterviewConfirmTitle": "Reset Interview Data?",
+  "resetInterviewConfirmMessage": "This will erase all corrected data and reset the interview to the participant's original values. This action cannot be undone. Are you sure you want to continue?",
+  "editReviewedInterviewConfirmTitle": "Edit Reviewed Interview?",
+  "editReviewedInterviewConfirmMessage": "This interview has already been reviewed. Editing it may cause inconsistencies. Are you sure you want to proceed?",
+  "cancelButton": "Cancel",
+  "confirmButton": "Confirm",
+  "dontShowAgain": "Don't show this warning again during this session"
 }
