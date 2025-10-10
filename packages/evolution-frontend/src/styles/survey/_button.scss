@@ -159,3 +159,21 @@
     background-color: #26488C;
   }
 }
+
+// Button container for the confirm modal dialogs
+.tr__form-buttons-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: right;
+    margin: $xs-size 0;
+    padding: 0 $xs-size;
+    
+    &._left {
+      justify-content: flex-start;
+    }
+  
+    &._center {
+      justify-content: center;
+    }
+}
