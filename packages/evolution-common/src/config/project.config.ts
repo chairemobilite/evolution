@@ -26,13 +26,18 @@ export type EvolutionProjectConfiguration = {
      * https://developers.google.com/maps/coverage for possible region codes */
     region: string;
     /**
+     * Two-letter country code for the survey. Used for phone number validation.
+     * Defaults to 'CA'.
+     * */
+    countryCode: string;
+    /**
      * Start date for the survey. Interviews started before this date should be invalidated and/or ignored
      * */
-    startDate: string, // format: YYYY-MM-DD. Interviews started before this date should be invalidated and/or ignored
+    startDate?: string; // format: YYYY-MM-DD. Interviews started before this date should be invalidated and/or ignored
     /**
      * End date for the survey.
      * */
-    endDate: string, // format: YYYY-MM-DD.
+    endDate?: string; // format: YYYY-MM-DD.
     /** Whether to log database updates. FIXME This should be server-side only
      * */
     logDatabaseUpdates: boolean;
@@ -165,6 +170,7 @@ setProjectConfiguration<EvolutionProjectConfiguration>(
                 lat: 45.5,
                 lon: -73.6
             },
+            countryCode: 'CA',
             startDate: undefined,
             endDate: undefined,
             hideStartButtonOnHomePage: false,
