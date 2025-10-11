@@ -149,9 +149,9 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
         // Should have some audits from the audit system
         expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
 
-        // Should have audits for objects with validation errors (home, household, etc.)
+        // Should have audits for objects with validation errors (home, household, interview, etc.)
         // The system only generates audits when there are actual validation errors
-        expect(objectsAndAudits.audits.length).toBe(3);
+        expect(objectsAndAudits.audits.length).toBe(5);
 
         // The old mock interview audit function should not be called anymore
         expect(mockInterviewAudits).not.toHaveBeenCalled();
