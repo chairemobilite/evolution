@@ -15,6 +15,7 @@ import { tripAuditChecks } from '../TripAuditChecks';
 import { segmentAuditChecks } from '../SegmentAuditChecks';
 import i18n, { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
 import path from 'path';
+import fs from 'fs';
 
 const languages = ['en', 'fr'];
 
@@ -68,6 +69,47 @@ describe('Audit Locales', () => {
             });
         });
 
+    });
+
+    describe('Orphaned audit translations', () => {
+        // Get all translation keys from the audit translation files
+        const getTranslationKeysFromFile = (language: string): string[] => {
+            const translationFilePath = path.join(__dirname, '../../../../../../../../locales/', language, 'audits.json');
+            const translationFile = fs.readFileSync(translationFilePath, 'utf-8');
+            const translations = JSON.parse(translationFile);
+            return Object.keys(translations);
+        };
+
+        // Define the mapping between prefixes and audit check modules
+        const auditCheckModules: { [prefix: string]: Record<string, unknown> } = {
+            'I_': interviewAuditChecks,
+            'HM_': homeAuditChecks,
+            'HH_': householdAuditChecks,
+            'J_': journeyAuditChecks,
+            'P_': personAuditChecks,
+            'S_': segmentAuditChecks,
+            'T_': tripAuditChecks,
+            'VP_': visitedPlaceAuditChecks
+        };
+
+        describe.each(languages)('Language: %s', (language) => {
+            describe.each(Object.entries(auditCheckModules))('Prefix: %s', (prefix, auditChecks) => {
+                it(`should not have orphaned translations starting with ${prefix}`, () => {
+                    const translationKeys = getTranslationKeysFromFile(language);
+                    const keysWithPrefix = translationKeys.filter((key) => key.startsWith(prefix));
+                    const auditCheckCodes = Object.keys(auditChecks);
+
+                    // Find translations that exist but are not in the audit check module
+                    const orphanedKeys = keysWithPrefix.filter((key) => !auditCheckCodes.includes(key));
+
+                    if (orphanedKeys.length > 0) {
+                        console.log(`\nOrphaned translations for ${prefix} in ${language}:`, orphanedKeys);
+                    }
+
+                    expect(orphanedKeys).toEqual([]);
+                });
+            });
+        });
     });
 
 });

@@ -16,7 +16,7 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         personsRandomSequence: ['uuid1', 'uuid2'],
         languages: [{ language: 'en', startTimestamp: 1632929461, endTimestamp: 1632930461 }],
         browsers: [{
-            ua: 'Mozilla/5.0',
+            _ua: 'Mozilla/5.0',
             browser: { name: 'Chrome', version: '93.0' },
             engine: { name: 'Blink', version: '93.0' },
             os: { name: 'Windows', version: '10', versionName: 'Windows 10' },
@@ -129,10 +129,10 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
             expect(errors.some((e) => e.message.includes('browsers'))).toBe(true);
         });
 
-        it('should validate ua field', () => {
-            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], ua: 123 }] };
+        it('should validate _ua field', () => {
+            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], _ua: 123 }] };
             const errors = InterviewParadata.validateParams(params);
-            expect(errors.some((e) => e.message.includes('browsers.[0].ua'))).toBe(true);
+            expect(errors.some((e) => e.message.includes('browsers.[0]._ua'))).toBe(true);
         });
 
         it('should validate browser name field', () => {
