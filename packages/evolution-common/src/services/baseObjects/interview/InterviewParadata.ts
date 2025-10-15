@@ -44,6 +44,11 @@ export type InterviewParadataAttributes = {
     /*
     For languages and browsers, each time a new browser/language is detected, we add the start and end timestamps and
     the language string / browser data.
+    Right now, the _language is set in response._language and is the last language used by the respondent
+    Reviewer's languages are not logged/saved
+    TODO: Use the language_change paradata event in the log to get all languages used by the respondent
+          However, since the log data is not indexed, parsing a lot of interviews would take a while
+          if we used the language_change event
     */
     languages?: Language[]; // two-letter ISO 639-1 code
     browsers?: Browser[];
@@ -258,7 +263,7 @@ export class InterviewParadata {
         if (dirtyParams.browsers && Array.isArray(dirtyParams.browsers)) {
             for (let i = 0; i < dirtyParams.browsers.length; i++) {
                 const browser = dirtyParams.browsers[i];
-                errors.push(...ParamsValidatorUtils.isString(`browsers.[${i}].ua`, browser.ua, displayName));
+                errors.push(...ParamsValidatorUtils.isString(`browsers.[${i}]._ua`, browser._ua, displayName));
                 if (browser.browser) {
                     errors.push(
                         ...ParamsValidatorUtils.isString(
@@ -376,7 +381,7 @@ export class InterviewParadata {
                                 displayName
                             )
                         );
-                        for (const widgetShortname in section.widgets as any[]) {
+                        for (const widgetShortname in section.widgets) {
                             const widgets = section.widgets[widgetShortname] || [];
                             errors.push(
                                 ...ParamsValidatorUtils.isArray(

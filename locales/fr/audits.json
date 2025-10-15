@@ -1,20 +1,36 @@
 {
-  "I_M_Languages": "Les langues de l'entrevue sont manquantes",
-
-  "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 20)",
-  "HH_M_Size": "La taille du ménage est manquante",
-
-  "HM_M_Geography": "La géographie du domicile est manquante",
-  "HM_I_Geography": "La géographie du domicile est invalide",
-
-  "P_M_Age": "L'âge de la personne est manquant",
-
-  "J_M_StartDate": "La date de début du séjour est manquante",
-
-  "VP_M_Geography": "La géographie du lieu visité est manquante",
-  "VP_I_Geography": "La géographie du lieu visité est invalide",
-
-  "T_M_Segments": "Les segments du déplacement sont manquants",
-
-  "S_M_Mode": "Le mode du segment est manquant"
+    "I_M_Languages": "Langues d'entrevue manquantes",
+    "I_I_DateOutsideRange": "La date de l'entrevue est en dehors de la plage attendue",
+    "I_M_AccessCode": "Le code d'accès est manquant",
+    "I_I_AccessCode": "Format de code d'accès invalide",
+    "I_I_AccessCode_TestCode": "Code d'accès de test utilisé",
+    "I_I_ContactPhoneNumber": "Numéro de téléphone de contact invalide",
+    "I_I_HelpContactPhoneNumber": "Numéro de téléphone de contact pour aide invalide",
+    "I_I_ContactEmail": "Courriel de contact invalide",
+    "I_M_AssignedDate": "Date assignée manquante",
+    "I_L_InterviewSectionHomeComplete": "Section \"Domicile\" complète",
+    "I_L_InterviewSectionHouseholdMembersComplete": "Section \"Membres du ménage\" complète",
+    "I_L_InterviewSectionVisitedPlacesComplete": "Section \"Lieux visités\" complète",
+    "I_L_InterviewSectionTripsComplete": "Section \"Déplacements\" complète",
+    "I_L_InterviewSectionTravelBehaviorComplete": "Section \"Comportement de déplacements\" complète",
+    "I_L_InterviewSectionEndComplete": "Section \"Fin\" complète",
+    "I_L_InterviewSectionHomeIncomplete": "Section \"Domicile\" incomplète",
+    "I_L_InterviewSectionHouseholdMembersIncomplete": "Section \"Membres du ménage\" incomplète",
+    "I_L_InterviewSectionVisitedPlacesIncomplete": "Section \"Lieux visités\" incomplète",
+    "I_L_InterviewSectionTripsIncomplete": "Section \"Déplacements\" incomplète",
+    "I_L_InterviewSectionTravelBehaviorIncomplete": "Section \"Comportement de déplacements\" incomplète",
+    "I_L_InterviewSectionEndIncomplete": "Section \"Fin\" incomplète",
+    "I_L_AtLeastOnePersonCompletedVisitedPlaces": "Au moins une personne a complété les lieux visités",
+    "I_L_AtLeastOnePersonCompletedTrips": "Au moins une personne a complété les déplacements",
+    "I_L_AtLeastOnePersonCompletedTravelBehavior": "Au moins une personne a complété la section \"Comportement de déplacements\"",
+    "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 20)",
+    "HH_M_Size": "La taille du ménage est manquante",
+    "HM_M_Geography": "La géographie du domicile est manquante",
+    "HM_I_Geography": "La géographie du domicile est invalide",
+    "P_M_Age": "L'âge de la personne est manquant",
+    "J_M_StartDate": "La date de début du séjour est manquante",
+    "VP_M_Geography": "La géographie du lieu visité est manquante",
+    "VP_I_Geography": "La géographie du lieu visité est invalide",
+    "T_M_Segments": "Les segments du déplacement sont manquants",
+    "S_M_Mode": "Le mode du segment est manquant"
 }

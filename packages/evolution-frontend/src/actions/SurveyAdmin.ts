@@ -237,6 +237,20 @@ export const startSetSurveyCorrectedInterview = (
                 if (body.interview) {
                     const interview = body.interview;
 
+                    // Unserialize surveyObjectsAndAudits if present
+                    if (
+                        interview.surveyObjectsAndAudits &&
+                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
+                    ) {
+                        try {
+                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
+                                interview.surveyObjectsAndAudits
+                            );
+                        } catch (error) {
+                            console.error('Failed to unserialize surveyObjectsAndAudits:', error);
+                        }
+                    }
+
                     // Set the interview in the state first
                     dispatch(updateInterviewState(interview));
 

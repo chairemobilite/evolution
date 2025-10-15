@@ -8,6 +8,7 @@ import projectConfig, {
     ProjectConfiguration,
     setProjectConfiguration
 } from 'chaire-lib-common/lib/config/shared/project.config';
+import { ISODateString, validateProjectDates } from '../utils/DateTimeUtils';
 
 /**
  * Specific configuration for the Evolution project
@@ -25,6 +26,24 @@ export type EvolutionProjectConfiguration = {
     /** Used for Google Maps localization. See
      * https://developers.google.com/maps/coverage for possible region codes */
     region: string;
+    /**
+     * Two-letter country code for the survey. Used for phone number validation.
+     * Defaults to 'CA'.
+     * */
+    countryCode: string;
+    /**
+     * Start date for the survey in YYYY-MM-DD format.
+     * Interviews started before this date should be invalidated and/or ignored.
+     * Must be a valid date in ISO format (YYYY-MM-DD).
+     * If both startDate and endDate are defined, endDate must be after startDate.
+     * */
+    startDate?: ISODateString;
+    /**
+     * End date for the survey in YYYY-MM-DD format.
+     * Must be a valid date in ISO format (YYYY-MM-DD).
+     * If both startDate and endDate are defined, endDate must be after startDate.
+     * */
+    endDate?: ISODateString;
     /** Whether to log database updates. FIXME This should be server-side only
      * */
     logDatabaseUpdates: boolean;
@@ -143,64 +162,77 @@ export type EvolutionProjectConfiguration = {
 };
 
 // Make sure default values are set
-setProjectConfiguration<EvolutionProjectConfiguration>(
-    Object.assign(
-        {
-            region: 'CA',
-            logDatabaseUpdates: false,
-            selfResponseMinimumAge: 14,
-            interviewableAge: 5,
-            adultAge: 18,
-            drivingLicenseAge: 16,
-            surveySupportForm: false,
-            mapDefaultCenter: {
-                lat: 45.5,
-                lon: -73.6
-            },
-            hideStartButtonOnHomePage: false,
-            introductionTwoParagraph: false,
-            introBanner: false,
-            bannerPaths: {},
-            introLogoAfterStartButton: false,
-            logoPaths: {},
-            detectLanguageFromUrl: true,
-            detectLanguage: false,
-            languageNames: { en: 'English', fr: 'Français' },
-            title: { en: 'Survey', fr: 'Enquête' },
-            postalCodeRegion: 'other',
-            personColorsPalette: [
-                // FIXME See this issue https://github.com/chairemobilite/evolution/issues/1246
-                '#FFAE70',
-                '#FFBCF2',
-                '#F2ED6A',
-                '#90E04A',
-                '#61CAD8',
-                '#9F70FF',
-                '#FF6868',
-                '#63A021',
-                '#21A09E',
-                '#4146B5',
-                '#9F41B5',
-                '#B5417B',
-                '#B5B5B5',
-                '#B59900',
-                '#9E5135',
-                '#FFAE70',
-                '#FFBCF2',
-                '#F2ED6A',
-                '#90E04A',
-                '#61CAD8',
-                '#9F70FF',
-                '#FF6868',
-                '#63A021',
-                '#21A09E',
-                '#4146B5',
-                '#9F41B5',
-                '#B5417B'
-            ]
-        },
-        projectConfig
-    )
-);
+const defaultConfig = {
+    region: 'CA',
+    logDatabaseUpdates: false,
+    selfResponseMinimumAge: 14,
+    interviewableAge: 5,
+    adultAge: 18,
+    drivingLicenseAge: 16,
+    surveySupportForm: false,
+    mapDefaultCenter: {
+        lat: 45.5,
+        lon: -73.6
+    },
+    countryCode: 'CA',
+    startDate: undefined,
+    endDate: undefined,
+    hideStartButtonOnHomePage: false,
+    introductionTwoParagraph: false,
+    introBanner: false,
+    bannerPaths: {},
+    introLogoAfterStartButton: false,
+    logoPaths: {},
+    detectLanguageFromUrl: true,
+    detectLanguage: false,
+    languageNames: { en: 'English', fr: 'Français' },
+    title: { en: 'Survey', fr: 'Enquête' },
+    postalCodeRegion: 'other',
+    personColorsPalette: [
+        // FIXME See this issue https://github.com/chairemobilite/evolution/issues/1246
+        '#FFAE70',
+        '#FFBCF2',
+        '#F2ED6A',
+        '#90E04A',
+        '#61CAD8',
+        '#9F70FF',
+        '#FF6868',
+        '#63A021',
+        '#21A09E',
+        '#4146B5',
+        '#9F41B5',
+        '#B5417B',
+        '#B5B5B5',
+        '#B59900',
+        '#9E5135',
+        '#FFAE70',
+        '#FFBCF2',
+        '#F2ED6A',
+        '#90E04A',
+        '#61CAD8',
+        '#9F70FF',
+        '#FF6868',
+        '#63A021',
+        '#21A09E',
+        '#4146B5',
+        '#9F41B5',
+        '#B5417B'
+    ]
+};
+
+// Validate and set the configuration
+const mergedConfig = Object.assign({}, defaultConfig, projectConfig);
+
+// Validate dates if they are present
+if (mergedConfig.startDate !== undefined || mergedConfig.endDate !== undefined) {
+    const validatedDates = validateProjectDates(
+        mergedConfig.startDate as string | undefined,
+        mergedConfig.endDate as string | undefined
+    );
+    mergedConfig.startDate = validatedDates.startDate;
+    mergedConfig.endDate = validatedDates.endDate;
+}
+
+setProjectConfiguration<EvolutionProjectConfiguration>(mergedConfig);
 
 export default projectConfig as ProjectConfiguration<EvolutionProjectConfiguration>;

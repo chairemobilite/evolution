@@ -43,7 +43,6 @@ export const validateParams = function (
     errors.push(...ParamsValidatorUtils.isBoolean('isQuestionable', interviewAttributes.is_questionable, displayName));
     errors.push(...ParamsValidatorUtils.isBoolean('isValidated', interviewAttributes.is_validated, displayName));
 
-    errors.push(...ParamsValidatorUtils.isArrayOfStrings('languages', dirtyParams._languages, displayName));
     errors.push(...ParamsValidatorUtils.isString('accessCode', dirtyParams.accessCode, displayName));
     errors.push(...ParamsValidatorUtils.isDateString('assignedDate', dirtyParams.assignedDate, displayName));
     errors.push(...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName));

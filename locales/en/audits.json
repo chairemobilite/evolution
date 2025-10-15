@@ -1,20 +1,36 @@
 {
-  "I_M_Languages": "Interview languages are missing",
-
-  "HH_I_Size": "Household size is out of range (should be between 1 and 20)",
-  "HH_M_Size": "Household size is missing",
-
-  "HM_M_Geography": "Home geography is missing",
-  "HM_I_Geography": "Home geography is invalid",
-
-  "P_M_Age": "Person age is missing",
-
-  "J_M_StartDate": "Journey start date is missing",
-
-  "VP_M_Geography": "Visited place geography is missing",
-  "VP_I_Geography": "Visited place geography is invalid",
-
-  "T_M_Segments": "Trip segments are missing",
-
-  "S_M_Mode": "Segment mode is missing"
+    "I_M_Languages": "Interview languages are missing",
+    "I_I_DateOutsideRange": "Interview date is outside the expected range",
+    "I_M_AccessCode": "Access code is missing",
+    "I_I_AccessCode": "Invalid access code format",
+    "I_I_AccessCode_TestCode": "Test access code used",
+    "I_I_ContactPhoneNumber": "Invalid contact phone number",
+    "I_I_HelpContactPhoneNumber": "Invalid help contact phone number",
+    "I_I_ContactEmail": "Invalid contact email",
+    "I_M_AssignedDate": "Assigned date is missing",
+    "I_L_InterviewSectionHomeComplete": "Interview section \"Home\" is complete",
+    "I_L_InterviewSectionHouseholdMembersComplete": "Interview section \"Household Members\" is complete",
+    "I_L_InterviewSectionVisitedPlacesComplete": "Interview section \"Visited Places\" is complete",
+    "I_L_InterviewSectionTripsComplete": "Interview section \"Trips\" is complete",
+    "I_L_InterviewSectionTravelBehaviorComplete": "Interview section \"Travel Behavior\" is complete",
+    "I_L_InterviewSectionEndComplete": "Interview section \"End\" is complete",
+    "I_L_InterviewSectionHomeIncomplete": "Interview section \"Home\" is incomplete",
+    "I_L_InterviewSectionHouseholdMembersIncomplete": "Interview section \"Household Members\" is incomplete",
+    "I_L_InterviewSectionVisitedPlacesIncomplete": "Interview section \"Visited Places\" is incomplete",
+    "I_L_InterviewSectionTripsIncomplete": "Interview section \"Trips\" is incomplete",
+    "I_L_InterviewSectionTravelBehaviorIncomplete": "Interview section \"Travel Behavior\" is incomplete",
+    "I_L_InterviewSectionEndIncomplete": "Interview section \"End\" is incomplete",
+    "I_L_AtLeastOnePersonCompletedVisitedPlaces": "At least one person completed \"Visited Places\"",
+    "I_L_AtLeastOnePersonCompletedTrips": "At least one person completed \"Trips\"",
+    "I_L_AtLeastOnePersonCompletedTravelBehavior": "At least one person completed \"Travel Behavior\"",
+    "HH_I_Size": "Household size is out of range (should be between 1 and 20)",
+    "HH_M_Size": "Household size is missing",
+    "HM_M_Geography": "Home geography is missing",
+    "HM_I_Geography": "Home geography is invalid",
+    "P_M_Age": "Person age is missing",
+    "J_M_StartDate": "Journey start date is missing",
+    "VP_M_Geography": "Visited place geography is missing",
+    "VP_I_Geography": "Visited place geography is invalid",
+    "T_M_Segments": "Trip segments are missing",
+    "S_M_Mode": "Segment mode is missing"
 }
