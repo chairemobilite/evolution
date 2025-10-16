@@ -103,8 +103,12 @@ class PreFilledResponses {
             },
             { header: true }
         );
-        console.log(`Saved prefilled data for ${Object.keys(preFilledInterviews).length} interviews`);
+
+        const dataCount = Object.keys(preFilledInterviews).length;
+        console.log(`Found ${dataCount} prefilled data to save`);
+        console.log('Saving prefilled data...');
         const promiseQueue = new pQueue({ concurrency: 10 });
+        let processedCount = 0;
         Object.keys(preFilledInterviews).forEach((refValue) => {
             promiseQueue.add(async () => {
                 const preFilledResponses = preFilledInterviews[refValue];
@@ -122,6 +126,12 @@ class PreFilledResponses {
                     }
                 }
                 await setPreFilledResponse(refValue, preFilledResponses);
+
+                // Increment counter and log progress every 5000 interviews
+                processedCount++;
+                if (processedCount % 5000 === 0) {
+                    console.log(`Processed ${processedCount} prefilled data of ${dataCount}`);
+                }
             });
         });
 
