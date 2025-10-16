@@ -244,8 +244,8 @@
         font-weight: 700;
     }
 
-    // For unavailable survey page
-    .survey-unavailable-container {
+    // For survey page container (Unavailable page, Not found page, etc.)
+    .survey-page-container {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -253,7 +253,7 @@
         max-width: 600px;
         margin: 0 auto;
 
-        .survey-unavailable-title {
+        .survey-page-title {
             // Reset all the style from H2
             all: unset;
             display: block;
@@ -266,14 +266,14 @@
             text-align: left;
             width: 100%;
         }
-        h2.survey-unavailable-title::after {
+        h2.survey-page-title::after {
             // Reset all the style from H2::after
             display: none;
             content: none;
             background: none;
         }
 
-        .survey-unavailable-image {
+        .survey-page-image {
             max-width: 300px;
             margin: 2em;
         }

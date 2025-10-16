@@ -14,13 +14,13 @@ export const SurveyUnavailablePage: React.FunctionComponent = () => {
     return (
         <div className="survey" id="surveyUnavailablePage">
             <div className="apptr__form">
-                <div className="survey-unavailable-container">
-                    <h2 className="survey-unavailable-title">{t('main:SurveyUnavailableTitle')}</h2>
+                <div className="survey-page-container">
+                    <h2 className="survey-page-title">{t('main:SurveyUnavailableTitle')}</h2>
                     <p>{t('main:SurveyUnavailableDefaultReason')}</p>
                     <img
                         src="dist/images/page_images/undraw_access-denied_krem.svg"
                         alt={t('main:SurveyUnavailableTitle')}
-                        className="survey-unavailable-image"
+                        className="survey-page-image"
                     />
                 </div>
             </div>

@@ -11,6 +11,7 @@ import AdminMonitoringPage from '../pages/AdminMonitoringPage';
 import AdminReviewPage from '../pages/ReviewPage';
 import AdminSurveyCorrectionPage from '../pages/SurveyCorrection';
 import SurveyUnavailablePage from '../../pages/SurveyUnavailablePage';
+import NotFoundPage from '../../pages/NotFoundPage';
 import UnauthorizedPage from 'chaire-lib-frontend/lib/components/pages/UnauthorizedPage';
 import MaintenancePage from 'chaire-lib-frontend/lib/components/pages/MaintenancePage';
 import { LoginPage as AdminLoginPage } from 'chaire-lib-frontend/lib/components/pages';
@@ -99,7 +100,7 @@ const AdminSurveyRouter: React.FunctionComponent = () => (
         <Route path="/admin" element={<AdminRoute component={AdminMonitoringPage} />} />
         <Route path="/home" element={<PrivateRoute component={AdminHomePage} />} />
         <Route path="/unavailable" element={<PrivateRoute component={SurveyUnavailablePage} />} />
-        <Route path="*" element={<PrivateRoute component={AdminHomePage} />} />
+        <Route path="*" element={<PublicRoute component={NotFoundPage} />} />
     </Routes>
 );
 
