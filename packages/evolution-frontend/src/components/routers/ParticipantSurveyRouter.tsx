@@ -12,6 +12,7 @@ import UnauthorizedPage from '../pages/UnauthorizedPage';
 import SurveyErrorPage from '../pages/SurveyErrorPage';
 import AuthPage from '../pages/auth/AuthPage';
 import SurveyUnavailablePage from '../pages/SurveyUnavailablePage';
+import NotFoundPage from '../pages/NotFoundPage';
 import MagicLinkVerifyPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/MagicLinkVerify';
 import CheckMagicEmailPage from 'chaire-lib-frontend/lib/components/forms/auth/passwordless/CheckMagicEmail';
 import Survey from '../hoc/SurveyWithErrorBoundary';
@@ -38,7 +39,7 @@ const SurveyRouter: React.FunctionComponent = () => (
             <Route path="/unavailable" element={<PrivateRoute component={SurveyUnavailablePage} />} />
             <Route path="/survey/:sectionShortname" element={<PrivateRoute component={Survey} />} />
             <Route path="/survey" element={<PrivateRoute component={Survey} />} />
-            <Route path="*" element={<PrivateRoute component={Survey} />} />
+            <Route path="*" element={<PublicRoute component={NotFoundPage} />} />
         </Routes>
 
         {/* Add the floating support form to be available on all pages */}
