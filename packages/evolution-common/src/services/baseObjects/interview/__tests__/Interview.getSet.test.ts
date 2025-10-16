@@ -5,10 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { v4 as uuidV4 } from 'uuid';
 import { Interview } from '../Interview';
 import { create } from '../InterviewUnserializer';
 import { Result, isOk, unwrap } from '../../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../../SurveyObjectsRegistry';
+import { InterviewAttributes as RawInterviewAttributes } from '../../../../services/questionnaire/types';
 
 let registry: SurveyObjectsRegistry;
 
@@ -21,12 +23,12 @@ describe('Interview - Getters and Setters', () => {
 
     beforeEach(() => {
         const validParams = {
-            _uuid: '123e4567-e89b-12d3-a456-426614174001',
+            _uuid: uuidV4(),
             accessCode: 'ABC123',
             assignedDate: '2023-09-30',
             _startedAt: 1632929461
         };
-        const interviewResult = create(validParams, { id: 123, participant_id: 456 } as any, registry) as Result<Interview>;
+        const interviewResult = create(validParams, { id: 123, participant_id: 456 } as RawInterviewAttributes, registry) as Result<Interview>;
         if (isOk(interviewResult)) {
             interview = unwrap(interviewResult) as Interview;
         } else {
@@ -37,9 +39,9 @@ describe('Interview - Getters and Setters', () => {
     it('should allow undefined id and participant id', () => {
         let _interview: Interview;
         const validParamsWithoutIdAndParticipantId = {
-            _uuid: '123e4567-e89b-12d3-a456-426614174001',
+            _uuid: uuidV4(),
         };
-        const result = create(validParamsWithoutIdAndParticipantId, {} as any, registry) as Result<Interview>;
+        const result = create(validParamsWithoutIdAndParticipantId, {} as RawInterviewAttributes, registry) as Result<Interview>;
         if (isOk(result)) {
             _interview = unwrap(result) as Interview;
         } else {

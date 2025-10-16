@@ -11,7 +11,11 @@ import { Optional } from '../../../types/Optional.type';
 import { Uuidable, UuidableAttributes } from '../Uuidable';
 import { YesNoDontKnow } from '../attributeTypes/GenericAttributes';
 import { ConstructorUtils } from '../../../utils/ConstructorUtils';
-import { InterviewParadata, InterviewParadataAttributes } from './InterviewParadata';
+import {
+    ExtendedInterviewParadataAttributes,
+    InterviewParadata,
+    InterviewParadataAttributes
+} from './InterviewParadata';
 import { InterviewAttributes as rawInterviewAttributes } from '../../../services/questionnaire/types';
 import { SurveyObjectUnserializer } from '../SurveyObjectUnserializer';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
@@ -24,7 +28,6 @@ const interviewAttributesNames = [
     '_uuid',
     '_id',
     '_participant_id',
-    '_languages',
 
     // reviewing flags
     '_isValid',
@@ -59,7 +62,6 @@ export type InterviewAttributes = {
     _uuid?: string; // TODO: discuss whether the original and audited should have the same uuid
     _id?: number; // integer primary key from db.
     _participant_id?: number; // integer respondent/participan/user primary key id from db, TODO: update the User class to use this Interview class instead
-    _languages?: string[]; // array of ISO 639-1 two letters language codes
 
     // reviewing flags
     _isValid?: boolean; // whether the interview is valid (legit) and must be kept for export (true by default, must be set to false by a validator)
@@ -203,7 +205,19 @@ export class Interview extends Uuidable {
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            _omit(params, ['_paradata', 'paradata']),
+            _omit(params, [
+                '_paradata',
+                'paradata',
+                '_language', // TODO: remove this once we have migrated all interviews to the new paradata structure
+                '_languages', // TODO: remove this once we have migrated all interviews to the new paradata structure
+                '_browser', // TODO use an array instead of a single browser in survey
+                '_startedAt',
+                '_updatedAt',
+                '_completedAt',
+                '_source',
+                '_personRandomSequence',
+                '_sections'
+            ]),
             interviewAttributesNames,
             interviewAttributesWithComposedAttributes
         );
@@ -215,11 +229,16 @@ export class Interview extends Uuidable {
         this._attributes._isCompleted = interviewAttributes.is_completed;
         this._attributes._isQuestionable = interviewAttributes.is_questionable;
         this._attributes._isValidated = interviewAttributes.is_validated;
+
         this._customAttributes = customAttributes;
 
         this._paradata = ConstructorUtils.initializeComposedAttribute(
-            params._paradata,
-            (params) => InterviewParadata.unserialize(params, this._surveyObjectsRegistry),
+            params._paradata === undefined ? Interview.extractDirtyParadataParams(params) : params._paradata,
+            (_paradataParams) =>
+                InterviewParadata.unserialize(
+                    _paradataParams as ExtendedInterviewParadataAttributes,
+                    this._surveyObjectsRegistry
+                ),
             this._surveyObjectsRegistry
         );
 
@@ -244,14 +263,6 @@ export class Interview extends Uuidable {
     get participant_id(): Optional<number> {
         // no setter, comes from the db
         return this._attributes._participant_id;
-    }
-
-    get languages(): Optional<string[]> {
-        return this._attributes._languages;
-    }
-
-    set languages(value: Optional<string[]>) {
-        this._attributes._languages = value;
     }
 
     get isValid(): Optional<boolean> {
@@ -472,5 +483,31 @@ export class Interview extends Uuidable {
             rawInterviewAttributes,
             surveyObjectsRegistry
         );
+    }
+
+    /**
+     * Checks if the interview has minimum data (startedAt)
+     * @returns boolean indicating if the interview has minimum data
+     */
+    hasMinimumRequiredData(): boolean {
+        return this.paradata?.startedAt !== undefined;
+    }
+
+    /**
+     * Extract paradata params from dirty params
+     * @param dirtyParams the dirty params (not validated)
+     * @returns the paradata params (not validated)
+     */
+    static extractDirtyParadataParams(dirtyParams: { [key: string]: unknown }): { [key: string]: unknown } {
+        return {
+            languages: dirtyParams._language ? [{ language: dirtyParams._language }] : undefined,
+            browsers: dirtyParams._browser ? [dirtyParams._browser] : undefined,
+            startedAt: dirtyParams._startedAt,
+            updatedAt: dirtyParams._updatedAt,
+            completedAt: dirtyParams._completedAt,
+            source: dirtyParams._source,
+            personsRandomSequence: dirtyParams._personRandomSequence, // TODO: rename to personsRandomSequence in survey
+            sections: dirtyParams._sections
+        };
     }
 }

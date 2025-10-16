@@ -22,6 +22,9 @@ export const InterviewPanel = ({ interview, audits, showAuditErrorCode }: Interv
 
     const formattedTripsDate = interview.assignedDate ? moment(interview.assignedDate).format('LL') : '-';
 
+    const languages = interview.paradata?.languages || [];
+    const formattedLanguages = languages.map((language) => language.language || '?').join('|') || '?';
+
     return (
         <div className="admin__interview-stats" key="interview">
             <details open={true}>
@@ -36,8 +39,8 @@ export const InterviewPanel = ({ interview, audits, showAuditErrorCode }: Interv
                     <span className="_strong">{interview.accessCode || t('survey:None')}</span>
                 </span>
                 <span className="_widget">
-                    {t('interviewStats.labels.interviewLanguage')}:{' '}
-                    <span className="_strong">{interview.languages?.[0] || '?'}</span>
+                    {t(`interviewStats.labels.interviewLanguage${languages.length > 1 ? 's' : ''}`)}:{' '}
+                    <span className="_strong">{formattedLanguages}</span>
                 </span>
                 <span className="_widget">
                     {t('interviewStats.labels.travelDate')}: <span className="_strong">{formattedTripsDate}</span>

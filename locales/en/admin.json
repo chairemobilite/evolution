@@ -134,6 +134,7 @@
             "uuid": "UUID",
             "accessCode": "Access Code",
             "interviewLanguage": "Interview Language",
+            "interviewLanguages": "Interview Languages",
             "travelDate": "Travel Date",
             "noComments": "No comments",
             "proxy": "Proxy",

@@ -10,6 +10,7 @@ import { Interview } from 'evolution-common/lib/services/baseObjects/interview/I
 import { interviewAuditChecks } from '../InterviewAuditChecks';
 import { runInterviewAuditChecks } from '../../AuditCheckRunners';
 import { InterviewAuditCheckContext } from '../../AuditCheckContexts';
+import { InterviewParadata } from 'evolution-common/lib/services/baseObjects/interview/InterviewParadata';
 
 describe('InterviewAuditChecks', () => {
     const validUuid = uuidV4();
@@ -18,6 +19,7 @@ describe('InterviewAuditChecks', () => {
     const createMockInterview = (overrides: Partial<Interview> = {}) => {
         return {
             _uuid: validUuid,
+            get uuid() { return validUuid; },
             id: validId,
             ...overrides
         } as Interview;
@@ -25,7 +27,8 @@ describe('InterviewAuditChecks', () => {
 
     describe('I_M_Languages audit check', () => {
         it('should pass when interview has languages', () => {
-            const interview = createMockInterview({ languages: ['en', 'fr'] });
+            const interview = createMockInterview();
+            interview.paradata = new InterviewParadata({ languages: [{ language: 'en' }, { language: 'fr' }] });
             const context: InterviewAuditCheckContext = { interview };
 
             const result = interviewAuditChecks.I_M_Languages(context);
@@ -34,7 +37,8 @@ describe('InterviewAuditChecks', () => {
         });
 
         it('should fail when interview missing languages', () => {
-            const interview = createMockInterview({ languages: undefined });
+            const interview = createMockInterview();
+            interview.paradata = new InterviewParadata({ languages: undefined });
             const context: InterviewAuditCheckContext = { interview };
 
             const result = interviewAuditChecks.I_M_Languages(context);
@@ -51,7 +55,8 @@ describe('InterviewAuditChecks', () => {
         });
 
         it('should fail when interview has empty languages array', () => {
-            const interview = createMockInterview({ languages: [] });
+            const interview = createMockInterview();
+            interview.paradata = new InterviewParadata({ languages: [] });
             const context: InterviewAuditCheckContext = { interview };
 
             const result = interviewAuditChecks.I_M_Languages(context);
@@ -70,7 +75,8 @@ describe('InterviewAuditChecks', () => {
 
     describe('runInterviewAuditChecks function', () => {
         it('should run all interview audits and format results with valid data', () => {
-            const interview = createMockInterview({ languages: ['en', 'fr'] });
+            const interview = createMockInterview();
+            interview.paradata = new InterviewParadata({ languages: [{ language: 'en' }, { language: 'fr' }] });
             const context: InterviewAuditCheckContext = { interview };
 
             const audits = runInterviewAuditChecks(context, interviewAuditChecks);
@@ -81,7 +87,8 @@ describe('InterviewAuditChecks', () => {
 
         it('should include failed audits when languages are missing', () => {
             // Test with missing languages
-            const interview = createMockInterview({ languages: undefined });
+            const interview = createMockInterview();
+            interview.paradata = new InterviewParadata({ languages: undefined });
             const context: InterviewAuditCheckContext = { interview };
 
             const audits = runInterviewAuditChecks(context, interviewAuditChecks);

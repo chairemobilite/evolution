@@ -10,13 +10,13 @@ import { isOk, hasErrors } from '../../../../types/Result.type';
 
 describe('InterviewParadata', () => {
     const validParams: InterviewParadataAttributes = {
-        startedAt: 1625097600000,
-        updatedAt: 1625184000000,
-        completedAt: 1625270400000,
+        startedAt: 1625097600,
+        updatedAt: 1625184000,
+        completedAt: 1625270400,
         source: 'web',
         personsRandomSequence: ['uuid1', 'uuid2'],
         languages: [
-            { language: 'en', startTimestamp: 1625097600000, endTimestamp: 1625270400000 }
+            { language: 'en', startTimestamp: 1625097600, endTimestamp: 1625270400 }
         ],
         browsers: [
             {
@@ -24,22 +24,35 @@ describe('InterviewParadata', () => {
                 browser: { name: 'Chrome', version: '91.0.4472.124' },
                 os: { name: 'Windows', version: '10' },
                 platform: { type: 'desktop' },
-                startTimestamp: 1625097600000,
-                endTimestamp: 1625270400000
+                startTimestamp: 1625097600,
+                endTimestamp: 1625270400
             }
         ],
         sections: {
-            'home': [
-                {
-                    startTimestamp: 1625097600000,
-                    endTimestamp: 1625184000000,
-                    widgets: {
-                        'widgetShortname': [
-                            { startTimestamp: 1625097600000, endTimestamp: 1625140800000 }
-                        ]
-                    }
+            _actions: [
+                { section: 'home', action: 'start', ts: 1757531067 },
+                { section: 'household', action: 'start', ts: 1757531095, iterationContext: ['1'] }
+            ],
+            'home': {
+                _startedAt: 1625097600,
+                _isCompleted: true
+            },
+            'household': {
+                _startedAt: 1625097600,
+                _isCompleted: true
+            },
+            'householdMembers': {
+                _startedAt: 1625097600,
+                _isCompleted: true,
+                'person/uuid1': {
+                    _startedAt: 1625097600,
+                    _isCompleted: true
+                },
+                'person/uuid2': {
+                    _startedAt: 1625097600,
+                    _isCompleted: true
                 }
-            ]
+            }
         }
     };
 
@@ -52,7 +65,7 @@ describe('InterviewParadata', () => {
         });
 
         it('should create an instance with minimal valid parameters', () => {
-            const minimalParams = { startedAt: 1625097600000 };
+            const minimalParams = { startedAt: 1625097600 };
             const paradata = new InterviewParadata(minimalParams);
             expect(paradata).toBeInstanceOf(InterviewParadata);
             expect(paradata.startedAt).toBe(minimalParams.startedAt);
@@ -96,11 +109,25 @@ describe('InterviewParadata', () => {
             expect(paradata.browsers?.[0].browser?.name).toBe('Chrome');
         });
 
-        it('should correctly handle sections attribute', () => {
+        it('should correctly handle sections attribute (legacy format)', () => {
             const paradata = new InterviewParadata(validParams);
-            expect(Object.keys(paradata.sections || {})).toHaveLength(1);
+            expect(Object.keys(paradata.sections || {})).toHaveLength(4); // _actions, home, household, householdMembers
+            expect(paradata.sections?._actions).toBeDefined();
+            expect(Array.isArray(paradata.sections?._actions)).toBe(true);
             expect(paradata.sections?.home).toBeDefined();
-            expect(paradata.sections?.home[0].widgets.widgetShortname).toHaveLength(1);
+            expect((paradata.sections?.home as { _startedAt?: number, _isCompleted?: boolean })?._startedAt).toBe(1625097600);
+            expect((paradata.sections?.home as { _startedAt?: number, _isCompleted?: boolean })?._isCompleted).toBe(true);
+            expect(paradata.sections?.household).toBeDefined();
+            expect((paradata.sections?.household as { _startedAt?: number, _isCompleted?: boolean })?._startedAt).toBe(1625097600);
+            expect((paradata.sections?.household as { _startedAt?: number, _isCompleted?: boolean })?._isCompleted).toBe(true);
+            expect(paradata.sections?.householdMembers).toBeDefined();
+            expect((paradata.sections?.householdMembers as { _startedAt?: number, _isCompleted?: boolean })?._startedAt).toBe(1625097600);
+            expect((paradata.sections?.householdMembers as { _startedAt?: number, _isCompleted?: boolean })?._isCompleted).toBe(true);
+            const householdMembers = paradata.sections?.householdMembers as { [key: string]: { _startedAt?: number, _isCompleted?: boolean } };
+            expect((householdMembers?.['person/uuid1'] as { _startedAt?: number, _isCompleted?: boolean })?._startedAt).toBe(1625097600);
+            expect((householdMembers?.['person/uuid1'] as { _startedAt?: number, _isCompleted?: boolean })?._isCompleted).toBe(true);
+            expect((householdMembers?.['person/uuid2'] as { _startedAt?: number, _isCompleted?: boolean })?._startedAt).toBe(1625097600);
+            expect((householdMembers?.['person/uuid2'] as { _startedAt?: number, _isCompleted?: boolean })?._isCompleted).toBe(true);
         });
 
         it('should handle empty params', () => {

@@ -11,16 +11,14 @@ import { InterviewAuditCheckContext, InterviewAuditCheckFunction } from '../Audi
 export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFunction } = {
     /**
      * Check if interview languages are missing
-     * @param context - InterviewAuditCheckContext
-     * @returns AuditForObject
      */
     I_M_Languages: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
         const { interview } = context;
-        const hasLanguages = interview.languages !== undefined && interview.languages.length > 0;
+        const hasLanguages = (interview.paradata?.languages?.length ?? 0) > 0;
         if (!hasLanguages) {
             return {
                 objectType: 'interview',
-                objectUuid: interview._uuid!,
+                objectUuid: interview.uuid!,
                 errorCode: 'I_M_Languages',
                 version: 1,
                 level: 'error',
