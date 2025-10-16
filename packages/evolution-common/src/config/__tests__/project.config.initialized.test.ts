@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import projectConfig from "../project.config";
+import projectConfig from '../project.config';
 
 // Mock the project config from evolution-common, which might already have been
 // loaded before the first import to the evolution project config. The
@@ -16,6 +16,8 @@ jest.mock('chaire-lib-common/lib/config/shared/project.config', () => ({
         region: 'FR',
         selfResponseMinimumAge: 18,
         logDatabaseUpdates: true,
+        startDateTimeWithTimezoneOffset: '2025-03-01T08:00:00-05:00',
+        endDateTimeWithTimezoneOffset: '2025-11-30T23:59:59-05:00',
         hideStartButtonOnHomePage: true,
         introductionTwoParagraph: true,
         introBanner: true,
@@ -31,6 +33,8 @@ test('test initialized values', () => {
         region: 'FR',
         selfResponseMinimumAge: 18,
         logDatabaseUpdates: true,
+        startDateTimeWithTimezoneOffset: '2025-03-01T08:00:00-05:00',
+        endDateTimeWithTimezoneOffset: '2025-11-30T23:59:59-05:00',
         hideStartButtonOnHomePage: true,
         introductionTwoParagraph: true,
         introBanner: true,
