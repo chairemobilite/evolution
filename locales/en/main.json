@@ -44,5 +44,7 @@
     "AnErrorOccurred": "An error occurred.",
     "MakeSureReliableConnection": "Make sure you have a reliable internet connection.",
     "ErrorPersistsWhatToDo": "If the problem persists, please contact the survey administrators.",
-    "NotApplicable": "Not applicable"
+    "NotApplicable": "Not applicable",
+    "NotFoundPageTitle": "Page Not Found - 404",
+    "NotFoundPageMessage": "The page you are looking for does not exist."
 }
