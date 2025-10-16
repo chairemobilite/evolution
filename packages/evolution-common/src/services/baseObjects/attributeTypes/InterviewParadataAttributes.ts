@@ -34,12 +34,32 @@ export type Browser = {
 } & StartEndTimestampable;
 
 export type WidgetMetadata = StartEndTimestampable; // TODO: should we log changed values for each widget, so add a value attribute? (any or anything else?)
+
+/* Right now, the format is not standard and has both _actions and sections shortnames, and
+inside sections, it may have objects with uuids as keys, which includes startedAt and other attributes
+for the specific object. This is a legacy format coming from interview response object.
+TODO: implement the new section metadata format and remove the _actions and sections shortnames. */
+type SectionData = {
+    _startedAt?: number;
+    _isCompleted?: boolean;
+    [personKey: string]: number | boolean | { _startedAt?: number; _isCompleted?: boolean } | undefined;
+};
 export type SectionMetadata = {
+    _actions?: Array<{ section: string; action: string; ts: number; iterationContext?: string[] }>;
+    [sectionName: string]:
+        | SectionData
+        | Array<{ section: string; action: string; ts: number; iterationContext?: string[] }>
+        | undefined;
+};
+// this will be the new version, not yet implemented:
+/*export type SectionMetadata = {
     // each time a widget is opened/focused, we add a new WidgetMetadata object with timestamps
     widgets: {
         [key: string]: WidgetMetadata[];
     };
 } & StartEndTimestampable;
+*/
+
 export type Language = {
     language?: string; // ISO 639-1 two letters language code
 } & StartEndTimestampable;

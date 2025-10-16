@@ -1,16 +1,11 @@
-import { Optional } from '../../../types/Optional.type';
 import { Result, createErrors, createOk } from '../../../types/Result.type';
 import { ParamsValidatorUtils } from '../../../utils/ParamsValidatorUtils';
 import { Uuidable } from '../Uuidable';
 import { InterviewAttributes } from '../../../services/questionnaire/types';
 import { Interview, ExtendedInterviewAttributesWithComposedObjects } from './Interview';
-import { InterviewParadata, InterviewParadataAttributes } from './InterviewParadata';
+import { InterviewParadata } from './InterviewParadata';
 import { yesNoDontKnowValues } from '../attributeTypes/GenericAttributes';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
-
-export type ExtendedInterviewWithComposedAttributes = InterviewAttributes & {
-    paradata?: Optional<InterviewParadataAttributes>;
-};
 
 /**
  * Validate the interview params coming from the frontend as json unvalidated response.
@@ -43,7 +38,6 @@ export const validateParams = function (
     errors.push(...ParamsValidatorUtils.isBoolean('isQuestionable', interviewAttributes.is_questionable, displayName));
     errors.push(...ParamsValidatorUtils.isBoolean('isValidated', interviewAttributes.is_validated, displayName));
 
-    errors.push(...ParamsValidatorUtils.isArrayOfStrings('languages', dirtyParams._languages, displayName));
     errors.push(...ParamsValidatorUtils.isString('accessCode', dirtyParams.accessCode, displayName));
     errors.push(...ParamsValidatorUtils.isDateString('assignedDate', dirtyParams.assignedDate, displayName));
     errors.push(...ParamsValidatorUtils.isString('contactPhoneNumber', dirtyParams.contactPhoneNumber, displayName));
@@ -92,10 +86,12 @@ export const validateParams = function (
         )
     );
 
-    const paradataAttributes = dirtyParams._paradata;
-    if (paradataAttributes !== undefined) {
-        errors.push(...InterviewParadata.validateParams(paradataAttributes as { [key: string]: unknown }, '_paradata'));
+    if (dirtyParams._paradata) {
+        errors.push(
+            ...InterviewParadata.validateParams(dirtyParams._paradata as { [key: string]: unknown }, '_paradata')
+        );
     }
+
     return errors;
 };
 
@@ -112,6 +108,14 @@ export const create = function (
     interviewAttributes: InterviewAttributes,
     surveyObjectsRegistry: SurveyObjectsRegistry
 ): Result<Interview> {
+    // if paradata comes from Interview response, they first need to be converted
+    // to the new paradata structure (see Interview.extractDirtyParadataParams).
+    // TODO: update response attributes to include the correct attributes and format
+    // that matches InterviewParadataAttributes
+    if (!dirtyParams._paradata) {
+        const paradataParams = Interview.extractDirtyParadataParams(dirtyParams);
+        dirtyParams._paradata = paradataParams;
+    }
     const errors = validateParams(dirtyParams, interviewAttributes);
     const interview =
         errors.length === 0

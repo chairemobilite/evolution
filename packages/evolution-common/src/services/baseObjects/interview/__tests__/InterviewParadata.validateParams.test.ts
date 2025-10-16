@@ -16,7 +16,7 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         personsRandomSequence: ['uuid1', 'uuid2'],
         languages: [{ language: 'en', startTimestamp: 1632929461, endTimestamp: 1632930461 }],
         browsers: [{
-            ua: 'Mozilla/5.0',
+            _ua: 'Mozilla/5.0',
             browser: { name: 'Chrome', version: '93.0' },
             engine: { name: 'Blink', version: '93.0' },
             os: { name: 'Windows', version: '10', versionName: 'Windows 10' },
@@ -129,10 +129,10 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
             expect(errors.some((e) => e.message.includes('browsers'))).toBe(true);
         });
 
-        it('should validate ua field', () => {
-            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], ua: 123 }] };
+        it('should validate _ua field', () => {
+            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], _ua: 123 }] };
             const errors = InterviewParadata.validateParams(params);
-            expect(errors.some((e) => e.message.includes('browsers.[0].ua'))).toBe(true);
+            expect(errors.some((e) => e.message.includes('browsers.[0]._ua'))).toBe(true);
         });
 
         it('should validate browser name field', () => {
@@ -208,68 +208,41 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         });
     });
 
-    describe('Sections validation', () => {
+    describe('Sections validation (legacy format)', () => {
 
-        it('should make sure sections content is an array', () => {
-            const params = { ...validParams, sections: { home: 'not-an-array' } };
-            const errors = InterviewParadata.validateParams(params);
-            expect(errors.some((e) => e.message.includes('sections.home'))).toBe(true);
-        });
-
-        it('should validate section startTimestamp', () => {
+        it('should accept legacy sections format with _actions and section objects', () => {
             const params = {
-                ...validParams, sections: {
-                    home: [{ ...validParams.sections.home[0], startTimestamp: 'not-a-number' }]
+                ...validParams,
+                sections: {
+                    _actions: [
+                        { section: 'home', action: 'start', ts: 1632929461 }
+                    ],
+                    home: {
+                        _startedAt: 1632929461,
+                        _isCompleted: true
+                    }
                 }
             };
             const errors = InterviewParadata.validateParams(params);
-            expect(errors.some((e) => e.message.includes('sections.home.[0].startTimestamp'))).toBe(true);
+            expect(errors).toHaveLength(0);
         });
 
-        it('should validate section endTimestamp', () => {
+        it('should accept sections with nested person keys', () => {
             const params = {
-                ...validParams, sections: {
-                    home: [{ ...validParams.sections.home[0], endTimestamp: 'not-a-number' }]
-                }
-            };
-            const errors = InterviewParadata.validateParams(params);
-            expect(errors.some((e) => e.message.includes('sections.home.[0].endTimestamp'))).toBe(true);
-        });
-
-        it('should make sure widgets is an array', () => {
-            const params = { ...validParams, sections: { home: [{ ...validParams.sections.home[0], widgets: 'not-an-array' }] } };
-            const errors = InterviewParadata.validateParams(params);
-            expect(errors.some((e) => e.message.includes('sections.home.[0].widgets'))).toBe(true);
-        });
-
-        it('should validate widget startTimestamp', () => {
-            const params = {
-                ...validParams, sections: {
-                    home: [{
-                        ...validParams.sections.home[0],
-                        widgets: {
-                            widgetShortname: [{ ...validParams.sections.home[0].widgets.widgetShortname[0], startTimestamp: 'not-a-number' }]
+                ...validParams,
+                sections: {
+                    tripsIntro: {
+                        _startedAt: 1632929461,
+                        _isCompleted: true,
+                        'person/uuid1': {
+                            _startedAt: 1632929461,
+                            _isCompleted: true
                         }
-                    }]
+                    }
                 }
             };
             const errors = InterviewParadata.validateParams(params);
-            expect(errors.some((e) => e.message.includes('sections.home.[0].widgets.widgetShortname.[0].startTimestamp'))).toBe(true);
-        });
-
-        it('should validate widget endTimestamp', () => {
-            const params = {
-                ...validParams, sections: {
-                    home: [{
-                        ...validParams.sections.home[0],
-                        widgets: {
-                            widgetShortname: [{ ...validParams.sections.home[0].widgets.widgetShortname[0], endTimestamp: 'not-a-number' }]
-                        }
-                    }]
-                }
-            };
-            const errors = InterviewParadata.validateParams(params);
-            expect(errors.some((e) => e.message.includes('sections.home.[0].widgets.widgetShortname.[0].endTimestamp'))).toBe(true);
+            expect(errors).toHaveLength(0);
         });
     });
 

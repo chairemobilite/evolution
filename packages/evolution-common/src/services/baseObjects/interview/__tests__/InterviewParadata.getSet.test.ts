@@ -19,7 +19,7 @@ describe('InterviewParadata - Getters and Setters', () => {
             personsRandomSequence: ['uuid1', 'uuid2'],
             languages: [{ language: 'en', startTimestamp: 1632929461, endTimestamp: 1632930461 }],
             browsers: [{
-                ua: 'Mozilla/5.0',
+                _ua: 'Mozilla/5.0',
                 browser: { name: 'Chrome', version: '93.0' },
                 startTimestamp: 1632929461,
                 endTimestamp: 1632930461
@@ -93,7 +93,7 @@ describe('InterviewParadata - Getters and Setters', () => {
         expect(paradata.browsers?.[0].browser?.name).toBe('Chrome');
 
         const newBrowsers = [{
-            ua: 'Mozilla/5.0',
+            _ua: 'Mozilla/5.0',
             browser: { name: 'Firefox', version: '92.0' },
             startTimestamp: 1632930462,
             endTimestamp: 1632931462
@@ -110,7 +110,18 @@ describe('InterviewParadata - Getters and Setters', () => {
         expect(paradata.sections?.section1).toHaveLength(1);
 
         const newSections = {
-            'section2': [{ startTimestamp: 1632930462, endTimestamp: 1632931462, widgets: {} }]
+            _actions: [
+                { section: 'section2', action: 'start', ts: 1632930462 },
+                { section: 'section2', action: 'end', ts: 1632931462 }
+            ],
+            'section2': {
+                _startedAt: 1632930462,
+                _isCompleted: true,
+                'person/uuid1': {
+                    _startedAt: 1632930462,
+                    _isCompleted: true
+                }
+            }
         };
         paradata.sections = newSections;
         expect(paradata.sections).toEqual(newSections);

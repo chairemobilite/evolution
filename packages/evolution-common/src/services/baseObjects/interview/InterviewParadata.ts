@@ -44,13 +44,18 @@ export type InterviewParadataAttributes = {
     /*
     For languages and browsers, each time a new browser/language is detected, we add the start and end timestamps and
     the language string / browser data.
+    Right now, the _language is set in response._language and is the last language used by the respondent
+    Reviewer's languages are not logged/saved
+    TODO: Use the language_change paradata event in the log to get all languages used by the respondent
+          However, since the log data is not indexed, parsing a lot of interviews would take a while
+          if we used the language_change event
     */
     languages?: Language[]; // two-letter ISO 639-1 code
     browsers?: Browser[];
 
     // each time a section is opened, we add a new SectionMetadata object with timestamps
-    // TODO: move this to a Log/Paradata class?
-    sections?: { [sectionShortname: string]: SectionMetadata[] };
+    // TODO: move this to a Log/Paradata class? and update interview reponse to the new SectionMetadata format
+    sections?: SectionMetadata;
 };
 
 export type ExtendedInterviewParadataAttributes = InterviewParadataAttributes & { [key: string]: unknown };
@@ -163,11 +168,11 @@ export class InterviewParadata {
         this._attributes.browsers = value || [];
     }
 
-    get sections(): Optional<{ [sectionShortname: string]: SectionMetadata[] }> {
+    get sections(): Optional<SectionMetadata> {
         return this._attributes.sections || {};
     }
 
-    set sections(value: Optional<{ [sectionShortname: string]: SectionMetadata[] }>) {
+    set sections(value: Optional<SectionMetadata>) {
         this._attributes.sections = value || {};
     }
 
@@ -258,7 +263,7 @@ export class InterviewParadata {
         if (dirtyParams.browsers && Array.isArray(dirtyParams.browsers)) {
             for (let i = 0; i < dirtyParams.browsers.length; i++) {
                 const browser = dirtyParams.browsers[i];
-                errors.push(...ParamsValidatorUtils.isString(`browsers.[${i}].ua`, browser.ua, displayName));
+                errors.push(...ParamsValidatorUtils.isString(`browsers.[${i}]._ua`, browser._ua, displayName));
                 if (browser.browser) {
                     errors.push(
                         ...ParamsValidatorUtils.isString(
@@ -347,69 +352,7 @@ export class InterviewParadata {
         }
 
         errors.push(...ParamsValidatorUtils.isObject('sections', dirtyParams.sections, displayName));
-        if (dirtyParams.sections && Object.keys(dirtyParams.sections).length > 0) {
-            for (const sectionShortname in dirtyParams.sections) {
-                const sections = dirtyParams.sections?.[sectionShortname] || [];
-                errors.push(...ParamsValidatorUtils.isArray(`sections.${sectionShortname}`, sections, displayName));
-                if (sections && Array.isArray(sections)) {
-                    for (let i = 0; i < sections.length; i++) {
-                        const section = sections[i];
-                        // TODO: check that section shortnames are indeed valid for the survey
-                        errors.push(
-                            ...ParamsValidatorUtils.isObject(
-                                `sections.${sectionShortname}.[${i}].widgets`,
-                                section.widgets,
-                                displayName
-                            )
-                        );
-                        errors.push(
-                            ...ParamsValidatorUtils.isPositiveInteger(
-                                `sections.${sectionShortname}.[${i}].startTimestamp`,
-                                section.startTimestamp,
-                                displayName
-                            )
-                        );
-                        errors.push(
-                            ...ParamsValidatorUtils.isPositiveInteger(
-                                `sections.${sectionShortname}.[${i}].endTimestamp`,
-                                section.endTimestamp,
-                                displayName
-                            )
-                        );
-                        for (const widgetShortname in section.widgets as any[]) {
-                            const widgets = section.widgets[widgetShortname] || [];
-                            errors.push(
-                                ...ParamsValidatorUtils.isArray(
-                                    `sections.${sectionShortname}.[${i}].widgets.${widgetShortname}`,
-                                    widgets,
-                                    displayName
-                                )
-                            );
-                            if (widgets && Array.isArray(widgets)) {
-                                for (let j = 0; j < widgets.length; j++) {
-                                    const widget = widgets[j];
-                                    // TODO: check that widget shortnames/paths? are indeed valid for the survey
-                                    errors.push(
-                                        ...ParamsValidatorUtils.isPositiveInteger(
-                                            `sections.${sectionShortname}.[${i}].widgets.${widgetShortname}.[${j}].startTimestamp`,
-                                            widget.startTimestamp,
-                                            displayName
-                                        )
-                                    );
-                                    errors.push(
-                                        ...ParamsValidatorUtils.isPositiveInteger(
-                                            `sections.${sectionShortname}.[${i}].widgets.${widgetShortname}.[${j}].endTimestamp`,
-                                            widget.endTimestamp,
-                                            displayName
-                                        )
-                                    );
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // TODO: validate the section metadata object when we will have implemented the format
         return errors;
     };
 }
