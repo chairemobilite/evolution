@@ -10,12 +10,9 @@ import {
     dateToString,
     dateToIsoWithTimezone,
     getTimeZoneOffsetMinutes,
-    parseISODateToStartOfDay,
-    parseISODateToEndOfDay,
-    validateISODateString,
-    validateDateRange,
-    validateProjectDates,
-    DateValidationError
+    dateTimeWithTimezoneOffsetToEpoch,
+    ISODateTimeStringWithTimezoneOffset,
+    Timezone
 } from '../DateTimeUtils';
 
 describe('DateTimeUtils', () => {
@@ -37,8 +34,9 @@ describe('DateTimeUtils', () => {
         test('should handle fractional seconds by truncating', () => {
             const epochMilliseconds = 1609459200000.999;
             const result = epochToDate(epochMilliseconds / 1000);
-            // Fractional seconds should be handled by setUTCSeconds
-            expect(result.getTime()).toBeGreaterThanOrEqual(new Date('2021-01-01T00:00:00.000Z').getTime());
+            // Fractional seconds should be truncated to the nearest millisecond
+            const expectedTimestamp = 1609459200000; // '2021-01-01T00:00:00.000Z'
+            expect(result.getTime()).toBe(expectedTimestamp);
         });
     });
 
@@ -54,7 +52,7 @@ describe('DateTimeUtils', () => {
                 ['Europe/Paris', 'en-CA', '2024-03-15, 3:30:45 p.m.'],
                 ['Asia/Tokyo', 'en-CA', '2024-03-15, 11:30:45 p.m.']
             ])('should format date in timezone %s with locale %s as %s', (timeZone, locale, expected) => {
-                const result = dateToString(testDate, locale, timeZone);
+                const result = dateToString(testDate, locale, timeZone as Timezone);
                 expect(result).toBe(expected);
             });
         });
@@ -63,22 +61,22 @@ describe('DateTimeUtils', () => {
             test('should handle spring forward (DST start)', () => {
                 // March 10, 2024 2:00 AM - DST starts in North America
                 const springForward = new Date('2024-03-10T07:00:00.000Z'); // 2 AM EST becomes 3 AM EDT
-                const result = dateToString(springForward, 'en-CA', 'America/New_York');
-                expect(result).toContain('2024-03-10');
+                const result = dateToString(springForward, 'en-CA', 'America/New_York' as Timezone);
+                expect(result).toBe('2024-03-10, 3:00:00 a.m.'); // Verify time shifted to 3 AM EDT
             });
 
             test('should handle fall back (DST end)', () => {
                 // November 3, 2024 2:00 AM - DST ends in North America
                 const fallBack = new Date('2024-11-03T06:00:00.000Z'); // 2 AM EDT becomes 1 AM EST
-                const result = dateToString(fallBack, 'en-CA', 'America/New_York');
-                expect(result).toContain('2024-11-03');
+                const result = dateToString(fallBack, 'en-CA', 'America/New_York' as Timezone);
+                expect(result).toBe('2024-11-03, 1:00:00 a.m.'); // Verify time shifted to 1 AM EST
             });
         });
 
         describe('timezone handling change of day in Canada (daylight saving time, summer)', () => {
             const testDate = epochToDate(1759982399000 / 1000);
             test('should format date 23:59:59 local to not be on the following day even if UTC is in the next day', () => {
-                const result = dateToString(testDate, 'fr-CA', 'America/Toronto');
+                const result = dateToString(testDate, 'fr-CA', 'America/Toronto' as Timezone);
                 expect(result).toBe('2025-10-08 23 h 59 min 59 s');
                 expect(testDate.toISOString()).toBe('2025-10-09T03:59:59.000Z');
             });
@@ -87,7 +85,7 @@ describe('DateTimeUtils', () => {
         describe('timezone handling change of day in Canada (not daylight saving time, winter)', () => {
             const testDate = epochToDate(1765256399000 / 1000);
             test('should format date 23:59:59 local to not be on the following day even if UTC is in the next day', () => {
-                const result = dateToString(testDate, 'fr-CA', 'America/Toronto');
+                const result = dateToString(testDate, 'fr-CA', 'America/Toronto' as Timezone);
                 expect(result).toBe('2025-12-08 23 h 59 min 59 s');
                 expect(testDate.toISOString()).toBe('2025-12-09T04:59:59.000Z');
             });
@@ -100,7 +98,7 @@ describe('DateTimeUtils', () => {
                 ['en-US', 'UTC', '3/15/2024, 2:30:45 PM'],
                 ['fr-FR', 'UTC', '15/03/2024 14:30:45']
             ])('should format date with locale %s in timezone %s as %s', (locale, timeZone, expected) => {
-                const result = dateToString(testDate, locale, timeZone);
+                const result = dateToString(testDate, locale, timeZone as Timezone);
                 expect(result).toBe(expected);
             });
         });
@@ -120,19 +118,19 @@ describe('DateTimeUtils', () => {
         describe('edge cases', () => {
             test('should handle epoch zero', () => {
                 const epochZero = new Date(0);
-                const result = dateToString(epochZero, 'en-CA', 'UTC');
+                const result = dateToString(epochZero, 'en-CA', 'UTC' as Timezone);
                 expect(result).toBe('1970-01-01, 12:00:00 a.m.');
             });
 
             test('should handle dates far in the future', () => {
                 const futureDate = new Date('2100-12-31T23:59:59.000Z');
-                const result = dateToString(futureDate, 'en-CA', 'UTC');
+                const result = dateToString(futureDate, 'en-CA', 'UTC' as Timezone);
                 expect(result).toBe('2100-12-31, 11:59:59 p.m.');
             });
 
             test('should handle dates far in the past', () => {
                 const pastDate = new Date('1900-01-01T00:00:00.000Z');
-                const result = dateToString(pastDate, 'en-CA', 'UTC');
+                const result = dateToString(pastDate, 'en-CA', 'UTC' as Timezone);
                 expect(result).toBe('1900-01-01, 12:00:00 a.m.');
             });
         });
@@ -146,7 +144,7 @@ describe('DateTimeUtils', () => {
             [1765256399000 / 1000, 'UTC', false, '2025-12-09']
         ])('should format epoch %i in timezone %s with time=%s as %s', (epochSeconds, timezone, withTime, expected) => {
             const testDate = epochToDate(epochSeconds);
-            expect(dateToIsoWithTimezone(testDate, timezone, withTime)).toBe(expected);
+            expect(dateToIsoWithTimezone(testDate, timezone as Timezone, withTime)).toBe(expected);
         });
     });
 
@@ -161,7 +159,7 @@ describe('DateTimeUtils', () => {
                 [new Date('2024-01-15T12:00:00.000Z'), 'Asia/Tokyo', 540], // JST: UTC+9
                 [new Date('2024-01-15T12:00:00.000Z'), 'Australia/Sydney', 660] // AEDT: UTC+11 (summer)
             ])('should return offset %i minutes for %s at %s', (date, timezone, expectedOffset) => {
-                const offset = getTimeZoneOffsetMinutes(date, timezone);
+                const offset = getTimeZoneOffsetMinutes(date, timezone as Timezone);
                 expect(offset).toBe(expectedOffset);
             });
         });
@@ -181,7 +179,7 @@ describe('DateTimeUtils', () => {
                 // Summer (EDT)
                 [new Date('2024-07-15T12:00:00.000Z'), 'America/Toronto', -240]
             ])('should handle DST for %s in %s: %i minutes', (date, timezone, expectedOffset) => {
-                const offset = getTimeZoneOffsetMinutes(date, timezone);
+                const offset = getTimeZoneOffsetMinutes(date, timezone as Timezone);
                 expect(offset).toBe(expectedOffset);
             });
         });
@@ -189,31 +187,31 @@ describe('DateTimeUtils', () => {
         describe('edge cases', () => {
             test('should handle epoch zero', () => {
                 const epochZero = new Date(0);
-                const offset = getTimeZoneOffsetMinutes(epochZero, 'UTC');
+                const offset = getTimeZoneOffsetMinutes(epochZero, 'UTC' as Timezone);
                 expect(offset).toBe(0);
             });
 
             test('should handle negative offsets correctly', () => {
                 const date = new Date('2024-01-15T12:00:00.000Z');
-                const offset = getTimeZoneOffsetMinutes(date, 'America/New_York');
+                const offset = getTimeZoneOffsetMinutes(date, 'America/New_York' as Timezone);
                 expect(offset).toBe(-300); // -5 hours = -300 minutes
             });
 
             test('should handle positive offsets correctly', () => {
                 const date = new Date('2024-01-15T12:00:00.000Z');
-                const offset = getTimeZoneOffsetMinutes(date, 'Asia/Tokyo');
+                const offset = getTimeZoneOffsetMinutes(date, 'Asia/Tokyo' as Timezone);
                 expect(offset).toBe(540); // +9 hours = 540 minutes
             });
 
             test('should handle fractional hour offsets', () => {
                 const date = new Date('2024-01-15T12:00:00.000Z');
-                const offset = getTimeZoneOffsetMinutes(date, 'Asia/Kolkata'); // UTC+5:30
+                const offset = getTimeZoneOffsetMinutes(date, 'Asia/Kolkata' as Timezone); // UTC+5:30
                 expect(offset).toBe(330); // 5.5 hours = 330 minutes
             });
 
             test('should return undefined for invalid timezone', () => {
                 const date = new Date('2024-01-15T12:00:00.000Z');
-                const offset = getTimeZoneOffsetMinutes(date, 'Invalid/Timezone');
+                const offset = getTimeZoneOffsetMinutes(date, 'Invalid/Timezone' as Timezone);
                 expect(offset).toBeUndefined();
             });
         });
@@ -223,20 +221,20 @@ describe('DateTimeUtils', () => {
                 // March 10, 2024 - DST starts
                 const beforeDST = new Date('2024-03-10T06:59:00.000Z'); // 1:59 AM EST
                 const afterDST = new Date('2024-03-10T07:01:00.000Z'); // 3:01 AM EDT
-                expect(getTimeZoneOffsetMinutes(beforeDST, 'America/New_York')).toBe(-300);
-                expect(getTimeZoneOffsetMinutes(afterDST, 'America/New_York')).toBe(-240);
+                expect(getTimeZoneOffsetMinutes(beforeDST, 'America/New_York' as Timezone)).toBe(-300);
+                expect(getTimeZoneOffsetMinutes(afterDST, 'America/New_York' as Timezone)).toBe(-240);
             });
 
             test('should handle fall back in North America', () => {
                 // November 3, 2024 - DST ends
                 const beforeDST = new Date('2024-11-03T05:59:00.000Z'); // 1:59 AM EDT
                 const afterDST = new Date('2024-11-03T06:01:00.000Z'); // 1:01 AM EST
-                expect(getTimeZoneOffsetMinutes(beforeDST, 'America/New_York')).toBe(-240);
-                expect(getTimeZoneOffsetMinutes(afterDST, 'America/New_York')).toBe(-300);
+                expect(getTimeZoneOffsetMinutes(beforeDST, 'America/New_York' as Timezone)).toBe(-240);
+                expect(getTimeZoneOffsetMinutes(afterDST, 'America/New_York' as Timezone)).toBe(-300);
             });
         });
 
-        describe('potential failure cases', () => {
+        describe('timezone format variations and invalid input', () => {
             test.each([
                 // Format with padded zeros (should now succeed without parsing)
                 ['America/New_York', -300],
@@ -250,7 +248,7 @@ describe('DateTimeUtils', () => {
                 ['Invalid/Timezone', undefined]
             ])('should handle timezone %s returning %i', (timezone, expectedOffset) => {
                 const date = new Date('2024-01-15T12:00:00.000Z');
-                const offset = getTimeZoneOffsetMinutes(date, timezone);
+                const offset = getTimeZoneOffsetMinutes(date, timezone as Timezone);
                 if (expectedOffset === undefined) {
                     expect(offset).toBeUndefined();
                 } else {
@@ -264,7 +262,7 @@ describe('DateTimeUtils', () => {
         test('should convert epoch to date and format it correctly', () => {
             const epochMilliseconds = 1710512445000; // 2024-03-15T14:20:45Z
             const date = epochToDate(epochMilliseconds / 1000);
-            const formatted = dateToString(date, 'en-CA', 'UTC');
+            const formatted = dateToString(date, 'en-CA', 'UTC' as Timezone);
             expect(formatted).toBe('2024-03-15, 2:20:45 p.m.');
         });
 
@@ -278,125 +276,204 @@ describe('DateTimeUtils', () => {
         test('should handle timezone-aware formatting after epoch conversion', () => {
             const epochMilliseconds = 1704067200000; // 2024-01-01T00:00:00Z
             const date = epochToDate(epochMilliseconds / 1000);
-            const utcFormatted = dateToString(date, 'en-CA', 'UTC');
-            const nyFormatted = dateToString(date, 'en-CA', 'America/New_York');
+            const utcFormatted = dateToString(date, 'en-CA', 'UTC' as Timezone);
+            const nyFormatted = dateToString(date, 'en-CA', 'America/New_York' as Timezone);
 
             expect(utcFormatted).toBe('2024-01-01, 12:00:00 a.m.');
             expect(nyFormatted).toBe('2023-12-31, 7:00:00 p.m.'); // 5 hours behind UTC
         });
     });
 
-    describe('parseISODateToStartOfDay', () => {
-        test.each([
-            ['2024-01-01', '2024-01-01T00:00:00.000Z'],
-            ['2024-06-15', '2024-06-15T00:00:00.000Z'],
-            ['2024-02-29', '2024-02-29T00:00:00.000Z'], // Leap year
-            ['2024-12-31', '2024-12-31T00:00:00.000Z']
-        ])('should parse %s to start of day %s', (isoDate, expected) => {
-            const date = parseISODateToStartOfDay(isoDate);
-            expect(date.toISOString()).toBe(expected);
-        });
-    });
+    describe('dateTimeWithTimezoneOffsetToEpoch', () => {
+        describe('UTC timezone', () => {
+            test('should convert UTC datetime with Z notation', () => {
+                const dateTime = '2025-01-01T00:00:00Z' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2025-01-01T00:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
 
-    describe('parseISODateToEndOfDay', () => {
-        test.each([
-            ['2024-01-01', '2024-01-01T23:59:59.000Z'],
-            ['2024-06-15', '2024-06-15T23:59:59.000Z'],
-            ['2024-02-29', '2024-02-29T23:59:59.000Z'], // Leap year
-            ['2024-12-31', '2024-12-31T23:59:59.000Z']
-        ])('should parse %s to end of day %s', (isoDate, expected) => {
-            const date = parseISODateToEndOfDay(isoDate);
-            expect(date.toISOString()).toBe(expected);
-        });
-
-        test('start of day should be before end of day', () => {
-            const isoDate = '2024-06-15';
-            const startOfDay = parseISODateToStartOfDay(isoDate);
-            const endOfDay = parseISODateToEndOfDay(isoDate);
-            expect(startOfDay < endOfDay).toBe(true);
-        });
-    });
-
-    describe('validateISODateString', () => {
-        describe('valid dates', () => {
-            test.each([
-                ['2024-01-01'],
-                ['2024-12-31'],
-                ['2024-02-29'], // Leap year
-                ['2000-02-29'], // Century leap year
-                ['2024-06-15']
-            ])('should validate %s', (dateString) => {
-                const result = validateISODateString(dateString);
-                expect(result).toBe(dateString);
+            test('should convert UTC datetime with +00:00 offset', () => {
+                const dateTime = '2025-01-01T00:00:00+00:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2025-01-01T00:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
             });
         });
 
-        describe('invalid format', () => {
-            test.each([
-                ['2024-1-1'], // Missing padding
-                ['2024/01/01'], // Wrong separator
-                ['01-01-2024'], // Wrong order
-                ['2024-13-01'], // Invalid month
-                ['2024-01-32'], // Invalid day
-                ['not-a-date']
-            ])('should reject %s', (dateString) => {
-                expect(() => validateISODateString(dateString)).toThrow(DateValidationError);
+        describe('negative timezone offsets', () => {
+            test('should convert datetime with -05:00 offset (EST)', () => {
+                const dateTime = '2025-01-01T00:00:00-05:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-01-01 00:00:00 EST is 2025-01-01 05:00:00 UTC
+                const expectedDate = new Date('2025-01-01T05:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should convert datetime with -04:00 offset (EDT)', () => {
+                const dateTime = '2025-07-01T00:00:00-04:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-07-01 00:00:00 EDT is 2025-07-01 04:00:00 UTC
+                const expectedDate = new Date('2025-07-01T04:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should convert datetime with -08:00 offset (PST)', () => {
+                const dateTime = '2025-01-15T12:00:00-08:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-01-15 12:00:00 PST is 2025-01-15 20:00:00 UTC
+                const expectedDate = new Date('2025-01-15T20:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
             });
         });
 
-        describe('invalid date values', () => {
-            test.each([
-                ['2023-02-29'], // Non-leap year
-                ['2024-04-31'], // April has 30 days
-                ['2024-06-31'] // June has 30 days
-            ])('should reject %s', (dateString) => {
-                expect(() => validateISODateString(dateString)).toThrow(DateValidationError);
+        describe('positive timezone offsets', () => {
+            test('should convert datetime with +09:00 offset (JST)', () => {
+                const dateTime = '2025-01-15T12:00:00+09:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-01-15 12:00:00 JST is 2025-01-15 03:00:00 UTC
+                const expectedDate = new Date('2025-01-15T03:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should convert datetime with +01:00 offset (CET)', () => {
+                const dateTime = '2025-01-15T12:00:00+01:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-01-15 12:00:00 CET is 2025-01-15 11:00:00 UTC
+                const expectedDate = new Date('2025-01-15T11:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should convert datetime with +02:00 offset (CEST)', () => {
+                const dateTime = '2025-07-15T12:00:00+02:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-07-15 12:00:00 CEST is 2025-07-15 10:00:00 UTC
+                const expectedDate = new Date('2025-07-15T10:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+        });
+
+        describe('fractional timezone offsets', () => {
+            test('should convert datetime with +05:30 offset (IST)', () => {
+                const dateTime = '2025-01-15T12:00:00+05:30' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-01-15 12:00:00 IST is 2025-01-15 06:30:00 UTC
+                const expectedDate = new Date('2025-01-15T06:30:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should convert datetime with -03:30 offset (NST)', () => {
+                const dateTime = '2025-01-15T12:00:00-03:30' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-01-15 12:00:00 NST is 2025-01-15 15:30:00 UTC
+                const expectedDate = new Date('2025-01-15T15:30:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should convert datetime with +09:30 offset (ACST)', () => {
+                const dateTime = '2025-01-15T12:00:00+09:30' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                // 2025-01-15 12:00:00 ACST is 2025-01-15 02:30:00 UTC
+                const expectedDate = new Date('2025-01-15T02:30:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+        });
+
+        describe('edge cases', () => {
+            test('should handle epoch zero', () => {
+                const dateTime = '1970-01-01T00:00:00Z' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                expect(epoch).toBe(0);
+            });
+
+            test('should handle dates far in the future', () => {
+                const dateTime = '2100-12-31T23:59:59Z' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2100-12-31T23:59:59.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should handle dates far in the past', () => {
+                const dateTime = '1900-01-01T00:00:00Z' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('1900-01-01T00:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should handle midnight', () => {
+                const dateTime = '2025-10-15T00:00:00-04:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2025-10-15T04:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should handle end of day', () => {
+                const dateTime = '2025-10-15T23:59:59-04:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2025-10-16T03:59:59.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+        });
+
+        describe('DST transitions', () => {
+            test('should handle DST start date (spring forward)', () => {
+                // March 9, 2025 - DST starts in North America
+                const dateTime = '2025-03-09T02:00:00-05:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2025-03-09T07:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should handle DST end date (fall back)', () => {
+                // November 2, 2025 - DST ends in North America
+                const dateTime = '2025-11-02T02:00:00-04:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2025-11-02T06:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+        });
+
+        describe('round-trip conversion', () => {
+            test('should round-trip with epochToDate', () => {
+                const dateTime = '2025-10-15T14:30:00-04:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const date = epochToDate(epoch);
+
+                // The date should represent the same moment in time
+                expect(date.toISOString()).toBe('2025-10-15T18:30:00.000Z');
+            });
+
+            test('should work with multiple timezones for same moment', () => {
+                // These represent the same moment in time
+                const dateTimeEST = '2025-01-15T12:00:00-05:00' as ISODateTimeStringWithTimezoneOffset;
+                const dateTimeUTC = '2025-01-15T17:00:00Z' as ISODateTimeStringWithTimezoneOffset;
+                const dateTimeJST = '2025-01-16T02:00:00+09:00' as ISODateTimeStringWithTimezoneOffset;
+
+                const epochEST = dateTimeWithTimezoneOffsetToEpoch(dateTimeEST);
+                const epochUTC = dateTimeWithTimezoneOffsetToEpoch(dateTimeUTC);
+                const epochJST = dateTimeWithTimezoneOffsetToEpoch(dateTimeJST);
+
+                // All should produce the same epoch
+                expect(epochEST).toBe(epochUTC);
+                expect(epochUTC).toBe(epochJST);
+            });
+        });
+
+        describe('real-world examples', () => {
+            test('should handle survey start time in Toronto winter', () => {
+                const dateTime = '2025-01-01T00:00:00-05:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2025-01-01T05:00:00.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
+            });
+
+            test('should handle survey end time in Toronto summer', () => {
+                const dateTime = '2025-10-31T23:59:59-04:00' as ISODateTimeStringWithTimezoneOffset;
+                const epoch = dateTimeWithTimezoneOffsetToEpoch(dateTime);
+                const expectedDate = new Date('2025-11-01T03:59:59.000Z');
+                expect(epoch).toBe(expectedDate.getTime() / 1000);
             });
         });
     });
 
-    describe('validateDateRange', () => {
-        test('should accept valid date range', () => {
-            const startDate = validateISODateString('2024-01-01');
-            const endDate = validateISODateString('2024-12-31');
-            expect(() => validateDateRange(startDate, endDate)).not.toThrow();
-        });
-
-        test('should reject when end date is before start date', () => {
-            const startDate = validateISODateString('2024-12-31');
-            const endDate = validateISODateString('2024-01-01');
-            expect(() => validateDateRange(startDate, endDate)).toThrow(DateValidationError);
-        });
-
-        test('should reject when dates are equal', () => {
-            const date = validateISODateString('2024-01-01');
-            expect(() => validateDateRange(date, date)).toThrow(DateValidationError);
-        });
-    });
-
-    describe('validateProjectDates', () => {
-        test('should return undefined for both dates when both undefined', () => {
-            const result = validateProjectDates(undefined, undefined);
-            expect(result.startDate).toBeUndefined();
-            expect(result.endDate).toBeUndefined();
-        });
-
-        test('should validate and return both dates when valid', () => {
-            const result = validateProjectDates('2024-01-01', '2024-12-31');
-            expect(result.startDate).toBe('2024-01-01');
-            expect(result.endDate).toBe('2024-12-31');
-        });
-
-        test('should throw when dates are in wrong order', () => {
-            expect(() => validateProjectDates('2024-12-31', '2024-01-01')).toThrow(DateValidationError);
-        });
-
-        test('should throw on invalid startDate format', () => {
-            expect(() => validateProjectDates('invalid', '2024-12-31')).toThrow(DateValidationError);
-        });
-
-        test('should throw on invalid endDate format', () => {
-            expect(() => validateProjectDates('2024-01-01', 'invalid')).toThrow(DateValidationError);
-        });
-    });
 });
