@@ -4,8 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { setProjectConfiguration } from "chaire-lib-common/lib/config/shared/project.config";
-import projectConfig, { EvolutionProjectConfiguration } from "../project.config";
+import { setProjectConfiguration } from 'chaire-lib-common/lib/config/shared/project.config';
+import projectConfig, { EvolutionProjectConfiguration } from '../project.config';
+import { ISODateTimeStringWithTimezoneOffset } from '../../utils/DateTimeUtils';
 
 test('Expected default', () => {
     expect(projectConfig).toEqual(expect.objectContaining({
@@ -13,6 +14,8 @@ test('Expected default', () => {
         selfResponseMinimumAge: 14,
         drivingLicenseAge: 16,
         logDatabaseUpdates: false,
+        startDateTimeWithTimezoneOffset: undefined,
+        endDateTimeWithTimezoneOffset: undefined,
         hideStartButtonOnHomePage: false,
         introductionTwoParagraph: false,
         introBanner: false,
@@ -30,6 +33,8 @@ test('set project configuration', () => {
         selfResponseMinimumAge: 18,
         drivingLicenseAge: 16,
         logDatabaseUpdates: true,
+        startDateTimeWithTimezoneOffset: '2025-01-01T00:00:00-05:00' as ISODateTimeStringWithTimezoneOffset,
+        endDateTimeWithTimezoneOffset: '2025-12-31T23:59:59-05:00' as ISODateTimeStringWithTimezoneOffset,
         hideStartButtonOnHomePage: true,
         introductionTwoParagraph: true,
         introBanner: true,
@@ -38,7 +43,7 @@ test('set project configuration', () => {
         logoPaths: { 'en': 'logo-en.png', 'fr': 'logo-fr.png' },
         languageNames: { 'en': 'English', 'fr': 'Français' },
         title: { 'en': 'Survey title', 'fr': 'Titre de l\'enquête' }
-    }
+    };
     setProjectConfiguration<EvolutionProjectConfiguration>(configToSet);
     expect(projectConfig).toEqual(expect.objectContaining(configToSet));
 });

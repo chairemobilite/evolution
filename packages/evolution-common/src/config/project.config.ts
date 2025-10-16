@@ -8,6 +8,7 @@ import projectConfig, {
     ProjectConfiguration,
     setProjectConfiguration
 } from 'chaire-lib-common/lib/config/shared/project.config';
+import { ISODateTimeStringWithTimezoneOffset } from '../utils/DateTimeUtils';
 
 /**
  * Specific configuration for the Evolution project
@@ -25,6 +26,24 @@ export type EvolutionProjectConfiguration = {
     /** Used for Google Maps localization. See
      * https://developers.google.com/maps/coverage for possible region codes */
     region: string;
+    /**
+     * Start date time for the survey in ISO date time string format with timezone offset
+     * (YYYY-MM-DDTHH:MM:SS-/+HH:MM). Example: 2025-01-01T00:00:00-05:00.
+     * Interviews started before this date and time should be invalidated and/or ignored.
+     * If both startDateTimeWithTimezoneOffset and endDateTimeWithTimezoneOffset are defined,
+     * endDateTimeWithTimezoneOffset must be after startDateTimeWithTimezoneOffset.
+     * Provide the timezone offset so we can calculate the correct unix epoch.
+     * */
+    startDateTimeWithTimezoneOffset?: ISODateTimeStringWithTimezoneOffset;
+    /**
+     * End date time for the survey in ISO date time string format with timezone offset
+     * (YYYY-MM-DDTHH:MM:SS-/+HH:MM). Example: 2025-01-01T00:00:00-05:00.
+     * Interviews started after this date and time should be invalidated and/or ignored.
+     * If both startDateTimeWithTimezoneOffset and endDateTimeWithTimezoneOffset are defined,
+     * endDateTimeWithTimezoneOffset must be after startDateTimeWithTimezoneOffset.
+     * Provide the timezone offset so we can calculate the correct unix epoch.
+     * */
+    endDateTimeWithTimezoneOffset?: ISODateTimeStringWithTimezoneOffset;
     /** Whether to log database updates. FIXME This should be server-side only
      * */
     logDatabaseUpdates: boolean;
@@ -89,7 +108,7 @@ export type EvolutionProjectConfiguration = {
      * /en, /fr, etc. or with lng=fr in the query string will be used to set the
      * language. Defaults to `true`
      */
-    detectLanguageFromUrl: true;
+    detectLanguageFromUrl: boolean;
     /**
      * If `detectLanguageFromUrl` is false, setting this will use `cookie`,
      * `localStorage` or the navigator to detect the language
@@ -97,7 +116,7 @@ export type EvolutionProjectConfiguration = {
      * FIXME Why? Why not just use the URL? This has been part of evolution
      * forever though, so there probably was a reason.
      */
-    detectLanguage: true;
+    detectLanguage: boolean;
     /**
      * The names of the languages, used in the language selector on the home page
      */
@@ -143,64 +162,67 @@ export type EvolutionProjectConfiguration = {
 };
 
 // Make sure default values are set
-setProjectConfiguration<EvolutionProjectConfiguration>(
-    Object.assign(
-        {
-            region: 'CA',
-            logDatabaseUpdates: false,
-            selfResponseMinimumAge: 14,
-            interviewableAge: 5,
-            adultAge: 18,
-            drivingLicenseAge: 16,
-            surveySupportForm: false,
-            mapDefaultCenter: {
-                lat: 45.5,
-                lon: -73.6
-            },
-            hideStartButtonOnHomePage: false,
-            introductionTwoParagraph: false,
-            introBanner: false,
-            bannerPaths: {},
-            introLogoAfterStartButton: false,
-            logoPaths: {},
-            detectLanguageFromUrl: true,
-            detectLanguage: false,
-            languageNames: { en: 'English', fr: 'Français' },
-            title: { en: 'Survey', fr: 'Enquête' },
-            postalCodeRegion: 'other',
-            personColorsPalette: [
-                // FIXME See this issue https://github.com/chairemobilite/evolution/issues/1246
-                '#FFAE70',
-                '#FFBCF2',
-                '#F2ED6A',
-                '#90E04A',
-                '#61CAD8',
-                '#9F70FF',
-                '#FF6868',
-                '#63A021',
-                '#21A09E',
-                '#4146B5',
-                '#9F41B5',
-                '#B5417B',
-                '#B5B5B5',
-                '#B59900',
-                '#9E5135',
-                '#FFAE70',
-                '#FFBCF2',
-                '#F2ED6A',
-                '#90E04A',
-                '#61CAD8',
-                '#9F70FF',
-                '#FF6868',
-                '#63A021',
-                '#21A09E',
-                '#4146B5',
-                '#9F41B5',
-                '#B5417B'
-            ]
-        },
-        projectConfig
-    )
-);
+const defaultConfig = {
+    region: 'CA',
+    logDatabaseUpdates: false,
+    selfResponseMinimumAge: 14,
+    interviewableAge: 5,
+    adultAge: 18,
+    drivingLicenseAge: 16,
+    surveySupportForm: false,
+    mapDefaultCenter: {
+        lat: 45.5,
+        lon: -73.6
+    },
+    countryCode: 'CA',
+    startDateTimeWithTimezoneOffset: undefined,
+    endDateTimeWithTimezoneOffset: undefined,
+    hideStartButtonOnHomePage: false,
+    introductionTwoParagraph: false,
+    introBanner: false,
+    bannerPaths: {},
+    introLogoAfterStartButton: false,
+    logoPaths: {},
+    detectLanguageFromUrl: true,
+    detectLanguage: false,
+    languageNames: { en: 'English', fr: 'Français' },
+    title: { en: 'Survey', fr: 'Enquête' },
+    postalCodeRegion: 'other',
+    personColorsPalette: [
+        // FIXME See this issue https://github.com/chairemobilite/evolution/issues/1246
+        '#FFAE70',
+        '#FFBCF2',
+        '#F2ED6A',
+        '#90E04A',
+        '#61CAD8',
+        '#9F70FF',
+        '#FF6868',
+        '#63A021',
+        '#21A09E',
+        '#4146B5',
+        '#9F41B5',
+        '#B5417B',
+        '#B5B5B5',
+        '#B59900',
+        '#9E5135',
+        '#FFAE70',
+        '#FFBCF2',
+        '#F2ED6A',
+        '#90E04A',
+        '#61CAD8',
+        '#9F70FF',
+        '#FF6868',
+        '#63A021',
+        '#21A09E',
+        '#4146B5',
+        '#9F41B5',
+        '#B5417B'
+    ]
+};
+
+// Validate and set the configuration
+const mergedConfig = Object.assign({}, defaultConfig, projectConfig);
+
+setProjectConfiguration<EvolutionProjectConfiguration>(mergedConfig);
 
 export default projectConfig as ProjectConfiguration<EvolutionProjectConfiguration>;
