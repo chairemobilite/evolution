@@ -45,9 +45,10 @@ export function completeEndPage(context) {
     testHelpers.inputRadioTest({ context, path: 'household.didAlsoRespondByPhone', value: false });
     testHelpers.inputRadioTest({ context, path: 'household.wouldLikeToParticipateInOtherSurveys', value: false });
     testHelpers.inputSelectTest({ context, path: 'household.income', value: '060000_089999' });
+    testHelpers.inputRangeTest({ context, path: "end.difficultyOfTheSurvey", value: 33, sliderColor: "green-yellow-red" });
     testHelpers.inputNextButtonTest({ context, text: 'Complete interview', nextPageUrl: '/survey/completed' });
 };
 
 export function completeCompletedPage(context) {
     testHelpers.sectionProgressBarTest({context, sectionName: 'Interview completed', completionPercentage: 100 });
-}
+};
