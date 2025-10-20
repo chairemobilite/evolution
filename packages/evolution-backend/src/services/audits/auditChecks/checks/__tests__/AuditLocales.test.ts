@@ -56,7 +56,6 @@ describe('Audit Locales', () => {
 
         it('should have all audit error codes defined in audit check modules', () => {
             expect(allErrorCodes.length).toBeGreaterThan(0);
-            console.log(`Found ${allErrorCodes.length} audit error codes:`, allErrorCodes);
         });
 
         describe.each(languages)('Language: %s', (language) => {
@@ -73,7 +72,7 @@ describe('Audit Locales', () => {
 
     describe('Orphaned audit translations', () => {
         // Get all translation keys from the audit translation files
-        const getTranslationKeysFromFile = (language: string): string[] => {
+        let getTranslationKeysFromFile: (language: string) => string[] = (language) => {
             const translationFilePath = path.join(__dirname, '../../../../../../../../locales/', language, 'audits.json');
             if (!fs.existsSync(translationFilePath)) {
                 throw new Error(`Translation file not found: ${translationFilePath}`);
@@ -106,6 +105,40 @@ describe('Audit Locales', () => {
                     const orphanedKeys = keysWithPrefix.filter((key) => !auditCheckCodes.includes(key));
                     expect(orphanedKeys).toEqual([]);
                 });
+            });
+        });
+
+        describe('Empty audit checks', () => {
+            it('should handle no audit error codes and no translations without failing', () => {
+                // Mock empty audit modules
+                const originalModules = { ...auditCheckModules };
+                Object.keys(auditCheckModules).forEach((prefix) => {
+                    auditCheckModules[prefix] = {};
+                });
+
+                // Mock getTranslationKeysFromFile to return empty array (no translations)
+                const originalGetKeys = getTranslationKeysFromFile;
+                getTranslationKeysFromFile = jest.fn(() => []) as (language: string) => string[];
+
+                try {
+                    // Simulate running orphaned checks - should pass with no orphans
+                    expect(() => {
+                        languages.forEach((language) => {
+                            Object.entries(auditCheckModules).forEach(([prefix, auditChecks]) => {
+                                const translationKeys = getTranslationKeysFromFile(language);
+                                const keysWithPrefix = translationKeys.filter((key) => key.startsWith(prefix));
+                                const auditCheckCodes = Object.keys(auditChecks);
+                                const orphanedKeys = keysWithPrefix.filter((key) => !auditCheckCodes.includes(key));
+                                expect(orphanedKeys).toEqual([]);
+                            });
+                        });
+                    }).not.toThrow();
+                } finally {
+                    // Restore originals
+                    Object.assign(auditCheckModules, originalModules);
+                    getTranslationKeysFromFile = originalGetKeys;
+                }
+
             });
         });
     });

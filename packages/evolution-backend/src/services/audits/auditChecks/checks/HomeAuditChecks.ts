@@ -7,8 +7,8 @@
 
 import { isFeature, isPoint } from 'geojson-validation';
 
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { HomeAuditCheckContext, HomeAuditCheckFunction } from '../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import type { HomeAuditCheckContext, HomeAuditCheckFunction } from '../AuditCheckContexts';
 
 export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = {
     /**

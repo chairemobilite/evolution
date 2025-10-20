@@ -101,13 +101,11 @@ export type SegmentAuditCheckContext = {
 /**
  * Generic audit check function signatures
  */
-export type InterviewAuditCheckFunction = (context: InterviewAuditCheckContext) => Partial<AuditForObject> | undefined;
-export type HouseholdAuditCheckFunction = (context: HouseholdAuditCheckContext) => Partial<AuditForObject> | undefined;
-export type HomeAuditCheckFunction = (context: HomeAuditCheckContext) => Partial<AuditForObject> | undefined;
-export type PersonAuditCheckFunction = (context: PersonAuditCheckContext) => Partial<AuditForObject> | undefined;
-export type JourneyAuditCheckFunction = (context: JourneyAuditCheckContext) => Partial<AuditForObject> | undefined;
-export type VisitedPlaceAuditCheckFunction = (
-    context: VisitedPlaceAuditCheckContext
-) => Partial<AuditForObject> | undefined;
-export type TripAuditCheckFunction = (context: TripAuditCheckContext) => Partial<AuditForObject> | undefined;
-export type SegmentAuditCheckFunction = (context: SegmentAuditCheckContext) => Partial<AuditForObject> | undefined;
+export type InterviewAuditCheckFunction = (context: InterviewAuditCheckContext) => AuditForObject | undefined;
+export type HouseholdAuditCheckFunction = (context: HouseholdAuditCheckContext) => AuditForObject | undefined;
+export type HomeAuditCheckFunction = (context: HomeAuditCheckContext) => AuditForObject | undefined;
+export type PersonAuditCheckFunction = (context: PersonAuditCheckContext) => AuditForObject | undefined;
+export type JourneyAuditCheckFunction = (context: JourneyAuditCheckContext) => AuditForObject | undefined;
+export type VisitedPlaceAuditCheckFunction = (context: VisitedPlaceAuditCheckContext) => AuditForObject | undefined;
+export type TripAuditCheckFunction = (context: TripAuditCheckContext) => AuditForObject | undefined;
+export type SegmentAuditCheckFunction = (context: SegmentAuditCheckContext) => AuditForObject | undefined;

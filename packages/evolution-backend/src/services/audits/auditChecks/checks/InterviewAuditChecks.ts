@@ -5,12 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { InterviewAuditCheckContext, InterviewAuditCheckFunction } from '../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import type { InterviewAuditCheckContext, InterviewAuditCheckFunction } from '../AuditCheckContexts';
 
 export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFunction } = {
     /**
      * Check if interview languages are missing
+     * @param context - InterviewAuditCheckContext
+     * @returns {AuditForObject | undefined} The audit result, or undefined if no issues found
      */
     I_M_Languages: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
         const { interview } = context;

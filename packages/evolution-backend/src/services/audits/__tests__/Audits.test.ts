@@ -7,15 +7,35 @@
 import _omit from 'lodash/omit';
 import auditsDbQueries from '../../../models/audits.db.queries';
 import { SurveyObjectsAndAuditsFactory } from '../SurveyObjectsAndAuditsFactory';
-import { setProjectConfig } from '../../../config/projectConfig';
+import { AuditService } from '../AuditService';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import type { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
+import type { Household } from 'evolution-common/lib/services/baseObjects/Household';
+import type { Home } from 'evolution-common/lib/services/baseObjects/Home';
 
 jest.mock('../../../models/audits.db.queries', () => ({
     setAuditsForInterview: jest.fn(),
     updateAudit: jest.fn()
 }));
+jest.mock('../AuditService', () => ({
+    AuditService: {
+        auditInterview: jest.fn()
+    }
+}));
+
 const mockSetAudits = auditsDbQueries.setAuditsForInterview as jest.MockedFunction<typeof auditsDbQueries.setAuditsForInterview>;
 mockSetAudits.mockImplementation(async (_interviewId, audits) => audits);
 const mockUpdateAudit = auditsDbQueries.updateAudit as jest.MockedFunction<typeof auditsDbQueries.updateAudit>;
+const mockAuditInterview = jest.mocked(AuditService.auditInterview);
+
+// helper (place near top of file)
+const makeServiceResult = (audits: AuditForObject[]) => ({
+    interview: {} as Interview,
+    household: {} as Household,
+    home: {} as Home,
+    audits,
+    auditsByObject: { interview: [], household: [], home: [], persons: {}, journeys: {}, visitedPlaces: {}, trips: {}, segments: {} }
+});
 
 const interviewId = 3;
 
@@ -74,113 +94,108 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
         uuid: '123e4567-e89b-12d3-a456-426614174000',
         participant_id: 1,
         is_valid: true,
-        response: {
-            fieldA: 'a',
-            fieldB: 'b',
-            home: {
-                _uuid: 'home-uuid-123',
-                address: '123 Test Street',
-                city: 'Test City'
-            },
-            household: {
-                _uuid: 'household-uuid-123',
-                size: 2,
-                persons: {
-                    'person-uuid-123': {
-                        _uuid: 'person-uuid-123',
-                        age: 30,
-                        _sequence: 1
-                    }
-                }
-            }
-        } as any,
+        response: {},
         validations: {},
         is_completed: false,
-        corrected_response: {
-            fieldA: 'modifiedA',
-            fieldB: 'modifiedB',
-            home: {
-                _uuid: 'home-uuid-123',
-                address: '456 Modified Street',
-                city: 'Modified City'
-            },
-            household: {
-                _uuid: 'household-uuid-123',
-                size: 3,
-                persons: {
-                    'person-uuid-123': {
-                        _uuid: 'person-uuid-123',
-                        age: 35,
-                        _sequence: 1
-                    }
-                }
-            }
-        } as any
+        corrected_response: {}
     };
 
-    const mockInterviewAudits = jest.fn();
+    // Mock audits returned by AuditService
+    const mockAuditsFromService: AuditForObject[] = [
+        {
+            objectType: 'interview',
+            objectUuid: 'interview-uuid-123',
+            errorCode: 'TEST_ERROR_1',
+            version: 1,
+            level: 'error',
+            message: 'Test error 1',
+            ignore: false
+        },
+        {
+            objectType: 'household',
+            objectUuid: 'household-uuid-123',
+            errorCode: 'TEST_ERROR_2',
+            version: 1,
+            level: 'warning',
+            message: 'Test warning 2',
+            ignore: false
+        }
+    ];
 
     beforeEach(() => {
         mockSetAudits.mockClear();
-        mockInterviewAudits.mockClear();
-        setProjectConfig({ auditInterview: mockInterviewAudits });
-    });
-
-    test('audit function not set in config - uses default implementation', async () => {
-        // Unset the interview audit function
-        setProjectConfig({ auditInterview: undefined });
-
-        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interviewAttributes);
-        // Should use default audit implementation, so we expect some audits
-        expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
-        expect(mockInterviewAudits).not.toHaveBeenCalled();
+        mockAuditInterview.mockClear();
+        // Mock AuditService to return dummy audits
+        mockAuditInterview.mockResolvedValue(makeServiceResult(mockAuditsFromService));
     });
 
     test('corrected_response not set in interview', async () => {
         await expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(_omit(interviewAttributes, 'corrected_response')))
             .rejects.toThrow('Corrected response is required to create survey objects and audits');
-        expect(mockInterviewAudits).not.toHaveBeenCalled();
+        expect(mockAuditInterview).not.toHaveBeenCalled();
     });
 
-    test('Function returns audits from audit service', async () => {
-        // The new system uses AuditService which produces real audits
+    test('Function calls AuditService and returns audits', async () => {
         const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interviewAttributes);
 
-        // Should have some audits from the audit system
-        expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
+        // Should call AuditService
+        expect(mockAuditInterview).toHaveBeenCalledTimes(1);
+        expect(mockAuditInterview).toHaveBeenCalledWith(interviewAttributes);
 
-        // Should have audits for objects with validation errors (home, household, etc.)
-        // The system only generates audits when there are actual validation errors
-        expect(objectsAndAudits.audits.length).toBe(3);
-
-        // The old mock interview audit function should not be called anymore
-        expect(mockInterviewAudits).not.toHaveBeenCalled();
+        // Should return the audits from AuditService
+        expect(objectsAndAudits.audits).toEqual(mockAuditsFromService);
 
         // Database should be called to save the audits
         expect(mockSetAudits).toHaveBeenCalledTimes(1);
-        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, objectsAndAudits.audits);
+        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, mockAuditsFromService);
     });
 
     test('Function saves audits to database and returns updated audits', async () => {
         // Mock the database to add ignore status to all audits when saving
-        mockSetAudits.mockImplementationOnce(async (_interviewId, audits) =>
-            audits.map((audit) => ({ ...audit, ignore: true }))
-        );
+        const updatedAudits = mockAuditsFromService.map((audit) => ({ ...audit, ignore: true }));
+        mockSetAudits.mockResolvedValueOnce(updatedAudits);
 
         const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interviewAttributes);
 
-        // Should have some audits from the audit system
-        expect(objectsAndAudits.audits.length).toBeGreaterThan(0);
+        // Should call AuditService
+        expect(mockAuditInterview).toHaveBeenCalledTimes(1);
 
         // All audits should have the ignore flag set by the database mock
         expect(objectsAndAudits.audits.every((audit) => audit.ignore === true)).toBe(true);
 
-        // The old mock interview audit function should not be called anymore
-        expect(mockInterviewAudits).not.toHaveBeenCalled();
+        // auditsByObject should reflect the updated audits
+        expect(objectsAndAudits.auditsByObject?.interview ?? []).toEqual(
+            expect.arrayContaining([expect.objectContaining({ objectType: 'interview', ignore: true })])
+        );
+        expect(objectsAndAudits.auditsByObject?.household ?? []).toEqual(
+            expect.arrayContaining([expect.objectContaining({ objectType: 'household', ignore: true })])
+        );
 
         // Database should be called to save the audits
         expect(mockSetAudits).toHaveBeenCalledTimes(1);
-        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, expect.any(Array));
+        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, mockAuditsFromService);
+    });
+
+    test('Function handles empty audits array', async () => {
+        // Mock AuditService to return no audits
+        mockAuditInterview.mockResolvedValueOnce(makeServiceResult([]));
+
+        const objectsAndAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interviewAttributes);
+
+        // Should call AuditService
+        expect(mockAuditInterview).toHaveBeenCalledTimes(1);
+
+        // Should have no audits
+        expect(objectsAndAudits.audits).toEqual([]);
+
+        // auditsByObject should be properly initialized even with no audits
+        expect(objectsAndAudits.auditsByObject).toBeDefined();
+        expect(objectsAndAudits.auditsByObject?.interview).toEqual([]);
+        expect(objectsAndAudits.auditsByObject?.household).toEqual([]);
+
+        // Database should still be called even with empty array
+        expect(mockSetAudits).toHaveBeenCalledTimes(1);
+        expect(mockSetAudits).toHaveBeenCalledWith(interviewId, []);
     });
 });
 

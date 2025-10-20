@@ -5,8 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import type { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
 
 export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFunction } = {
     /**

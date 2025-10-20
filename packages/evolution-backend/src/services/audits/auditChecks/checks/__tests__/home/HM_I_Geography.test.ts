@@ -1,0 +1,81 @@
+/*
+ * Copyright 2025, Polytechnique Montreal and contributors
+ *
+ * This file is licensed under the MIT License.
+ * License text available at https://opensource.org/licenses/MIT
+ */
+
+import { v4 as uuidV4 } from 'uuid';
+import { homeAuditChecks } from '../../HomeAuditChecks';
+import { createContextWithHome } from './testHelper';
+
+describe('HM_I_Geography audit check', () => {
+    const validUuid = uuidV4();
+
+    it('should pass when home has valid geography', () => {
+        const context = createContextWithHome(undefined);
+
+        const result = homeAuditChecks.HM_I_Geography(context);
+
+        expect(result).toBeUndefined();
+    });
+
+    it('should error when geography has invalid coordinates', () => {
+        const context = createContextWithHome({
+            geography: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-73.5] // Missing latitude
+                }
+            }
+        }, validUuid);
+
+        const result = homeAuditChecks.HM_I_Geography(context);
+
+        expect(result).toMatchObject({
+            objectType: 'home',
+            objectUuid: validUuid,
+            errorCode: 'HM_I_Geography',
+            version: 1,
+            level: 'error',
+            message: 'Home geography is invalid',
+            ignore: false
+        });
+    });
+
+    it('should error when geography has no coordinates', () => {
+        const context = createContextWithHome({
+            geography: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'Point',
+                    coordinates: [] as number[]
+                }
+            }
+        }, validUuid);
+
+        const result = homeAuditChecks.HM_I_Geography(context);
+
+        expect(result).toMatchObject({
+            objectType: 'home',
+            objectUuid: validUuid,
+            errorCode: 'HM_I_Geography',
+            version: 1,
+            level: 'error',
+            message: 'Home geography is invalid',
+            ignore: false
+        });
+    });
+
+    it('should pass when geography is missing (handled by HM_M_Geography)', () => {
+        const context = createContextWithHome({ geography: undefined });
+
+        const result = homeAuditChecks.HM_I_Geography(context);
+
+        expect(result).toBeUndefined();
+    });
+});
+

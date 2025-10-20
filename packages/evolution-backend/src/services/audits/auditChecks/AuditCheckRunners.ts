@@ -20,13 +20,7 @@ export const runInterviewAuditChecks = (
     for (const errorCode in auditChecks) {
         const auditResult = auditChecks[errorCode](context);
         if (auditResult && context.interview._uuid) {
-            audits.push({
-                objectType: 'interview',
-                objectUuid: context.interview._uuid,
-                errorCode,
-                ...auditResult,
-                version: auditResult.version || 1
-            });
+            audits.push(auditResult);
         }
     }
 
@@ -45,13 +39,7 @@ export const runHouseholdAuditChecks = (
     for (const errorCode in auditChecks) {
         const auditResult = auditChecks[errorCode](context);
         if (auditResult && context.household._uuid) {
-            audits.push({
-                objectType: 'household',
-                objectUuid: context.household._uuid,
-                errorCode,
-                ...auditResult,
-                version: auditResult.version || 1
-            });
+            audits.push(auditResult);
         }
     }
 
@@ -70,13 +58,7 @@ export const runHomeAuditChecks = (
     for (const errorCode in auditChecks) {
         const auditResult = auditChecks[errorCode](context);
         if (auditResult && context.home._uuid) {
-            audits.push({
-                objectType: 'home',
-                objectUuid: context.home._uuid,
-                errorCode,
-                ...auditResult,
-                version: auditResult.version || 1
-            });
+            audits.push(auditResult);
         }
     }
 
@@ -95,13 +77,7 @@ export const runPersonAuditChecks = (
     for (const errorCode in auditChecks) {
         const auditResult = auditChecks[errorCode](context);
         if (auditResult && context.person._uuid) {
-            audits.push({
-                objectType: 'person',
-                objectUuid: context.person._uuid,
-                errorCode,
-                ...auditResult,
-                version: auditResult.version || 1
-            });
+            audits.push(auditResult);
         }
     }
 
@@ -120,13 +96,7 @@ export const runJourneyAuditChecks = (
     for (const errorCode in auditChecks) {
         const auditResult = auditChecks[errorCode](context);
         if (auditResult && context.journey._uuid) {
-            audits.push({
-                objectType: 'journey',
-                objectUuid: context.journey._uuid,
-                errorCode,
-                ...auditResult,
-                version: auditResult.version || 1
-            });
+            audits.push(auditResult);
         }
     }
 
@@ -145,13 +115,7 @@ export const runVisitedPlaceAuditChecks = (
     for (const errorCode in auditChecks) {
         const auditResult = auditChecks[errorCode](context);
         if (auditResult && context.visitedPlace._uuid) {
-            audits.push({
-                objectType: 'visitedPlace',
-                objectUuid: context.visitedPlace._uuid,
-                errorCode,
-                ...auditResult,
-                version: auditResult.version || 1
-            });
+            audits.push(auditResult);
         }
     }
 
@@ -170,13 +134,7 @@ export const runTripAuditChecks = (
     for (const errorCode in auditChecks) {
         const auditResult = auditChecks[errorCode](context);
         if (auditResult && context.trip._uuid) {
-            audits.push({
-                objectType: 'trip',
-                objectUuid: context.trip._uuid,
-                errorCode,
-                ...auditResult,
-                version: auditResult.version || 1
-            });
+            audits.push(auditResult);
         }
     }
 
@@ -195,13 +153,7 @@ export const runSegmentAuditChecks = (
     for (const errorCode in auditChecks) {
         const auditResult = auditChecks[errorCode](context);
         if (auditResult && context.segment._uuid) {
-            audits.push({
-                objectType: 'segment',
-                objectUuid: context.segment._uuid,
-                errorCode,
-                ...auditResult,
-                version: auditResult.version || 1
-            });
+            audits.push(auditResult);
         }
     }
 

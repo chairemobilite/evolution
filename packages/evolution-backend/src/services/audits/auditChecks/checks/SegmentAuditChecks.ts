@@ -5,8 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { SegmentAuditCheckContext, SegmentAuditCheckFunction } from '../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import type { SegmentAuditCheckContext, SegmentAuditCheckFunction } from '../AuditCheckContexts';
 
 export const segmentAuditChecks: { [errorCode: string]: SegmentAuditCheckFunction } = {
     /**

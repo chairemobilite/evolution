@@ -6,186 +6,71 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
-import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
-import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
-import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
-import { Person } from 'evolution-common/lib/services/baseObjects/Person';
-import { Household } from 'evolution-common/lib/services/baseObjects/Household';
-import { Home } from 'evolution-common/lib/services/baseObjects/Home';
-import { ExtendedJourneyAttributes } from 'evolution-common/lib/services/baseObjects/Journey';
-import { ExtendedInterviewAttributesWithComposedObjects, Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
-import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
-import { ExtendedHouseholdAttributes } from 'evolution-common/lib/services/baseObjects/Household';
-import { tripAuditChecks } from '../TripAuditChecks';
 import { runTripAuditChecks } from '../../AuditCheckRunners';
-import { TripAuditCheckContext } from '../../AuditCheckContexts';
-import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
-import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import type { TripAuditCheckFunction } from '../../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { createContextWithTrip } from './trip/testHelper';
 
-describe('TripAuditChecks', () => {
-    let surveyObjectsRegistry: SurveyObjectsRegistry;
-
-    beforeEach(() => {
-        surveyObjectsRegistry = new SurveyObjectsRegistry();
-    });
-
-    afterEach(() => {
-        surveyObjectsRegistry.clear();
-    });
-
+describe('runTripAuditChecks - Integration', () => {
     const validUuid = uuidV4();
-    const journeyUuid = uuidV4();
-    const personUuid = uuidV4();
-    const householdUuid = uuidV4();
-    const homeUuid = uuidV4();
-    const interviewUuid = uuidV4();
 
-    const createMockTrip = (overrides: Partial<Trip> = {}) => {
-        return {
-            _uuid: validUuid,
-            startDate: '2023-10-15',
-            ...overrides
-        } as Trip;
-    };
 
-    const createMockSegment = (overrides: Partial<Segment> = {}) => {
-        return {
-            _uuid: uuidV4(),
-            mode: 'walk',
-            ...overrides
-        } as Segment;
-    };
+    it('should run all audit checks and return empty array when all checks pass', () => {
+        const context = createContextWithTrip();
 
-    const createMockJourney = (overrides: Partial<Journey> = {}) => {
-        return new Journey({
-            _uuid: journeyUuid,
-            ...overrides
-        } as ExtendedJourneyAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockPerson = (overrides: Partial<Person> = {}) => {
-        return new Person({
-            _uuid: personUuid,
-            age: 30,
-            ...overrides
-        } as ExtendedPersonAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockHousehold = (overrides: Partial<Household> = {}) => {
-        return new Household({
-            _uuid: householdUuid,
-            size: 2,
-            ...overrides
-        } as ExtendedHouseholdAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockHome = (overrides: Partial<Home> = {}) => {
-        return new Home({
-            _uuid: homeUuid,
-            ...overrides
-        } as ExtendedPlaceAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockInterview = (overrides: Partial<Interview> = {}) => {
-        return new Interview({
-            _uuid: interviewUuid,
-            ...overrides
-        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any, surveyObjectsRegistry);
-    };
-
-    const createFullContext = (overrides: Partial<TripAuditCheckContext> = {}): TripAuditCheckContext => {
-        return {
-            trip: createMockTrip(),
-            journey: createMockJourney(),
-            person: createMockPerson(),
-            household: createMockHousehold(),
-            home: createMockHome(),
-            interview: createMockInterview(),
-            ...overrides
+        // Mock audit checks that all pass (return undefined)
+        const mockAuditChecks: { [errorCode: string]: TripAuditCheckFunction } = {
+            TEST_CHECK_1: () => undefined,
+            TEST_CHECK_2: () => undefined,
+            TEST_CHECK_3: () => undefined
         };
-    };
 
-    describe('T_M_Segments audit check', () => {
-        it('should pass when trip has segments', () => {
-            const context = createFullContext({
-                trip: createMockTrip({ segments: [createMockSegment({ mode: 'walk' })] })
-            });
+        const audits = runTripAuditChecks(context, mockAuditChecks);
 
-            const result = tripAuditChecks.T_M_Segments(context);
-
-            expect(result).toBeUndefined();
-        });
-
-        it('should error when trip segments are missing', () => {
-            const context = createFullContext({
-                trip: createMockTrip({ segments: undefined })
-            });
-
-            const result = tripAuditChecks.T_M_Segments(context);
-
-            expect(result).toEqual({
-                objectType: 'trip',
-                objectUuid: validUuid,
-                errorCode: 'T_M_Segments',
-                version: 1,
-                level: 'error',
-                message: 'Trip segments are missing',
-                ignore: false
-            });
-        });
-
-        it('should error when trip has empty segments array', () => {
-            const context = createFullContext({
-                trip: createMockTrip({ segments: [] })
-            });
-
-            const result = tripAuditChecks.T_M_Segments(context);
-
-            expect(result).toEqual({
-                objectType: 'trip',
-                objectUuid: validUuid,
-                errorCode: 'T_M_Segments',
-                version: 1,
-                level: 'error',
-                message: 'Trip segments are missing',
-                ignore: false
-            });
-        });
+        expect(audits).toHaveLength(0);
     });
 
-    describe('runTripAuditChecks function', () => {
-        it('should run all trip audits and format results', () => {
-            const context = createFullContext({
-                trip: createMockTrip({ segments: [createMockSegment({ mode: 'walk' })] })
-            });
+    it('should aggregate results from multiple failing checks', () => {
+        const context = createContextWithTrip(undefined, validUuid);
 
-            const audits = runTripAuditChecks(context, tripAuditChecks);
-
-            // Should return empty array since all audits pass
-            expect(audits).toHaveLength(0);
-        });
-
-        it('should include failed audits in results', () => {
-            // Test with missing segments
-            const context = createFullContext({
-                trip: createMockTrip({ segments: undefined })
-            });
-
-            const audits = runTripAuditChecks(context, tripAuditChecks);
-
-            expect(audits).toHaveLength(1); // Only segments audit should fail
-
-            // Check segments audit
-            const segmentsAudit = audits.find((audit) => audit.errorCode === 'T_M_Segments');
-            expect(segmentsAudit).toEqual({
+        // Mock audit checks where some fail (return audit objects)
+        const mockAuditChecks: { [errorCode: string]: TripAuditCheckFunction } = {
+            TEST_PASS: () => undefined,
+            TEST_FAIL_1: (): AuditForObject => ({
                 objectType: 'trip',
                 objectUuid: validUuid,
-                errorCode: 'T_M_Segments',
+                errorCode: 'TEST_FAIL_1',
                 version: 1,
                 level: 'error',
-                message: 'Trip segments are missing',
+                message: 'Test failure 1',
                 ignore: false
-            });
-        });
+            }),
+            TEST_FAIL_2: (): AuditForObject => ({
+                objectType: 'trip',
+                objectUuid: validUuid,
+                errorCode: 'TEST_FAIL_2',
+                version: 1,
+                level: 'warning',
+                message: 'Test failure 2',
+                ignore: false
+            })
+        };
+
+        const audits = runTripAuditChecks(context, mockAuditChecks);
+
+        expect(audits).toHaveLength(2);
+        expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'TEST_FAIL_2')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'TEST_PASS')).toBe(false);
+    });
+
+    it('should handle empty audit checks object', () => {
+        const context = createContextWithTrip();
+
+        const mockAuditChecks: { [errorCode: string]: TripAuditCheckFunction } = {};
+
+        const audits = runTripAuditChecks(context, mockAuditChecks);
+
+        expect(audits).toHaveLength(0);
     });
 });
