@@ -8,7 +8,7 @@ import { v4 as uuidV4 } from 'uuid';
 import slugify from 'slugify';
 
 import { mergeWithExisting, convertParamsErrorsToAudits } from '../AuditUtils';
-import { Audits } from 'evolution-common/lib/services/audits/types';
+import type { Audits } from 'evolution-common/lib/services/audits/types';
 
 const arbitraryUuid = uuidV4();
 

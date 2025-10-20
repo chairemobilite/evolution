@@ -6,106 +6,70 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
-import { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
-import { interviewAuditChecks } from '../InterviewAuditChecks';
 import { runInterviewAuditChecks } from '../../AuditCheckRunners';
-import { InterviewAuditCheckContext } from '../../AuditCheckContexts';
-import { InterviewParadata } from 'evolution-common/lib/services/baseObjects/interview/InterviewParadata';
+import type { InterviewAuditCheckFunction } from '../../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { createContextWithInterview } from './interview/testHelper';
 
-describe('InterviewAuditChecks', () => {
+describe('runInterviewAuditChecks - Integration', () => {
     const validUuid = uuidV4();
-    const validId = 123;
 
-    const createMockInterview = (overrides: Partial<Interview> = {}) => {
-        return {
-            _uuid: validUuid,
-            get uuid() { return validUuid; },
-            id: validId,
-            ...overrides
-        } as Interview;
-    };
+    it('should run all audit checks and return empty array when all checks pass', () => {
+        const context = createContextWithInterview();
 
-    describe('I_M_Languages audit check', () => {
-        it('should pass when interview has languages', () => {
-            const interview = createMockInterview();
-            interview.paradata = new InterviewParadata({ languages: [{ language: 'en' }, { language: 'fr' }] });
-            const context: InterviewAuditCheckContext = { interview };
+        // Mock audit checks that all pass (return undefined)
+        const mockAuditChecks: { [errorCode: string]: InterviewAuditCheckFunction } = {
+            TEST_CHECK_1: () => undefined,
+            TEST_CHECK_2: () => undefined,
+            TEST_CHECK_3: () => undefined
+        };
 
-            const result = interviewAuditChecks.I_M_Languages(context);
+        const audits = runInterviewAuditChecks(context, mockAuditChecks);
 
-            expect(result).toBeUndefined();
-        });
-
-        it('should fail when interview missing languages', () => {
-            const interview = createMockInterview();
-            interview.paradata = new InterviewParadata({ languages: undefined });
-            const context: InterviewAuditCheckContext = { interview };
-
-            const result = interviewAuditChecks.I_M_Languages(context);
-
-            expect(result).toEqual({
-                objectType: 'interview',
-                objectUuid: validUuid,
-                errorCode: 'I_M_Languages',
-                version: 1,
-                level: 'error',
-                message: 'Interview languages are missing',
-                ignore: false
-            });
-        });
-
-        it('should fail when interview has empty languages array', () => {
-            const interview = createMockInterview();
-            interview.paradata = new InterviewParadata({ languages: [] });
-            const context: InterviewAuditCheckContext = { interview };
-
-            const result = interviewAuditChecks.I_M_Languages(context);
-
-            expect(result).toEqual({
-                objectType: 'interview',
-                objectUuid: validUuid,
-                errorCode: 'I_M_Languages',
-                version: 1,
-                level: 'error',
-                message: 'Interview languages are missing',
-                ignore: false
-            });
-        });
+        expect(audits).toHaveLength(0);
     });
 
-    describe('runInterviewAuditChecks function', () => {
-        it('should run all interview audits and format results with valid data', () => {
-            const interview = createMockInterview();
-            interview.paradata = new InterviewParadata({ languages: [{ language: 'en' }, { language: 'fr' }] });
-            const context: InterviewAuditCheckContext = { interview };
+    it('should aggregate results from multiple failing checks', () => {
+        const context = createContextWithInterview(undefined, validUuid);
 
-            const audits = runInterviewAuditChecks(context, interviewAuditChecks);
-
-            // All audits should pass with valid data, so no audits returned
-            expect(audits).toHaveLength(0);
-        });
-
-        it('should include failed audits when languages are missing', () => {
-            // Test with missing languages
-            const interview = createMockInterview();
-            interview.paradata = new InterviewParadata({ languages: undefined });
-            const context: InterviewAuditCheckContext = { interview };
-
-            const audits = runInterviewAuditChecks(context, interviewAuditChecks);
-
-            expect(audits).toHaveLength(1);
-
-            // Check that I_M_Languages audit appears
-            const languagesAudit = audits.find((audit) => audit.errorCode === 'I_M_Languages');
-            expect(languagesAudit).toEqual({
+        // Mock audit checks where some fail (return audit objects)
+        const mockAuditChecks: { [errorCode: string]: InterviewAuditCheckFunction } = {
+            TEST_PASS: () => undefined,
+            TEST_FAIL_1: (): AuditForObject => ({
                 objectType: 'interview',
                 objectUuid: validUuid,
-                errorCode: 'I_M_Languages',
+                errorCode: 'TEST_FAIL_1',
                 version: 1,
                 level: 'error',
-                message: 'Interview languages are missing',
+                message: 'Test failure 1',
                 ignore: false
-            });
-        });
+            }),
+            TEST_FAIL_2: (): AuditForObject => ({
+                objectType: 'interview',
+                objectUuid: validUuid,
+                errorCode: 'TEST_FAIL_2',
+                version: 1,
+                level: 'warning',
+                message: 'Test failure 2',
+                ignore: false
+            })
+        };
+
+        const audits = runInterviewAuditChecks(context, mockAuditChecks);
+
+        expect(audits).toHaveLength(2);
+        expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'TEST_FAIL_2')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'TEST_PASS')).toBe(false);
+    });
+
+    it('should handle empty audit checks object', () => {
+        const context = createContextWithInterview();
+
+        const mockAuditChecks: { [errorCode: string]: InterviewAuditCheckFunction } = {};
+
+        const audits = runInterviewAuditChecks(context, mockAuditChecks);
+
+        expect(audits).toHaveLength(0);
     });
 });

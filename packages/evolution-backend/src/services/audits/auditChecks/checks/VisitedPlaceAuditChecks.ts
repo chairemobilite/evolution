@@ -7,8 +7,8 @@
 
 import { isFeature, isPoint } from 'geojson-validation';
 
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { VisitedPlaceAuditCheckContext, VisitedPlaceAuditCheckFunction } from '../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import type { VisitedPlaceAuditCheckContext, VisitedPlaceAuditCheckFunction } from '../AuditCheckContexts';
 
 export const visitedPlaceAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
     /**

@@ -6,171 +6,70 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
-import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
-import { ExtendedTripAttributes, Trip } from 'evolution-common/lib/services/baseObjects/Trip';
-import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
-import { Person } from 'evolution-common/lib/services/baseObjects/Person';
-import { Household } from 'evolution-common/lib/services/baseObjects/Household';
-import { Home } from 'evolution-common/lib/services/baseObjects/Home';
-import { ExtendedJourneyAttributes } from 'evolution-common/lib/services/baseObjects/Journey';
-import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
-import { ExtendedInterviewAttributesWithComposedObjects, Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
-import { ExtendedHouseholdAttributes } from 'evolution-common/lib/services/baseObjects/Household';
-import { segmentAuditChecks } from '../SegmentAuditChecks';
 import { runSegmentAuditChecks } from '../../AuditCheckRunners';
-import { SegmentAuditCheckContext } from '../../AuditCheckContexts';
-import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
-import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import type { SegmentAuditCheckFunction } from '../../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { createContextWithSegment } from './segment/testHelper';
 
-describe('SegmentAuditChecks', () => {
-    let surveyObjectsRegistry: SurveyObjectsRegistry;
-
-    beforeEach(() => {
-        surveyObjectsRegistry = new SurveyObjectsRegistry();
-    });
-
-    afterEach(() => {
-        surveyObjectsRegistry.clear();
-    });
-
+describe('runSegmentAuditChecks - Integration', () => {
     const validUuid = uuidV4();
-    const tripUuid = uuidV4();
-    const journeyUuid = uuidV4();
-    const personUuid = uuidV4();
-    const householdUuid = uuidV4();
-    const homeUuid = uuidV4();
-    const interviewUuid = uuidV4();
 
-    const createMockSegment = (overrides: Partial<Segment> = {}) => {
-        return {
-            _uuid: validUuid,
-            mode: 'walk',
-            ...overrides
-        } as Segment;
-    };
+    it('should run all audit checks and return empty array when all checks pass', () => {
+        const context = createContextWithSegment();
 
-    const createMockTrip = (overrides: Partial<Trip> = {}) => {
-        return new Trip({
-            _uuid: tripUuid,
-            ...overrides
-        } as ExtendedTripAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockJourney = (overrides: Partial<Journey> = {}) => {
-        return new Journey({
-            _uuid: journeyUuid,
-            ...overrides
-        } as ExtendedJourneyAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockPerson = (overrides: Partial<Person> = {}) => {
-        return new Person({
-            _uuid: personUuid,
-            age: 30,
-            ...overrides
-        } as ExtendedPersonAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockHousehold = (overrides: Partial<Household> = {}) => {
-        return new Household({
-            _uuid: householdUuid,
-            size: 2,
-            ...overrides
-        } as ExtendedHouseholdAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockHome = (overrides: Partial<Home> = {}) => {
-        return new Home({
-            _uuid: homeUuid,
-            ...overrides
-        } as ExtendedPlaceAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockInterview = (overrides: Partial<Interview> = {}) => {
-        return new Interview({
-            _uuid: interviewUuid,
-            ...overrides
-        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any, surveyObjectsRegistry);
-    };
-
-    const createFullContext = (overrides: Partial<SegmentAuditCheckContext> = {}): SegmentAuditCheckContext => {
-        return {
-            segment: createMockSegment(),
-            trip: createMockTrip(),
-            journey: createMockJourney(),
-            person: createMockPerson(),
-            household: createMockHousehold(),
-            home: createMockHome(),
-            interview: createMockInterview(),
-            ...overrides
+        // Mock audit checks that all pass (return undefined)
+        const mockAuditChecks: { [errorCode: string]: SegmentAuditCheckFunction } = {
+            TEST_CHECK_1: () => undefined,
+            TEST_CHECK_2: () => undefined,
+            TEST_CHECK_3: () => undefined
         };
-    };
 
-    describe('S_M_Mode audit check', () => {
-        it('should pass when segment has mode', () => {
-            const context = createFullContext({
-                segment: createMockSegment({ mode: 'walk' })
-            });
+        const audits = runSegmentAuditChecks(context, mockAuditChecks);
 
-            const result = segmentAuditChecks.S_M_Mode(context);
-
-            expect(result).toBeUndefined();
-        });
-
-        it('should warn when segment mode is missing', () => {
-            const context = createFullContext({
-                segment: createMockSegment({ mode: undefined })
-            });
-
-            const result = segmentAuditChecks.S_M_Mode(context);
-
-            expect(result).toEqual({
-                objectType: 'segment',
-                objectUuid: validUuid,
-                errorCode: 'S_M_Mode',
-                version: 1,
-                level: 'error',
-                message: 'Segment mode is missing',
-                ignore: false
-            });
-        });
+        expect(audits).toHaveLength(0);
     });
 
-    describe('runSegmentAuditChecks function', () => {
-        it('should run all segment audits and format results', () => {
-            const context = createFullContext({
-                segment: createMockSegment({ mode: 'walk' })
-            });
+    it('should aggregate results from multiple failing checks', () => {
+        const context = createContextWithSegment(undefined, validUuid);
 
-            const audits = runSegmentAuditChecks(context, segmentAuditChecks);
-
-            // Should return empty array since all audits pass
-            expect(audits).toHaveLength(0);
-        });
-
-        it('should include failed audits in results', () => {
-            // Test with missing mode
-            const context = createFullContext({
-                segment: createMockSegment({
-                    mode: undefined
-                })
-            });
-
-            const audits = runSegmentAuditChecks(context, segmentAuditChecks);
-
-            expect(audits).toHaveLength(1); // Only mode audit should fail
-
-            // Check mode audit
-            const modeAudit = audits.find((audit) => audit.errorCode === 'S_M_Mode');
-            expect(modeAudit).toEqual({
-                objectType: 'segment',
+        // Mock audit checks where some fail (return audit objects)
+        const mockAuditChecks: { [errorCode: string]: SegmentAuditCheckFunction } = {
+            TEST_PASS: () => undefined,
+            TEST_FAIL_1: (): AuditForObject => ({
                 objectUuid: validUuid,
-                errorCode: 'S_M_Mode',
+                objectType: 'segment',
+                errorCode: 'TEST_FAIL_1',
                 version: 1,
                 level: 'error',
-                message: 'Segment mode is missing',
+                message: 'Test failure 1',
                 ignore: false
-            });
-        });
+            }),
+            TEST_FAIL_2: (): AuditForObject => ({
+                objectUuid: validUuid,
+                objectType: 'segment',
+                errorCode: 'TEST_FAIL_2',
+                version: 1,
+                level: 'warning',
+                message: 'Test failure 2',
+                ignore: false
+            })
+        };
+
+        const audits = runSegmentAuditChecks(context, mockAuditChecks);
+
+        expect(audits).toHaveLength(2);
+        expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'TEST_FAIL_2')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'TEST_PASS')).toBe(false);
+    });
+
+    it('should handle empty audit checks object', () => {
+        const context = createContextWithSegment();
+
+        const mockAuditChecks: { [errorCode: string]: SegmentAuditCheckFunction } = {};
+
+        const audits = runSegmentAuditChecks(context, mockAuditChecks);
+
+        expect(audits).toHaveLength(0);
     });
 });

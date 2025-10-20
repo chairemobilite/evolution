@@ -5,8 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { TripAuditCheckContext, TripAuditCheckFunction } from '../AuditCheckContexts';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import type { TripAuditCheckContext, TripAuditCheckFunction } from '../AuditCheckContexts';
 
 export const tripAuditChecks: { [errorCode: string]: TripAuditCheckFunction } = {
     /**

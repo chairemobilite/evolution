@@ -6,268 +6,79 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
-import { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
-import { ExtendedPersonAttributes, Person } from 'evolution-common/lib/services/baseObjects/Person';
-import { ExtendedJourneyAttributes, Journey } from 'evolution-common/lib/services/baseObjects/Journey';
-import { ExtendedHouseholdAttributes, Household } from 'evolution-common/lib/services/baseObjects/Household';
-import { Home } from 'evolution-common/lib/services/baseObjects/Home';
-import { ExtendedInterviewAttributesWithComposedObjects, Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
-import { visitedPlaceAuditChecks } from '../VisitedPlaceAuditChecks';
 import { runVisitedPlaceAuditChecks } from '../../AuditCheckRunners';
-import { VisitedPlaceAuditCheckContext } from '../../AuditCheckContexts';
-import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
-import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import type { VisitedPlaceAuditCheckFunction } from '../../AuditCheckContexts';
+import { createContextWithVisitedPlace } from './visitedPlace/testHelper';
 
-describe('VisitedPlaceAuditChecks', () => {
-    let surveyObjectsRegistry: SurveyObjectsRegistry;
-
-    beforeEach(() => {
-        surveyObjectsRegistry = new SurveyObjectsRegistry();
-    });
-
-    afterEach(() => {
-        surveyObjectsRegistry.clear();
-    });
-
+describe('runVisitedPlaceAuditChecks - Integration', () => {
     const validUuid = uuidV4();
-    const personUuid = uuidV4();
-    const journeyUuid = uuidV4();
-    const householdUuid = uuidV4();
-    const homeUuid = uuidV4();
-    const interviewUuid = uuidV4();
 
-    const createMockVisitedPlace = (overrides: Partial<VisitedPlace> = {}) => {
-        return {
-            _uuid: validUuid,
-            activity: 'work',
-            geography: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [-73.5, 45.5]
-                }
-            },
-            ...overrides
-        } as VisitedPlace;
-    };
+    it('should run all audit checks and return empty array when all checks pass', () => {
+        const context = createContextWithVisitedPlace();
 
-    const createMockPerson = (overrides: Partial<Person> = {}) => {
-        return new Person({
-            _uuid: personUuid,
-            age: 30,
-            ...overrides
-        } as ExtendedPersonAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockJourney = (overrides: Partial<Journey> = {}) => {
-        return new Journey({
-            _uuid: journeyUuid,
-            ...overrides
-        } as ExtendedJourneyAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockHousehold = (overrides: Partial<Household> = {}) => {
-        return new Household({
-            _uuid: householdUuid,
-            size: 2,
-            ...overrides
-        } as ExtendedHouseholdAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockHome = (overrides: Partial<Home> = {}) => {
-        return new Home({
-            _uuid: homeUuid,
-            ...overrides
-        } as ExtendedPlaceAttributes, surveyObjectsRegistry);
-    };
-
-    const createMockInterview = (overrides: Partial<Interview> = {}) => {
-        return new Interview({
-            _uuid: interviewUuid,
-            ...overrides
-        } as ExtendedInterviewAttributesWithComposedObjects, { id: 123, participant_id: 1 } as any, surveyObjectsRegistry);
-    };
-
-    const createFullContext = (overrides: Partial<VisitedPlaceAuditCheckContext> = {}): VisitedPlaceAuditCheckContext => {
-        return {
-            visitedPlace: createMockVisitedPlace(),
-            person: createMockPerson(),
-            journey: createMockJourney(),
-            household: createMockHousehold(),
-            home: createMockHome(),
-            interview: createMockInterview(),
-            ...overrides
+        // Mock audit checks that all pass (return undefined)
+        const mockAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
+            TEST_CHECK_1: () => undefined,
+            TEST_CHECK_2: () => undefined,
+            TEST_CHECK_3: () => undefined
         };
-    };
 
-    describe('VP_M_Geography audit check', () => {
-        it('should pass when visited place has geography', () => {
-            const context = createFullContext();
+        const audits = runVisitedPlaceAuditChecks(context, mockAuditChecks);
 
-            const result = visitedPlaceAuditChecks.VP_M_Geography(context);
-
-            expect(result).toBeUndefined();
-        });
-
-        it('should error when visited place has no geography', () => {
-            const context = createFullContext({
-                visitedPlace: createMockVisitedPlace({ geography: undefined })
-            });
-
-            const result = visitedPlaceAuditChecks.VP_M_Geography(context);
-
-            expect(result).toEqual({
-                objectType: 'visitedPlace',
-                objectUuid: validUuid,
-                errorCode: 'VP_M_Geography',
-                version: 1,
-                level: 'error',
-                message: 'Visited place geography is missing',
-                ignore: false
-            });
-        });
+        expect(audits).toHaveLength(0);
     });
 
-    describe('VP_I_Geography audit check', () => {
-        it('should pass when visited place has valid geography', () => {
-            const context = createFullContext();
+    it('should aggregate results from multiple failing checks', () => {
+        const context = createContextWithVisitedPlace(undefined, validUuid);
 
-            const result = visitedPlaceAuditChecks.VP_I_Geography(context);
-
-            expect(result).toBeUndefined();
-        });
-
-        it('should error when geography has invalid coordinates', () => {
-            const context = createFullContext({
-                visitedPlace: createMockVisitedPlace({
-                    geography: {
-                        type: 'Feature',
-                        properties: {},
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.5] // Missing latitude
-                        }
-                    }
-                })
-            });
-
-            const result = visitedPlaceAuditChecks.VP_I_Geography(context);
-
-            expect(result).toEqual({
-                objectType: 'visitedPlace',
+        // Mock audit checks where some fail (return audit objects)
+        const mockAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
+            TEST_PASS: () => undefined,
+            TEST_FAIL_1: () => ({
                 objectUuid: validUuid,
-                errorCode: 'VP_I_Geography',
+                objectType: 'visitedPlace',
+                errorCode: 'TEST_FAIL_1',
                 version: 1,
                 level: 'error',
-                message: 'Visited place geography is invalid',
+                message: 'Test failure 1',
                 ignore: false
-            });
-        });
-
-        it('should error when geography has no coordinates', () => {
-            const context = createFullContext({
-                visitedPlace: createMockVisitedPlace({
-                    geography: {
-                        type: 'Feature',
-                        properties: {},
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [] as number[]
-                        }
-                    }
-                })
-            });
-
-            const result = visitedPlaceAuditChecks.VP_I_Geography(context);
-
-            expect(result).toEqual({
-                objectType: 'visitedPlace',
+            }),
+            TEST_FAIL_2: () => ({
                 objectUuid: validUuid,
-                errorCode: 'VP_I_Geography',
+                objectType: 'visitedPlace',
+                errorCode: 'TEST_FAIL_2',
                 version: 1,
-                level: 'error',
-                message: 'Visited place geography is invalid',
+                level: 'warning',
+                message: 'Test failure 2',
                 ignore: false
-            });
-        });
+            })
+        };
 
-        it('should pass when geography is missing (handled by VP_M_Geography)', () => {
-            const context = createFullContext({
-                visitedPlace: createMockVisitedPlace({ geography: undefined })
-            });
+        const audits = runVisitedPlaceAuditChecks(context, mockAuditChecks);
 
-            const result = visitedPlaceAuditChecks.VP_I_Geography(context);
-
-            expect(result).toBeUndefined();
-        });
+        expect(audits).toHaveLength(2);
+        expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'TEST_FAIL_2')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'TEST_PASS')).toBe(false);
+        expect(audits.every((a) => a.objectType === 'visitedPlace' && a.objectUuid === validUuid)).toBe(true);
+        const fail1 = audits.find((a) => a.errorCode === 'TEST_FAIL_1')!;
+        expect(fail1.level).toBe('error');
+        expect(fail1.message).toBe('Test failure 1');
+        expect(fail1.version).toBe(1);
+        const fail2 = audits.find((a) => a.errorCode === 'TEST_FAIL_2')!;
+        expect(fail2.level).toBe('warning');
+        expect(fail2.message).toBe('Test failure 2');
+        expect(fail2.version).toBe(1);
     });
 
-    describe('runVisitedPlaceAuditChecks function', () => {
-        it('should run all visited place audits and format results', () => {
-            const context = createFullContext();
+    it('should handle empty audit checks object', () => {
+        const context = createContextWithVisitedPlace();
 
-            const audits = runVisitedPlaceAuditChecks(context, visitedPlaceAuditChecks);
+        const mockAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {};
 
-            // Should return empty array since all audits pass
-            expect(audits).toHaveLength(0);
-        });
+        const audits = runVisitedPlaceAuditChecks(context, mockAuditChecks);
 
-        it('should include failed audits in results', () => {
-            // Test with missing geography
-            const context = createFullContext({
-                visitedPlace: createMockVisitedPlace({
-                    geography: undefined
-                })
-            });
-
-            const audits = runVisitedPlaceAuditChecks(context, visitedPlaceAuditChecks);
-
-            expect(audits).toHaveLength(1); // Only geography missing audit should fail
-
-            // Check geography audit
-            const geographyAudit = audits.find((audit) => audit.errorCode === 'VP_M_Geography');
-            expect(geographyAudit).toEqual({
-                objectType: 'visitedPlace',
-                objectUuid: validUuid,
-                errorCode: 'VP_M_Geography',
-                version: 1,
-                level: 'error',
-                message: 'Visited place geography is missing',
-                ignore: false
-            });
-        });
-
-        it('should include invalid geography audits in results', () => {
-            // Test with invalid geography (has geography but invalid coordinates)
-            const context = createFullContext({
-                visitedPlace: createMockVisitedPlace({
-                    geography: {
-                        type: 'Feature',
-                        properties: {},
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.5] // Missing latitude
-                        }
-                    }
-                })
-            });
-
-            const audits = runVisitedPlaceAuditChecks(context, visitedPlaceAuditChecks);
-
-            expect(audits).toHaveLength(1); // Only geography invalid audit should fail
-
-            // Check geography audit
-            const geographyAudit = audits.find((audit) => audit.errorCode === 'VP_I_Geography');
-            expect(geographyAudit).toEqual({
-                objectType: 'visitedPlace',
-                objectUuid: validUuid,
-                errorCode: 'VP_I_Geography',
-                version: 1,
-                level: 'error',
-                message: 'Visited place geography is invalid',
-                ignore: false
-            });
-        });
+        expect(audits).toHaveLength(0);
     });
+
 });
