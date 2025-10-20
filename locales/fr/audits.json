@@ -1,20 +1,20 @@
 {
-  "I_M_Languages": "Les langues de l'entrevue sont manquantes",
+    "I_M_Languages": "Les langues de l'entrevue sont manquantes",
 
-  "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 20)",
-  "HH_M_Size": "La taille du ménage est manquante",
+    "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 20)",
+    "HH_M_Size": "La taille du ménage est manquante",
 
-  "HM_M_Geography": "La géographie du domicile est manquante",
-  "HM_I_Geography": "La géographie du domicile est invalide",
+    "HM_M_Geography": "La géographie du domicile est manquante",
+    "HM_I_Geography": "La géographie du domicile est invalide",
 
-  "P_M_Age": "L'âge de la personne est manquant",
+    "P_M_Age": "L'âge de la personne est manquant",
 
-  "J_M_StartDate": "La date de début du séjour est manquante",
+    "J_M_StartDate": "La date de début du séjour est manquante",
 
-  "VP_M_Geography": "La géographie du lieu visité est manquante",
-  "VP_I_Geography": "La géographie du lieu visité est invalide",
+    "VP_M_Geography": "La géographie du lieu visité est manquante",
+    "VP_I_Geography": "La géographie du lieu visité est invalide",
 
-  "T_M_Segments": "Les segments du déplacement sont manquants",
+    "T_M_Segments": "Les segments du déplacement sont manquants",
 
-  "S_M_Mode": "Le mode du segment est manquant"
+    "S_M_Mode": "Le mode du segment est manquant"
 }
