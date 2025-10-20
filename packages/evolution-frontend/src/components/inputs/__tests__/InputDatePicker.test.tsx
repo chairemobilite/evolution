@@ -9,7 +9,7 @@ import { render } from '@testing-library/react';
 
 import InputDatePicker from '../InputDatePicker';
 import MockDate from 'mockdate';
-import { interviewAttributes } from './interviewData.test';
+import { interviewAttributes } from './interviewData';
 
 MockDate.set(new Date(1659633411000));
 

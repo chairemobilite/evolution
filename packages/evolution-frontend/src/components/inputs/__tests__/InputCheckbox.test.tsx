@@ -9,7 +9,7 @@ import { render } from '@testing-library/react';
 import { faCrow } from '@fortawesome/free-solid-svg-icons/faCrow';
 
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
-import { interviewAttributes } from './interviewData.test';
+import { interviewAttributes } from './interviewData';
 
 import InputCheckbox from '../InputCheckbox';
 import i18next from 'i18next';

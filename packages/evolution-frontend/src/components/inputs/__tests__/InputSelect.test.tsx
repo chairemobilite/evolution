@@ -7,7 +7,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
-import { interviewAttributes } from './interviewData.test';
+import { interviewAttributes } from './interviewData';
 import InputSelect from '../InputSelect';
 import i18next from 'i18next';
 

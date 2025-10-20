@@ -9,7 +9,7 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { faCrow } from '@fortawesome/free-solid-svg-icons/faCrow';
 
-import { interviewAttributes } from './interviewData.test';
+import { interviewAttributes } from './interviewData';
 
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
 

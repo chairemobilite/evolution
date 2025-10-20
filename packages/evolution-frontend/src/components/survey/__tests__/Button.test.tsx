@@ -13,7 +13,7 @@ import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
 
-import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
+import { interviewAttributes } from '../../inputs/__tests__/interviewData';
 import Button from '../Button';
 import { ButtonWidgetConfig, InterviewUpdateCallbacks, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 

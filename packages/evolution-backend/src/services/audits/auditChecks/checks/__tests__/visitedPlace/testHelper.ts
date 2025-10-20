@@ -38,8 +38,3 @@ export const createContextWithVisitedPlace = (visitedPlaceOverrides: Partial<Vis
         interview: { _uuid: uuidV4() } as unknown as Interview
     };
 };
-
-test('dummy', () => {
-    // Needs at least one test in the file
-});
-

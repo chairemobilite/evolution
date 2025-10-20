@@ -9,7 +9,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { InputString } from '../InputString';
-import { interviewAttributes } from './interviewData.test';
+import { interviewAttributes } from './interviewData';
 
 const userAttributes = {
     id: 1,

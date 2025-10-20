@@ -33,7 +33,3 @@ export const createContextWithHome = (homeOverrides: Partial<Home> = {}, validUu
         household: { _uuid: uuidV4() } as unknown as Household
     };
 };
-
-test('dummy', () => {
-    // Needs at least one test in the file
-});
