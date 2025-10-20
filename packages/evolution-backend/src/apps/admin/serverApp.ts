@@ -26,6 +26,7 @@ import requestIp from 'request-ip';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
 import surveyRoutes from './routes';
+import { hasFileExtension } from '../../services/routing/urlHelpers';
 
 const KnexSessionStore = connectSessionKnex(expressSession);
 
@@ -121,8 +122,20 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
         });
     });
 
+    // Catch-all route: serves the frontend SPA for all unmatched routes (client-side routing)
+    // Returns 404 for file requests that weren't handled by previous routes
     app.get('*', (req: Request, res: Response) => {
-        res.sendFile(indexPath);
+        // Clean URL (remove query parameters for matching)
+        const pathname = req.url.split('?')[0];
+
+        // If pathname ends with a file extension, return 404
+        // Files that should be served have already been handled by previous routes
+        if (hasFileExtension({ pathname })) {
+            console.error('Error: file not found ', pathname);
+            res.status(404).sendFile(indexPath);
+        } else {
+            res.status(200).sendFile(indexPath);
+        }
     });
 
     return { app, session };
