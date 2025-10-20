@@ -7,7 +7,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 
-import { interviewAttributes } from './interviewData.test';
+import { interviewAttributes } from './interviewData';
 import InputButton from '../InputButton';
 import i18next from 'i18next';
 

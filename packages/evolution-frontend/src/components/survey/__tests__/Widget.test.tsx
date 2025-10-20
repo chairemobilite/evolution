@@ -9,7 +9,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import each from 'jest-each';
 
-import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
+import { interviewAttributes } from '../../inputs/__tests__/interviewData';
 import { Widget, InGroupWidget } from '../Widget';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyContext } from '../../../contexts/SurveyContext';

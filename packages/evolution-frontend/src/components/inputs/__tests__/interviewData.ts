@@ -1,15 +1,5 @@
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
-type CustomSurvey = {
-    section1?: {
-        q1?: string;
-        q2?: number;
-    };
-    section2?: {
-        q1?: string;
-    }
-}
-
 export const interviewAttributes: UserInterviewAttributes = {
     id: 1,
     uuid: 'arbitrary uuid',
@@ -35,7 +25,3 @@ export const interviewAttributes: UserInterviewAttributes = {
     } as any,
     is_valid: true
 };
-
-test('dummy', () => {
-    // Needs at least one test in the file
-});

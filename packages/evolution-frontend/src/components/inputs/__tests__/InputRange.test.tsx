@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { interviewAttributes } from './interviewData.test';
+import { interviewAttributes } from './interviewData';
 import React from 'react';
 import { render } from '@testing-library/react';
 

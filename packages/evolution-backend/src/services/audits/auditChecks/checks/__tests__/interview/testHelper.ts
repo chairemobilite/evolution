@@ -25,8 +25,3 @@ export const createContextWithInterview = (interviewOverrides: Partial<Interview
         interview: createMockInterview(interviewOverrides, validUuid)
     };
 };
-
-test('dummy', () => {
-    // Needs at least one test in the file
-});
-

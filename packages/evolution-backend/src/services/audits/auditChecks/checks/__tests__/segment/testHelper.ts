@@ -32,7 +32,3 @@ export const createContextWithSegment = (segmentOverrides: Partial<Segment> = {}
         interview: { _uuid: uuidV4() } as unknown as Interview
     };
 };
-
-test('dummy', () => {
-    // Needs at least one test in the file
-});

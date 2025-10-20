@@ -9,7 +9,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
-import { interviewAttributes } from './interviewData.test';
+import { interviewAttributes } from './interviewData';
 import InputMapFindPlace from '../InputMapFindPlace';
 import { geocodeMultiplePlaces } from '../maps/google/GoogleGeocoder';
 

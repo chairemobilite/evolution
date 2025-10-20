@@ -12,7 +12,7 @@ expect.extend(toHaveNoViolations);
 
 import { Group, GroupedObject } from '../GroupWidgets';
 import each from 'jest-each';
-import { interviewAttributes } from '../../inputs/__tests__/interviewData.test';
+import { interviewAttributes } from '../../inputs/__tests__/interviewData';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyContext } from '../../../contexts/SurveyContext';
 

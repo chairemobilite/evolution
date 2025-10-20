@@ -12,7 +12,7 @@ import '@testing-library/jest-dom';
 import each from 'jest-each';
 
 import DeleteGroupedObjectButton from '../DeleteGroupedObjectButton';
-import { interviewAttributes } from '../../../inputs/__tests__/interviewData.test';
+import { interviewAttributes } from '../../../inputs/__tests__/interviewData';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
