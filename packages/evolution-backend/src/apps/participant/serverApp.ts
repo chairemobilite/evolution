@@ -20,6 +20,7 @@ import requestIp from 'request-ip';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import authRoutes from '../../api/auth.routes';
 import participantRoutes from '../../apps/participant/routes';
+import { hasFileExtension } from '../../services/routing/urlHelpers';
 
 const KnexSessionStore = connectSessionKnex(expressSession);
 
@@ -42,6 +43,7 @@ export const setupServerApp = (app: Express, serverSetupFct: (() => void) | unde
         publicDistDirectory,
         `index-survey-${config.projectShortname}${process.env.NODE_ENV === 'test' ? '_test' : ''}.html`
     );
+    const notFound404Path = path.join(publicDirectory, 'notFound404.html');
     const publicPath = express.static(publicDistDirectory);
     const localePath = express.static(localeDirectory);
 
@@ -122,8 +124,20 @@ export const setupServerApp = (app: Express, serverSetupFct: (() => void) | unde
         });
     });
 
+    // Catch-all route: serves the frontend SPA for all unmatched routes (client-side routing)
+    // Returns 404 for extension file requests that weren't handled by previous routes
     app.get('*', (req, res) => {
-        res.sendFile(indexPath);
+        // Clean URL (remove query parameters for matching)
+        const pathname = req.url.split('?')[0];
+
+        // If pathname ends with a file extension, return 404
+        // Files that should be served have already been handled by previous routes
+        if (hasFileExtension({ pathname })) {
+            console.error('Error: file not found ', pathname);
+            res.status(404).sendFile(notFound404Path);
+        } else {
+            res.status(200).sendFile(indexPath);
+        }
     });
 
     return { app, session };
