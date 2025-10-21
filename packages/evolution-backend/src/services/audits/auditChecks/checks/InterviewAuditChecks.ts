@@ -7,6 +7,8 @@
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { InterviewAuditCheckContext, InterviewAuditCheckFunction } from '../AuditCheckContexts';
+import projectConfig from 'evolution-common/lib/config/project.config';
+import { secondsToMillisecondsTimestamp, parseISODateToTimestamp } from 'evolution-common/lib/utils/DateTimeUtils';
 
 export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFunction } = {
     /**
@@ -25,6 +27,99 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
                 version: 1,
                 level: 'error',
                 message: 'Interview languages are missing',
+                ignore: false
+            };
+        }
+        return undefined;
+    },
+
+    /**
+     * Check if interview start date is missing or invalid
+     * @param context - InterviewAuditCheckContext
+     * @returns AuditForObject | undefined
+     */
+    I_M_StartedAt: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview } = context;
+        const startedAt = interview.paradata?.startedAt;
+        // Consider startedAt missing/invalid if it's undefined, null, not finite (NaN/Infinity), or negative
+        const hasValidStartDate =
+            startedAt !== undefined && startedAt !== null && Number.isFinite(startedAt) && startedAt >= 0;
+        if (!hasValidStartDate) {
+            return {
+                objectType: 'interview',
+                objectUuid: interview.uuid!,
+                errorCode: 'I_M_StartedAt',
+                version: 1,
+                level: 'error',
+                message: 'Interview start time is missing',
+                ignore: false
+            };
+        }
+        return undefined;
+    },
+
+    /**
+     * Check if interview started at timestamp is before the survey start date
+     * Will be ignored if survey start date is not set.
+     * @param context - InterviewAuditCheckContext
+     * @returns AuditForObject | undefined
+     */
+    I_I_StartedAtBeforeSurveyStartDate: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview } = context;
+
+        // Convert startedAt from seconds to milliseconds, validating it's finite
+        const interviewStartTimestamp = secondsToMillisecondsTimestamp(interview.paradata?.startedAt);
+
+        // Parse survey start date and guard against invalid date strings
+        const surveyStartTimestamp = parseISODateToTimestamp(projectConfig.startDateTimeWithTimezoneOffset);
+
+        // Only perform comparison when both timestamps are valid and finite
+        if (
+            interviewStartTimestamp !== undefined &&
+            surveyStartTimestamp !== undefined &&
+            interviewStartTimestamp < surveyStartTimestamp
+        ) {
+            return {
+                objectType: 'interview',
+                objectUuid: interview.uuid!,
+                errorCode: 'I_I_StartedAtBeforeSurveyStartDate',
+                version: 1,
+                level: 'error',
+                message: 'Interview start time is before survey start date',
+                ignore: false
+            };
+        }
+        return undefined;
+    },
+
+    /**
+     * Check if interview started at timestamp is after the survey end date
+     * Will be ignored if survey end date is not set.
+     * @param context - InterviewAuditCheckContext
+     * @returns AuditForObject | undefined
+     */
+    I_I_StartedAtAfterSurveyEndDate: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview } = context;
+
+        // Convert startedAt from seconds to milliseconds, validating it's finite
+        const interviewStartTimestamp = secondsToMillisecondsTimestamp(interview.paradata?.startedAt);
+
+        // Parse survey end date and guard against invalid date strings
+        const surveyEndTimestamp = parseISODateToTimestamp(projectConfig.endDateTimeWithTimezoneOffset);
+
+        // Only perform comparison when both timestamps are valid and finite
+        if (
+            interviewStartTimestamp !== undefined &&
+            surveyEndTimestamp !== undefined &&
+            interviewStartTimestamp > surveyEndTimestamp
+        ) {
+            return {
+                objectType: 'interview',
+                objectUuid: interview.uuid!,
+                errorCode: 'I_I_StartedAtAfterSurveyEndDate',
+                version: 1,
+                level: 'error',
+                message: 'Interview start time is after survey end date',
                 ignore: false
             };
         }

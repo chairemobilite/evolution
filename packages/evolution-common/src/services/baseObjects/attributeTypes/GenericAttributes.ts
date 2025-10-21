@@ -23,6 +23,6 @@ export type YesNoDontKnowPreferNotToAnswer = (typeof yesNoDontKnowPreferNotToAns
 export type TimePeriod = string; // TODO: normalize time periods (when time is too precise, like for long distance journeys)
 
 export type StartEndTimestampable = {
-    startTimestamp?: number;
-    endTimestamp?: number; // could be calculated from the next start timestamp
+    startTimestamp?: number; // unix epoch timestamp in seconds (not milliseconds)
+    endTimestamp?: number; // unix epoch timestamp in seconds (not milliseconds); could be calculated from the next start timestamp
 };

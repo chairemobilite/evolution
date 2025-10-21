@@ -33,9 +33,9 @@ const interviewParadataAttributes = [
 const interviewParadataAttributesWithComposedAttributes = [...interviewParadataAttributes];
 
 export type InterviewParadataAttributes = {
-    startedAt?: number; // unix epoch timestamp;
-    updatedAt?: number; // unix epoch timestamp;
-    completedAt?: number; // unix epoch timestamp; updated at the end of the interview. Needs auditing before assuming the interview is really completed.
+    startedAt?: number; // unix epoch timestamp in seconds (not milliseconds)
+    updatedAt?: number; // unix epoch timestamp in seconds (not milliseconds)
+    completedAt?: number; // unix epoch timestamp in seconds (not milliseconds); updated at the end of the interview. Needs auditing before assuming the interview is really completed.
 
     source?: string; // source for the interview (web, phone, social, etc.)
     // In a household survey, we need to ask trips for each persons in random order to reduce biases

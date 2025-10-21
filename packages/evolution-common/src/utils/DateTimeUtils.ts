@@ -60,3 +60,34 @@ export const dateToIsoWithTimezone = (
         timeZone
     }).format(date);
 };
+
+/**
+ * Converts seconds timestamp to milliseconds timestamp, validating it's finite
+ * @param seconds - Timestamp in seconds
+ * @returns Timestamp in milliseconds if valid, undefined otherwise
+ */
+export const secondsToMillisecondsTimestamp = (seconds: number | undefined): number | undefined => {
+    if (seconds === undefined) {
+        return undefined;
+    }
+    if (!Number.isFinite(seconds)) {
+        return undefined;
+    }
+    const milliseconds = seconds * 1000;
+    return Number.isFinite(milliseconds) ? milliseconds : undefined;
+};
+
+/**
+ * Parses a date string to a timestamp in milliseconds, validating the result.
+ * Accepts any date string format parseable by the Date constructor (ISO 8601 with/without
+ * timezone offset, date-only strings, etc.). Invalid or unparseable strings return undefined.
+ * @param isoDateString - Date string to parse (preferably ISO 8601 format)
+ * @returns Timestamp in milliseconds if valid, undefined otherwise
+ */
+export const parseISODateToTimestamp = (isoDateString: string | undefined): number | undefined => {
+    if (!isoDateString) {
+        return undefined;
+    }
+    const parsedTimestamp = new Date(isoDateString).getTime();
+    return Number.isFinite(parsedTimestamp) ? parsedTimestamp : undefined;
+};
