@@ -9,6 +9,12 @@ import { Response, Request } from 'express';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 import { addExportRoutes } from './admin/exports.routes';
+import {
+    getStartedInterviewsCount,
+    getCompletedInterviewsCount,
+    getInterviewsCompletionRate,
+    getSurveyDifficultyDistribution
+} from '../models/monitoring.db.queries';
 
 addExportRoutes();
 
@@ -24,19 +30,19 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
         break;
     case 'started-interviews-count':
         // Get the count of started interviews
-        getStartedInterviewsCount(res);
+        handleStartedInterviewsCount(res);
         break;
     case 'completed-interviews-count':
         // Get the count of completed interviews
-        getCompletedInterviewsCount(res);
+        handleCompletedInterviewsCount(res);
         break;
     case 'interviews-completion-rate':
         // Get the count of completed interviews
-        getInterviewsCompletionRate(res);
+        handleInterviewsCompletionRate(res);
         break;
     case 'survey-difficulty-distribution':
         // Get the survey difficulty distribution from respondent feedback
-        getSurveyDifficultyDistribution(res);
+        handleSurveyDifficultyDistribution(res);
         break;
     default:
         return res
@@ -45,7 +51,8 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
     }
 });
 
-// TODO: add CSV export for this widget:
+// TODO: add CSV export for this widget.
+// TODO: Move this logic to monitoring.db.queries.ts
 const getStartedAndCompletedInterviewsByDay = async (res: Response) => {
     // Get the sum directly from the DB, using the started_at date for grouping
     const subquery = knex('sv_interviews').select(
@@ -84,23 +91,11 @@ const getStartedAndCompletedInterviewsByDay = async (res: Response) => {
     const completedCount = completed.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
     return res.status(200).json({ status: 'OK', dates, started, completed, startedCount, completedCount });
 };
-// Helper function to get started interviews count from database
-const getStartedInterviewsCountFromDb = async () => {
-    const result = await knex('sv_interviews').count({ started: 'id' });
-    return result && result[0] && result[0].started ? Number(result[0].started) : 0;
-};
-// Helper function to get completed interviews count from database
-const getCompletedInterviewsCountFromDb = async () => {
-    const result = await knex('sv_interviews').sum({
-        is_completed: knex.raw('case when response->>\'_completedAt\' is null then 0 else 1 end')
-    });
-    return result && result[0] && result[0].is_completed ? Number(result[0].is_completed) : 0;
-};
 
 // Get the count of started interviews
-const getStartedInterviewsCount = async (res: Response) => {
+const handleStartedInterviewsCount = async (res: Response) => {
     try {
-        const startedInterviewsCount = await getStartedInterviewsCountFromDb();
+        const startedInterviewsCount = await getStartedInterviewsCount();
         return res.status(200).json({ status: 'OK', startedInterviewsCount });
     } catch (error) {
         console.error('Error fetching started interviews count:', error);
@@ -109,9 +104,9 @@ const getStartedInterviewsCount = async (res: Response) => {
 };
 
 // Get the count of completed interviews
-const getCompletedInterviewsCount = async (res: Response) => {
+const handleCompletedInterviewsCount = async (res: Response) => {
     try {
-        const completedInterviewsCount = await getCompletedInterviewsCountFromDb();
+        const completedInterviewsCount = await getCompletedInterviewsCount();
         return res.status(200).json({ status: 'OK', completedInterviewsCount });
     } catch (error) {
         console.error('Error fetching completed interviews count:', error);
@@ -120,14 +115,10 @@ const getCompletedInterviewsCount = async (res: Response) => {
 };
 
 // Get the interviews completion rate (completed / started, as a percentage, rounded to 1 decimal)
-const getInterviewsCompletionRate = async (res: Response) => {
+const handleInterviewsCompletionRate = async (res: Response) => {
     try {
-        // Get counts using helper functions
-        const startedCount = await getStartedInterviewsCountFromDb();
-        const completedCount = await getCompletedInterviewsCountFromDb();
-        // Calculate completion rate (as percentage, 0 if startedCount is 0), rounded to 1 decimal
-        const completionRate = startedCount > 0 ? Number(((completedCount / startedCount) * 100).toFixed(1)) : 0;
-        return res.status(200).json({ status: 'OK', interviewsCompletionRate: completionRate });
+        const interviewsCompletionRate = await getInterviewsCompletionRate();
+        return res.status(200).json({ status: 'OK', interviewsCompletionRate });
     } catch (error) {
         console.error('Error fetching interviews completion rate:', error);
         return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch interviews completion rate' });
@@ -135,51 +126,9 @@ const getInterviewsCompletionRate = async (res: Response) => {
 };
 
 // Get the survey difficulty distribution from respondent feedback
-const getSurveyDifficultyDistribution = async (res: Response) => {
+const handleSurveyDifficultyDistribution = async (res: Response) => {
     try {
-        // Query all completed interviews with a non-null 'response.end.difficultyOfTheSurvey'
-        const rows = await knex('sv_interviews')
-            .select(knex.raw('CAST(response->\'end\'->>\'difficultyOfTheSurvey\' AS FLOAT) as difficulty'))
-            .whereRaw('response->\'end\'->\'difficultyOfTheSurvey\' IS NOT NULL');
-
-        // Bin the values into 10 bins: 0-10, 11-20, 21-30, ..., 91-100
-        const bins = Array.from({ length: 10 }, (_, i) => {
-            const min = i === 0 ? 0 : i * 10 + 1;
-            const max = (i + 1) * 10;
-            return {
-                min,
-                max,
-                count: 0,
-                label: `${min}-${max} %`
-            };
-        });
-
-        // Count the number of responses in each bin
-        for (const row of rows) {
-            const difficulty = Number(row.difficulty);
-            if (isNaN(difficulty)) continue;
-
-            // Find the correct bin
-            let binIdx = -1;
-            if (difficulty >= 0 && difficulty <= 10) {
-                binIdx = 0;
-            } else {
-                binIdx = bins.findIndex((bin, i) => i > 0 && difficulty >= bin.min && difficulty <= bin.max);
-            }
-            if (binIdx >= 0 && binIdx < bins.length) {
-                bins[binIdx].count += 1;
-            }
-        }
-
-        // Calculate total for percentage
-        const total = bins.reduce((sum, bin) => sum + bin.count, 0);
-
-        // Format for frontend: include count (value) and percentage
-        const distribution = bins.map(({ count, label }) => ({
-            label,
-            percentage: total > 0 ? Math.round((count / total) * 100) : 0,
-            count
-        }));
+        const distribution = await getSurveyDifficultyDistribution();
         return res.status(200).json({ status: 'OK', data: distribution });
     } catch (error) {
         console.error('Error fetching survey difficulty distribution:', error);
