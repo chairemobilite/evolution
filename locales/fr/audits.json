@@ -3,6 +3,7 @@
     "I_M_StartedAt": "La date de début de l'entrevue est manquante",
     "I_I_StartedAtBeforeSurveyStartDate": "Le début de l'entrevue est avant la date de début de l'enquête",
     "I_I_StartedAtAfterSurveyEndDate": "Le début de l'entrevue est après la date de fin de l'enquête",
+    "I_I_InvalidAccessCodeFormat": "Le format du code d'accès de l'entrevue est invalide",
 
     "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 20)",
     "HH_M_Size": "La taille du ménage est manquante",
