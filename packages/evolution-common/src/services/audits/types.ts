@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { SurveyObjects } from '../baseObjects/types';
+import { ParentSurveyObjects, SurveyObjectNames } from '../baseObjects/types';
 
 export type Audit = {
     /**
@@ -48,7 +48,7 @@ export type Audits = { [errorCode: string]: Audit }; // audits by errorCode (key
  *
  * This is the base type to store survey objects with their audits.
  */
-export type SurveyObjectsWithAudits = SurveyObjects & {
+export type SurveyObjectsWithAudits = ParentSurveyObjects & {
     audits: AuditForObject[]; // all audits for the interview and its survey objects
     auditsByObject?: AuditsByObject; // audits by each object type
 };
@@ -84,4 +84,40 @@ export type AuditsByObject = {
     segments: {
         [key: string]: AuditForObject[]; // key: uuid
     };
+};
+
+/**
+ * The group of audit checks to use.
+ * This is used to determine which audit checks to run.
+ *
+ * Travel survey: a typical Origin-Destination/travel survey
+ * Long distance survey: a survey for long-distance travel, usually with multi-days journeys
+ * Usual places survey: a survey asking for places where people go on a regular basis
+ * Minimum survey: a survey with the minimum required fields
+ * Custom survey: a survey with custom audit checks (will not run audit checks from evolution)
+ *   For custom surveys, the audit checks must be configured in the survey project.
+ *
+ * New groups may be added in the future.
+ */
+export type AuditChecksGroup = 'travelSurvey' | 'longDistanceSurvey' | 'usualPlacesSurvey' | 'minimum' | 'custom';
+
+/**
+ * The scope/base of the survey.
+ * This is used to determine which survey objects to audit.
+ * Household survey: a survey in which all household members are surveyed
+ * Person survey: a survey that only surveys a single person
+ * Note: all surveys should ask for the household members
+ * characteristics even in person-based surveys (for comparison and weighting purposes).
+ * New bases may be added in the future, like Vehicle, Organization, etc.
+ */
+export type SurveyBase = 'householdBased' | 'personBased';
+
+/**
+ * The fields that are required for each survey object.
+ * A required field will make an audit check return an error if it is missing
+ * Some fields may return an audit check error only if the conditional(s) for their presence is met.
+ * See audit checks directory for details: evolution-backend/src/services/audits/auditChecks
+ */
+export type AuditRequiredFieldsBySurveyObject = {
+    [key in SurveyObjectNames]: string[];
 };

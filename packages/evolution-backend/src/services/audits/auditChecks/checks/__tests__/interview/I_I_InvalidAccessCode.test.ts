@@ -90,7 +90,7 @@ describe('I_I_InvalidAccessCodeFormat audit check', () => {
                 errorCode: 'I_I_InvalidAccessCodeFormat',
                 version: 1,
                 level: 'error',
-                message: 'Interview access code format is invalid',
+                message: 'Access code format is invalid',
                 ignore: false
             });
         });

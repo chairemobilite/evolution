@@ -11,6 +11,7 @@ import type { InterviewAuditCheckContext, InterviewAuditCheckFunction } from '..
 import projectConfig from 'evolution-common/lib/config/project.config';
 import { secondsToMillisecondsTimestamp, parseISODateToTimestamp } from 'evolution-common/lib/utils/DateTimeUtils';
 import { validateAccessCode } from '../../../accessCode';
+import { fieldIsRequired } from '../../AuditUtils';
 
 export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFunction } = {
     /**
@@ -129,6 +130,28 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
     },
 
     /**
+     * Check if interview access code is missing (if required)
+     * @param context - InterviewAuditCheckContext
+     * @returns {AuditForObject | undefined}
+     */
+    I_M_AccessCode: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview } = context;
+        const accessCode = interview.accessCode;
+        if (fieldIsRequired('interview', 'accessCode') && _isBlank(accessCode)) {
+            return {
+                objectType: 'interview',
+                objectUuid: interview.uuid!,
+                errorCode: 'I_M_AccessCode',
+                version: 1,
+                level: 'error',
+                message: 'Access code is missing',
+                ignore: false
+            };
+        }
+        return undefined;
+    },
+
+    /**
      * Check if interview access code format is invalid
      * Only validates the format if access code is present.
      * It does not verify that the access code is valid
@@ -152,7 +175,7 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
                     errorCode: 'I_I_InvalidAccessCodeFormat',
                     version: 1,
                     level: 'error',
-                    message: 'Interview access code format is invalid',
+                    message: 'Access code format is invalid',
                     ignore: false
                 };
             }
