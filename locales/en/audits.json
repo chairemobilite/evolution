@@ -3,7 +3,8 @@
     "I_M_StartedAt": "Interview start time is missing",
     "I_I_StartedAtBeforeSurveyStartDate": "Interview start time is before survey start date",
     "I_I_StartedAtAfterSurveyEndDate": "Interview start time is after survey end date",
-    "I_I_InvalidAccessCodeFormat": "Interview access code format is invalid",
+    "I_M_AccessCode": "Access code is missing",
+    "I_I_InvalidAccessCodeFormat": "Access code format is invalid",
 
     "HH_I_Size": "Household size is out of range (should be between 1 and 20)",
     "HH_M_Size": "Household size is missing",
