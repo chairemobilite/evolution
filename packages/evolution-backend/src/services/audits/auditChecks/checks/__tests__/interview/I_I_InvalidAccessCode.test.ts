@@ -12,7 +12,7 @@ import { interviewAuditChecks } from '../../InterviewAuditChecks';
 import { registerAccessCodeValidationFunction } from '../../../../../accessCode';
 
 // Register a simple validation function for testing
-// Valid codes are 8 digits, optionally with a hyphen in the middle (e.g., "1234-5678" or "12345678")
+// Valid codes for testing are 8 digits, optionally with a hyphen in the middle (e.g., "1234-5678" or "12345678")
 registerAccessCodeValidationFunction((accessCode: string) => {
     return /^\d{4}-?\d{4}$/.test(accessCode);
 });
@@ -37,6 +37,10 @@ describe('I_I_InvalidAccessCodeFormat audit check', () => {
             {
                 description: 'interview has null access code',
                 accessCode: null
+            },
+            {
+                description: 'access code is single space',
+                accessCode: ' '
             },
             {
                 description: 'interview has empty string access code',
@@ -90,7 +94,7 @@ describe('I_I_InvalidAccessCodeFormat audit check', () => {
                 errorCode: 'I_I_InvalidAccessCodeFormat',
                 version: 1,
                 level: 'error',
-                message: 'Interview access code format is invalid',
+                message: 'Access code format is invalid',
                 ignore: false
             });
         });

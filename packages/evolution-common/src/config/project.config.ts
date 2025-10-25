@@ -9,6 +9,7 @@ import projectConfig, {
     setProjectConfiguration
 } from 'chaire-lib-common/lib/config/shared/project.config';
 import { ISODateTimeStringWithTimezoneOffset } from '../utils/DateTimeUtils';
+import { AuditChecksGroup, SurveyBase, AuditRequiredFieldsBySurveyObject } from '../services/audits/types';
 
 /**
  * Specific configuration for the Evolution project
@@ -158,6 +159,21 @@ export type EvolutionProjectConfiguration = {
      * */
     postalCodeRegion: 'canada' | 'quebec' | 'other';
 
+    /**
+     * See AuditChecksGroup type for details.
+     */
+    auditChecksGroup: AuditChecksGroup;
+
+    /**
+     * See SurveyBase type for details.
+     */
+    surveyBase: SurveyBase;
+
+    /**
+     * See AuditRequiredFieldsBySurveyObject type for details.
+     */
+    requiredFieldsBySurveyObject: AuditRequiredFieldsBySurveyObject;
+
     // TODO Add more project configuration types
 };
 
@@ -217,7 +233,25 @@ const defaultConfig = {
         '#4146B5',
         '#9F41B5',
         '#B5417B'
-    ]
+    ],
+    requiredFieldsBySurveyObject: {
+        interview: [],
+        household: [],
+        home: [],
+        organization: [],
+        vehicle: [],
+        person: [],
+        journey: [],
+        tripChain: [],
+        visitedPlace: [],
+        trip: [],
+        segment: [],
+        junction: [],
+        workPlace: [],
+        schoolPlace: []
+    },
+    auditChecksGroup: 'custom', // custom by default so older surveys works.
+    surveyBase: 'householdBased'
 };
 
 // Validate and set the configuration
