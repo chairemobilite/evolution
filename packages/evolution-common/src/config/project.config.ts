@@ -126,6 +126,12 @@ export type EvolutionProjectConfiguration = {
     };
 
     /**
+     * Whether the survey has an access code. If true, the access code will be
+     * added to the admin interview columns. Defaults to false.
+     */
+    hasAccessCode: boolean;
+
+    /**
      * Color palette for person visualization in maps and charts
      */
     personColorsPalette: string[];
@@ -204,6 +210,7 @@ const defaultConfig = {
     languageNames: { en: 'English', fr: 'Français' },
     title: { en: 'Survey', fr: 'Enquête' },
     postalCodeRegion: 'other',
+    hasAccessCode: false,
     personColorsPalette: [
         // FIXME See this issue https://github.com/chairemobilite/evolution/issues/1246
         '#FFAE70',

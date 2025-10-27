@@ -13,6 +13,7 @@ import {
     InterviewListAttributes,
     InterviewStatusAttributesBase
 } from 'evolution-common/lib/services/questionnaire/types';
+import commonProjectConfig from 'evolution-common/lib/config/project.config';
 
 interface ProjectServerConfig {
     /**
@@ -76,6 +77,19 @@ export const defaultConfig: ProjectServerConfig = {
             corrected_response,
             audits
         } = interview;
+
+        // Build response object conditionally based on hasAccessCode config
+        const responseData: any = {
+            _isCompleted: response?._isCompleted,
+            household: { size: response?.household?.size },
+            _validationComment: corrected_response?._validationComment
+        };
+
+        // Only include accessCode if hasAccessCode is configured
+        if (commonProjectConfig.hasAccessCode) {
+            responseData.accessCode = response?.accessCode ?? undefined;
+        }
+
         return {
             id,
             uuid,
@@ -87,11 +101,7 @@ export const defaultConfig: ProjectServerConfig = {
             username,
             facebook,
             google,
-            response: {
-                _isCompleted: response?._isCompleted,
-                household: { size: response?.household?.size },
-                _validationComment: corrected_response?._validationComment
-            },
+            response: responseData,
             audits
         };
     },
