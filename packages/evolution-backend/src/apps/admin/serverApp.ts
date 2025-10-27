@@ -131,7 +131,7 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
         // If pathname ends with a file extension, return 404
         // Files that should be served have already been handled by previous routes
         if (hasFileExtension({ pathname })) {
-            console.error('Error: file not found ', pathname);
+            console.warn('Warning: file not found ', pathname);
             res.status(404).sendFile(indexPath);
         } else {
             res.status(200).sendFile(indexPath);
