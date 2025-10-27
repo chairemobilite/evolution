@@ -22,6 +22,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { handleHttpOtherResponseCode } from '../../../services/errorManagement/errorHandling';
 import { Dispatch } from 'redux';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
+import config from 'evolution-common/lib/config/project.config';
 
 interface InterviewListComponentProps {
     onInterviewSummaryChanged: (uuid: string, prevUuid?: string, nextUuid?: string) => void;
@@ -136,14 +137,17 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 Cell: ({ value }: CellArgs) => `#${value}`,
                 enableSortBy: true
             },
-            {
-                // TODO, this column is specific to projects, it should come as props from the project
-                id: 'response.accessCode',
-                label: t('admin:interviewByCodeFilter:title'),
-                accessor: 'response.accessCode',
-                Filter: InterviewByCodeFilter,
-                enableSortBy: true
-            },
+            ...(config.hasAccessCode
+                ? [
+                    {
+                        id: 'response.accessCode',
+                        label: t('admin:interviewByCodeFilter:title'),
+                        accessor: 'response.accessCode',
+                        Filter: InterviewByCodeFilter,
+                        enableSortBy: true
+                    }
+                ]
+                : []),
             {
                 id: 'created_at',
                 accessor: 'created_at',
