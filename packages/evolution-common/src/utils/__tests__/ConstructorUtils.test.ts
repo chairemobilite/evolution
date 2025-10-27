@@ -28,9 +28,42 @@ describe('ConstructorUtils', () => {
             expect(attributes).toEqual({ attr1: 'value1', attr2: 'value2' });
             expect(customAttributes).toEqual({ customAttr1: 'customValue1', customAttr2: 'customValue2' });
         });
+
+        test('should not include _surveyObjectsRegistry in customAttributes', () => {
+            const params = {
+                attr1: 'value1',
+                attr2: 'value2',
+                customAttr1: 'customValue1',
+                _surveyObjectsRegistry: surveyObjectsRegistry,
+            };
+            const attributeNames = ['attr1', 'attr2'];
+            const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, attributeNames);
+            expect(attributes).toEqual({ attr1: 'value1', attr2: 'value2' });
+            expect(customAttributes).toEqual({ customAttr1: 'customValue1' });
+            expect(customAttributes).not.toHaveProperty('_surveyObjectsRegistry');
+        });
+
+        test('should not include _surveyObjectsRegistry in customAttributes when multiple custom attributes present', () => {
+            const params = {
+                attr1: 'value1',
+                customAttr1: 'customValue1',
+                customAttr2: 'customValue2',
+                _surveyObjectsRegistry: surveyObjectsRegistry,
+                customAttr3: 'customValue3',
+            };
+            const attributeNames = ['attr1'];
+            const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, attributeNames);
+            expect(attributes).toEqual({ attr1: 'value1' });
+            expect(customAttributes).toEqual({
+                customAttr1: 'customValue1',
+                customAttr2: 'customValue2',
+                customAttr3: 'customValue3'
+            });
+            expect(customAttributes).not.toHaveProperty('_surveyObjectsRegistry');
+        });
     });
 
-    describe('initializeAttributes', () => {
+    describe('initializeAttributes with composed attributes', () => {
         test('should initialize attributes and custom composed attributes correctly', () => {
             const params = {
                 attr1: 'value1',
@@ -45,6 +78,25 @@ describe('ConstructorUtils', () => {
             const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, attributeNames, attributeWithComposedAttributes);
             expect(attributes).toEqual({ attr1: 'value1', attr2: 'value2' });
             expect(customAttributes).toEqual({ customAttr1: 'customValue1', customAttr2: 'customValue2' });
+        });
+
+        test('should not include _surveyObjectsRegistry or composed attributes in customAttributes', () => {
+            const params = {
+                attr1: 'value1',
+                attr2: 'value2',
+                customAttr1: 'customValue1',
+                _surveyObjectsRegistry: surveyObjectsRegistry,
+                composed1: 'foo',
+                composed2: 'bar'
+            };
+            const attributeNames = ['attr1', 'attr2'];
+            const attributeWithComposedAttributes = [...attributeNames, 'composed1', 'composed2'];
+            const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(params, attributeNames, attributeWithComposedAttributes);
+            expect(attributes).toEqual({ attr1: 'value1', attr2: 'value2' });
+            expect(customAttributes).toEqual({ customAttr1: 'customValue1' });
+            expect(customAttributes).not.toHaveProperty('_surveyObjectsRegistry');
+            expect(customAttributes).not.toHaveProperty('composed1');
+            expect(customAttributes).not.toHaveProperty('composed2');
         });
     });
 
