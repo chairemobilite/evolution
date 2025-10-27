@@ -32,7 +32,7 @@ export class ConstructorUtils {
             if (attributeNames.includes(attribute)) {
                 // If the key exists in the attributes object, assign the value to the initialized attributes
                 initializedAttributes[attribute] = params[attribute];
-            } else if (!attributeWithComposedAttributes.includes(attribute)) {
+            } else if (!attributeWithComposedAttributes.includes(attribute) && attribute !== '_surveyObjectsRegistry') {
                 // ignore composed attributes, dealt with later in the constructor
                 // If the key doesn't exist in the attributes object, assign the value to the initialized custom attributes
                 initializedCustomAttributes[attribute] = params[attribute];
