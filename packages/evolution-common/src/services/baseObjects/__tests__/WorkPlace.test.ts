@@ -169,6 +169,15 @@ describe('WorkPlace', () => {
         test.each([
             ['parkingType', 'exteriorAssignedOrGuaranteed'],
             ['parkingFeeType', 'free'],
+            ['preData', { importedWorkPlaceData: 'value', employeeCount: 50 }],
+            ['preGeography', {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-73.6, 45.6],
+                },
+                properties: {},
+            }],
         ])('should set and get %s', (attribute, value) => {
             const workPlace = new WorkPlace(validWorkPlaceAttributes, registry);
             workPlace[attribute] = value;
@@ -196,6 +205,32 @@ describe('WorkPlace', () => {
             const workPlace = new WorkPlace(validWorkPlaceAttributes, registry);
             workPlace[attribute] = value;
             expect(workPlace[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData and preGeography serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validWorkPlaceAttributes, preData: { importedWorkPlaceData: 'value', employeeCount: 50 } };
+            const wp1 = new WorkPlace(attrs, registry);
+            const wp2 = WorkPlace.unserialize(attrs, registry);
+            expect(wp1.preData).toEqual({ importedWorkPlaceData: 'value', employeeCount: 50 });
+            expect(wp2.preData).toEqual({ importedWorkPlaceData: 'value', employeeCount: 50 });
+        });
+
+        test('should preserve preGeography through (un)serialize', () => {
+            const preGeography = {
+                type: 'Feature' as const,
+                geometry: {
+                    type: 'Point' as const,
+                    coordinates: [-73.6, 45.6],
+                },
+                properties: {},
+            };
+            const attrs = { ...validWorkPlaceAttributes, preGeography };
+            const wp1 = new WorkPlace(attrs, registry);
+            const wp2 = WorkPlace.unserialize(attrs, registry);
+            expect(wp1.preGeography).toEqual(preGeography);
+            expect(wp2.preGeography).toEqual(preGeography);
         });
     });
 

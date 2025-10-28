@@ -189,6 +189,10 @@ describe('VisitedPlace', () => {
             ['activityCategory', 123],
             ['shortcut', 'invalid-uuid'],
             ['_sequence', 'invalid'],
+            ['preData', 'invalid'],
+            ['preData', []],
+            ['preData', new Date() as any],
+            ['preData', true as any]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validVisitedPlaceAttributesWithPlace, [param]: value };
             const errors = VisitedPlace.validateParams(invalidAttributes);
@@ -214,6 +218,7 @@ describe('VisitedPlace', () => {
             ['activityCategory', 'leisure'],
             ['shortcut', uuidV4()],
             ['_sequence', 2],
+            ['preData', { importedVisitedPlaceData: 'value', duration: 30 }],
         ])('should set and get %s', (attribute, value) => {
             const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
             visitedPlace[attribute] = value;
@@ -243,6 +248,16 @@ describe('VisitedPlace', () => {
             const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
             visitedPlace[attribute] = value;
             expect(visitedPlace[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validVisitedPlaceAttributesWithPlace, preData: { importedVisitedPlaceData: 'value', duration: 30 } };
+            const vp1 = new VisitedPlace(attrs, registry);
+            const vp2 = VisitedPlace.unserialize(attrs, registry);
+            expect(vp1.preData).toEqual({ importedVisitedPlaceData: 'value', duration: 30 });
+            expect(vp2.preData).toEqual({ importedVisitedPlaceData: 'value', duration: 30 });
         });
     });
 });

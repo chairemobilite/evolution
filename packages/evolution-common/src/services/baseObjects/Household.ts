@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
@@ -40,7 +41,8 @@ export const householdAttributes = [
     'homeOwnership',
     'contactPhoneNumber',
     'contactEmail',
-    'atLeastOnePersonWithDisability'
+    'atLeastOnePersonWithDisability',
+    'preData'
 ];
 
 export const householdAttributesWithComposedAttributes = [...householdAttributes, '_members', '_vehicles'];
@@ -61,6 +63,7 @@ export type HouseholdAttributes = {
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
     atLeastOnePersonWithDisability?: Optional<string>;
+    preData?: Optional<PreData>;
 } & UuidableAttributes &
     WeightableAttributes &
     ValidatebleAttributes;
@@ -95,7 +98,7 @@ export class Household extends Uuidable implements IValidatable {
     private _homeUuid?: Optional<string>; // allow reverse lookup
     private _interviewUuid?: Optional<string>; // allow reverse lookup
 
-    static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
+    static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail', 'preData'];
 
     constructor(params: ExtendedHouseholdAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -273,6 +276,14 @@ export class Household extends Uuidable implements IValidatable {
         this._attributes.atLeastOnePersonWithDisability = value;
     }
 
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
+    }
+
     get members(): Optional<Person[]> {
         return this._members;
     }
@@ -357,7 +368,7 @@ export class Household extends Uuidable implements IValidatable {
         const errors: Error[] = [];
 
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams));
 
@@ -422,6 +433,8 @@ export class Household extends Uuidable implements IValidatable {
                 displayName
             )
         );
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         const membersAttributes =
             dirtyParams._members !== undefined ? (dirtyParams._members as { [key: string]: unknown }[]) : [];

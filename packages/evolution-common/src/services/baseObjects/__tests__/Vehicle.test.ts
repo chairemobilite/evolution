@@ -117,6 +117,10 @@ describe('Vehicle', () => {
         ['acquiredYear', 'invalid'],
         ['licensePlateNumber', 123],
         ['internalId', 123],
+        ['preData', 'invalid'],
+        ['preData', []],
+        ['preData', new Date() as any],
+        ['preData', true as any]
     ])('should return an error for invalid %s', (param, value) => {
         const invalidAttributes = { ...validAttributes, [param]: value };
         const errors = Vehicle.validateParams(invalidAttributes);
@@ -160,6 +164,7 @@ describe('Vehicle', () => {
             ['acquiredYear', 2022],
             ['licensePlateNumber', 'XYZ789'],
             ['internalId', 'V002'],
+            ['preData', { importedVehicleData: 'value', vin: 'ABC123XYZ' }],
         ])('should set and get %s', (attribute, value) => {
             const vehicle = new Vehicle(validAttributes, registry);
             vehicle[attribute] = value;
@@ -184,6 +189,16 @@ describe('Vehicle', () => {
             const vehicle = new Vehicle(validAttributes, registry);
             vehicle[attribute] = value;
             expect(vehicle[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validAttributes, preData: { importedVehicleData: 'value', vin: 'ABC123XYZ' } };
+            const v1 = new Vehicle(attrs, registry);
+            const v2 = Vehicle.unserialize(attrs, registry);
+            expect(v1.preData).toEqual({ importedVehicleData: 'value', vin: 'ABC123XYZ' });
+            expect(v2.preData).toEqual({ importedVehicleData: 'value', vin: 'ABC123XYZ' });
         });
     });
 

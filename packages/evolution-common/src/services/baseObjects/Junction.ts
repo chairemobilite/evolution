@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -29,7 +30,8 @@ export const junctionAttributes = [
     '_uuid',
     'parkingType',
     'parkingFeeType',
-    'transitPlaceType'
+    'transitPlaceType',
+    'preData'
 ];
 
 export const junctionAttributesWithComposedAttributes = [...junctionAttributes, 'place'];
@@ -38,6 +40,7 @@ export type JunctionAttributes = {
     parkingType?: Optional<PlAttr.ParkingType>;
     parkingFeeType?: Optional<PlAttr.ParkingFeeType>;
     transitPlaceType?: Optional<PlAttr.TransitPlaceType>; // for transit junctions
+    preData?: Optional<PreData>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -69,7 +72,7 @@ export class Junction extends Uuidable implements IValidatable {
 
     private _tripUuid?: Optional<string>; // allow reverse lookup
 
-    static _confidentialAttributes = [];
+    static _confidentialAttributes = ['preData'];
 
     constructor(params: ExtendedJunctionAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -201,6 +204,14 @@ export class Junction extends Uuidable implements IValidatable {
         this._attributes.transitPlaceType = value;
     }
 
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
+    }
+
     get tripUuid(): Optional<string> {
         return this._tripUuid;
     }
@@ -261,7 +272,7 @@ export class Junction extends Uuidable implements IValidatable {
 
         // Validate params object:
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         // Validate _uuid:
         errors.push(...Uuidable.validateParams(dirtyParams));
@@ -279,6 +290,8 @@ export class Junction extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isString('parkingType', dirtyParams.parkingType, displayName));
         errors.push(...ParamsValidatorUtils.isString('parkingFeeType', dirtyParams.parkingFeeType, displayName));
         errors.push(...ParamsValidatorUtils.isString('transitPlaceType', dirtyParams.transitPlaceType, displayName));
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         // Validate composed place:
         const placeAttributes = dirtyParams._place as { [key: string]: unknown };

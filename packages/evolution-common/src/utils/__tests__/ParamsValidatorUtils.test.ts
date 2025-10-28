@@ -12,31 +12,73 @@ class TestClass { }
 
 describe('ParamsValidatorUtils', () => {
 
-    describe('isObject', () => {
-        test('should return no errors for a valid object', () => {
-            const errors = ParamsValidatorUtils.isObject('attr', {}, 'TestClass');
+    describe('isRecord', () => {
+        test('should return no errors for a valid plain object', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', {}, 'TestClass');
             expect(errors).toEqual([]);
         });
 
         test('should return no errors for an undefined value', () => {
-            const errors = ParamsValidatorUtils.isObject('attr', undefined, 'TestClass');
+            const errors = ParamsValidatorUtils.isRecord('attr', undefined, 'TestClass');
             expect(errors).toEqual([]);
         });
 
-        test('should return no errors for an null value', () => {
-            const errors = ParamsValidatorUtils.isObject('attr', null, 'TestClass');
+        test('should return no errors for a null value when allowNullParameter is true (default)', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', null, 'TestClass');
             expect(errors).toEqual([]);
         });
 
-        test('should return no errors for an non-empty object', () => {
-            const errors = ParamsValidatorUtils.isObject('attr', { foo: 'bar' }, 'TestClass');
+        test('should return no errors for a null value when allowNullParameter is explicitly true', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', null, 'TestClass', true);
             expect(errors).toEqual([]);
         });
 
-        test('should return an error for a non-object value', () => {
-            const errors = ParamsValidatorUtils.isObject('attr', 'invalid', 'TestClass');
+        test('should return an error for a null value when allowNullParameter is false', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', null, 'TestClass', false);
             expect(errors).toHaveLength(1);
-            expect(errors[0].message).toContain('should be an object');
+            expect(errors[0].message).toContain('should not be null');
+        });
+
+        test('should return no errors for a non-empty plain object', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', { foo: 'bar' }, 'TestClass');
+            expect(errors).toEqual([]);
+        });
+
+        test('should return an error for a string value', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', 'invalid', 'TestClass');
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toContain('should be a plain object (Record)');
+        });
+
+        test('should return an error for a number value', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', 123, 'TestClass');
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toContain('should be a plain object (Record)');
+        });
+
+        test('should return an error for a boolean value', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', true, 'TestClass');
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toContain('should be a plain object (Record)');
+        });
+
+        test('should return an error for an array value', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', ['foo', 'bar'], 'TestClass');
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toContain('should be a plain object (Record)');
+        });
+
+        test('should return an error for an empty array value', () => {
+            const errors = ParamsValidatorUtils.isRecord('attr', [], 'TestClass');
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toContain('should be a plain object (Record)');
+        });
+
+        test('should return an error for a class instance', () => {
+            const instance = new TestClass();
+            const errors = ParamsValidatorUtils.isRecord('attr', instance, 'TestClass');
+            expect(errors).toHaveLength(1);
+            expect(errors[0].message).toContain('should be a plain object (Record)');
         });
     });
 

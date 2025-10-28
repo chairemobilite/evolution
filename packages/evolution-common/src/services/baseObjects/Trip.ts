@@ -9,6 +9,7 @@ import _omit from 'lodash/omit';
 import _uniq from 'lodash/uniq';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
@@ -29,7 +30,14 @@ import { TripChain } from './TripChain';
 import { Person } from './Person';
 import { Household } from './Household';
 
-export const tripAttributes = [...startEndDateAndTimesAttributes, '_weights', '_isValid', '_uuid', '_sequence'];
+export const tripAttributes = [
+    ...startEndDateAndTimesAttributes,
+    '_weights',
+    '_isValid',
+    '_uuid',
+    '_sequence',
+    'preData'
+];
 
 export const tripAttributesWithComposedAttributes = [
     ...tripAttributes,
@@ -47,6 +55,7 @@ export type TripAttributes = {
      * they need a _sequence attribute to be able to order them.
      */
     _sequence?: Optional<number>;
+    preData?: Optional<PreData>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -87,7 +96,7 @@ export class Trip extends Uuidable implements IValidatable {
     private _journeyUuid?: Optional<string>; // allow reverse lookup: must be filled by Journey.
     private _tripChainUuid?: Optional<string>; // allow reverse lookup: must be filled by TripChain.
 
-    static _confidentialAttributes = [];
+    static _confidentialAttributes = ['preData'];
 
     constructor(params: ExtendedTripAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -301,6 +310,14 @@ export class Trip extends Uuidable implements IValidatable {
 
     set _weights(value: Optional<Weight[]>) {
         this._attributes._weights = value;
+    }
+
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
     }
 
     get startDate(): Optional<string> {
@@ -571,7 +588,7 @@ export class Trip extends Uuidable implements IValidatable {
         const errors: Error[] = [];
 
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
@@ -581,6 +598,8 @@ export class Trip extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         const startPlaceAttributes = dirtyParams.startPlace as { [key: string]: unknown };
         if (startPlaceAttributes !== undefined) {

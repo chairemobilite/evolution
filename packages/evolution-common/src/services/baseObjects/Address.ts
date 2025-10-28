@@ -291,7 +291,7 @@ export class Address extends Uuidable implements IValidatable {
 
         // Validate params object:
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         // Validate _uuid
         errors.push(...Uuidable.validateParams(dirtyParams));

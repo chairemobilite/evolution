@@ -163,6 +163,10 @@ describe('Organization', () => {
             ['contactPhoneNumber', 123],
             ['contactEmail', 123],
             ['revenueLevel', 123],
+            ['preData', 'invalid'],
+            ['preData', []],
+            ['preData', new Date() as any],
+            ['preData', true as any]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Organization.validateParams(invalidAttributes);
@@ -187,6 +191,7 @@ describe('Organization', () => {
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'jane.smith@example.com'],
             ['revenueLevel', 'Medium'],
+            ['preData', { importedOrgData: 'value', industry: 'tech' }],
         ])('should set and get %s', (attribute, value) => {
             const organization = new Organization(validAttributes, registry);
             organization[attribute] = value;
@@ -213,6 +218,16 @@ describe('Organization', () => {
             const organization = new Organization(validAttributes, registry);
             organization[attribute] = value;
             expect(organization[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validAttributes, preData: { importedOrgData: 'value', industry: 'tech' } };
+            const o1 = new Organization(attrs, registry);
+            const o2 = Organization.unserialize(attrs, registry);
+            expect(o1.preData).toEqual({ importedOrgData: 'value', industry: 'tech' });
+            expect(o2.preData).toEqual({ importedOrgData: 'value', industry: 'tech' });
         });
     });
 

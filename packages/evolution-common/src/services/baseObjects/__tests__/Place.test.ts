@@ -50,11 +50,19 @@ describe('Place', () => {
             },
             properties: {},
         },
+        preGeography: {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: [0, 0],
+            },
+            properties: {},
+        },
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
     };
 
-    const extendedPlaceAttributes : { [key: string]: unknown } = {
+    const extendedPlaceAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         customAttribute1: 'value1',
         customAttribute2: 'value2',
@@ -216,6 +224,11 @@ describe('Place', () => {
             ['deviceUsed', 123],
             ['zoom', 'invalid'],
             ['geography', 'invalid'],
+            ['preData', 'invalid'],
+            ['preData', []],
+            ['preData', new Date() as any],
+            ['preData', true as any],
+            ['preGeography', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validPlaceAttributes, [param]: value };
             const errors = Place.validateParams(invalidAttributes);
@@ -258,6 +271,15 @@ describe('Place', () => {
                 },
                 properties: {},
             }],
+            ['preData', { importedField: 'importedValue', anotherField: 123 }],
+            ['preGeography', {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [2, 2],
+                },
+                properties: {},
+            }],
         ])('should set and get %s', (attribute, value) => {
             const place = new Place(validPlaceAttributes, registry);
             place[attribute] = value;
@@ -285,6 +307,32 @@ describe('Place', () => {
             const place = new Place(validPlaceAttributes, registry);
             place[attribute] = value;
             expect(place[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData and preGeography serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validPlaceAttributes, preData: { importedField: 'importedValue', anotherField: 123 } };
+            const p1 = new Place(attrs, registry);
+            const p2 = Place.unserialize(attrs, registry);
+            expect(p1.preData).toEqual({ importedField: 'importedValue', anotherField: 123 });
+            expect(p2.preData).toEqual({ importedField: 'importedValue', anotherField: 123 });
+        });
+
+        test('should preserve preGeography through (un)serialize', () => {
+            const preGeography = {
+                type: 'Feature' as const,
+                geometry: {
+                    type: 'Point' as const,
+                    coordinates: [2, 2],
+                },
+                properties: {},
+            };
+            const attrs = { ...validPlaceAttributes, preGeography };
+            const p1 = new Place(attrs, registry);
+            const p2 = Place.unserialize(attrs, registry);
+            expect(p1.preGeography).toEqual(preGeography);
+            expect(p2.preGeography).toEqual(preGeography);
         });
     });
 
@@ -369,6 +417,12 @@ describe('Place', () => {
             expect(place.geographyIsValid()).toBe(true);
         });
 
+        test('should return undefined for undefined geography', () => {
+            const place = new Place(validPlaceAttributes, registry);
+            place.geography = undefined;
+            expect(place.geographyIsValid()).toBeUndefined();
+        });
+
         test('should return false for invalid geography', () => {
             const place = new Place(validPlaceAttributes, registry);
             place.geography = 'invalid' as any;
@@ -392,6 +446,45 @@ describe('Place', () => {
                 properties: {},
             } as any;
             expect(place.geographyIsValid()).toBe(false);
+        });
+    });
+
+    describe('preGeographyIsValid', () => {
+        test('should return true for valid preGeography', () => {
+            const place = new Place(validPlaceAttributes, registry);
+            expect(place.preGeographyIsValid()).toBe(true);
+        });
+
+        test('should return undefined for undefined preGeography', () => {
+            const place = new Place(validPlaceAttributes, registry);
+            place.preGeography = undefined;
+            expect(place.preGeographyIsValid()).toBeUndefined();
+        });
+
+
+        test('should return false for invalid preGeography', () => {
+            const place = new Place(validPlaceAttributes, registry);
+            place.preGeography = 'invalid' as any;
+            expect(place.preGeographyIsValid()).toBe(false);
+        });
+
+        test('should return undefined for no preGeography', () => {
+            const place = new Place(validPlaceAttributes, registry);
+            place.preGeography = undefined;
+            expect(place.preGeographyIsValid()).toBe(undefined);
+        });
+
+        test('should return false for valid preGeography feature, but not a point', () => {
+            const place = new Place(validPlaceAttributes, registry);
+            place.preGeography = {
+                type: 'Feature',
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]],
+                },
+                properties: {},
+            } as any;
+            expect(place.preGeographyIsValid()).toBe(false);
         });
     });
 });

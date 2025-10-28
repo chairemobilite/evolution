@@ -182,6 +182,10 @@ describe('Journey', () => {
             ['didTrips', 123],
             ['previousWeekRemoteWorkDays', 'invalid'],
             ['previousWeekTravelToWorkDays', 'invalid'],
+            ['preData', 'invalid'],
+            ['preData', []],
+            ['preData', new Date() as any],
+            ['preData', true as any]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Journey.validateParams(invalidAttributes);
@@ -212,6 +216,7 @@ describe('Journey', () => {
             ['didTrips', 'no'],
             ['previousWeekRemoteWorkDays', { friday: true, saturday: true, sunday: true }],
             ['previousWeekTravelToWorkDays', { thursday: true, friday: true }],
+            ['preData', { importedJourneyData: 'value', tripCount: 5 }],
         ])('should set and get %s', (attribute, value) => {
             const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;
@@ -240,6 +245,16 @@ describe('Journey', () => {
             const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;
             expect(journey[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validAttributes, preData: { importedJourneyData: 'value', tripCount: 5 } };
+            const j1 = new Journey(attrs, registry);
+            const j2 = Journey.unserialize(attrs, registry);
+            expect(j1.preData).toEqual({ importedJourneyData: 'value', tripCount: 5 });
+            expect(j2.preData).toEqual({ importedJourneyData: 'value', tripCount: 5 });
         });
     });
 

@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
@@ -35,7 +36,8 @@ export const tripChainAttributes = [
     'isMultiLoop',
     'isConstrained',
     'mainActivity',
-    'mainActivityCategory'
+    'mainActivityCategory',
+    'preData'
 ];
 
 export const tripChainAttributesWithComposedAttributes = [...tripChainAttributes, 'trips', 'visitedPlaces'];
@@ -46,6 +48,7 @@ export type TripChainAttributes = {
     isConstrained?: Optional<boolean>;
     mainActivity?: Optional<VPAttr.Activity>;
     mainActivityCategory?: Optional<VPAttr.ActivityCategory>;
+    preData?: Optional<PreData>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -86,7 +89,7 @@ export class TripChain extends Uuidable implements IValidatable {
 
     private _journeyUuid?: Optional<string>;
 
-    static _confidentialAttributes = [];
+    static _confidentialAttributes = ['preData'];
 
     constructor(params: ExtendedTripChainAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -231,6 +234,14 @@ export class TripChain extends Uuidable implements IValidatable {
         this._attributes.mainActivityCategory = value;
     }
 
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
+    }
+
     get trips(): Optional<Trip[]> {
         return this._trips;
     }
@@ -308,7 +319,7 @@ export class TripChain extends Uuidable implements IValidatable {
         const errors: Error[] = [];
 
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
@@ -328,6 +339,8 @@ export class TripChain extends Uuidable implements IValidatable {
         errors.push(
             ...ParamsValidatorUtils.isString('mainActivityCategory', dirtyParams.mainActivityCategory, displayName)
         );
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         const tripsAttributes =
             dirtyParams._trips !== undefined ? (dirtyParams._trips as { [key: string]: unknown }[]) : [];

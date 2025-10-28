@@ -295,6 +295,35 @@ describe('Home', () => {
             home._isValid = false;
             expect(home._isValid).toBe(false);
         });
+
+        it('should get and set preData', () => {
+            const validHomeAttributes = createValidHomeAttributes();
+            const home = new Home(validHomeAttributes, registry);
+            const preData = { importedHomeData: 'value', residents: 4 };
+            // This seems useless, but it is actually testing the getters and setters
+            home.preData = preData;
+            expect(home.preData).toEqual(preData);
+            home.preData = undefined;
+            expect(home.preData).toBeUndefined();
+        });
+
+        it('should get and set preGeography', () => {
+            const validHomeAttributes = createValidHomeAttributes();
+            const home = new Home(validHomeAttributes, registry);
+            const preGeography = {
+                type: 'Feature' as const,
+                geometry: {
+                    type: 'Point' as const,
+                    coordinates: [-73.5, 45.5],
+                },
+                properties: {},
+            };
+            // This seems useless, but it is actually testing the getters and setters
+            home.preGeography = preGeography;
+            expect(home.preGeography).toEqual(preGeography);
+            home.preGeography = undefined;
+            expect(home.preGeography).toBeUndefined();
+        });
     });
 
     describe('custom attributes', () => {
@@ -344,6 +373,34 @@ describe('Home', () => {
             delete paramsWithoutWeights._weights;
             const home = new Home(paramsWithoutWeights, registry);
             expect(home._weights).toBeUndefined();
+        });
+    });
+
+    describe('preData and preGeography serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const validHomeAttributes = createValidHomeAttributes();
+            const attrs = { ...validHomeAttributes, preData: { importedHomeData: 'value', residents: 4 } };
+            const h1 = new Home(attrs, registry);
+            const h2 = Home.unserialize(attrs, registry);
+            expect(h1.preData).toEqual({ importedHomeData: 'value', residents: 4 });
+            expect(h2.preData).toEqual({ importedHomeData: 'value', residents: 4 });
+        });
+
+        test('should preserve preGeography through (un)serialize', () => {
+            const validHomeAttributes = createValidHomeAttributes();
+            const preGeography = {
+                type: 'Feature' as const,
+                geometry: {
+                    type: 'Point' as const,
+                    coordinates: [-73.5, 45.5],
+                },
+                properties: {},
+            };
+            const attrs = { ...validHomeAttributes, preGeography };
+            const h1 = new Home(attrs, registry);
+            const h2 = Home.unserialize(attrs, registry);
+            expect(h1.preGeography).toEqual(preGeography);
+            expect(h2.preGeography).toEqual(preGeography);
         });
     });
 });

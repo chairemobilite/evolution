@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
@@ -40,7 +41,8 @@ export const journeyAttributes = [
     'noWorkTripReasonSpecify',
     'didTrips',
     'previousWeekRemoteWorkDays',
-    'previousWeekTravelToWorkDays'
+    'previousWeekTravelToWorkDays',
+    'preData'
 ];
 
 export const journeyAttributesWithComposedAttributes = [
@@ -71,6 +73,7 @@ export type JourneyAttributes = {
     previousWeekRemoteWorkDays?: Optional<PAttr.WeekdaySchedule>;
     /** Travel to work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
     previousWeekTravelToWorkDays?: Optional<PAttr.WeekdaySchedule>;
+    preData?: Optional<PreData>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -107,7 +110,7 @@ export class Journey extends Uuidable implements IValidatable {
 
     private _personUuid?: Optional<string>; // allow reverse lookup: must be filled by Person.
 
-    static _confidentialAttributes = [];
+    static _confidentialAttributes = ['preData'];
 
     constructor(params: ExtendedJourneyAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -313,6 +316,14 @@ export class Journey extends Uuidable implements IValidatable {
 
     set previousWeekTravelToWorkDays(value: Optional<PAttr.WeekdaySchedule>) {
         this._attributes.previousWeekTravelToWorkDays = value;
+    }
+
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
     }
 
     get visitedPlaces(): Optional<VisitedPlace[]> {
@@ -578,7 +589,7 @@ export class Journey extends Uuidable implements IValidatable {
         const errors: Error[] = [];
 
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
@@ -616,19 +627,21 @@ export class Journey extends Uuidable implements IValidatable {
 
         // Validate work schedule attributes
         errors.push(
-            ...ParamsValidatorUtils.isObject(
+            ...ParamsValidatorUtils.isRecord(
                 'previousWeekRemoteWorkDays',
                 dirtyParams.previousWeekRemoteWorkDays,
                 displayName
             )
         );
         errors.push(
-            ...ParamsValidatorUtils.isObject(
+            ...ParamsValidatorUtils.isRecord(
                 'previousWeekTravelToWorkDays',
                 dirtyParams.previousWeekTravelToWorkDays,
                 displayName
             )
         );
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         const visitedPlacesAttributes =
             dirtyParams._visitedPlaces !== undefined

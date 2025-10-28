@@ -25,7 +25,7 @@ export const validateParams = function (
     errors.push(...ParamsValidatorUtils.isPositiveNumber('id', interviewAttributes.id, displayName));
 
     errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-    errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+    errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
     errors.push(...Uuidable.validateParams(dirtyParams));
 

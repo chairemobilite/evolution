@@ -173,6 +173,10 @@ describe('Junction', () => {
             ['parkingType', 123],
             ['parkingFeeType', 123],
             ['transitPlaceType', 123],
+            ['preData', 'invalid'],
+            ['preData', []],
+            ['preData', new Date() as any],
+            ['preData', true as any],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validJunctionAttributesWithPlace, [param]: value };
             const errors = Junction.validateParams(invalidAttributes);
@@ -197,6 +201,7 @@ describe('Junction', () => {
             ['parkingType', 'interiorAssignedOrGuaranteed'],
             ['parkingFeeType', 'paidByEmployer'],
             ['transitPlaceType', 'busStation'],
+            ['preData', { importedJunctionData: 'value', waitTime: 5 }],
         ])('should set and get %s', (attribute, value) => {
             const junction = new Junction(validJunctionAttributesWithPlace, registry);
             junction[attribute] = value;
@@ -225,6 +230,16 @@ describe('Junction', () => {
             const junction = new Junction(validJunctionAttributesWithPlace, registry);
             junction[attribute] = value;
             expect(junction[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validJunctionAttributesWithPlace, preData: { importedJunctionData: 'value', waitTime: 5 } };
+            const j1 = new Junction(attrs, registry);
+            const j2 = Junction.unserialize(attrs, registry);
+            expect(j1.preData).toEqual({ importedJunctionData: 'value', waitTime: 5 });
+            expect(j2.preData).toEqual({ importedJunctionData: 'value', waitTime: 5 });
         });
     });
 });

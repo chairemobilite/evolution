@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -33,7 +34,8 @@ export const visitedPlaceAttributes = [
     '_sequence',
     'activity',
     'activityCategory',
-    'shortcut'
+    'shortcut',
+    'preData'
 ];
 
 export const visitedPlaceAttributesWithComposedAttributes = [...visitedPlaceAttributes, '_place'];
@@ -52,6 +54,7 @@ export type VisitedPlaceAttributes = {
     activityCategory?: Optional<VPAttr.ActivityCategory>;
     /** UUID of another visited place that this place references as a shortcut */
     shortcut?: Optional<VisitedPlaceUuid>;
+    preData?: Optional<PreData>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -83,7 +86,7 @@ export class VisitedPlace extends Uuidable implements IValidatable {
     private _place?: Optional<Place>;
     private _journeyUuid?: Optional<string>;
 
-    static _confidentialAttributes = [];
+    static _confidentialAttributes = ['preData'];
 
     constructor(params: ExtendedVisitedPlaceAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -239,6 +242,14 @@ export class VisitedPlace extends Uuidable implements IValidatable {
         this._attributes.shortcut = value;
     }
 
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
+    }
+
     get journeyUuid(): Optional<string> {
         return this._journeyUuid;
     }
@@ -301,7 +312,7 @@ export class VisitedPlace extends Uuidable implements IValidatable {
 
         // Validate params object:
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         // Validate _uuid:
         errors.push(...Uuidable.validateParams(dirtyParams));
@@ -321,6 +332,8 @@ export class VisitedPlace extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isString('activity', dirtyParams.activity, displayName));
         errors.push(...ParamsValidatorUtils.isString('activityCategory', dirtyParams.activityCategory, displayName));
         errors.push(...ParamsValidatorUtils.isUuid('shortcut', dirtyParams.shortcut, displayName));
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         // forbid self-reference when both UUIDs are present
         if (

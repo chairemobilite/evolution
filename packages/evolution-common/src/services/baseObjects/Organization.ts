@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
@@ -33,7 +34,8 @@ export const organizationAttributes = [
     'contactLastName',
     'contactPhoneNumber',
     'contactEmail',
-    'revenueLevel'
+    'revenueLevel',
+    'preData'
 ];
 
 export const organizationAttributesWithComposedAttributes = [...organizationAttributes, '_vehicles', '_places'];
@@ -48,6 +50,7 @@ export type OrganizationAttributes = {
     contactPhoneNumber?: Optional<string>;
     contactEmail?: Optional<string>;
     revenueLevel?: Optional<OAttr.RevenueLevel>;
+    preData?: Optional<PreData>;
 } & UuidableAttributes &
     WeightableAttributes &
     ValidatebleAttributes;
@@ -87,7 +90,7 @@ export class Organization extends Uuidable implements IValidatable {
 
     private _interviewUuid?: Optional<string>; // allow reverse lookup
 
-    static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail'];
+    static _confidentialAttributes = ['contactPhoneNumber', 'contactEmail', 'preData'];
 
     constructor(params: ExtendedOrganizationAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -216,6 +219,14 @@ export class Organization extends Uuidable implements IValidatable {
         this._attributes.revenueLevel = value;
     }
 
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
+    }
+
     get vehicles(): Optional<Vehicle[]> {
         return this._vehicles;
     }
@@ -285,7 +296,7 @@ export class Organization extends Uuidable implements IValidatable {
         const errors: Error[] = [];
 
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams));
 
@@ -314,6 +325,8 @@ export class Organization extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isString('contactEmail', dirtyParams.contactEmail, displayName));
 
         errors.push(...ParamsValidatorUtils.isString('revenueLevel', dirtyParams.revenueLevel, displayName));
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         const vehiclesAttributes =
             dirtyParams._vehicles !== undefined ? (dirtyParams._vehicles as { [key: string]: unknown }[]) : [];

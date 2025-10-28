@@ -168,6 +168,15 @@ describe('SchoolPlace', () => {
         test.each([
             ['parkingType', 'streetside'],
             ['parkingFeeType', 'paidByStudent'],
+            ['preData', { importedSchoolPlaceData: 'value', studentCount: 250 }],
+            ['preGeography', {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: [-73.7, 45.7],
+                },
+                properties: {},
+            }],
         ])('should set and get %s', (attribute, value) => {
             const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes, registry);
             schoolPlace[attribute] = value;
@@ -195,6 +204,32 @@ describe('SchoolPlace', () => {
             const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes, registry);
             schoolPlace[attribute] = value;
             expect(schoolPlace[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData and preGeography serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validSchoolPlaceAttributes, preData: { importedSchoolPlaceData: 'value', studentCount: 250 } };
+            const sp1 = new SchoolPlace(attrs, registry);
+            const sp2 = SchoolPlace.unserialize(attrs, registry);
+            expect(sp1.preData).toEqual({ importedSchoolPlaceData: 'value', studentCount: 250 });
+            expect(sp2.preData).toEqual({ importedSchoolPlaceData: 'value', studentCount: 250 });
+        });
+
+        test('should preserve preGeography through (un)serialize', () => {
+            const preGeography = {
+                type: 'Feature' as const,
+                geometry: {
+                    type: 'Point' as const,
+                    coordinates: [-73.7, 45.7],
+                },
+                properties: {},
+            };
+            const attrs = { ...validSchoolPlaceAttributes, preGeography };
+            const sp1 = new SchoolPlace(attrs, registry);
+            const sp2 = SchoolPlace.unserialize(attrs, registry);
+            expect(sp1.preGeography).toEqual(preGeography);
+            expect(sp2.preGeography).toEqual(preGeography);
         });
     });
 });
