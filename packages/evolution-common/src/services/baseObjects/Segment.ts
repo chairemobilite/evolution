@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
@@ -40,7 +41,8 @@ export const segmentAttributes = [
     'vehicleOccupancy',
     'paidForParking',
     'onDemandType',
-    'busLines'
+    'busLines',
+    'preData'
 ];
 
 export const segmentAttributesWithComposedAttributes = [
@@ -87,6 +89,7 @@ export type SegmentAttributes = {
     paidForParking?: Optional<boolean>;
     onDemandType?: Optional<string>;
     busLines?: Optional<string[]>; // for now, the bus lines are the line slugified shortname. TODO: discuss if we want to change that.
+    preData?: Optional<PreData>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
@@ -134,7 +137,7 @@ export class Segment extends Uuidable implements IValidatable {
 
     private _tripUuid?: Optional<string>;
 
-    static _confidentialAttributes = [];
+    static _confidentialAttributes = ['preData'];
 
     constructor(params: ExtendedSegmentAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -384,6 +387,14 @@ export class Segment extends Uuidable implements IValidatable {
         this._attributes.busLines = value;
     }
 
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
+    }
+
     get origin(): Optional<Junction> {
         return this._origin;
     }
@@ -538,7 +549,7 @@ export class Segment extends Uuidable implements IValidatable {
         const errors: Error[] = [];
 
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams, displayName));
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
@@ -568,6 +579,8 @@ export class Segment extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isString('onDemandType', dirtyParams.onDemandType, displayName));
 
         errors.push(...ParamsValidatorUtils.isArrayOfStrings('busLines', dirtyParams.busLines, displayName));
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         const transitDeclaredRoutingAttributes = dirtyParams._transitDeclaredRouting;
         if (transitDeclaredRoutingAttributes !== undefined) {

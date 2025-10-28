@@ -233,6 +233,15 @@ describe('Person', () => {
             expect(errors).toHaveLength(1);
         });
 
+        test('should return an error for invalid preData', () => {
+            const invalidAttributes = { ...validAttributes, preData: 'invalid' };
+            const result = Person.create(invalidAttributes, registry);
+            expect(hasErrors(result)).toBe(true);
+            const errors = unwrap(result) as Error[];
+            expect(errors.length).toBeGreaterThan(0);
+            expect(errors[0].toString()).toContain('preData');
+        });
+
         test.each(stringAttributes)('should return an error for invalid %s', (param) => {
             const invalidAttributes = { ...validAttributes, [param]: 123 };
             const result = Person.create(invalidAttributes, registry);
@@ -882,6 +891,7 @@ describe('Person', () => {
             ['nickname', 'Johnny'],
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'johnny@example.com'],
+            ['preData', { importedPersonData: 'value', age: 35 }],
         ])('should set and get %s', (attribute, value) => {
             const person = new Person(validAttributes, registry);
             person[attribute] = value;
@@ -912,6 +922,16 @@ describe('Person', () => {
             const value = valueFactory();
             person[attribute] = value;
             expect(person[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validAttributes, preData: { importedPersonData: 'value', age: 35 } };
+            const p1 = new Person(attrs, registry);
+            const p2 = Person.unserialize(attrs, registry);
+            expect(p1.preData).toEqual({ importedPersonData: 'value', age: 35 });
+            expect(p2.preData).toEqual({ importedPersonData: 'value', age: 35 });
         });
     });
 

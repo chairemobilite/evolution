@@ -9,6 +9,7 @@ import _omit from 'lodash/omit';
 
 import { isFeature, isPoint } from 'geojson-validation';
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
 import { ParkingType, ParkingFeeType } from './attributeTypes/PlaceAttributes';
 import { Address, AddressAttributes } from './Address';
@@ -42,7 +43,9 @@ export const placeAttributes = [
     'geocodingName',
     'lastAction',
     'deviceUsed',
-    'zoom'
+    'zoom',
+    'preData',
+    'preGeography'
 ];
 
 export const placeComposedAttributes = [...placeAttributes, '_address'];
@@ -64,6 +67,8 @@ export type PlaceAttributes = {
     lastAction?: Optional<LastAction>;
     deviceUsed?: Optional<Device>;
     zoom?: Optional<number>;
+    preData?: Optional<PreData>;
+    preGeography?: Optional<GeoJSON.Feature<GeoJSON.Point>>;
 } & UuidableAttributes &
     WeightableAttributes &
     ValidatebleAttributes;
@@ -91,7 +96,7 @@ export class Place extends Uuidable implements IValidatable {
 
     private _address?: Optional<Address>;
 
-    static _confidentialAttributes = [];
+    static _confidentialAttributes = ['preData'];
 
     constructor(params: ExtendedPlaceAttributes, surveyObjectsRegistry: SurveyObjectsRegistry) {
         super(params._uuid);
@@ -125,6 +130,16 @@ export class Place extends Uuidable implements IValidatable {
     geographyIsValid(): Optional<boolean> {
         return this.geography
             ? isFeature(this.geography) && this.geography.geometry && isPoint(this.geography.geometry)
+            : undefined;
+    }
+
+    /**
+     * Check if the preGeography attribute is valid and if it is a point feature
+     * @returns {Optional<boolean>} - Returns true if the preGeography attribute is valid, false if not, or undefined if no preGeography
+     */
+    preGeographyIsValid(): Optional<boolean> {
+        return this.preGeography
+            ? isFeature(this.preGeography) && this.preGeography.geometry && isPoint(this.preGeography.geometry)
             : undefined;
     }
 
@@ -288,6 +303,22 @@ export class Place extends Uuidable implements IValidatable {
         this._attributes.geography = value;
     }
 
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
+    }
+
+    get preGeography(): Optional<GeoJSON.Feature<GeoJSON.Point>> {
+        return this._attributes.preGeography;
+    }
+
+    set preGeography(value: Optional<GeoJSON.Feature<GeoJSON.Point>>) {
+        this._attributes.preGeography = value;
+    }
+
     /**
      * Creates a Place object from sanitized parameters
      * @param {ExtendedPlaceAttributes | SerializedExtendedPlaceAttributes} params - Sanitized place parameters
@@ -342,7 +373,7 @@ export class Place extends Uuidable implements IValidatable {
 
         // Validate params object:
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         // Validate _uuid:
         errors.push(...Uuidable.validateParams(dirtyParams));
@@ -400,6 +431,10 @@ export class Place extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isString('deviceUsed', dirtyParams.deviceUsed, displayName));
 
         errors.push(...ParamsValidatorUtils.isPositiveInteger('zoom', dirtyParams.zoom, displayName));
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
+
+        errors.push(...ParamsValidatorUtils.isGeojsonPoint('preGeography', dirtyParams.preGeography, displayName));
 
         const addressAttributes = dirtyParams._address as { [key: string]: unknown };
         if (addressAttributes) {

@@ -219,7 +219,7 @@ export class InterviewParadata {
         const errors: Error[] = [];
 
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         // TODO: also check if start/end timestamps are inside the survey period:
         errors.push(...ParamsValidatorUtils.isPositiveInteger('startedAt', dirtyParams.startedAt, displayName));
@@ -351,7 +351,7 @@ export class InterviewParadata {
             }
         }
 
-        errors.push(...ParamsValidatorUtils.isObject('sections', dirtyParams.sections, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('sections', dirtyParams.sections, displayName));
         // TODO: validate the section metadata object when we will have implemented the format
         return errors;
     };

@@ -204,7 +204,7 @@ export class Routing {
 
         // Validate params object:
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         // Validate _uuid:
         errors.push(...Uuidable.validateParams(dirtyParams));
@@ -240,7 +240,7 @@ export class Routing {
 
         // Validate params object:
         // TODO: verify all attributes from the route object
-        /*errors.push(...ParamsValidatorUtils.isObject(
+        /*errors.push(...ParamsValidatorUtils.isRecord(
             'route',
             dirtyParams.route,
             displayName

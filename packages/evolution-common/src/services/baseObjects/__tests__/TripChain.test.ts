@@ -192,6 +192,10 @@ describe('TripChain', () => {
             ['isConstrained', 'invalid'],
             ['mainActivity', 123],
             ['mainActivityCategory', 123],
+            ['preData', 'invalid'],
+            ['preData', []],
+            ['preData', new Date() as any],
+            ['preData', true as any]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = TripChain.validateParams(invalidAttributes);
@@ -218,6 +222,7 @@ describe('TripChain', () => {
             ['isConstrained', false],
             ['mainActivity', 'school'],
             ['mainActivityCategory', 'education'],
+            ['preData', { importedTripChainData: 'value', purpose: 'work' }],
         ])('should set and get %s', (attribute, value) => {
             const tripChain = new TripChain(validAttributes, registry);
             tripChain[attribute] = value;
@@ -245,6 +250,16 @@ describe('TripChain', () => {
             const tripChain = new TripChain(validAttributes, registry);
             tripChain[attribute] = value;
             expect(tripChain[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validAttributes, preData: { importedTripChainData: 'value', purpose: 'work' } };
+            const tc1 = new TripChain(attrs, registry);
+            const tc2 = TripChain.unserialize(attrs, registry);
+            expect(tc1.preData).toEqual({ importedTripChainData: 'value', purpose: 'work' });
+            expect(tc2.preData).toEqual({ importedTripChainData: 'value', purpose: 'work' });
         });
     });
 

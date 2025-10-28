@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
+import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
@@ -35,7 +36,8 @@ export const vehicleAttributes = [
     'isHydrogen',
     'acquiredYear',
     'licensePlateNumber',
-    'internalId'
+    'internalId',
+    'preData'
 ];
 
 export type VehicleAttributes = {
@@ -52,6 +54,7 @@ export type VehicleAttributes = {
     acquiredYear?: Optional<number>; // date of acquisition by the owner or the organization
     licensePlateNumber?: Optional<string>;
     internalId?: Optional<string>; // This is an internal number used by an organization or a company to identify the vehicle
+    preData?: Optional<PreData>;
 } & UuidableAttributes &
     WeightableAttributes &
     ValidatebleAttributes;
@@ -73,7 +76,7 @@ export class Vehicle extends Uuidable implements IValidatable {
     private _attributes: VehicleAttributes;
     private _customAttributes: { [key: string]: unknown };
 
-    static _confidentialAttributes = ['licensePlateNumber', 'internalId'];
+    static _confidentialAttributes = ['licensePlateNumber', 'internalId', 'preData'];
 
     private _organizationUuid?: Optional<string>; // allow reverse lookup: must be filled by Organization.
     private _ownerUuid?: Optional<string>; // allow reverse lookup: must be filled by Person.
@@ -227,6 +230,14 @@ export class Vehicle extends Uuidable implements IValidatable {
         this._attributes.internalId = value;
     }
 
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
+    }
+
     get ownerUuid(): Optional<string> {
         return this._ownerUuid;
     }
@@ -295,7 +306,7 @@ export class Vehicle extends Uuidable implements IValidatable {
         const errors: Error[] = [];
 
         errors.push(...ParamsValidatorUtils.isRequired('params', dirtyParams, displayName));
-        errors.push(...ParamsValidatorUtils.isObject('params', dirtyParams, displayName));
+        errors.push(...ParamsValidatorUtils.isRecord('params', dirtyParams, displayName));
 
         errors.push(...Uuidable.validateParams(dirtyParams));
 
@@ -334,6 +345,8 @@ export class Vehicle extends Uuidable implements IValidatable {
         );
 
         errors.push(...ParamsValidatorUtils.isString('internalId', dirtyParams.internalId, displayName));
+
+        errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
         errors.push(...ParamsValidatorUtils.isUuid('_ownerUuid', dirtyParams._ownerUuid, displayName));
         errors.push(...ParamsValidatorUtils.isUuid('_organizationUuid', dirtyParams._organizationUuid, displayName));

@@ -223,8 +223,67 @@ describe('Interview', () => {
             expect(interview.paradata).toBe(paradata);
         });
 
+        it('should get and set preData', () => {
+            const interview = new Interview(validParams, createRawInterviewAttributes(), registry);
+            const preData = { importedInterviewData: 'value', respondentId: 'R123' };
+            interview.preData = preData;
+            expect(interview.preData).toEqual(preData);
+            interview.preData = undefined;
+            expect(interview.preData).toBeUndefined();
+        });
+
+        it('should handle preData in constructor', () => {
+            const paramsWithPreData = {
+                ...validParams,
+                preData: { importedField: 'importedValue', surveyId: 'S456' }
+            };
+            const interview = new Interview(paramsWithPreData, createRawInterviewAttributes(), registry);
+            expect(interview.preData).toEqual({ importedField: 'importedValue', surveyId: 'S456' });
+        });
+
+        // TODO: These tests are skipped until setter validation is implemented
+        // The preData setter should validate using ParamsValidatorUtils.isRecord()
+        it.skip('should reject invalid types for preData', () => {
+            const interview = new Interview(validParams, createRawInterviewAttributes(), registry);
+            expect(() => {
+                interview.preData = [] as any;
+            }).toThrow(/validation|TypeError|Invalid preData|should be a plain object \(Record\)/);
+        });
+
+        it.skip('should reject non-object types for preData', () => {
+            const interview = new Interview(validParams, createRawInterviewAttributes(), registry);
+            expect(() => {
+                interview.preData = 'string value' as any;
+            }).toThrow(/validation|TypeError|Invalid preData|should be a plain object \(Record\)/);
+            expect(() => {
+                interview.preData = 123 as any;
+            }).toThrow(/validation|TypeError|Invalid preData|should be a plain object \(Record\)/);
+            expect(() => {
+                interview.preData = true as any;
+            }).toThrow(/validation|TypeError|Invalid preData|should be a plain object \(Record\)/);
+        });
+
         // Add similar tests for household, person, and organization
         // once their implementations are complete
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through create and unserialize', () => {
+            const paramsWithPreData = {
+                ...validParams,
+                preData: { importedInterviewData: 'value', respondentId: 'R123' }
+            };
+            const result1 = create(paramsWithPreData, createRawInterviewAttributes(), registry);
+            expect(isOk(result1)).toBe(true);
+            if (isOk(result1)) {
+                const interview1 = result1.result;
+                expect(interview1.preData).toEqual({ importedInterviewData: 'value', respondentId: 'R123' });
+
+                // Also test direct constructor
+                const interview2 = new Interview(paramsWithPreData, createRawInterviewAttributes(), registry);
+                expect(interview2.preData).toEqual({ importedInterviewData: 'value', respondentId: 'R123' });
+            }
+        });
     });
 
     describe('confidential attributes', () => {

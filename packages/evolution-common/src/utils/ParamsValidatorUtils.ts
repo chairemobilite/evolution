@@ -21,12 +21,28 @@ import {
 declare type Class<T = unknown> = new (...args: unknown[]) => T;
 
 export class ParamsValidatorUtils {
-    static isObject(attribute: string, value: unknown, displayName: string): Error[] {
-        if (value !== undefined && value !== null && typeof value !== 'object') {
-            return [new Error(`${displayName} validateParams: ${attribute} should be an object`)];
-        } else {
+    // isRecord checks if the value is a plain object (Record type) - excludes arrays, primitives, and class instances
+    static isRecord(attribute: string, value: unknown, displayName: string, allowNullParameter = true): Error[] {
+        // undefined is always allowed
+        if (value === undefined) {
             return [];
         }
+
+        // null is conditionally allowed based on allowNullParameter
+        if (value === null) {
+            if (allowNullParameter) {
+                return [];
+            } else {
+                return [new Error(`${displayName} validateParams: ${attribute} should not be null`)];
+            }
+        }
+
+        // Check if it's a plain object (Record type)
+        if (typeof value !== 'object' || Array.isArray(value) || value.constructor !== Object) {
+            return [new Error(`${displayName} validateParams: ${attribute} should be a plain object (Record)`)];
+        }
+
+        return [];
     }
 
     static isRequired(attribute: string, value: unknown, displayName: string): Error[] {

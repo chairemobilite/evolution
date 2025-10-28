@@ -230,6 +230,10 @@ describe('Trip', () => {
             ['endTime', 'invalid'],
             ['startTimePeriod', 123],
             ['endTimePeriod', 123],
+            ['preData', 'invalid'],
+            ['preData', []],
+            ['preData', new Date() as any],
+            ['preData', true as any]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Trip.validateParams(invalidAttributes);
@@ -255,6 +259,7 @@ describe('Trip', () => {
             ['tripChainUuid', uuidV4()],
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
+            ['preData', { importedTripData: 'value', distance: 12.5 }],
         ])('should set and get %s', (attribute, value) => {
             const trip = new Trip(validAttributes, registry);
             trip[attribute] = value;
@@ -284,6 +289,16 @@ describe('Trip', () => {
             const value = valueFactory();
             trip[attribute] = value;
             expect(trip[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validAttributes, preData: { importedTripData: 'value', distance: 12.5 } };
+            const t1 = new Trip(attrs, registry);
+            const t2 = Trip.unserialize(attrs, registry);
+            expect(t1.preData).toEqual({ importedTripData: 'value', distance: 12.5 });
+            expect(t2.preData).toEqual({ importedTripData: 'value', distance: 12.5 });
         });
     });
 

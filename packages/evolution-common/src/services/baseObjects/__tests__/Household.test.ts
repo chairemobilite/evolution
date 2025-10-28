@@ -161,6 +161,10 @@ describe('Household', () => {
         ['contactPhoneNumber', 123],
         ['contactEmail', 123],
         ['atLeastOnePersonWithDisability', 123],
+        ['preData', 'invalid'],
+        ['preData', []],
+        ['preData', new Date() as any],
+        ['preData', true as any]
     ])('should return an error for invalid %s', (param, value) => {
         const invalidAttributes = { ...validAttributes, [param]: value };
         const errors = Household.validateParams(invalidAttributes);
@@ -224,6 +228,7 @@ describe('Household', () => {
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'updated@example.com'],
             ['atLeastOnePersonWithDisability', 'no'],
+            ['preData', { importedHouseholdData: 'value', residents: 3 }],
         ])('should set and get %s', (attribute, value) => {
             const household = new Household(validAttributes, registry);
             household[attribute] = value;
@@ -250,6 +255,16 @@ describe('Household', () => {
             const household = new Household(validAttributes, registry);
             household[attribute] = value;
             expect(household[attribute]).toEqual(value);
+        });
+    });
+
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validAttributes, preData: { importedHouseholdData: 'value', residents: 3 } };
+            const h1 = new Household(attrs, registry);
+            const h2 = Household.unserialize(attrs, registry);
+            expect(h1.preData).toEqual({ importedHouseholdData: 'value', residents: 3 });
+            expect(h2.preData).toEqual({ importedHouseholdData: 'value', residents: 3 });
         });
     });
 

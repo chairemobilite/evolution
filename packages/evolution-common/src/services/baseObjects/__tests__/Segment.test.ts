@@ -158,6 +158,10 @@ describe('Segment', () => {
             ['onDemandType', 123],
             ['busLines', 'invalid'],
             ['busLines', [undefined, 'Line']],
+            ['preData', 'invalid'],
+            ['preData', []],
+            ['preData', new Date() as any],
+            ['preData', true as any]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Segment.validateParams(invalidAttributes);
@@ -187,6 +191,7 @@ describe('Segment', () => {
             ['paidForParking', false],
             ['onDemandType', 'pickupAtOrigin'],
             ['busLines', ['Line 3', 'Line 4']],
+            ['preData', { importedSegmentData: 'value', mode: 'bus' }],
         ])('should set and get %s', (attribute, value) => {
             const segment = new Segment(validAttributes, registry);
             segment[attribute] = value;
@@ -250,6 +255,16 @@ describe('Segment', () => {
         });
     });
 
+    describe('preData serialization', () => {
+        test('should preserve preData through (un)serialize', () => {
+            const attrs = { ...validAttributes, preData: { importedSegmentData: 'value', mode: 'bus' } };
+            const s1 = new Segment(attrs, registry);
+            const s2 = Segment.unserialize(attrs, registry);
+            expect(s1.preData).toEqual({ importedSegmentData: 'value', mode: 'bus' });
+            expect(s2.preData).toEqual({ importedSegmentData: 'value', mode: 'bus' });
+        });
+    });
+
     describe('Invalid Routing Attributes', () => {
 
         it('should report errors for invalid transitDeclaredRouting', () => {
@@ -269,7 +284,7 @@ describe('Segment', () => {
             }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
-            expect(unwrap(segment)[0].toString()).toEqual('Error: TransitRouting validateParams: params should be an object');
+            expect(unwrap(segment)[0].toString()).toEqual('Error: TransitRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid walkingDeclaredRouting', () => {
@@ -289,7 +304,7 @@ describe('Segment', () => {
             }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
-            expect(unwrap(segment)[0].toString()).toEqual('Error: WalkingRouting validateParams: params should be an object');
+            expect(unwrap(segment)[0].toString()).toEqual('Error: WalkingRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid cyclingDeclaredRouting', () => {
@@ -309,7 +324,7 @@ describe('Segment', () => {
             }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
-            expect(unwrap(segment)[0].toString()).toEqual('Error: CyclingRouting validateParams: params should be an object');
+            expect(unwrap(segment)[0].toString()).toEqual('Error: CyclingRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid drivingDeclaredRouting', () => {
@@ -329,7 +344,7 @@ describe('Segment', () => {
             }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
-            expect(unwrap(segment)[0].toString()).toEqual('Error: DrivingRouting validateParams: params should be an object');
+            expect(unwrap(segment)[0].toString()).toEqual('Error: DrivingRouting validateParams: params should be a plain object (Record)');
         });
 
 
@@ -351,7 +366,7 @@ describe('Segment', () => {
             }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
-            expect(unwrap(segment)[0].toString()).toEqual('Error: TransitRouting validateParams: params should be an object');
+            expect(unwrap(segment)[0].toString()).toEqual('Error: TransitRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid walkingCalculatedRoutings', () => {
@@ -371,7 +386,7 @@ describe('Segment', () => {
             }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
-            expect(unwrap(segment)[0].toString()).toEqual('Error: WalkingRouting validateParams: params should be an object');
+            expect(unwrap(segment)[0].toString()).toEqual('Error: WalkingRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid cyclingCalculatedRoutings', () => {
@@ -391,7 +406,7 @@ describe('Segment', () => {
             }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
-            expect(unwrap(segment)[0].toString()).toEqual('Error: CyclingRouting validateParams: params should be an object');
+            expect(unwrap(segment)[0].toString()).toEqual('Error: CyclingRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid drivingCalculatedRoutings', () => {
@@ -411,7 +426,7 @@ describe('Segment', () => {
             }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
-            expect(unwrap(segment)[0].toString()).toEqual('Error: DrivingRouting validateParams: params should be an object');
+            expect(unwrap(segment)[0].toString()).toEqual('Error: DrivingRouting validateParams: params should be a plain object (Record)');
         });
 
     });

@@ -8,6 +8,7 @@
 import _omit from 'lodash/omit';
 
 import { Optional } from '../../../types/Optional.type';
+import { PreData } from '../../../types/shared';
 import { Uuidable, UuidableAttributes } from '../Uuidable';
 import { YesNoDontKnow } from '../attributeTypes/GenericAttributes';
 import { ConstructorUtils } from '../../../utils/ConstructorUtils';
@@ -53,7 +54,8 @@ const interviewAttributesNames = [
     'interestRange',
     'difficultyRange',
     'burdenRange',
-    'consideredAbandoning'
+    'consideredAbandoning',
+    'preData'
 ];
 
 const interviewAttributesWithComposedAttributes = [...interviewAttributesNames, '_paradata'];
@@ -91,6 +93,7 @@ export type InterviewAttributes = {
     difficultyRange?: number; // respondent appreciation of the interview difficulty (range from very easy to very difficult)
     burdenRange?: number; // respondent appreciation of the interview burden (range from very light to very heavy)
     consideredAbandoning?: YesNoDontKnow; // yes/no/dontKnow if the respondent considered abandoning the interview
+    preData?: PreData;
 } & UuidableAttributes;
 
 export type InterviewWithComposedObjects = InterviewAttributes & {
@@ -188,7 +191,8 @@ export class Interview extends Uuidable {
         'interestRange', // only for analysis/admin exports
         'difficultyRange', // only for analysis/admin exports
         'burdenRange', // only for analysis/admin exports
-        'consideredAbandoning' // only for analysis/admin exports
+        'consideredAbandoning', // only for analysis/admin exports
+        'preData' // only for admin exports
     ];
 
     // Use InterviewUnserializer create function to generate/validate Interview object from json data with nested composed objects
@@ -431,6 +435,14 @@ export class Interview extends Uuidable {
 
     set consideredAbandoning(value: Optional<string>) {
         this._attributes.consideredAbandoning = value;
+    }
+
+    get preData(): Optional<PreData> {
+        return this._attributes.preData;
+    }
+
+    set preData(value: Optional<PreData>) {
+        this._attributes.preData = value;
     }
 
     get paradata(): Optional<InterviewParadata> {
