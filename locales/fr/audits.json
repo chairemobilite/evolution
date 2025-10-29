@@ -8,6 +8,8 @@
 
     "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 20)",
     "HH_M_Size": "La taille du ménage est manquante",
+    "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Les géographies pré-remplie et déclarée du domicile sont éloignées",
+    "HM_I_preGeographyAndHomeGeographyTooFarApartWarning": "Les géographies pré-remplie et déclarée du domicile sont un peu éloignées",
 
     "HM_M_Geography": "La géographie du domicile est manquante",
     "HM_I_Geography": "La géographie du domicile est invalide",

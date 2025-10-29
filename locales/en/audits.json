@@ -8,6 +8,8 @@
 
     "HH_I_Size": "Household size is out of range (should be between 1 and 20)",
     "HH_M_Size": "Household size is missing",
+    "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Pre-filled and declared home geographies are far apart",
+    "HM_I_preGeographyAndHomeGeographyTooFarApartWarning": "Pre-filled and declared home geographies are a bit far apart",
 
     "HM_M_Geography": "Home geography is missing",
     "HM_I_Geography": "Home geography is invalid",
