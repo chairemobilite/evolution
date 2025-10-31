@@ -203,6 +203,10 @@
         "CompletionRate": "Taux de complétion",
         "InterviewsStarted": "Entrevues débutées",
         "InterviewsCompleted": "Entrevues complétées",
+        "RespondentBurdenSection": "Fardeau des répondants",
+        "DistributionTitle": "Distribution (%)",
+        "SurveyDifficultyChartTitle": "Distribution de la difficulté de l'enquête",
+        "SurveyDifficultyYAxisTitle": "Niveau de difficulté (%)",
         "errors": {
             "invalidValueType": "Type de valeur invalide reçu du serveur.",
             "jsonConversion": "Erreur lors de la conversion des données en JSON.",
