@@ -32,10 +32,12 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
         const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
 
         expect(result).toBeDefined();
-        expect(result?.errorCode).toBe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning');
-        expect(result?.level).toBe('warning');
-        expect(result?.objectType).toBe('home');
-        expect(result?.objectUuid).toBe(validUuid);
+        expect(result).toMatchObject({
+            errorCode: 'HM_I_preGeographyAndHomeGeographyTooFarApartWarning',
+            level: 'warning',
+            objectType: 'home',
+            objectUuid: validUuid
+        });
     });
 
     it('should pass when coordinates are very close together (~7.8 meters)', () => {

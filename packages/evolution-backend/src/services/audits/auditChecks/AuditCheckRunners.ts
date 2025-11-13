@@ -11,14 +11,14 @@ import * as auditChecks from './AuditCheckContexts';
 /**
  * Run all interview audit checks
  */
-export const runInterviewAuditChecks = (
+export const runInterviewAuditChecks = async (
     context: auditChecks.InterviewAuditCheckContext,
     auditChecks: { [errorCode: string]: auditChecks.InterviewAuditCheckFunction }
-): AuditForObject[] => {
+): Promise<AuditForObject[]> => {
     const audits: AuditForObject[] = [];
 
     for (const errorCode in auditChecks) {
-        const auditResult = auditChecks[errorCode](context);
+        const auditResult = await auditChecks[errorCode](context);
         if (auditResult && context.interview._uuid) {
             audits.push(auditResult);
         }
@@ -30,14 +30,14 @@ export const runInterviewAuditChecks = (
 /**
  * Run all household audit checks
  */
-export const runHouseholdAuditChecks = (
+export const runHouseholdAuditChecks = async (
     context: auditChecks.HouseholdAuditCheckContext,
     auditChecks: { [errorCode: string]: auditChecks.HouseholdAuditCheckFunction }
-): AuditForObject[] => {
+): Promise<AuditForObject[]> => {
     const audits: AuditForObject[] = [];
 
     for (const errorCode in auditChecks) {
-        const auditResult = auditChecks[errorCode](context);
+        const auditResult = await auditChecks[errorCode](context);
         if (auditResult && context.household._uuid) {
             audits.push(auditResult);
         }
@@ -49,14 +49,14 @@ export const runHouseholdAuditChecks = (
 /**
  * Run all home audit checks
  */
-export const runHomeAuditChecks = (
+export const runHomeAuditChecks = async (
     context: auditChecks.HomeAuditCheckContext,
     auditChecks: { [errorCode: string]: auditChecks.HomeAuditCheckFunction }
-): AuditForObject[] => {
+): Promise<AuditForObject[]> => {
     const audits: AuditForObject[] = [];
 
     for (const errorCode in auditChecks) {
-        const auditResult = auditChecks[errorCode](context);
+        const auditResult = await auditChecks[errorCode](context);
         if (auditResult && context.home._uuid) {
             audits.push(auditResult);
         }
@@ -68,14 +68,14 @@ export const runHomeAuditChecks = (
 /**
  * Run all person audit checks
  */
-export const runPersonAuditChecks = (
+export const runPersonAuditChecks = async (
     context: auditChecks.PersonAuditCheckContext,
     auditChecks: { [errorCode: string]: auditChecks.PersonAuditCheckFunction }
-): AuditForObject[] => {
+): Promise<AuditForObject[]> => {
     const audits: AuditForObject[] = [];
 
     for (const errorCode in auditChecks) {
-        const auditResult = auditChecks[errorCode](context);
+        const auditResult = await auditChecks[errorCode](context);
         if (auditResult && context.person._uuid) {
             audits.push(auditResult);
         }
@@ -87,14 +87,14 @@ export const runPersonAuditChecks = (
 /**
  * Run all journey audit checks
  */
-export const runJourneyAuditChecks = (
+export const runJourneyAuditChecks = async (
     context: auditChecks.JourneyAuditCheckContext,
     auditChecks: { [errorCode: string]: auditChecks.JourneyAuditCheckFunction }
-): AuditForObject[] => {
+): Promise<AuditForObject[]> => {
     const audits: AuditForObject[] = [];
 
     for (const errorCode in auditChecks) {
-        const auditResult = auditChecks[errorCode](context);
+        const auditResult = await auditChecks[errorCode](context);
         if (auditResult && context.journey._uuid) {
             audits.push(auditResult);
         }
@@ -106,14 +106,14 @@ export const runJourneyAuditChecks = (
 /**
  * Run all visited place audit checks
  */
-export const runVisitedPlaceAuditChecks = (
+export const runVisitedPlaceAuditChecks = async (
     context: auditChecks.VisitedPlaceAuditCheckContext,
     auditChecks: { [errorCode: string]: auditChecks.VisitedPlaceAuditCheckFunction }
-): AuditForObject[] => {
+): Promise<AuditForObject[]> => {
     const audits: AuditForObject[] = [];
 
     for (const errorCode in auditChecks) {
-        const auditResult = auditChecks[errorCode](context);
+        const auditResult = await auditChecks[errorCode](context);
         if (auditResult && context.visitedPlace._uuid) {
             audits.push(auditResult);
         }
@@ -125,14 +125,14 @@ export const runVisitedPlaceAuditChecks = (
 /**
  * Run all trip audit checks
  */
-export const runTripAuditChecks = (
+export const runTripAuditChecks = async (
     context: auditChecks.TripAuditCheckContext,
     auditChecks: { [errorCode: string]: auditChecks.TripAuditCheckFunction }
-): AuditForObject[] => {
+): Promise<AuditForObject[]> => {
     const audits: AuditForObject[] = [];
 
     for (const errorCode in auditChecks) {
-        const auditResult = auditChecks[errorCode](context);
+        const auditResult = await auditChecks[errorCode](context);
         if (auditResult && context.trip._uuid) {
             audits.push(auditResult);
         }
@@ -144,14 +144,14 @@ export const runTripAuditChecks = (
 /**
  * Run all segment audit checks
  */
-export const runSegmentAuditChecks = (
+export const runSegmentAuditChecks = async (
     context: auditChecks.SegmentAuditCheckContext,
     auditChecks: { [errorCode: string]: auditChecks.SegmentAuditCheckFunction }
-): AuditForObject[] => {
+): Promise<AuditForObject[]> => {
     const audits: AuditForObject[] = [];
 
     for (const errorCode in auditChecks) {
-        const auditResult = auditChecks[errorCode](context);
+        const auditResult = await auditChecks[errorCode](context);
         if (auditResult && context.segment._uuid) {
             audits.push(auditResult);
         }

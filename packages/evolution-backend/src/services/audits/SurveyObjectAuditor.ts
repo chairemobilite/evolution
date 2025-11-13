@@ -15,9 +15,9 @@ export class SurveyObjectAuditor {
     /**
      * Run audits on all survey objects
      * @param surveyObjectsWithAudits - Survey objects with audits
-     * @returns Array of audit objects
+     * @returns Promise resolving to array of audit objects
      */
-    static auditSurveyObjects(surveyObjectsWithAudits: SurveyObjectsWithAudits): AuditForObject[] {
+    static async auditSurveyObjects(surveyObjectsWithAudits: SurveyObjectsWithAudits): Promise<AuditForObject[]> {
         const allAudits: AuditForObject[] = [];
 
         // Run interview audit checks
@@ -25,7 +25,11 @@ export class SurveyObjectAuditor {
             const interviewContext: auditChecks.InterviewAuditCheckContext = {
                 interview: surveyObjectsWithAudits.interview
             };
-            allAudits.push(...auditChecks.runInterviewAuditChecks(interviewContext, auditChecks.interviewAuditChecks));
+            const interviewAudits = await auditChecks.runInterviewAuditChecks(
+                interviewContext,
+                auditChecks.interviewAuditChecks
+            );
+            allAudits.push(...interviewAudits);
         } else {
             console.warn('Interview not found or invalid, skipping survey objects audit checks');
             return allAudits;
@@ -37,7 +41,11 @@ export class SurveyObjectAuditor {
                 household: surveyObjectsWithAudits.household,
                 interview: surveyObjectsWithAudits.interview
             };
-            allAudits.push(...auditChecks.runHouseholdAuditChecks(householdContext, auditChecks.householdAuditChecks));
+            const householdAudits = await auditChecks.runHouseholdAuditChecks(
+                householdContext,
+                auditChecks.householdAuditChecks
+            );
+            allAudits.push(...householdAudits);
         }
 
         // Audit home
@@ -47,7 +55,8 @@ export class SurveyObjectAuditor {
                 household: surveyObjectsWithAudits.household,
                 interview: surveyObjectsWithAudits.interview
             };
-            allAudits.push(...auditChecks.runHomeAuditChecks(homeContext, auditChecks.homeAuditChecks));
+            const homeAudits = await auditChecks.runHomeAuditChecks(homeContext, auditChecks.homeAuditChecks);
+            allAudits.push(...homeAudits);
         }
 
         // Audit persons and their nested objects
@@ -59,7 +68,11 @@ export class SurveyObjectAuditor {
                     home: surveyObjectsWithAudits.home,
                     interview: surveyObjectsWithAudits.interview
                 };
-                allAudits.push(...auditChecks.runPersonAuditChecks(personContext, auditChecks.personAuditChecks));
+                const personAudits = await auditChecks.runPersonAuditChecks(
+                    personContext,
+                    auditChecks.personAuditChecks
+                );
+                allAudits.push(...personAudits);
 
                 // Audit journeys for this person
                 if (person.journeys) {
@@ -71,9 +84,11 @@ export class SurveyObjectAuditor {
                             home: surveyObjectsWithAudits.home,
                             interview: surveyObjectsWithAudits.interview
                         };
-                        allAudits.push(
-                            ...auditChecks.runJourneyAuditChecks(journeyContext, auditChecks.journeyAuditChecks)
+                        const journeyAudits = await auditChecks.runJourneyAuditChecks(
+                            journeyContext,
+                            auditChecks.journeyAuditChecks
                         );
+                        allAudits.push(...journeyAudits);
 
                         // Run visited place audit checks for this journey
                         if (journey.visitedPlaces) {
@@ -86,12 +101,11 @@ export class SurveyObjectAuditor {
                                     home: surveyObjectsWithAudits.home,
                                     interview: surveyObjectsWithAudits.interview
                                 };
-                                allAudits.push(
-                                    ...auditChecks.runVisitedPlaceAuditChecks(
-                                        visitedPlaceContext,
-                                        auditChecks.visitedPlaceAuditChecks
-                                    )
+                                const visitedPlaceAudits = await auditChecks.runVisitedPlaceAuditChecks(
+                                    visitedPlaceContext,
+                                    auditChecks.visitedPlaceAuditChecks
                                 );
+                                allAudits.push(...visitedPlaceAudits);
                             }
                         }
 
@@ -106,9 +120,11 @@ export class SurveyObjectAuditor {
                                     home: surveyObjectsWithAudits.home,
                                     interview: surveyObjectsWithAudits.interview
                                 };
-                                allAudits.push(
-                                    ...auditChecks.runTripAuditChecks(tripContext, auditChecks.tripAuditChecks)
+                                const tripAudits = await auditChecks.runTripAuditChecks(
+                                    tripContext,
+                                    auditChecks.tripAuditChecks
                                 );
+                                allAudits.push(...tripAudits);
 
                                 // Run segment audit checks for this trip
                                 if (trip.segments) {
@@ -122,12 +138,11 @@ export class SurveyObjectAuditor {
                                             home: surveyObjectsWithAudits.home,
                                             interview: surveyObjectsWithAudits.interview
                                         };
-                                        allAudits.push(
-                                            ...auditChecks.runSegmentAuditChecks(
-                                                segmentContext,
-                                                auditChecks.segmentAuditChecks
-                                            )
+                                        const segmentAudits = await auditChecks.runSegmentAuditChecks(
+                                            segmentContext,
+                                            auditChecks.segmentAuditChecks
                                         );
+                                        allAudits.push(...segmentAudits);
                                     }
                                 }
                             }

@@ -14,7 +14,7 @@ import { createContextWithPerson } from './person/testHelper';
 describe('runPersonAuditChecks - Integration', () => {
     const validUuid = uuidV4();
 
-    it('should run all audit checks and return empty array when all checks pass', () => {
+    it('should run all audit checks and return empty array when all checks pass', async () => {
         const context = createContextWithPerson();
 
         // Mock audit checks that all pass (return undefined)
@@ -24,12 +24,12 @@ describe('runPersonAuditChecks - Integration', () => {
             TEST_CHECK_3: () => undefined
         };
 
-        const audits = runPersonAuditChecks(context, mockAuditChecks);
+        const audits = await runPersonAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(0);
     });
 
-    it('should aggregate results from multiple failing checks', () => {
+    it('should aggregate results from multiple failing checks', async () => {
         const context = createContextWithPerson(undefined, validUuid);
 
         // Mock audit checks where some fail (return audit objects)
@@ -55,7 +55,7 @@ describe('runPersonAuditChecks - Integration', () => {
             })
         };
 
-        const audits = runPersonAuditChecks(context, mockAuditChecks);
+        const audits = await runPersonAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(2);
         expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
@@ -63,12 +63,12 @@ describe('runPersonAuditChecks - Integration', () => {
         expect(audits.some((a) => a.errorCode === 'TEST_PASS')).toBe(false);
     });
 
-    it('should handle empty audit checks object', () => {
+    it('should handle empty audit checks object', async () => {
         const context = createContextWithPerson();
 
         const mockAuditChecks: { [errorCode: string]: PersonAuditCheckFunction } = {};
 
-        const audits = runPersonAuditChecks(context, mockAuditChecks);
+        const audits = await runPersonAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(0);
     });
