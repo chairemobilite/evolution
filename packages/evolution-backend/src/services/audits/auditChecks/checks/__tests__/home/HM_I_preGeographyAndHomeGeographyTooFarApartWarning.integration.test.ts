@@ -12,7 +12,7 @@ import { createContextWithHome } from './testHelper';
 describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Integration tests with real turfDistance', () => {
     const validUuid = uuidV4();
 
-    it('should warn when coordinates are moderately far apart (~93.5 meters)', () => {
+    it('should warn when coordinates are moderately far apart (~93.5 meters)', async () => {
         const context = createContextWithHome(
             {
                 preGeography: {
@@ -29,7 +29,7 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
             validUuid
         );
 
-        const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
+        const result = await homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
 
         expect(result).toBeDefined();
         expect(result?.errorCode).toBe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning');
@@ -38,7 +38,7 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
         expect(result?.objectUuid).toBe(validUuid);
     });
 
-    it('should pass when coordinates are very close together (~7.8 meters)', () => {
+    it('should pass when coordinates are very close together (~7.8 meters)', async () => {
         const context = createContextWithHome(
             {
                 preGeography: {
@@ -55,12 +55,12 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
             validUuid
         );
 
-        const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
+        const result = await homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
 
         expect(result).toBeUndefined();
     });
 
-    it('should pass when coordinates are far apart (~250km) - handled by error check', () => {
+    it('should pass when coordinates are far apart (~250km) - handled by error check', async () => {
         const context = createContextWithHome(
             {
                 preGeography: {
@@ -77,7 +77,7 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
             validUuid
         );
 
-        const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
+        const result = await homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
 
         expect(result).toBeUndefined();
     });

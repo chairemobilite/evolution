@@ -8,11 +8,12 @@
 import { v4 as uuidV4 } from 'uuid';
 import { homeAuditChecks } from '../../HomeAuditChecks';
 import { createContextWithHome } from './testHelper';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 
 describe('HM_I_preGeographyAndHomeGeographyTooFarApartError audit check - Integration tests with real turfDistance', () => {
     const validUuid = uuidV4();
 
-    it('should error when coordinates are far apart (Montreal to Quebec City, ~250km)', () => {
+    it('should error when coordinates are far apart (Montreal to Quebec City, ~250km)', async () => {
         const context = createContextWithHome(
             {
                 preGeography: {
@@ -32,13 +33,13 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartError audit check - Integr
         const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartError(context);
 
         expect(result).toBeDefined();
-        expect(result?.errorCode).toBe('HM_I_preGeographyAndHomeGeographyTooFarApartError');
-        expect(result?.level).toBe('error');
-        expect(result?.objectType).toBe('home');
-        expect(result?.objectUuid).toBe(validUuid);
+        expect((result as AuditForObject)?.errorCode).toBe('HM_I_preGeographyAndHomeGeographyTooFarApartError');
+        expect((result as AuditForObject)?.level).toBe('error');
+        expect((result as AuditForObject)?.objectType).toBe('home');
+        expect((result as AuditForObject)?.objectUuid).toBe(validUuid);
     });
 
-    it('should pass when coordinates are close together (~7.8 meters)', () => {
+    it('should pass when coordinates are close together (~7.8 meters)', async () => {
         const context = createContextWithHome(
             {
                 preGeography: {

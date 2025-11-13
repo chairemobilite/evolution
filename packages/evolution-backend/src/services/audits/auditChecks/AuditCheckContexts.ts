@@ -100,12 +100,29 @@ export type SegmentAuditCheckContext = {
 
 /**
  * Generic audit check function signatures
+ * Audit checks can be synchronous or asynchronous (e.g., for API calls)
  */
-export type InterviewAuditCheckFunction = (context: InterviewAuditCheckContext) => AuditForObject | undefined;
-export type HouseholdAuditCheckFunction = (context: HouseholdAuditCheckContext) => AuditForObject | undefined;
-export type HomeAuditCheckFunction = (context: HomeAuditCheckContext) => AuditForObject | undefined;
-export type PersonAuditCheckFunction = (context: PersonAuditCheckContext) => AuditForObject | undefined;
-export type JourneyAuditCheckFunction = (context: JourneyAuditCheckContext) => AuditForObject | undefined;
-export type VisitedPlaceAuditCheckFunction = (context: VisitedPlaceAuditCheckContext) => AuditForObject | undefined;
-export type TripAuditCheckFunction = (context: TripAuditCheckContext) => AuditForObject | undefined;
-export type SegmentAuditCheckFunction = (context: SegmentAuditCheckContext) => AuditForObject | undefined;
+export type InterviewAuditCheckFunction = (
+    context: InterviewAuditCheckContext
+) => AuditForObject | undefined | Promise<AuditForObject | undefined>;
+export type HouseholdAuditCheckFunction = (
+    context: HouseholdAuditCheckContext
+) => AuditForObject | undefined | Promise<AuditForObject | undefined>;
+export type HomeAuditCheckFunction = (
+    context: HomeAuditCheckContext
+) => AuditForObject | undefined | Promise<AuditForObject | undefined>;
+export type PersonAuditCheckFunction = (
+    context: PersonAuditCheckContext
+) => AuditForObject | undefined | Promise<AuditForObject | undefined>;
+export type JourneyAuditCheckFunction = (
+    context: JourneyAuditCheckContext
+) => AuditForObject | undefined | Promise<AuditForObject | undefined>;
+export type VisitedPlaceAuditCheckFunction = (
+    context: VisitedPlaceAuditCheckContext
+) => AuditForObject | undefined | Promise<AuditForObject | undefined>;
+export type TripAuditCheckFunction = (
+    context: TripAuditCheckContext
+) => AuditForObject | undefined | Promise<AuditForObject | undefined>;
+export type SegmentAuditCheckFunction = (
+    context: SegmentAuditCheckContext
+) => AuditForObject | undefined | Promise<AuditForObject | undefined>;

@@ -14,7 +14,7 @@ import { createContextWithJourney } from './journey/testHelper';
 describe('runJourneyAuditChecks - Integration', () => {
     const validUuid = uuidV4();
 
-    it('should run all audit checks and return empty array when all checks pass', () => {
+    it('should run all audit checks and return empty array when all checks pass', async () => {
         const context = createContextWithJourney();
 
         // Mock audit checks that all pass (return undefined)
@@ -24,12 +24,12 @@ describe('runJourneyAuditChecks - Integration', () => {
             TEST_CHECK_3: () => undefined
         };
 
-        const audits = runJourneyAuditChecks(context, mockAuditChecks);
+        const audits = await runJourneyAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(0);
     });
 
-    it('should aggregate results from multiple failing checks', () => {
+    it('should aggregate results from multiple failing checks', async () => {
         const context = createContextWithJourney(undefined, validUuid);
 
         // Mock audit checks where some fail (return audit objects)
@@ -55,7 +55,7 @@ describe('runJourneyAuditChecks - Integration', () => {
             })
         };
 
-        const audits = runJourneyAuditChecks(context, mockAuditChecks);
+        const audits = await runJourneyAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(2);
         expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
@@ -63,12 +63,12 @@ describe('runJourneyAuditChecks - Integration', () => {
         expect(audits.some((a) => a.errorCode === 'TEST_PASS')).toBe(false);
     });
 
-    it('should handle empty audit checks object', () => {
+    it('should handle empty audit checks object', async () => {
         const context = createContextWithJourney();
 
         const mockAuditChecks: { [errorCode: string]: JourneyAuditCheckFunction } = {};
 
-        const audits = runJourneyAuditChecks(context, mockAuditChecks);
+        const audits = await runJourneyAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(0);
     });
