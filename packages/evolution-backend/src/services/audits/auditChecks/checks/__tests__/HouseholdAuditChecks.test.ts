@@ -14,7 +14,7 @@ import { createContextWithHousehold } from './household/testHelper';
 describe('runHouseholdAuditChecks - Integration', () => {
     const validUuid = uuidV4();
 
-    it('should run all audit checks and return empty array when all checks pass', () => {
+    it('should run all audit checks and return empty array when all checks pass', async () => {
         const context = createContextWithHousehold();
 
         // Mock audit checks that all pass (return undefined)
@@ -24,12 +24,12 @@ describe('runHouseholdAuditChecks - Integration', () => {
             TEST_CHECK_3: () => undefined
         };
 
-        const audits = runHouseholdAuditChecks(context, mockAuditChecks);
+        const audits = await runHouseholdAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(0);
     });
 
-    it('should aggregate results from multiple failing checks', () => {
+    it('should aggregate results from multiple failing checks', async () => {
         const context = createContextWithHousehold(undefined, validUuid);
 
         // Mock audit checks where some fail (return audit objects)
@@ -55,7 +55,7 @@ describe('runHouseholdAuditChecks - Integration', () => {
             })
         };
 
-        const audits = runHouseholdAuditChecks(context, mockAuditChecks);
+        const audits = await runHouseholdAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(2);
         expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
@@ -64,12 +64,12 @@ describe('runHouseholdAuditChecks - Integration', () => {
 
     });
 
-    it('should handle empty audit checks object', () => {
+    it('should handle empty audit checks object', async () => {
         const context = createContextWithHousehold();
 
         const mockAuditChecks: { [errorCode: string]: HouseholdAuditCheckFunction } = {};
 
-        const audits = runHouseholdAuditChecks(context, mockAuditChecks);
+        const audits = await runHouseholdAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(0);
     });

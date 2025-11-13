@@ -13,7 +13,7 @@ import { createContextWithVisitedPlace } from './visitedPlace/testHelper';
 describe('runVisitedPlaceAuditChecks - Integration', () => {
     const validUuid = uuidV4();
 
-    it('should run all audit checks and return empty array when all checks pass', () => {
+    it('should run all audit checks and return empty array when all checks pass', async () => {
         const context = createContextWithVisitedPlace();
 
         // Mock audit checks that all pass (return undefined)
@@ -23,12 +23,12 @@ describe('runVisitedPlaceAuditChecks - Integration', () => {
             TEST_CHECK_3: () => undefined
         };
 
-        const audits = runVisitedPlaceAuditChecks(context, mockAuditChecks);
+        const audits = await runVisitedPlaceAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(0);
     });
 
-    it('should aggregate results from multiple failing checks', () => {
+    it('should aggregate results from multiple failing checks', async () => {
         const context = createContextWithVisitedPlace(undefined, validUuid);
 
         // Mock audit checks where some fail (return audit objects)
@@ -54,7 +54,7 @@ describe('runVisitedPlaceAuditChecks - Integration', () => {
             })
         };
 
-        const audits = runVisitedPlaceAuditChecks(context, mockAuditChecks);
+        const audits = await runVisitedPlaceAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(2);
         expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
@@ -71,14 +71,87 @@ describe('runVisitedPlaceAuditChecks - Integration', () => {
         expect(fail2.version).toBe(1);
     });
 
-    it('should handle empty audit checks object', () => {
+    it('should handle empty audit checks object', async () => {
         const context = createContextWithVisitedPlace();
 
         const mockAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {};
 
-        const audits = runVisitedPlaceAuditChecks(context, mockAuditChecks);
+        const audits = await runVisitedPlaceAuditChecks(context, mockAuditChecks);
 
         expect(audits).toHaveLength(0);
+    });
+
+    it('should await async check functions and aggregate results correctly', async () => {
+        const context = createContextWithVisitedPlace(undefined, validUuid);
+
+        // Mock audit checks with async functions
+        const mockAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
+            ASYNC_CHECK_PASS: async () => {
+                // Simulate async work
+                await new Promise((resolve) => setTimeout(resolve, 10));
+                return undefined;
+            },
+            ASYNC_CHECK_FAIL: async () => {
+                // Simulate async work
+                await new Promise((resolve) => setTimeout(resolve, 10));
+                return {
+                    objectUuid: validUuid,
+                    objectType: 'visitedPlace',
+                    errorCode: 'ASYNC_CHECK_FAIL',
+                    version: 1,
+                    level: 'error',
+                    message: 'Async check failure',
+                    ignore: false
+                };
+            },
+            SYNC_CHECK_FAIL: () => ({
+                objectUuid: validUuid,
+                objectType: 'visitedPlace',
+                errorCode: 'SYNC_CHECK_FAIL',
+                version: 1,
+                level: 'warning',
+                message: 'Sync check failure',
+                ignore: false
+            })
+        };
+
+        const audits = await runVisitedPlaceAuditChecks(context, mockAuditChecks);
+
+        expect(audits).toHaveLength(2);
+        expect(audits.some((a) => a.errorCode === 'ASYNC_CHECK_FAIL')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'SYNC_CHECK_FAIL')).toBe(true);
+        expect(audits.some((a) => a.errorCode === 'ASYNC_CHECK_PASS')).toBe(false);
+    });
+
+    it('should propagate errors when a check throws an exception', async () => {
+        const context = createContextWithVisitedPlace(undefined, validUuid);
+
+        // Mock audit checks where one throws an error
+        const mockAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
+            TEST_CHECK_PASS: () => undefined,
+            TEST_CHECK_THROWS: () => {
+                throw new Error('Check function threw an error');
+            }
+        };
+
+        await expect(runVisitedPlaceAuditChecks(context, mockAuditChecks)).rejects.toThrow(
+            'Check function threw an error'
+        );
+    });
+
+    it('should propagate errors when an async check rejects', async () => {
+        const context = createContextWithVisitedPlace(undefined, validUuid);
+
+        // Mock audit checks where one returns a rejected Promise
+        const mockAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
+            TEST_CHECK_PASS: () => undefined,
+            TEST_CHECK_REJECTS: async () => {
+                await new Promise((resolve) => setTimeout(resolve, 10));
+                throw new Error('Async check rejected');
+            }
+        };
+
+        await expect(runVisitedPlaceAuditChecks(context, mockAuditChecks)).rejects.toThrow('Async check rejected');
     });
 
 });

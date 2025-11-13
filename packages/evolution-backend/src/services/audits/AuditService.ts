@@ -71,7 +71,7 @@ export class AuditService {
 
         // Step 3: Run object audits
         console.log('Step 3: Running object audits...');
-        const objectAudits = SurveyObjectAuditor.auditSurveyObjects(surveyObjectsWithAudits);
+        const objectAudits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjectsWithAudits);
         surveyObjectsWithAudits.audits.push(...objectAudits);
         surveyObjectsWithAudits.auditsByObject = auditsArrayToAuditsByObject(surveyObjectsWithAudits.audits);
 
