@@ -26,10 +26,18 @@ export class AuditService {
      * This function must be called before reviewing and after any change
      * in the corrected response during review process.
      * It must also be called if corrected response is reset from original response.
-     * @param interview - Interview attributes to audit
+     * The runExtendedAuditChecks parameter is used to control Whether to run extended audit checks.
+     * Some audit checks are special and would fetch data from external services or perform
+     * long or complex calculations. we do not want to run these checks on each audit
+     * call, especially during review, when any change to the data will refresh the audit checks.
+     * @param interviewAttributes - Interview attributes to audit
+     * @param runExtendedAuditChecks - whether to run extended audit checks
      * @returns Promise<SurveyObjectsWithAudits> - Complete audit results
      */
-    static async auditInterview(interviewAttributes: InterviewAttributes): Promise<SurveyObjectsWithAudits> {
+    static async auditInterview(
+        interviewAttributes: InterviewAttributes,
+        runExtendedAuditChecks: boolean = false
+    ): Promise<SurveyObjectsWithAudits> {
         console.log(`Starting audit workflow for interview ${interviewAttributes.uuid}`);
 
         // If the interview has no response or corrected response, return an empty survey objects with audits
@@ -71,7 +79,10 @@ export class AuditService {
 
         // Step 3: Run object audits
         console.log('Step 3: Running object audits...');
-        const objectAudits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjectsWithAudits);
+        const objectAudits = await SurveyObjectAuditor.auditSurveyObjects(
+            surveyObjectsWithAudits,
+            runExtendedAuditChecks
+        );
         surveyObjectsWithAudits.audits.push(...objectAudits);
         surveyObjectsWithAudits.auditsByObject = auditsArrayToAuditsByObject(surveyObjectsWithAudits.audits);
 

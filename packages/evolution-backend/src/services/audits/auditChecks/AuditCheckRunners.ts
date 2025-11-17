@@ -23,7 +23,6 @@ export const runInterviewAuditChecks = async (
             audits.push(auditResult);
         }
     }
-
     return audits;
 };
 
@@ -42,7 +41,6 @@ export const runHouseholdAuditChecks = async (
             audits.push(auditResult);
         }
     }
-
     return audits;
 };
 
@@ -61,7 +59,6 @@ export const runHomeAuditChecks = async (
             audits.push(auditResult);
         }
     }
-
     return audits;
 };
 
@@ -80,7 +77,6 @@ export const runPersonAuditChecks = async (
             audits.push(auditResult);
         }
     }
-
     return audits;
 };
 
@@ -99,7 +95,6 @@ export const runJourneyAuditChecks = async (
             audits.push(auditResult);
         }
     }
-
     return audits;
 };
 
@@ -118,7 +113,6 @@ export const runVisitedPlaceAuditChecks = async (
             audits.push(auditResult);
         }
     }
-
     return audits;
 };
 
@@ -137,7 +131,6 @@ export const runTripAuditChecks = async (
             audits.push(auditResult);
         }
     }
-
     return audits;
 };
 
@@ -156,6 +149,5 @@ export const runSegmentAuditChecks = async (
             audits.push(auditResult);
         }
     }
-
     return audits;
 };
