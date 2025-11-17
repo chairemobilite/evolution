@@ -140,7 +140,7 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
 
         // Should call AuditService
         expect(mockAuditInterview).toHaveBeenCalledTimes(1);
-        expect(mockAuditInterview).toHaveBeenCalledWith(interviewAttributes);
+        expect(mockAuditInterview).toHaveBeenCalledWith(interviewAttributes, false);
 
         // Should return the audits from AuditService
         expect(objectsAndAudits.audits).toEqual(mockAuditsFromService);

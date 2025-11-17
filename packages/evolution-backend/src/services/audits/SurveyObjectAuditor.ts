@@ -15,9 +15,16 @@ export class SurveyObjectAuditor {
     /**
      * Run audits on all survey objects
      * @param surveyObjectsWithAudits - Survey objects with audits
+     * @param runExtendedAuditChecks - Whether to run extended audit checks
+     * Some audit checks are special and would fetch data from external services or perform
+     * long or complex calculations. we do not want to run these checks on each audit
+     * call, especially during review, when any change to the data will refresh the audit checks.
      * @returns Promise resolving to array of audit objects
      */
-    static async auditSurveyObjects(surveyObjectsWithAudits: SurveyObjectsWithAudits): Promise<AuditForObject[]> {
+    static async auditSurveyObjects(
+        surveyObjectsWithAudits: SurveyObjectsWithAudits,
+        runExtendedAuditChecks: boolean = false
+    ): Promise<AuditForObject[]> {
         const allAudits: AuditForObject[] = [];
 
         // Run interview audit checks
@@ -27,7 +34,9 @@ export class SurveyObjectAuditor {
             };
             const interviewAudits = await auditChecks.runInterviewAuditChecks(
                 interviewContext,
-                auditChecks.interviewAuditChecks
+                runExtendedAuditChecks
+                    ? Object.assign({}, auditChecks.interviewAuditChecks, auditChecks.interviewExtendedAuditChecks)
+                    : auditChecks.interviewAuditChecks
             );
             allAudits.push(...interviewAudits);
         } else {
@@ -43,7 +52,9 @@ export class SurveyObjectAuditor {
             };
             const householdAudits = await auditChecks.runHouseholdAuditChecks(
                 householdContext,
-                auditChecks.householdAuditChecks
+                runExtendedAuditChecks
+                    ? Object.assign({}, auditChecks.householdAuditChecks, auditChecks.householdExtendedAuditChecks)
+                    : auditChecks.householdAuditChecks
             );
             allAudits.push(...householdAudits);
         }
@@ -55,7 +66,12 @@ export class SurveyObjectAuditor {
                 household: surveyObjectsWithAudits.household,
                 interview: surveyObjectsWithAudits.interview
             };
-            const homeAudits = await auditChecks.runHomeAuditChecks(homeContext, auditChecks.homeAuditChecks);
+            const homeAudits = await auditChecks.runHomeAuditChecks(
+                homeContext,
+                runExtendedAuditChecks
+                    ? Object.assign({}, auditChecks.homeAuditChecks, auditChecks.homeExtendedAuditChecks)
+                    : auditChecks.homeAuditChecks
+            );
             allAudits.push(...homeAudits);
         }
 
@@ -70,7 +86,9 @@ export class SurveyObjectAuditor {
                 };
                 const personAudits = await auditChecks.runPersonAuditChecks(
                     personContext,
-                    auditChecks.personAuditChecks
+                    runExtendedAuditChecks
+                        ? Object.assign({}, auditChecks.personAuditChecks, auditChecks.personExtendedAuditChecks)
+                        : auditChecks.personAuditChecks
                 );
                 allAudits.push(...personAudits);
 
@@ -86,7 +104,13 @@ export class SurveyObjectAuditor {
                         };
                         const journeyAudits = await auditChecks.runJourneyAuditChecks(
                             journeyContext,
-                            auditChecks.journeyAuditChecks
+                            runExtendedAuditChecks
+                                ? Object.assign(
+                                    {},
+                                    auditChecks.journeyAuditChecks,
+                                    auditChecks.journeyExtendedAuditChecks
+                                )
+                                : auditChecks.journeyAuditChecks
                         );
                         allAudits.push(...journeyAudits);
 
@@ -103,7 +127,13 @@ export class SurveyObjectAuditor {
                                 };
                                 const visitedPlaceAudits = await auditChecks.runVisitedPlaceAuditChecks(
                                     visitedPlaceContext,
-                                    auditChecks.visitedPlaceAuditChecks
+                                    runExtendedAuditChecks
+                                        ? Object.assign(
+                                            {},
+                                            auditChecks.visitedPlaceAuditChecks,
+                                            auditChecks.visitedPlaceExtendedAuditChecks
+                                        )
+                                        : auditChecks.visitedPlaceAuditChecks
                                 );
                                 allAudits.push(...visitedPlaceAudits);
                             }
@@ -122,7 +152,13 @@ export class SurveyObjectAuditor {
                                 };
                                 const tripAudits = await auditChecks.runTripAuditChecks(
                                     tripContext,
-                                    auditChecks.tripAuditChecks
+                                    runExtendedAuditChecks
+                                        ? Object.assign(
+                                            {},
+                                            auditChecks.tripAuditChecks,
+                                            auditChecks.tripExtendedAuditChecks
+                                        )
+                                        : auditChecks.tripAuditChecks
                                 );
                                 allAudits.push(...tripAudits);
 
@@ -140,7 +176,13 @@ export class SurveyObjectAuditor {
                                         };
                                         const segmentAudits = await auditChecks.runSegmentAuditChecks(
                                             segmentContext,
-                                            auditChecks.segmentAuditChecks
+                                            runExtendedAuditChecks
+                                                ? Object.assign(
+                                                    {},
+                                                    auditChecks.segmentAuditChecks,
+                                                    auditChecks.segmentExtendedAuditChecks
+                                                )
+                                                : auditChecks.segmentAuditChecks
                                         );
                                         allAudits.push(...segmentAudits);
                                     }

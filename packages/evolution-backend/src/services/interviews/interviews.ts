@@ -6,9 +6,7 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
-import { auditInterview, getChangesAfterCleaningInterview } from 'evolution-common/lib/services/interviews/interview';
-import { updateInterview, setInterviewFields, copyResponseToCorrectedResponse } from './interview';
-import { mapResponseToCorrectedResponse } from './interviewUtils';
+import { updateInterview, copyResponseToCorrectedResponse } from './interview';
 import { validateAccessCode } from '../accessCode';
 import { validate as validateUuid } from 'uuid';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -176,7 +174,7 @@ export default class Interviews {
         return interviewsDbQueries.getValidationAuditStats({ filters: actualFilters });
     };
 
-    static async auditInterviewsV2(disableConsoleLog = false): Promise<void> {
+    static async auditInterviews(disableConsoleLog = false, runExtendedAuditChecks = false): Promise<void> {
         const oldConsoleLog = console.log;
         if (disableConsoleLog) {
             console.log = () => {
@@ -207,7 +205,10 @@ export default class Interviews {
                             .then(
                                 () =>
                                     new Promise((res1, _rej1) => {
-                                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview)
+                                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(
+                                            interview,
+                                            runExtendedAuditChecks
+                                        )
                                             .then(() => {
                                                 res1(true);
                                             })
@@ -224,7 +225,10 @@ export default class Interviews {
                                 queryStream.resume();
                             });
                     } else {
-                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview)
+                        SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(
+                            interview,
+                            runExtendedAuditChecks
+                        )
                             .catch((error) => {
                                 console.error('Error running and saving interview audits', error);
                             })
@@ -238,60 +242,6 @@ export default class Interviews {
                     if (disableConsoleLog) {
                         console.log = oldConsoleLog;
                     }
-                    resolve();
-                });
-        });
-    }
-
-    static async auditInterviews(validations, surveyProjectHelper, parsers): Promise<void> {
-        const queryStream = interviewsDbQueries.getInterviewsStream({ filters: {} });
-        let i = 0;
-        return new Promise((resolve, reject) => {
-            queryStream
-                .on('error', (error) => {
-                    console.error('queryStream failed', error);
-                    reject(error);
-                })
-                .on('data', (row) => {
-                    queryStream.pause();
-                    // Pausing the connnection is useful if your processing involves I/O
-                    const interview = row;
-                    const changesAfterCleaningInterview = mapResponseToCorrectedResponse(
-                        getChangesAfterCleaningInterview(
-                            interview.corrected_response,
-                            interview.response,
-                            interview,
-                            parsers,
-                            surveyProjectHelper
-                        ),
-                        []
-                    );
-                    setInterviewFields(interview, changesAfterCleaningInterview);
-                    const audits = auditInterview(
-                        interview.corrected_response,
-                        interview.response,
-                        interview,
-                        validations,
-                        surveyProjectHelper
-                    );
-                    changesAfterCleaningInterview.valuesByPath.audits = audits;
-                    updateInterview(interview, {
-                        fieldsToUpdate: ['audits'],
-                        valuesByPath: changesAfterCleaningInterview.valuesByPath
-                    })
-                        .then(() => {
-                            queryStream.resume();
-                        })
-                        .catch((error) => {
-                            console.error(error);
-                            queryStream.end();
-                            reject(error);
-                        });
-                    console.log(i + 1, interview.uuid);
-                    i++;
-                })
-                .on('end', () => {
-                    console.log('all interviews audited successfully');
                     resolve();
                 });
         });

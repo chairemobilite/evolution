@@ -27,10 +27,15 @@ export class SurveyObjectsAndAuditsFactory {
     /**
      * Create survey objects and audits for an interview then save audits to db
      * @param {InterviewAttributes} interview - The interview to create survey objects and audits for
+     * @param {boolean} runExtendedAuditChecks - Whether to run extended audit checks
+     * Some audit checks are special and would fetch data from external services or perform
+     * long or complex calculations. we do not want to run these checks on each audit
+     * call, especially during review, when any change to the data will refresh the audit checks.
      * @returns {Promise<SurveyObjectsWithAudits>} A promise that resolves with the survey objects and audits
      */
     static createSurveyObjectsAndSaveAuditsToDb = async (
-        interview: InterviewAttributes
+        interview: InterviewAttributes,
+        runExtendedAuditChecks: boolean = false
     ): Promise<SurveyObjectsWithAudits> => {
         /**
          * corrected_response is required to create survey objects and audits.
@@ -42,7 +47,7 @@ export class SurveyObjectsAndAuditsFactory {
         }
 
         // Create survey objects, check errors and get audits:
-        const surveyObjectsWithAudits = await AuditService.auditInterview(interview);
+        const surveyObjectsWithAudits = await AuditService.auditInterview(interview, runExtendedAuditChecks);
 
         // Save audits to database and return updated structure
         const newAudits = await auditsDbQueries.setAuditsForInterview(interview.id, surveyObjectsWithAudits.audits);

@@ -20,66 +20,81 @@ import {
     runHomeAuditChecks,
     runVisitedPlaceAuditChecks
 } from '../auditChecks';
+import { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 
 // Mock the audit functions
-jest.mock('../auditChecks', () => ({
-    runInterviewAuditChecks: jest.fn().mockResolvedValue([
-        {
-            objectType: 'interview',
-            objectUuid: 'interview-uuid',
-            errorCode: 'I_L_InterviewAudited',
-            level: 'info',
-            message: 'Interview audited',
-            version: 1,
-            ignore: false
-        }
-    ]),
-    runHouseholdAuditChecks: jest.fn().mockResolvedValue([
-        {
-            objectType: 'household',
-            objectUuid: 'household-uuid',
-            errorCode: 'HH_I_Size',
-            level: 'error',
-            message: 'Invalid household size',
-            version: 1,
-            ignore: false
-        }
-    ]),
-    runHomeAuditChecks: jest.fn().mockResolvedValue([
-        {
-            objectType: 'home',
-            objectUuid: 'home-uuid',
-            errorCode: 'HM_I_Address',
-            level: 'warning',
-            message: 'Invalid home address',
-            version: 1,
-            ignore: false
-        }
-    ]),
-    runPersonAuditChecks: jest.fn().mockResolvedValue([]),
-    runJourneyAuditChecks: jest.fn().mockResolvedValue([]),
-    runVisitedPlaceAuditChecks: jest.fn().mockResolvedValue([
-        {
-            objectType: 'visitedPlace',
-            objectUuid: 'visitedplace-uuid',
-            errorCode: 'VP_M_Geography',
-            level: 'warning',
-            message: 'Missing geography',
-            version: 1,
-            ignore: false
-        }
-    ]),
-    runTripAuditChecks: jest.fn().mockResolvedValue([]),
-    runSegmentAuditChecks: jest.fn().mockResolvedValue([]),
-    interviewAuditChecks: {},
-    householdAuditChecks: {},
-    homeAuditChecks: {},
-    personAuditChecks: {},
-    journeyAuditChecks: {},
-    visitedPlaceAuditChecks: {},
-    tripAuditChecks: {},
-    segmentAuditChecks: {}
-}));
+jest.mock('../auditChecks', () => {
+    // Create mock functions inside the factory to avoid hoisting issues
+    const mockNormalCheck = jest.fn();
+    const mockExtendedCheck = jest.fn();
+
+    return {
+        runInterviewAuditChecks: jest.fn().mockResolvedValue([
+            {
+                objectType: 'interview',
+                objectUuid: 'interview-uuid',
+                errorCode: 'I_L_InterviewAudited',
+                level: 'info',
+                message: 'Interview audited',
+                version: 1,
+                ignore: false
+            }
+        ]),
+        runHouseholdAuditChecks: jest.fn().mockResolvedValue([
+            {
+                objectType: 'household',
+                objectUuid: 'household-uuid',
+                errorCode: 'HH_I_Size',
+                level: 'error',
+                message: 'Invalid household size',
+                version: 1,
+                ignore: false
+            }
+        ]),
+        runHomeAuditChecks: jest.fn().mockResolvedValue([
+            {
+                objectType: 'home',
+                objectUuid: 'home-uuid',
+                errorCode: 'HM_I_Address',
+                level: 'warning',
+                message: 'Invalid home address',
+                version: 1,
+                ignore: false
+            }
+        ]),
+        runPersonAuditChecks: jest.fn().mockResolvedValue([]),
+        runJourneyAuditChecks: jest.fn().mockResolvedValue([]),
+        runVisitedPlaceAuditChecks: jest.fn().mockResolvedValue([
+            {
+                objectType: 'visitedPlace',
+                objectUuid: 'visitedplace-uuid',
+                errorCode: 'VP_M_Geography',
+                level: 'warning',
+                message: 'Missing geography',
+                version: 1,
+                ignore: false
+            }
+        ]),
+        runTripAuditChecks: jest.fn().mockResolvedValue([]),
+        runSegmentAuditChecks: jest.fn().mockResolvedValue([]),
+        interviewAuditChecks: { normalCheck: mockNormalCheck },
+        householdAuditChecks: { normalCheck: mockNormalCheck },
+        homeAuditChecks: { normalCheck: mockNormalCheck },
+        personAuditChecks: { normalCheck: mockNormalCheck },
+        journeyAuditChecks: { normalCheck: mockNormalCheck },
+        visitedPlaceAuditChecks: { normalCheck: mockNormalCheck },
+        tripAuditChecks: { normalCheck: mockNormalCheck },
+        segmentAuditChecks: { normalCheck: mockNormalCheck },
+        interviewExtendedAuditChecks: { extendedCheck: mockExtendedCheck },
+        householdExtendedAuditChecks: { extendedCheck: mockExtendedCheck },
+        homeExtendedAuditChecks: { extendedCheck: mockExtendedCheck },
+        personExtendedAuditChecks: { extendedCheck: mockExtendedCheck },
+        journeyExtendedAuditChecks: { extendedCheck: mockExtendedCheck },
+        visitedPlaceExtendedAuditChecks: { extendedCheck: mockExtendedCheck },
+        tripExtendedAuditChecks: { extendedCheck: mockExtendedCheck },
+        segmentExtendedAuditChecks: { extendedCheck: mockExtendedCheck }
+    };
+});
 
 
 describe('SurveyObjectAuditor', () => {
@@ -91,7 +106,7 @@ describe('SurveyObjectAuditor', () => {
     const tripUuid = uuidV4();
 
     const createMockSurveyObjects = (): SurveyObjectsWithAudits => {
-        const mockInterview = { _uuid: interviewUuid, _id: 123 };
+        const mockInterview = { _uuid: interviewUuid, _id: 123 } as unknown as Interview;
         const mockHome = { _uuid: 'home-uuid' } as Home;
         const mockHousehold = { _uuid: householdUuid, size: 2, members: [] } as unknown as Household;
 
@@ -122,7 +137,7 @@ describe('SurveyObjectAuditor', () => {
         mockHousehold.members = [mockPerson];
 
         return {
-            interview: mockInterview as any,
+            interview: mockInterview as unknown as Interview,
             home: mockHome,
             household: mockHousehold,
             audits: []
@@ -139,9 +154,12 @@ describe('SurveyObjectAuditor', () => {
 
             const audits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
-            expect(runInterviewAuditChecks).toHaveBeenCalledWith({
-                interview: surveyObjects.interview
-            }, expect.any(Object));
+            expect(runInterviewAuditChecks).toHaveBeenCalledWith(
+                {
+                    interview: surveyObjects.interview
+                },
+                expect.any(Object)
+            );
 
             expect(audits).toContainEqual({
                 objectType: 'interview',
@@ -159,10 +177,13 @@ describe('SurveyObjectAuditor', () => {
 
             const audits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
-            expect(runHouseholdAuditChecks).toHaveBeenCalledWith({
-                household: surveyObjects.household,
-                interview: surveyObjects.interview
-            }, expect.any(Object));
+            expect(runHouseholdAuditChecks).toHaveBeenCalledWith(
+                {
+                    household: surveyObjects.household,
+                    interview: surveyObjects.interview
+                },
+                expect.any(Object)
+            );
 
             expect(audits).toContainEqual({
                 objectType: 'household',
@@ -180,11 +201,14 @@ describe('SurveyObjectAuditor', () => {
 
             const audits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
-            expect(runHomeAuditChecks).toHaveBeenCalledWith({
-                home: surveyObjects.home,
-                household: surveyObjects.household,
-                interview: surveyObjects.interview
-            }, expect.any(Object));
+            expect(runHomeAuditChecks).toHaveBeenCalledWith(
+                {
+                    home: surveyObjects.home,
+                    household: surveyObjects.household,
+                    interview: surveyObjects.interview
+                },
+                expect.any(Object)
+            );
 
             expect(audits).toContainEqual({
                 objectType: 'home',
@@ -202,14 +226,17 @@ describe('SurveyObjectAuditor', () => {
 
             const audits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
-            expect(runVisitedPlaceAuditChecks).toHaveBeenCalledWith({
-                visitedPlace: surveyObjects.household?.members?.[0]?.journeys?.[0]?.visitedPlaces?.[0],
-                person: surveyObjects.household?.members?.[0],
-                journey: surveyObjects.household?.members?.[0]?.journeys?.[0],
-                household: surveyObjects.household,
-                home: surveyObjects.home,
-                interview: surveyObjects.interview
-            }, expect.any(Object));
+            expect(runVisitedPlaceAuditChecks).toHaveBeenCalledWith(
+                {
+                    visitedPlace: surveyObjects.household?.members?.[0]?.journeys?.[0]?.visitedPlaces?.[0],
+                    person: surveyObjects.household?.members?.[0],
+                    journey: surveyObjects.household?.members?.[0]?.journeys?.[0],
+                    household: surveyObjects.household,
+                    home: surveyObjects.home,
+                    interview: surveyObjects.interview
+                },
+                expect.any(Object)
+            );
 
             expect(audits).toContainEqual({
                 objectType: 'visitedPlace',
@@ -308,6 +335,65 @@ describe('SurveyObjectAuditor', () => {
             expect(objectTypes).toContain('household');
             expect(objectTypes).toContain('home');
             expect(objectTypes).toContain('visitedPlace');
+        });
+
+        describe('Extended Audit Checks Flag', () => {
+            it('should pass only normal checks when runExtendedAuditChecks=false by default', async () => {
+                const surveyObjects = createMockSurveyObjects();
+
+                await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
+
+                // Verify that only normal checks are passed (no extended checks)
+                const interviewChecks = (runInterviewAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(interviewChecks).toHaveProperty('normalCheck');
+                expect(interviewChecks).not.toHaveProperty('extendedCheck');
+
+                const householdChecks = (runHouseholdAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(householdChecks).toHaveProperty('normalCheck');
+                expect(householdChecks).not.toHaveProperty('extendedCheck');
+
+                const homeChecks = (runHomeAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(homeChecks).toHaveProperty('normalCheck');
+                expect(homeChecks).not.toHaveProperty('extendedCheck');
+            });
+
+            it('should pass both normal and extended checks when runExtendedAuditChecks=true', async () => {
+                const surveyObjects = createMockSurveyObjects();
+
+                await SurveyObjectAuditor.auditSurveyObjects(surveyObjects, true);
+
+                // Verify that both normal and extended checks are passed
+                const interviewChecks = (runInterviewAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(interviewChecks).toHaveProperty('normalCheck');
+                expect(interviewChecks).toHaveProperty('extendedCheck');
+
+                const householdChecks = (runHouseholdAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(householdChecks).toHaveProperty('normalCheck');
+                expect(householdChecks).toHaveProperty('extendedCheck');
+
+                const homeChecks = (runHomeAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(homeChecks).toHaveProperty('normalCheck');
+                expect(homeChecks).toHaveProperty('extendedCheck');
+
+                const visitedPlaceChecks = (runVisitedPlaceAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(visitedPlaceChecks).toHaveProperty('normalCheck');
+                expect(visitedPlaceChecks).toHaveProperty('extendedCheck');
+            });
+
+            it('should pass only normal checks when runExtendedAuditChecks=false explicitly', async () => {
+                const surveyObjects = createMockSurveyObjects();
+
+                await SurveyObjectAuditor.auditSurveyObjects(surveyObjects, false);
+
+                // Verify that only normal checks are passed (no extended checks)
+                const interviewChecks = (runInterviewAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(interviewChecks).toHaveProperty('normalCheck');
+                expect(interviewChecks).not.toHaveProperty('extendedCheck');
+
+                const householdChecks = (runHouseholdAuditChecks as jest.Mock).mock.calls[0][1];
+                expect(householdChecks).toHaveProperty('normalCheck');
+                expect(householdChecks).not.toHaveProperty('extendedCheck');
+            });
         });
     });
 });

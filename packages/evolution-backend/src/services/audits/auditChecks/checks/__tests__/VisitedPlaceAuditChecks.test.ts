@@ -153,5 +153,4 @@ describe('runVisitedPlaceAuditChecks - Integration', () => {
 
         await expect(runVisitedPlaceAuditChecks(context, mockAuditChecks)).rejects.toThrow('Async check rejected');
     });
-
 });
