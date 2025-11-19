@@ -47,6 +47,7 @@
     "usersPageTitle": "Users",
     "errorsCount": "{{n}} errors",
     "refreshInterview": "Get latest changes from server",
+    "refreshInterviewWithExtended": "Refresh audits with extended checks",
     "resetInterview": "Reset corrected responses to original responses",
     "closeInterviewSummary": "Close",
     "editValidationInterview": "Edit survey",
