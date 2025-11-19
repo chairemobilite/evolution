@@ -34,8 +34,14 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
     const interview = useSelector((state: RootState) => state.survey.interview) as UserRuntimeInterviewAttributes;
     const user = useSelector((state: RootState) => state.auth.user) as CliUser;
 
+    // extended: false runs only standard audit checks (fast, suitable for frequent refreshes during review)
     const refreshInterview = useCallback(() => {
-        dispatch(startFetchCorrectedInterviewAndAudits(interview.uuid));
+        dispatch(startFetchCorrectedInterviewAndAudits(interview.uuid, false));
+    }, [dispatch, interview.uuid]);
+
+    // extended: true runs additional audit checks that may fetch external data or perform complex calculations (slower, use sparingly)
+    const refreshInterviewWithExtended = useCallback(() => {
+        dispatch(startFetchCorrectedInterviewAndAudits(interview.uuid, true));
     }, [dispatch, interview.uuid]);
 
     const resetInterview = useCallback(() => {
@@ -78,6 +84,7 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
                         prevInterviewUuid={props.prevInterviewUuid}
                         nextInterviewUuid={props.nextInterviewUuid}
                         refreshInterview={refreshInterview}
+                        refreshInterviewWithExtended={refreshInterviewWithExtended}
                         resetInterview={resetInterview}
                         user={user}
                         interview={interview}

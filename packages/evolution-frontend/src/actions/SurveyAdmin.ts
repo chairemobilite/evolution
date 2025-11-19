@@ -53,6 +53,27 @@ import { SurveyAction } from '../store/survey';
 import { LoadingStateAction } from '../store/loadingState';
 import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 
+/**
+ * Helper function to unserialize surveyObjectsAndAudits from an interview.
+ * Mutates the interview object in place if unserialization is successful.
+ *
+ * @param interview - The interview containing surveyObjectsAndAudits to unserialize
+ * @param errorContext - Optional context string to include in error message (e.g., 'for reset')
+ */
+const unserializeSurveyObjectsAndAudits = (interview: AdminInterviewAttributes, errorContext: string = ''): boolean => {
+    if (interview.surveyObjectsAndAudits && SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)) {
+        try {
+            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(interview.surveyObjectsAndAudits);
+            return true;
+        } catch (error) {
+            const contextSuffix = errorContext ? ` ${errorContext}` : '';
+            console.error(`Failed to unserialize surveyObjectsAndAudits${contextSuffix}:`, error);
+            return false;
+        }
+    }
+    return true; // No data to unserialize is considered success
+};
+
 // dispatch callback to do the interview state update and call to server. To be
 // called by the `startUpdateSurveyCorrectedInterview` action and any other
 // dispatched action requiring to update the interview fields and the server.
@@ -314,36 +335,37 @@ export const startSurveyCorrectedRemoveGroupedObjects = (
  * visualization
  *
  * @param {*} interviewUuid The uuid of the interview to open
+ * @param {*} runExtendedAuditChecks Whether to run extended audit checks (default: false)
  * @returns
  */
 // TODO: unit test
-export const startFetchCorrectedInterviewAndAudits = (interviewUuid: string) => {
+export const startFetchCorrectedInterviewAndAudits = (
+    interviewUuid: string,
+    runExtendedAuditChecks: boolean = false
+) => {
     return async (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
         _getState: () => RootState
     ) => {
         try {
-            const response = await fetch(`/api/survey/correctInterview/${interviewUuid}`, {
-                credentials: 'include'
-            });
+            const urlParams = new URLSearchParams();
+            if (runExtendedAuditChecks) {
+                urlParams.append('extended', 'true');
+            }
+            const queryString = urlParams.toString();
+            const response = await fetch(
+                `/api/survey/correctInterview/${interviewUuid}${queryString ? `?${queryString}` : ''}`,
+                {
+                    credentials: 'include'
+                }
+            );
             if (response.status === 200) {
                 const body = await response.json();
                 if (body.interview) {
                     const interview = body.interview;
 
                     // Unserialize surveyObjectsAndAudits if present
-                    if (
-                        interview.surveyObjectsAndAudits &&
-                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
-                    ) {
-                        try {
-                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
-                                interview.surveyObjectsAndAudits
-                            );
-                        } catch (error) {
-                            console.error('Failed to unserialize surveyObjectsAndAudits:', error);
-                        }
-                    }
+                    unserializeSurveyObjectsAndAudits(interview);
 
                     // Set the interview in the state first
                     dispatch(updateInterviewState(interview));
@@ -384,18 +406,7 @@ export const startResetCorrectedInterview = (
                     const interview = body.interview;
 
                     // Unserialize surveyObjectsAndAudits if present
-                    if (
-                        interview.surveyObjectsAndAudits &&
-                        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)
-                    ) {
-                        try {
-                            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(
-                                interview.surveyObjectsAndAudits
-                            );
-                        } catch (error) {
-                            console.error('Failed to unserialize surveyObjectsAndAudits for reset:', error);
-                        }
-                    }
+                    unserializeSurveyObjectsAndAudits(interview, 'for reset');
 
                     // Set the interview in the state and initialize navigation
                     dispatch(updateInterviewState(interview));

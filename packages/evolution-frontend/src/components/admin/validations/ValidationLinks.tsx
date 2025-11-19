@@ -19,6 +19,7 @@ import { faHandPaper } from '@fortawesome/free-solid-svg-icons/faHandPaper';
 import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardList';
 import { faChevronCircleRight } from '@fortawesome/free-solid-svg-icons/faChevronCircleRight';
 import { faChevronCircleLeft } from '@fortawesome/free-solid-svg-icons/faChevronCircleLeft';
+import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt';
 
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
@@ -34,6 +35,7 @@ type ValidationLinksProps = {
     nextInterviewUuid?: string;
     prevInterviewUuid?: string;
     refreshInterview: () => void;
+    refreshInterviewWithExtended: () => void;
     resetInterview: () => void;
     interviewIsComplete: boolean;
     interviewIsValidated: boolean;
@@ -50,6 +52,7 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
     nextInterviewUuid,
     prevInterviewUuid,
     refreshInterview,
+    refreshInterviewWithExtended,
     resetInterview,
     interviewIsComplete,
     interviewIsValidated,
@@ -240,6 +243,20 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                 }}
                 title={t('admin:refreshInterview')}
             >
+                <FontAwesomeIcon icon={faSyncAlt} />
+            </a>{' '}
+            <a
+                href="#"
+                className="_together"
+                onClick={(e) => {
+                    e.preventDefault();
+                    refreshInterviewWithExtended();
+                }}
+                title={t('admin:refreshInterviewWithExtended')}
+            >
+                <span className="_small">
+                    <FontAwesomeIcon icon={faBolt} />
+                </span>
                 <FontAwesomeIcon icon={faSyncAlt} />
             </a>{' '}
             <a href="#" onClick={handleResetClick} title={t('admin:resetInterview')}>

@@ -35,6 +35,20 @@ router.get(
     validateUuidMiddleware,
     logUserAccessesMiddleware.openingInterview(true),
     async (req: Request, res: Response) => {
+        // Extended audit checks: When enabled (extended=true), runs additional audit checks that may
+        // fetch data from external services or perform long/complex calculations (e.g., validating
+        // geocoding, route feasibility, external API data). Use extended=true for initial/thorough
+        // validation but avoid during iterative review/correction as it increases processing time
+        // (potentially seconds vs milliseconds) and may hit external API rate limits.
+        const runExtendedAuditChecks = _booleish(req.query.extended) ?? false;
+        if (runExtendedAuditChecks) {
+            const userId = req.user ? (req.user as UserAttributes).id : undefined;
+            console.info(
+                'Extended audit checks enabled: interviewUuid=%s userId=%s',
+                req.params.interviewUuid,
+                userId ?? 'undefined'
+            );
+        }
         if (req.params.interviewUuid) {
             try {
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
@@ -46,7 +60,10 @@ router.get(
                     }
                     // Run audits on the corrected_response
                     const objectsAndAudits: SurveyObjectsWithAudits =
-                        await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview);
+                        await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(
+                            interview,
+                            runExtendedAuditChecks
+                        );
 
                     // TODO Here, the response field should not make it to frontend. But make sure there are no side effect in the frontend, where the _response is used or checked.
                     const { response, corrected_response, ...rest } = interview;

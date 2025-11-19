@@ -47,6 +47,7 @@
     "usersPageTitle": "Utilisateurs",
     "errorsCount": "{{n}} erreurs",
     "refreshInterview": "Rafraîchir les données du serveur",
+    "refreshInterviewWithExtended": "Rafraîchir les audits avec vérifications étendues",
     "resetInterview": "Réinitialiser les réponses corrigées aux réponses originales",
     "closeInterviewSummary": "Fermer",
     "editValidationInterview": "Éditer l'entrevue",
