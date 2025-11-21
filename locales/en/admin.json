@@ -204,6 +204,10 @@
         "CompletionRate": "Completion Rate",
         "InterviewsStarted": "Interviews Started",
         "InterviewsCompleted": "Interviews Completed",
+        "RespondentBurdenSection": "Respondent burden",
+        "DistributionTitle": "Distribution (%)",
+        "SurveyDifficultyChartTitle": "Survey difficulty distribution",
+        "SurveyDifficultyYAxisTitle": "Difficulty rating (%)",
         "errors": {
             "invalidValueType": "Invalid value type received from server.",
             "jsonConversion": "Error converting data to json.",
