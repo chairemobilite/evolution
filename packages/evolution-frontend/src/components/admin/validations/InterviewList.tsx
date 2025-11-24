@@ -15,9 +15,12 @@ import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
 import { faSortAmountDown } from '@fortawesome/free-solid-svg-icons/faSortAmountDown';
 import { faSortAmountDownAlt } from '@fortawesome/free-solid-svg-icons/faSortAmountDownAlt';
+import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt';
+import { faListCheck } from '@fortawesome/free-solid-svg-icons/faListCheck';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 interface UsersTableProps extends WithTranslation {
     columns: Array<Record<string, unknown>>;
@@ -35,6 +38,20 @@ interface UsersTableProps extends WithTranslation {
     interviewListChange: (show: boolean) => void;
     showInterviewList: boolean;
     validationInterview: InterviewStatusAttributesBase | null;
+    runBatchAudits: (
+        extended: boolean,
+        filters: unknown,
+        pageIndex: number,
+        pageSize: number,
+        sortBy: { id: string; desc?: boolean }[]
+    ) => void;
+    batchAuditLoading: boolean;
+    batchAuditResult: Status.Status<{
+        totalCount: number;
+        processed: number;
+        succeeded: number;
+        failed: number;
+    }> | null;
 }
 
 // User react-table to handle a few table functionalities like paging and filtering
@@ -135,6 +152,65 @@ const InterviewList = (props: UsersTableProps) => {
                 >
                     <FontAwesomeIcon icon={faSyncAlt} />
                 </a>
+                <span className="_pale">&nbsp;|&nbsp;</span>
+                <a
+                    href="#"
+                    className={props.batchAuditLoading ? '_disabled' : ''}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        if (!props.batchAuditLoading) {
+                            props.runBatchAudits(false, filters, pageIndex, pageSize, sortBy);
+                        }
+                    }}
+                    title={props.t('admin:batchRunAudits')}
+                >
+                    <FontAwesomeIcon icon={faListCheck} />
+                </a>
+                <span className="_pale">&nbsp;|&nbsp;</span>
+                <a
+                    href="#"
+                    className={`_together ${props.batchAuditLoading ? '_disabled' : ''}`}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        if (!props.batchAuditLoading) {
+                            props.runBatchAudits(true, filters, pageIndex, pageSize, sortBy);
+                        }
+                    }}
+                    title={props.t('admin:batchRunAuditsWithExtended')}
+                >
+                    <span className="_small">
+                        <FontAwesomeIcon icon={faBolt} />
+                    </span>
+                    <FontAwesomeIcon icon={faListCheck} />
+                </a>
+                {props.batchAuditLoading && (
+                    <span className="_small" style={{ marginLeft: '10px' }}>
+                        {props.t('admin:runningBatchAudits')}
+                    </span>
+                )}
+                {props.batchAuditResult && (
+                    <span className="_small" style={{ marginLeft: '10px' }}>
+                        {Status.isStatusError(props.batchAuditResult) ? (
+                            <span className="_error _red">
+                                {props.t('admin:batchAuditError', {
+                                    error:
+                                        typeof props.batchAuditResult.error === 'string'
+                                            ? props.batchAuditResult.error
+                                            : props.batchAuditResult.error instanceof Error
+                                                ? props.batchAuditResult.error.message
+                                                : String(props.batchAuditResult.error)
+                                })}
+                            </span>
+                        ) : (
+                            props.t('admin:batchAuditResult', {
+                                total: props.batchAuditResult.result.totalCount,
+                                processed: props.batchAuditResult.result.processed,
+                                succeeded: props.batchAuditResult.result.succeeded,
+                                failed: props.batchAuditResult.result.failed
+                            })
+                        )}
+                    </span>
+                )}
                 {headerGroups.map((headerGroup, i) => (
                     <div {...headerGroup.getHeaderGroupProps()}>
                         {headerGroup.headers.map((column, j) =>

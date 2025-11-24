@@ -277,16 +277,19 @@ const update = async (
     }
 };
 
+/**
+ * Array of valid operator keys for ValueFilterType
+ */
+export const VALID_OPERATORS = ['eq', 'gt', 'lt', 'gte', 'lte', 'not', 'like'] as const;
+
+/**
+ * An enumeration of operator keys that can be used in filters
+ */
 export type OperatorSigns = {
-    eq: string;
-    gt: string;
-    lt: string;
-    gte: string;
-    lte: string;
-    not: string;
-    like: string;
+    [K in (typeof VALID_OPERATORS)[number]]: string;
 };
-const operatorSigns = {
+
+const operatorSigns: OperatorSigns = {
     eq: '=',
     gt: '>',
     lt: '<',

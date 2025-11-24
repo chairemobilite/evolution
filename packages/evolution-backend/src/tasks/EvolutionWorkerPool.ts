@@ -8,13 +8,15 @@
 import workerpool from 'workerpool';
 import { exportAllToCsvBySurveyObjectTask } from '../services/adminExport/exportAllToCsvBySurveyObject';
 import { exportInterviewLogTask } from '../services/adminExport/exportInterviewLogs';
+import { runBatchAuditsTask } from '../services/audits/BatchAuditService';
 
 // Worker pool for evolution backend tasks
 const run = async () => {
     // create a worker and register public functions
     workerpool.worker({
         exportAllToCsvBySurveyObject: exportAllToCsvBySurveyObjectTask,
-        exportInterviewLog: exportInterviewLogTask
+        exportInterviewLog: exportInterviewLogTask,
+        runBatchAudits: runBatchAuditsTask
     });
 };
 

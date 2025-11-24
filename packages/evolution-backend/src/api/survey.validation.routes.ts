@@ -12,6 +12,7 @@ import moment from 'moment';
 
 import Interviews, { FilterType } from '../services/interviews/interviews';
 import { updateInterview, copyResponseToCorrectedResponse } from '../services/interviews/interview';
+import { VALID_OPERATORS } from '../models/interviews.db.queries';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import projectConfig from '../config/projectConfig';
 import { handleUserActionSideEffect, mapResponseToCorrectedResponse } from '../services/interviews/interviewUtils';
@@ -23,10 +24,44 @@ import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/ty
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import validateUuidMiddleware from './helpers/validateUuidMiddleware';
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
+import { BatchAuditService } from '../services/audits/BatchAuditService';
+import { hasErrors } from 'evolution-common/lib/types/Result.type';
 
 const router = express.Router();
 
 router.use(interviewUserIsAuthorized(['validate', 'read']));
+
+/**
+ * Type for the filter parameter accepted by getValidationAuditStats
+ */
+type ValidationAuditStatsFilter = { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
+    [key: string]:
+        | string
+        | string[]
+        | { value: string | string[] | boolean | number | null; op?: (typeof VALID_OPERATORS)[number] };
+};
+
+/**
+ * Sanitizes filter objects by validating their structure.
+ * Accepts filters with string, array, or object with .value property.
+ * @param filters - Raw filters object from request body
+ * @returns Sanitized filters object with FilterType values
+ */
+function sanitizeFilters(filters: Record<string, unknown>): { [key: string]: FilterType } {
+    const actualFilters: { [key: string]: FilterType } = {};
+    Object.keys(filters).forEach((key) => {
+        if (typeof filters[key] === 'string' || Array.isArray(filters[key])) {
+            actualFilters[key] = filters[key] as string | string[];
+        } else if (
+            typeof filters[key] === 'object' &&
+            filters[key] !== null &&
+            (filters[key] as { value?: unknown }).value !== undefined
+        ) {
+            actualFilters[key] = filters[key] as FilterType;
+        }
+    });
+    return actualFilters;
+}
 
 // This route fetches the interview for correction. It runs the audit and
 // returns serialized objects for the interview summary page.
@@ -229,14 +264,7 @@ router.post('/validationList', async (req, res) => {
             typeof pageIndex === 'number' ? pageSize : typeof pageSize === 'string' ? parseInt(pageSize) : -1;
         const updatedAtNb = typeof updatedAt === 'string' ? parseInt(updatedAt) : 0;
 
-        const actualFilters: { [key: string]: FilterType } = {};
-        Object.keys(filters).forEach((key) => {
-            if (typeof filters[key] === 'string' || Array.isArray(filters[key])) {
-                actualFilters[key] = filters[key];
-            } else if (typeof filters[key] === 'object' && filters[key].value !== undefined) {
-                actualFilters[key] = filters[key];
-            }
-        });
+        const actualFilters = sanitizeFilters(filters);
         const sortByFields = sortBy
             ? sortBy.map((sort) => ({ field: sort.id, order: sort.desc ? 'desc' : 'asc' }))
             : undefined;
@@ -261,17 +289,13 @@ router.post('/validationList', async (req, res) => {
 router.post('/validation/auditStats', async (req: Request, res: Response) => {
     try {
         const { ...filters } = req.body;
-        const actualFilters: { [key: string]: string | string[] } = {};
-        Object.keys(filters).forEach((key) => {
-            if (Array.isArray(filters[key])) {
-                actualFilters[key] = filters[key] as string[];
-            } else if (typeof filters[key] === 'string') {
-                actualFilters[key] = filters[key] as string;
-            } else if (typeof filters[key] === 'object' && filters[key].value !== undefined) {
-                actualFilters[key] = filters[key];
-            }
+        const actualFilters = sanitizeFilters(filters);
+        // Type assertion needed because getValidationAuditStats expects a more restrictive type
+        // than FilterType, but the runtime behavior is correct (sanitizeFilters only includes
+        // valid filter structures)
+        const response = await Interviews.getValidationAuditStats({
+            filter: actualFilters as ValidationAuditStatsFilter
         });
-        const response = await Interviews.getValidationAuditStats({ filter: actualFilters });
         return res.status(200).json({
             status: 'success',
             auditStats: response.auditStats
@@ -297,6 +321,37 @@ router.post('/validation/updateAudits/:uuid', async (req, res, _next) => {
     } catch (error) {
         console.log('error updating audits for interview:', error);
         return res.status(500).json({ status: 'Error' });
+    }
+});
+
+/**
+ * Batch run audits on interviews matching the provided filters
+ */
+router.post('/validation/batchAudits', async (req: Request, res: Response) => {
+    try {
+        const { extended, ...filters } = req.body;
+        const userId = req.user ? (req.user as UserAttributes).id : undefined;
+
+        // Validate extended parameter
+        const runExtendedAuditChecks = _booleish(extended) ?? false;
+
+        // Validate filters structure
+        const actualFilters = sanitizeFilters(filters);
+
+        const result = await BatchAuditService.runBatchAudits(actualFilters, runExtendedAuditChecks, userId);
+
+        if (hasErrors(result)) {
+            const errorMessage = result.errors.map((e) => (e instanceof Error ? e.message : String(e))).join('; ');
+            return res.status(500).json({ status: 'error', error: errorMessage });
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            ...result.result
+        });
+    } catch (error) {
+        console.error('Error running batch audits:', error);
+        return res.status(500).json({ status: 'error', error: 'Failed to run batch audits' });
     }
 });
 

@@ -23,6 +23,7 @@ import { handleHttpOtherResponseCode } from '../../../services/errorManagement/e
 import { Dispatch } from 'redux';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 import config from 'evolution-common/lib/config/project.config';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 interface InterviewListComponentProps {
     onInterviewSummaryChanged: (uuid: string, prevUuid?: string, nextUuid?: string) => void;
@@ -39,6 +40,11 @@ type CellArgs = {
     row?: any;
 };
 
+type Filter = {
+    id: string;
+    value: string | string[] | { value: any; op?: string };
+};
+
 const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = (
     props: InterviewListComponentProps
 ) => {
@@ -49,6 +55,14 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
     const [totalCount, setTotalCount] = React.useState(0);
     const [pageCount, setPageCount] = React.useState(0);
     const fetchIdRef = React.useRef(0);
+    const batchAuditIdRef = React.useRef(0);
+    const [batchAuditLoading, setBatchAuditLoading] = React.useState(false);
+    const [batchAuditResult, setBatchAuditResult] = React.useState<Status.Status<{
+        totalCount: number;
+        processed: number;
+        succeeded: number;
+        failed: number;
+    }> | null>(null);
 
     const handleInterviewSummaryChange: React.MouseEventHandler<HTMLAnchorElement> = (
         e: React.MouseEvent<HTMLAnchorElement>
@@ -65,6 +79,22 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
         );
     };
 
+    // Helper function to build normalized data filters from filter array
+    const buildFilters = (filters: Filter[] | undefined): Record<string, any> => {
+        const dataFilters = {};
+        if (Array.isArray(filters)) {
+            filters.forEach((filter) => {
+                if (typeof filter.value === 'string' || Array.isArray(filter.value)) {
+                    dataFilters[filter.id] = filter.value;
+                } else if (typeof filter.value === 'object' && filter.value.value !== undefined) {
+                    const { value, op } = filter.value;
+                    dataFilters[filter.id] = { value, op };
+                }
+            });
+        }
+        return dataFilters;
+    };
+
     // Function to fetch data from the server, with paging and filtering
     const fetchData = React.useCallback(async ({ pageSize, pageIndex, filters, sortBy }) => {
         // Give this fetch an ID
@@ -74,15 +104,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
         setLoading(true);
 
         // Make a query string from the filters
-        const dataFilters = {};
-        (filters || []).forEach((filter) => {
-            if (typeof filter.value === 'string' || Array.isArray(filter.value)) {
-                dataFilters[filter.id] = filter.value;
-            } else if (typeof filter.value === 'object' && filter.value.value !== undefined) {
-                const { value, op } = filter.value;
-                dataFilters[filter.id] = { value, op };
-            }
-        });
+        const dataFilters = buildFilters(filters);
 
         try {
             const response = await fetch('/api/validationList', {
@@ -127,6 +149,78 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             }
         }
     }, []);
+
+    // Function to run batch audits on filtered interviews
+    const runBatchAudits = React.useCallback(
+        async (
+            extended: boolean,
+            currentFilters: Filter[] | undefined,
+            currentPageIndex: number,
+            currentPageSize: number,
+            currentSortBy: { id: string; desc?: boolean }[]
+        ) => {
+            // Give this batch audit request an ID
+            const batchAuditId = ++batchAuditIdRef.current;
+            setBatchAuditLoading(true);
+            setBatchAuditResult(null);
+
+            // Make a query string from the filters (same as fetchData)
+            const dataFilters = buildFilters(currentFilters);
+
+            try {
+                const response = await fetch('/api/validation/batchAudits', {
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    method: 'POST',
+                    body: JSON.stringify({
+                        extended,
+                        ...dataFilters
+                    })
+                });
+
+                if (batchAuditId !== batchAuditIdRef.current) {
+                    // There was another batch audit request since, ignore this result
+                    return;
+                }
+
+                if (response.status === 200) {
+                    const jsonData = await response.json();
+                    setBatchAuditResult(
+                        Status.createOk({
+                            totalCount: jsonData.totalCount || 0,
+                            processed: jsonData.processed || 0,
+                            succeeded: jsonData.succeeded || 0,
+                            failed: jsonData.failed || 0
+                        })
+                    );
+                    // Refresh the list after batch audit using current table state
+                    await fetchData({
+                        pageSize: currentPageSize,
+                        pageIndex: currentPageIndex,
+                        filters: currentFilters,
+                        sortBy: currentSortBy
+                    });
+                } else {
+                    console.error('Invalid response code from server: ', response.status);
+                    handleHttpOtherResponseCode(response.status, props.dispatch);
+                    const errorMessage = `Invalid response code: ${response.status}`;
+                    setBatchAuditResult(Status.createError(errorMessage));
+                }
+            } catch (error) {
+                console.error(`Error running batch audits: ${error}`);
+                if (batchAuditId === batchAuditIdRef.current) {
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    setBatchAuditResult(Status.createError(errorMessage));
+                }
+            } finally {
+                setBatchAuditLoading(false);
+            }
+        },
+        [fetchData, props.dispatch]
+    );
 
     // TODO: Turn cells into proper components instead of just making them inline.
     const columns = React.useMemo(() => {
@@ -256,6 +350,9 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             pageCount={pageCount}
             itemCount={totalCount}
             initialSortBy={props.initialSortBy}
+            runBatchAudits={runBatchAudits}
+            batchAuditLoading={batchAuditLoading}
+            batchAuditResult={batchAuditResult}
         />
     );
 };

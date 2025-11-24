@@ -11,7 +11,6 @@ import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 import { faCheckDouble } from '@fortawesome/free-solid-svg-icons/faCheckDouble';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
-import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { faUndoAlt } from '@fortawesome/free-solid-svg-icons/faUndoAlt';
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons/faQuestionCircle';
@@ -20,6 +19,7 @@ import { faClipboardList } from '@fortawesome/free-solid-svg-icons/faClipboardLi
 import { faChevronCircleRight } from '@fortawesome/free-solid-svg-icons/faChevronCircleRight';
 import { faChevronCircleLeft } from '@fortawesome/free-solid-svg-icons/faChevronCircleLeft';
 import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt';
+import { faListCheck } from '@fortawesome/free-solid-svg-icons/faListCheck';
 
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
@@ -241,9 +241,9 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     e.preventDefault();
                     refreshInterview();
                 }}
-                title={t('admin:refreshInterview')}
+                title={t('admin:refreshInterviewAndAudit')}
             >
-                <FontAwesomeIcon icon={faSyncAlt} />
+                <FontAwesomeIcon icon={faListCheck} />
             </a>{' '}
             <a
                 href="#"
@@ -252,12 +252,12 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     e.preventDefault();
                     refreshInterviewWithExtended();
                 }}
-                title={t('admin:refreshInterviewWithExtended')}
+                title={t('admin:refreshInterviewAndAuditWithExtended')}
             >
                 <span className="_small">
                     <FontAwesomeIcon icon={faBolt} />
                 </span>
-                <FontAwesomeIcon icon={faSyncAlt} />
+                <FontAwesomeIcon icon={faListCheck} />
             </a>{' '}
             <a href="#" onClick={handleResetClick} title={t('admin:resetInterview')}>
                 <FontAwesomeIcon icon={faUndoAlt} />
