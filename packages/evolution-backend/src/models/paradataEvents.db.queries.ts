@@ -5,10 +5,12 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
+import { Knex } from 'knex';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
 
 const tableName = 'paradata_events';
 const interviewsTable = 'sv_interviews';
+const tempTableName = 'temp_paradata_events_with_widget_path';
 
 type ParadataEventType =
     | 'legacy'
@@ -88,7 +90,120 @@ const getParadataStream = function (interviewId?: number) {
     return interviewParadataQuery.orderBy(['interview_id', 'timestamp']).stream();
 };
 
+/**
+ * Creates a temporary table with transformed paradata events including a widgetPath field.
+ * The widgetPath field extracts specific data based on event_type:
+ * - widget_interaction: userAction->path
+ * - section_change: userAction->targetSection->sectionShortname
+ * - button_click: userAction->buttonId
+ *
+ * The temporary table includes indexes on interview_id and timestamp for efficient queries.
+ * When used within a transaction, the table will be automatically dropped at commit.
+ * Note: No foreign key constraint is added because PostgreSQL temporary tables can only
+ * reference other temporary tables.
+ *
+ * @param trx Optional knex transaction object. If provided, uses the transaction for all operations.
+ * @returns Promise<void>
+ */
+const createParadataWithWidgetPathTable = async (trx: Knex.Transaction): Promise<void> => {
+    try {
+        // Drop the temporary table if it exists
+        await trx.raw(`DROP TABLE IF EXISTS ${tempTableName}`);
+
+        // Create the temporary table with the transformed data
+        // ON COMMIT DROP ensures automatic cleanup when the transaction commits
+        await trx.raw(`
+            CREATE TEMPORARY TABLE ${tempTableName}
+            ON COMMIT DROP
+            AS
+            SELECT 
+                interview_id,
+                timestamp,
+                user_id,
+                event_type,
+                event_data,
+                CASE 
+                    WHEN event_type = 'widget_interaction' THEN event_data->'userAction'->>'path'
+                    WHEN event_type = 'section_change' THEN event_data->'userAction'->'targetSection'->>'sectionShortname'
+                    WHEN event_type = 'button_click' THEN event_data->'userAction'->>'buttonId'
+                    ELSE NULL
+                END as widget_path
+            FROM ${tableName}
+        `);
+
+        // Note: Cannot add foreign key constraint to sv_interviews because temporary tables
+        // can only reference other temporary tables in PostgreSQL
+        // The join in queries will ensure referential integrity
+
+        // Create index on interview_id for faster queries
+        await trx.raw(`
+            CREATE INDEX idx_${tempTableName}_interview_id 
+            ON ${tempTableName}(interview_id)
+        `);
+
+        // Create index on timestamp for time-based queries
+        await trx.raw(`
+            CREATE INDEX idx_${tempTableName}_timestamp 
+            ON ${tempTableName}(timestamp)
+        `);
+    } catch (error) {
+        console.error('Error creating paradata with widget path table:', error);
+        throw new TrError(`Cannot create temporary paradata table (knex error: ${error})`, 'PARAEV0002');
+    }
+};
+
+/**
+ * Gets the count of last events for incomplete interviews, grouped by widget path and event type.
+ * Must be called within a transaction after createParadataWithWidgetPathTable has been called.
+ *
+ * @param trx Knex transaction object
+ * @returns Promise with array of widget path, event type, and count
+ */
+const getIncompleteInterviewsLastEventCounts = async (
+    trx: Knex.Transaction
+): Promise<Array<{ event_type: string; count: string }>> => {
+    try {
+        // Subquery to get the max timestamp for each incomplete interview
+        const maxTimestampSubquery = trx(tempTableName)
+            .select('interview_id')
+            .max('timestamp as max_timestamp')
+            .whereNull('user_id') // Participant events only
+            .whereIn('event_type', ['widget_interaction', 'button_click', 'section_change'])
+            .groupBy('interview_id')
+            .as('max_events');
+
+        // Get the last events for incomplete interviews, grouped by widget_path and event_type
+        const result = await trx
+            .select(`${tempTableName}.event_type`)
+            .count('* as count')
+            .from(tempTableName)
+            .innerJoin(interviewsTable, `${interviewsTable}.id`, `${tempTableName}.interview_id`)
+            .innerJoin(maxTimestampSubquery, function (this: Knex.JoinClause) {
+                this.on(`${tempTableName}.interview_id`, '=', 'max_events.interview_id').andOn(
+                    `${tempTableName}.timestamp`,
+                    '=',
+                    'max_events.max_timestamp'
+                );
+            })
+            // Incomplete interviews
+            .where(function (this: Knex.QueryBuilder) {
+                this.whereRaw(`${interviewsTable}.response->>'_isCompleted' IS NULL`).orWhereRaw(
+                    `${interviewsTable}.response->>'_isCompleted' = 'false'`
+                );
+            })
+            .groupBy([`${tempTableName}.event_type`])
+            .orderBy('count', 'desc');
+
+        return result;
+    } catch (error) {
+        console.error('Error getting incomplete interviews last event counts:', error);
+        throw new TrError(`Cannot get incomplete interviews last event counts (knex error: ${error})`, 'PARAEV0003');
+    }
+};
+
 export default {
     log,
-    getParadataStream
+    getParadataStream,
+    createParadataWithWidgetPathTable,
+    getIncompleteInterviewsLastEventCounts
 };

@@ -5,8 +5,10 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { v4 as uuidV4 } from 'uuid';
+import { Knex } from 'knex';
 import each from 'jest-each';
 import _isEqual from 'lodash/isEqual';
+import _cloneDeep from 'lodash/cloneDeep';
 
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.queries';
@@ -181,27 +183,29 @@ describe('paradata log', () => {
 
 });
 
+// Wait for a number of millisecond: in a db tests, inserts are often done too rapidly and we may want to throttle
+const throttle = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Insert a number of logs in the database, waiting for a delay between each insert
+const insertSomeLogs = async (logData: Record<string, any>[], interviewId: number, userId?: number | undefined) => {
+    for (let i = 0; i < logData.length; i++) {
+        const { eventType, ...eventData } = logData[i];
+        await dbQueries.log({
+            interviewId: interviewId,
+            eventType: eventType || 'legacy',
+            eventData: eventData,
+            userId
+        });
+        await throttle(10);
+    }
+};
+
 describe('Stream paradata', () => {
 
     beforeEach(async () => {
         // Empty all logs
         await truncate(knex, 'paradata_events');
     });
-
-    // Wait for a number of millisecond: in a db tests, inserts are often done too rapidly and we may want to throttle
-    const throttle = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-    // Insert a number of logs in the database, waiting for a delay between each insert
-    const insertSomeLogs = async (logData: Record<string, any>, interviewId: number) => {
-        for (let i = 0; i < logData.length; i++) {
-            await dbQueries.log({
-                interviewId: interviewId,
-                eventType: 'legacy',
-                eventData: logData[i]
-            });
-            await throttle(10);
-        }
-    };
 
     test('Stream interview logs, no logs in database', (done) => {
         let nbLogs = 0;
@@ -316,7 +320,7 @@ describe('Stream paradata', () => {
 
             let nbLogs = 0;
             let lastTimestamp = -1;
-            let currentInterviewId = undefined;
+            let currentInterviewId: number | undefined = undefined;
             let interviewLogsForFirstCompleted = false;
             let currentInterviewIndex = 0;
 
@@ -450,3 +454,127 @@ describe('Stream paradata', () => {
 
 });
 
+describe('Query paradata temp view', () => {
+
+    // Prepare two interviews, one complete and one incomplete
+    let completeInterviewId: number | undefined;
+    let incompleteInterviewId: number | undefined;
+    const completeInterviewAttributes = _cloneDeep(testInterviewAttributes1);
+    delete completeInterviewAttributes.id;
+    completeInterviewAttributes.response = {
+        ...completeInterviewAttributes.response,
+        _completedAt: new Date().toISOString(),
+        _isCompleted: true
+    }
+
+    const incompleteInterviewAttributes = _cloneDeep(testInterviewAttributes2);
+    delete incompleteInterviewAttributes.id;
+
+    let trx: Knex.Transaction;
+
+    beforeEach(async () => {
+        // Reset interviews and participants, create one incomplete and one complete interview
+        await truncate(knex, 'paradata_events');
+        await truncate(knex, 'sv_interviews');
+        await truncate(knex, 'sv_participants');
+        await create(knex, 'sv_participants', undefined, localParticipant as any);
+        await create(knex, 'sv_participants', undefined, secondParticipant as any);
+        await truncate(knex, 'users');
+        await create(knex, 'users', undefined, localUser as any);
+        delete completeInterviewAttributes.id;
+        delete incompleteInterviewAttributes.id;
+        const returnedId = await interviewsDbQueries.create(completeInterviewAttributes, 'id');
+        completeInterviewId = returnedId.id;
+        const returnedId2 = await interviewsDbQueries.create(incompleteInterviewAttributes, 'id');
+        incompleteInterviewId = returnedId2.id;
+    });
+
+    const getTransactionForTempView = async (): Promise<Knex.Transaction> => {
+        const trx = await knex.transaction();
+        await trx.raw('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+        // Create the temp view in the transaction
+        await dbQueries.createParadataWithWidgetPathTable(trx);
+        return trx;
+    }
+
+    describe('getIncompleteInterviewsLastEventCounts', () => {
+        test('No events logged', async () => {
+            const trx = await getTransactionForTempView();
+            try {
+                const result = await dbQueries.getIncompleteInterviewsLastEventCounts(trx);
+                expect(result).toBeDefined();
+                expect(result.length).toEqual(0);
+            } finally {
+                await trx.commit();
+            }
+        });
+
+        test('Should return count only for incomplete interviews', async () => {
+            // Add a few logs to both interviews
+            const logData = [
+                {
+                    eventType: 'widget_interaction',
+                    valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true }
+                }, {
+                    eventType: 'widget_interaction',
+                    valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true },
+                    unsetPaths: []
+                }, {
+                    eventType: 'server_event',
+                    valuesByPath: { },
+                    unsetPaths: [ 'response.data' ]
+                }, {
+                    eventType: 'side_effect',
+                    unsetPaths: [ 'response.data.someField', 'validations.data.someField' ]
+                }
+            ];
+
+            await insertSomeLogs(logData, completeInterviewId!);
+            await insertSomeLogs(logData, incompleteInterviewId!);
+
+            const trx = await getTransactionForTempView();
+            try {
+                const result = await dbQueries.getIncompleteInterviewsLastEventCounts(trx);
+                expect(result).toBeDefined();
+                expect(result.length).toEqual(1);
+                expect(result[0]).toEqual({ event_type: 'widget_interaction', count: '1' });
+            } finally {
+                await trx.commit();
+            }
+        });
+
+        test('Should return last action only for participants (no user ID)', async () => {
+            // Add a few logs to each interview, associated with a user ID (interviewer)
+            const logData = [
+                {
+                    eventType: 'widget_interaction',
+                    valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true }
+                }, {
+                    eventType: 'widget_interaction',
+                    valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true },
+                    unsetPaths: []
+                }, {
+                    eventType: 'server_event',
+                    valuesByPath: { },
+                    unsetPaths: [ 'response.data' ]
+                }, {
+                    eventType: 'side_effect',
+                    unsetPaths: [ 'response.data.someField', 'validations.data.someField' ]
+                }
+            ];
+
+            await insertSomeLogs(logData, completeInterviewId!, localUser.id);
+            await insertSomeLogs(logData, incompleteInterviewId!, localUser.id);
+
+            const trx = await getTransactionForTempView();
+            try {
+                const result = await dbQueries.getIncompleteInterviewsLastEventCounts(trx);
+                expect(result).toBeDefined();
+                expect(result.length).toEqual(0);
+            } finally {
+                await trx.commit();
+            }
+        });
+    });
+
+});
