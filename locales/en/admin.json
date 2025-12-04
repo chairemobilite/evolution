@@ -208,7 +208,21 @@
             "invalidValueType": "Invalid value type received from server.",
             "jsonConversion": "Error converting data to json.",
             "serverError": "Server error: Failed to fetch value.",
-            "fetchError": "Error fetching data."
+            "fetchError": "Error fetching data.",
+            "invalidResponse": "Invalid response from server"
+        },
+        "RespondentBehavior": {
+            "sectionTitle": "Respondent Behavior",
+            "IncompleteInterviewsLastActions": "Last action by participant",
+            "EventType": "Action",
+            "Count": "Count",
+            "NoData": "No data",
+            "DropoutAnalysis": "Drop-out analysis (incomplete interviews only)",
+            "eventTypes": {
+                "widget_interaction": "Widget interaction",
+                "section_change": "Section change",
+                "button_click": "Button click"
+            }
         }
     }
 }

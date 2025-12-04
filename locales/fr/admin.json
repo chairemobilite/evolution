@@ -208,7 +208,21 @@
             "invalidValueType": "Type de valeur invalide reçu du serveur.",
             "jsonConversion": "Erreur lors de la conversion des données en JSON.",
             "serverError": "Erreur serveur : Échec de récupération de la valeur.",
-            "fetchError": "Erreur lors de la récupération des données."
+            "fetchError": "Erreur lors de la récupération des données.",
+            "invalidResponse": "Réponse invalide du serveur"
+        },
+        "RespondentBehavior": {
+            "sectionTitle": "Comportement du répondant",
+            "IncompleteInterviewsLastActions": "Dernière action des participants",
+            "EventType": "Action",
+            "Count": "Nombre",
+            "NoData": "Aucune donnée",
+            "DropoutAnalysis": "Analyse d'abandon (entrevues incomplètes seulement)",
+            "eventTypes": {
+                "widget_interaction": "Interaction avec le widget",
+                "section_change": "Changement de section",
+                "button_click": "Clic sur un bouton"
+            }
         }
     }
 }

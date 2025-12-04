@@ -10,6 +10,8 @@ import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 // Add export routes from admin/exports.routes
 import { addExportRoutes } from './admin/exports.routes';
+import { RespondentBehaviorService } from '../services/paradata/respondentBehavior';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 addExportRoutes();
 
@@ -32,6 +34,9 @@ router.all('/data/widgets/:widget/', (req, res, _next) => {
         break;
     case 'interviews-completion-rate':
         getInterviewsCompletionRate(res);
+        break;
+    case 'respondent-behavior-metrics':
+        getRespondentBehaviorMetrics(res);
         break;
     default:
         // TODO: new widgets will be added
@@ -132,6 +137,17 @@ const getInterviewsCompletionRate = async (res) => {
     } catch (error) {
         console.error('Error fetching interviews completion rate:', error);
         return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch interviews completion rate' });
+    }
+};
+
+// Get respondent behavior metrics
+const getRespondentBehaviorMetrics = async (res) => {
+    try {
+        const metrics = await RespondentBehaviorService.getRespondentBehaviorMetrics();
+        return res.status(200).json(Status.createOk(metrics));
+    } catch (error) {
+        console.error('Error fetching respondent behavior metrics:', error);
+        return res.status(500).json(Status.createError('Failed to fetch respondent behavior metrics'));
     }
 };
 
