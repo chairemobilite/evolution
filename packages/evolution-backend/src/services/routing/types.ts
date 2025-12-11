@@ -71,3 +71,37 @@ export type SummaryResult = {
           lines: SummarySuccessResult['result']['lines'];
       }
 );
+
+export type AccessibilityMapCalculationParameter = {
+    /**
+     * The point from which to calculate the accessibility map
+     */
+    point: GeoJSON.Point | GeoJSON.Feature<GeoJSON.Point>;
+    /**
+     * The time of the trip, in seconds since midnight
+     */
+    departureSecondsSinceMidnight: number;
+    /** The scenario to use for calculations */
+    transitScenario: string;
+    /** The number of polygons to generate */
+    numberOfPolygons?: number;
+    /** The maximum total travel time in minutes */
+    maxTotalTravelTimeMinutes: number;
+    /** whether to calculate points of interest */
+    calculatePois?: boolean;
+};
+
+export type AccessibilityMapResult = {
+    // The source of the accessibility map calculation. Can be used to identify
+    // the method called for this calculation
+    source: string;
+} & (
+    | {
+          status: 'error';
+          error: string;
+      }
+    | {
+          status: 'success';
+          polygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon>;
+      }
+);

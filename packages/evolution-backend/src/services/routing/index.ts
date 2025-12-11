@@ -10,9 +10,19 @@
 import moment from 'moment';
 import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
 import { getPointCoordinates } from 'chaire-lib-common/lib/services/geodata/GeoJSONUtils';
-import { RouteCalculationParameter, RoutingTimeDistanceResultByMode, SummaryResult } from './types';
+import {
+    AccessibilityMapCalculationParameter,
+    AccessibilityMapResult,
+    RouteCalculationParameter,
+    RoutingTimeDistanceResultByMode,
+    SummaryResult
+} from './types';
 import projectConfig from '../../config/projectConfig';
-import { getTimeAndDistanceFromTransitionApi, summaryFromTransitionApi } from './RouteCalculationFromTransition';
+import {
+    getTimeAndDistanceFromTransitionApi,
+    summaryFromTransitionApi,
+    transitAccessibilityMapFromTransitionApi
+} from './RouteCalculationFromTransition';
 
 /**
  * Calculate the times and distances between 2 points for a list of modes
@@ -91,4 +101,46 @@ export const getTransitSummary = async function (parameters: RouteCalculationPar
     }
     // TODO Implement other summary methods
     throw new Error('No summary method available');
+};
+
+/**
+ * Return the transit accessibility maps from a given location
+ * @param parameters The parameters for the accessibility map calculation
+ */
+export const getTransitAccessibilityMap = async function (
+    parameters: AccessibilityMapCalculationParameter
+): Promise<AccessibilityMapResult> {
+    // Validate parameters first
+    const pointCoordinates = getPointCoordinates(parameters.point);
+
+    if (!pointCoordinates) {
+        throw new Error('Invalid point');
+    }
+    // Departure time since midnight should be between 0 and 28 hours, not 24 as
+    // transit days can be longer and it will be useful to determine the
+    // scenario to use
+    if (parameters.departureSecondsSinceMidnight < 0 || parameters.departureSecondsSinceMidnight >= 28 * 3600) {
+        throw new Error('Invalid departure time');
+    }
+
+    if (parameters.transitScenario === undefined) {
+        throw new Error('Transit accessibility map requires a scenario');
+    }
+
+    if (parameters.maxTotalTravelTimeMinutes === undefined || parameters.maxTotalTravelTimeMinutes <= 0) {
+        throw new Error('Invalid max total travel time');
+    }
+
+    if (parameters.numberOfPolygons !== undefined && parameters.numberOfPolygons <= 0) {
+        throw new Error('Invalid number of polygons');
+    }
+
+    // All parameters are valid, dispatch to the proper accessibility map
+    // function. Only supporting transition public API for now, but we could
+    // have more eventually
+    if (projectConfig.transitionApi !== undefined) {
+        return transitAccessibilityMapFromTransitionApi(parameters);
+    }
+    // TODO Implement other accessibility map methods
+    throw new Error('No accessibility map method available');
 };
