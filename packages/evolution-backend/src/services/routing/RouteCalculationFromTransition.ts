@@ -9,10 +9,17 @@
 // survey. They call the Transition public API, with the instance configuration
 // set in the project configuration or environment variables
 import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
-import { RouteCalculationParameter, RoutingTimeDistanceResultByMode, SummaryResult } from './types';
+import {
+    AccessibilityMapCalculationParameter,
+    AccessibilityMapResult,
+    RouteCalculationParameter,
+    RoutingTimeDistanceResultByMode,
+    SummaryResult
+} from './types';
 import projectConfig from '../../config/projectConfig';
 import { URL } from 'url';
 import { SummaryResponse } from 'chaire-lib-common/lib/api/TrRouting/trRoutingApiV2';
+import { TrRoutingApiNode } from 'chaire-lib-common/lib/api/TrRouting';
 
 // A name for this calculation source
 const CALCULATION_SOURCE = 'transitionApi';
@@ -237,6 +244,79 @@ export const summaryFromTransitionApi = async (parameters: RouteCalculationParam
             };
     } catch (error) {
         console.error('Error fetching transition summary', error);
+        return {
+            status: 'error',
+            error: String(error),
+            source: CALCULATION_SOURCE
+        };
+    }
+};
+
+// FIXME Those types come from transit API, they should be in chaire-lib so we can import them
+type AccessibilityMapAPIResultResponse = {
+    nodes: TrRoutingApiNode[];
+    polygons: {
+        type: 'FeatureCollection';
+        features: Array<{
+            type: 'Feature';
+            geometry: GeoJSON.MultiPolygon;
+            properties: {
+                durationSeconds: number;
+                areaSqM: number;
+                accessiblePlacesCountByCategory?: { [category: string]: number };
+                accessiblePlacesCountByDetailedCategory?: { [detailedCategory: string]: number };
+            };
+        }>;
+    };
+};
+
+export type AccessibilityMapAPIResponse = {
+    result: AccessibilityMapAPIResultResponse;
+};
+
+/**
+ * Return the transit accessibility maps from a given location
+ * @param parameters The parameters for the accessibility map calculation
+ */
+export const transitAccessibilityMapFromTransitionApi = async function (
+    parameters: AccessibilityMapCalculationParameter
+): Promise<AccessibilityMapResult> {
+    const transitionApiHandler = getTransitionApiHandler(projectConfig.transitionApi?.url);
+    if (transitionApiHandler === undefined) {
+        throw new Error('Transition URL not set in project config');
+    }
+
+    const transitionUrlObj = transitionApiHandler.getTransitionUrl('/api/v1/accessibility');
+    // We need the geojson query parameter for the accessibility map polygons
+    transitionUrlObj.searchParams.append('withGeojson', 'true');
+
+    try {
+        const response = await transitionApiHandler.fetchWithToken(transitionUrlObj.toString(), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                locationGeojson: parameters.point,
+                departureTimeSecondsSinceMidnight: parameters.departureSecondsSinceMidnight,
+                scenarioId: parameters.transitScenario,
+                numberOfPolygons: parameters.numberOfPolygons ?? 1,
+                maxTotalTravelTimeSeconds: parameters.maxTotalTravelTimeMinutes * 60,
+                calculatePois: parameters.calculatePois === true
+            })
+        });
+
+        if (response.status !== 200) {
+            throw new Error(`Unsuccessful response code from transition: ${response.status}`);
+        }
+        const routingResponse = (await response.json()) as AccessibilityMapAPIResponse;
+        return {
+            status: 'success',
+            polygons: routingResponse.result.polygons,
+            source: CALCULATION_SOURCE
+        };
+    } catch (error) {
+        console.error('Error fetching transition accessibility map', error);
         return {
             status: 'error',
             error: String(error),

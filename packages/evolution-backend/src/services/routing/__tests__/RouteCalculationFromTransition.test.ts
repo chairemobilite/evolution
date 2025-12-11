@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { getTimeAndDistanceFromTransitionApi, summaryFromTransitionApi } from '../RouteCalculationFromTransition';
+import { getTimeAndDistanceFromTransitionApi, summaryFromTransitionApi, transitAccessibilityMapFromTransitionApi } from '../RouteCalculationFromTransition';
 import fetchMock from 'jest-fetch-mock';
 import projectConfig from '../../../config/projectConfig';
 
@@ -512,6 +512,251 @@ describe('summaryFromTransitionApi', () => {
             lines: response.result.lines,
             source: 'transitionApi'
         });
+    });
+
+});
+
+describe('transitAccessibilityMapFromTransitionApi', () => {
+    const params = {
+        point: {
+            type: 'Point' as const,
+            coordinates: [-73.5, 45.5]
+        },
+        departureSecondsSinceMidnight: 28800,
+        maxTotalTravelTimeMinutes: 30,
+        numberOfPolygons: 3,
+        transitScenario: 'scenarioId'
+    };
+
+    test('Undefined URL', async () => {
+        projectConfig.transitionApi = undefined;
+        await expect(transitAccessibilityMapFromTransitionApi(params))
+            .rejects
+            .toThrow('Transition URL not set in project config');
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    test('fetch failing', async () => {
+        fetchMock.mockRejectedValueOnce(new Error('Failed to fetch'));
+        const result = await transitAccessibilityMapFromTransitionApi(params);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/accessibility?withGeojson=true',
+            expect.objectContaining({
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    locationGeojson: params.point,
+                    departureTimeSecondsSinceMidnight: params.departureSecondsSinceMidnight,
+                    scenarioId: params.transitScenario,
+                    numberOfPolygons: params.numberOfPolygons,
+                    maxTotalTravelTimeSeconds: params.maxTotalTravelTimeMinutes * 60,
+                    calculatePois: false
+                })
+            })
+        );
+        expect(result).toEqual({ status: 'error', error: 'Error: Failed to fetch', source: 'transitionApi' });
+    });
+
+    test('Bad request response', async () => {
+        const badRequestMessage = 'Some parameter error';
+        fetchMock.mockResponseOnce(JSON.stringify(badRequestMessage), { status: 400 });
+        const result = await transitAccessibilityMapFromTransitionApi(params);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/accessibility?withGeojson=true',
+            expect.objectContaining({
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    locationGeojson: params.point,
+                    departureTimeSecondsSinceMidnight: params.departureSecondsSinceMidnight,
+                    scenarioId: params.transitScenario,
+                    numberOfPolygons: params.numberOfPolygons,
+                    maxTotalTravelTimeSeconds: params.maxTotalTravelTimeMinutes * 60,
+                    calculatePois: false
+                })
+            })
+        );
+        expect(result).toEqual({ status: 'error', error: `Error: Unsuccessful response code from transition: 400`, source: 'transitionApi' });
+    });
+
+    test('Server error response', async () => {
+        fetchMock.mockResponseOnce(JSON.stringify({}), { status: 500 });
+        const result = await transitAccessibilityMapFromTransitionApi(params);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/accessibility?withGeojson=true',
+            expect.objectContaining({
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    locationGeojson: params.point,
+                    departureTimeSecondsSinceMidnight: params.departureSecondsSinceMidnight,
+                    scenarioId: params.transitScenario,
+                    numberOfPolygons: params.numberOfPolygons,
+                    maxTotalTravelTimeSeconds: params.maxTotalTravelTimeMinutes * 60,
+                    calculatePois: false
+                })
+            })
+        );
+        expect(result).toEqual({ status: 'error', error: `Error: Unsuccessful response code from transition: 500`, source: 'transitionApi' });
+    });
+
+    test('Correct and complete response without POIs', async () => {
+        const response = {
+            result: {
+                nodes: [
+                    {
+                        id: 'node1',
+                        code: '001',
+                        name: 'Station A'
+                    },
+                    {
+                        id: 'node2',
+                        code: '002',
+                        name: 'Station B'
+                    }
+                ],
+                polygons: {
+                    type: 'FeatureCollection' as const,
+                    features: [
+                        {
+                            type: 'Feature' as const,
+                            geometry: {
+                                type: 'MultiPolygon' as const,
+                                coordinates: [[[[-73.5, 45.5], [-73.4, 45.5], [-73.4, 45.4], [-73.5, 45.4], [-73.5, 45.5]]]]
+                            },
+                            properties: {
+                                durationSeconds: 600,
+                                areaSqM: 1000000
+                            }
+                        },
+                        {
+                            type: 'Feature' as const,
+                            geometry: {
+                                type: 'MultiPolygon' as const,
+                                coordinates: [[[[-73.6, 45.6], [-73.5, 45.6], [-73.5, 45.5], [-73.6, 45.5], [-73.6, 45.6]]]]
+                            },
+                            properties: {
+                                durationSeconds: 1200,
+                                areaSqM: 2000000
+                            }
+                        }
+                    ]
+                }
+            }
+        };
+
+        fetchMock.mockResponseOnce(JSON.stringify(response));
+        const result = await transitAccessibilityMapFromTransitionApi(params);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/accessibility?withGeojson=true',
+            expect.objectContaining({
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    locationGeojson: params.point,
+                    departureTimeSecondsSinceMidnight: params.departureSecondsSinceMidnight,
+                    scenarioId: params.transitScenario,
+                    numberOfPolygons: params.numberOfPolygons,
+                    maxTotalTravelTimeSeconds: params.maxTotalTravelTimeMinutes * 60,
+                    calculatePois: false
+                })
+            })
+        );
+        expect(result).toEqual({
+            status: 'success',
+            polygons: response.result.polygons,
+            source: 'transitionApi'
+        });
+    });
+
+    test('Correct and complete response with POIs', async () => {
+        const paramsWithPois = { ...params, calculatePois: true };
+        const response = {
+            result: {
+                nodes: [
+                    {
+                        id: 'node1',
+                        code: '001',
+                        name: 'Station A'
+                    }
+                ],
+                polygons: {
+                    type: 'FeatureCollection' as const,
+                    features: [
+                        {
+                            type: 'Feature' as const,
+                            geometry: {
+                                type: 'MultiPolygon' as const,
+                                coordinates: [[[[-73.5, 45.5], [-73.4, 45.5], [-73.4, 45.4], [-73.5, 45.4], [-73.5, 45.5]]]]
+                            },
+                            properties: {
+                                durationSeconds: 600,
+                                areaSqM: 1000000,
+                                accessiblePlacesCountByCategory: {
+                                    'restaurant': 25,
+                                    'cafe': 15
+                                },
+                                accessiblePlacesCountByDetailedCategory: {
+                                    'italian_restaurant': 10,
+                                    'french_restaurant': 15,
+                                    'coffee_shop': 15
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        };
+
+        fetchMock.mockResponseOnce(JSON.stringify(response));
+        const result = await transitAccessibilityMapFromTransitionApi(paramsWithPois);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledWith(
+            'https://transition.url/api/v1/accessibility?withGeojson=true',
+            expect.objectContaining({
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${bearerToken}`
+                },
+                body: JSON.stringify({
+                    locationGeojson: paramsWithPois.point,
+                    departureTimeSecondsSinceMidnight: paramsWithPois.departureSecondsSinceMidnight,
+                    scenarioId: paramsWithPois.transitScenario,
+                    numberOfPolygons: paramsWithPois.numberOfPolygons,
+                    maxTotalTravelTimeSeconds: paramsWithPois.maxTotalTravelTimeMinutes * 60,
+                    calculatePois: true
+                })
+            })
+        );
+        expect(result).toEqual({
+            status: 'success',
+            polygons: response.result.polygons,
+            source: 'transitionApi'
+        });
+        // Verify POI data is preserved
+        if (result.status === 'success' && result.polygons.features[0].properties) {
+            expect(result.polygons.features[0].properties.accessiblePlacesCountByCategory).toEqual({
+                'restaurant': 25,
+                'cafe': 15
+            });
+        }
     });
 
 });
