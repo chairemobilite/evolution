@@ -31,6 +31,11 @@ type InfoMapProps = {
     path: string;
 };
 
+const coordinatesToLatLng = (coordinates: number[]) => ({
+    lat: coordinates[1],
+    lng: coordinates[0]
+});
+
 const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps & WithTranslation) => {
     // Set the google map config once, as it cannot be changed after it is
     // loaded (for language change for example). see
@@ -217,24 +222,47 @@ const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps &
 
     for (let i = 0, countI = polygons.length; i < countI; i++) {
         const polygon = polygons[i];
-        const polygonCoordinates = polygon.geometry.coordinates[0].map((coordinates: number[]) => ({
-            lat: coordinates[1],
-            lng: coordinates[0]
-        }));
+        if (polygon.geometry.type === 'Polygon') {
+            // For Polygon: coordinates is an array of rings (outer ring + holes)
+            // Map all rings: coordinates[0] is outer boundary, coordinates[1+] are holes
+            const polygonCoordinates = polygon.geometry.coordinates.map((ring: number[][]) =>
+                ring.map(coordinatesToLatLng)
+            );
 
-        gPolygons.push(
-            <Polygon
-                key={`gPolygon_infoMap_${props.path}__${i}`}
-                paths={polygonCoordinates}
-                options={{
-                    strokeColor: polygon.properties.strokeColor || '#0000FF',
-                    strokeOpacity: polygon.properties.strokeOpacity || 0.8,
-                    strokeWeight: polygon.properties.strokeWeight || 2,
-                    fillColor: polygon.properties.fillColor || '#0000FF',
-                    fillOpacity: polygon.properties.fillOpacity || 0.35
-                }}
-            />
-        );
+            gPolygons.push(
+                <Polygon
+                    key={`gPolygon_infoMap_${props.path}__${i}`}
+                    paths={polygonCoordinates}
+                    options={{
+                        strokeColor: polygon.properties.strokeColor || '#0000FF',
+                        strokeOpacity: polygon.properties.strokeOpacity || 0.8,
+                        strokeWeight: polygon.properties.strokeWeight || 2,
+                        fillColor: polygon.properties.fillColor || '#0000FF',
+                        fillOpacity: polygon.properties.fillOpacity || 0.35
+                    }}
+                />
+            );
+        } else if (polygon.geometry.type === 'MultiPolygon') {
+            // For MultiPolygon: coordinates is an array of polygons, each with their rings
+            // We need to create a separate Polygon component for each polygon in the MultiPolygon
+            polygon.geometry.coordinates.forEach((polyCoords: number[][][], polyIndex: number) => {
+                const polygonCoordinates = polyCoords.map((ring: number[][]) => ring.map(coordinatesToLatLng));
+
+                gPolygons.push(
+                    <Polygon
+                        key={`gPolygon_infoMap_${props.path}__${i}_${polyIndex}`}
+                        paths={polygonCoordinates}
+                        options={{
+                            strokeColor: polygon.properties.strokeColor || '#0000FF',
+                            strokeOpacity: polygon.properties.strokeOpacity || 0.8,
+                            strokeWeight: polygon.properties.strokeWeight || 2,
+                            fillColor: polygon.properties.fillColor || '#0000FF',
+                            fillOpacity: polygon.properties.fillOpacity || 0.35
+                        }}
+                    />
+                );
+            });
+        }
         if (
             bounds &&
             polygon.properties.minLat &&
