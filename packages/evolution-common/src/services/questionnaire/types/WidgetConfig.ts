@@ -440,7 +440,7 @@ export type InfoMapWidgetConfig = {
     geojsons: ParsingFunction<{
         points?: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapObjectProperty>;
         linestrings?: GeoJSON.FeatureCollection<GeoJSON.LineString, SurveyMapObjectProperty>;
-        polygons?: GeoJSON.FeatureCollection<GeoJSON.Polygon, SurveyMapObjectPolygonProperty>;
+        polygons?: GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon, SurveyMapObjectPolygonProperty>;
     }>;
     defaultCenter?: { lat: number; lon: number } | ParsingFunction<{ lat: number; lon: number }>;
     maxZoom?: number;
