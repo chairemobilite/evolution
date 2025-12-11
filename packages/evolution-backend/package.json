@@ -1,6 +1,6 @@
 {
     "engines": {
-        "node": ">=22.0.0"
+        "node": ">=24.0.0"
     },
     "name": "evolution-backend",
     "version": "0.5.0",
@@ -59,7 +59,7 @@
         "@types/jest": "^29.5.14",
         "@types/jest-each": "^24.3.0",
         "@types/lodash": "^4.17.16",
-        "@types/node": "^22.15.14",
+        "@types/node": "^24.0.0",
         "@typescript-eslint/eslint-plugin": "^8.31.1",
         "@typescript-eslint/parser": "^8.31.1",
         "cross-env": "^7.0.3",
