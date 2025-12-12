@@ -1,6 +1,8 @@
+@use "settings";
+
 .apptr__form-auth {
     max-width: 40rem;
-    min-width: $desktop-breakpoint;
+    min-width: settings.$desktop-breakpoint;
     margin: 0 auto;
 }
 

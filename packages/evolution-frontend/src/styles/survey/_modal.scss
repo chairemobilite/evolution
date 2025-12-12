@@ -1,3 +1,5 @@
+@use "settings";
+
 .react-modal {
   position: absolute;
   top: 50%;
@@ -6,18 +8,18 @@
   bottom: auto;
   transform: translate(-50%, -50%);
   background-color: rgba(255,255,255,1.0);
-  padding: $s-size;
+  padding: settings.$s-size;
   border: 5px solid rgba(0,0,0,0.5);
   border-radius: 2rem;
   line-height: 1.1;
   z-index: 1000;
-  @media only screen and (max-width: $desktop-breakpoint) and  (min-width: $modal-breakpoint) {
+  @media only screen and (max-width: settings.$desktop-breakpoint) and  (min-width: settings.$modal-breakpoint) {
     width: 80%;
     left: 10%;
     transform: translate(0, -50%);
     min-width: 320px;
   }
-  @media only screen and (max-width: $modal-breakpoint) {
+  @media only screen and (max-width: settings.$modal-breakpoint) {
     width: 100%;
     left: 0;
     transform: translate(0, -50%);
@@ -39,17 +41,17 @@
   }
 
   strike, del {
-    color: $red;
+    color: settings.$red;
     text-decoration: none;
     font-weight: 700;
   }
 
   strong {
-    color: $green;
+    color: settings.$green;
   }
 
   em {
-    color: $orange;
+    color: settings.$orange;
   }
 
   &:focus {
@@ -60,9 +62,9 @@
 
 .Select-input, .Select-menu-outer, .Select-value, .Select-value-label, .Select-placeholder {
   * {
-    font-size: $font-size-small;
+    font-size: settings.$font-size-small;
   }
-  font-size: $font-size-small;
+  font-size: settings.$font-size-small;
 }
 
 

@@ -1,8 +1,10 @@
+@use "settings";
+
 .form {
     display: flex;
     flex-direction: column;
     > * {
-        margin-bottom: $m-size;
+        margin-bottom: settings.$m-size;
     }
 }
 
@@ -53,8 +55,8 @@
         background: linear-gradient(
                 to right,
                 rgba(0, 0, 0, 0) 0,
-                $black-pale 30%,
-                $black-pale 70%,
+                settings.$black-pale 30%,
+                settings.$black-pale 70%,
                 rgba(0, 0, 0, 0) 100%
             ),
             url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
@@ -72,8 +74,8 @@
         width: 100%;
         text-align: center;
         font-weight: 300;
-        color: $dark-pale;
-        font-size: $font-size-xlarge;
+        color: settings.$dark-pale;
+        font-size: settings.$font-size-xlarge;
         padding: 0;
         margin: 0;
     }
@@ -87,8 +89,8 @@
         background: linear-gradient(
                 to right,
                 rgba(0, 0, 0, 0) 0,
-                $black-pale 30%,
-                $black-pale 70%,
+                settings.$black-pale 30%,
+                settings.$black-pale 70%,
                 rgba(0, 0, 0, 0) 100%
             ),
             url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
@@ -105,8 +107,8 @@
         width: 100%;
         text-align: center;
         font-weight: 300;
-        color: $dark-pale;
-        font-size: $font-size-large;
+        color: settings.$dark-pale;
+        font-size: settings.$font-size-large;
         padding: 0;
         margin: 0;
     }
@@ -121,8 +123,8 @@
             to right,
             rgba(0, 0, 0, 0) 0,
             rgba(0, 0, 0, 0) 20%,
-            $black-pale 40%,
-            $black-pale 60%,
+            settings.$black-pale 40%,
+            settings.$black-pale 60%,
             rgba(0, 0, 0, 0) 80%,
             rgba(0, 0, 0, 0) 100%
         );
@@ -153,9 +155,9 @@
 
     .survey-section__content {
         width: 100%;
-        padding: 0 $s-size;
-        @media only screen and (min-width: $desktop-breakpoint) {
-            padding: 0 $l-size;
+        padding: 0 settings.$s-size;
+        @media only screen and (min-width: settings.$desktop-breakpoint) {
+            padding: 0 settings.$l-size;
         }
 
         // For SectionProgressBar.tsx
@@ -173,25 +175,25 @@
 
                 .bg {
                     fill: none;
-                    stroke: $button-grey-gradient-top; // Background circle color
+                    stroke: settings.$button-grey-gradient-top; // Background circle color
                 }
 
                 .fg {
                     fill: none;
-                    stroke: $blue; // Foreground (progress) circle color
+                    stroke: settings.$blue; // Foreground (progress) circle color
                     stroke-linecap: round;
                     transform: rotate(-90deg);
                     transform-origin: center;
                 }
 
                 .percentage-text {
-                    font-size: $font-size-xlarge;
+                    font-size: settings.$font-size-xlarge;
                     font-weight: 700;
                     dominant-baseline: middle; // Vertical alignment
                 }
 
                 .completed-text {
-                    font-size: $font-size-small;
+                    font-size: settings.$font-size-small;
                     font-weight: 300;
                     dominant-baseline: middle; // Vertical alignment
                 }
@@ -207,8 +209,8 @@
         margin-bottom: 1rem;
 
         .nav-button {
-            color: $dark-pale;
-            font-size: $font-size-medium;
+            color: settings.$dark-pale;
+            font-size: settings.$font-size-medium;
             font-weight: 700;
             line-height: 1;
             text-decoration: none;
@@ -220,12 +222,12 @@
         }
 
         .completed-section {
-            color: $green;
+            color: settings.$green;
         }
 
         .active-section,
         .active-section.completed-section {
-            color: $blue;
+            color: settings.$blue;
         }
     }
 
@@ -239,7 +241,7 @@
     }
 
     .big-text {
-        font-size: $font-size-xlarge;
+        font-size: settings.$font-size-xlarge;
         color: black;
         font-weight: 700;
     }
@@ -261,8 +263,8 @@
 
             // Style the title
             font-weight: 700;
-            font-size: $font-size-xlarge;
-            margin: $m-size;
+            font-size: settings.$font-size-xlarge;
+            margin: settings.$m-size;
             text-align: left;
             width: 100%;
         }

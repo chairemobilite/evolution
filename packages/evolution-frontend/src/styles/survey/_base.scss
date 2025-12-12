@@ -1,3 +1,5 @@
+@use "settings";
+
 * {
     box-sizing: border-box;
 }
@@ -8,10 +10,10 @@ html {
 }
 
 body {
-  color: $dark;
-  background: $dark-off-white;
-  font-family: $font-family;
-  font-size: $font-size-medium-large;
+  color: settings.$dark;
+  background: settings.$dark-off-white;
+  font-family: settings.$font-family;
+  font-size: settings.$font-size-medium-large;
   font-weight: 400;
   line-height: 1.4;
   padding: 0;
@@ -84,31 +86,31 @@ strong, .strong {
 }
 
 ._red {
-  color: $red !important;
+  color: settings.$red !important;
 }
 
 ._active-background {
   background-color: rgba(0,0,0,0.2);
   &._red {
-    background-color: $red-background-pale;
+    background-color: settings.$red-background-pale;
   }
   &._green {
-    background-color: $green-background-pale;
+    background-color: settings.$green-background-pale;
   }
   &._blue {
-    background-color: $blue-background-pale;
+    background-color: settings.$blue-background-pale;
   }
   &._orange {
-    background-color: $orange-background-pale;
+    background-color: settings.$orange-background-pale;
   }
 }
 
 ._green {
-  color: $green !important;
+  color: settings.$green !important;
 }
 
 ._orange {
-  color: $orange !important;
+  color: settings.$orange !important;
 }
 
 ._pale {
@@ -119,7 +121,7 @@ strong, .strong {
 ._pale._oblique {
     opacity: 0.7 !important;
     font-style: normal;
-    color: $dark-blue;
+    color: settings.$dark-blue;
     font-size: 90%;
 }
 
@@ -132,39 +134,39 @@ strong, .strong {
 }
 
 ._dark-red {
-  color: $dark-red !important;
+  color: settings.$dark-red !important;
 }
 
 ._blue {
-  color: $blue !important;
+  color: settings.$blue !important;
 }
 
 ._dark-blue {
-  color: $dark-blue !important;
+  color: settings.$dark-blue !important;
 }
 
 ._dark-green {
-  color: $dark-green !important;
+  color: settings.$dark-green !important;
 }
 
 ._xlarge {
-  font-size: $font-size-xlarge;
+  font-size: settings.$font-size-xlarge;
 }
 
 ._large {
-  font-size: $font-size-large;
+  font-size: settings.$font-size-large;
 }
 
 ._medium-large {
-  font-size: $font-size-medium-large;
+  font-size: settings.$font-size-medium-large;
 }
 
 ._medium {
-  font-size: $font-size-medium;
+  font-size: settings.$font-size-medium;
 }
 
 ._small {
-  font-size: $font-size-small;
+  font-size: settings.$font-size-small;
 }
 
 .no-bottom-margin {
@@ -181,7 +183,7 @@ strong, .strong {
 
 .apptr__auth-box {
   border: 0.5rem solid rgba(255,255,255,1.0);
-  font-size: $font-size-medium;
+  font-size: settings.$font-size-medium;
   border-radius: 2.2rem;
   margin: 1rem;
   padding: 1rem;
@@ -191,7 +193,7 @@ strong, .strong {
 
 .facebook-oauth-button, .google-oauth-button {
   border-radius: 2rem !important;
-  font-size: $font-size-medium;
+  font-size: settings.$font-size-medium;
 }
 
 ._together {

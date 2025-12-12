@@ -1,3 +1,5 @@
+@use "settings";
+
 .admin {
     display: flex;
     flex-direction: row;
@@ -11,7 +13,7 @@
         margin: 0 0 1rem 0;
         padding: 0;
         list-style: none;
-        font-size: $font-size-small;
+        font-size: settings.$font-size-small;
 
         li {
             margin-left: 0;
@@ -89,7 +91,7 @@
 
     label,
     .apptr__form__label-standalone {
-        font-size: $font-size-small !important;
+        font-size: settings.$font-size-small !important;
     }
 }
 
@@ -251,7 +253,7 @@
     border-radius: 1rem;
     background: rgba(255, 255, 255, 1);
     margin: 0 1rem 1rem 0;
-    font-size: $font-size-small;
+    font-size: settings.$font-size-small;
 }
 
 .userTable {

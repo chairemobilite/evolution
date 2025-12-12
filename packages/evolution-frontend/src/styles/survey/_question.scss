@@ -1,9 +1,10 @@
+@use "settings";
 
 
 label, .apptr__form__label-standalone {
   font-weight: 600;
   width: 100%;
-  color: $label;
+  color: settings.$label;
 }
 
 label.no-question, .apptr__form__label-standalone.no-question {
@@ -23,23 +24,23 @@ label strong, .apptr__form__label-standalone strong {
 .apptr__form-input-container {
   
   input[type=text], input[type=password], input[type=email], input[type=number] {
-    font-size: $font-size-medium-large;
-    color: $input;
+    font-size: settings.$font-size-medium-large;
+    color: settings.$input;
     font-weight: 700;
-    padding: $xxxs-size;
+    padding: settings.$xxxs-size;
     width: 100%;
   }
 
   textarea, .input-text {
     width: 100%;
     font-weight: 300;
-    color: $input;
-    font-size: $font-size-medium;
+    color: settings.$input;
+    font-size: settings.$font-size-medium;
     resize: vertical;
   }
 
   ::placeholder {
-    color: $dark-pale;
+    color: settings.$dark-pale;
     font-style: oblique;
     font-weight: 300;
   }
@@ -72,11 +73,11 @@ label strong, .apptr__form__label-standalone strong {
 .validation .apptr__form-input-container {
   
   input[type=text], input[type=password], input[type=email] {
-    font-size: $font-size-small;
+    font-size: settings.$font-size-small;
   }
 
   textarea, .input-text {
-    font-size: $font-size-small;
+    font-size: settings.$font-size-small;
   }
 
 }
@@ -102,13 +103,13 @@ label strong, .apptr__form__label-standalone strong {
   align-items: stretch;
   
   &.two-columns {
-    @media only screen and (min-width: $desktop-breakpoint) {
+    @media only screen and (min-width: settings.$desktop-breakpoint) {
       padding: 0 4rem 0 1.5rem;
       //min-width: calc(100vw*0.6);
     }
 
     fieldset{
-      @media only screen and (min-width: $desktop-breakpoint) {
+      @media only screen and (min-width: settings.$desktop-breakpoint) {
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -117,7 +118,7 @@ label strong, .apptr__form__label-standalone strong {
     }
   }
   display: flex;
-  margin-bottom: $xxs-size;
+  margin-bottom: settings.$xxs-size;
   //max-width: 90rem;
 
   &.disabled {
@@ -126,8 +127,8 @@ label strong, .apptr__form__label-standalone strong {
   }
 
   select {
-    font-size: $sm-size;
-    color: $input;
+    font-size: settings.$sm-size;
+    color: settings.$input;
     font-weight: 700;
     @media only screen and (max-width: 400px) {
       max-width: 280px;
@@ -136,11 +137,11 @@ label strong, .apptr__form__label-standalone strong {
   }
 
   .apptr__form-label-container {
-    margin-bottom: $xs-size;
+    margin-bottom: settings.$xs-size;
     margin-bottom: 0.5rem;
     padding-right: 2.5rem;
     &.two-columns {
-      @media only screen and (min-width: $desktop-breakpoint) {
+      @media only screen and (min-width: settings.$desktop-breakpoint) {
         display: flex;
         text-align: right;
         flex-direction: column;
@@ -164,7 +165,7 @@ label strong, .apptr__form__label-standalone strong {
 
   .apptr__form-input-container {
     &.two-columns {
-      @media only screen and (min-width: $desktop-breakpoint) {
+      @media only screen and (min-width: settings.$desktop-breakpoint) {
         width: 34%;
         padding: 0.5rem 0 0.5rem 1.5rem;
         min-width: 25rem;
@@ -175,13 +176,13 @@ label strong, .apptr__form__label-standalone strong {
   fieldset{
     position: relative;
     width: 100%;
-    @media only screen and (min-width: $desktop-breakpoint) {
+    @media only screen and (min-width: settings.$desktop-breakpoint) {
         text-align: left;
     }
   }
 
   &.two-columns {
-    @media only screen and (min-width: $desktop-breakpoint) {
+    @media only screen and (min-width: settings.$desktop-breakpoint) {
       display: flex;
       text-align: left;
       flex-direction: row;
@@ -197,7 +198,7 @@ label strong, .apptr__form__label-standalone strong {
       
     }
     padding: 1.3rem 1.5rem 1rem 1.5rem;
-    @media only screen and (max-width: $desktop-breakpoint) {
+    @media only screen and (max-width: settings.$desktop-breakpoint) {
       padding: 1.3rem 0 1rem 0;
     }
     //@media only screen and (min-width: $desktop-breakpoint) {
@@ -219,8 +220,8 @@ label strong, .apptr__form__label-standalone strong {
       text-align: left;
       margin: 0.2rem 0 0 0.3rem;
       font-weight: 700;
-      font-size: $font-size-medium;
-      color: $radio;
+      font-size: settings.$font-size-medium;
+      color: settings.$radio;
       justify-content: center;
       span {
         display: table-cell;
@@ -276,13 +277,13 @@ label strong, .apptr__form__label-standalone strong {
       &.checked {
         background: rgba(0,0,0,0.06);
         label, .apptr__form__label-standalone {
-          color: $input;
+          color: settings.$input;
         }
       }
     }
 
     .survey-question__input-radio-group-column, .survey-question__input-checkbox-group-column {
-        @media only screen and (min-width: $desktop-breakpoint) {
+        @media only screen and (min-width: settings.$desktop-breakpoint) {
         flex-basis: 0;
         flex-grow: 1;
       }
@@ -296,10 +297,10 @@ label strong, .apptr__form__label-standalone strong {
 .validation .apptr__form-container {
   padding: 0.2rem 0.2rem 0.5rem 0.2rem;
   margin-bottom: 0;
-  font-size: $font-size-small;
+  font-size: settings.$font-size-small;
 
   &.two-columns {
-    @media only screen and (min-width: $desktop-breakpoint) {
+    @media only screen and (min-width: settings.$desktop-breakpoint) {
       padding: 0 4rem 0 1.5rem;
       //min-width: calc(100vw*0.6);
     }
@@ -307,7 +308,7 @@ label strong, .apptr__form__label-standalone strong {
 }
 
 .apptr__form-error-message {
-  color: $error;
+  color: settings.$error;
   font-weight: 400;
   font-style: oblique;
   margin: 0;
@@ -320,8 +321,8 @@ label strong, .apptr__form__label-standalone strong {
 .apptr__form-container.question-empty {
   
   .apptr__form-input {
-    border: 1px solid $black-pale;
-    background: $empty-input-background;
+    border: 1px solid settings.$black-pale;
+    background: settings.$empty-input-background;
   }
   
 }
@@ -329,22 +330,22 @@ label strong, .apptr__form__label-standalone strong {
 .apptr__form-container.question-filled {
   
   .apptr__form-input {
-    border: 1px solid $black-pale;
-    background: $empty-input-background;
+    border: 1px solid settings.$black-pale;
+    background: settings.$empty-input-background;
   }
 
 }
 
 .apptr__form-container.question-valid {
-  border: 0.5rem solid $valid-border;
-  background: url(../../assets/images/interface_icons/check-circle.svg) $valid-background;
+  border: 0.5rem solid settings.$valid-border;
+  background: url(../../assets/images/interface_icons/check-circle.svg) settings.$valid-background;
   background-position: right 0.5rem top 0.5rem;
   background-origin: padding-box;
   background-size: 2.5rem;
   background-repeat: no-repeat;
   
   &.question-type-mapPoint {
-    background: url(../../assets/images/interface_icons/check-circle.svg) $valid-background;
+    background: url(../../assets/images/interface_icons/check-circle.svg) settings.$valid-background;
     background-position: right 0.5rem top 0.5rem;
     background-origin: padding-box;
     background-size: 2.5rem;
@@ -352,12 +353,12 @@ label strong, .apptr__form__label-standalone strong {
   }
 
   .apptr__form-input {
-    background: $valid-input-background;
+    background: settings.$valid-input-background;
   }
 
   &.question-empty {
     .apptr__form-input {
-      background: $empty-input-background;
+      background: settings.$empty-input-background;
     }
   }
 
@@ -373,16 +374,16 @@ label strong, .apptr__form__label-standalone strong {
 
 .apptr__form-container.question-invalid {
   
-  border: 0.5rem solid $invalid-border;
-  background: $invalid-background;
+  border: 0.5rem solid settings.$invalid-border;
+  background: settings.$invalid-background;
 
   &.question-type-mapPoint {
-    background: $invalid-background;
+    background: settings.$invalid-background;
   }
 
   .apptr__form-input {
-    background: $invalid-input-background;
-    color: $error;
+    background: settings.$invalid-input-background;
+    color: settings.$error;
   }
 
 }
@@ -406,7 +407,7 @@ label strong, .apptr__form__label-standalone strong {
 .input-range__label-container {
   font-weight: 500;
   left: 0;
-  font-family: $font-family;
+  font-family: settings.$font-family;
 }
 
 .survey-question__input-range_input_container_with_labels {
@@ -544,7 +545,7 @@ label strong, .apptr__form__label-standalone strong {
 }
 
 .react-select-container {
-  font-size: $m-size;
+  font-size: settings.$m-size;
 }
 
 .survey-question__input-button-input-container {
