@@ -319,10 +319,10 @@ describe('Get interview and ID by interview uuid', () => {
     test('Not a valid uuid', async () => {
         await expect(dbQueries.getInterviewByUuid('not a valid uuid'))
             .rejects
-            .toThrowError();
+            .toThrow();
         await expect(dbQueries.getInterviewIdByUuid('not a valid uuid'))
             .rejects
-            .toThrowError();
+            .toThrow();
     });
 });
 
@@ -675,7 +675,7 @@ describe('list interviews', () => {
             sort: [{ field: 'response.accessCode', order: 'desc; select * from sv_interviews' as any }]
         }))
             .rejects
-            .toThrowError('Cannot get interview list in table sv_interviews database (knex error: Invalid sort order for interview query: desc; select * from sv_interviews (DBINTO0001))');
+            .toThrow('Cannot get interview list in table sv_interviews database (knex error: Invalid sort order for interview query: desc; select * from sv_interviews (DBINTO0001))');
 
         // Inject bad where value
         await expect(dbQueries.getList({
@@ -683,7 +683,7 @@ describe('list interviews', () => {
             pageIndex: 0, pageSize: -1
         }))
             .rejects
-            .toThrowError('Cannot get interview list in table sv_interviews database (knex error: Invalid value for where clause in sv_interviews database (DBQCR0006))');
+            .toThrow('Cannot get interview list in table sv_interviews database (knex error: Invalid value for where clause in sv_interviews database (DBQCR0006))');
 
         // Inject bad where operator, should use =
         const { interviews: page2, totalCount: totalCount2 } = await dbQueries.getList({
@@ -700,7 +700,7 @@ describe('list interviews', () => {
             pageIndex: 0, pageSize: -1
         }))
             .rejects
-            .toThrowError('Cannot get interview list in table sv_interviews database (knex error: Invalid field for where clause in sv_interviews database (DBQCR0005))');
+            .toThrow('Cannot get interview list in table sv_interviews database (knex error: Invalid field for where clause in sv_interviews database (DBQCR0005))');
 
     });
 

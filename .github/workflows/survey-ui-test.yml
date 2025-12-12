@@ -26,7 +26,7 @@ jobs:
           POSTGRES_DB: testdb
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [24.x]
     env:
       PROJECT_CONFIG: ${{ github.workspace }}/example/demo_survey/config.js
       PG_CONNECTION_STRING_PREFIX: postgres://testuser:testpassword@localhost:5432/

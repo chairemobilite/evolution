@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "name": "evolution-common",
   "version": "0.5.0",
@@ -39,7 +39,7 @@
     "@typescript-eslint/parser": "^8.31.1",
     "eslint": "^8.57.1",
     "eslint-plugin-n": "^15.7.0",
-    "jest-each": "^29.7.0",
+    "jest-each": "^30.2.0",
     "prettier-eslint-cli": "^8.0.1",
     "typescript": "^5.8.3"
   }

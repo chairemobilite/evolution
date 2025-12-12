@@ -19,6 +19,7 @@ export interface SimpleModalProps {
     action?: React.MouseEventHandler;
 }
 
+// Make sure Modal knows what DOM element is the app container. Available examples in the package documentation all put this line outside the component.
 if (!process.env.IS_TESTING) {
     Modal.setAppElement('#app');
 }

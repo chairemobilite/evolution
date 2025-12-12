@@ -53,6 +53,11 @@ interface QuestionProps {
     startUpdateInterview: StartUpdateInterview;
 }
 
+// Make sure Modal knows what DOM element is the app container. Available examples in the package documentation all put this line outside the component.
+if (!process.env.IS_TESTING) {
+    Modal.setAppElement('#app');
+}
+
 type QuestionState = {
     modalIsOpen: boolean;
 };
@@ -403,9 +408,6 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
         if (isWidgetModal(widgetConfig)) {
             if (!this.state.modalIsOpen) {
                 return null;
-            }
-            if (!process.env.IS_TESTING) {
-                Modal.setAppElement('#app');
             }
             return (
                 <Modal

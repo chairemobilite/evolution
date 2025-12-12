@@ -101,7 +101,7 @@ test('Create new participant with duplicate key', async () => {
 
     await expect(dbQueries.create(participantToInsert))
         .rejects
-        .toThrowError(expect.anything());
+        .toThrow(expect.anything());
 
 });
 

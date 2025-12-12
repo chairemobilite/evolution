@@ -208,7 +208,7 @@ test('Set new audits for interview, with errors', async() => {
     // The query should throw an error and the audits should not be modified
     await expect(dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, errorAudits))
         .rejects
-        .toThrowError(expect.anything());
+        .toThrow(expect.anything());
 
     const dbAuditsOther = await dbQueries.getAuditsForInterview(otherUserInterviewAttributes.id);
     expect(dbAuditsOther.length).toEqual(newAudits.length);

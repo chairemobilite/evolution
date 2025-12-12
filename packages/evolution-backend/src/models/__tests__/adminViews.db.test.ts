@@ -102,7 +102,7 @@ describe('registerView', () => {
         // Add a comma at the end of the view sql
         await expect(dbQueries.registerView(errorViewName, `${defaultViewQuery},`))
             .rejects
-            .toThrowError(expect.anything());
+            .toThrow(expect.anything());
         // The view should not exist in the database
         expect(await dbQueries.viewExists(errorViewName)).toEqual(false);
     });
@@ -130,7 +130,7 @@ describe('registerView', () => {
         // Add a comma at the end of the view sql
         await expect(dbQueries.registerView(viewName, `${defaultViewQuery},`))
             .rejects
-            .toThrowError(expect.anything());
+            .toThrow(expect.anything());
 
         // The view should still exist in the database and be equal to the previous
         expect(await dbQueries.viewExists(viewName)).toEqual(true);
