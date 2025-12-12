@@ -375,7 +375,7 @@ describe('ParticipantAuthModel: createAndSave', () => {
         expect(error).toEqual('Error');
         /*await expect(participantAuthModel.createAndSave(newUserParams))
             .rejects
-            .toThrowError('Error');*/
+            .toThrow('Error');*/
 
     });
 });

@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`SegmentsSection UI display SegmentsSection with trips and visited places should render list of trips and map when no trip selected 1`] = `
 <div>
