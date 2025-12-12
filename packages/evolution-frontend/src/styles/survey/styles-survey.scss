@@ -1,16 +1,18 @@
+@use "sass:meta";
+@use 'settings';
+
 @import url("https://fonts.googleapis.com/css?family=Lato:300,300i,400,400i,700,700i,900,900i|Roboto:500");
 
-@import './reset';
-@import './settings';
-@import './base';
+@include meta.load-css('reset');
+@include meta.load-css('base');
 
-@import './chaire-lib-overwrite';
-@import './header';
-@import './content-container';
-@import './visibility';
-@import './list';
-@import './loader';
-@import './button';
-@import './survey';
-@import './question';
-@import './modal';
+@include meta.load-css('chaire-lib-overwrite');
+@include meta.load-css('header');
+@include meta.load-css('content-container');
+@include meta.load-css('visibility');
+@include meta.load-css('list');
+@include meta.load-css('loader');
+@include meta.load-css('button');
+@include meta.load-css('survey');
+@include meta.load-css('question');
+@include meta.load-css('modal');

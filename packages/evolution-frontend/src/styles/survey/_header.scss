@@ -1,14 +1,16 @@
+@use "settings";
+
 header {
-  background: $overlay-black;
+  background: settings.$overlay-black;
   height: 1.8em;
-  border-bottom: 1px solid $black-pale;
+  border-bottom: 1px solid settings.$black-pale;
 
   .header__content {
-    font-size: $font-size-small;
+    font-size: settings.$font-size-small;
     align-items: flex-end;
     display: flex;
     justify-content: space-between;
-    padding: $xxs-size;
+    padding: settings.$xxs-size;
 
     // Ensures the title text in the top navigation bar doesn't overflow
     h1 {
@@ -16,7 +18,7 @@ header {
       margin: 0;
       width: 100%;
       max-width: 180px;
-      font-size: $font-size-small;
+      font-size: settings.$font-size-small;
       font-weight: 300;
       white-space: nowrap; /* Prevents the text from wrapping to the next line */
       overflow: hidden; /* Hides the overflow text */
@@ -41,18 +43,18 @@ header {
   }
 
   .header__title {
-    color: $dark-blue;
+    color: settings.$dark-blue;
     text-decoration: none;
   }
 
   .menu {
-    background: $overlay-black;
+    background: settings.$overlay-black;
     position: absolute;
     list-style-type: none;
     margin-top: 30px;
     padding: 20px;
     right: 0;
-    border: 1px solid $black-pale;
+    border: 1px solid settings.$black-pale;
     z-index: 1000;
   }
 
