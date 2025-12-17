@@ -18,9 +18,11 @@ import { participantAuthModel } from '../../services/auth/participantAuthModel';
 import configurePassport from '../../services/auth/auth.config';
 import requestIp from 'request-ip';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
+import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import authRoutes from '../../api/auth.routes';
 import participantRoutes from '../../apps/participant/routes';
 import { hasFileExtension } from '../../services/routing/urlHelpers';
+import { isSurveyEnded } from '../../services/surveyStatus/surveyStatus';
 
 const KnexSessionStore = connectSessionKnex(expressSession);
 
@@ -43,6 +45,14 @@ export const setupServerApp = (app: Express, serverSetupFct: (() => void) | unde
         publicDistDirectory,
         `index-survey-${config.projectShortname}${process.env.NODE_ENV === 'test' ? '_test' : ''}.html`
     );
+    const surveyEndedIndexPotentialPath = path.join(
+        publicDistDirectory,
+        `index-survey-ended-${config.projectShortname}${process.env.NODE_ENV === 'test' ? '_test' : ''}.html`
+    );
+    // Validate that surveyEndedIndexPath exists and fallback to indexPath if not
+    const surveyEndedIndexPath = fileManager.fileExistsAbsolute(surveyEndedIndexPotentialPath)
+        ? surveyEndedIndexPotentialPath
+        : indexPath;
     const notFound404Path = path.join(publicDirectory, 'notFound404.html');
     const publicPath = express.static(publicDistDirectory);
     const localePath = express.static(localeDirectory);
@@ -129,12 +139,14 @@ export const setupServerApp = (app: Express, serverSetupFct: (() => void) | unde
     app.get('*', (req, res) => {
         // Clean URL (remove query parameters for matching)
         const pathname = req.url.split('?')[0];
-
         // If pathname ends with a file extension, return 404
         // Files that should be served have already been handled by previous routes
         if (hasFileExtension({ pathname })) {
             console.warn('Warning: file not found ', pathname);
             res.status(404).sendFile(notFound404Path);
+        } else if (isSurveyEnded()) {
+            // Check if survey has ended and serve appropriate app
+            res.status(200).sendFile(surveyEndedIndexPath);
         } else {
             res.status(200).sendFile(indexPath);
         }

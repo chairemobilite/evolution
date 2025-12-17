@@ -20,8 +20,6 @@ const config = configuration.default ? configuration.default : configuration;
 const publicDirectory = path.join(__dirname, '..', '..', 'public');
 const bundleOutputPath = path.join(publicDirectory, 'dist', config.projectShortname, 'survey');
 
-const appIncludeName = 'survey';
-
 module.exports = (env) => {
   console.log(`building js for project ${config.projectShortname}`);
   
@@ -31,10 +29,8 @@ module.exports = (env) => {
   const languages = config.languages || ['fr', 'en'];
   const momentLanguagesFilter = `/${languages.join("|")}/`;
 
-  const entryFileName =  './lib/app-survey.js';
   const customStylesFilePath  = `${__dirname}/lib/styles/styles.scss`;
   const customLocalesFilePath = `${__dirname}/locales`;
-  const entry                 = [entryFileName, customStylesFilePath];
   const includeDirectories    = [
     path.join(__dirname, 'lib', 'survey'),
     
@@ -53,10 +49,14 @@ module.exports = (env) => {
       global: 'warn'
     },
     mode: process.env.NODE_ENV,
-    entry: entry,
+    // Multiple entry points for different apps
+    entry: {
+      survey: ['./lib/app-survey.js', customStylesFilePath],
+      'survey-ended': [path.join(__dirname, '..', '..', 'packages', 'evolution-frontend', 'lib', 'apps', 'participant', 'app-survey-ended.js'), customStylesFilePath]
+    },
     output: {
       path: bundleOutputPath,
-      filename: isProduction ? `survey-${config.projectShortname}-bundle-${process.env.NODE_ENV}.[contenthash].js` : `survey-${config.projectShortname}-bundle-${process.env.NODE_ENV}.dev.js`,
+      filename: isProduction ? `[name]-${config.projectShortname}-bundle-${process.env.NODE_ENV}.[contenthash].js` : `[name]-${config.projectShortname}-bundle-${process.env.NODE_ENV}.dev.js`,
       publicPath: '/dist/'
     },
     watchOptions: {
@@ -124,20 +124,30 @@ module.exports = (env) => {
         verbose: true,
         cleanAfterEveryBuildPatterns: ['**/*', '!images/**', '!icons/**', '!*.html'],
       }),
+      // HTML plugin for main survey app
       new HtmlWebpackPlugin({
         title: process.env.DEFAULT_TITLE || 'Evolution',
         noindex: process.env.NOINDEX === 'true',
         filename: path.join(`index-survey-${config.projectShortname}.html`),
         template: path.join(publicDirectory, 'index.html'),
+        chunks: ['survey']
+      }),
+      // HTML plugin for survey ended app
+      new HtmlWebpackPlugin({
+        title: process.env.DEFAULT_TITLE || 'Evolution',
+        noindex: process.env.NOINDEX === 'true',
+        filename: path.join(`index-survey-ended-${config.projectShortname}.html`),
+        template: path.join(publicDirectory, 'index.html'),
+        chunks: ['survey-ended']
       }),
       new MiniCssExtractPlugin({
-        filename: isProduction ? `survey-${config.projectShortname}-styles.[contenthash].css` : `survey-${config.projectShortname}-styles.dev.css`//,
+        filename: isProduction ? `[name]-${config.projectShortname}-styles.[contenthash].css` : `[name]-${config.projectShortname}-styles.dev.css`
       }),
       new webpack.DefinePlugin({
         'process.env': {
           'IS_BROWSER'                  : JSON.stringify(true),
           'HOST'                        : JSON.stringify(process.env.HOST),
-          'APP_NAME'                    : JSON.stringify(appIncludeName),
+          'APP_NAME'                    : JSON.stringify('survey'),
           'IS_TESTING'                  : JSON.stringify(env === 'test'),
           'GOOGLE_API_KEY'              : JSON.stringify(process.env.GOOGLE_API_KEY)
 

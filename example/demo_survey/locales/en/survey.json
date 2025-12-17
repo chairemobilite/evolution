@@ -5,6 +5,9 @@
         "start": "Start",
         "AgreementText": "I consent to the usage of my data for research purposes"
     },
+    "surveyEnded": {
+        "thankYouMessage": "<h2 class=\"_dark-green _strong center\">Thank you for your interest!</h2><p class=\"center\">This survey has ended and is no longer accepting new responses.</p><p class=\"center\">We greatly appreciate your interest in participating.</p>"
+    },
     "footer": "<p class=\"center\" style=\"font-size: 85%; margin-bottom: 2rem; padding-top: 2rem;\">Powered by <a href=\"https://github.com/chairemobilite/evolution\" target=\"_blank\">Evolution</a></p>",
     "postregistration": {
         "introduction": "Thank you for your participation!",
