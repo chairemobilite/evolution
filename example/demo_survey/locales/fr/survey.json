@@ -5,6 +5,9 @@
         "start": "Débuter",
         "AgreementText": "Je consens à l'usage des mes données à des fins de recherche"
     },
+    "surveyEnded": {
+        "thankYouMessage": "<h2 class=\"_dark-green _strong center\">Merci de votre intérêt!</h2><p class=\"center\">Cette enquête est terminée et n'accepte plus de nouvelles réponses.</p><p class=\"center\">Nous apprécions grandement votre intérêt à participer.</p>"
+    },
     "footer": "<p class=\"center\" style=\"font-size: 85%; margin-bottom: 2rem; padding-top: 2rem;\">Propulsé par <a href=\"https://github.com/chairemobilite/evolution\" target=\"_blank\">Evolution</a></p>",
     "postregistration": {
         "introduction": "Merci pour votre participation!",
