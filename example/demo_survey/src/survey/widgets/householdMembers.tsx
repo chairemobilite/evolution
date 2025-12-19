@@ -18,7 +18,7 @@ import helper from '../helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import waterBoundaries  from '../waterBoundaries.json';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { ButtonWidgetConfig, InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
@@ -1034,7 +1034,7 @@ export const householdNoMemberOlderThan16YearsOld = {
   }
 };
 
-export const buttonSaveNextSectionHouseholdMembers = {
+export const buttonSaveNextSectionHouseholdMembers: ButtonWidgetConfig = {
   type: "button",
   path: "buttonSaveNextSection",
   color: "green",
@@ -1164,7 +1164,7 @@ export const selectPerson = {
   }
 };
 
-export const buttonSelectPersonConfirm = {
+export const buttonSelectPersonConfirm: ButtonWidgetConfig = {
   type: "button",
   color: "green",
   label: {
