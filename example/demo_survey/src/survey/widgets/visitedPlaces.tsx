@@ -24,7 +24,7 @@ import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import i18n              from 'evolution-frontend/lib/config/i18n.config';
 import helper from '../helper';
-import { InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { ButtonWidgetConfig, InterviewUpdateCallbacks, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { getPersonVisitedPlacesMapConfig } from 'evolution-common/lib/services/questionnaire/sections/common/widgetPersonVisitedPlacesMap';
@@ -1464,7 +1464,7 @@ export const buttonCancelVisitedPlace = {
   }
 };
 
-export const buttonDeleteVisitedPlace = {
+export const buttonDeleteVisitedPlace: ButtonWidgetConfig = {
   type: "button",
   color: "red",
   icon: faTrashAlt,
@@ -1500,7 +1500,7 @@ export const buttonDeleteVisitedPlace = {
   
 };
 
-export const buttonSaveVisitedPlace = {
+export const buttonSaveVisitedPlace: ButtonWidgetConfig = {
   type: "button",
   color: "green",
   label: {
@@ -1565,7 +1565,7 @@ export const buttonSaveVisitedPlace = {
   action: validateButtonAction
 };
 
-export const buttonVisitedPlacesConfirmNextSection = {
+export const buttonVisitedPlacesConfirmNextSection: ButtonWidgetConfig = {
   type: "button",
   color: "green",
   path: "buttonVisitedPlacesConfirmNextSection",

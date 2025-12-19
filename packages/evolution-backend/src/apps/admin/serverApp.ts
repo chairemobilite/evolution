@@ -16,7 +16,7 @@ import _camelCase from 'lodash/camelCase';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import favicon from 'serve-favicon';
 import expressSession from 'express-session';
-import connectSessionKnex from 'connect-session-knex';
+import KnexConnection from 'connect-session-knex';
 import morgan from 'morgan';
 import trRoutingRouter from 'chaire-lib-backend/lib/api/trRouting.routes';
 import { userAuthModel } from 'chaire-lib-backend/lib/services/auth/userAuthModel';
@@ -27,8 +27,6 @@ import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/direct
 import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
 import surveyRoutes from './routes';
 import { hasFileExtension } from '../../services/routing/urlHelpers';
-
-const KnexSessionStore = connectSessionKnex(expressSession);
 
 export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => void) => {
     const publicDirectory = path.join(__dirname, '..', '..', '..', '..', '..', 'public');
@@ -50,6 +48,7 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
     const publicPath = express.static(publicDistDirectory);
     const localePath = express.static(localeDirectory);
 
+    const KnexSessionStore = KnexConnection(expressSession);
     const sessionStore = new KnexSessionStore({
         knex: knex as Knex,
         tablename: 'sessions'
@@ -82,14 +81,14 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
 
     app.set('trust proxy', true);
 
-    app.get('*.js', (req: Request, res: Response, next: NextFunction) => {
+    app.get(/.*\.js$/, (req: Request, res: Response, next: NextFunction) => {
         req.url = req.url + '.gz';
         res.set('Content-Encoding', 'gzip');
         res.set('Content-Type', 'text/javascript');
         next();
     });
 
-    app.get('*.css', (req: Request, res: Response, next: NextFunction) => {
+    app.get(/.*\.css$/, (req: Request, res: Response, next: NextFunction) => {
         req.url = req.url + '.gz';
         res.set('Content-Encoding', 'gzip');
         res.set('Content-Type', 'text/css');
@@ -124,7 +123,7 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
 
     // Catch-all route: serves the frontend SPA for all unmatched routes (client-side routing)
     // Returns 404 for file requests that weren't handled by previous routes
-    app.get('*', (req: Request, res: Response) => {
+    app.get(/.*/, (req: Request, res: Response) => {
         // Clean URL (remove query parameters for matching)
         const pathname = req.url.split('?')[0];
 
