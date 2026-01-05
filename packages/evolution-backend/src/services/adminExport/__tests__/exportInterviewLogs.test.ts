@@ -43,8 +43,8 @@ beforeEach(() => {
 describe('exportInterviewLogTask', () => {
 
     // Common data for all logs of the interview
-    const commonInterviewData = { id: 1, uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: true, is_completed: true, is_validated: null, is_questionable: null, user_id: null };
-    const commonInterviewDataInRows = { id: '1', uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: 'true', is_completed: 'true', is_validated: '', is_questionable: '', user_id: '' };
+    const commonInterviewData = { id: 1, uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: true, is_completed: true, is_validated: null, is_questionable: null, interview_is_completed: true, user_id: null };
+    const commonInterviewDataInRows = { id: '1', uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: 'true', is_completed: 'true', is_validated: '', is_questionable: '', interview_is_completed: 'true', user_id: '' };
 
     const logs: { [key: string]: any }[] = [
         {

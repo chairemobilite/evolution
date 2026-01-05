@@ -57,6 +57,7 @@ const testInterviewAttributes2 = {
     is_active: true,
     is_completed: undefined,
     response: {
+        _isCompleted: true,
         accessCode: '11111',
         booleanField: true,
     },
@@ -264,6 +265,7 @@ describe('Stream paradata', () => {
                     expect(row.values_by_path).toEqual(log?.valuesByPath ? log.valuesByPath : null);
                     expect(row.unset_paths).toEqual(log?.unsetPaths ? log.unsetPaths : null);
                     expect(row.user_id).toBeNull();
+                    expect(row.interview_is_completed).toBeNull();
 
                     nbLogs++;
                 })
@@ -346,6 +348,8 @@ describe('Stream paradata', () => {
                         expect(interviewLogsForFirstCompleted).toEqual(false);
                         interviewLogsForFirstCompleted = true;
                         currentInterviewIndex = 0;
+                        // Should be the second interview now, with completed status true
+                        expect(row.interview_is_completed).toEqual('true');
                     }
 
                     // Expected sort by timestamp, timestamp should be greater than previous
@@ -469,6 +473,7 @@ describe('Query paradata temp view', () => {
 
     const incompleteInterviewAttributes = _cloneDeep(testInterviewAttributes2);
     delete incompleteInterviewAttributes.id;
+    delete incompleteInterviewAttributes.response._isCompleted;
 
     let trx: Knex.Transaction;
 
