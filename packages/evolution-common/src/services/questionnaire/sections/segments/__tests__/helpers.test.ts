@@ -11,6 +11,7 @@ import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
 import { getResponse, setResponse } from '../../../../../utils/helpers';
 import * as helpers from '../helpers';
 import { Journey, Person } from '../../../types';
+import { modeValues, modePreValues, Mode } from '../../../../odSurvey/types';
 
 describe('getPreviousTripSingleSegment', () => {
 
@@ -523,5 +524,101 @@ describe('conditionalHhMayHaveDisability', () => {
         // Test conditional
         const result = helpers.conditionalHhMayHaveDisability(interview, 'path');
         expect(result).toEqual(false);
+    });
+});
+
+describe('Mode/modePre filtering based on configuration', () => {
+    test('getFilteredModes should return no mode when section is disabled', () => {
+        const segmentConfig = { enabled: false };
+        const filteredModes = helpers.getFilteredModes(segmentConfig);
+        expect(filteredModes).toEqual([]);
+    });
+
+    test('getFilteredModes should return all modes when segmentConfig is undefined', () => {
+        const filteredModes = helpers.getFilteredModes(undefined);
+        expect(filteredModes).toEqual(modeValues);
+    });
+
+    test('getFilteredModes should return all modes when section is enabled but has no other configuration', () => {
+        const segmentConfig = { enabled: true };
+        const filteredModes = helpers.getFilteredModes(segmentConfig);
+        expect(filteredModes).toEqual(modeValues);
+    });
+
+    test('getFilteredModes should filter with modesIncludeOnly and keep entered order', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesIncludeOnly: ['walk', 'bicycle', 'transitBus', 'carDriver'] as Mode[]
+        };
+        const filteredModes = helpers.getFilteredModes(segmentConfig);
+
+        expect(filteredModes).toEqual(['walk', 'bicycle', 'transitBus', 'carDriver']);
+        expect(filteredModes.length).toEqual(4);
+        expect(filteredModes).not.toContain('carPassenger');
+        expect(filteredModes).not.toContain('transitRRT');
+    });
+
+    test('getFilteredModes should filter with modesExclude', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesExclude: ['plane', 'ferryWithCar', 'snowmobile'] as Mode[]
+        };
+        const filteredModes = helpers.getFilteredModes(segmentConfig);
+
+        // Should exclude those 3 modes
+        expect(filteredModes.length).toBe(modeValues.length - 3);
+        expect(filteredModes).not.toContain('plane');
+        expect(filteredModes).not.toContain('ferryWithCar');
+        expect(filteredModes).not.toContain('snowmobile');
+        expect(filteredModes).toContain('walk');
+        expect(filteredModes).toContain('bicycle');
+    });
+
+    test('getFilteredModes should handle modesIncludeOnly with non-existent modes', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesIncludeOnly: ['walk', 'bicycle', 'nonExistentMode' as any] as any
+        };
+        const filteredModes = helpers.getFilteredModes(segmentConfig);
+
+        // Should only include the valid modes
+        expect(filteredModes).toEqual(['walk', 'bicycle']);
+    });
+
+    test('getFilteredModesPre should only include categories with available modes', () => {
+        const availableModes = ['walk', 'bicycle', 'bicycleElectric'] as Mode[];
+        const filteredModesPre = helpers.getFilteredModesPre(availableModes);
+
+        // Should include walk and bicycle categories
+        expect(filteredModesPre).toContain('walk');
+        expect(filteredModesPre).toContain('bicycle');
+        expect(filteredModesPre.length).toEqual(2);
+        // Should not include categories that have no available modes
+        expect(filteredModesPre).not.toContain('carDriver');
+        expect(filteredModesPre).not.toContain('carPassenger');
+        expect(filteredModesPre).not.toContain('transit');
+    });
+
+    test('getFilteredModesPre should include transit when any transit mode is available', () => {
+        const availableModes = ['transitBus', 'walk'] as Mode[];
+        const filteredModesPre = helpers.getFilteredModesPre(availableModes);
+
+        // Should include transit because transitBus is available
+        expect(filteredModesPre).toContain('transit');
+        expect(filteredModesPre).toContain('walk');
+        expect(filteredModesPre).not.toContain('carDriver');
+        expect(filteredModesPre.length).toEqual(2);
+    });
+
+    test('getFilteredModesPre should handle modes that belong to multiple categories', () => {
+        const availableModes = ['wheelchair', 'mobilityScooter'] as Mode[];
+        const filteredModesPre = helpers.getFilteredModesPre(availableModes);
+
+        // wheelchair and mobilityScooter belong to both 'walk' and 'other'
+        expect(filteredModesPre).toContain('walk');
+        expect(filteredModesPre).toContain('other');
+        expect(filteredModesPre).not.toContain('transit');
+        expect(filteredModesPre).not.toContain('carDriver');
+        expect(filteredModesPre.length).toEqual(2);
     });
 });

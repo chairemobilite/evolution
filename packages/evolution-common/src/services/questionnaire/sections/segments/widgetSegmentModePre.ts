@@ -6,14 +6,14 @@
  */
 import _upperFirst from 'lodash/upperFirst';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { I18nData, WidgetConditional, WidgetConfig } from '../../../questionnaire/types';
+import { I18nData, SegmentSectionConfiguration, WidgetConditional, WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
-import { TFunction } from 'i18next';
+import type { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
-import config from 'chaire-lib-common/lib/config/shared/project.config';
+import config from '../../../../config/project.config';
 import * as segmentHelpers from './helpers';
-import { modePreValues, ModePre } from '../../../odSurvey/types';
-import { Person, Segment } from '../../types';
+import type { ModePre } from '../../../odSurvey/types';
+import type { Person, Segment } from '../../types';
 import { getModePreIcon } from './modeIconMapping';
 
 const perModePreLabels: Partial<{ [mode in ModePre]: I18nData }> = {
@@ -49,8 +49,8 @@ const perModePreConditionals: Partial<{ [mode in ModePre]: WidgetConditional }> 
 };
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
-const getModePreChoices = () =>
-    modePreValues.map((mode) => ({
+const getModePreChoices = (filteredModesPre: ModePre[]) =>
+    filteredModesPre.map((mode) => ({
         value: mode,
         label: perModePreLabels[mode]
             ? perModePreLabels[mode]
@@ -62,10 +62,16 @@ const getModePreChoices = () =>
 
 export const getModePreWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: () => string } = {}
+    options: { context?: () => string; segmentConfig?: SegmentSectionConfiguration } = {}
 ): WidgetConfig => {
     // TODO Use a segment configuration to determine which modes should be
     // presented and in which order
+    const filteredModes = segmentHelpers.getFilteredModes(options.segmentConfig);
+    if (filteredModes.length === 0) {
+        throw new Error('No available modes to create modePre widget configuration');
+    }
+    const filteredModesPre = segmentHelpers.getFilteredModesPre(filteredModes);
+    const choices = getModePreChoices(filteredModesPre);
 
     return {
         type: 'question',
@@ -75,6 +81,7 @@ export const getModePreWidgetConfig = (
         datatype: 'string',
         iconSize: '2.25em',
         columns: 2,
+        choices,
         label: (t: TFunction, interview, path) => {
             const person = odHelpers.getPerson({ interview });
             const journey = odHelpers.getActiveJourney({ interview, person });
@@ -110,7 +117,6 @@ export const getModePreWidgetConfig = (
                     count: odHelpers.getCountOrSelfDeclared({ interview, person })
                 });
         },
-        choices: getModePreChoices(),
         validations: function (value) {
             return [
                 {
