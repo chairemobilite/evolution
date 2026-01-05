@@ -15,6 +15,8 @@ import paradataEventsQueries from '../../models/paradataEvents.db.queries';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 export const filePathOnServer = 'exports/interviewLogs';
+const validationsPrefix = 'validations.';
+const responsePrefix = 'response.';
 
 type ExportLogOptions = {
     participantResponseOnly?: boolean;
@@ -34,12 +36,12 @@ const filterLogData = (
         };
     }
     const filteredValuesByPath = Object.keys(valuesByPath)
-        .filter((key) => key.startsWith('response.'))
+        .filter((key) => key.startsWith(responsePrefix))
         .reduce((acc, key) => {
             acc[key] = valuesByPath[key];
             return acc;
         }, {});
-    const filteredUnsetPaths = (logData.unset_paths || []).filter((path) => path.startsWith('response.'));
+    const filteredUnsetPaths = (logData.unset_paths || []).filter((path) => path.startsWith(responsePrefix));
     return {
         filteredValuesByPath,
         filteredUnsetPaths
@@ -85,45 +87,65 @@ const userActionToWidgetData = (
 
 const exportLogToRows = (
     logData: { values_by_path: { [key: string]: any }; unset_paths: string[]; [key: string]: any },
-    withValues: boolean
+    options: { withValues: boolean; participantResponseOnly?: boolean }
 ): { [key: string]: any }[] => {
     const { values_by_path, unset_paths, user_action, ...rest } = logData;
-    if (!withValues) {
-        const { valuesByPath, valuesByPathInit } = Object.entries(values_by_path).reduce(
-            (acc: { valuesByPath: string[]; valuesByPathInit: string[] }, [key, value]) => {
-                if (value === null) {
+    if (!options.withValues) {
+        const { valuesByPath, valuesByPathInit, invalidFields, validFields } = Object.entries(values_by_path).reduce(
+            (
+                acc: {
+                    valuesByPath: string[];
+                    valuesByPathInit: string[];
+                    invalidFields: string[];
+                    validFields: string[];
+                },
+                [key, value]
+            ) => {
+                if (key.startsWith(validationsPrefix)) {
+                    if (value === false) {
+                        acc.invalidFields.push(key.replace(validationsPrefix, ''));
+                    } else {
+                        acc.validFields.push(key.replace(validationsPrefix, ''));
+                    }
+                } else if (value === null) {
                     acc.valuesByPathInit.push(key);
                 } else {
                     acc.valuesByPath.push(key);
                 }
                 return acc;
             },
-            { valuesByPath: [], valuesByPathInit: [] }
+            { valuesByPath: [], valuesByPathInit: [], invalidFields: [], validFields: [] }
         );
 
         return [
             {
                 ...rest,
                 ...userActionToWidgetData(user_action),
-                modifiedFields: !_isBlank(valuesByPath) ? valuesByPath.join('|') : '',
-                initializedFields: !_isBlank(valuesByPathInit) ? valuesByPathInit.join('|') : '',
-                unsetFields: (unset_paths || []).join('|')
+                modifiedFields: valuesByPath.length > 0 ? valuesByPath.join('|') : '',
+                initializedFields: valuesByPathInit.length > 0 ? valuesByPathInit.join('|') : '',
+                // Don't include validation paths in the unset fields
+                unsetFields: (unset_paths || []).filter((path) => !path.startsWith(validationsPrefix)).join('|'),
+                invalidFields: invalidFields.length > 0 ? invalidFields.join('|') : '',
+                validFields: validFields.length > 0 ? validFields.join('|') : ''
             }
         ];
     }
     // With values, return one row per key-value pair, with unset path returning an empty value
     return Object.entries(values_by_path)
+        .filter(([key, _value]) => !options.participantResponseOnly || key.startsWith(responsePrefix))
         .map(([key, value]) => ({
             ...rest,
             field: key,
             value: JSON.stringify(value)
         }))
         .concat(
-            (unset_paths || []).map((path) => ({
-                ...rest,
-                field: path,
-                value: ''
-            }))
+            (unset_paths || [])
+                .filter((path) => !options.participantResponseOnly || path.startsWith(responsePrefix))
+                .map((path) => ({
+                    ...rest,
+                    field: path,
+                    value: ''
+                }))
         )
         .concat(
             !_isBlank(user_action) && user_action.type === 'widgetInteraction'
@@ -195,10 +217,11 @@ export const exportInterviewLogTask = async function ({
                         ...logData,
                         event_date: new Date(event_date).toISOString(),
                         timestampMs: Math.round(timestamp_sec * 1000),
-                        values_by_path: filteredValuesByPath,
-                        unset_paths: filteredUnsetPaths
+                        // Export the original data, not the filtered, as validations data is handled separately
+                        values_by_path: values_by_path,
+                        unset_paths: unset_paths
                     },
-                    withValues
+                    { withValues, participantResponseOnly }
                 );
 
                 const fileOk = csvStream.write(
