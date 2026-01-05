@@ -76,6 +76,7 @@ const getParadataStream = function (interviewId?: number) {
             'is_questionable',
             'user_id',
             'event_type',
+            knex.raw('response->>\'_isCompleted\' as interview_is_completed'),
             knex.raw('to_char(timestamp AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"\') as event_date'),
             knex.raw('extract(epoch from timestamp) as timestamp_sec'),
             knex.raw('event_data->\'valuesByPath\' as values_by_path'),
