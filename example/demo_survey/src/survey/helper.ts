@@ -17,6 +17,43 @@ import * as surveyHelperNew     from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper     from 'evolution-common/lib/services/odSurvey/helpers';
 import { getVisitedPlaceDescription } from 'evolution-frontend/lib/services/display/frontendHelper';
 import { Person, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
+import { Mode } from 'evolution-common/lib/services/odSurvey/types';
+
+// Configuration for the segments section
+// FIXME As sections and their widgets become more builtin, this thould be moved elsewhere. For now, it just needs to be available for both widgets.ts and sections.ts files
+export const segmentSectionConfig = {
+    enabled: true,
+    modesIncludeOnly: [
+        'walk',
+        'bicycle',
+        'bicycleElectric',
+        'kickScooterElectric',
+        'wheelchair',
+        'mobilityScooter',
+        'paratransit',
+        'carDriver',
+        'carDriverCarsharing',
+        'carPassenger',
+        'motorcycle',
+        'transitBus',
+        'transitSchoolBus',
+        'transitRRT',
+        'transitLRT',
+        'transitLRRT',
+        'transitRegionalRail',
+        'transitOnDemand',
+        'transitTaxi',
+        'intercityBus',
+        'intercityTrain',
+        'schoolBus',
+        'otherBus',
+        'taxi',
+        'plane',
+        'otherActiveMode',
+        'other',
+        'dontKnow'
+    ] as Mode[]
+};
 
 const homeSectionComplete = function(interview) {
     const household    = surveyHelperNew.getResponse(interview, 'household');

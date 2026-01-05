@@ -12,6 +12,7 @@ import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
 import { getResponse, setResponse, translateString } from '../../../../../utils/helpers';
 import * as surveyHelper from '../../../../odSurvey/helpers';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
+import { Mode } from '../../../../odSurvey/types';
 
 jest.mock('../helpers', () => ({
     ...jest.requireActual('../helpers'),
@@ -492,4 +493,102 @@ describe('ModePre label', () => {
             count: 1
         });
     });
+});
+
+describe('ModePre filtering based on configuration', () => {
+
+    test('should only include modePre categories that have available modes', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesIncludeOnly: ['walk', 'bicycle', 'bicycleElectric'] as Mode[]
+        };
+        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
+
+        // Should include walk and bicycle categories
+        expect(choices.map((c) => c.value)).toContain('walk');
+        expect(choices.map((c) => c.value)).toContain('bicycle');
+        // Should not include transit or car modes
+        expect(choices.map((c) => c.value)).not.toContain('carDriver');
+        expect(choices.map((c) => c.value)).not.toContain('carPassenger');
+        expect(choices.map((c) => c.value)).not.toContain('transit');
+    });
+
+    test('should include transit when transit modes are available', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesIncludeOnly: ['transitBus', 'transitRRT', 'walk'] as Mode[]
+        };
+        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
+
+        // Check that transit is included
+        expect(choices.map((c) => c.value)).toContain('transit');
+        expect(choices.map((c) => c.value)).toContain('walk');
+        expect(choices.length).toEqual(2);
+    });
+
+    test('should include both walk and other when wheelchair/mobilityScooter are available', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[]
+        };
+        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
+
+        // These modes belong to both 'walk' and 'other' categories
+        expect(choices.map((c) => c.value)).toContain('walk');
+        expect(choices.map((c) => c.value)).toContain('other');
+    });
+
+    test('should include car categories when car modes are available', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesIncludeOnly: ['carDriver', 'carPassenger', 'carDriverCarsharing'] as Mode[]
+        };
+        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
+
+        expect(choices.map((c) => c.value)).toContain('carDriver');
+        expect(choices.map((c) => c.value)).toContain('carPassenger');
+        expect(choices.map((c) => c.value)).not.toContain('transit');
+        expect(choices.map((c) => c.value)).not.toContain('bicycle');
+    });
+
+    test('should preserve modePre conditionals with filtered modes', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesIncludeOnly: ['paratransit', 'walk'] as Mode[]
+        };
+        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
+
+        // Find the paratransit choice
+        const paratransitChoice = choices.find((c) => c.value === 'paratransit');
+        expect(paratransitChoice).toBeDefined();
+        expect(paratransitChoice?.conditional).toBeDefined();
+        expect(typeof paratransitChoice?.conditional).toBe('function');
+    });
+
+    test('should include all modesPre when segmentConfig is not provided', () => {
+        const widgetConfig = getModePreWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
+
+        // Check that all modesPre are included
+        expect(choices.map((c) => c.value)).toContain('carDriver');
+        expect(choices.map((c) => c.value)).toContain('walk');
+        expect(choices.map((c) => c.value)).toContain('bicycle');
+        expect(choices.map((c) => c.value)).toContain('transit');
+    });
+
+    test('should throw an error when there is no mode', () => {
+        const segmentConfig = {
+            enabled: true,
+            modesIncludeOnly: [] as Mode[]
+        };
+        expect(() => {
+            getModePreWidgetConfig({ segmentConfig });
+        }).toThrow('No available modes to create modePre widget configuration');
+    });
+
 });

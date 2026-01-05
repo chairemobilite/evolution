@@ -7,9 +7,25 @@
 
 import _isEqual from 'lodash/isEqual';
 import * as odHelpers from '../../../odSurvey/helpers';
-import { loopActivities, simpleModes } from '../../../odSurvey/types';
-import { Optional } from '../../../../types/Optional.type';
-import { Journey, Person, Segment, Trip, UserInterviewAttributes, WidgetConditional } from '../../types';
+import {
+    loopActivities,
+    simpleModes,
+    Mode,
+    ModePre,
+    modeValues,
+    modePreValues,
+    modeToModePreMap
+} from '../../../odSurvey/types';
+import type { Optional } from '../../../../types/Optional.type';
+import type {
+    Journey,
+    Person,
+    Segment,
+    SegmentSectionConfiguration,
+    Trip,
+    UserInterviewAttributes,
+    WidgetConditional
+} from '../../types';
 
 /**
  * Get the mode used in the single segment of the previous trip of the active
@@ -160,3 +176,43 @@ export const conditionalPersonMayHaveDisability: WidgetConditional = (interview)
 
 export const conditionalHhMayHaveDisability: WidgetConditional = (interview) =>
     odHelpers.householdMayHaveDisability({ interview });
+
+/**
+ * Filter the available modes based on the segment section configuration.
+ * If the section is enabled and modesIncludeOnly is set, keep only those modes in the order specified.
+ * If the section is enabled and modesExclude is set, exclude those modes.
+ */
+export const getFilteredModes = (segmentConfig: SegmentSectionConfiguration = { enabled: true }): Mode[] => {
+    if (segmentConfig.enabled === false) {
+        return [] as unknown as Mode[];
+    }
+
+    if (segmentConfig.modesIncludeOnly) {
+        // Keep only modes that exist in both modesIncludeOnly and modeValues, in the order specified in modesIncludeOnly
+        return segmentConfig.modesIncludeOnly.filter((mode) => modeValues.includes(mode)) as Mode[];
+    }
+
+    if (segmentConfig.modesExclude) {
+        // Exclude modes that are in modesExclude
+        return modeValues.filter((mode) => !segmentConfig.modesExclude!.includes(mode)) as Mode[];
+    }
+
+    return modeValues as unknown as Mode[];
+};
+
+/**
+ * Filter the available mode categories (modePre) based on the filtered modes.
+ * Only keep modePre values that have at least one available mode.
+ */
+export const getFilteredModesPre = (availableModes: Mode[]): ModePre[] => {
+    // Keep only modePre values that have at least one mode in the availableModes
+    return modePreValues.filter((modePre) => {
+        // Get all modes for this modePre from the reverse map
+        const modesForThisModePre = Object.entries(modeToModePreMap)
+            .filter(([_mode, modePres]) => modePres.includes(modePre))
+            .map(([mode, _modePres]) => mode as Mode);
+
+        // Check if at least one of these modes is in the availableModes
+        return modesForThisModePre.some((mode) => availableModes.includes(mode));
+    }) as ModePre[];
+};

@@ -6,13 +6,13 @@
  */
 import _upperFirst from 'lodash/upperFirst';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { WidgetConditional, WidgetConfig } from '../../../questionnaire/types';
+import type { SegmentSectionConfiguration, WidgetConditional, WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import * as segmentHelpers from './helpers';
-import { Mode, modePreToModeMap, modeValues } from '../../../odSurvey/types';
-import { Person, Segment } from '../../types';
+import { Mode, modePreToModeMap } from '../../../odSurvey/types';
+import type { Person, Segment } from '../../types';
 import { getModeIcon } from './modeIconMapping';
 
 const perModeConditionals: Partial<{ [mode in Mode]: WidgetConditional }> = {
@@ -22,8 +22,8 @@ const perModeConditionals: Partial<{ [mode in Mode]: WidgetConditional }> = {
 };
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
-const getModeChoices = () =>
-    modeValues.map((mode) => ({
+const getModeChoices = (filteredModes: Mode[]) =>
+    filteredModes.map((mode) => ({
         value: mode,
         label: (t: TFunction) =>
             t([`customSurvey:segments:mode:${_upperFirst(mode)}`, `segments:mode:${_upperFirst(mode)}`]),
@@ -43,12 +43,15 @@ const getModeChoices = () =>
 
 export const getModeWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: () => string } = {}
+    options: { context?: () => string; segmentConfig?: SegmentSectionConfiguration } = {}
 ): WidgetConfig => {
     // TODO Use a segment configuration to determine which modes should be
     // presented and in which order
-    const segmentModeChoices = getModeChoices();
-
+    const filteredModes = segmentHelpers.getFilteredModes(options.segmentConfig);
+    if (filteredModes.length === 0) {
+        throw new Error('No available modes to create mode widget configuration');
+    }
+    const segmentModeChoices = getModeChoices(filteredModes);
     return {
         type: 'question',
         path: 'mode',

@@ -18,7 +18,7 @@ export const getSegmentsSectionConfig = (
     // should return some other type than the SectionConfig, which will be
     // transformed to a SectionConfig by a higher level handler questionnaire
     // handler
-    options: { context?: (context?: string) => string; segmentConfig?: SegmentSectionConfiguration }
+    options: { context?: (context?: string) => string; segmentConfig?: SegmentSectionConfiguration } = {}
 ): SectionConfig => {
     return {
         previousSection: 'visitedPlaces',

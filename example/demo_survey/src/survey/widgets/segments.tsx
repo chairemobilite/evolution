@@ -13,7 +13,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import helper from '../helper';
+import helper, { segmentSectionConfig } from '../helper';
 import subwayStations from '../subwayStations.json';
 import trainStations  from '../trainStations.json';
 import busRoutes  from '../busRoutes.json';
@@ -65,9 +65,10 @@ export const segmentIntro = getTripSegmentsIntro();;
 
 export const segmentSameModeAsReverseTrip = getSameAsReverseTripWidgetConfig();
 
-export const segmentModePre = getModePreWidgetConfig();
+// FIXME ModePre and Mode widgets should be automatically created if the section config enables them
+export const segmentModePre = getModePreWidgetConfig({ segmentConfig: segmentSectionConfig });
 
-export const segmentMode = getModeWidgetConfig();
+export const segmentMode = getModeWidgetConfig({ segmentConfig: segmentSectionConfig });
 
 export const segmentHasNextMode = getSegmentHasNextModeWidgetConfig();
 
