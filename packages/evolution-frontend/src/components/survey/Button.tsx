@@ -12,6 +12,7 @@ import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyCont
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import {
     ButtonWidgetConfig,
+    StartNavigate,
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
@@ -64,7 +65,22 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
             }
             return props.startUpdateInterview(data, callback);
         },
-        [props.startUpdateInterview]
+        [props.startUpdateInterview, props.path]
+    );
+
+    const startNavigateForButtonClick: StartNavigate = React.useCallback(
+        (options, callback) => {
+            const definedOptions = options || {};
+            // Set the button click user action to the startNavigate call
+            if (definedOptions.userAction === undefined) {
+                definedOptions.userAction = {
+                    type: 'buttonClick',
+                    buttonId: props.path
+                };
+            }
+            return props.startNavigate(definedOptions, callback);
+        },
+        [props.startNavigate, props.path]
     );
 
     const onMouseDown = () => {
@@ -91,7 +107,7 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
                 startUpdateInterview: startUpdateInterviewForButtonClick,
                 startAddGroupedObjects: props.startAddGroupedObjects,
                 startRemoveGroupedObjects: props.startRemoveGroupedObjects,
-                startNavigate: props.startNavigate
+                startNavigate: startNavigateForButtonClick
             },
             props.interview,
             props.path,

@@ -148,8 +148,8 @@ const updateSurveyCorrectedInterview = async (
             }
         }
 
-        if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
-            dispatch(updateInterviewState(_cloneDeep(updatedInterview)));
+        if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths) && _isBlank(userAction)) {
+            dispatch(updateInterviewState(_cloneDeep(updatedInterview), {}, true));
             if (typeof callback === 'function') {
                 callback(updatedInterview);
             }
@@ -177,7 +177,7 @@ const updateSurveyCorrectedInterview = async (
             if (body.status === 'success' && body.interviewId === updatedInterview.uuid) {
                 //surveyHelper.devLog('Interview saved to db');
                 //setTimeout(function() {
-                dispatch(updateInterviewState(_cloneDeep(updatedInterview)));
+                dispatch(updateInterviewState(_cloneDeep(updatedInterview), {}, updatedValuesByPath['_all'] === true));
                 if (typeof callback === 'function') {
                     callback(updatedInterview);
                 }
