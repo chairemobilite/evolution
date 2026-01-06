@@ -291,7 +291,7 @@ const updateInterviewCallback = async (
         }
 
         // No changes to send to the server, just update the state and quit
-        if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths)) {
+        if (isEqual(updatedValuesByPath, { _all: true }) && _isBlank(unsetPaths) && _isBlank(userAction)) {
             // '_all' means the "save" button was clicked and the form was submitted, so the form may not follow the normal form change workflow
             dispatch(updateInterviewState(_cloneDeep(updatedInterview), {}, true));
             if (typeof callback === 'function') {
@@ -528,7 +528,7 @@ const navigate = (targetSection: NavigationSection): SurveyAction => ({
 export const startNavigateWithUpdateCallback =
     (
         fctUpdateInterview: typeof startUpdateInterview,
-        { requestedSection, valuesByPath = {}, gotoFunction }: Parameters<StartNavigate>[0] = {},
+        { requestedSection, valuesByPath = {}, gotoFunction, userAction }: Parameters<StartNavigate>[0] = {},
         callback?: Parameters<StartNavigate>[1]
     ) =>
         async (
@@ -567,9 +567,15 @@ export const startNavigateWithUpdateCallback =
                 };
                 const [shouldNavigate, prevSectionInterview, validationValuesByPath] = validateCurrentSection();
 
-                // If the current section is not valid, do not navigate and update interview
+                // If the current section is not valid, do not navigate, simply update interview to log invalid widgets
                 if (!shouldNavigate) {
-                    dispatch(updateInterviewState(prevSectionInterview, {}, true));
+                    await dispatch(
+                        fctUpdateInterview({
+                            sectionShortname: navigation?.currentSection?.sectionShortname || '',
+                            userAction,
+                            valuesByPath: { _all: true }
+                        })
+                    );
                     return;
                 }
 

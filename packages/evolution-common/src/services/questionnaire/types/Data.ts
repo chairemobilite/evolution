@@ -408,6 +408,10 @@ export type StartRemoveGroupedObjects = (
  * update in the interview.  The key is the path to update and the value is the
  * new value. A dot-separated path will be exploded to the corresponding nested
  * object path.
+ * @param {UserAction} [options.userAction] The user action that triggered the
+ * update. Successful navigation will cause a `sectionChange` action to be
+ * logged, but in case navigation is not successful, this will be the logged
+ * action instead. Leave empty if the update was not triggered by a user action.
  * @param {GotoFunction} [options.gotoFunction] A function used to redirect the
  * page to a specific URL
  * @param {(interview: UserRuntimeInterviewAttributes) => void} [callback] An
@@ -419,6 +423,7 @@ export type StartNavigate = (
     options?: {
         requestedSection?: NavigationSection;
         valuesByPath?: { [path: string]: unknown };
+        userAction?: UserAction;
         gotoFunction?: GotoFunction;
     },
     callback?: (interview: UserRuntimeInterviewAttributes, targetSection: NavigationSection) => void

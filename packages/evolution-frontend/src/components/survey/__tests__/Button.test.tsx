@@ -187,7 +187,8 @@ describe('Button widget: behavioral tests', () => {
         expect(commonWidgetConfig.action).toHaveBeenCalledWith({
             startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
-            startRemoveGroupedObjects: startRemoveGroupedObjectsMock
+            startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+            startNavigate: expect.any(Function)
         }, interviewAttributes, 'home.region', 'test', {}, undefined);
     });
 
@@ -224,7 +225,8 @@ describe('Button widget: behavioral tests', () => {
         expect(actionFunction).toHaveBeenCalledWith({
             startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
-            startRemoveGroupedObjects: startRemoveGroupedObjectsMock
+            startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+            startNavigate: expect.any(Function)
         }, interviewAttributes, 'home.region', 'test', {}, undefined);
         expect(startUpdateInterviewMock).toHaveBeenCalledTimes(1);
         expect(startUpdateInterviewMock).toHaveBeenCalledWith({
@@ -280,7 +282,8 @@ describe('Button widget: behavioral tests', () => {
         expect(commonWidgetConfig.action).toHaveBeenCalledWith({
             startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
-            startRemoveGroupedObjects: startRemoveGroupedObjectsMock
+            startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+            startNavigate: expect.any(Function)
         }, interviewAttributes, 'home.region', 'test', {}, undefined);
     });
 
@@ -371,7 +374,8 @@ describe('Button widget: behavioral tests', () => {
         expect(commonWidgetConfig.action).toHaveBeenCalledWith({
             startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
-            startRemoveGroupedObjects: startRemoveGroupedObjectsMock
+            startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+            startNavigate: expect.any(Function)
         }, interviewAttributes, 'home.region', 'test', {}, undefined);
     });
 });

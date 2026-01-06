@@ -250,7 +250,6 @@ describe('Update interview', () => {
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
     });
 
-
     test('Call with an interview, with validation, unset path and "buttonClick" action', async () => {
         // Prepare mock and test data
         const updateCallback = jest.fn();
@@ -644,7 +643,7 @@ describe('Update interview', () => {
         expect(mockedHandleHttpOtherResponseCode).toHaveBeenCalledWith(401, mockDispatch, undefined);
     });
 
-    test('Test with no change and _all set to true (after confirmation', async () => {
+    test('Test with no change and _all set to true, no request to server required', async () => {
         // Prepare mock and test data
         const updateCallback = jest.fn();
         const valuesByPath = { '_all': true };
@@ -665,6 +664,61 @@ describe('Update interview', () => {
         expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', initialInterview, { '_all': true }, { ...valuesByPath }, false, testUser);
         expect(fetchRetryMock).not.toHaveBeenCalled();
 
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: 'INCREMENT_LOADING_STATE'
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, {
+            type: 'UPDATE_INTERVIEW',
+            interviewLoaded: true,
+            interview: expectedInterviewAsState,
+            errors: {},
+            submitted: true
+        });
+        expect(mockDispatch).toHaveBeenNthCalledWith(3, {
+            type: 'DECREMENT_LOADING_STATE'
+        });
+        expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
+    });
+
+    test('Test with no change and _all set to true, but with userAction, should send user action to server', async () => {
+        // Prepare mock and test data
+        const updateCallback = jest.fn();
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
+        const valuesByPath = { _all: true };
+        const userAction = {
+            type: 'languageChange' as const,
+            language: 'fr'
+        };
+        // No expected change to the interview, we set the section loaded to make sure no changes will be detected in the update call
+        const initialInterview = _cloneDeep(interviewAttributes);
+        initialInterview.sectionLoaded = 'section';
+        const expectedInterviewToPrepare = _cloneDeep(initialInterview);
+        const expectedInterviewAsState = _cloneDeep(expectedInterviewToPrepare);
+
+        // Do the actual test
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: initialInterview, userAction }, updateCallback);
+        await callback(mockDispatch, mockGetState);
+
+        // Verifications
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledTimes(1);
+        // Extract the actual interview argument and verify with a strict comparison approach
+        const actualInterviewArg = mockPrepareSectionWidgets.mock.calls[0][1];
+        // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
+        expect(_isEqual(actualInterviewArg, expectedInterviewToPrepare)).toBe(true);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepare, { _all: true }, { _all: true }, false, testUser);
+        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
+        expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({
+                id: interviewAttributes.id,
+                interviewId: interviewAttributes.uuid,
+                participant_id: interviewAttributes.participant_id,
+                valuesByPath: { _all: true },
+                unsetPaths: [],
+                userAction
+            })
+        }));
         expect(mockDispatch).toHaveBeenCalledTimes(3);
         expect(mockDispatch).toHaveBeenNthCalledWith(1, {
             type: 'INCREMENT_LOADING_STATE'
@@ -1103,15 +1157,51 @@ describe('startNavigate', () => {
 
         // Verify dispatch calls to update
         expect(mockDispatch).toHaveBeenCalledTimes(3);
-        expect(startUpdateInterviewMock).not.toHaveBeenCalled();
 
         // Verify navigation update call
-        expect(mockDispatch).toHaveBeenNthCalledWith(2, {
-            type: SurveyActionTypes.UPDATE_INTERVIEW,
-            interviewLoaded: true,
-            interview: { ...interviewAttributes, allWidgetsValid: false },
-            errors: {},
-            submitted: true
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'currentSection',
+            valuesByPath: { _all: true }
+        });
+    });
+
+    test('should stay on current page and send user action, if current widgets are invalid', async () => {
+        // Prepare mock and test data
+        const targetSection = { sectionShortname: 'nextSection' };
+        mockNavigate.mockReturnValueOnce({ targetSection });
+        validateAndPrepareSectionSpy.mockImplementationOnce((_s, interview, _a, valuesByPath, _U, _user) => [ { ...interview, allWidgetsValid: false }, valuesByPath ]);
+        mockGetState.mockImplementationOnce(mockStateWithNav);
+        // User action that should be sent instead of the default sectionChange
+        const userAction = { type: 'buttonClick' as const, buttonId: 'testButton' };
+
+        // Do the actual test
+        const callback = SurveyActions.startNavigate({ userAction });
+        await callback(mockDispatch, mockGetState);
+
+        // Verify validation function call
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledTimes(1);
+        expect(validateAndPrepareSectionSpy).toHaveBeenCalledWith(currentSection.sectionShortname, interviewAttributes, { _all: true }, { _all: true }, false, testUser);
+
+        // Verify navigation service is not called
+        expect(mockInitNavigationState).not.toHaveBeenCalled();
+        expect(mockNavigate).not.toHaveBeenCalled();
+
+        // Verify dispatch calls to update
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+
+        // Verify navigation update call
+        expect(mockDispatch).toHaveBeenNthCalledWith(2, startUpdateInterviewMock);
+
+        // Verify interview update dispatch call
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'currentSection',
+            valuesByPath: { _all: true },
+            userAction
         });
     });
 
