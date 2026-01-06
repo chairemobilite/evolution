@@ -24,17 +24,14 @@ type ExportLogOptions = {
     interviewId?: number;
 };
 
-const filterLogData = (
-    logData: { values_by_path: { [key: string]: any }; unset_paths: string[] },
+const rowShouldBeExported = (
+    logData: { values_by_path: { [key: string]: any }; unset_paths: string[]; user_action?: unknown },
     participantResponseOnly: boolean
 ) => {
-    const valuesByPath = logData.values_by_path || {};
     if (participantResponseOnly === false) {
-        return {
-            filteredValuesByPath: valuesByPath,
-            filteredUnsetPaths: logData.unset_paths
-        };
+        return true;
     }
+    const valuesByPath = logData.values_by_path || {};
     const filteredValuesByPath = Object.keys(valuesByPath)
         .filter((key) => key.startsWith(responsePrefix))
         .reduce((acc, key) => {
@@ -42,10 +39,7 @@ const filterLogData = (
             return acc;
         }, {});
     const filteredUnsetPaths = (logData.unset_paths || []).filter((path) => path.startsWith(responsePrefix));
-    return {
-        filteredValuesByPath,
-        filteredUnsetPaths
-    };
+    return !(_isBlank(filteredValuesByPath) && _isBlank(filteredUnsetPaths) && _isBlank(logData.user_action));
 };
 
 const userActionToWidgetData = (
@@ -91,7 +85,9 @@ const exportLogToRows = (
 ): { [key: string]: any }[] => {
     const { values_by_path, unset_paths, user_action, ...rest } = logData;
     if (!options.withValues) {
-        const { valuesByPath, valuesByPathInit, invalidFields, validFields } = Object.entries(values_by_path).reduce(
+        const { valuesByPath, valuesByPathInit, invalidFields, validFields } = Object.entries(
+            values_by_path || {}
+        ).reduce(
             (
                 acc: {
                     valuesByPath: string[];
@@ -189,7 +185,10 @@ export const exportInterviewLogTask = async function ({
 
     console.log('reading interview log data...');
 
-    const queryStream = paradataEventsQueries.getParadataStream(interviewId);
+    const queryStream = paradataEventsQueries.getParadataStream({
+        interviewId,
+        forCorrection: participantResponseOnly === true ? false : undefined
+    });
     let i = 0;
     return new Promise((resolve, reject) => {
         queryStream
@@ -198,15 +197,15 @@ export const exportInterviewLogTask = async function ({
                 reject(error);
             })
             .on('data', (row) => {
-                const { values_by_path, unset_paths, timestamp_sec, event_date, ...logData } = row;
+                const { timestamp_sec, event_date, ...logData } = row;
 
                 // FIXME Filter also on the user_action when we support more than just legacy events
-                // Filter the log data according to export options
-                const { filteredValuesByPath, filteredUnsetPaths } = filterLogData(
-                    { values_by_path, unset_paths },
-                    participantResponseOnly
-                );
-                if (_isBlank(filteredValuesByPath) && _isBlank(filteredUnsetPaths) && _isBlank(logData.user_action)) {
+
+                // Filter the log data according to export options, since older
+                // log events may have `null` values for the for_correction
+                // field, we still need to filter the data here, but the
+                // paradata stream should already have done that.
+                if (row.for_correction === null && !rowShouldBeExported(row, participantResponseOnly)) {
                     // no data to export for this log
                     return;
                 }
@@ -216,10 +215,7 @@ export const exportInterviewLogTask = async function ({
                     {
                         ...logData,
                         event_date: new Date(event_date).toISOString(),
-                        timestampMs: Math.round(timestamp_sec * 1000),
-                        // Export the original data, not the filtered, as validations data is handled separately
-                        values_by_path: values_by_path,
-                        unset_paths: unset_paths
+                        timestampMs: Math.round(timestamp_sec * 1000)
                     },
                     { withValues, participantResponseOnly }
                 );

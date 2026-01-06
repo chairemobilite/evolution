@@ -56,8 +56,12 @@ const log = async ({
 /**
  * Streams the paradata for a single or all interviews.
  *
- * @param {number|undefined} interviewId The id of the interview to get the logs
+ * @param {Object} options Options object
+ * @param {number|undefined} options.interviewId The id of the interview to get the logs
  * for. Leave undefined to get all the paradata
+ * @param {boolean|undefined} options.forCorrection If true, only get paradata
+ * entries for corrected interviews. If false, only get paradata entries for
+ * participant responses. If undefined, get all paradata entries.
  * @returns An interview logs stream. Returned fields are the interview 'id',
  * 'uuid', 'updated_at', 'is_valid', 'is_completed', 'is_validated',
  * 'is_questionable', as well as for each event the timestamp, as date
@@ -65,7 +69,10 @@ const log = async ({
  * did the update ('user_id', null for participant) and the 'values_by_path',
  * 'unset_paths' and 'user_action' data
  */
-const getParadataStream = function (interviewId?: number) {
+const getParadataStream = function ({
+    interviewId,
+    forCorrection
+}: { interviewId?: number; forCorrection?: boolean } = {}) {
     // FIXME As we really support more than legacy events, see what we can do
     // with the event_data instead of hard-coding the 3 paths
     const interviewParadataQuery = knex
@@ -79,6 +86,7 @@ const getParadataStream = function (interviewId?: number) {
             'is_questionable',
             'user_id',
             'event_type',
+            'for_correction',
             knex.raw('response->>\'_isCompleted\' as interview_is_completed'),
             knex.raw('to_char(timestamp AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"\') as event_date'),
             knex.raw('extract(epoch from timestamp) as timestamp_sec'),
@@ -90,6 +98,11 @@ const getParadataStream = function (interviewId?: number) {
         .innerJoin(interviewsTable, 'id', `${tableName}.interview_id`);
     if (interviewId) {
         interviewParadataQuery.andWhere('id', interviewId);
+    }
+    if (forCorrection !== undefined) {
+        interviewParadataQuery.andWhere(function () {
+            this.where('for_correction', forCorrection).orWhereNull('for_correction');
+        });
     }
     return interviewParadataQuery.orderBy(['interview_id', 'timestamp']).stream();
 };
@@ -114,7 +127,7 @@ const createParadataWithWidgetPathTable = async (trx: Knex.Transaction): Promise
         // Drop the temporary table if it exists
         await trx.raw(`DROP TABLE IF EXISTS ${tempTableName}`);
 
-        // Create the temporary table with the transformed data
+        // Create the temporary table with the transformed data, only for the participant response, not corrections
         // ON COMMIT DROP ensures automatic cleanup when the transaction commits
         await trx.raw(`
             CREATE TEMPORARY TABLE ${tempTableName}
@@ -133,6 +146,7 @@ const createParadataWithWidgetPathTable = async (trx: Knex.Transaction): Promise
                     ELSE NULL
                 END as widget_path
             FROM ${tableName}
+            WHERE for_correction = false OR for_correction IS NULL
         `);
 
         // Note: Cannot add foreign key constraint to sv_interviews because temporary tables

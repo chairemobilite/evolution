@@ -46,6 +46,7 @@ describe('exportInterviewLogTask', () => {
     const commonInterviewData = { id: 1, uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: true, is_completed: true, is_validated: null, is_questionable: null, interview_is_completed: true, user_id: null };
     const commonInterviewDataInRows = { id: '1', uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_valid: 'true', is_completed: 'true', is_validated: '', is_questionable: '', interview_is_completed: 'true', user_id: '' };
 
+    // Various logs to test different situations, the last one is not from the participant
     const logs: { [key: string]: any }[] = [
         {
             // Normal log with a bit of everything, including null values
@@ -53,41 +54,47 @@ describe('exportInterviewLogTask', () => {
             timestamp_sec: 1,
             event_date: new Date(1 * 1000),
             values_by_path: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true, 'response.household.size': 3, 'response._activeTripId': null },
-            unset_paths: [ 'response.home.someField', 'validations.home.someField' ]
+            unset_paths: [ 'response.home.someField', 'validations.home.someField' ],
+            for_correction: false
         }, {
             // No unset paths
             ...commonInterviewData,
             timestamp_sec: 2,
             event_date: new Date(2 * 1000),
             values_by_path: { 'response.home.address': 'somewhere over the rainbow', 'validations.home.address': true },
+            for_correction: false
         }, {
             // Unset paths, but empty values_by_path
             ...commonInterviewData,
             timestamp_sec: 3,
             event_date: new Date(3 * 1000),
             values_by_path: {},
-            unset_paths: [ 'response.home.address', 'validations.home.address' ]
+            unset_paths: [ 'response.home.address', 'validations.home.address' ],
+            for_correction: false
         }, {
             // No participant response in values_by_path
             ...commonInterviewData,
             timestamp_sec: 4,
             event_date: new Date(4 * 1000),
             values_by_path: { 'validations.home.region': true, 'validations.home.country': true },
-            unset_paths: [ 'response.home.region', 'response.home.country' ]
+            unset_paths: [ 'response.home.region', 'response.home.country' ],
+            for_correction: false
         }, {
             // No participant response in unset_paths
             ...commonInterviewData,
             timestamp_sec: 5,
             event_date: new Date(5 * 1000),
             values_by_path: { 'response.household.carNumber': 1, 'response.household.bikeNumber': 10, 'validations.household.carNumber': false, 'validations.household.bikeNumber': true },
-            unset_paths: [ 'validations.home.region', 'validations.home.country' ]
+            unset_paths: [ 'validations.home.region', 'validations.home.country' ],
+            for_correction: false
         }, {
             // No participant response in values_by_path and unset_paths
             ...commonInterviewData,
             timestamp_sec: 6,
             event_date: new Date(6 * 1000),
             values_by_path: { 'corrected_response.home.address': '6760 rue Saint-Vallier Montréal', 'corrected_response.home.city': 'Montréal' },
-            unset_paths: [ 'corrected_response.home.country' ]
+            unset_paths: [ 'corrected_response.home.country' ],
+            for_correction: true
         }
     ];
 
@@ -124,7 +131,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -155,14 +162,52 @@ describe('exportInterviewLogTask', () => {
     });
 
     test('Test only participant response, no values', async () => {
-        // Add the logs to the stream
-        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs) as any);
+        // Add the logs to the stream, only those with for_correction not true
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs.filter(log => log.for_correction !== true)) as any);
 
         const fileName = await exportInterviewLogTask({ participantResponseOnly: true });
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: false, interviewId: undefined });
+
+        const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+        expect(csvFileName).toBeDefined();
+
+        const csvStream = fileStreams[csvFileName as string];
+        // There should one data per log, one log has no response, so it should be skipped
+        expect(csvStream.data.length).toEqual(logs.length - 1);
+
+        // Get the actual rows in the file data
+        const logRows = await getCsvFileRows(csvStream.data);
+        expect(logRows.length).toEqual(logs.length - 1);
+
+        // One row per log, with modified fields and unset fields for each
+        for (let i = 0; i < logs.length - 1; i++) {
+            expect(logRows[i]).toEqual(expect.objectContaining({
+                ...commonInterviewDataInRows
+            }));
+            const modifiedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value !== null).filter(([key, value]) => key.startsWith('response.')).map(([key, value]) => key).join('|');
+            const initializedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value === null).filter(([key, value]) => key.startsWith('response.')).map(([key, value]) => key).join('|');
+            expect(logRows[i].timestampMs).toEqual(String((i+1) * 1000));
+            expect(logRows[i].event_date).toEqual(new Date((i+1) * 1000).toISOString());
+            expect(logRows[i].modifiedFields).toEqual(modifiedKeys);
+            expect(logRows[i].initializedFields).toEqual(initializedKeys);
+            expect(logRows[i].unsetFields).toEqual(logs[i].unset_paths !== undefined ? logs[i].unset_paths.filter((key) => key.startsWith('response.')).join('|') : '');
+            expect(logRows[i].widgetType).toEqual('');
+            expect(logRows[i].widgetPath).toEqual('');
+        }
+    });
+
+    test('Test only participant response, no values, with `null` in `for_correction`', async () => {
+        // Add the logs to the stream, but with `null` in `for_correction`
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs.map(log => ({ ...log, for_correction: null }))) as any);
+
+        const fileName = await exportInterviewLogTask({ participantResponseOnly: true });
+
+        // Check the file content of the exported logs
+        expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: false, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -200,7 +245,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -227,7 +272,8 @@ describe('exportInterviewLogTask', () => {
                     timestampMs: String((i+1) * 1000),
                     event_date: new Date((i+1) * 1000).toISOString(),
                     field: key,
-                    value: JSON.stringify(value)
+                    value: JSON.stringify(value),
+                    for_correction: currentLog.for_correction ? 'true' : 'false'
                 });
             }
             // Find a row for each unset path
@@ -239,21 +285,22 @@ describe('exportInterviewLogTask', () => {
                     timestampMs: String((i+1) * 1000),
                     event_date: new Date((i+1) * 1000).toISOString(),
                     field: path,
-                    value: ''
+                    value: '',
+                    for_correction: currentLog.for_correction ? 'true' : 'false'
                 });
             }
         }
     });
 
     test('Test only participant response, with values', async () => {
-        // Add the logs to the stream
-        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs) as any);
+        // Add the logs to the stream, only those with for_correction not true
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs.filter(log => log.for_correction !== true)) as any);
 
         const fileName = await exportInterviewLogTask({ withValues: true, participantResponseOnly: true });
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: false, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -281,7 +328,8 @@ describe('exportInterviewLogTask', () => {
                         event_date: new Date((i+1) * 1000).toISOString(),
                         timestampMs: String((i+1) * 1000),
                         field: key,
-                        value: JSON.stringify(value)
+                        value: JSON.stringify(value),
+                        for_correction: currentLog.for_correction ? 'true' : 'false'
                     });
                 } else {
                     expect(foundRow).toBeUndefined();
@@ -297,7 +345,8 @@ describe('exportInterviewLogTask', () => {
                         event_date: new Date((i+1) * 1000).toISOString(),
                         timestampMs: String((i+1) * 1000),
                         field: path,
-                        value: ''
+                        value: '',
+                        for_correction: currentLog.for_correction ? 'true' : 'false'
                     });
                 } else {
                     expect(foundRow).toBeUndefined();
@@ -317,7 +366,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(interviewId);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId });
 
         // The data is already tested in other tests, checking the parameter of the stream is enough
     });
@@ -341,7 +390,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -394,7 +443,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -477,7 +526,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -554,7 +603,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -624,7 +673,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -676,7 +725,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -742,7 +791,7 @@ describe('exportInterviewLogTask', () => {
 
         // Check the file content of the exported logs
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith(undefined);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
         const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
         expect(csvFileName).toBeDefined();
@@ -806,6 +855,57 @@ describe('exportInterviewLogTask', () => {
             hiddenWidgets: '',
             invalidFields: ['home.household.size', 'home.someField'].join('|'),
             validFields: 'home.geography'
+        });
+    });
+
+    test('Test a legacy event with no event data', async () => {
+        // Add one log statement, with/without hidden paths to test the button_click event:
+        const legacyEmptyLog: { [key: string]: any }[] = [{
+            ...commonInterviewData,
+            event_type: 'legacy',
+            timestamp_sec: 1,
+            event_date: new Date(1 * 1000),
+            values_by_path: null,
+            unset_paths: null,
+            user_action: null,
+            for_correction: null
+        }];
+        // Add the logs to the stream
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(legacyEmptyLog) as any);
+
+        const fileName = await exportInterviewLogTask({});
+
+        // Check the file content of the exported logs
+        expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
+
+        const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+        expect(csvFileName).toBeDefined();
+
+        const csvStream = fileStreams[csvFileName as string];
+        // There should be one row per log
+        expect(csvStream.data.length).toEqual(legacyEmptyLog.length);
+
+        // Get the actual rows in the file data
+        const logRows = await getCsvFileRows(csvStream.data);
+        // There should be one row per log
+        expect(logRows.length).toEqual(legacyEmptyLog.length);
+
+        // Test the row values
+        expect(logRows[0]).toEqual({
+            ...commonInterviewDataInRows,
+            event_type: 'legacy',
+            timestampMs : String((1) * 1000),
+            event_date: new Date((1) * 1000).toISOString(),
+            for_correction: '',
+            modifiedFields: '',
+            initializedFields: '',
+            unsetFields: '',
+            widgetType: '',
+            widgetPath: '',
+            hiddenWidgets: '',
+            invalidFields: '',
+            validFields: ''
         });
     });
 

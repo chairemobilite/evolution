@@ -203,14 +203,15 @@ describe('paradata log', () => {
 const throttle = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Insert a number of logs in the database, waiting for a delay between each insert
-const insertSomeLogs = async (logData: Record<string, any>[], interviewId: number, userId?: number | undefined) => {
+const insertSomeLogs = async (logData: Record<string, any>[], interviewId: number, userId?: number | undefined, forCorrection?: boolean | undefined) => {
     for (let i = 0; i < logData.length; i++) {
         const { eventType, ...eventData } = logData[i];
         await dbQueries.log({
             interviewId: interviewId,
             eventType: eventType || 'legacy',
             eventData: eventData,
-            userId
+            userId,
+            forCorrection
         });
         await throttle(10);
     }
@@ -437,7 +438,7 @@ describe('Stream paradata', () => {
             const logsFor1 = logData1.concat(logData2 as any);
 
             // Get logs only for one interview
-            const queryStream = dbQueries.getParadataStream(testInterviewAttributes1.id);
+            const queryStream = dbQueries.getParadataStream({ interviewId: testInterviewAttributes1.id });
             queryStream.on('error', (error) => {
                 console.error(error);
                 expect(true).toBe(false);
@@ -469,6 +470,176 @@ describe('Stream paradata', () => {
             expect(true).toBe(false);
             done();
         });
+    });
+
+    describe('with forCorrection filter', () => {
+
+        const participantEvent = {
+            eventType: 'section_change',
+            userAction: { type: 'sectionChange', targetSection: { sectionShortname: 'someSection' } },
+        };
+        const interviewerEvent = {
+            eventType: 'side_effect',
+            valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true },
+            unsetPaths: []
+        };
+        const correctionEvent = {
+            eventType: 'widget_interaction',
+            valuesByPath: { },
+            unsetPaths: [ 'response.data' ],
+            userAction: { type: 'widgetInteraction', path: 'response.home.someField', value: 'someValue', widgetType: 'radio' }
+        };
+        const unknownResponseEvent = {
+            eventType: 'legacy',
+            valuesByPath: { },
+            unsetPaths: [ 'response.data' ]
+        };
+
+        beforeEach(async () => {
+            // Add a log for a participant without user
+            await insertSomeLogs([participantEvent], testInterviewAttributes1.id);
+            // Add a log for a user with forCorrection = false
+            await insertSomeLogs([interviewerEvent], testInterviewAttributes1.id, localUser.id, false);
+            // Add a log for a user with forCorrection = true
+            await insertSomeLogs([correctionEvent], testInterviewAttributes1.id, localUser.id, true);
+            // Add a log for a user, then manually update the database to set the for_correction to null
+            await insertSomeLogs([unknownResponseEvent], testInterviewAttributes1.id, localUser.id, false);
+            await knex.raw(`UPDATE paradata_events SET for_correction = NULL WHERE event_type = 'legacy' AND user_id IS NOT NULL`)
+        })
+
+        test('Stream interview with forCorrection set to `false`, should return participant and null', (done) => {
+            
+            let nbLogs = 0;
+            let lastTimestamp = -1;
+
+            // This is the expected logs for the participant data
+            const expectedLogs = [
+                participantEvent,
+                interviewerEvent,
+                unknownResponseEvent
+            ];
+
+            // Get logs only for one interview
+            const queryStream = dbQueries.getParadataStream({ forCorrection: false });
+            queryStream.on('error', (error) => {
+                console.error(error);
+                expect(true).toBe(false);
+                done();
+            })
+                .on('data', (row) => {
+                    // Check the data, only the logs for the first interview should be returned
+                    expect(row.uuid).toEqual(testInterviewAttributes1.uuid);
+
+                    // Expected sort by timestamp, timestamp should be greater than previous
+                    const rowTimestamp = Number(row.timestamp_sec);
+                    expect(rowTimestamp).toBeGreaterThan(lastTimestamp);
+                    lastTimestamp = rowTimestamp;
+                    // Expected valuesByPath, unsetPaths and userAction to match the log data
+                    const log = expectedLogs[nbLogs] as any;
+                    expect(log).toBeDefined();
+                    expect(row.values_by_path).toEqual(log?.valuesByPath ? log.valuesByPath : null);
+                    expect(row.unset_paths).toEqual(log?.unsetPaths ? log.unsetPaths : null);
+                    expect(row.user_action).toEqual(log?.userAction ? log.userAction : null);
+
+                    nbLogs++;
+                })
+                .on('end', () => {
+                    // Only the logs for the first interview should be returned
+                    expect(nbLogs).toEqual(expectedLogs.length);
+                    done();
+                });
+        });
+
+        test('Stream interview with forCorrection set to `true`, should return corrected and null', (done) => {
+            
+            let nbLogs = 0;
+            let lastTimestamp = -1;
+
+            // This is the expected logs for the participant data
+            const expectedLogs = [
+                correctionEvent,
+                unknownResponseEvent
+            ];
+
+            // Get logs only for one interview
+            const queryStream = dbQueries.getParadataStream({ forCorrection: true });
+            queryStream.on('error', (error) => {
+                console.error(error);
+                expect(true).toBe(false);
+                done();
+            })
+                .on('data', (row) => {
+                    // Check the data, only the logs for the first interview should be returned
+                    expect(row.uuid).toEqual(testInterviewAttributes1.uuid);
+
+                    // Expected sort by timestamp, timestamp should be greater than previous
+                    const rowTimestamp = Number(row.timestamp_sec);
+                    expect(rowTimestamp).toBeGreaterThan(lastTimestamp);
+                    lastTimestamp = rowTimestamp;
+                    // Expected valuesByPath, unsetPaths and userAction to match the log data
+                    const log = expectedLogs[nbLogs] as any;
+                    expect(log).toBeDefined();
+                    expect(row.values_by_path).toEqual(log?.valuesByPath ? log.valuesByPath : null);
+                    expect(row.unset_paths).toEqual(log?.unsetPaths ? log.unsetPaths : null);
+                    expect(row.user_action).toEqual(log?.userAction ? log.userAction : null);
+
+                    nbLogs++;
+                })
+                .on('end', () => {
+                    expect(nbLogs).toEqual(expectedLogs.length);
+                    done();
+                });
+        });
+
+        test('Stream interview with forCorrection set to `true` and interviewId set', (done) => {
+            
+            // Add a few logs for a second interview, with forCorrection = true
+            insertSomeLogs([correctionEvent, unknownResponseEvent], testInterviewAttributes2.id, localUser.id, true).then(() => {
+                let nbLogs = 0;
+                let lastTimestamp = -1;
+
+                // This is the expected logs for the participant data
+                const expectedLogs = [
+                    correctionEvent,
+                    unknownResponseEvent
+                ];
+
+                // Get logs only for one interview
+                const queryStream = dbQueries.getParadataStream({ interviewId: testInterviewAttributes1.id, forCorrection: true });
+                queryStream.on('error', (error) => {
+                    console.error(error);
+                    expect(true).toBe(false);
+                    done();
+                })
+                    .on('data', (row) => {
+                        // Check the data, only the logs for the first interview should be returned
+                        expect(row.uuid).toEqual(testInterviewAttributes1.uuid);
+
+                        // Expected sort by timestamp, timestamp should be greater than previous
+                        const rowTimestamp = Number(row.timestamp_sec);
+                        expect(rowTimestamp).toBeGreaterThan(lastTimestamp);
+                        lastTimestamp = rowTimestamp;
+                        // Expected valuesByPath, unsetPaths and userAction to match the log data
+                        const log = expectedLogs[nbLogs] as any;
+                        expect(log).toBeDefined();
+                        expect(row.values_by_path).toEqual(log?.valuesByPath ? log.valuesByPath : null);
+                        expect(row.unset_paths).toEqual(log?.unsetPaths ? log.unsetPaths : null);
+                        expect(row.user_action).toEqual(log?.userAction ? log.userAction : null);
+
+                        nbLogs++;
+                    })
+                    .on('end', () => {
+                        expect(nbLogs).toEqual(expectedLogs.length);
+                        done();
+                    });
+            }).catch((error) => {
+                console.error(error);
+                expect(true).toBe(false);
+                done();
+            });
+
+        });
+
     });
 
 });
