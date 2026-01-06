@@ -277,7 +277,7 @@ describe('Create interviews', () => {
         expect(mockDbGetByUuid).toHaveBeenCalledTimes(1);
         expect(mockDbGetByUuid).toHaveBeenCalledWith(newInterview.uuid);
         expect(mockGetParadataLogFunction).toHaveBeenCalledTimes(1);
-        expect(mockGetParadataLogFunction).toHaveBeenCalledWith(createdInterview!.id, userId);
+        expect(mockGetParadataLogFunction).toHaveBeenCalledWith({ interviewId: createdInterview!.id, userId });
         expect(mockInterviewUpdate).toHaveBeenCalledWith(createdInterview, {
             logUpdate: logFunction,
             valuesByPath: { 'response.initial': 'value' },

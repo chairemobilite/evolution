@@ -31,7 +31,7 @@ describe('Log for a participant', () => {
 
     const interviewId = 123;
 
-    const logFunction = getParadataLoggingFunction(interviewId);
+    const logFunction = getParadataLoggingFunction({ interviewId });
 
     it('Should correctly log a widget interaction', async () => {
         expect(logFunction).toBeDefined();
@@ -52,7 +52,8 @@ describe('Log for a participant', () => {
                 userAction
             },
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
     });
 
@@ -72,7 +73,8 @@ describe('Log for a participant', () => {
                 userAction
             },
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
         
     });
@@ -93,7 +95,8 @@ describe('Log for a participant', () => {
                 userAction
             },
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
         
     });
@@ -114,7 +117,8 @@ describe('Log for a participant', () => {
                 userAction
             },
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
         
     });
@@ -136,7 +140,8 @@ describe('Log for a participant', () => {
                 userAction
             },
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
         
     });
@@ -150,7 +155,8 @@ describe('Log for a participant', () => {
             eventType: 'server_event',
             eventData: { valuesByPath: logData.valuesByPath },
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
     });
 
@@ -163,7 +169,8 @@ describe('Log for a participant', () => {
             eventType: 'side_effect',
             eventData: logData,
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
     });
 
@@ -184,7 +191,8 @@ describe('Log for a participant', () => {
                 userAction
             },
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
     });
 
@@ -198,7 +206,8 @@ describe('Log for a participant', () => {
             eventType: 'side_effect',
             eventData: logData,
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
         
     });
@@ -213,16 +222,21 @@ describe('Log for a participant', () => {
             eventType: 'server_event',
             eventData: { valuesByPath: logData.valuesByPath },
             interviewId,
-            userId: undefined
+            userId: undefined,
+            forCorrection: false
         });
     });
 });
 
-describe('Log for a user', () => {
+
+describe.each([
+    [true],
+    [false],
+])('Log for a user with forCorrection set to `%s`', (forCorrection) => {
 
     const interviewId = 123;
     const userId = 456;
-    const logFunction = getParadataLoggingFunction(interviewId, userId);
+    const logFunction = getParadataLoggingFunction({ interviewId, userId, isCorrectedInterview: forCorrection });
 
     beforeEach(() => {
         (config as any).logDatabaseUpdates = true;
@@ -247,7 +261,8 @@ describe('Log for a user', () => {
                 userAction
             },
             interviewId,
-            userId
+            userId,
+            forCorrection
         });
     });
 
@@ -267,7 +282,8 @@ describe('Log for a user', () => {
                 userAction
             },
             interviewId,
-            userId
+            userId,
+            forCorrection
         });
         
     });
@@ -288,7 +304,8 @@ describe('Log for a user', () => {
                 userAction
             },
             interviewId,
-            userId
+            userId,
+            forCorrection
         });
         
     });
@@ -309,7 +326,8 @@ describe('Log for a user', () => {
                 userAction
             },
             interviewId,
-            userId
+            userId,
+            forCorrection
         });
         
     });
@@ -331,7 +349,8 @@ describe('Log for a user', () => {
                 userAction
             },
             interviewId,
-            userId
+            userId,
+            forCorrection
         });
         
     });
@@ -345,7 +364,8 @@ describe('Log for a user', () => {
             eventType: 'server_event',
             eventData: { valuesByPath: logData.valuesByPath },
             interviewId,
-            userId
+            userId,
+            forCorrection
         });
     });
 
@@ -358,7 +378,8 @@ describe('Log for a user', () => {
             eventType: 'side_effect',
             eventData: logData,
             interviewId,
-            userId
+            userId,
+            forCorrection
         });
     });
 
@@ -379,7 +400,8 @@ describe('Log for a user', () => {
                 userAction
             },
             interviewId,
-            userId
+            userId,
+            forCorrection
         });
     });
 
@@ -392,7 +414,7 @@ test('Log when database updates are disabled', () => {
 
     const interviewId = 123;
     const userId = 456;
-    const logFunction = getParadataLoggingFunction(interviewId, userId);
+    const logFunction = getParadataLoggingFunction({ interviewId, userId });
 
     expect(logFunction).toBeUndefined();
 });

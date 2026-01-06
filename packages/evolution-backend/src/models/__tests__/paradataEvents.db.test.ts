@@ -96,7 +96,7 @@ describe('paradata log', () => {
 
     const defaultEventData = { someData: 'value', anotherData: 'value' };
 
-    const validateLogData = async (expected: { userId: number | null, eventData: any }[]) => {
+    const validateLogData = async (expected: { userId: number | null, eventData: any, forCorrection?: boolean }[]) => {
         const now = Date.now() + 1; // Add 1ms to make sure we are not equal to now at the ms precision (timestamps are at us precision)
         const events = await knex('paradata_events').select(['*', knex.raw('EXTRACT(EPOCH FROM timestamp) as unix_timestamp')]).orderBy('timestamp');
         expect(events.length).toEqual(expected.length);
@@ -120,7 +120,8 @@ describe('paradata log', () => {
             const event = events.find((event) => expectedData.userId === event.user_id && _isEqual(expectedData.eventData, event.event_data));
             expect(event).toEqual(expect.objectContaining({
                 event_data: expectedData.eventData,
-                user_id: expectedData.userId
+                user_id: expectedData.userId,
+                for_correction: expectedData.forCorrection === true ? true : false
             }));
         }
     };
@@ -142,6 +143,20 @@ describe('paradata log', () => {
             userId: localUser.id
         })).toEqual(true);
         await validateLogData([{ userId: localUser.id, eventData: defaultEventData }]);
+    });
+
+    test.each([
+        [true],
+        [false]
+    ])('Log with forCorrection set to `%s`', async (forCorrection) => {
+        expect(await dbQueries.log({
+            interviewId: testInterviewAttributes1.id,
+            eventType: 'button_click',
+            eventData: defaultEventData,
+            userId: localUser.id,
+            forCorrection
+        })).toEqual(true);
+        await validateLogData([{ userId: localUser.id, eventData: defaultEventData, forCorrection }]);
     });
 
     test('Log multiple data', async() => {

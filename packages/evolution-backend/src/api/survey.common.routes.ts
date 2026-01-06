@@ -76,7 +76,10 @@ export default (router: Router, authorizationMiddleware, loggingMiddleware: Inte
                         handleUserActionSideEffect(interview, valuesByPath, userAction);
                     }
                     const retInterview = await updateInterview(interview, {
-                        logUpdate: getParadataLoggingFunction(interview.id, loggingMiddleware.getUserIdForLogging(req)),
+                        logUpdate: getParadataLoggingFunction({
+                            interviewId: interview.id,
+                            userId: loggingMiddleware.getUserIdForLogging(req)
+                        }),
                         valuesByPath,
                         unsetPaths,
                         userAction,
