@@ -44,7 +44,8 @@ import {
     StartUpdateInterview,
     SurveySections,
     UserAction,
-    UserRuntimeInterviewAttributes
+    UserRuntimeInterviewAttributes,
+    WidgetStatus
 } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyAction, SurveyActionTypes } from '../store/survey';
 import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
@@ -144,14 +145,17 @@ export const validateAndPrepareSection = (
     return [interview, currentValuesByPath];
 };
 
-// Get the widget paths that are not visible in the interview.
-const getHiddenWidgets = (interview: UserRuntimeInterviewAttributes): string[] | undefined => {
-    const hiddenWidgets: string[] = [];
-    // For each widget status, if the widget is not visible add to an array of hidden widgets
+// Get the widget paths that correspond to a given test function
+const getWidgetsWithData = (
+    interview: UserRuntimeInterviewAttributes,
+    test: (widget: WidgetStatus) => boolean
+): string[] | undefined => {
+    const widgetsWithData: string[] = [];
+    // For each widget status, if the widget passes the test, it is added to the array
     const widgets = interview.widgets || {};
     for (const widget of Object.values(widgets)) {
-        if (!widget.isVisible) {
-            hiddenWidgets.push(widget.path);
+        if (test(widget)) {
+            widgetsWithData.push(widget.path);
         }
     }
     const groups = interview.groups || {};
@@ -160,14 +164,22 @@ const getHiddenWidgets = (interview: UserRuntimeInterviewAttributes): string[] |
         for (const objectId in group) {
             const objectWidgets = group[objectId];
             for (const widget of Object.values(objectWidgets)) {
-                if (!widget.isVisible) {
-                    hiddenWidgets.push(widget.path);
+                if (test(widget)) {
+                    widgetsWithData.push(widget.path);
                 }
             }
         }
     }
-    return hiddenWidgets.length === 0 ? undefined : hiddenWidgets;
+    return widgetsWithData.length === 0 ? undefined : widgetsWithData;
 };
+
+// Get the widget paths that are not visible in the interview.
+const getHiddenWidgets = (interview: UserRuntimeInterviewAttributes): string[] | undefined =>
+    getWidgetsWithData(interview, (widget) => !widget.isVisible);
+
+// Get the widget paths that are visible and invalid in the interview.
+const getInvalidWidgets = (interview: UserRuntimeInterviewAttributes): string[] | undefined =>
+    getWidgetsWithData(interview, (widget) => widget.isVisible && !widget.isValid);
 
 const enhanceUserActionOnUpdate = (interview: UserRuntimeInterviewAttributes, userAction: UserAction | undefined) => {
     if (userAction && userAction.type === 'buttonClick') {
@@ -176,6 +188,11 @@ const enhanceUserActionOnUpdate = (interview: UserRuntimeInterviewAttributes, us
         // widgets should be for the previous one. The navigate action will set
         // the hidden widgets for the previous section.
         userAction.hiddenWidgets = getHiddenWidgets(interview);
+        // Save the invalid widgets when a button is clicked. The invalidity
+        // status may not be in the valuesByPath if it was previously set as
+        // invalid and there is no change to the status, so we just sent all
+        // visible invalid widgets here.
+        userAction.invalidWidgets = getInvalidWidgets(interview);
     }
 };
 
