@@ -226,7 +226,11 @@ router.post(
                 ];
                 interview.response._updatedAt = timestamp;
                 const retInterview = await updateInterview(interview, {
-                    logUpdate: getParadataLoggingFunction(interview.id, (req.user as UserAttributes).id),
+                    logUpdate: getParadataLoggingFunction({
+                        interviewId: interview.id,
+                        userId: (req.user as UserAttributes).id,
+                        isCorrectedInterview: true
+                    }),
                     valuesByPath: mappedValuesByPath,
                     unsetPaths,
                     userAction,

@@ -68,14 +68,24 @@ const userActionTypeToDbType = (
 /**
  * Get the paradata logging functions for a given interview and user
  *
- * @param interviewId The ID of the interview for which to log
- * @param userId The ID of the current user
+ * @param {Object} options Options object
+ * @param {number} options.interviewId The ID of the interview for which to log
+ * @param {number} [options.userId] The ID of the current user. If not provided,
+ * the event is considered to be from the participant
+ * @param {boolean} [options.isCorrectedInterview] Whether the interview is
+ * being corrected. If true, the log entry will be marked as applying to the
+ * corrected response.
  * @returns The paradata logging function for this user and interview
  */
-export const getParadataLoggingFunction = (
-    interviewId: number,
-    userId?: number
-): ParadataLoggingFunction | undefined =>
+export const getParadataLoggingFunction = ({
+    interviewId,
+    userId,
+    isCorrectedInterview = false
+}: {
+    interviewId: number;
+    userId?: number;
+    isCorrectedInterview?: boolean;
+}): ParadataLoggingFunction | undefined =>
     (config as any).logDatabaseUpdates !== true
         ? undefined
         : ({ userAction, valuesByPath, unsetPaths, server }) => {
@@ -87,29 +97,30 @@ export const getParadataLoggingFunction = (
                 userAction !== undefined ? { userAction } : {}
             );
 
+            const eventLog = {
+                interviewId,
+                userId,
+                eventData: logData,
+                forCorrection: isCorrectedInterview
+            };
+
             if (server === true) {
                 // Log server event if server is true
                 return enqueueLog({
-                    interviewId,
-                    userId,
-                    eventType: 'server_event',
-                    eventData: logData
+                    ...eventLog,
+                    eventType: 'server_event'
                 });
             } else if (userAction === undefined) {
                 // Log side effect if there is no user action
                 return enqueueLog({
-                    interviewId,
-                    userId,
-                    eventType: 'side_effect',
-                    eventData: logData
+                    ...eventLog,
+                    eventType: 'side_effect'
                 });
             } else {
                 // Log user action if there is one
                 return enqueueLog({
-                    interviewId,
-                    userId,
-                    eventType: userActionTypeToDbType(userAction),
-                    eventData: logData
+                    ...eventLog,
+                    eventType: userActionTypeToDbType(userAction)
                 });
             }
         };

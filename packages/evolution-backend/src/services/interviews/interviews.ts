@@ -124,7 +124,7 @@ export default class Interviews {
             valuesByPath[`response.${key}`] = initialResponse[key];
         });
         await updateInterview(userInterview, {
-            logUpdate: getParadataLoggingFunction(userInterview.id, creatingUserId),
+            logUpdate: getParadataLoggingFunction({ interviewId: userInterview.id, userId: creatingUserId }),
             valuesByPath,
             fieldsToUpdate: ['response']
         });

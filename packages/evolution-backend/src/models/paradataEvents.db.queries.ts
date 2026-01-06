@@ -27,12 +27,14 @@ const log = async ({
     interviewId,
     userId,
     eventType,
-    eventData
+    eventData,
+    forCorrection
 }: {
     interviewId: number;
     userId?: number;
     eventType: ParadataEventType;
     eventData?: Record<string, any>;
+    forCorrection?: boolean;
 }): Promise<boolean> => {
     try {
         // Let the DB handle the timestamp to its default value, which is now(), with us precision
@@ -40,7 +42,8 @@ const log = async ({
             interview_id: interviewId,
             user_id: userId,
             event_type: eventType,
-            event_data: JSON.stringify(eventData).replaceAll('\\u0000', '')
+            event_data: JSON.stringify(eventData).replaceAll('\\u0000', ''),
+            for_correction: forCorrection ?? false
         };
         await knex(tableName).insert(dbObject);
         return true;
