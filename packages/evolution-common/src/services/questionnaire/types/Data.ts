@@ -323,6 +323,10 @@ export type UserAction =
            * Widgets that were hidden in the section when the button was clicked
            */
           hiddenWidgets?: string[];
+          /**
+           * Widgets that are currently visible and invalid when the button was clicked
+           */
+          invalidWidgets?: string[];
       }
     | {
           type: 'widgetInteraction';

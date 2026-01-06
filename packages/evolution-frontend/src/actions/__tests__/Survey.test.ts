@@ -8,7 +8,7 @@ import { v4 as uuidV4 } from 'uuid';
 import _cloneDeep from 'lodash/cloneDeep';
 import _isEqual from 'lodash/isEqual';
 import { addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
-import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { UserRuntimeInterviewAttributes, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import * as SurveyActions from '../Survey';
 import { prepareSectionWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
@@ -312,7 +312,7 @@ describe('Update interview', () => {
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
     });
 
-    test('Call with an interview, with "buttonClick" action and invisible widgets', async () => {
+    test('Call with an interview, with "buttonClick" action and invisible/invalid widgets', async () => {
         // Prepare mock and test data
         const updateCallback = jest.fn();
         jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
@@ -328,23 +328,25 @@ describe('Update interview', () => {
 
         // Mock the prepareSectionWidgets to return some invisible widgets
         const nextWidgetStatuses = {
-            visibleWidget: { path: 'visibleWidgetPath', isVisible: true },
-            invisibleWidget: { path: 'invisibleWidgetPath', isVisible: false }
-        } as any;
+            visibleValidWidget: { path: 'visibleValidWidgetPath', isVisible: true, isValid: true },
+            visibleInvalidWidget: { path: 'visibleInvalidWidgetPath', isVisible: true, isValid: false },
+            invisibleWidget: { path: 'invisibleWidgetPath', isVisible: false, isValid: false }
+        } as { [widgetName: string]: Partial<WidgetStatus> };
         const nextGroupStatuses = {
             testGroup: {
                 groupIdWithOnlyVisible: {
-                    visibleWidget1: { path: 'group.groupIdWithOnlyVisible.visibleWidget1', isVisible: true },
-                    visibleWidget2: { path: 'group.groupIdWithOnlyVisible.visibleWidget2', isVisible: true }
+                    visibleWidget1: { path: 'group.groupIdWithOnlyVisible.visibleWidget1', isVisible: true, isValid: true },
+                    visibleWidget2: { path: 'group.groupIdWithOnlyVisible.visibleWidget2', isVisible: true, isValid: true }
                 },
-                groupIdWithSomeInvisible: {
-                    visibleWidget: { path: 'group.groupIdWithSomeInvisible.visibleWidget', isVisible: true },
-                    invisibleWidget: { path: 'group.groupIdWithSomeInvisible.invisibleWidget', isVisible: false }
+                groupIdWithSomeInvisibleOrInvalid: {
+                    visibleWidget: { path: 'group.groupIdWithSomeInvisible.visibleWidget', isVisible: true, isValid: true },
+                    visibleInvalidWidget: { path: 'group.groupIdWithSomeInvisible.visibleInvalidWidget', isVisible: true, isValid: false },
+                    invisibleWidget: { path: 'group.groupIdWithSomeInvisible.invisibleWidget', isVisible: false, isValid: true }
                 }
             }
         } as any;
         const validatedInterview = _cloneDeep(expectedInterviewToPrepare);
-        validatedInterview.widgets = nextWidgetStatuses;
+        validatedInterview.widgets = nextWidgetStatuses as any;
         validatedInterview.groups = nextGroupStatuses;
         mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => {
             return { updatedInterview: validatedInterview, updatedValuesByPath: { ... valuesByPath, 'validations.section1.q2': true }, needUpdate: false };
@@ -372,7 +374,7 @@ describe('Update interview', () => {
                 participant_id: interviewAttributes.participant_id,
                 valuesByPath: { ...valuesByPath, 'validations.section1.q2': true, sectionLoaded: 'section' },
                 unsetPaths: ['response.section2.q1'],
-                userAction: { ...buttonClickUserAction, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ] }
+                userAction: { ...buttonClickUserAction, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ], invalidWidgets: [ 'visibleInvalidWidgetPath', 'group.groupIdWithSomeInvisible.visibleInvalidWidget' ]}
             })
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(3);
