@@ -499,80 +499,107 @@ describe('exportInterviewLogTask', () => {
 
     });
 
-    test('Test with an event of type button_click with user action', async () => {
-        // Add one log statement, with/without hidden paths to test the button_click event:
-        const userAction = { type: 'buttonClick', buttonId: 'response.someField' };
-        const userActionWithHidden = { type: 'buttonClick', buttonId: 'response.otherField', hiddenWidgets: [ 'hiddenWidget1', 'hiddenWidget2' ] };
-        const buttonLogs: { [key: string]: any }[] = [{
-            ...commonInterviewData,
-            event_type: 'button_click',
-            timestamp_sec: 1,
-            event_date: new Date(1 * 1000),
-            values_by_path: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true, 'response.household.size': 3, 'response._activeTripId': null },
-            unset_paths: [ 'response.home.someField', 'validations.home.someField' ],
-            user_action: userAction
-        }, {
-            ...commonInterviewData,
-            event_type: 'button_click',
-            timestamp_sec: 2,
-            event_date: new Date(2 * 1000),
-            values_by_path: { },
-            user_action: userActionWithHidden
-        }];
-        // Add the logs to the stream
-        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(buttonLogs) as any);
+    describe('Tests with button_click events', () => {
+        const testCases = [
+            {
+                description: 'basic user action',
+                userAction: { type: 'buttonClick', buttonId: 'response.someField' },
+                values_by_path: {
+                    'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] },
+                    'response.household.size': 3,
+                    'response._activeTripId': null
+                },
+                unset_paths: [ 'response.home.someField', 'validations.home.someField' ],
+                expectedOutput: {
+                    hiddenWidgets: '',
+                    invalidFields: ''
+                }
+            },
+            {
+                description: 'hidden widgets',
+                userAction: { type: 'buttonClick', buttonId: 'response.otherField', hiddenWidgets: [ 'hiddenWidget1', 'hiddenWidget2' ] },
+                values_by_path: { },
+                unset_paths: undefined,
+                expectedOutput: {
+                    hiddenWidgets: 'hiddenWidget1|hiddenWidget2',
+                    invalidFields: ''
+                }
+            },
+            {
+                description: 'invalid widgets in user action',
+                userAction: { type: 'buttonClick', buttonId: 'response.otherField', invalidWidgets: [ 'invalidWidget1', 'invalidWidget2' ] },
+                values_by_path: {
+                    'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }
+                },
+                unset_paths: [ 'response.home.someField' ],
+                expectedOutput: {
+                    hiddenWidgets: '',
+                    invalidFields: 'invalidWidget1|invalidWidget2'
+                }
+            },
+            {
+                description: 'invalid widgets in user action and values_by_path',
+                userAction: { type: 'buttonClick', buttonId: 'response.otherField', invalidWidgets: [ 'invalidWidget1', 'invalidWidget2' ] },
+                values_by_path: {
+                    'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] },
+                    'validations.valuesByPathInvalid': false
+                },
+                unset_paths: [ 'response.home.someField' ],
+                expectedOutput: {
+                    hiddenWidgets: '',
+                    invalidFields: 'valuesByPathInvalid|invalidWidget1|invalidWidget2'
+                }
+            }
+        ];
 
-        const fileName = await exportInterviewLogTask({});
+        test.each(testCases)('Test with $description', async ({ userAction, values_by_path, unset_paths, expectedOutput }) => {
+            // Prepare the button click log
+            const buttonLog = {
+                ...commonInterviewData,
+                event_type: 'button_click',
+                timestamp_sec: 1,
+                event_date: new Date(1 * 1000),
+                values_by_path,
+                unset_paths,
+                user_action: userAction
+            };
 
-        // Check the file content of the exported logs
-        expect(mockCreateStream).toHaveBeenCalledTimes(1);
-        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
+            // Add the logs to the stream
+            mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock([buttonLog]) as any);
 
-        const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
-        expect(csvFileName).toBeDefined();
+            const fileName = await exportInterviewLogTask({});
 
-        const csvStream = fileStreams[csvFileName as string];
-        // There should be one row per log
-        expect(csvStream.data.length).toEqual(buttonLogs.length);
+            // Check the file content of the exported logs
+            expect(mockCreateStream).toHaveBeenCalledTimes(1);
+            expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
 
-        // Get the actual rows in the file data
-        const logRows = await getCsvFileRows(csvStream.data);
-        // There should be one row per log
-        expect(logRows.length).toEqual(buttonLogs.length);
+            const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+            expect(csvFileName).toBeDefined();
 
-        // Test the row values
-        const modifiedKeysLog1 = Object.entries(buttonLogs[0].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
-        const initializedKeysLog1 = Object.entries(buttonLogs[0].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
-        expect(logRows[0]).toEqual({
-            ...commonInterviewDataInRows,
-            event_type: 'button_click',
-            timestampMs : String((1) * 1000),
-            event_date: new Date((1) * 1000).toISOString(),
-            modifiedFields: modifiedKeysLog1,
-            initializedFields: initializedKeysLog1,
-            unsetFields: buttonLogs[0].unset_paths !== undefined ? buttonLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
-            widgetType: '',
-            widgetPath: userAction.buttonId,
-            hiddenWidgets: '',
-            invalidFields: '',
-            validFields: 'home.geography'
-        });
+            const csvStream = fileStreams[csvFileName as string];
+            expect(csvStream.data.length).toEqual(1);
 
-        const modifiedKeys = Object.entries(buttonLogs[1].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
-        const initializedKeys = Object.entries(buttonLogs[1].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
-        expect(logRows[1]).toEqual({
-            ...commonInterviewDataInRows,
-            event_type: 'button_click',
-            timestampMs : String((2) * 1000),
-            event_date: new Date((2) * 1000).toISOString(),
-            modifiedFields: modifiedKeys,
-            initializedFields: initializedKeys,
-            unsetFields: buttonLogs[1].unset_paths !== undefined ? buttonLogs[1].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
-            widgetType: '',
-            widgetPath: userActionWithHidden.buttonId,
-            hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|'),
-            invalidFields: '',
-            validFields: ''
+            // Get the actual row in the file data
+            const logRows = await getCsvFileRows(csvStream.data);
+            expect(logRows.length).toEqual(1);
+
+            // Test the row values
+            const modifiedKeys = Object.entries(values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
+            const initializedKeys = Object.entries(values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
+            expect(logRows[0]).toEqual({
+                ...commonInterviewDataInRows,
+                event_type: 'button_click',
+                timestampMs : String((1) * 1000),
+                event_date: new Date((1) * 1000).toISOString(),
+                modifiedFields: modifiedKeys,
+                initializedFields: initializedKeys,
+                unsetFields: unset_paths !== undefined ? unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
+                widgetType: '',
+                widgetPath: userAction.buttonId,
+                hiddenWidgets: expectedOutput.hiddenWidgets,
+                invalidFields: expectedOutput.invalidFields,
+                validFields: ''
+            });
         });
     });
 
