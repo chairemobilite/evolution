@@ -145,6 +145,15 @@ describe('paradata log', () => {
         await validateLogData([{ userId: localUser.id, eventData: defaultEventData }]);
     });
 
+    test('Log undefined event data', async () => {
+        expect(await dbQueries.log({
+            interviewId: testInterviewAttributes1.id,
+            eventType: 'button_click',
+            userId: localUser.id
+        })).toEqual(true);
+        await validateLogData([{ userId: localUser.id, eventData: null }]);
+    });
+
     test.each([
         [true],
         [false]
@@ -203,13 +212,13 @@ describe('paradata log', () => {
 const throttle = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Insert a number of logs in the database, waiting for a delay between each insert
-const insertSomeLogs = async (logData: Record<string, any>[], interviewId: number, userId?: number | undefined, forCorrection?: boolean | undefined) => {
+const insertSomeLogs = async (logData: (Record<string, any> | undefined)[], interviewId: number, userId?: number | undefined, forCorrection?: boolean | undefined) => {
     for (let i = 0; i < logData.length; i++) {
-        const { eventType, ...eventData } = logData[i];
+        const { eventType, ...eventData } = logData[i] || { eventType: undefined };
         await dbQueries.log({
             interviewId: interviewId,
             eventType: eventType || 'legacy',
-            eventData: eventData,
+            eventData: logData[i] === undefined ? undefined : eventData,
             userId,
             forCorrection
         });
@@ -242,7 +251,7 @@ describe('Stream paradata', () => {
     });
 
     test('Stream interview logs, only one interview has logs', (done) => {
-        // Add a few logs to one of the interview, with/without valuesByPath, with/without unsetPaths
+        // Add a few logs to one of the interview, with/without valuesByPath, with/without unsetPaths, one with undefined log data
         const logData = [
             {
                 valuesByPath: { 'response.home.geography': { type: 'Point', coordinates: [ 1, 1 ] }, 'validations.home.geography': true }
@@ -252,7 +261,7 @@ describe('Stream paradata', () => {
             }, {
                 valuesByPath: { },
                 unsetPaths: [ 'response.data' ]
-            }, {
+            }, undefined, {
                 unsetPaths: [ 'response.data.someField', 'validations.data.someField' ]
             }
         ];
@@ -277,7 +286,6 @@ describe('Stream paradata', () => {
                     expect(row.event_date).toEqual(new Date(row.timestamp_sec * 1000).toISOString());
                     // Expected valuesByPath and unsetPaths to match the log data
                     const log = logData[nbLogs];
-                    expect(log).toBeDefined();
                     expect(row.values_by_path).toEqual(log?.valuesByPath ? log.valuesByPath : null);
                     expect(row.unset_paths).toEqual(log?.unsetPaths ? log.unsetPaths : null);
                     expect(row.user_id).toBeNull();
