@@ -44,22 +44,24 @@ const rowShouldBeExported = (
 
 const userActionToWidgetData = (
     userAction: UserAction | undefined
-): { widgetType: string; widgetPath: string; hiddenWidgets: string } => {
+): { widgetType: string; widgetPath: string; hiddenWidgets: string; invalidWidgets: string[] } => {
     if (userAction === undefined || _isBlank(userAction)) {
-        return { widgetType: '', widgetPath: '', hiddenWidgets: '' };
+        return { widgetType: '', widgetPath: '', hiddenWidgets: '', invalidWidgets: [] };
     }
     switch (userAction.type) {
     case 'buttonClick':
         return {
             widgetType: '',
             widgetPath: userAction.buttonId,
-            hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : ''
+            hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
+            invalidWidgets: userAction.invalidWidgets ? userAction.invalidWidgets : []
         };
     case 'widgetInteraction':
         return {
             widgetType: userAction.widgetType,
             widgetPath: userAction.path,
-            hiddenWidgets: ''
+            hiddenWidgets: '',
+            invalidWidgets: []
         };
     case 'sectionChange':
         return {
@@ -68,13 +70,15 @@ const userActionToWidgetData = (
                 userAction.targetSection.sectionShortname,
                 ...(userAction.targetSection.iterationContext || [])
             ].join('/'),
-            hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : ''
+            hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
+            invalidWidgets: []
         };
     default:
         return {
             widgetType: '',
             widgetPath: '',
-            hiddenWidgets: ''
+            hiddenWidgets: '',
+            invalidWidgets: []
         };
     }
 };
@@ -113,15 +117,18 @@ const exportLogToRows = (
             { valuesByPath: [], valuesByPathInit: [], invalidFields: [], validFields: [] }
         );
 
+        const { invalidWidgets, ...userActionFields } = userActionToWidgetData(user_action);
+        const allInvalidFields = invalidFields.concat(invalidWidgets);
+
         return [
             {
                 ...rest,
-                ...userActionToWidgetData(user_action),
+                ...userActionFields,
                 modifiedFields: valuesByPath.length > 0 ? valuesByPath.join('|') : '',
                 initializedFields: valuesByPathInit.length > 0 ? valuesByPathInit.join('|') : '',
                 // Don't include validation paths in the unset fields
                 unsetFields: (unset_paths || []).filter((path) => !path.startsWith(validationsPrefix)).join('|'),
-                invalidFields: invalidFields.length > 0 ? invalidFields.join('|') : '',
+                invalidFields: allInvalidFields.length > 0 ? allInvalidFields.join('|') : '',
                 validFields: validFields.length > 0 ? validFields.join('|') : ''
             }
         ];
