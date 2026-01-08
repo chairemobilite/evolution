@@ -5,6 +5,7 @@
             "label": "Update Main",
             "dependsOrder": "sequence",
             "dependsOn": [
+                "NVM Use 24",
                 "Git Checkout Main",
                 "Git Pull Origin Main",
                 "Yarn Reset Submodules",
@@ -44,6 +45,11 @@
                 "isDefault": true
             },
             "command": "yarn build:admin:dev && yarn start:admin --port 8082"
+        },
+        {
+            "label": "NVM Use 24",
+            "type": "shell",
+            "command": ". $HOME/.nvm/nvm.sh && nvm use 24"
         },
         {
             "label": "Compile Dev",
