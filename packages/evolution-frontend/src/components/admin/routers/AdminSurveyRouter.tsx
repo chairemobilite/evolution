@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { Route, Routes } from 'react-router';
+import { RouteObject } from 'react-router';
 
 import AdminMonitoringPage from '../pages/AdminMonitoringPage';
 import AdminReviewPage from '../pages/ReviewPage';
@@ -31,6 +31,7 @@ import InterviewsByAccessCode from '../interviews/InterviewsByAccessCode';
 import InterviewsPage from '../pages/InterviewsPage';
 import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
 import AdminHomePage from '../pages/AdminHomePage';
+import AdminRootLayout from './AdminRootLayout';
 
 // Only show user info for users that are not simple respondents
 setShowUserInfoPerm({ Interviews: ['read', 'update'] });
@@ -46,64 +47,166 @@ config.auth = {
     }
 };
 
-const AdminSurveyRouter: React.FunctionComponent = () => (
-    <Routes>
-        <Route path="/" element={<PublicRoute component={AdminLoginPage} />} />
-        <Route path="/login" element={<PublicRoute component={AdminLoginPage} />} />
-        <Route path="/register" element={<PublicRoute component={AdminRegisterPage} />} />
-        <Route path="/forgot" element={<PublicRoute component={ForgotPasswordPage} />} />
-        <Route path="/unconfirmed" element={<PublicRoute component={UnconfirmedPage} />} />
-        <Route path="/verify/:token" element={<PublicRoute component={VerifyPage} />} />
-        <Route path="/reset/:token" element={<PublicRoute component={ResetPasswordPage} />} />
-        <Route path="/unauthorized" element={<PublicRoute component={UnauthorizedPage} />} />
-        <Route
-            path="/maintenance"
-            element={<PublicRoute component={MaintenancePage} componentProps={{ linkPath: '/survey' }} />}
-        />
-        <Route
-            path="/survey/edit/:uuid"
-            element={<PrivateRoute component={Survey} permissions={{ Interviews: ['read', 'update'] }} />}
-        />
-        <Route
-            path="/survey/edit/:uuid/:sectionShortname"
-            element={<PrivateRoute component={Survey} permissions={{ Interviews: ['read', 'update'] }} />}
-        />
-        <Route
-            path="/admin/survey/:sectionShortname"
-            element={<PrivateRoute component={AdminSurveyCorrectionPage} permissions={{ Interviews: ['validate'] }} />}
-        />
-        <Route
-            path="/admin/survey/interview/:interviewUuid"
-            element={<PrivateRoute component={AdminSurveyCorrectionPage} permissions={{ Interviews: ['validate'] }} />}
-        />
-        <Route
-            path="/interviews/byCode/:accessCode"
-            element={
-                <PrivateRoute component={InterviewsByAccessCode} permissions={{ Interviews: ['read', 'update'] }} />
+/**
+ * Route configuration for admin survey application using React Router Data mode.
+ * This function returns the routes to ensure components are properly instantiated.
+ */
+const getAdminSurveyRoutes = (): RouteObject[] => [
+    {
+        element: <AdminRootLayout />,
+        children: [
+            {
+                path: '/',
+                element: <PublicRoute component={AdminLoginPage} path="/" />
+            },
+            {
+                path: '/login',
+                element: <PublicRoute component={AdminLoginPage} path="/login" />
+            },
+            {
+                path: '/register',
+                element: <PublicRoute component={AdminRegisterPage} path="/register" />
+            },
+            {
+                path: '/forgot',
+                element: <PublicRoute component={ForgotPasswordPage} path="/forgot" />
+            },
+            {
+                path: '/unconfirmed',
+                element: <PublicRoute component={UnconfirmedPage} path="/unconfirmed" />
+            },
+            {
+                path: '/verify/:token',
+                element: <PublicRoute component={VerifyPage} path="/verify/:token" />
+            },
+            {
+                path: '/reset/:token',
+                element: <PublicRoute component={ResetPasswordPage} path="/reset/:token" />
+            },
+            {
+                path: '/unauthorized',
+                element: <PublicRoute component={UnauthorizedPage} path="/unauthorized" />
+            },
+            {
+                path: '/maintenance',
+                element: (
+                    <PublicRoute
+                        component={MaintenancePage}
+                        componentProps={{ linkPath: '/survey' }}
+                        path="/maintenance"
+                    />
+                )
+            },
+            {
+                path: '/survey/edit/:uuid',
+                element: (
+                    <PrivateRoute
+                        component={Survey}
+                        permissions={{ Interviews: ['read', 'update'] }}
+                        path="/survey/edit/:uuid"
+                    />
+                )
+            },
+            {
+                path: '/survey/edit/:uuid/:sectionShortname',
+                element: (
+                    <PrivateRoute
+                        component={Survey}
+                        permissions={{ Interviews: ['read', 'update'] }}
+                        path="/survey/edit/:uuid/:sectionShortname"
+                    />
+                )
+            },
+            {
+                path: '/admin/survey/:sectionShortname',
+                element: (
+                    <PrivateRoute
+                        component={AdminSurveyCorrectionPage}
+                        permissions={{ Interviews: ['validate'] }}
+                        path="/admin/survey/:sectionShortname"
+                    />
+                )
+            },
+            {
+                path: '/admin/survey/interview/:interviewUuid',
+                element: (
+                    <PrivateRoute
+                        component={AdminSurveyCorrectionPage}
+                        permissions={{ Interviews: ['validate'] }}
+                        path="/admin/survey/interview/:interviewUuid"
+                    />
+                )
+            },
+            {
+                path: '/interviews/byCode/:accessCode',
+                element: (
+                    <PrivateRoute
+                        component={InterviewsByAccessCode}
+                        permissions={{ Interviews: ['read', 'update'] }}
+                        path="/interviews/byCode/:accessCode"
+                    />
+                )
+            },
+            {
+                path: '/interviews/byCode',
+                element: (
+                    <PrivateRoute
+                        component={InterviewsByAccessCode}
+                        permissions={{ Interviews: ['read', 'update'] }}
+                        path="/interviews/byCode"
+                    />
+                )
+            },
+            {
+                path: '/interviews',
+                element: (
+                    <PrivateRoute
+                        component={InterviewsPage}
+                        permissions={{ Interviews: ['read', 'update'] }}
+                        path="/interviews"
+                    />
+                )
+            },
+            {
+                path: '/admin/monitoring',
+                element: <AdminRoute component={AdminMonitoringPage} path="/admin/monitoring" />
+            },
+            {
+                path: '/admin/respondent-behavior',
+                element: <AdminRoute component={AdminRespondentBehaviorPage} path="/admin/respondent-behavior" />
+            },
+            {
+                path: '/admin/validation',
+                element: (
+                    <PrivateRoute
+                        component={AdminReviewPage}
+                        permissions={{ Interviews: ['validate'] }}
+                        path="/admin/validation"
+                    />
+                )
+            },
+            {
+                path: '/admin/users',
+                element: <AdminRoute component={UsersPage} path="/admin/users" />
+            },
+            {
+                path: '/admin',
+                element: <AdminRoute component={AdminMonitoringPage} path="/admin" />
+            },
+            {
+                path: '/home',
+                element: <PrivateRoute component={AdminHomePage} path="/home" />
+            },
+            {
+                path: '/unavailable',
+                element: <PrivateRoute component={SurveyUnavailablePage} path="/unavailable" />
+            },
+            {
+                path: '*',
+                element: <PublicRoute component={NotFoundPage} path="*" />
             }
-        />
-        <Route
-            path="/interviews/byCode"
-            element={
-                <PrivateRoute component={InterviewsByAccessCode} permissions={{ Interviews: ['read', 'update'] }} />
-            }
-        />
-        <Route
-            path="/interviews"
-            element={<PrivateRoute component={InterviewsPage} permissions={{ Interviews: ['read', 'update'] }} />}
-        />
-        <Route path="/admin/monitoring" element={<AdminRoute component={AdminMonitoringPage} />} />
-        <Route path="/admin/respondent-behavior" element={<AdminRoute component={AdminRespondentBehaviorPage} />} />
-        <Route
-            path="/admin/validation"
-            element={<PrivateRoute component={AdminReviewPage} permissions={{ Interviews: ['validate'] }} />}
-        />
-        <Route path="/admin/users" element={<AdminRoute component={UsersPage} />} />
-        <Route path="/admin" element={<AdminRoute component={AdminMonitoringPage} />} />
-        <Route path="/home" element={<PrivateRoute component={AdminHomePage} />} />
-        <Route path="/unavailable" element={<PrivateRoute component={SurveyUnavailablePage} />} />
-        <Route path="*" element={<PublicRoute component={NotFoundPage} />} />
-    </Routes>
-);
+        ]
+    }
+];
 
-export default AdminSurveyRouter;
+export default getAdminSurveyRoutes;

@@ -8,11 +8,11 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { I18nextProvider } from 'react-i18next';
-import { BrowserRouter } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router';
 
 import config from 'evolution-common/lib/config/project.config';
 import i18n from '../../config/i18n.config';
-import SurveyRouter from '../../components/routers/ParticipantSurveyRouter';
+import getParticipantSurveyRoutes from '../../components/routers/ParticipantSurveyRouter';
 import { configureStore } from '../../store/configureStore';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { InterviewContext, interviewReducer, initialState } from '../../contexts/InterviewContext';
@@ -37,6 +37,8 @@ const App = (settings?: AppSettings) => {
     const Jsx: React.FC = () => {
         const [state, dispatch] = React.useReducer(interviewReducer, initialState);
         const [devMode, dispatchSurvey] = React.useReducer(surveyReducer, { devMode: false });
+        const router = React.useMemo(() => createBrowserRouter(getParticipantSurveyRoutes()), []);
+
         return (
             <SurveyContext.Provider
                 value={{
@@ -50,9 +52,7 @@ const App = (settings?: AppSettings) => {
                 <InterviewContext.Provider value={{ state, dispatch }}>
                     <Provider store={store}>
                         <I18nextProvider i18n={i18n}>
-                            <BrowserRouter>
-                                <SurveyRouter />
-                            </BrowserRouter>
+                            <RouterProvider router={router} />
                         </I18nextProvider>
                     </Provider>
                 </InterviewContext.Provider>
