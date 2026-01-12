@@ -37,12 +37,12 @@ setApplicationConfiguration({
 
 export default () => {
     document.title = config.title[i18n.language];
+    const router = React.useMemo(() => createBrowserRouter(getAdminSurveyRoutes()), []);
 
     const store = configureStore();
     const Jsx = () => {
         const [state, dispatch] = React.useReducer(interviewReducer, initialState);
         const [devMode, dispatchSurvey] = React.useReducer(surveyReducer, { devMode: false });
-        const router = React.useMemo(() => createBrowserRouter(getAdminSurveyRoutes()), []);
 
         return (
             <SurveyContext.Provider

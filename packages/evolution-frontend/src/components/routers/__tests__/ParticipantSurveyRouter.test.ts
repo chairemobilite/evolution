@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, Polytechnique Montreal and contributors
+ * Copyright 2026, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -115,7 +115,7 @@ describe('getParticipantSurveyRoutes', () => {
             '/unavailable',
             '/survey/:sectionShortname',
             '/survey',
-            '*'
+            '/*'
         ];
 
         expectedRoutes.forEach((expectedPath) => {
@@ -145,8 +145,11 @@ describe('getParticipantSurveyRoutes', () => {
             if (!route || !route.element) return 'Unknown';
 
             // Render the element and check the output
-            const { container } = render(route.element as React.ReactElement);
+            const { container, unmount } = render(route.element as React.ReactElement);
             const textContent = container.textContent || '';
+
+            // Clean up the render before returning to avoid memory leaks
+            unmount();
 
             if (textContent.includes('ConsentedRoute')) return 'ConsentedRoute';
             if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
@@ -164,7 +167,7 @@ describe('getParticipantSurveyRoutes', () => {
         expect(getWrapperType('/error')).toBe('PublicRoute');
         expect(getWrapperType('/')).toBe('PublicRoute');
         expect(getWrapperType('/home')).toBe('PublicRoute');
-        expect(getWrapperType('*')).toBe('PublicRoute');
+        expect(getWrapperType('/*')).toBe('PublicRoute');
 
         // Verify PrivateRoute is used for protected routes
         expect(getWrapperType('/unavailable')).toBe('PrivateRoute');

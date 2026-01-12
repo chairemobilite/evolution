@@ -202,8 +202,8 @@ const getAdminSurveyRoutes = (): RouteObject[] => [
                 element: <PrivateRoute component={SurveyUnavailablePage} path="/unavailable" />
             },
             {
-                path: '*',
-                element: <PublicRoute component={NotFoundPage} path="*" />
+                path: '/*',
+                element: <PublicRoute component={NotFoundPage} path="/*" />
             }
         ]
     }

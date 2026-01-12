@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, Polytechnique Montreal and contributors
+ * Copyright 2026, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -125,15 +125,13 @@ jest.mock('../../pages/AdminHomePage', () => ({
     default: () => React.createElement('div', null, 'AdminHomePage')
 }));
 
-// Mock the setShowUserInfoPerm action
-jest.mock('chaire-lib-frontend/lib/actions/Auth', () => ({
-    setShowUserInfoPerm: jest.fn()
-}));
-
 // Mock config
 jest.mock('chaire-lib-common/lib/config/shared/project.config', () => ({
     __esModule: true,
-    default: { auth: {} }
+    default: {
+        auth: {},
+        mapDefaultCenter: { lon: -73.6131, lat: 45.5041 }
+    }
 }));
 
 describe('getAdminSurveyRoutes', () => {
@@ -183,13 +181,13 @@ describe('getAdminSurveyRoutes', () => {
             '/admin',
             '/home',
             '/unavailable',
-            '*'
+            '/*'
         ];
 
         expectedRoutes.forEach((expectedPath) => {
             expect(paths).toContain(expectedPath);
         });
-        expect(children.length).toBe(24);
+        expect(children.length).toBe(expectedRoutes.length);
     });
 
     it('should have valid RouteObject structure for all routes', () => {
@@ -213,8 +211,11 @@ describe('getAdminSurveyRoutes', () => {
             if (!route || !route.element) return 'Unknown';
 
             // Render the element and check the output
-            const { container } = render(route.element as React.ReactElement);
+            const { container, unmount } = render(route.element as React.ReactElement);
             const textContent = container.textContent || '';
+
+            // Clean up the render before returning to avoid memory leaks
+            unmount();
 
             if (textContent.includes('AdminRoute')) return 'AdminRoute';
             if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
@@ -232,7 +233,7 @@ describe('getAdminSurveyRoutes', () => {
         expect(getWrapperType('/reset/:token')).toBe('PublicRoute');
         expect(getWrapperType('/unauthorized')).toBe('PublicRoute');
         expect(getWrapperType('/maintenance')).toBe('PublicRoute');
-        expect(getWrapperType('*')).toBe('PublicRoute');
+        expect(getWrapperType('/*')).toBe('PublicRoute');
 
         // Verify PrivateRoute is used for protected routes
         expect(getWrapperType('/survey/edit/:uuid')).toBe('PrivateRoute');
