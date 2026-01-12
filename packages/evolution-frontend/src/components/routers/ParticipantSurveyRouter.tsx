@@ -19,12 +19,7 @@ import Survey from '../hoc/SurveyWithErrorBoundary';
 import PrivateRoute from 'chaire-lib-frontend/lib/components/routers/PrivateRoute';
 import PublicRoute from 'chaire-lib-frontend/lib/components/routers/PublicRoute';
 import ConsentedRoute from './ConsentedRoute';
-import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
 import ParticipantRootLayout from './ParticipantRootLayout';
-
-// Only show user info for users that are not simple respondents FIXME: do we still need this?
-// Seems to be obsolete now that we differenciate between participant and admin routes
-setShowUserInfoPerm({ Interviews: ['read', 'update'] });
 
 /**
  * Route configuration for participant survey application using React Router Data mode.
@@ -75,8 +70,8 @@ const getParticipantSurveyRoutes = (): RouteObject[] => [
                 element: <PrivateRoute component={Survey} path="/survey" />
             },
             {
-                path: '*',
-                element: <PublicRoute component={NotFoundPage} path="*" />
+                path: '/*',
+                element: <PublicRoute component={NotFoundPage} path="/*" />
             }
         ]
     }
