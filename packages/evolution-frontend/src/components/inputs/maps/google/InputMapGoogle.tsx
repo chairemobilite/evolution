@@ -220,7 +220,7 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
                 zoomControl: true,
                 cameraControl: false,
                 zoomControlOptions: {
-                    position: google.maps.ControlPosition.RIGHT_BOTTOM
+                    position: google.maps.ControlPosition.LEFT_TOP
                 }
             }}
             onLoad={onLoad}
