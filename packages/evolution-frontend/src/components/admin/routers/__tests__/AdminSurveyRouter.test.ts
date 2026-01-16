@@ -141,7 +141,7 @@ describe('getAdminSurveyRoutes', () => {
         routes = getAdminSurveyRoutes();
     });
 
-    it('should return a valid route configuration with root layout and children', () => {
+    it('Should return a valid route configuration with root layout and children', () => {
         expect(Array.isArray(routes)).toBe(true);
         expect(routes.length).toBe(1);
 
@@ -152,45 +152,7 @@ describe('getAdminSurveyRoutes', () => {
         expect(React.isValidElement(rootRoute.element)).toBe(true);
     });
 
-    it('should include all expected routes with correct paths', () => {
-        const rootRoute = routes[0];
-        const children = rootRoute.children || [];
-        const paths = children.map((child) => child.path);
-
-        const expectedRoutes = [
-            '/',
-            '/login',
-            '/register',
-            '/forgot',
-            '/unconfirmed',
-            '/verify/:token',
-            '/reset/:token',
-            '/unauthorized',
-            '/maintenance',
-            '/survey/edit/:uuid',
-            '/survey/edit/:uuid/:sectionShortname',
-            '/admin/survey/:sectionShortname',
-            '/admin/survey/interview/:interviewUuid',
-            '/interviews/byCode/:accessCode',
-            '/interviews/byCode',
-            '/interviews',
-            '/admin/monitoring',
-            '/admin/respondent-behavior',
-            '/admin/validation',
-            '/admin/users',
-            '/admin',
-            '/home',
-            '/unavailable',
-            '/*'
-        ];
-
-        expectedRoutes.forEach((expectedPath) => {
-            expect(paths).toContain(expectedPath);
-        });
-        expect(children.length).toBe(expectedRoutes.length);
-    });
-
-    it('should have valid RouteObject structure for all routes', () => {
+    it('Should have valid RouteObject structure for all routes', () => {
         const rootRoute = routes[0];
         const children = rootRoute.children || [];
 
@@ -202,55 +164,65 @@ describe('getAdminSurveyRoutes', () => {
         });
     });
 
-    it('should use correct route wrappers (PrivateRoute, PublicRoute, AdminRoute) for each route', () => {
+    const expectedRoutes: Array<{ path: string; wrapperType: 'PublicRoute' | 'PrivateRoute' | 'AdminRoute' }> = [
+        { path: '/', wrapperType: 'PublicRoute' },
+        { path: '/login', wrapperType: 'PublicRoute' },
+        { path: '/register', wrapperType: 'PublicRoute' },
+        { path: '/forgot', wrapperType: 'PublicRoute' },
+        { path: '/unconfirmed', wrapperType: 'PublicRoute' },
+        { path: '/verify/:token', wrapperType: 'PublicRoute' },
+        { path: '/reset/:token', wrapperType: 'PublicRoute' },
+        { path: '/unauthorized', wrapperType: 'PublicRoute' },
+        { path: '/maintenance', wrapperType: 'PublicRoute' },
+        { path: '/*', wrapperType: 'PublicRoute' },
+        { path: '/survey/edit/:uuid', wrapperType: 'PrivateRoute' },
+        { path: '/survey/edit/:uuid/:sectionShortname', wrapperType: 'PrivateRoute' },
+        { path: '/admin/survey/:sectionShortname', wrapperType: 'PrivateRoute' },
+        { path: '/admin/survey/interview/:interviewUuid', wrapperType: 'PrivateRoute' },
+        { path: '/interviews/byCode/:accessCode', wrapperType: 'PrivateRoute' },
+        { path: '/interviews/byCode', wrapperType: 'PrivateRoute' },
+        { path: '/interviews', wrapperType: 'PrivateRoute' },
+        { path: '/admin/validation', wrapperType: 'PrivateRoute' },
+        { path: '/home', wrapperType: 'PrivateRoute' },
+        { path: '/unavailable', wrapperType: 'PrivateRoute' },
+        { path: '/admin/monitoring', wrapperType: 'AdminRoute' },
+        { path: '/admin/respondent-behavior', wrapperType: 'AdminRoute' },
+        { path: '/admin/users', wrapperType: 'AdminRoute' },
+        { path: '/admin', wrapperType: 'AdminRoute' }
+    ];
+
+    it('Should include all expected routes with correct total count', () => {
         const rootRoute = routes[0];
         const children = rootRoute.children || [];
-
-        const getWrapperType = (path: string): string => {
-            const route = children.find((child) => child.path === path);
-            if (!route || !route.element) return 'Unknown';
-
-            // Render the element and check the output
-            const { container, unmount } = render(route.element as React.ReactElement);
-            const textContent = container.textContent || '';
-
-            // Clean up the render before returning to avoid memory leaks
-            unmount();
-
-            if (textContent.includes('AdminRoute')) return 'AdminRoute';
-            if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
-            if (textContent.includes('PublicRoute')) return 'PublicRoute';
-            return 'Unknown';
-        };
-
-        // Verify PublicRoute is used for public routes
-        expect(getWrapperType('/')).toBe('PublicRoute');
-        expect(getWrapperType('/login')).toBe('PublicRoute');
-        expect(getWrapperType('/register')).toBe('PublicRoute');
-        expect(getWrapperType('/forgot')).toBe('PublicRoute');
-        expect(getWrapperType('/unconfirmed')).toBe('PublicRoute');
-        expect(getWrapperType('/verify/:token')).toBe('PublicRoute');
-        expect(getWrapperType('/reset/:token')).toBe('PublicRoute');
-        expect(getWrapperType('/unauthorized')).toBe('PublicRoute');
-        expect(getWrapperType('/maintenance')).toBe('PublicRoute');
-        expect(getWrapperType('/*')).toBe('PublicRoute');
-
-        // Verify PrivateRoute is used for protected routes
-        expect(getWrapperType('/survey/edit/:uuid')).toBe('PrivateRoute');
-        expect(getWrapperType('/survey/edit/:uuid/:sectionShortname')).toBe('PrivateRoute');
-        expect(getWrapperType('/admin/survey/:sectionShortname')).toBe('PrivateRoute');
-        expect(getWrapperType('/admin/survey/interview/:interviewUuid')).toBe('PrivateRoute');
-        expect(getWrapperType('/interviews/byCode/:accessCode')).toBe('PrivateRoute');
-        expect(getWrapperType('/interviews/byCode')).toBe('PrivateRoute');
-        expect(getWrapperType('/interviews')).toBe('PrivateRoute');
-        expect(getWrapperType('/admin/validation')).toBe('PrivateRoute');
-        expect(getWrapperType('/home')).toBe('PrivateRoute');
-        expect(getWrapperType('/unavailable')).toBe('PrivateRoute');
-
-        // Verify AdminRoute is used for admin routes
-        expect(getWrapperType('/admin/monitoring')).toBe('AdminRoute');
-        expect(getWrapperType('/admin/respondent-behavior')).toBe('AdminRoute');
-        expect(getWrapperType('/admin/users')).toBe('AdminRoute');
-        expect(getWrapperType('/admin')).toBe('AdminRoute');
+        expect(children.length).toBe(expectedRoutes.length);
     });
+
+    it.each(expectedRoutes)(
+        'Should have route $path with correct path and $wrapperType wrapper',
+        ({ path, wrapperType }) => {
+            const rootRoute = routes[0];
+            const children = rootRoute.children || [];
+
+            const getWrapperType = (pathToCheck: string): string => {
+                const route = children.find((child) => child.path === pathToCheck);
+                if (!route || !route.element) return 'Unknown';
+
+                // Render the element and check the output
+                const { container, unmount } = render(route.element as React.ReactElement);
+                const textContent = container.textContent || '';
+
+                // Clean up the render before returning to avoid memory leaks
+                unmount();
+
+                if (textContent.includes('AdminRoute')) return 'AdminRoute';
+                if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
+                if (textContent.includes('PublicRoute')) return 'PublicRoute';
+                return 'Unknown';
+            };
+
+            const paths = children.map((child) => child.path);
+            expect(paths).toContain(path);
+            expect(getWrapperType(path)).toBe(wrapperType);
+        }
+    );
 });

@@ -88,7 +88,7 @@ describe('getParticipantSurveyRoutes', () => {
         routes = getParticipantSurveyRoutes();
     });
 
-    it('should return a valid route configuration with root layout and children', () => {
+    it('Should return a valid route configuration with root layout and children', () => {
         expect(Array.isArray(routes)).toBe(true);
         expect(routes.length).toBe(1);
 
@@ -99,32 +99,7 @@ describe('getParticipantSurveyRoutes', () => {
         expect(React.isValidElement(rootRoute.element)).toBe(true);
     });
 
-    it('should include all expected routes with correct paths', () => {
-        const rootRoute = routes[0];
-        const children = rootRoute.children || [];
-        const paths = children.map((child) => child.path);
-
-        const expectedRoutes = [
-            '/login',
-            '/magic/verify',
-            '/checkMagicEmail',
-            '/unauthorized',
-            '/error',
-            '/',
-            '/home',
-            '/unavailable',
-            '/survey/:sectionShortname',
-            '/survey',
-            '/*'
-        ];
-
-        expectedRoutes.forEach((expectedPath) => {
-            expect(paths).toContain(expectedPath);
-        });
-        expect(children.length).toBe(11);
-    });
-
-    it('should have valid RouteObject structure for all routes', () => {
+    it('Should have valid RouteObject structure for all routes', () => {
         const rootRoute = routes[0];
         const children = rootRoute.children || [];
 
@@ -136,42 +111,52 @@ describe('getParticipantSurveyRoutes', () => {
         });
     });
 
-    it('should use correct route wrappers (PrivateRoute, PublicRoute, ConsentedRoute) for each route', () => {
+    const expectedRoutes: Array<{ path: string; wrapperType: 'PublicRoute' | 'PrivateRoute' | 'ConsentedRoute' }> = [
+        { path: '/login', wrapperType: 'ConsentedRoute' },
+        { path: '/magic/verify', wrapperType: 'PublicRoute' },
+        { path: '/checkMagicEmail', wrapperType: 'PublicRoute' },
+        { path: '/unauthorized', wrapperType: 'PublicRoute' },
+        { path: '/error', wrapperType: 'PublicRoute' },
+        { path: '/', wrapperType: 'PublicRoute' },
+        { path: '/home', wrapperType: 'PublicRoute' },
+        { path: '/*', wrapperType: 'PublicRoute' },
+        { path: '/unavailable', wrapperType: 'PrivateRoute' },
+        { path: '/survey/:sectionShortname', wrapperType: 'PrivateRoute' },
+        { path: '/survey', wrapperType: 'PrivateRoute' },
+    ];
+
+    it('Should include all expected routes with correct total count', () => {
         const rootRoute = routes[0];
         const children = rootRoute.children || [];
-
-        const getWrapperType = (path: string): string => {
-            const route = children.find((child) => child.path === path);
-            if (!route || !route.element) return 'Unknown';
-
-            // Render the element and check the output
-            const { container, unmount } = render(route.element as React.ReactElement);
-            const textContent = container.textContent || '';
-
-            // Clean up the render before returning to avoid memory leaks
-            unmount();
-
-            if (textContent.includes('ConsentedRoute')) return 'ConsentedRoute';
-            if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
-            if (textContent.includes('PublicRoute')) return 'PublicRoute';
-            return 'Unknown';
-        };
-
-        // Verify ConsentedRoute is used for login
-        expect(getWrapperType('/login')).toBe('ConsentedRoute');
-
-        // Verify PublicRoute is used for public routes
-        expect(getWrapperType('/magic/verify')).toBe('PublicRoute');
-        expect(getWrapperType('/checkMagicEmail')).toBe('PublicRoute');
-        expect(getWrapperType('/unauthorized')).toBe('PublicRoute');
-        expect(getWrapperType('/error')).toBe('PublicRoute');
-        expect(getWrapperType('/')).toBe('PublicRoute');
-        expect(getWrapperType('/home')).toBe('PublicRoute');
-        expect(getWrapperType('/*')).toBe('PublicRoute');
-
-        // Verify PrivateRoute is used for protected routes
-        expect(getWrapperType('/unavailable')).toBe('PrivateRoute');
-        expect(getWrapperType('/survey/:sectionShortname')).toBe('PrivateRoute');
-        expect(getWrapperType('/survey')).toBe('PrivateRoute');
+        expect(children.length).toBe(expectedRoutes.length);
     });
+
+    it.each(expectedRoutes)(
+        'Should have route $path with correct path and $wrapperType wrapper',
+        ({ path, wrapperType }) => {
+            const rootRoute = routes[0];
+            const children = rootRoute.children || [];
+
+            const getWrapperType = (pathToCheck: string): string => {
+                const route = children.find((child) => child.path === pathToCheck);
+                if (!route || !route.element) return 'Unknown';
+
+                // Render the element and check the output
+                const { container, unmount } = render(route.element as React.ReactElement);
+                const textContent = container.textContent || '';
+
+                // Clean up the render before returning to avoid memory leaks
+                unmount();
+
+                if (textContent.includes('ConsentedRoute')) return 'ConsentedRoute';
+                if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
+                if (textContent.includes('PublicRoute')) return 'PublicRoute';
+                return 'Unknown';
+            };
+
+            const paths = children.map((child) => child.path);
+            expect(paths).toContain(path);
+            expect(getWrapperType(path)).toBe(wrapperType);
+        }
+    );
 });
