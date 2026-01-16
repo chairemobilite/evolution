@@ -221,8 +221,7 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
                 cameraControl: false,
                 zoomControlOptions: {
                     position: google.maps.ControlPosition.LEFT_TOP,
-                    style: google.maps.ZoomControlStyle.SMALL
-                }
+                     }
             }}
             onLoad={onLoad}
             onUnmount={onUnmount}
