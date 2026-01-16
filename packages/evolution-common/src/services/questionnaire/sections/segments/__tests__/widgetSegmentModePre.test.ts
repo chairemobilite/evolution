@@ -14,6 +14,7 @@ import * as surveyHelper from '../../../../odSurvey/helpers';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 
 jest.mock('../helpers', () => ({
+    ...jest.requireActual('../helpers'),
     shouldShowSameAsReverseTripQuestion: jest.fn(),
     getPreviousTripSingleSegment: jest.fn()
 }));
@@ -71,6 +72,17 @@ describe('getModePreWidgetConfig', () => {
                     iconPath: '/dist/icons/modes/taxi/taxi_no_steering_wheel.svg'
                 }),
                 expect.objectContaining({
+                    value: 'ferry',
+                    label: expect.any(Function),
+                    iconPath: '/dist/icons/modes/boat/ferry_without_car.svg'
+                }),
+                expect.objectContaining({
+                    value: 'paratransit',
+                    label: expect.any(Function),
+                    conditional: expect.any(Function),
+                    iconPath: '/dist/icons/modes/minibus/minibus_with_wheelchair.svg'
+                }),
+                expect.objectContaining({
                     value: 'other',
                     label: expect.any(Function),
                     iconPath: '/dist/icons/modes/other/air_balloon.svg'
@@ -79,6 +91,11 @@ describe('getModePreWidgetConfig', () => {
                     value: 'dontKnow',
                     label: expect.any(Function),
                     iconPath: '/dist/icons/modes/other/question_mark.svg'
+                }),
+                expect.objectContaining({
+                    value: 'preferNotToAnswer',
+                    label: expect.any(Function),
+                    iconPath: '/dist/icons/modes/other/air_balloon.svg'
                 })
             ]),
             validations: expect.any(Function),
@@ -90,6 +107,10 @@ describe('getModePreWidgetConfig', () => {
 describe('Mode choices conditionals', () => {
     const widgetConfig = getModePreWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
     const choices = widgetConfig.choices as RadioChoiceType[];
+
+    // Spy on a few functions to return disability conditions
+    jest.spyOn(surveyHelper, 'householdMayHaveDisability');
+    const mockedHhMayHaveDisability = surveyHelper.householdMayHaveDisability as jest.MockedFunction<typeof surveyHelper.householdMayHaveDisability>;
 
     test('carDriver conditional should return true if person has driving license', () => {
         // Prepare test data with active person/journey/trip
@@ -159,6 +180,32 @@ describe('Mode choices conditionals', () => {
         expect(carDriverResult).toEqual(true);
     });
 
+    test('paratransit conditional should return true if household may have a person with disability', () => {
+        // Prepare test data with active person/journey/trip
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        mockedHhMayHaveDisability.mockReturnValueOnce(true);
+
+        // Find the paratransit choice
+        const paratransitChoice = choices.find((choice) => choice.value === 'paratransit');
+        expect(paratransitChoice).toBeDefined();
+        const paratransitResult = paratransitChoice?.conditional?.(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre');
+        expect(paratransitResult).toEqual(true);
+        expect(mockedHhMayHaveDisability).toHaveBeenLastCalledWith({ interview });
+    });
+
+    test('paratransit conditional should return false if household does not have any person with disability', () => {
+        mockedHhMayHaveDisability.mockReturnValueOnce(false);
+        // Prepare test data with active person/journey/trip
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+
+        // Find the paratransit choice
+        const paratransitChoice = choices.find((choice) => choice.value === 'paratransit');
+        expect(paratransitChoice).toBeDefined();
+        const paratransitResult = paratransitChoice?.conditional?.(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre');
+        expect(paratransitResult).toEqual(false);
+        expect(mockedHhMayHaveDisability).toHaveBeenLastCalledWith({ interview });
+    });
+
 });
 
 describe('Mode choices labels', () => {
@@ -174,6 +221,7 @@ describe('Mode choices labels', () => {
         ['bicycle', ['customSurvey:segments:modePre:Bicycle', 'segments:modePre:Bicycle']],
         ['transit', ['customSurvey:segments:modePre:Transit', 'segments:modePre:Transit']],
         ['walk', ['customSurvey:segments:modePre:Walk', 'segments:modePre:Walk']],
+        ['paratransit', ['customSurvey:segments:modePre:Paratransit', 'segments:modePre:Paratransit']],
         ['other', ['customSurvey:segments:modePre:Other', 'segments:modePre:Other']],
         ['dontKnow', ['customSurvey:segments:modePre:DontKnow', 'segments:modePre:DontKnow']],
         ['preferNotToAnswer', ['customSurvey:segments:modePre:PreferNotToAnswer', 'segments:modePre:PreferNotToAnswer']]

@@ -15,6 +15,7 @@ import { Optional } from '../../../types/Optional.type';
 import { SegmentAttributes } from '../../baseObjects/Segment';
 import { HouseholdAttributes } from '../../baseObjects/Household';
 import { NavigationSection } from './NavigationTypes';
+import { Mode, ModePre } from '../../odSurvey/types';
 
 export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
 
@@ -150,10 +151,11 @@ export type Trip = TripAttributes & {
     };
 };
 
-export type Segment = SegmentAttributes & {
+export type Segment = Omit<SegmentAttributes, 'mode'> & {
     _sequence: number;
     _isNew: boolean;
-    modePre?: string;
+    modePre?: ModePre;
+    mode?: Mode;
     sameModeAsReverseTrip?: boolean;
     hasNextMode?: boolean;
 };

@@ -209,7 +209,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                             _uuid: 'segmentId2P2T2',
                                             _sequence: 2,
                                             _isNew: false,
-                                            modePre: 'bus'
+                                            modePre: 'transit'
                                         }
                                     }
                                 },

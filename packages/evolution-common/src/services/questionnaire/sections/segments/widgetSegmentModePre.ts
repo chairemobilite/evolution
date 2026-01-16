@@ -4,88 +4,61 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-
+import _upperFirst from 'lodash/upperFirst';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { WidgetConfig } from '../../../questionnaire/types';
+import { I18nData, WidgetConditional, WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
+import * as segmentHelpers from './helpers';
+import { modePreValues, ModePre } from '../../../odSurvey/types';
 import { Person, Segment } from '../../types';
-import { getModeIcon } from './modeIconMapping';
+import { getModePreIcon } from './modeIconMapping';
+
+const perModePreLabels: Partial<{ [mode in ModePre]: I18nData }> = {
+    walk: (t: TFunction, interview) => {
+        const person = odHelpers.getActivePerson({ interview });
+        const personMayHaveDisability = person && odHelpers.personMayHaveDisability({ person: person as Person });
+        return personMayHaveDisability
+            ? t(['customSurvey:segments:modePre:WalkOrMobilityHelp', 'segments:modePre:WalkOrMobilityHelp'])
+            : t(['customSurvey:segments:modePre:Walk', 'segments:modePre:Walk']);
+    }
+};
+
+const canPersonDriveCar: WidgetConditional = (interview) => {
+    const person = odHelpers.getActivePerson({ interview });
+    if (person === null) {
+        return true;
+    }
+    const drivingLicenseOwnership =
+        person && person.drivingLicenseOwnership !== undefined ? person.drivingLicenseOwnership : 'dontKnow';
+    if (
+        drivingLicenseOwnership === 'dontKnow' &&
+        ((person.age && person.age > config.drivingLicenseAge) || !person.age)
+    ) {
+        // Check the person's age to not offer the carDriver option if the person is too young
+        return true;
+    }
+    return drivingLicenseOwnership === 'yes';
+};
+
+const perModePreConditionals: Partial<{ [mode in ModePre]: WidgetConditional }> = {
+    paratransit: segmentHelpers.conditionalHhMayHaveDisability,
+    carDriver: canPersonDriveCar
+};
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
-const getModePreChoices = () => [
-    {
-        value: 'carDriver',
-        label: (t: TFunction) => t(['customSurvey:segments:modePre:CarDriver', 'segments:modePre:CarDriver']),
-        conditional: function (interview, _path) {
-            const person = odHelpers.getActivePerson({ interview });
-            if (person === null) {
-                return true;
-            }
-            const drivingLicenseOwnership =
-                person && person.drivingLicenseOwnership !== undefined ? person.drivingLicenseOwnership : 'dontKnow';
-            if (
-                drivingLicenseOwnership === 'dontKnow' &&
-                ((person.age && person.age > config.drivingLicenseAge) || !person.age)
-            ) {
-                // Check the person's age to not offer the carDriver option if the person is too young
-                return true;
-            }
-            return drivingLicenseOwnership === 'yes';
-        },
-        iconPath: getModeIcon('carDriver')
-    },
-    {
-        value: 'carPassenger',
-        label: (t: TFunction) => t(['customSurvey:segments:modePre:CarPassenger', 'segments:modePre:CarPassenger']),
-        iconPath: getModeIcon('carPassenger')
-    },
-    {
-        value: 'walk',
-        label: (t: TFunction, interview) => {
-            const person = odHelpers.getActivePerson({ interview });
-            const personMayHaveDisability = person && odHelpers.personMayHaveDisability({ person: person as Person });
-            return personMayHaveDisability
-                ? t(['customSurvey:segments:modePre:WalkOrMobilityHelp', 'segments:modePre:WalkOrMobilityHelp'])
-                : t(['customSurvey:segments:modePre:Walk', 'segments:modePre:Walk']);
-        },
-        iconPath: getModeIcon('walk')
-    },
-    {
-        value: 'bicycle',
-        label: (t: TFunction) => t(['customSurvey:segments:modePre:Bicycle', 'segments:modePre:Bicycle']),
-        iconPath: getModeIcon('bicycle')
-    },
-    {
-        value: 'transit',
-        label: (t: TFunction) => t(['customSurvey:segments:modePre:Transit', 'segments:modePre:Transit']),
-        iconPath: getModeIcon('transitBus')
-    },
-    {
-        value: 'taxi',
-        label: (t: TFunction) => t(['customSurvey:segments:modePre:Taxi', 'segments:modePre:Taxi']),
-        iconPath: getModeIcon('taxi')
-    },
-    {
-        value: 'other',
-        label: (t: TFunction) => t(['customSurvey:segments:modePre:Other', 'segments:modePre:Other']),
-        iconPath: getModeIcon('other')
-    },
-    {
-        value: 'dontKnow',
-        label: (t: TFunction) => t(['customSurvey:segments:modePre:DontKnow', 'segments:modePre:DontKnow']),
-        iconPath: getModeIcon('dontKnow')
-    },
-    {
-        value: 'preferNotToAnswer',
-        label: (t: TFunction) =>
-            t(['customSurvey:segments:modePre:PreferNotToAnswer', 'segments:modePre:PreferNotToAnswer']),
-        iconPath: getModeIcon('preferNotToAnswer')
-    }
-];
+const getModePreChoices = () =>
+    modePreValues.map((mode) => ({
+        value: mode,
+        label: perModePreLabels[mode]
+            ? perModePreLabels[mode]
+            : (t: TFunction) =>
+                t([`customSurvey:segments:modePre:${_upperFirst(mode)}`, `segments:modePre:${_upperFirst(mode)}`]),
+        conditional: perModePreConditionals[mode] !== undefined ? perModePreConditionals[mode] : undefined,
+        iconPath: getModePreIcon(mode)
+    }));
 
 export const getModePreWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented
@@ -148,12 +121,15 @@ export const getModePreWidgetConfig = (
         },
         conditional: function (interview, path) {
             const segment = getResponse(interview, path, null, '../') as Segment;
-            const shouldShowSameAsReverseTrip = shouldShowSameAsReverseTripQuestion({ interview, segment });
+            const shouldShowSameAsReverseTrip = segmentHelpers.shouldShowSameAsReverseTripQuestion({
+                interview,
+                segment
+            });
             // Do not show if the question of the same mode as previous trip is shown and the answer is not 'no'
             if (shouldShowSameAsReverseTrip && segment.sameModeAsReverseTrip !== false) {
                 if (segment.sameModeAsReverseTrip === true) {
                     // If the question of the same mode as previous trip is shown and the answer is yes, the mode is the same as the previous trip
-                    const previousTripSegment = getPreviousTripSingleSegment({
+                    const previousTripSegment = segmentHelpers.getPreviousTripSingleSegment({
                         interview,
                         person: odHelpers.getActivePerson({ interview }) as Person
                     });

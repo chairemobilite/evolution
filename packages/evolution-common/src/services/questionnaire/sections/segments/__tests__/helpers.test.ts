@@ -377,3 +377,151 @@ describe('shouldShowSameAsReverseTripQuestion', () => {
     });
 
 });
+
+describe('conditionalPersonMayHaveDisability', () => {
+
+    test('Person has disability set to "yes"', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'yes');
+
+        // Test conditional
+        const result = helpers.conditionalPersonMayHaveDisability(interview, 'household.persons.personId1');
+        expect(result).toEqual(true);
+    });
+
+    test('Person has disability set to "preferNotToAnswer"', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'preferNotToAnswer');
+
+        // Test conditional
+        const result = helpers.conditionalPersonMayHaveDisability(interview, 'household.persons.personId1');
+        expect(result).toEqual(true);
+    });
+
+    test('Person has disability set to "dontKnow"', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'dontKnow');
+
+        // Test conditional
+        const result = helpers.conditionalPersonMayHaveDisability(interview, 'household.persons.personId1');
+        expect(result).toEqual(true);
+    });
+
+    test('Person has disability set to "no"', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'no');
+
+        // Test conditional
+        const result = helpers.conditionalPersonMayHaveDisability(interview, 'household.persons.personId1');
+        expect(result).toEqual(false);
+    });
+
+    test('Person has disability not set (undefined)', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        // hasDisability is undefined by default in test data
+
+        // Test conditional
+        const result = helpers.conditionalPersonMayHaveDisability(interview, 'household.persons.personId1');
+        // FIXME When undefined, should it return true or false? There's a FIXME in OD helpers to decide this
+        expect(result).toEqual(false);
+    });
+
+    test('No persons in household', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons', {});
+
+        // Test conditional
+        const result = helpers.conditionalPersonMayHaveDisability(interview, 'path');
+        expect(result).toEqual(true);
+    });
+});
+
+describe('conditionalHhMayHaveDisability', () => {
+
+    test('At least one person has disability set to "yes"', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'yes');
+        setResponse(interview, 'household.persons.personId2.hasDisability', 'no');
+
+        // Test conditional
+        const result = helpers.conditionalHhMayHaveDisability(interview, 'path');
+        expect(result).toEqual(true);
+    });
+
+    test('At least one person has disability set to "preferNotToAnswer"', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'no');
+        setResponse(interview, 'household.persons.personId2.hasDisability', 'preferNotToAnswer');
+
+        // Test conditional
+        const result = helpers.conditionalHhMayHaveDisability(interview, 'path');
+        expect(result).toEqual(true);
+    });
+
+    test('At least one person has disability set to "dontKnow"', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'no');
+        setResponse(interview, 'household.persons.personId2.hasDisability', 'dontKnow');
+
+        // Test conditional
+        const result = helpers.conditionalHhMayHaveDisability(interview, 'path');
+        expect(result).toEqual(true);
+    });
+
+    test('All persons have disability set to "no"', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'no');
+        setResponse(interview, 'household.persons.personId2.hasDisability', 'no');
+        setResponse(interview, 'household.persons.personId3.hasDisability', 'no');
+
+        // Test conditional
+        const result = helpers.conditionalHhMayHaveDisability(interview, 'path');
+        expect(result).toEqual(false);
+    });
+
+    test('Multiple persons with mixed disability values', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons.personId1.hasDisability', 'yes');
+        setResponse(interview, 'household.persons.personId2.hasDisability', 'preferNotToAnswer');
+        setResponse(interview, 'household.persons.personId3.hasDisability', 'no');
+
+        // Test conditional
+        const result = helpers.conditionalHhMayHaveDisability(interview, 'path');
+        expect(result).toEqual(true);
+    });
+
+    test('All persons have hasDisability undefined', () => {
+        // Prepare test data - hasDisability is undefined by default in test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+
+        // Test conditional
+        const result = helpers.conditionalHhMayHaveDisability(interview, 'path');
+        expect(result).toEqual(false);
+    });
+
+    test('No persons in household', () => {
+        // Prepare test data
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons', {});
+
+        // Test conditional
+        const result = helpers.conditionalHhMayHaveDisability(interview, 'path');
+        expect(result).toEqual(false);
+    });
+});

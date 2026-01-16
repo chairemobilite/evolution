@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Mode } from '../../../baseObjects/attributeTypes/SegmentAttributes';
+import { Mode, ModePre } from '../../../odSurvey/types';
 
 /**
  * Maps modes to their corresponding icon paths
@@ -21,6 +21,10 @@ export const modeToIconMapping: Record<Mode, string> = {
     bicycle: '/dist/icons/modes/bicycle/bicycle_with_rider.svg',
     // FIXME Confirm this icon
     bicyclePassenger: '/dist/icons/modes/bicycle/bicycle_with_rider.svg',
+    bicycleElectric: '/dist/icons/modes/bicycle/bicycle_without_rider_electric.svg',
+    // FIXME Add bicycle bike sharing icons
+    bicycleBikesharing: '/dist/icons/modes/bicycle/bicycle_bikesharing.svg',
+    bicycleBikesharingElectric: '/dist/icons/modes/bicycle/bicycle_bikesharing_electric.svg',
     kickScooterElectric: '/dist/icons/modes/kick_scooter/kick_scooter_electric.svg',
     // FIXME Confirm this icon
     otherActiveMode: '/dist/icons/modes/kick_scooter/kick_scooter.svg',
@@ -29,6 +33,11 @@ export const modeToIconMapping: Record<Mode, string> = {
     // Cars
     carDriver: '/dist/icons/modes/car/car_driver_without_passenger.svg',
     carPassenger: '/dist/icons/modes/car/car_passenger.svg',
+    carDriverCarsharing: '/dist/icons/modes/car/carsharing.svg',
+    // FIXME Confirm these icons
+    snowmobile: '/dist/icons/modes/other/snowmobile.svg',
+    privateBoat: '/dist/icons/modes/other/private_boat.svg',
+    allTerrainVehicle: '/dist/icons/modes/other/all_terrain_vehicle.svg',
 
     // Transit buses
     transitBus: '/dist/icons/modes/bus/bus_city.svg',
@@ -70,6 +79,20 @@ export const modeToIconMapping: Record<Mode, string> = {
     preferNotToAnswer: '/dist/icons/modes/other/air_balloon.svg'
 };
 
+const modePreToModeIconMapping: Record<ModePre, Mode> = {
+    walk: 'walk',
+    bicycle: 'bicycle',
+    paratransit: 'paratransit',
+    carDriver: 'carDriver',
+    carPassenger: 'carPassenger',
+    taxi: 'taxi',
+    other: 'other',
+    dontKnow: 'dontKnow',
+    preferNotToAnswer: 'preferNotToAnswer',
+    transit: 'transitBus',
+    ferry: 'transitFerry'
+};
+
 /**
  * Returns the appropriate icon path for a given mode
  * @param mode The transportation mode
@@ -77,4 +100,13 @@ export const modeToIconMapping: Record<Mode, string> = {
  */
 export const getModeIcon = (mode: Mode): string => {
     return modeToIconMapping[mode] || '/dist/icons/modes/other/air_balloon.svg';
+};
+
+/**
+ * Returns the appropriate icon path for a given mode
+ * @param modePre The transportation mode
+ * @returns The path to the icon for the mode
+ */
+export const getModePreIcon = (modePre: ModePre): string => {
+    return modeToIconMapping[modePreToModeIconMapping[modePre]] || '/dist/icons/modes/other/air_balloon.svg';
 };

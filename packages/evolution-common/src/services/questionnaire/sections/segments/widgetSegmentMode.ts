@@ -6,29 +6,19 @@
  */
 import _upperFirst from 'lodash/upperFirst';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import { WidgetConfig } from '../../../questionnaire/types';
+import { WidgetConditional, WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
-import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
-import { Mode, modeValues } from '../../../baseObjects/attributeTypes/SegmentAttributes';
-import { modePreToModeMap } from '../../../odSurvey/types';
-import { ParsingFunction, Person, Segment } from '../../types';
+import * as segmentHelpers from './helpers';
+import { Mode, modePreToModeMap, modeValues } from '../../../odSurvey/types';
+import { Person, Segment } from '../../types';
 import { getModeIcon } from './modeIconMapping';
 
-// FIXME Move in helpers if required
-const conditionalPersonMayHaveDisability = (interview) => {
-    const person = odHelpers.getActivePerson({ interview });
-    const personMayHaveDisability = person ? odHelpers.personMayHaveDisability({ person: person as Person }) : true;
-    return personMayHaveDisability;
-};
-
-const conditionalHhMayHaveDisability = (interview) => odHelpers.householdMayHaveDisability({ interview });
-
-const perModeConditionals: Partial<{ [mode in Mode]: ParsingFunction<boolean> }> = {
-    wheelchair: conditionalPersonMayHaveDisability,
-    mobilityScooter: conditionalPersonMayHaveDisability,
-    paratransit: conditionalHhMayHaveDisability
+const perModeConditionals: Partial<{ [mode in Mode]: WidgetConditional }> = {
+    wheelchair: segmentHelpers.conditionalPersonMayHaveDisability,
+    mobilityScooter: segmentHelpers.conditionalPersonMayHaveDisability,
+    paratransit: segmentHelpers.conditionalHhMayHaveDisability
 };
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
@@ -83,12 +73,15 @@ export const getModeWidgetConfig = (
         },
         conditional: function (interview, path) {
             const segment = getResponse(interview, path, null, '../') as Segment;
-            const shouldShowSameAsReverseTrip = shouldShowSameAsReverseTripQuestion({ interview, segment });
+            const shouldShowSameAsReverseTrip = segmentHelpers.shouldShowSameAsReverseTripQuestion({
+                interview,
+                segment
+            });
             // Do not show if the question of the same mode as previous trip is shown and the answer is not 'no'
             if (shouldShowSameAsReverseTrip && segment.sameModeAsReverseTrip !== false) {
                 if (segment.sameModeAsReverseTrip === true) {
                     // If the question of the same mode as previous trip is shown and the answer is yes, the mode is the same as the previous trip
-                    const previousTripSegment = getPreviousTripSingleSegment({
+                    const previousTripSegment = segmentHelpers.getPreviousTripSingleSegment({
                         interview,
                         person: odHelpers.getActivePerson({ interview }) as Person
                     });

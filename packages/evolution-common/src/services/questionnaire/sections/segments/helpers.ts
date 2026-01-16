@@ -6,10 +6,10 @@
  */
 
 import _isEqual from 'lodash/isEqual';
-import * as helper from '../../../odSurvey/helpers';
+import * as odHelpers from '../../../odSurvey/helpers';
 import { loopActivities, simpleModes } from '../../../odSurvey/types';
 import { Optional } from '../../../../types/Optional.type';
-import { Journey, Person, Segment, Trip, UserInterviewAttributes } from '../../types';
+import { Journey, Person, Segment, Trip, UserInterviewAttributes, WidgetConditional } from '../../types';
 
 /**
  * Get the mode used in the single segment of the previous trip of the active
@@ -28,14 +28,14 @@ export const getPreviousTripSingleSegment = ({
     interview: UserInterviewAttributes;
     person: Person;
 }): Optional<Segment> => {
-    const journey = helper.getActiveJourney({ interview, person });
-    const trip = helper.getActiveTrip({ interview, journey });
+    const journey = odHelpers.getActiveJourney({ interview, person });
+    const trip = odHelpers.getActiveTrip({ interview, journey });
     if (!journey || !trip) {
         return undefined;
     }
-    const previousTrip = helper.getPreviousTrip({ currentTrip: trip, journey });
+    const previousTrip = odHelpers.getPreviousTrip({ currentTrip: trip, journey });
     if (previousTrip) {
-        const previousSegments = helper.getSegmentsArray({ trip: previousTrip });
+        const previousSegments = odHelpers.getSegmentsArray({ trip: previousTrip });
         if (previousSegments.length === 1) {
             const previousSegment = previousSegments[0];
             return previousSegment;
@@ -74,10 +74,10 @@ export const isSimpleChainSingleModeReturnTrip = ({
     interview: UserInterviewAttributes;
     person: Person;
 }): boolean => {
-    const visitedPlaces = helper.getVisitedPlaces({ journey });
-    const origin = helper.getOrigin({ trip, visitedPlaces });
-    const destination = helper.getDestination({ trip, visitedPlaces });
-    const previousOrigin = helper.getOrigin({ trip: previousTrip, visitedPlaces });
+    const visitedPlaces = odHelpers.getVisitedPlaces({ journey });
+    const origin = odHelpers.getOrigin({ trip, visitedPlaces });
+    const destination = odHelpers.getDestination({ trip, visitedPlaces });
+    const previousOrigin = odHelpers.getOrigin({ trip: previousTrip, visitedPlaces });
 
     // If origin or destination is not found, we cannot determine if it is a simple chain
     if (!origin || !destination || !previousOrigin) {
@@ -98,12 +98,16 @@ export const isSimpleChainSingleModeReturnTrip = ({
         return false;
     }
 
-    const previousTripOriginGeography = helper.getVisitedPlaceGeography({
+    const previousTripOriginGeography = odHelpers.getVisitedPlaceGeography({
         visitedPlace: previousOrigin,
         interview,
         person
     });
-    const tripDestinationGeography = helper.getVisitedPlaceGeography({ visitedPlace: destination, interview, person });
+    const tripDestinationGeography = odHelpers.getVisitedPlaceGeography({
+        visitedPlace: destination,
+        interview,
+        person
+    });
     if (
         previousTripOriginGeography &&
         tripDestinationGeography &&
@@ -111,7 +115,7 @@ export const isSimpleChainSingleModeReturnTrip = ({
         previousTripOriginGeography.geometry &&
         _isEqual(previousTripOriginGeography.geometry.coordinates, tripDestinationGeography.geometry.coordinates)
     ) {
-        const previousTripSegmentsAsArray = helper.getSegmentsArray({ trip: previousTrip });
+        const previousTripSegmentsAsArray = odHelpers.getSegmentsArray({ trip: previousTrip });
         if (
             previousTripSegmentsAsArray.length === 1 &&
             previousTripSegmentsAsArray[0].mode &&
@@ -137,13 +141,22 @@ export const shouldShowSameAsReverseTripQuestion = ({
     }
     // Display this question if the segment is new and the previous and current
     // trips form a simple chain with a single mode
-    const person = helper.getPerson({ interview }) as Person;
-    const journey = helper.getActiveJourney({ interview, person }) as Journey;
-    const trip = helper.getActiveTrip({ interview, journey });
-    const previousTrip = trip !== null ? helper.getPreviousTrip({ currentTrip: trip, journey }) : null;
+    const person = odHelpers.getPerson({ interview }) as Person;
+    const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
+    const trip = odHelpers.getActiveTrip({ interview, journey });
+    const previousTrip = trip !== null ? odHelpers.getPreviousTrip({ currentTrip: trip, journey }) : null;
     return (
         trip !== null &&
         previousTrip !== null &&
         isSimpleChainSingleModeReturnTrip({ interview, journey, person, trip, previousTrip })
     );
 };
+
+export const conditionalPersonMayHaveDisability: WidgetConditional = (interview) => {
+    const person = odHelpers.getActivePerson({ interview });
+    const personMayHaveDisability = person ? odHelpers.personMayHaveDisability({ person: person as Person }) : true;
+    return personMayHaveDisability;
+};
+
+export const conditionalHhMayHaveDisability: WidgetConditional = (interview) =>
+    odHelpers.householdMayHaveDisability({ interview });
