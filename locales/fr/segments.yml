@@ -14,7 +14,9 @@ modePre:
     WalkOrMobilityHelp: <strong>Marche</strong> ou <strong>aide à la mobilité</strong>
     Bicycle: <strong>Vélo</strong> ou <strong>vélo électrique</strong>
     Transit: <strong>Transport collectif</strong>
+    Paratransit: <strong>Transport adapté</strong>
     Taxi: <strong>Taxi</strong> ou équivalent (ex. Uber, Lyft)
+    Ferry: <strong>Traversier</strong>
     Other: <strong>Autre</strong>
     DontKnow: <strong>Je ne sais pas</strong>
     PreferNotToAnswer: <strong>Préfère ne pas répondre</strong>
@@ -26,12 +28,17 @@ mode:
     BicycleBikesharingElectric: <strong>Vélo partage électrique</strong>
     BicyclePassenger: <strong>Vélo passager</strong>
     KickScooterElectric: <strong>Trottinette électrique</strong>
+    CarDriver: <strong>Auto conducteur</strong> (voiture/moto/scooter/camion)
     CarDriverPersonal: <strong>Auto conducteur</strong> avec voiture personnelle
     CarDriverRental: <strong>Auto conducteur</strong> avec voiture de location
+    CarDriverCarsharing: <strong>Autopartage</strong>
     CarDriverCarsharingStationBased: <strong>Autopartage</strong> basé station
     CarDriverCarsharingFreeFloating: <strong>Autopartage</strong> en libre service
     CarDriverCarsharingUnspecified: <strong>Autopartage</strong>
     CarPassenger: <strong>Passager</strong> (voiture/moto/scooter/camion)
+    PrivateBoat: <strong>Bateau privé</strong>
+    Snowmobile: <strong>Motoneige</strong>
+    AllTerrainVehicle: <strong>Véhicule tout-terrain</strong> (quad/VTT)
     TransitBus: <strong>Bus</strong>
     TransitBRT: <strong>Service rapide par bus</strong>
     TransitSchoolBus: <strong>Bus</strong> (<strong>Lignes scolaires</strong> opérée par une agence de transport collectif)

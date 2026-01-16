@@ -14,7 +14,9 @@ modePre:
     WalkOrMobilityHelp: <strong>Walking</strong> or <strong>wheeling</strong> (eg. wheelchair)
     Bicycle: <strong>Bicycle</strong> or <strong>e-bike</strong>
     Transit: <strong>Public transit</strong>
+    Paratransit: <strong>Paratransit</strong>
     Taxi: <strong>Taxi</strong> or equivalent (eg. Uber, Lyft)
+    Ferry: <strong>Ferry</strong>
     Other: <strong>Other</strong>
     DontKnow: <strong>I don't know</strong>
     PreferNotToAnswer: <strong>Prefer not to answer</strong>
@@ -26,11 +28,16 @@ mode:
     BicycleBikesharingElectric: <strong>Electric bike sharing</strong>
     BicyclePassenger: <strong>Passenger on bike</strong>
     KickScooterElectric: <strong>Electric Kick Scooter</strong>
+    CarDriver: <strong>Driver</strong> (car/moto/scooter/truck)
     CarDriverPersonal: <strong>Driver</strong> with personal vehicle (car/moto/scooter/truck)
     CarDriverRental: <strong>Driver</strong> with rental vehicle (car/moto/scooter/truck)
+    CarDriverCarsharing: <strong>Carsharing</strong>
     CarDriverCarsharingStationBased: <strong>Carsharing</strong> station based
     CarDriverCarsharingFreeFloating: <strong>Carsharing</strong> free floating
     CarDriverCarsharingUnspecified: <strong>Carsharing</strong>
+    PrivateBoat: <strong>Private boat</strong>
+    Snowmobile: <strong>Snowmobile</strong>
+    AllTerrainVehicle: <strong>All-terrain vehicle</strong> (quad/ATV)
     CarPassenger: <strong>Passenger</strong> (car/motorcycle/moped/truck)
     TransitBus: <strong>Bus</strong>
     TransitBRT: <strong>Bus rapid service</strong>
