@@ -1,5 +1,5 @@
 # Build Node app
-FROM node:24-bookworm
+FROM node:24-trixie
 WORKDIR /app
 
 # TODO split package.json copy and yarn install to have some intermediary images
