@@ -292,7 +292,7 @@ const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps &
                     boxSizing: 'border-box',
                     position: 'relative',
                     width: '100%',
-                    height: '400px',
+                    height: props.widgetConfig.height || '400px',
                     border: '1px solid rgba(0,0,0,0.2'
                 }}
                 center={center}
