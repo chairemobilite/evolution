@@ -18,6 +18,7 @@ import {
     UserRuntimeInterviewAttributes
 } from './Data';
 import { WidgetConfig } from './WidgetConfig';
+import { Mode } from '../../odSurvey/types';
 
 export type SectionPreload = (
     interview: UserInterviewAttributes,
@@ -478,4 +479,29 @@ export type SurveySections = { [sectionName: string]: SectionConfigWithDefaultsS
 
 export type SurveyWidgets = {
     [widgetName: string]: WidgetConfig;
+};
+
+/**
+ * Configuration for the segments section of the questionnaire
+ */
+export type SegmentSectionConfiguration = {
+    /**
+     * Set to `true` to enable the segments section, `false` to
+     * disable it. Defaults to `false`.
+     */
+    enabled: boolean;
+    /**
+     * If set, restricts the modes that can be selected in the segment mode
+     * question to the specified modes. This will impact the choices both in the
+     * modePre and mode questions, as well as the order in which they are
+     * presented. If using this property, the `other`, `dontKnow` and
+     * `preferNotToAnswer` need to be explicitly stated here too.
+     */
+    modesIncludeOnly?: Mode[];
+    /**
+     * If set, removes the specified modes from the choices in the
+     * segment mode question. This will impact the choices both in
+     * the modePre and mode questions.
+     */
+    modesExclude?: Mode[];
 };

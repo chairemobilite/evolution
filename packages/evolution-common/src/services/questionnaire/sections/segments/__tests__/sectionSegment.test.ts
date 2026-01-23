@@ -36,8 +36,8 @@ interviewWithTestPerson.response._activeJourneyId = activeJourney._uuid;
 
 describe('getSegmentsSectionConfig', () => {
 
-    test('should return the correct widget config', () => {
-        const widgetConfig = getSegmentsSectionConfig({});
+    test('should return the correct widget config when section enabled', () => {
+        const widgetConfig = getSegmentsSectionConfig({ segmentConfig: { enabled: true }});
         expect(widgetConfig).toEqual({
             previousSection: 'visitedPlaces',
             nextSection: 'travelBehavior',
@@ -57,6 +57,23 @@ describe('getSegmentsSectionConfig', () => {
                 'personVisitedPlacesMap',
                 'buttonConfirmNextSection'
             ]
+        });
+    });
+
+    test('should return the correct widget config when section disabled', () => {
+        const widgetConfig = getSegmentsSectionConfig({ segmentConfig: { enabled: false }});
+        expect(widgetConfig).toEqual({
+            previousSection: 'visitedPlaces',
+            nextSection: 'travelBehavior',
+            isSectionVisible: expect.any(Function),
+            isSectionCompleted: expect.any(Function),
+            onSectionEntry: expect.any(Function),
+            template: 'tripsAndSegmentsWithMap',
+            title: expect.any(Function),
+            customStyle: {
+                maxWidth: '120rem'
+            },
+            widgets: []
         });
     });
 
