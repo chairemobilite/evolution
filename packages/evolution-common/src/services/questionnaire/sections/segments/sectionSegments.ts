@@ -10,7 +10,7 @@ import { TFunction } from 'i18next';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { removeGroupedObjects, addGroupedObjects } from '../../../../utils/helpers';
 import * as odHelpers from '../../../odSurvey/helpers';
-import { SectionConfig, Trip } from '../../types';
+import { SectionConfig, SegmentSectionConfiguration, Trip } from '../../types';
 
 export const getSegmentsSectionConfig = (
     // FIXME: There should be an entire configuration object for the segments
@@ -18,7 +18,7 @@ export const getSegmentsSectionConfig = (
     // should return some other type than the SectionConfig, which will be
     // transformed to a SectionConfig by a higher level handler questionnaire
     // handler
-    _options: { context?: (context?: string) => string }
+    options: { context?: (context?: string) => string; segmentConfig?: SegmentSectionConfiguration }
 ): SectionConfig => {
     return {
         previousSection: 'visitedPlaces',
@@ -181,13 +181,15 @@ export const getSegmentsSectionConfig = (
             maxWidth: '120rem'
         },
         // FIXME: This should return the widgets and their implementation, not just the names
-        widgets: [
-            'activePersonTitle',
-            'buttonSwitchPerson',
-            'personTripsTitle',
-            'personTrips',
-            'personVisitedPlacesMap',
-            'buttonConfirmNextSection'
-        ]
+        widgets: options.segmentConfig?.enabled
+            ? [
+                'activePersonTitle',
+                'buttonSwitchPerson',
+                'personTripsTitle',
+                'personTrips',
+                'personVisitedPlacesMap',
+                'buttonConfirmNextSection'
+            ]
+            : []
     };
 };
