@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { useTable, usePagination, useFilters, useSortBy } from 'react-table';
-import { WithTranslation, withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { LoadingPage } from 'chaire-lib-frontend/lib/components/pages';
 import { faSyncAlt } from '@fortawesome/free-solid-svg-icons/faSyncAlt';
 import { faFolder } from '@fortawesome/free-solid-svg-icons/faFolder';
@@ -22,13 +22,18 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
 
-interface UsersTableProps extends WithTranslation {
+export type Filter = {
+    id: string;
+    value: string | string[] | { value: any; op?: string };
+};
+
+interface InterviewListProps {
     columns: Array<Record<string, unknown>>;
     data: InterviewStatusAttributesBase[];
     fetchData: (params: {
         pageSize: number;
         pageIndex: number;
-        filters: unknown;
+        filters: Filter[] | undefined;
         sortBy: { id: string; desc?: boolean }[];
     }) => void;
     loading: boolean;
@@ -40,7 +45,7 @@ interface UsersTableProps extends WithTranslation {
     validationInterview: InterviewStatusAttributesBase | null;
     runBatchAudits: (
         extended: boolean,
-        filters: unknown,
+        filters: Filter[] | undefined,
         pageIndex: number,
         pageSize: number,
         sortBy: { id: string; desc?: boolean }[]
@@ -55,7 +60,8 @@ interface UsersTableProps extends WithTranslation {
 }
 
 // User react-table to handle a few table functionalities like paging and filtering
-const InterviewList = (props: UsersTableProps) => {
+const InterviewList = (props: InterviewListProps) => {
+    const { t } = useTranslation('main');
     const {
         getTableProps,
         prepareRow,
@@ -136,7 +142,7 @@ const InterviewList = (props: UsersTableProps) => {
             }}
         >
             {props.validationInterview !== null && (
-                <button title={props.t('admin:HideInterviewList')} onClick={() => props.interviewListChange(false)}>
+                <button title={t('admin:HideInterviewList')} onClick={() => props.interviewListChange(false)}>
                     <FontAwesomeIcon icon={faFolder} />
                 </button>
             )}
@@ -148,7 +154,7 @@ const InterviewList = (props: UsersTableProps) => {
                         e.preventDefault();
                         props.fetchData({ pageIndex, pageSize, filters, sortBy });
                     }}
-                    title={props.t('admin:refreshValidationList')}
+                    title={t('admin:refreshValidationList')}
                 >
                     <FontAwesomeIcon icon={faSyncAlt} />
                 </a>
@@ -162,7 +168,7 @@ const InterviewList = (props: UsersTableProps) => {
                             props.runBatchAudits(false, filters, pageIndex, pageSize, sortBy);
                         }
                     }}
-                    title={props.t('admin:batchRunAudits')}
+                    title={t('admin:batchRunAudits')}
                 >
                     <FontAwesomeIcon icon={faListCheck} />
                 </a>
@@ -176,7 +182,7 @@ const InterviewList = (props: UsersTableProps) => {
                             props.runBatchAudits(true, filters, pageIndex, pageSize, sortBy);
                         }
                     }}
-                    title={props.t('admin:batchRunAuditsWithExtended')}
+                    title={t('admin:batchRunAuditsWithExtended')}
                 >
                     <span className="_small">
                         <FontAwesomeIcon icon={faBolt} />
@@ -185,14 +191,14 @@ const InterviewList = (props: UsersTableProps) => {
                 </a>
                 {props.batchAuditLoading && (
                     <span className="_small" style={{ marginLeft: '10px' }}>
-                        {props.t('admin:runningBatchAudits')}
+                        {t('admin:runningBatchAudits')}
                     </span>
                 )}
                 {props.batchAuditResult && (
                     <span className="_small" style={{ marginLeft: '10px' }}>
                         {Status.isStatusError(props.batchAuditResult) ? (
                             <span className="_error _red">
-                                {props.t('admin:batchAuditError', {
+                                {t('admin:batchAuditError', {
                                     error:
                                         typeof props.batchAuditResult.error === 'string'
                                             ? props.batchAuditResult.error
@@ -202,7 +208,7 @@ const InterviewList = (props: UsersTableProps) => {
                                 })}
                             </span>
                         ) : (
-                            props.t('admin:batchAuditResult', {
+                            t('admin:batchAuditResult', {
                                 total: props.batchAuditResult.result.totalCount,
                                 processed: props.batchAuditResult.result.processed,
                                 succeeded: props.batchAuditResult.result.succeeded,
@@ -288,7 +294,7 @@ const InterviewList = (props: UsersTableProps) => {
                 </ul>
             </div>
             <div className="admin-widget-container pagination">
-                <span>{props.t('main:ShowingNofX', { n: page.length, x: props.itemCount })}</span>
+                <span>{t('main:ShowingNofX', { n: page.length, x: props.itemCount })}</span>
                 <br />
                 <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
                     {'<<'}
@@ -302,9 +308,9 @@ const InterviewList = (props: UsersTableProps) => {
                 <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
                     {'>>'}
                 </button>{' '}
-                <span>{props.t('main:PageNofX', { n: pageIndex + 1, x: pageOptions.length })}</span>
+                <span>{t('main:PageNofX', { n: pageIndex + 1, x: pageOptions.length })}</span>
                 <span>
-                    | {props.t('main:GoToPage')}:{' '}
+                    | {t('main:GoToPage')}:{' '}
                     <input
                         type="number"
                         defaultValue={pageIndex + 1}
@@ -323,7 +329,7 @@ const InterviewList = (props: UsersTableProps) => {
                 >
                     {[100, 200, 300, 400, 500].map((pageSize) => (
                         <option key={pageSize} value={pageSize}>
-                            {props.t('main:ShowN', { n: pageSize })}
+                            {t('main:ShowN', { n: pageSize })}
                         </option>
                     ))}
                 </select>
@@ -332,4 +338,4 @@ const InterviewList = (props: UsersTableProps) => {
     );
 };
 
-export default withTranslation('main')(InterviewList);
+export default InterviewList;
