@@ -26,6 +26,7 @@ describe('Should correctly render InputTime with minimal parameters', () => {
     const widgetConfig = {
         type: 'question' as const,
         twoColumns: true,
+        datatype: 'integer' as const,
         path: 'test.foo',
         containsHtml: true,
         label: {
@@ -78,6 +79,7 @@ describe('Should correctly render InputTime with various parameters', () => {
         type: 'question' as const,
         twoColumns: true,
         path: 'test.foo',
+        datatype: 'integer' as const,
         containsHtml: true,
         label: {
             fr: `Texte en français`,

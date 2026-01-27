@@ -32,13 +32,13 @@
         "evolution-common": "^0.5.0",
         "evolution-frontend": "^0.5.0",
         "express": "^5.2.1",
-        "i18next": "^24.0.5",
+        "i18next": "^25.7.4",
         "knex": "^3.1.0",
         "lodash": "^4.17.21",
         "moment": "^2.30.1",
         "papaparse": "^5.5.3",
-        "react": "^19.0.0",
-        "react-i18next": "^12.3.1",
+        "react": "^19.2.3",
+        "react-i18next": "^16.5.3",
         "uuid": "^11.1.0"
     },
     "devDependencies": {

@@ -283,9 +283,9 @@ const InfoMap: React.FC<InfoMapProps & WithTranslation> = (props: InfoMapProps &
 
     return (
         <div className="survey-info-map__map-container">
-            <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]} className="infoMap-title">
-                {title}
-            </Markdown>
+            <div className="infoMap-title">
+                <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>{title}</Markdown>
+            </div>
             <GoogleMap
                 id="info-map"
                 mapContainerStyle={{

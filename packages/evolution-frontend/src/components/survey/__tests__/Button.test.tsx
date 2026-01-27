@@ -4,7 +4,9 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+
 import _cloneDeep from 'lodash/cloneDeep';
+// import required even if unused
 import React from 'react';
 import each from 'jest-each';
 import { render, screen, fireEvent } from '@testing-library/react';
@@ -13,7 +15,7 @@ import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
 
-import { interviewAttributes } from '../../inputs/__tests__/interviewData';
+import { runtimeInterviewAttributes } from '../../inputs/__tests__/interviewData';
 import Button from '../Button';
 import { ButtonWidgetConfig, InterviewUpdateCallbacks, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 
@@ -56,6 +58,7 @@ const defaultWidgetStatus: WidgetStatus = {
 const startUpdateInterviewMock = jest.fn();
 const startAddGroupedObjectsMock = jest.fn();
 const startRemoveGroupedObjectsMock = jest.fn();
+const startNavigateMock = jest.fn();
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -87,13 +90,14 @@ each([
             <Button
                 path='home.region'
                 widgetConfig={widgetConfig}
-                interview={interviewAttributes}
+                interview={runtimeInterviewAttributes}
                 user={userAttributes}
                 widgetStatus={defaultWidgetStatus}
                 section={''}
                 startUpdateInterview={startUpdateInterviewMock}
                 startAddGroupedObjects={startAddGroupedObjectsMock}
                 startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
                 loadingState={0}
             />
         );
@@ -105,13 +109,14 @@ each([
             <Button
                 path='home.region'
                 widgetConfig={widgetConfig}
-                interview={interviewAttributes}
+                interview={runtimeInterviewAttributes}
                 user={userAttributes}
                 widgetStatus={defaultWidgetStatus}
                 section={''}
                 startUpdateInterview={startUpdateInterviewMock}
                 startAddGroupedObjects={startAddGroupedObjectsMock}
                 startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
                 loadingState={0}
             />
         );
@@ -127,13 +132,14 @@ test('Widget invisible, should be null', () => {
         <Button
             path='home.region'
             widgetConfig={commonWidgetConfig}
-            interview={interviewAttributes}
+            interview={runtimeInterviewAttributes}
             user={userAttributes}
             widgetStatus={widgetStatus}
             section={''}
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
             loadingState={0}
         />
     );
@@ -149,13 +155,14 @@ test('Widget loading, should be disabled', () => {
                 ...commonWidgetConfig,
                 hideWhenRefreshing: true
             }}
-            interview={interviewAttributes}
+            interview={runtimeInterviewAttributes}
             user={userAttributes}
             widgetStatus={defaultWidgetStatus}
             section={''}
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
             loadingState={1}
         />
     );
@@ -169,12 +176,13 @@ describe('Button widget: behavioral tests', () => {
             section='test'
             loadingState={0}
             widgetConfig={commonWidgetConfig}
-            interview={interviewAttributes}
+            interview={runtimeInterviewAttributes}
             user={userAttributes}
             widgetStatus={defaultWidgetStatus}
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
         />);
         const user = userEvent.setup();
 
@@ -189,7 +197,7 @@ describe('Button widget: behavioral tests', () => {
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
             startNavigate: expect.any(Function)
-        }, interviewAttributes, 'home.region', 'test', {}, undefined);
+        }, runtimeInterviewAttributes, 'home.region', 'test', {}, undefined);
     });
 
     test('Button click, adding user action', async () => {
@@ -207,12 +215,13 @@ describe('Button widget: behavioral tests', () => {
             section='test'
             loadingState={0}
             widgetConfig={widgetConfig}
-            interview={interviewAttributes}
+            interview={runtimeInterviewAttributes}
             user={userAttributes}
             widgetStatus={defaultWidgetStatus}
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
         />);
         const user = userEvent.setup();
 
@@ -227,7 +236,7 @@ describe('Button widget: behavioral tests', () => {
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
             startNavigate: expect.any(Function)
-        }, interviewAttributes, 'home.region', 'test', {}, undefined);
+        }, runtimeInterviewAttributes, 'home.region', 'test', {}, undefined);
         expect(startUpdateInterviewMock).toHaveBeenCalledTimes(1);
         expect(startUpdateInterviewMock).toHaveBeenCalledWith({
             sectionShortname: 'test',
@@ -253,12 +262,13 @@ describe('Button widget: behavioral tests', () => {
             section: 'test',
             loadingState: 0,
             widgetConfig: widgetConfig,
-            interview: interviewAttributes,
+            interview: runtimeInterviewAttributes,
             user: userAttributes,
             widgetStatus: defaultWidgetStatus,
             startUpdateInterview: startUpdateInterviewMock,
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+            startNavigate: startNavigateMock
         }
         render(<Button
             {...initialProps}
@@ -284,7 +294,7 @@ describe('Button widget: behavioral tests', () => {
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
             startNavigate: expect.any(Function)
-        }, interviewAttributes, 'home.region', 'test', {}, undefined);
+        }, runtimeInterviewAttributes, 'home.region', 'test', {}, undefined);
     });
 
     test('Button click, with modal, cancelled', async () => {
@@ -301,12 +311,13 @@ describe('Button widget: behavioral tests', () => {
             section: 'test',
             loadingState: 0,
             widgetConfig: widgetConfig,
-            interview: interviewAttributes,
+            interview: runtimeInterviewAttributes,
             user: userAttributes,
             widgetStatus: defaultWidgetStatus,
             startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+            startNavigate: startNavigateMock
         }
         render(<Button
             {...initialProps}
@@ -336,19 +347,20 @@ describe('Button widget: behavioral tests', () => {
         const widgetConfig = {
             ...commonWidgetConfig,
             hideWhenRefreshing: true
-        }
+        };
         const initialProps = {
             path: 'home.region',
             section: 'test',
             loadingState: 0,
             widgetConfig: widgetConfig,
-            interview: interviewAttributes,
+            interview: runtimeInterviewAttributes,
             user: userAttributes,
             widgetStatus: defaultWidgetStatus,
             startUpdateInterview: expect.any(Function),
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
-        }
+            startNavigate: startNavigateMock
+        };
         const { rerender } = render(<Button
             {...initialProps}
         />);
@@ -376,6 +388,6 @@ describe('Button widget: behavioral tests', () => {
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
             startNavigate: expect.any(Function)
-        }, interviewAttributes, 'home.region', 'test', {}, undefined);
+        }, runtimeInterviewAttributes, 'home.region', 'test', {}, undefined);
     });
 });

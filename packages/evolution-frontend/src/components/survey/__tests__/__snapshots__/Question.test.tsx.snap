@@ -930,12 +930,15 @@ exports[`With help popup and link Open modal 1`] = `
         Help title
       </markdown>
     </h3>
-    <markdown
+    <div
       class="help-popup"
-      remarkplugins="remark-gfm,[object Object]"
     >
-      Help content
-    </markdown>
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        Help content
+      </markdown>
+    </div>
     <div
       class="center"
     >

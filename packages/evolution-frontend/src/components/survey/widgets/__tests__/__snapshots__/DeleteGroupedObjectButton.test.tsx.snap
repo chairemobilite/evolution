@@ -4,7 +4,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
 <div
   aria-label="Delete item"
   aria-modal="true"
-  class="ReactModal__Content react-modal"
+  class="react-modal"
   role="dialog"
   tabindex="-1"
 >
@@ -18,12 +18,15 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
         Delete item
       </markdown>
     </div>
-    <markdown
+    <div
       class="confirm-popup"
-      remarkplugins="remark-gfm,[object Object]"
     >
-      Are you sure you want to delete this item?
-    </markdown>
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        Are you sure you want to delete this item?
+      </markdown>
+    </div>
     <div
       class="tr__form-buttons-container _center"
     >
@@ -56,7 +59,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
 <div
   aria-label="Delete item"
   aria-modal="true"
-  class="ReactModal__Content react-modal"
+  class="react-modal"
   role="dialog"
   tabindex="-1"
 >
@@ -70,12 +73,15 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
         Delete item
       </markdown>
     </div>
-    <markdown
+    <div
       class="confirm-popup"
-      remarkplugins="remark-gfm,[object Object]"
     >
-      Are you sure you want to delete this item?
-    </markdown>
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        Are you sure you want to delete this item?
+      </markdown>
+    </div>
     <div
       class="tr__form-buttons-container _center"
     >
@@ -108,7 +114,7 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
 <div
   aria-label="Delete item"
   aria-modal="true"
-  class="ReactModal__Content react-modal"
+  class="react-modal"
   role="dialog"
   tabindex="-1"
 >
@@ -122,12 +128,15 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
         Delete item
       </markdown>
     </div>
-    <markdown
+    <div
       class="confirm-popup"
-      remarkplugins="remark-gfm,[object Object]"
     >
-      Are you sure you want to delete this item?
-    </markdown>
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        Are you sure you want to delete this item?
+      </markdown>
+    </div>
     <div
       class="tr__form-buttons-container _center"
     >

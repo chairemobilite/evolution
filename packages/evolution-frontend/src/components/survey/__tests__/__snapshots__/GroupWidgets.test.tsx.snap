@@ -51,12 +51,15 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -68,11 +71,13 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj0Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -105,12 +110,15 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -122,11 +130,13 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj1Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -159,12 +169,15 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -176,11 +189,13 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj2Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -290,12 +305,15 @@ exports[`Group All values set, all true, add button default data, filter show al
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -307,11 +325,13 @@ exports[`Group All values set, all true, add button default data, filter show al
                   <label
                     for="survey-question__myGroups.obj0Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -376,12 +396,15 @@ exports[`Group All values set, all true, add button default data, filter show al
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -393,11 +416,13 @@ exports[`Group All values set, all true, add button default data, filter show al
                   <label
                     for="survey-question__myGroups.obj1Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -462,12 +487,15 @@ exports[`Group All values set, all true, add button default data, filter show al
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -479,11 +507,13 @@ exports[`Group All values set, all true, add button default data, filter show al
                   <label
                     for="survey-question__myGroups.obj2Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -565,12 +595,15 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -582,11 +615,13 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj0Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -628,12 +663,15 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -645,11 +683,13 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj1Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -691,12 +731,15 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -708,11 +751,13 @@ exports[`Group All values set, false when possible Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj2Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -769,12 +814,15 @@ exports[`Group Default values Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -786,11 +834,13 @@ exports[`Group Default values Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj0Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -823,12 +873,15 @@ exports[`Group Default values Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -840,11 +893,13 @@ exports[`Group Default values Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj1Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -877,12 +932,15 @@ exports[`Group Default values Render widget 1`] = `
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -894,11 +952,13 @@ exports[`Group Default values Render widget 1`] = `
                   <label
                     for="survey-question__myGroups.obj2Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -1017,12 +1077,15 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                           <div
                             class="survey-section__text"
                           >
-                            <markdown
+                            <div
                               class="left "
-                              remarkplugins="remark-gfm,[object Object]"
                             >
-                              This is a text widget
-                            </markdown>
+                              <markdown
+                                remarkplugins="remark-gfm,[object Object]"
+                              >
+                                This is a text widget
+                              </markdown>
+                            </div>
                           </div>
                           <div
                             class="apptr__form-container question-type-string question-filled"
@@ -1034,11 +1097,13 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                               <label
                                 for="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj0Uuid.quest"
                               >
-                                <markdown
+                                <div
                                   class="label"
                                 >
-                                  Test Question Label
-                                </markdown>
+                                  <markdown>
+                                    Test Question Label
+                                  </markdown>
+                                </div>
                               </label>
                             </div>
                             <div
@@ -1080,12 +1145,15 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                           <div
                             class="survey-section__text"
                           >
-                            <markdown
+                            <div
                               class="left "
-                              remarkplugins="remark-gfm,[object Object]"
                             >
-                              This is a text widget
-                            </markdown>
+                              <markdown
+                                remarkplugins="remark-gfm,[object Object]"
+                              >
+                                This is a text widget
+                              </markdown>
+                            </div>
                           </div>
                           <div
                             class="apptr__form-container question-type-string question-filled"
@@ -1097,11 +1165,13 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                               <label
                                 for="survey-question__myGroups.obj0Uuid.myNestedGroups.nestedObj1Uuid.quest"
                               >
-                                <markdown
+                                <div
                                   class="label"
                                 >
-                                  Test Question Label
-                                </markdown>
+                                  <markdown>
+                                    Test Question Label
+                                  </markdown>
+                                </div>
                               </label>
                             </div>
                             <div
@@ -1339,12 +1409,15 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -1356,11 +1429,13 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
                   <label
                     for="survey-question__myGroups.obj1Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -1447,12 +1522,15 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -1464,11 +1542,13 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
                   <label
                     for="survey-question__myGroups.obj0Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -1510,12 +1590,15 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
               <div
                 class="survey-section__text"
               >
-                <markdown
+                <div
                   class="left "
-                  remarkplugins="remark-gfm,[object Object]"
                 >
-                  This is a text widget
-                </markdown>
+                  <markdown
+                    remarkplugins="remark-gfm,[object Object]"
+                  >
+                    This is a text widget
+                  </markdown>
+                </div>
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
@@ -1527,11 +1610,13 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
                   <label
                     for="survey-question__myGroups.obj2Uuid.quest"
                   >
-                    <markdown
+                    <div
                       class="label"
                     >
-                      Test Question Label
-                    </markdown>
+                      <markdown>
+                        Test Question Label
+                      </markdown>
+                    </div>
                   </label>
                 </div>
                 <div
@@ -1604,12 +1689,15 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
         <div
           class="survey-section__text"
         >
-          <markdown
+          <div
             class="left "
-            remarkplugins="remark-gfm,[object Object]"
           >
-            This is a text widget
-          </markdown>
+            <markdown
+              remarkplugins="remark-gfm,[object Object]"
+            >
+              This is a text widget
+            </markdown>
+          </div>
         </div>
         <div
           class="apptr__form-container question-type-string question-filled"
@@ -1621,11 +1709,13 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
             <label
               for="survey-question__myGroups.obj0Uuid.quest"
             >
-              <markdown
+              <div
                 class="label"
               >
-                Test Question Label
-              </markdown>
+                <markdown>
+                  Test Question Label
+                </markdown>
+              </div>
             </label>
           </div>
           <div
@@ -1695,12 +1785,15 @@ exports[`Grouped Object All values set, all true, add button default label, filt
         <div
           class="survey-section__text"
         >
-          <markdown
+          <div
             class="left "
-            remarkplugins="remark-gfm,[object Object]"
           >
-            This is a text widget
-          </markdown>
+            <markdown
+              remarkplugins="remark-gfm,[object Object]"
+            >
+              This is a text widget
+            </markdown>
+          </div>
         </div>
         <div
           class="apptr__form-container question-type-string question-filled"
@@ -1712,11 +1805,13 @@ exports[`Grouped Object All values set, all true, add button default label, filt
             <label
               for="survey-question__myGroups.obj0Uuid.quest"
             >
-              <markdown
+              <div
                 class="label"
               >
-                Test Question Label
-              </markdown>
+                <markdown>
+                  Test Question Label
+                </markdown>
+              </div>
             </label>
           </div>
           <div
@@ -1754,12 +1849,15 @@ exports[`Grouped Object Default values Render widget 1`] = `
         <div
           class="survey-section__text"
         >
-          <markdown
+          <div
             class="left "
-            remarkplugins="remark-gfm,[object Object]"
           >
-            This is a text widget
-          </markdown>
+            <markdown
+              remarkplugins="remark-gfm,[object Object]"
+            >
+              This is a text widget
+            </markdown>
+          </div>
         </div>
         <div
           class="apptr__form-container question-type-string question-filled"
@@ -1771,11 +1869,13 @@ exports[`Grouped Object Default values Render widget 1`] = `
             <label
               for="survey-question__myGroups.obj0Uuid.quest"
             >
-              <markdown
+              <div
                 class="label"
               >
-                Test Question Label
-              </markdown>
+                <markdown>
+                  Test Question Label
+                </markdown>
+              </div>
             </label>
           </div>
           <div

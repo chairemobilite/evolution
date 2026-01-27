@@ -41,7 +41,9 @@ const FieldsetWrapper = (props: React.PropsWithChildren<InputWidgetWrapperProps>
                         {props.widgetConfig.containsHtml ? (
                             <div dangerouslySetInnerHTML={{ __html: props.label }} />
                         ) : (
-                            <Markdown className="label">{props.label}</Markdown>
+                            <div className="label">
+                                <Markdown>{props.label}</Markdown>
+                            </div>
                         )}
                     </div>
                     {props.errorMessage !== undefined && (
@@ -99,7 +101,9 @@ export const LabelOrDivWrapper = (
                     {props.widgetConfig.containsHtml ? (
                         <div dangerouslySetInnerHTML={{ __html: props.label }} />
                     ) : (
-                        <Markdown className="label">{props.label}</Markdown>
+                        <div className="label">
+                            <Markdown>{props.label}</Markdown>
+                        </div>
                     )}
                 </LabelOrDiv>
                 {props.errorMessage !== undefined && (

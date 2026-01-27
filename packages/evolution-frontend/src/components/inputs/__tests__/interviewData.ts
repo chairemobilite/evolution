@@ -1,4 +1,4 @@
-import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { UserInterviewAttributes, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 export const interviewAttributes: UserInterviewAttributes = {
     id: 1,
@@ -24,4 +24,25 @@ export const interviewAttributes: UserInterviewAttributes = {
         }
     } as any,
     is_valid: true
+};
+
+export const runtimeInterviewAttributes: UserRuntimeInterviewAttributes = {
+    ...interviewAttributes,
+    widgets: {},
+    groups: {},
+    visibleWidgets: [],
+    allWidgetsValid: true
+};
+
+// FIXME These are widgets from the segment section, they will do for a mockup, but see if we need/want anything more specific
+export const surveyContext = {
+    widgets: {
+        segmentMode: {},
+        personTrips: {},
+        activePersonTitle: {},
+        personTripsTitle: {},
+        buttonSwitchPerson: {},
+        personVisitedPlacesMap: {},
+        buttonConfirmNextSection: {}
+    }
 };

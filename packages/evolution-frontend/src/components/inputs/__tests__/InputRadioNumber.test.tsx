@@ -17,7 +17,7 @@ const interview = {
     response: {},
     validations: {},
     is_valid: true
-}
+};
 
 const user = {
     id: 1,
@@ -28,20 +28,29 @@ const user = {
     is_admin: false,
     pages: [],
     showUserInfo: false,
-}
+};
+
+const baseWidgetConfig = {
+    type: 'question' as const,
+    label: 'test',
+    path: 'test.radioNumber'
+};
 
 describe('Render InputRadioNumber', () => {
+
     const widgetConfig = {
+        ...baseWidgetConfig,
         inputType: 'radioNumber' as const,
         valueRange: { min: 1, max: 3 },
         overMaxAllowed: false
-    }
+    };
 
     const widgetConfigOverMax = {
+        ...baseWidgetConfig,
         inputType: 'radioNumber' as const,
         valueRange: { min: 1, max: 3 },
         overMaxAllowed: true
-    }
+    };
 
     test('InputRadioNumber without "over max" option', () => {
         const { container } = render(
@@ -82,6 +91,7 @@ describe('Render InputRadioNumber', () => {
 
 describe('InputRadioNumber onChange', () => {
     const widgetConfig = {
+        ...baseWidgetConfig,
         inputType: 'radioNumber' as const,
         valueRange: { min: 0, max: 3 },
         overMaxAllowed: true
