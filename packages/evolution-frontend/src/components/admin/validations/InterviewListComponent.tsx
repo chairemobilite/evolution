@@ -8,7 +8,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import InterviewList from './InterviewList';
+import InterviewList, { type Filter } from './InterviewList';
 import ValidityColumnFilter from './ValidityColumnFilter';
 import InterviewCompletedFilter from './InterviewCompletedFilter';
 import InterviewByCodeFilter from './InterviewByCodeFilter';
@@ -38,11 +38,6 @@ type CellArgs = {
     value: any;
     data?: any;
     row?: any;
-};
-
-type Filter = {
-    id: string;
-    value: string | string[] | { value: any; op?: string };
 };
 
 const InterviewListComponent: React.FunctionComponent<InterviewListComponentProps> = (
