@@ -143,11 +143,13 @@ export const ValidationAuditFilter = ({
                 </label>
                 <Select
                     styles={{
-                        option: (baseStyles, _state) => ({
-                            ...baseStyles,
-                            paddingTop: 0,
-                            paddingBottom: 0
-                        })
+                        // FIXME Remove the need for 'as any' by typing the styles properly. But there is compilation error even though it should be correct.
+                        option: (baseStyles, _state) =>
+                            ({
+                                ...baseStyles,
+                                paddingTop: 0,
+                                paddingBottom: 0
+                            }) as any
                     }}
                     defaultValue={undefined}
                     isMulti

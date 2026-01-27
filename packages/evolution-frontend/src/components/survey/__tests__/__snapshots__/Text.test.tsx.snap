@@ -22,12 +22,15 @@ exports[`Text widget: Default values Render widget 1`] = `
   <div
     class="survey-section__text"
   >
-    <markdown
+    <div
       class="left "
-      remarkplugins="remark-gfm,[object Object]"
     >
-      random text
-    </markdown>
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        random text
+      </markdown>
+    </div>
   </div>
 </div>
 `;
@@ -37,12 +40,15 @@ exports[`Text widget: No html Render widget 1`] = `
   <div
     class="survey-section__text"
   >
-    <markdown
+    <div
       class="left "
-      remarkplugins="remark-gfm,[object Object]"
     >
-      &lt;br&gt;text not to be in bold&lt;/br&gt;other
-    </markdown>
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        &lt;br&gt;text not to be in bold&lt;/br&gt;other
+      </markdown>
+    </div>
   </div>
 </div>
 `;
@@ -52,12 +58,15 @@ exports[`Text widget: No html, with classes and alignment Render widget 1`] = `
   <div
     class="survey-section__text"
   >
-    <markdown
+    <div
       class="right my-class"
-      remarkplugins="remark-gfm,[object Object]"
     >
-      random text
-    </markdown>
+      <markdown
+        remarkplugins="remark-gfm,[object Object]"
+      >
+        random text
+      </markdown>
+    </div>
   </div>
 </div>
 `;

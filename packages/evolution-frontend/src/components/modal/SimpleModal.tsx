@@ -57,9 +57,9 @@ export const SimpleModal: React.FunctionComponent<SimpleModalProps & WithTransla
                 {props.containsHtml ? (
                     <div dangerouslySetInnerHTML={{ __html: props.text }} />
                 ) : (
-                    <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]} className="help-popup">
-                        {props.text}
-                    </Markdown>
+                    <div className="help-popup">
+                        <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>{props.text}</Markdown>
+                    </div>
                 )}
                 <div className="center">
                     <button className="button blue" onClick={close}>

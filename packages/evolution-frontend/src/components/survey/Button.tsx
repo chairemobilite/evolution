@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React, { useState, useEffect } from 'react';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
@@ -32,9 +32,8 @@ type ButtonProps = InterviewUpdateCallbacks & {
     section: string;
 };
 
-const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> = (
-    props: ButtonProps & WithSurveyContextProps & WithTranslation
-) => {
+const Button: React.FC<ButtonProps & WithSurveyContextProps> = (props: ButtonProps & WithSurveyContextProps) => {
+    const { i18n } = useTranslation();
     const [wasMouseDowned, setWasMouseDowned] = useState(false);
     const [loadingState, setLoadingState] = useState(props.loadingState);
     const [modalIsOpened, setModalIsOpened] = useState(false);
@@ -163,7 +162,7 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
                 {props.widgetConfig.icon && <FontAwesomeIcon icon={props.widgetConfig.icon} className="faIconLeft" />}
                 {surveyHelper.translateString(
                     props.label || props.widgetConfig.label,
-                    props.i18n,
+                    i18n,
                     props.interview,
                     props.path
                 )}
@@ -176,14 +175,14 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
                         closeModal={() => setModalIsOpened(false)}
                         text={surveyHelper.translateString(
                             props.widgetConfig.confirmPopup.content,
-                            props.i18n,
+                            i18n,
                             props.interview,
                             props.path
                         )}
                         title={
                             surveyHelper.translateString(
                                 props.widgetConfig.confirmPopup.title,
-                                props.i18n,
+                                i18n,
                                 props.interview,
                                 props.path
                             ) || ''
@@ -193,13 +192,13 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
                         showConfirmButton={props.widgetConfig.confirmPopup.showConfirmButton !== false}
                         cancelButtonLabel={surveyHelper.translateString(
                             props.widgetConfig.confirmPopup.cancelButtonLabel,
-                            props.i18n,
+                            i18n,
                             props.interview,
                             props.path
                         )}
                         confirmButtonLabel={surveyHelper.translateString(
                             props.widgetConfig.confirmPopup.confirmButtonLabel,
-                            props.i18n,
+                            i18n,
                             props.interview,
                             props.path
                         )}
@@ -214,4 +213,4 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps & WithTranslation> =
     );
 };
 
-export default withTranslation()(withSurveyContext(Button));
+export default withSurveyContext(Button);

@@ -5,8 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _cloneDeep from 'lodash/cloneDeep';
+// import required even if unused
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import each from 'jest-each';
@@ -18,6 +19,19 @@ import { interviewAttributes } from '../../../inputs/__tests__/interviewData';
 jest.mock('react-markdown', () => 'Markdown');
 jest.mock('remark-gfm', () => 'remark-gfm');
 
+// Mock react-modal to prevent the dynamic ReactModal__Content--after-open class
+// which causes race conditions in snapshots
+jest.mock('react-modal', () => {
+    const Modal = ({ children, isOpen, contentLabel, className, overlayClassName }: any) =>
+        isOpen ? (
+            <div role="dialog" aria-label={contentLabel} aria-modal="true" className={className} tabIndex={-1}>
+                {children}
+            </div>
+        ) : null;
+    Modal.setAppElement = jest.fn();
+    return Modal;
+});
+
 const commonWidgetConfig = {
     type: 'group' as const,
     path: 'household.myGroup',
@@ -27,6 +41,7 @@ const commonWidgetConfig = {
 const startUpdateInterviewMock = jest.fn();
 const startAddGroupedObjectsMock = jest.fn();
 const startRemoveGroupedObjectsMock = jest.fn();
+const startNavigateMock = jest.fn();
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -55,6 +70,7 @@ each([
                 startUpdateInterview={startUpdateInterviewMock}
                 startAddGroupedObjects={startAddGroupedObjectsMock}
                 startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
             />
         );
         expect(container).toMatchSnapshot();
@@ -75,6 +91,7 @@ describe('DeleteGroupedObjectButton behavior', () => {
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
         />);
         const user = userEvent.setup();
 
@@ -109,6 +126,7 @@ describe('DeleteGroupedObjectButton behavior', () => {
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
         />);
         const user = userEvent.setup();
 
@@ -151,6 +169,7 @@ describe('DeleteGroupedObjectButton behavior', () => {
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
         />);
         const user = userEvent.setup();
 
@@ -192,6 +211,7 @@ describe('DeleteGroupedObjectButton behavior', () => {
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
         />);
         const user = userEvent.setup();
 
@@ -228,6 +248,7 @@ describe('DeleteGroupedObjectButton behavior', () => {
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+            startNavigate={startNavigateMock}
         />);
         const user = userEvent.setup();
 

@@ -8,8 +8,8 @@ import React from 'react';
 // TODO this package hasn't been updated in a while. Consider changing for a more maintained one
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { withTranslation, WithTranslation } from 'react-i18next';
-import fr from 'date-fns/locale/fr';
-import enCA from 'date-fns/locale/en-CA';
+import { fr } from 'date-fns/locale/fr';
+import { enCA } from 'date-fns/locale/en-CA';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import { InputDatePickerType } from 'evolution-common/lib/services/questionnaire/types';

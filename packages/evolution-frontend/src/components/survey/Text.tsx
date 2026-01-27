@@ -45,14 +45,13 @@ export const Text: React.FunctionComponent<TextProps & WithTranslation> = ({
         <div className="survey-section__text">
             {widgetConfig.containsHtml && <div dangerouslySetInnerHTML={{ __html: content as string }} />}
             {!widgetConfig.containsHtml && (
-                <Markdown
-                    remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
+                <div
                     className={
                         (widgetConfig.align || 'left') + ' ' + (widgetConfig.classes ? widgetConfig.classes : '')
                     }
                 >
-                    {content as string}
-                </Markdown>
+                    <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>{content as string}</Markdown>
+                </div>
             )}
         </div>
     );

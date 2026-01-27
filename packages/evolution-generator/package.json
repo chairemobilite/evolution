@@ -28,7 +28,7 @@
     "chaire-lib-common": "^0.2.2",
     "evolution-common": "^0.5.0",
     "evolution-frontend": "^0.5.0",
-    "i18next": "^24.0.2"
+    "i18next": "^25.7.4"
   },
   "devDependencies": {
     "prettier-eslint-cli": "^8.0.1"
