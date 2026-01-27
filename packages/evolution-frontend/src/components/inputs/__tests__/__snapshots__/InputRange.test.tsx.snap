@@ -204,29 +204,33 @@ exports[`Should correctly render InputRange with not applicable Test with a not 
       />
     </div>
     <div
-      class="survey-question__input-checkbox-group-container"
+      class="tr__form-input-checkbox-group-container"
     >
       <div
-        class="survey-question__input-checkbox-input-container checked"
+        class="tr__form-input-checkbox-group-column no-wrap"
       >
         <div
-          class="label-input-container"
+          class="tr__form-input-checkbox-container checked"
         >
-          <input
-            checked=""
-            class="input-checkbox"
-            id="test_na_na__input-checkbox__na"
-            name="test_na_na"
-            type="checkbox"
-            value="na"
-          />
-          <label
-            for="test_na_na__input-checkbox__na"
+          <div
+            class="label-input-container"
           >
-            <span>
-              NotApplicable
-            </span>
-          </label>
+            <input
+              checked=""
+              class="_input-checkbox"
+              id="test_na_na"
+              name="test_na"
+              type="checkbox"
+              value="na"
+            />
+            <label
+              for="test_na_na"
+            >
+              <span>
+                NotApplicable
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -300,28 +304,32 @@ exports[`Should correctly render InputRange with not applicable Test with custom
       />
     </div>
     <div
-      class="survey-question__input-checkbox-group-container"
+      class="tr__form-input-checkbox-group-container"
     >
       <div
-        class="survey-question__input-checkbox-input-container"
+        class="tr__form-input-checkbox-group-column no-wrap"
       >
         <div
-          class="label-input-container"
+          class="tr__form-input-checkbox-container"
         >
-          <input
-            class="input-checkbox"
-            id="test_na_na__input-checkbox__na"
-            name="test_na_na"
-            type="checkbox"
-            value="na"
-          />
-          <label
-            for="test_na_na__input-checkbox__na"
+          <div
+            class="label-input-container"
           >
-            <span>
-              Custom non applicable
-            </span>
-          </label>
+            <input
+              class="_input-checkbox"
+              id="test_na_na"
+              name="test_na"
+              type="checkbox"
+              value="na"
+            />
+            <label
+              for="test_na_na"
+            >
+              <span>
+                Custom non applicable
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -395,28 +403,32 @@ exports[`Should correctly render InputRange with not applicable Test with value 
       />
     </div>
     <div
-      class="survey-question__input-checkbox-group-container"
+      class="tr__form-input-checkbox-group-container"
     >
       <div
-        class="survey-question__input-checkbox-input-container"
+        class="tr__form-input-checkbox-group-column no-wrap"
       >
         <div
-          class="label-input-container"
+          class="tr__form-input-checkbox-container"
         >
-          <input
-            class="input-checkbox"
-            id="test_na_na__input-checkbox__na"
-            name="test_na_na"
-            type="checkbox"
-            value="na"
-          />
-          <label
-            for="test_na_na__input-checkbox__na"
+          <div
+            class="label-input-container"
           >
-            <span>
-              NotApplicable
-            </span>
-          </label>
+            <input
+              class="_input-checkbox"
+              id="test_na_na"
+              name="test_na"
+              type="checkbox"
+              value="na"
+            />
+            <label
+              for="test_na_na"
+            >
+              <span>
+                NotApplicable
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
@@ -490,28 +502,32 @@ exports[`Should correctly render InputRange with not applicable Test without val
       />
     </div>
     <div
-      class="survey-question__input-checkbox-group-container"
+      class="tr__form-input-checkbox-group-container"
     >
       <div
-        class="survey-question__input-checkbox-input-container"
+        class="tr__form-input-checkbox-group-column no-wrap"
       >
         <div
-          class="label-input-container"
+          class="tr__form-input-checkbox-container"
         >
-          <input
-            class="input-checkbox"
-            id="test_na_na__input-checkbox__na"
-            name="test_na_na"
-            type="checkbox"
-            value="na"
-          />
-          <label
-            for="test_na_na__input-checkbox__na"
+          <div
+            class="label-input-container"
           >
-            <span>
-              NotApplicable
-            </span>
-          </label>
+            <input
+              class="_input-checkbox"
+              id="test_na_na"
+              name="test_na"
+              type="checkbox"
+              value="na"
+            />
+            <label
+              for="test_na_na"
+            >
+              <span>
+                NotApplicable
+              </span>
+            </label>
+          </div>
         </div>
       </div>
     </div>

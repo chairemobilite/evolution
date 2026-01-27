@@ -17,7 +17,7 @@ import { InputMapFindPlaceType } from 'evolution-common/lib/services/questionnai
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FeatureGeocodedProperties, MarkerData, defaultIconSize, PlaceGeocodedProperties } from './maps/InputMapTypes';
-import InputSelect from './InputSelect';
+import InputSelect from 'chaire-lib-frontend/lib/components/input/InputSelect';
 import { CommonInputProps } from './CommonInputProps';
 import Loader from 'react-spinners/HashLoader';
 import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
@@ -526,19 +526,13 @@ export class InputMapFindPlace extends React.Component<
                             {this.props.t('main:SelectPlaceResultsLabel')}
                         </label>
                         <InputSelect
-                            widgetConfig={{
-                                inputType: 'select',
-                                choices: placeMenuChoices
-                            }}
-                            path={this.props.path + '_mapFindPlaceMenu'}
+                            choices={placeMenuChoices}
                             value={
                                 this.state.selectedPlace && this.state.selectedPlace.properties.placeData.place_id
                                     ? (this.state.selectedPlace.properties.placeData.place_id as string)
                                     : undefined
                             }
                             onValueChange={this.onMenuSelect}
-                            interview={this.props.interview}
-                            user={this.props.user}
                             id={`${this.props.id}_mapFindPlace`}
                         />
                         <div className="apptr__separator"></div>

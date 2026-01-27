@@ -185,7 +185,7 @@ describe('Test geocoding requests', () => {
         const selectionList = container.querySelector('select');
         expect(selectionList).toBeInTheDocument();
         const selectionDomElement = selectionList as HTMLSelectElement;
-        expect(selectionDomElement.children.length).toEqual(4);
+        expect(selectionDomElement.children.length).toEqual(3);
         expect(selectionDomElement.children[1].textContent).toEqual('Foo extra good restaurant (123 test street)');
         expect(selectionDomElement.children[2].textContent).toEqual('123 foo street');
 
@@ -220,7 +220,8 @@ describe('Test geocoding requests', () => {
         const selectionList = container.querySelector('select');
         expect(selectionList).toBeInTheDocument();
         const selectionDomElement = selectionList as HTMLSelectElement;
-        expect(selectionDomElement.children.length).toEqual(3);
+        // The single and an empty choice
+        expect(selectionDomElement.children.length).toEqual(2);
         expect(selectionDomElement.children[1].textContent).toEqual('Foo extra good restaurant (123 test street)');
 
         // Click on the confirm button and make sure the update function has been called
