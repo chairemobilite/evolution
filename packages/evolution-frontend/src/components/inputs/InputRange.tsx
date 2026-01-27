@@ -7,7 +7,7 @@
 import React from 'react';
 // TODO this package hasn't been updated in a while. Consider changing for a more maintained one
 import ReactInputRange, { Range } from 'react-input-range';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import defaultClassNames from 'react-input-range/src/js/input-range/default-class-names';
 import 'react-input-range/lib/css/index.css';
 
@@ -15,7 +15,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InputRangeType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
-import InputCheckbox from './InputCheckbox';
+import InputCheckbox from 'chaire-lib-frontend/lib/components/input/InputCheckbox';
 
 export type InputRangeProps = CommonInputProps & {
     value?: number | 'na';
@@ -23,13 +23,14 @@ export type InputRangeProps = CommonInputProps & {
     widgetConfig: InputRangeType;
 };
 
-export const InputRange = (props: InputRangeProps & WithTranslation) => {
+export const InputRange = (props: InputRangeProps) => {
     const [value, setValue] = React.useState<number | Range | undefined | 'na'>(props.value);
+    const { t, i18n } = useTranslation();
 
     const labels = props.widgetConfig.labels;
     const labelItems = labels
         ? labels.map((label, idx) => {
-            const labelStr = surveyHelper.translateString(label, props.i18n, props.interview, props.path, props.user);
+            const labelStr = surveyHelper.translateString(label, i18n, props.interview, props.path, props.user);
             return (
                 <p
                     key={`inputRange_${props.id}_label_${idx}`}
@@ -71,7 +72,7 @@ export const InputRange = (props: InputRangeProps & WithTranslation) => {
                 minValue={minValue as number | undefined}
                 formatLabel={
                     formatLabelFct !== undefined
-                        ? (value) => formatLabelFct(value, props.i18n.language)
+                        ? (value) => formatLabelFct(value, i18n.language)
                         : (value) => String(value)
                 }
                 value={typeof value === 'number' && value >= minValue ? value : minValue}
@@ -102,29 +103,23 @@ export const InputRange = (props: InputRangeProps & WithTranslation) => {
                         }
                     }}
                     value={(value as any) === 'na' ? ['na'] : ([] as any)}
-                    path={props.path}
-                    interview={props.interview}
-                    user={props.user}
-                    widgetConfig={{
-                        inputType: 'checkbox',
-                        choices: [
-                            {
-                                value: 'na',
-                                label:
-                                    surveyHelper.translateString(
-                                        props.widgetConfig.notApplicableLabel,
-                                        props.i18n,
-                                        props.interview,
-                                        props.path,
-                                        props.user
-                                    ) || props.t(['survey:main:NotApplicable', 'main:NotApplicable'])
-                            }
-                        ]
-                    }}
+                    choices={[
+                        {
+                            value: 'na',
+                            label:
+                                surveyHelper.translateString(
+                                    props.widgetConfig.notApplicableLabel,
+                                    i18n,
+                                    props.interview,
+                                    props.path,
+                                    props.user
+                                ) || t(['survey:main:NotApplicable', 'main:NotApplicable'])
+                        }
+                    ]}
                 />
             )}
         </div>
     );
 };
 
-export default withTranslation()(InputRange);
+export default InputRange;
