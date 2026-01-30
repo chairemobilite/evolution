@@ -135,6 +135,14 @@ export const getTransitAccessibilityMap = async function (
         throw new Error('Invalid number of polygons');
     }
 
+    if (parameters.maxAccessEgressTravelTimeMinutes !== undefined && parameters.maxAccessEgressTravelTimeMinutes <= 0) {
+        throw new Error('Invalid max access/egress travel time');
+    }
+
+    if (parameters.walkingSpeedKmPerHour !== undefined && parameters.walkingSpeedKmPerHour <= 0) {
+        throw new Error('Invalid walking speed');
+    }
+
     // All parameters are valid, dispatch to the proper accessibility map
     // function. Only supporting transition public API for now, but we could
     // have more eventually

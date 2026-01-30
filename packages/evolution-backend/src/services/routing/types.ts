@@ -89,6 +89,21 @@ export type AccessibilityMapCalculationParameter = {
     maxTotalTravelTimeMinutes: number;
     /** whether to calculate points of interest */
     calculatePois?: boolean;
+    /** The maximum access/egress travel time in minutes */
+    maxAccessEgressTravelTimeMinutes?: number;
+    /** The walking speed in kilometers per hour, to calculate access and egress travel times */
+    walkingSpeedKmPerHour?: number;
+};
+
+/**
+ * Properties for polygons in the accessibility map. Comes from the Transition
+ * API documentation
+ */
+export type AccessibilityMapPolygonProperties = {
+    durationSeconds: number;
+    areaSqM: number;
+    accessiblePlacesCountByCategory?: Record<string, number>;
+    accessiblePlacesCountByDetailedCategory?: Record<string, number>;
 };
 
 export type AccessibilityMapResult = {
@@ -102,6 +117,6 @@ export type AccessibilityMapResult = {
       }
     | {
           status: 'success';
-          polygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon>;
+          polygons: GeoJSON.FeatureCollection<GeoJSON.MultiPolygon, AccessibilityMapPolygonProperties>;
       }
 );

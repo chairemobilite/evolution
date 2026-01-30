@@ -584,7 +584,7 @@ describe('transitAccessibilityMapFromTransitionApi', () => {
                 })
             })
         );
-        expect(result).toEqual({ status: 'error', error: `Error: Unsuccessful response code from transition: 400`, source: 'transitionApi' });
+        expect(result).toEqual({ status: 'error', error: `Error: Bad request to transition: "${badRequestMessage}"`, source: 'transitionApi' });
     });
 
     test('Server error response', async () => {
@@ -612,120 +612,158 @@ describe('transitAccessibilityMapFromTransitionApi', () => {
         expect(result).toEqual({ status: 'error', error: `Error: Unsuccessful response code from transition: 500`, source: 'transitionApi' });
     });
 
-    test('Correct and complete response without POIs', async () => {
-        const response = {
-            result: {
-                nodes: [
-                    {
-                        id: 'node1',
-                        code: '001',
-                        name: 'Station A'
-                    },
-                    {
-                        id: 'node2',
-                        code: '002',
-                        name: 'Station B'
-                    }
-                ],
-                polygons: {
-                    type: 'FeatureCollection' as const,
-                    features: [
+    test.each([
+        {
+            description: 'without POIs',
+            testParams: params,
+            expectedParams: { locationGeojson: params.point, departureTimeSecondsSinceMidnight: params.departureSecondsSinceMidnight, scenarioId: params.transitScenario, numberOfPolygons: params.numberOfPolygons, maxTotalTravelTimeSeconds: params.maxTotalTravelTimeMinutes * 60, calculatePois: false },
+            response: {
+                result: {
+                    nodes: [
                         {
-                            type: 'Feature' as const,
-                            geometry: {
-                                type: 'MultiPolygon' as const,
-                                coordinates: [[[[-73.5, 45.5], [-73.4, 45.5], [-73.4, 45.4], [-73.5, 45.4], [-73.5, 45.5]]]]
-                            },
-                            properties: {
-                                durationSeconds: 600,
-                                areaSqM: 1000000
-                            }
+                            id: 'node1',
+                            code: '001',
+                            name: 'Station A'
                         },
                         {
-                            type: 'Feature' as const,
-                            geometry: {
-                                type: 'MultiPolygon' as const,
-                                coordinates: [[[[-73.6, 45.6], [-73.5, 45.6], [-73.5, 45.5], [-73.6, 45.5], [-73.6, 45.6]]]]
-                            },
-                            properties: {
-                                durationSeconds: 1200,
-                                areaSqM: 2000000
-                            }
+                            id: 'node2',
+                            code: '002',
+                            name: 'Station B'
                         }
-                    ]
-                }
-            }
-        };
-
-        fetchMock.mockResponseOnce(JSON.stringify(response));
-        const result = await transitAccessibilityMapFromTransitionApi(params);
-        expect(fetchMock).toHaveBeenCalledTimes(1);
-        expect(fetchMock).toHaveBeenCalledWith(
-            'https://transition.url/api/v1/accessibility?withGeojson=true',
-            expect.objectContaining({
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${bearerToken}`
-                },
-                body: JSON.stringify({
-                    locationGeojson: params.point,
-                    departureTimeSecondsSinceMidnight: params.departureSecondsSinceMidnight,
-                    scenarioId: params.transitScenario,
-                    numberOfPolygons: params.numberOfPolygons,
-                    maxTotalTravelTimeSeconds: params.maxTotalTravelTimeMinutes * 60,
-                    calculatePois: false
-                })
-            })
-        );
-        expect(result).toEqual({
-            status: 'success',
-            polygons: response.result.polygons,
-            source: 'transitionApi'
-        });
-    });
-
-    test('Correct and complete response with POIs', async () => {
-        const paramsWithPois = { ...params, calculatePois: true };
-        const response = {
-            result: {
-                nodes: [
-                    {
-                        id: 'node1',
-                        code: '001',
-                        name: 'Station A'
-                    }
-                ],
-                polygons: {
-                    type: 'FeatureCollection' as const,
-                    features: [
-                        {
-                            type: 'Feature' as const,
-                            geometry: {
-                                type: 'MultiPolygon' as const,
-                                coordinates: [[[[-73.5, 45.5], [-73.4, 45.5], [-73.4, 45.4], [-73.5, 45.4], [-73.5, 45.5]]]]
-                            },
-                            properties: {
-                                durationSeconds: 600,
-                                areaSqM: 1000000,
-                                accessiblePlacesCountByCategory: {
-                                    'restaurant': 25,
-                                    'cafe': 15
+                    ],
+                    polygons: {
+                        type: 'FeatureCollection' as const,
+                        features: [
+                            {
+                                type: 'Feature' as const,
+                                geometry: {
+                                    type: 'MultiPolygon' as const,
+                                    coordinates: [[[[-73.5, 45.5], [-73.4, 45.5], [-73.4, 45.4], [-73.5, 45.4], [-73.5, 45.5]]]]
                                 },
-                                accessiblePlacesCountByDetailedCategory: {
-                                    'italian_restaurant': 10,
-                                    'french_restaurant': 15,
-                                    'coffee_shop': 15
+                                properties: {
+                                    durationSeconds: 600,
+                                    areaSqM: 1000000
+                                }
+                            },
+                            {
+                                type: 'Feature' as const,
+                                geometry: {
+                                    type: 'MultiPolygon' as const,
+                                    coordinates: [[[[-73.6, 45.6], [-73.5, 45.6], [-73.5, 45.5], [-73.6, 45.5], [-73.6, 45.6]]]]
+                                },
+                                properties: {
+                                    durationSeconds: 1200,
+                                    areaSqM: 2000000
                                 }
                             }
-                        }
-                    ]
+                        ]
+                    }
                 }
-            }
-        };
-
+            },
+            expectPoiVerification: false
+        },
+        {
+            description: 'with POIs',
+            testParams: { ...params, calculatePois: true },
+            expectedParams: { locationGeojson: params.point, departureTimeSecondsSinceMidnight: params.departureSecondsSinceMidnight, scenarioId: params.transitScenario, numberOfPolygons: params.numberOfPolygons, maxTotalTravelTimeSeconds: params.maxTotalTravelTimeMinutes * 60, calculatePois: true },
+            response: {
+                result: {
+                    nodes: [
+                        {
+                            id: 'node1',
+                            code: '001',
+                            name: 'Station A'
+                        }
+                    ],
+                    polygons: {
+                        type: 'FeatureCollection' as const,
+                        features: [
+                            {
+                                type: 'Feature' as const,
+                                geometry: {
+                                    type: 'MultiPolygon' as const,
+                                    coordinates: [[[[-73.5, 45.5], [-73.4, 45.5], [-73.4, 45.4], [-73.5, 45.4], [-73.5, 45.5]]]]
+                                },
+                                properties: {
+                                    durationSeconds: 600,
+                                    areaSqM: 1000000,
+                                    accessiblePlacesCountByCategory: {
+                                        'restaurant': 25,
+                                        'cafe': 15
+                                    },
+                                    accessiblePlacesCountByDetailedCategory: {
+                                        'italian_restaurant': 10,
+                                        'french_restaurant': 15,
+                                        'coffee_shop': 15
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            expectPoiVerification: true
+        }, {
+            description: 'with optional parameters',
+            testParams: { ...params, calculatePois: false, maxAccessEgressTravelTimeMinutes: 10, walkingSpeedKmPerHour: 3.6 },
+            expectedParams: {
+                locationGeojson: params.point,
+                departureTimeSecondsSinceMidnight: params.departureSecondsSinceMidnight,
+                scenarioId: params.transitScenario,
+                numberOfPolygons: params.numberOfPolygons,
+                maxTotalTravelTimeSeconds: params.maxTotalTravelTimeMinutes * 60,
+                calculatePois: false,
+                maxAccessEgressTravelTimeSeconds: 10 * 60,
+                walkingSpeedMps: 1
+            },
+            response: {
+                result: {
+                    nodes: [
+                        {
+                            id: 'node1',
+                            code: '001',
+                            name: 'Station A'
+                        },
+                        {
+                            id: 'node2',
+                            code: '002',
+                            name: 'Station B'
+                        }
+                    ],
+                    polygons: {
+                        type: 'FeatureCollection' as const,
+                        features: [
+                            {
+                                type: 'Feature' as const,
+                                geometry: {
+                                    type: 'MultiPolygon' as const,
+                                    coordinates: [[[[-73.5, 45.5], [-73.4, 45.5], [-73.4, 45.4], [-73.5, 45.4], [-73.5, 45.5]]]]
+                                },
+                                properties: {
+                                    durationSeconds: 600,
+                                    areaSqM: 1000000
+                                }
+                            },
+                            {
+                                type: 'Feature' as const,
+                                geometry: {
+                                    type: 'MultiPolygon' as const,
+                                    coordinates: [[[[-73.6, 45.6], [-73.5, 45.6], [-73.5, 45.5], [-73.6, 45.5], [-73.6, 45.6]]]]
+                                },
+                                properties: {
+                                    durationSeconds: 1200,
+                                    areaSqM: 2000000
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            expectPoiVerification: false
+        },
+    ])('Correct and complete response $description', async ({ testParams, expectedParams, response, expectPoiVerification }) => {
         fetchMock.mockResponseOnce(JSON.stringify(response));
-        const result = await transitAccessibilityMapFromTransitionApi(paramsWithPois);
+        const result = await transitAccessibilityMapFromTransitionApi(testParams);
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(fetchMock).toHaveBeenCalledWith(
             'https://transition.url/api/v1/accessibility?withGeojson=true',
@@ -735,14 +773,7 @@ describe('transitAccessibilityMapFromTransitionApi', () => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${bearerToken}`
                 },
-                body: JSON.stringify({
-                    locationGeojson: paramsWithPois.point,
-                    departureTimeSecondsSinceMidnight: paramsWithPois.departureSecondsSinceMidnight,
-                    scenarioId: paramsWithPois.transitScenario,
-                    numberOfPolygons: paramsWithPois.numberOfPolygons,
-                    maxTotalTravelTimeSeconds: paramsWithPois.maxTotalTravelTimeMinutes * 60,
-                    calculatePois: true
-                })
+                body: JSON.stringify(expectedParams)
             })
         );
         expect(result).toEqual({
@@ -750,8 +781,9 @@ describe('transitAccessibilityMapFromTransitionApi', () => {
             polygons: response.result.polygons,
             source: 'transitionApi'
         });
-        // Verify POI data is preserved
-        if (result.status === 'success' && result.polygons.features[0].properties) {
+        
+        // Verify POI data is preserved when expected
+        if (expectPoiVerification && result.status === 'success' && result.polygons.features[0].properties) {
             expect(result.polygons.features[0].properties.accessiblePlacesCountByCategory).toEqual({
                 'restaurant': 25,
                 'cafe': 15
