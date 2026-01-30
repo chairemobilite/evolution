@@ -9,8 +9,10 @@
 // survey. They call the Transition public API, with the instance configuration
 // set in the project configuration or environment variables
 import { RoutingOrTransitMode } from 'chaire-lib-common/lib/config/routingModes';
-import {
+import { kphToMps } from 'chaire-lib-common/lib/utils/PhysicsUtils';
+import type {
     AccessibilityMapCalculationParameter,
+    AccessibilityMapPolygonProperties,
     AccessibilityMapResult,
     RouteCalculationParameter,
     RoutingTimeDistanceResultByMode,
@@ -252,7 +254,6 @@ export const summaryFromTransitionApi = async (parameters: RouteCalculationParam
     }
 };
 
-// FIXME Those types come from transit API, they should be in chaire-lib so we can import them
 type AccessibilityMapAPIResultResponse = {
     nodes: TrRoutingApiNode[];
     polygons: {
@@ -260,12 +261,7 @@ type AccessibilityMapAPIResultResponse = {
         features: Array<{
             type: 'Feature';
             geometry: GeoJSON.MultiPolygon;
-            properties: {
-                durationSeconds: number;
-                areaSqM: number;
-                accessiblePlacesCountByCategory?: { [category: string]: number };
-                accessiblePlacesCountByDetailedCategory?: { [detailedCategory: string]: number };
-            };
+            properties: AccessibilityMapPolygonProperties;
         }>;
     };
 };
@@ -290,6 +286,14 @@ export const transitAccessibilityMapFromTransitionApi = async function (
     // We need the geojson query parameter for the accessibility map polygons
     transitionUrlObj.searchParams.append('withGeojson', 'true');
 
+    const optionalProperties: { [key: string]: any } = {};
+    if (parameters.maxAccessEgressTravelTimeMinutes !== undefined) {
+        optionalProperties.maxAccessEgressTravelTimeSeconds = parameters.maxAccessEgressTravelTimeMinutes * 60;
+    }
+    if (parameters.walkingSpeedKmPerHour !== undefined) {
+        optionalProperties.walkingSpeedMps = kphToMps(parameters.walkingSpeedKmPerHour);
+    }
+
     try {
         const response = await transitionApiHandler.fetchWithToken(transitionUrlObj.toString(), {
             method: 'POST',
@@ -302,17 +306,23 @@ export const transitAccessibilityMapFromTransitionApi = async function (
                 scenarioId: parameters.transitScenario,
                 numberOfPolygons: parameters.numberOfPolygons ?? 1,
                 maxTotalTravelTimeSeconds: parameters.maxTotalTravelTimeMinutes * 60,
-                calculatePois: parameters.calculatePois === true
+                calculatePois: parameters.calculatePois === true,
+                ...optionalProperties
             })
         });
 
         if (response.status !== 200) {
+            if (response.status === 400) {
+                // Get the details of the error
+                const errorResponse = await response.text();
+                throw new Error(`Bad request to transition: ${errorResponse}`);
+            }
             throw new Error(`Unsuccessful response code from transition: ${response.status}`);
         }
-        const routingResponse = (await response.json()) as AccessibilityMapAPIResponse;
+        const accessibilityMapResponse = (await response.json()) as AccessibilityMapAPIResponse;
         return {
             status: 'success',
-            polygons: routingResponse.result.polygons,
+            polygons: accessibilityMapResponse.result.polygons,
             source: CALCULATION_SOURCE
         };
     } catch (error) {
