@@ -182,7 +182,7 @@ export const conditionalHhMayHaveDisability: WidgetConditional = (interview) =>
  * If the section is enabled and modesIncludeOnly is set, keep only those modes in the order specified.
  * If the section is enabled and modesExclude is set, exclude those modes.
  */
-export const getFilteredModes = (segmentConfig: SegmentSectionConfiguration = { enabled: true }): Mode[] => {
+export const getFilteredModes = (segmentConfig: SegmentSectionConfiguration): Mode[] => {
     if (segmentConfig.enabled === false) {
         return [] as unknown as Mode[];
     }

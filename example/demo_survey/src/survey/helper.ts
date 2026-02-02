@@ -22,6 +22,7 @@ import { Mode } from 'evolution-common/lib/services/odSurvey/types';
 // Configuration for the segments section
 // FIXME As sections and their widgets become more builtin, this thould be moved elsewhere. For now, it just needs to be available for both widgets.ts and sections.ts files
 export const segmentSectionConfig = {
+    type: 'segments' as const,
     enabled: true,
     modesIncludeOnly: [
         'walk',

@@ -485,6 +485,7 @@ export type SurveyWidgets = {
  * Configuration for the segments section of the questionnaire
  */
 export type SegmentSectionConfiguration = {
+    type: 'segments';
     /**
      * Set to `true` to enable the segments section, `false` to
      * disable it. Defaults to `false`.
@@ -505,3 +506,12 @@ export type SegmentSectionConfiguration = {
      */
     modesExclude?: Mode[];
 };
+
+// TODO Add more section configuration types as we support more
+export type SectionConfigurationType = SegmentSectionConfiguration;
+
+/**
+ * Configuration for the questionnaire's builtin sections. The keys are the
+ * section names and the values are the configuration for that section.
+ */
+export type QuestionnaireConfiguration = Record<string, SectionConfigurationType>;

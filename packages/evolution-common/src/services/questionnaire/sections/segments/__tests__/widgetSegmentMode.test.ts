@@ -16,6 +16,16 @@ import { Mode, ModePre, modePreToModeMap, modeToModePreMap, modeValues } from '.
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 import { modeToIconMapping } from '../modeIconMapping';
 
+const widgetFactoryOptions = {
+    getFormattedDate: (date: string) => date,
+    buttonActions: { validateButtonAction: jest.fn() },
+    iconMapper: {}
+};
+const segmentSectionConfig = {
+    type: 'segments' as const,
+    enabled: true
+};
+
 jest.mock('../helpers', () => ({
     ...jest.requireActual('../helpers'),
     shouldShowSameAsReverseTripQuestion: jest.fn().mockReturnValue(false),
@@ -28,10 +38,11 @@ describe('getModeWidgetConfig', () => {
     it('should return the correct widget config', () => {
 
         const options = {
+            ...widgetFactoryOptions,
             context: jest.fn()
         };
 
-        const widgetConfig = getModeWidgetConfig(options);
+        const widgetConfig = getModeWidgetConfig(segmentSectionConfig, options);
 
         expect(widgetConfig).toEqual({
             type: 'question',
@@ -55,7 +66,7 @@ describe('getModeWidgetConfig', () => {
 });
 
 describe('Mode choices conditionals', () => {
-    const widgetConfig = getModeWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModeWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const choices = widgetConfig.choices as RadioChoiceType[];
 
     // Prepare test data with active person/journey/trip and a segment
@@ -140,7 +151,7 @@ describe('Mode choices conditionals', () => {
 describe('Mode choices labels', () => {
     // Prepare test data with active person/journey/trip
     const interview = _cloneDeep(interviewAttributesForTestCases);
-    const widgetConfig = getModeWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModeWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const choices = widgetConfig.choices as RadioChoiceType[];
 
     each(
@@ -159,7 +170,7 @@ describe('Mode validations', () => {
     // Prepare test data with active person/journey/trip
     const interview = _cloneDeep(interviewAttributesForTestCases);
 
-    const widgetConfig = getModeWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModeWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const validations = widgetConfig.validations;
 
     test('should return no error if value is not empty', () => {
@@ -182,7 +193,7 @@ describe('Mode validations', () => {
 });
 
 describe('Mode conditional', () => {
-    const widgetConfig = getModeWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModeWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const conditional = widgetConfig.conditional;
 
     // Set modePre choices that should have single or multiple choices for mode
@@ -295,7 +306,7 @@ describe('Widget label', () => {
     const mockedGetContext = jest.fn();
 
     // Prepare common data
-    const widgetConfig = getModeWidgetConfig({ context: mockedGetContext }) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModeWidgetConfig(segmentSectionConfig, { ...widgetFactoryOptions, context: mockedGetContext }) as QuestionWidgetConfig & InputRadioType;
     const label = widgetConfig.label;
     const p2t2segmentsPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments';
 
@@ -341,10 +352,11 @@ describe('Widget label', () => {
 describe('Mode filtering based on configuration', () => {
     test('should only include the filtered modes when modesIncludeOnly is set', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['walk', 'bicycle', 'transitBus', 'carDriver'] as Mode[]
         };
-        const widgetConfig = getModeWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModeWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Check that only the filtered modes are included
@@ -357,10 +369,11 @@ describe('Mode filtering based on configuration', () => {
     test('should exclude configured modes when modesExclude is set', () => {
         const excludedModes = ['plane', 'ferryWithCar', 'snowmobile'] as Mode[];
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesExclude: excludedModes
         };
-        const widgetConfig = getModeWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModeWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Check that excluded modes are not included
@@ -374,17 +387,7 @@ describe('Mode filtering based on configuration', () => {
     });
 
     test('should include all modes when section is enabled but no filtering config', () => {
-        const segmentConfig = { enabled: true };
-        const widgetConfig = getModeWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
-        const choices = widgetConfig.choices as RadioChoiceType[];
-
-        // Check that all modes are included
-        expect(choices.length).toBe(modeValues.length);
-        expect(choices.map((c) => c.value)).toEqual(expect.arrayContaining(modeValues));
-    });
-
-    test('should include all modes when segmentConfig is not provided', () => {
-        const widgetConfig = getModeWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModeWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Check that all modes are included
@@ -394,10 +397,11 @@ describe('Mode filtering based on configuration', () => {
 
     test('should preserve mode conditionals with filtered modes', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['walk', 'wheelchair', 'bicycle', 'transitBus'] as Mode[]
         };
-        const widgetConfig = getModeWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModeWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Find the wheelchair choice
@@ -409,10 +413,11 @@ describe('Mode filtering based on configuration', () => {
 
     test('should preserve order from modesIncludeOnly', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['transitBus', 'carDriver', 'walk', 'bicycle'] as Mode[]
         };
-        const widgetConfig = getModeWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModeWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Check that the order is preserved
@@ -421,11 +426,12 @@ describe('Mode filtering based on configuration', () => {
 
     test('should throw an error when there is no mode', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: [] as Mode[]
         };
         expect(() => {
-            getModeWidgetConfig({ segmentConfig });
+            getModeWidgetConfig(segmentConfig, widgetFactoryOptions);
         }).toThrow('No available modes to create mode widget configuration');
     });
 });

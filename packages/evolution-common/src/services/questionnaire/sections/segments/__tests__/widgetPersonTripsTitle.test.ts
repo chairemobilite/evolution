@@ -19,6 +19,12 @@ const mockedGetActiveJourney = odHelpers.getActiveJourney as jest.MockedFunction
 const mockedGetCountOrSelfDeclared = odHelpers.getCountOrSelfDeclared as jest.MockedFunction<typeof odHelpers.getCountOrSelfDeclared>;
 
 const mockGetFormattedDate = jest.fn().mockReturnValue('formattedDate');
+const widgetFactoryOptions = {
+    context: jest.fn(),
+    getFormattedDate: mockGetFormattedDate,
+    buttonActions: { validateButtonAction: jest.fn() },
+    iconMapper: {}
+};
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -27,12 +33,7 @@ beforeEach(() => {
 describe('getPersonsTripsTitleWidgetConfig', () => {
     it('should return the correct widget config', () => {
 
-        const options = {
-            context: jest.fn(),
-            getFormattedDate: mockGetFormattedDate
-        };
-
-        const widgetConfig = getPersonsTripsTitleWidgetConfig(options);
+        const widgetConfig = getPersonsTripsTitleWidgetConfig(widgetFactoryOptions);
 
         expect(widgetConfig).toEqual({
             type: 'text',
@@ -45,8 +46,8 @@ describe('getPersonsTripsTitleWidgetConfig', () => {
 describe('personsTripsTitleWidgetConfig text', () => {
 
     const options = {
-        context: jest.fn().mockImplementation((context: string) => context),
-        getFormattedDate: mockGetFormattedDate
+        ...widgetFactoryOptions,
+        context: jest.fn().mockImplementation((context: string) => context)
     };
 
     const widgetText = getPersonsTripsTitleWidgetConfig(options).text as any;

@@ -529,24 +529,20 @@ describe('conditionalHhMayHaveDisability', () => {
 
 describe('Mode/modePre filtering based on configuration', () => {
     test('getFilteredModes should return no mode when section is disabled', () => {
-        const segmentConfig = { enabled: false };
+        const segmentConfig = { type: 'segments' as const, enabled: false };
         const filteredModes = helpers.getFilteredModes(segmentConfig);
         expect(filteredModes).toEqual([]);
     });
 
-    test('getFilteredModes should return all modes when segmentConfig is undefined', () => {
-        const filteredModes = helpers.getFilteredModes(undefined);
-        expect(filteredModes).toEqual(modeValues);
-    });
-
     test('getFilteredModes should return all modes when section is enabled but has no other configuration', () => {
-        const segmentConfig = { enabled: true };
+        const segmentConfig = { type: 'segments' as const, enabled: true };
         const filteredModes = helpers.getFilteredModes(segmentConfig);
         expect(filteredModes).toEqual(modeValues);
     });
 
     test('getFilteredModes should filter with modesIncludeOnly and keep entered order', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['walk', 'bicycle', 'transitBus', 'carDriver'] as Mode[]
         };
@@ -560,6 +556,7 @@ describe('Mode/modePre filtering based on configuration', () => {
 
     test('getFilteredModes should filter with modesExclude', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesExclude: ['plane', 'ferryWithCar', 'snowmobile'] as Mode[]
         };
@@ -576,6 +573,7 @@ describe('Mode/modePre filtering based on configuration', () => {
 
     test('getFilteredModes should handle modesIncludeOnly with non-existent modes', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['walk', 'bicycle', 'nonExistentMode' as any] as any
         };

@@ -6,14 +6,18 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 
-import { getSwitchPersonWidgets } from '../widgetsSwitchPerson';
+import { SwitchPersonWidgetsFactory } from '../widgetsSwitchPerson';
 import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
-import { t } from 'i18next';
 import { ButtonWidgetConfig, TextWidgetConfig } from '../../../../questionnaire/types';
 
 import * as odHelpers from '../../../../odSurvey/helpers';
-import { start } from 'repl';
+
+const widgetFactoryOptions = {
+    getFormattedDate: (date: string) => date,
+    buttonActions: { validateButtonAction: jest.fn() },
+    iconMapper: {}
+};
 
 jest.mock('../../../../odSurvey/helpers', () => ({
     getInterviewablePersonsArray: jest.fn().mockReturnValue([]),
@@ -28,10 +32,10 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-describe('getSwitchPersonWidgets', () => {
+describe('SwitchPersonWidgets', () => {
 
     test('should return the correct widget configs', () => {
-        const widgetConfig = getSwitchPersonWidgets();
+        const widgetConfig = new SwitchPersonWidgetsFactory(widgetFactoryOptions).getWidgetConfigs();
         expect(widgetConfig).toEqual({
             activePersonTitle: {
                 type: 'text',
@@ -66,7 +70,7 @@ describe('getSwitchPersonWidgets', () => {
 
 describe('activePersonTitle widget', () => {
 
-    const widgetConfig = getSwitchPersonWidgets({})['activePersonTitle'] as TextWidgetConfig;
+    const widgetConfig = new SwitchPersonWidgetsFactory(widgetFactoryOptions).getWidgetConfigs()['activePersonTitle'] as TextWidgetConfig;
 
     describe('conditional', () => {
         const conditional = widgetConfig.conditional;
@@ -112,7 +116,7 @@ describe('activePersonTitle widget', () => {
 });
 
 describe('buttonSwitchPerson widget', () => {
-    const widgetConfig = getSwitchPersonWidgets({})['buttonSwitchPerson'] as ButtonWidgetConfig;
+    const widgetConfig = new SwitchPersonWidgetsFactory(widgetFactoryOptions).getWidgetConfigs()['buttonSwitchPerson'] as ButtonWidgetConfig;
 
     describe('conditional', () => {
 
