@@ -10,8 +10,7 @@ import isEmpty from 'lodash/isEmpty';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse, getValidation, addGroupedObjects, removeGroupedObjects } from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import { getSegmentsSectionConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/sectionSegments';
-import helper, { segmentSectionConfig } from './helper';
+import helper from './helper';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { getAndValidateSurveySections, SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { personNoWorkTripReason, personNoSchoolTripReason, personWhoAnsweredForThisPerson } from './widgets/travelBehavior';
@@ -406,18 +405,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
     }
   },
 
-  segments: {
-    ...getSegmentsSectionConfig({ segmentConfig: segmentSectionConfig }),
-    isSectionVisible: function(interview) {
-      const person = odSurveyHelper.getPerson({ interview }) as any;
-      return person && person.didTripsOnTripsDate === 'yes';
-    },
-    isSectionCompleted: (interview) => {
-        const person = odSurveyHelper.getPerson({ interview });
-        return helper.tripsForPersonComplete(person, interview);
-    }
-  },
-
   travelBehavior: {
     previousSection: 'segments',
     nextSection: "personsTrips",
@@ -539,4 +526,4 @@ const sections: { [sectionName: string]: SectionConfig } = {
 
 };
 
-export default getAndValidateSurveySections(sections);
+export default sections;

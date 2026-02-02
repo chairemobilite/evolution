@@ -8,7 +8,6 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
 import { validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
-import { getSwitchPersonWidgets } from 'evolution-common/lib/services/questionnaire/sections/common/widgetsSwitchPerson';
 import { getButtonValidateAndGotoNextSection } from 'evolution-common/lib/services/questionnaire/sections/common/buttonValidateAndGotoNextSection';
 
 import * as homeWidgets from './widgets/home';
@@ -45,9 +44,6 @@ export const personDidTrips: any                        = householdMembersWidget
 export const buttonSaveNextSectionHouseholdMembers: any = householdMembersWidgets.buttonSaveNextSectionHouseholdMembers;
 export const selectPerson: any                          = householdMembersWidgets.selectPerson;
 export const buttonSelectPersonConfirm: any             = householdMembersWidgets.buttonSelectPersonConfirm;
-const switchPersonsWidget = getSwitchPersonWidgets();
-export const activePersonTitle: any                     = switchPersonsWidget.activePersonTitle;
-export const buttonSwitchPerson: any                    = switchPersonsWidget.buttonSwitchPerson;
 
 import * as profileWidgets from './widgets/profile';
 
@@ -101,14 +97,6 @@ export const buttonVisitedPlacesConfirmNextSection: any = visitedPlacesWidgets.b
 
 import * as segmentsWidgets from './widgets/segments';
 
-export const personTrips: any                   = segmentsWidgets.personTrips;
-export const personTripsTitle: any              = segmentsWidgets.personTripsTitle;
-export const segments: any                      = segmentsWidgets.segments;
-export const segmentIntro: any                  = segmentsWidgets.segmentIntro;
-export const segmentSameModeAsReverseTrip: any  = segmentsWidgets.segmentSameModeAsReverseTrip;
-export const segmentModePre: any                = segmentsWidgets.segmentModePre;
-export const segmentMode: any                   = segmentsWidgets.segmentMode;
-export const segmentHasNextMode: any            = segmentsWidgets.segmentHasNextMode;
 export const segmentParkingType: any            = segmentsWidgets.segmentParkingType;
 export const segmentParkingPaymentType: any     = segmentsWidgets.segmentParkingPaymentType;
 export const segmentVehicleOccupancy: any       = segmentsWidgets.segmentVehicleOccupancy;
@@ -124,8 +112,6 @@ export const segmentTrainStationStart: any      = segmentsWidgets.segmentTrainSt
 export const segmentTrainStationEnd: any        = segmentsWidgets.segmentTrainStationEnd;
 export const segmentBusLines: any               = segmentsWidgets.segmentBusLines;
 export const tripJunctionGeography: any         = segmentsWidgets.tripJunctionGeography;
-export const introButtonSaveTrip: any           = segmentsWidgets.introButtonSaveTrip;
-export const buttonSaveTrip: any                = segmentsWidgets.buttonSaveTrip;
 
 import * as travelBehaviorWidgets from './widgets/travelBehavior';
 

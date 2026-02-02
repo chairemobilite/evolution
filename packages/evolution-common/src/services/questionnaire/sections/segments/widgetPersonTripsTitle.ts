@@ -9,11 +9,12 @@ import { TextWidgetConfig } from '../../../questionnaire/types';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
 import { UserInterviewAttributes } from '../../types';
+import { WidgetFactoryOptions } from '../types';
 
 export const getPersonsTripsTitleWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented
     // FIXME: Add a common type for the getFormattedDate function if we keep it as option here (the actual implementation is frontend-only as it requires i18n locale)
-    options: { context?: (context?: string) => string; getFormattedDate: (date: string) => string }
+    options: WidgetFactoryOptions
 ): TextWidgetConfig => {
     const getContext = options.context || ((str) => str);
     return {

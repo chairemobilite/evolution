@@ -14,6 +14,7 @@ import * as segmentHelpers from './helpers';
 import { Mode, modePreToModeMap } from '../../../odSurvey/types';
 import type { Person, Segment } from '../../types';
 import { getModeIcon } from './modeIconMapping';
+import { WidgetFactoryOptions } from '../types';
 
 const perModeConditionals: Partial<{ [mode in Mode]: WidgetConditional }> = {
     wheelchair: segmentHelpers.conditionalPersonMayHaveDisability,
@@ -42,12 +43,12 @@ const getModeChoices = (filteredModes: Mode[]) =>
     }));
 
 export const getModeWidgetConfig = (
-    // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: () => string; segmentConfig?: SegmentSectionConfiguration } = {}
+    sectionConfig: SegmentSectionConfiguration,
+    options: WidgetFactoryOptions
 ): WidgetConfig => {
     // TODO Use a segment configuration to determine which modes should be
     // presented and in which order
-    const filteredModes = segmentHelpers.getFilteredModes(options.segmentConfig);
+    const filteredModes = segmentHelpers.getFilteredModes(sectionConfig);
     if (filteredModes.length === 0) {
         throw new Error('No available modes to create mode widget configuration');
     }

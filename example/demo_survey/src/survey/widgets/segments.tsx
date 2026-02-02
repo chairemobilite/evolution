@@ -18,20 +18,8 @@ import subwayStations from '../subwayStations.json';
 import trainStations  from '../trainStations.json';
 import busRoutes  from '../busRoutes.json';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
-import { getModePreWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetSegmentModePre';
-import { getModeWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetSegmentMode';
-import { getSameAsReverseTripWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetSameAsReverseTrip';
-import { getSegmentHasNextModeWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetSegmentHasNextMode';
-import { getSegmentsGroupConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/groupSegments';
-import { getTripSegmentsIntro } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetTripSegmentsIntro';
-import { getButtonSaveTripSegmentsConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/buttonSaveTripSegments';
-import { getPersonsTripsGroupConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/groupPersonTrips';
-import { getPersonsTripsTitleWidgetConfig } from 'evolution-common/lib/services/questionnaire/sections/segments/widgetPersonTripsTitle';
 import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 
-export const personTrips: GroupConfig = getPersonsTripsGroupConfig();
-
-export const segments: GroupConfig = getSegmentsGroupConfig();
 /*
 TODO These were the original widgets for the group, as well as some from other surveys, that should eventually be configurable
 widgets: [
@@ -60,17 +48,6 @@ widgets: [
     'segmentHasNextMode'
   ]
     */
-
-export const segmentIntro = getTripSegmentsIntro();;
-
-export const segmentSameModeAsReverseTrip = getSameAsReverseTripWidgetConfig();
-
-// FIXME ModePre and Mode widgets should be automatically created if the section config enables them
-export const segmentModePre = getModePreWidgetConfig({ segmentConfig: segmentSectionConfig });
-
-export const segmentMode = getModeWidgetConfig({ segmentConfig: segmentSectionConfig });
-
-export const segmentHasNextMode = getSegmentHasNextModeWidgetConfig();
 
 export const segmentVehicleOccupancy = {
   type: "question",
@@ -2459,8 +2436,6 @@ export const segmentParkingPaymentType = {
   }
 };
 
-export const personTripsTitle = getPersonsTripsTitleWidgetConfig({ getFormattedDate })
-
 export const introButtonSaveTrip = {
   type: "text",
   containsHtml: true,
@@ -2470,9 +2445,3 @@ export const introButtonSaveTrip = {
     en: `<p class="no-bottom-margin center _oblique">If you selected <strong>all</strong> modes of transport used during this trip:</p>`
   }
 };
-
-// FIXME The options should be in a config somewhere for frontend mapping
-export const buttonSaveTrip = getButtonSaveTripSegmentsConfig({
-    iconMapper: { 'check-circle': faCheckCircle },
-    buttonActions: { validateButtonAction: validateButtonAction },
-});

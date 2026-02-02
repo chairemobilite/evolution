@@ -5,10 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { ButtonWidgetConfig, TextWidgetConfig } from '../../../questionnaire/types';
+import { ButtonWidgetConfig, TextWidgetConfig, WidgetConfig } from '../../../questionnaire/types';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
 import { InterviewUpdateCallbacks, UserInterviewAttributes } from '../../types';
+import { WidgetConfigFactory, WidgetFactoryOptions } from '../types';
 
 const hasMoreThanOneInterviewablePerson = (interview: UserInterviewAttributes): boolean =>
     odHelpers.getInterviewablePersonsArray({ interview }).length > 1;
@@ -69,13 +70,13 @@ const buttonSwitchPerson: ButtonWidgetConfig = {
  * @param options
  * @returns The widget configurations to switch between persons during a survey
  */
-export const getSwitchPersonWidgets = (
-    // FIXME: Type this when there is a few more widgets implemented
-    _options: { context?: () => string } = {}
-): { activePersonTitle: TextWidgetConfig; buttonSwitchPerson: ButtonWidgetConfig } => {
-    // TODO These should be some configuration receive here to fine-tune the section's content
-    return {
+export class SwitchPersonWidgetsFactory implements WidgetConfigFactory {
+    constructor(private options: WidgetFactoryOptions) {
+        /** Nothing to do */
+    }
+
+    getWidgetConfigs = (): Record<string, WidgetConfig> => ({
         activePersonTitle,
         buttonSwitchPerson
-    };
-};
+    });
+}

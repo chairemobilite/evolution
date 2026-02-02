@@ -15,6 +15,7 @@ import * as segmentHelpers from './helpers';
 import type { ModePre } from '../../../odSurvey/types';
 import type { Person, Segment } from '../../types';
 import { getModePreIcon } from './modeIconMapping';
+import { WidgetFactoryOptions } from '../types';
 
 const perModePreLabels: Partial<{ [mode in ModePre]: I18nData }> = {
     walk: (t: TFunction, interview) => {
@@ -61,12 +62,12 @@ const getModePreChoices = (filteredModesPre: ModePre[]) =>
     }));
 
 export const getModePreWidgetConfig = (
-    // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: () => string; segmentConfig?: SegmentSectionConfiguration } = {}
+    sectionConfig: SegmentSectionConfiguration,
+    options: WidgetFactoryOptions
 ): WidgetConfig => {
     // TODO Use a segment configuration to determine which modes should be
     // presented and in which order
-    const filteredModes = segmentHelpers.getFilteredModes(options.segmentConfig);
+    const filteredModes = segmentHelpers.getFilteredModes(sectionConfig);
     if (filteredModes.length === 0) {
         throw new Error('No available modes to create modePre widget configuration');
     }

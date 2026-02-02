@@ -14,6 +14,16 @@ import * as surveyHelper from '../../../../odSurvey/helpers';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 import { Mode } from '../../../../odSurvey/types';
 
+const widgetFactoryOptions = {
+    getFormattedDate: (date: string) => date,
+    buttonActions: { validateButtonAction: jest.fn() },
+    iconMapper: {}
+};
+const segmentSectionConfig = {
+    type: 'segments' as const,
+    enabled: true
+};
+
 jest.mock('../helpers', () => ({
     ...jest.requireActual('../helpers'),
     shouldShowSameAsReverseTripQuestion: jest.fn(),
@@ -26,10 +36,11 @@ describe('getModePreWidgetConfig', () => {
     it('should return the correct widget config', () => {
 
         const options = {
+            ...widgetFactoryOptions,
             context: jest.fn()
         };
 
-        const widgetConfig = getModePreWidgetConfig(options);
+        const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, options);
 
         expect(widgetConfig).toEqual({
             type: 'question',
@@ -106,7 +117,7 @@ describe('getModePreWidgetConfig', () => {
 });
 
 describe('Mode choices conditionals', () => {
-    const widgetConfig = getModePreWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const choices = widgetConfig.choices as RadioChoiceType[];
 
     // Spy on a few functions to return disability conditions
@@ -212,7 +223,7 @@ describe('Mode choices conditionals', () => {
 describe('Mode choices labels', () => {
     // Prepare test data with active person/journey/trip
     const interview = _cloneDeep(interviewAttributesForTestCases);
-    const widgetConfig = getModePreWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const choices = widgetConfig.choices as RadioChoiceType[];
 
     each([
@@ -252,7 +263,7 @@ describe('Mode validations', () => {
     // Prepare test data with active person/journey/trip
     const interview = _cloneDeep(interviewAttributesForTestCases);
 
-    const widgetConfig = getModePreWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const validations = widgetConfig.validations;
 
     test('should return an error if value is empty', () => {
@@ -275,7 +286,7 @@ describe('Mode validations', () => {
 });
 
 describe('ModePre conditional', () => {
-    const widgetConfig = getModePreWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const conditional = widgetConfig.conditional;
 
     // Prepare test data with active person/journey/trip
@@ -356,7 +367,7 @@ describe('ModePre label', () => {
     const mockedGetContext = jest.fn();
 
     // Prepare common data
-    const widgetConfig = getModePreWidgetConfig({ context: mockedGetContext }) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, { ...widgetFactoryOptions, context: mockedGetContext }) as QuestionWidgetConfig & InputRadioType;
     const label = widgetConfig.label;
     const p2t2segmentsPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments';
 
@@ -470,7 +481,7 @@ describe('ModePre label', () => {
 
     test('undefined context function', () => {
         // New widget config without context function
-        const testWidgetConfig = getModePreWidgetConfig({ }) as QuestionWidgetConfig & InputRadioType;
+        const testWidgetConfig = getModePreWidgetConfig(segmentSectionConfig, { ...widgetFactoryOptions, context: undefined }) as QuestionWidgetConfig & InputRadioType;
         const label = testWidgetConfig.label;
 
         // Prepare mocked data
@@ -499,10 +510,11 @@ describe('ModePre filtering based on configuration', () => {
 
     test('should only include modePre categories that have available modes', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['walk', 'bicycle', 'bicycleElectric'] as Mode[]
         };
-        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Should include walk and bicycle categories
@@ -516,10 +528,11 @@ describe('ModePre filtering based on configuration', () => {
 
     test('should include transit when transit modes are available', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['transitBus', 'transitRRT', 'walk'] as Mode[]
         };
-        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Check that transit is included
@@ -530,10 +543,11 @@ describe('ModePre filtering based on configuration', () => {
 
     test('should include both walk and other when wheelchair/mobilityScooter are available', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[]
         };
-        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // These modes belong to both 'walk' and 'other' categories
@@ -543,10 +557,11 @@ describe('ModePre filtering based on configuration', () => {
 
     test('should include car categories when car modes are available', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['carDriver', 'carPassenger', 'carDriverCarsharing'] as Mode[]
         };
-        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         expect(choices.map((c) => c.value)).toContain('carDriver');
@@ -557,10 +572,11 @@ describe('ModePre filtering based on configuration', () => {
 
     test('should preserve modePre conditionals with filtered modes', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: ['paratransit', 'walk'] as Mode[]
         };
-        const widgetConfig = getModePreWidgetConfig({ segmentConfig }) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Find the paratransit choice
@@ -571,7 +587,7 @@ describe('ModePre filtering based on configuration', () => {
     });
 
     test('should include all modesPre when segmentConfig is not provided', () => {
-        const widgetConfig = getModePreWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+        const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         // Check that all modesPre are included
@@ -583,11 +599,12 @@ describe('ModePre filtering based on configuration', () => {
 
     test('should throw an error when there is no mode', () => {
         const segmentConfig = {
+            type: 'segments' as const,
             enabled: true,
             modesIncludeOnly: [] as Mode[]
         };
         expect(() => {
-            getModePreWidgetConfig({ segmentConfig });
+            getModePreWidgetConfig(segmentConfig, widgetFactoryOptions);
         }).toThrow('No available modes to create modePre widget configuration');
     });
 
