@@ -54,6 +54,9 @@
         "generateSurvey:generator": "yarn workspace evolution-generator run generateSurvey --config_path ../../example/demo_generator/references/generatorConfigs.yaml",
         "jsdoc": "yarn workspace evolution-common run jsdoc"
     },
+    "resolutions": {
+        "kdbush": "^3.0.0"
+    },
     "dependencies": {},
     "devDependencies": {
         "depcheck": "^1.4.3",

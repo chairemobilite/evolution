@@ -38,7 +38,7 @@
         "jsdom": "^20.0.3",
         "knex": "^3.1.0",
         "knex-postgis": "^0.14.3",
-        "lodash": "^4.17.21",
+        "lodash": "^4.17.23",
         "moment": "^2.30.1",
         "morgan": "^1.10.0",
         "p-queue": "^6.6.2",
@@ -50,7 +50,7 @@
         "slugify": "^1.6.6",
         "uuid": "^11.1.0",
         "workerpool": "^6.5.1",
-        "yargs": "^17.7.2"
+        "yargs": "^18.0.0"
     },
     "devDependencies": {
         "@types/express": "^5.0.6",
@@ -58,7 +58,7 @@
         "@types/geojson": "^7946.0.16",
         "@types/jest": "^30.0.0",
         "@types/jest-each": "^24.3.0",
-        "@types/lodash": "^4.17.21",
+        "@types/lodash": "^4.17.23",
         "@types/node": "^24.10.4",
         "@typescript-eslint/eslint-plugin": "^8.50.0",
         "@typescript-eslint/parser": "^8.50.0",
