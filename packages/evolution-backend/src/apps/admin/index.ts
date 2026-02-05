@@ -10,16 +10,16 @@ import { createServer as httpCreateServer } from 'http';
 import { createServer as httpsCreateServer } from 'https';
 import fs from 'fs';
 import { join } from 'path';
-import yargs from 'yargs/yargs';
+import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { registerTranslationDir } from 'chaire-lib-backend/lib/config/i18next';
 import express, { Express } from 'express';
 import { setupServerApp } from './serverApp';
 
-const argv = yargs(hideBin(process.argv)).argv as { ssl?: boolean; port?: string };
+const argv = yargs(hideBin(process.argv)).parseSync();
 
-const useSSL = argv.ssl;
-const port = argv.port ? parseInt(argv.port) : useSSL ? 8443 : 8080;
+const useSSL = typeof argv.ssl === 'boolean' ? argv.ssl : false;
+const port = argv.port ? parseInt(argv.port as string) : useSSL ? 8443 : 8080;
 
 console.log(`starting server for project ${config.projectShortname} with port ${port}`);
 
