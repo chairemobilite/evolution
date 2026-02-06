@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { WidgetFactoryOptions } from '../../services/questionnaire/sections/types';
+
 export { interviewAttributesForTestCases } from './testCasesInterview';
 
 /**
@@ -25,4 +27,11 @@ export const maskFunctions = (value: unknown): unknown => {
         );
     }
     return value;
+};
+
+/** Provide the mandatory options for widget factory calls. */
+export const widgetFactoryOptions: WidgetFactoryOptions = {
+    getFormattedDate: jest.fn().mockImplementation((date: string) => date),
+    buttonActions: { validateButtonAction: jest.fn(), validateButtonActionWithCompleteSection: jest.fn() },
+    iconMapper: { 'check-circle': 'check-circle' as any }
 };

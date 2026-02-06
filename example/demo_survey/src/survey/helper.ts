@@ -15,9 +15,11 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import i18n                     from 'evolution-frontend/lib/config/i18n.config';
 import * as surveyHelperNew     from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper     from 'evolution-common/lib/services/odSurvey/helpers';
-import { getVisitedPlaceDescription } from 'evolution-frontend/lib/services/display/frontendHelper';
+import { getFormattedDate, getVisitedPlaceDescription, validateButtonAction, validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
 import { Person, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { Mode } from 'evolution-common/lib/services/odSurvey/types';
+import { WidgetFactoryOptions } from 'evolution-common/lib/services/questionnaire/sections/types';
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 
 // Configuration for the segments section
 // FIXME As sections and their widgets become more builtin, this thould be moved elsewhere. For now, it just needs to be available for both widgets.ts and sections.ts files
@@ -54,6 +56,16 @@ export const segmentSectionConfig = {
         'other',
         'dontKnow'
     ] as Mode[]
+};
+
+// FIXME Move elsewhere. It is not here to be available for widgets.ts, sections.ts and questionnaire.ts files
+export const widgetFactoryOptions: WidgetFactoryOptions = {
+    getFormattedDate: getFormattedDate,
+    buttonActions: { 
+        validateButtonActionWithCompleteSection: validateButtonActionWithCompleteSection,
+        validateButtonAction: validateButtonAction
+    },
+    iconMapper: { 'check-circle': faCheckCircle }
 };
 
 const homeSectionComplete = function(interview) {

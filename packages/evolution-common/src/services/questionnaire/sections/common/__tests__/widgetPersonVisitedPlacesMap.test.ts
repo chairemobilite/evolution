@@ -6,7 +6,7 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import { getPersonVisitedPlacesMapConfig } from '../widgetPersonVisitedPlacesMap';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as odHelpers from '../../../../odSurvey/helpers';
 import projectConfig from '../../../../../config/project.config';
 import { pointsToBezierCurve } from '../../../../geodata/SurveyGeographyUtils';
@@ -61,6 +61,7 @@ describe('personVisitedPlacesMapConfig', () => {
 describe('personVisitedPlacesMapConfig title', () => {
 
     const options = {
+        ...widgetFactoryOptions,
         context: jest.fn().mockImplementation((context: string) => context),
         getFormattedDate: mockGetFormattedDate
     };

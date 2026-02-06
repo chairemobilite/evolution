@@ -2,20 +2,12 @@ import { SegmentsSectionFactory } from 'evolution-common/lib/services/questionna
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import surveySections from './sections';
 import * as widgetsConfig from './widgets';
-import helper, { segmentSectionConfig } from './helper';
+import helper, { segmentSectionConfig, widgetFactoryOptions } from './helper';
 import { getAndValidateSurveySections, SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
-import { getFormattedDate, validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 
 // FIXME For now this file is here and has quite a bit of code. Eventually, the
 // questionnaire generation should be done in Evolution directly when we have
 // more builtin stuff
-
-const widgetFactoryOptions = {
-    getFormattedDate: getFormattedDate,
-    buttonActions: { validateButtonAction: validateButtonActionWithCompleteSection },
-    iconMapper: { 'check-circle': faCheckCircle }
-};
 
 const segmentSectionConfigFactory = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions);
 const segmentSectionConfigFromFactory = segmentSectionConfigFactory.getSectionConfig();

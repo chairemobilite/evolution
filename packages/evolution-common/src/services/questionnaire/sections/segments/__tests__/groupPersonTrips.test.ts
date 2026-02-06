@@ -7,20 +7,14 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { PersonTripsGroupConfigFactory } from '../groupPersonTrips';
-import { interviewAttributesForTestCases, maskFunctions } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, maskFunctions, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
-import { WidgetFactoryOptions } from '../../types';
 import { GroupConfig, SegmentSectionConfiguration, WidgetConfig } from '../../../types';
 import { SegmentsGroupConfigFactory } from '../groupSegments';
 import { Mode } from '../../../../odSurvey/types';
 import { getTripSegmentsIntro } from '../widgetTripSegmentsIntro';
 import { getButtonSaveTripSegmentsConfig } from '../buttonSaveTripSegments';
 
-const widgetFactoryOptions: WidgetFactoryOptions = {
-    getFormattedDate: (date: string) => date,
-    buttonActions: { validateButtonAction: jest.fn() },
-    iconMapper: {}
-};
 const segmentSectionConfig = {
     type: 'segments' as const,
     enabled: true

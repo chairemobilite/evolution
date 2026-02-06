@@ -7,15 +7,10 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { getButtonValidateAndGotoNextSection } from '../buttonValidateAndGotoNextSection';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
 
 // Prepare configuration options
-const mockButtonValidate = jest.fn();
-const options = {
-    buttonActions: { validateButtonAction: mockButtonValidate },
-    iconMapper: { 'check-circle': 'check-circle' as any }
-}
 const translatableKey = 'myButtonKey';
 
 beforeEach(() => {
@@ -25,7 +20,7 @@ beforeEach(() => {
 describe('getButtonValidateAndGotoNextSection', () => {
 
     test('should return the correct widget config', () => {
-        const widgetConfig = getButtonValidateAndGotoNextSection(translatableKey, options);
+        const widgetConfig = getButtonValidateAndGotoNextSection(translatableKey, widgetFactoryOptions);
         expect(widgetConfig).toEqual({
             type: 'button',
             color: 'green',
@@ -34,14 +29,14 @@ describe('getButtonValidateAndGotoNextSection', () => {
             path: 'buttonValidateGotoNextSection',
             icon: 'check-circle',
             align: 'center',
-            action: mockButtonValidate
+            action: widgetFactoryOptions.buttonActions.validateButtonActionWithCompleteSection
         });
     });
 
 });
 
 describe('getButtonValidateAndGotoNextSection labels', () => {
-    const widgetConfig = getButtonValidateAndGotoNextSection(translatableKey, options);
+    const widgetConfig = getButtonValidateAndGotoNextSection(translatableKey, widgetFactoryOptions);
 
     test('should return the right label for title', () => {
         const mockedT = jest.fn();
@@ -54,12 +49,12 @@ describe('getButtonValidateAndGotoNextSection labels', () => {
 });
 
 describe('getButtonValidateAndGotoNextSection button action', () => {
-    const widgetConfig = getButtonValidateAndGotoNextSection(translatableKey, options);
+    const widgetConfig = getButtonValidateAndGotoNextSection(translatableKey, widgetFactoryOptions);
 
     test('test button action', () => {
-        expect(mockButtonValidate).not.toHaveBeenCalled();
+        expect(widgetFactoryOptions.buttonActions.validateButtonActionWithCompleteSection).not.toHaveBeenCalled();
         const action = widgetConfig.action;
         action({ startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() }, interviewAttributesForTestCases, 'path', 'segments', {});
-        expect(mockButtonValidate).toHaveBeenCalled();
+        expect(widgetFactoryOptions.buttonActions.validateButtonActionWithCompleteSection).toHaveBeenCalled();
     })
 });
