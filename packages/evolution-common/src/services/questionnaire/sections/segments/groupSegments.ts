@@ -24,6 +24,7 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
     }
 
     private getSegmentsGroupConfig = (): GroupConfig => {
+        const additionalWidgetNames = this.sectionConfig.additionalSegmentWidgetNames || [];
         // TODO These should be some configuration receive here to fine-tune the section's content
         return {
             type: 'group',
@@ -57,8 +58,9 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
                 'segmentSameModeAsReverseTrip',
                 'segmentModePre',
                 'segmentMode',
+                // Additional widgets are added here
+                ...additionalWidgetNames,
                 'segmentHasNextMode'
-                // TODO Add more configurable widgets here, either custom or depending on the segments section configuration
             ]
         };
     };

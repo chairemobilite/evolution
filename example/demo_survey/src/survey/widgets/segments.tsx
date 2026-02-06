@@ -4,8 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import moment from 'moment-business-days';
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import _get from 'lodash/get';
 import { distance as turfDistance } from '@turf/turf';
 
@@ -13,41 +11,10 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import helper, { segmentSectionConfig } from '../helper';
+import helper from '../helper';
 import subwayStations from '../subwayStations.json';
 import trainStations  from '../trainStations.json';
 import busRoutes  from '../busRoutes.json';
-import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
-import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
-
-/*
-TODO These were the original widgets for the group, as well as some from other surveys, that should eventually be configurable
-widgets: [
-    'segmentSameModeAsReverseTrip',
-    'segmentModePre',
-    'segmentMode',
-    //'segmentParkingType',
-    'segmentParkingPaymentType',
-    'segmentVehicleOccupancy',
-    'segmentVehicleType',
-    'segmentDriver',
-    'segmentBridgesAndTunnels',
-    'segmentHighways',
-    'segmentUsedBikesharing',
-    'segmentSubwayStationStart',
-    'segmentSubwayStationEnd',
-    'segmentSubwayTransferStations',
-    'segmentTrainStationStart',
-    'segmentTrainStationEnd',
-    'segmentHowToBus',
-    'segmentBusLines',
-    'segmentBusLinesWarning',
-    'segmentOnDemandType',
-    'tripJunctionQueryString',
-    'tripJunctionGeography',
-    'segmentHasNextMode'
-  ]
-    */
 
 export const segmentVehicleOccupancy = {
   type: "question",
